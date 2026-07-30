@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.0
-translation_version: 6.2.0
+source_version: 6.2.1
+translation_version: 6.2.1
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.1] - 2026-07-31
+
+### 修復
+
+- **`uds update --locale <x> --skills` 現在會記錄它安裝的是哪個語系。** `manifest.skills.locale` 只有 `init` 會寫，其他路徑一律不寫——與 6.2.0 剛決定不再信任的 `skills.names` 是同一種「設計上就會過期」的形狀。把專案的技能切換到在地化變體時，磁碟上每個檔案都被換掉，而這個欄位動也沒動。**這個欄位在 6.2.0 之後變成承重的**：該版的 locale 修復會優先讀 `skills.locale`、讀不到才退回 `display_language`。當兩者不一致時——例如顯示語言是英文、技能卻是以 `--locale zh-tw` 安裝的專案——下一次 reconcile 會無聲地把它們全部換回英文。**正是 6.2.0 修掉的那個缺陷，從另一扇門走回來。** 五個技能安裝路徑現在都會記錄實際安裝的語系。
+
 
 ## [6.2.0] - 2026-07-31
 

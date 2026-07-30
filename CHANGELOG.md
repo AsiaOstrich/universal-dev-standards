@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.1] - 2026-07-31
+
+### Fixed
+
+- **`uds update --locale <x> --skills` now records which locale it installed.** `manifest.skills.locale` was written once by `init` and by no other path — the same stale-by-design shape 6.2.0 stopped trusting for `skills.names`. Switching a project's skills to a localized variant swapped every file on disk and left the field untouched. That field became load-bearing in 6.2.0, whose locale fix reads `skills.locale` first and falls back to `display_language`: where the two disagree — a project whose display language is English but whose skills were installed with `--locale zh-tw` — the next reconcile would quietly put them all back to English. Exactly the defect 6.2.0 fixed, re-entering through the other door. All five skill-install paths now record the locale they installed.
+
+
 ## [6.2.0] - 2026-07-31
 
 > **The reconciler was deleting things it did not install, and reporting success afterwards.** `uds update --plan` proposed removing 86 files from one adopter repo; 72 of them were skills, commands and option files that UDS ships and the project uses. Twelve defects, all of one shape: a well-formed name that simply never matches, so nothing errors and the plan looks authoritative. If you have ever looked at a `--plan` output and wondered why it wanted to delete your work — it was not you.
