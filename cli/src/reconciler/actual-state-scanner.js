@@ -13,6 +13,7 @@ import { readManifest } from '../core/manifest.js';
 import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
 import { getSkillsDirForAgent, getCommandsDirForAgent, getCommandFileExtension } from '../config/ai-agent-paths.js';
+import { getSkillsSourceEntryNames, getAvailableCommandNames } from '../utils/skills-installer.js';
 
 /**
  * Files UDS writes into a skills/commands directory for its own bookkeeping.
@@ -266,6 +267,40 @@ function readDirEntries(dirPath) {
   }
 }
 
+let _sourceEntries = null;
+let _shippedCommands = null;
+
+/** Directory names UDS ships under `skills/`, cached per process. */
+function sourceEntryNames() {
+  if (_sourceEntries === null) _sourceEntries = getSkillsSourceEntryNames();
+  return _sourceEntries;
+}
+
+/** Command names UDS ships, cached per process. */
+function shippedCommandNames() {
+  if (_shippedCommands === null) _shippedCommands = new Set(getAvailableCommandNames());
+  return _shippedCommands;
+}
+
+/**
+ * Did UDS put this skill directory here?
+ *
+ * Two positive signals, either is enough:
+ *   1. a directory of the same name exists in UDS's own `skills/` tree — this
+ *      also covers the non-skill siblings (`_shared`, `agents`, …) that an older
+ *      CLI copied in by mistake, so they stay cleanable;
+ *   2. `manifest.skillHashes` records a file under it — authoritative when
+ *      present, though in practice it is sparse (dev-platform: 2 entries for 78
+ *      installed skills), which is exactly why signal 1 has to carry the weight.
+ *
+ * Anything else is the adopter's own, and is warned about rather than deleted.
+ */
+function isUdsProvenance(skillName, manifest, agent, level) {
+  if (sourceEntryNames().has(skillName)) return true;
+  const prefix = `${agent}/${level}/${skillName}/`;
+  return Object.keys(manifest?.skillHashes || {}).some((k) => k.startsWith(prefix));
+}
+
 /**
  * Scan skill installations.
  */
@@ -291,7 +326,17 @@ function scanSkills(state, projectPath, manifest) {
         size: null,
         category: 'skill',
         sourcePath: null,
-        metadata: { agent, level, skillName, scanned: true }
+        metadata: {
+          agent,
+          level,
+          skillName,
+          scanned: true,
+          // Whether UDS is the thing that put this directory here. Everything in
+          // the skills folder used to be assumed UDS-managed, so a plan for a repo
+          // with hand-written skills proposed deleting them: dev-platform's would
+          // have removed fourteen. (XSPEC-343 R2)
+          udsManaged: isUdsProvenance(skillName, manifest, agent, level)
+        }
       });
     }
   }
@@ -331,7 +376,13 @@ function scanCommands(state, projectPath, manifest) {
         size: null,
         category: 'command',
         sourcePath: null,
-        metadata: { agent, level, commandName: cmdName, scanned: true }
+        metadata: {
+          agent,
+          level,
+          commandName: cmdName,
+          scanned: true,
+          udsManaged: shippedCommandNames().has(cmdName)
+        }
       });
     }
   }

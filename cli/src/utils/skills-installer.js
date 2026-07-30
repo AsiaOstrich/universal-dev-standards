@@ -119,6 +119,37 @@ export function getAvailableSkillNames() {
 }
 
 /**
+ * Every directory name in the skills source tree, including the ones that are not
+ * skills (`_shared`, `agents`, `ai`, `commands`, `tools`, `workflows`).
+ *
+ * Used as a provenance test: if a directory in an adopter's skills folder has a
+ * counterpart here, UDS put it there. If it does not, UDS did not — it is either
+ * an adopter's own skill or an artefact of a UDS version too old to reason about,
+ * and deleting it is not this tool's call to make.
+ *
+ * The distinction matters because an older CLI copied the non-skill siblings in
+ * by mistake, so a strict "is it a skill we ship" test would leave those behind
+ * while a naive "is it in the skills folder" test deletes hand-written skills.
+ * dev-platform has fourteen of those. (XSPEC-343 R2)
+ *
+ * @returns {Set<string>} Directory names present in the skills source tree
+ */
+export function getSkillsSourceEntryNames() {
+  if (!existsSync(SKILLS_LOCAL_DIR)) {
+    return new Set();
+  }
+  try {
+    return new Set(
+      readdirSync(SKILLS_LOCAL_DIR, { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name)
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+/**
  * Get list of available command names from local directory
  * @returns {string[]} Array of command names (without .md extension)
  */

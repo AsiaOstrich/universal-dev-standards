@@ -286,8 +286,13 @@ function isUDSManaged(entry) {
   // Files in .standards/ are always UDS-managed
   if (entry.relativePath.startsWith('.standards/')) return true;
 
-  // Scanned skill/command entries are UDS-managed
-  if (entry.category === 'skill' || entry.category === 'command') return true;
+  // Scanned skill/command entries carry a provenance flag from the scanner.
+  // This used to return true unconditionally, which meant every directory in an
+  // adopter's skills folder was ours to delete — including hand-written ones.
+  // (XSPEC-343 R2)
+  if (entry.category === 'skill' || entry.category === 'command') {
+    return entry.metadata?.udsManaged !== false;
+  }
 
   // Integration files with markers
   if (entry.metadata?.hasMarkers) return true;

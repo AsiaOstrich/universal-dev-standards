@@ -39,6 +39,14 @@ vi.mock('../../../src/core/constants.js', () => ({
   }
 }));
 
+// Mock skills-installer — provenance test for scanned skills/commands (XSPEC-343 R2).
+// UDS ships `known-skill` and the non-skill sibling `_shared`; `my-own-skill` is
+// the adopter's.
+vi.mock('../../../src/utils/skills-installer.js', () => ({
+  getSkillsSourceEntryNames: vi.fn(() => new Set(['known-skill', '_shared'])),
+  getAvailableCommandNames: vi.fn(() => ['commit'])
+}));
+
 // Mock ai-agent-paths
 vi.mock('../../../src/config/ai-agent-paths.js', () => ({
   getSkillsDirForAgent: vi.fn((agent, level, projectPath) => {
@@ -215,6 +223,50 @@ describe('ActualStateScanner', () => {
       // The path must keep the extension even though the key drops it.
       expect(state.commands.get('command:gemini-cli:project:commit').relativePath)
         .toBe(join('.gemini', 'commands', 'commit.toml'));
+    });
+
+    // XSPEC-343 R2. Everything under the skills folder used to count as UDS's to
+    // delete, so a plan for a repo with hand-written skills proposed removing
+    // them — dev-platform's would have removed fourteen.
+    it('should mark adopter-authored skills as not UDS-managed', () => {
+      const skillsDir = join(TEST_DIR, '.claude', 'skills');
+      mkdirSync(join(skillsDir, 'known-skill'), { recursive: true });
+      mkdirSync(join(skillsDir, '_shared'), { recursive: true });
+      mkdirSync(join(skillsDir, 'my-own-skill'), { recursive: true });
+      writeFileSync(join(skillsDir, 'known-skill', 'SKILL.md'), 'x');
+      writeFileSync(join(skillsDir, 'my-own-skill', 'SKILL.md'), 'x');
+
+      const manifest = {
+        standards: [], integrations: [],
+        skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
+        commands: { installations: [] }
+      };
+
+      const state = scanActualState(TEST_DIR, manifest);
+      const meta = (n) => state.skills.get(`skill:claude-code:project:${n}`).metadata;
+
+      expect(meta('known-skill').udsManaged).toBe(true);
+      // A non-skill sibling an older CLI copied in — still ours, still cleanable.
+      expect(meta('_shared').udsManaged).toBe(true);
+      expect(meta('my-own-skill').udsManaged).toBe(false);
+    });
+
+    // skillHashes is authoritative when it happens to cover the skill, even for a
+    // name UDS no longer ships.
+    it('should treat a skill recorded in skillHashes as UDS-managed', () => {
+      const skillsDir = join(TEST_DIR, '.claude', 'skills');
+      mkdirSync(join(skillsDir, 'retired-skill'), { recursive: true });
+      writeFileSync(join(skillsDir, 'retired-skill', 'SKILL.md'), 'x');
+
+      const manifest = {
+        standards: [], integrations: [],
+        skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
+        commands: { installations: [] },
+        skillHashes: { 'claude-code/project/retired-skill/SKILL.md': { hash: 'sha256:x' } }
+      };
+
+      const state = scanActualState(TEST_DIR, manifest);
+      expect(state.skills.get('skill:claude-code:project:retired-skill').metadata.udsManaged).toBe(true);
     });
 
     // XSPEC-343 R2. `.manifest.json` is written by UDS's own command installer.
