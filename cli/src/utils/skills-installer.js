@@ -15,7 +15,8 @@ import {
   getSkillsDirForAgent,
   getCommandsDirForAgent,
   getSkillsSupportedAgents,
-  getCommandsSupportedAgents
+  getCommandsSupportedAgents,
+  getCommandFileExtension
 } from '../config/ai-agent-paths.js';
 import { computeDirectoryHashes, computeFileHash } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
@@ -542,19 +543,10 @@ export async function installCommandsForAgent(agent, level = 'project', commandN
   return results;
 }
 
-/**
- * Get the appropriate file extension for commands based on agent
- * @param {string} agent - Agent identifier
- * @returns {string} File extension (including the dot)
- */
-function getCommandFileExtension(agent) {
-  // Gemini CLI uses TOML format
-  if (agent === 'gemini-cli') {
-    return '.toml';
-  }
-  // Most agents use markdown
-  return '.md';
-}
+// getCommandFileExtension moved to config/ai-agent-paths.js — the reconciler's
+// scanner needs the same mapping, and a second private copy is how the writer
+// and the reader drift apart. It now reads `commandFormat` from the agent config
+// instead of hard-coding one agent id. (XSPEC-343 R2)
 
 /**
  * Install a single command to target directory

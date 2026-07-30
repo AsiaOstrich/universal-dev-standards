@@ -49,6 +49,7 @@ import {
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { regenerateIntegrations } from './update.js';
+import { mergeInstalledNames } from '../core/manifest.js';
 
 /**
  * Get localized message with fallback (for config-specific keys)
@@ -995,6 +996,7 @@ export async function runProjectConfiguration(options) {
                 manifest.skills.installations.push(inst);
               }
             }
+            manifest.skills.names = mergeInstalledNames(manifest.skills.names, skillResult);
             if (skillResult.allFileHashes) {
               manifest.skillHashes = { ...(manifest.skillHashes || {}), ...skillResult.allFileHashes };
             }
@@ -1031,6 +1033,7 @@ export async function runProjectConfiguration(options) {
                 manifest.commands.installations.push(inst);
               }
             }
+            manifest.commands.names = mergeInstalledNames(manifest.commands.names, cmdResult);
             if (cmdResult.allFileHashes) {
               manifest.commandHashes = { ...(manifest.commandHashes || {}), ...cmdResult.allFileHashes };
             }
@@ -1234,6 +1237,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
     } else {
       manifest.skills.installations.push(installations[0]);
     }
+    manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
     writeManifest(manifest, projectPath);
     return;
   }
@@ -1368,6 +1372,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
     // Update manifest - clear declined status for installed tools
     manifest.skills = manifest.skills || {};
     manifest.skills.installations = installations;
+    manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
     if (manifest.declinedFeatures?.skills) {
       manifest.declinedFeatures.skills = manifest.declinedFeatures.skills.filter(
         tool => !declinedToolsWithSupport.includes(tool)
@@ -1402,6 +1407,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
   // Update manifest
   manifest.skills = manifest.skills || {};
   manifest.skills.installations = installations;
+  manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
   writeManifest(manifest, projectPath);
 }
 
@@ -1465,6 +1471,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
     } else {
       manifest.commands.installations.push(installations[0]);
     }
+    manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
     writeManifest(manifest, projectPath);
     return;
   }
@@ -1566,6 +1573,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
     // Update manifest - clear declined status for installed tools
     manifest.commands = manifest.commands || {};
     manifest.commands.installations = declinedCommandsWithSupport;
+    manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
     if (manifest.declinedFeatures?.commands) {
       manifest.declinedFeatures.commands = manifest.declinedFeatures.commands.filter(
         tool => !declinedCommandsWithSupport.includes(tool)
@@ -1601,5 +1609,6 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
   // Update manifest
   manifest.commands = manifest.commands || {};
   manifest.commands.installations = selectedAgents;
+  manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
   writeManifest(manifest, projectPath);
 }

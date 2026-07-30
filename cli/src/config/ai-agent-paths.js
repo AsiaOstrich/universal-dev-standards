@@ -336,6 +336,24 @@ export function getCommandsDirForAgent(agent, level = 'project', projectPath = n
 }
 
 /**
+ * Get the on-disk file extension used for an agent's slash commands.
+ *
+ * The command *name* (`commit`) and the installed *file* (`commit.toml` for
+ * Gemini CLI, `commit.md` for everyone else) are not the same string. Any code
+ * that maps one to the other must go through here — a hard-coded `.md` strip
+ * silently drops every Gemini command on the floor, and because the mismatch
+ * produces a well-formed name that simply never matches, nothing errors.
+ * (XSPEC-343 R2: 30 of machine-setup's 86 proposed deletions were exactly this.)
+ *
+ * @param {string} agent - Agent identifier
+ * @returns {string} Extension including the leading dot
+ */
+export function getCommandFileExtension(agent) {
+  const config = AI_AGENT_PATHS[agent];
+  return config?.commandFormat === 'toml' ? '.toml' : '.md';
+}
+
+/**
  * Get all agents that support skills installation
  * @returns {string[]} Array of agent identifiers
  */

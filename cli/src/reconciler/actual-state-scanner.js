@@ -12,7 +12,15 @@ import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
 import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
-import { getSkillsDirForAgent, getCommandsDirForAgent } from '../config/ai-agent-paths.js';
+import { getSkillsDirForAgent, getCommandsDirForAgent, getCommandFileExtension } from '../config/ai-agent-paths.js';
+
+/**
+ * Files UDS writes into a skills/commands directory for its own bookkeeping.
+ * They are not skills or commands and must never be diffed as such — the
+ * scanner used to report `.manifest.json` as a stray command, which made the
+ * reconciler propose deleting its own installation record. (XSPEC-343 R2)
+ */
+const INSTALLER_BOOKKEEPING_FILES = new Set(['.manifest.json']);
 
 /**
  * Scan the actual state of UDS artifacts on disk.
@@ -242,6 +250,23 @@ function scanIntegrations(state, projectPath) {
 }
 
 /**
+ * Read a directory, tolerating the read itself failing (race, permissions).
+ *
+ * Deliberately narrow: only `readdirSync` is wrapped. The scan loops used to sit
+ * inside the same `catch {}`, so any programming error in the loop body became
+ * "this agent has no skills/commands" — an empty actual state indistinguishable
+ * from a genuinely empty directory, which downstream reads as "nothing to delete,
+ * install everything".
+ */
+function readDirEntries(dirPath) {
+  try {
+    return readdirSync(dirPath, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Scan skill installations.
  */
 function scanSkills(state, projectPath, manifest) {
@@ -252,27 +277,22 @@ function scanSkills(state, projectPath, manifest) {
     const skillsDir = getSkillsDirForAgent(agent, level, projectPath);
     if (!skillsDir || !existsSync(skillsDir)) continue;
 
-    try {
-      const entries = readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-        const skillName = entry.name;
-        const key = `skill:${agent}:${level}:${skillName}`;
-        const relPath = level === 'project'
-          ? getRelativePath(projectPath, join(skillsDir, skillName))
-          : join(skillsDir, skillName);
+    for (const entry of readDirEntries(skillsDir)) {
+      if (!entry.isDirectory()) continue;
+      const skillName = entry.name;
+      const key = `skill:${agent}:${level}:${skillName}`;
+      const relPath = level === 'project'
+        ? getRelativePath(projectPath, join(skillsDir, skillName))
+        : join(skillsDir, skillName);
 
-        state.skills.set(key, {
-          relativePath: relPath,
-          hash: null,  // Directory-level hashes tracked in manifest.skillHashes
-          size: null,
-          category: 'skill',
-          sourcePath: null,
-          metadata: { agent, level, skillName, scanned: true }
-        });
-      }
-    } catch {
-      // Ignore read errors
+      state.skills.set(key, {
+        relativePath: relPath,
+        hash: null,  // Directory-level hashes tracked in manifest.skillHashes
+        size: null,
+        category: 'skill',
+        sourcePath: null,
+        metadata: { agent, level, skillName, scanned: true }
+      });
     }
   }
 }
@@ -288,27 +308,31 @@ function scanCommands(state, projectPath, manifest) {
     const cmdsDir = getCommandsDirForAgent(agent, level, projectPath);
     if (!cmdsDir || !existsSync(cmdsDir)) continue;
 
-    try {
-      const entries = readdirSync(cmdsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        // Commands can be files (.md) or directories
-        const cmdName = entry.name.replace(/\.md$/, '');
-        const key = `command:${agent}:${level}:${cmdName}`;
-        const relPath = level === 'project'
-          ? getRelativePath(projectPath, join(cmdsDir, entry.name))
-          : join(cmdsDir, entry.name);
+    const ext = getCommandFileExtension(agent);
 
-        state.commands.set(key, {
-          relativePath: relPath,
-          hash: null,
-          size: null,
-          category: 'command',
-          sourcePath: null,
-          metadata: { agent, level, commandName: cmdName, scanned: true }
-        });
-      }
-    } catch {
-      // Ignore read errors
+    for (const entry of readDirEntries(cmdsDir)) {
+      if (INSTALLER_BOOKKEEPING_FILES.has(entry.name)) continue;
+
+      // Commands are files named `<name><ext>` (or, for some agents, directories).
+      // Stripping a hard-coded `.md` left every Gemini command as `commit.toml`,
+      // which never matches the desired key `commit`, so all of them were
+      // proposed for deletion.
+      const cmdName = entry.name.endsWith(ext)
+        ? entry.name.slice(0, -ext.length)
+        : entry.name;
+      const key = `command:${agent}:${level}:${cmdName}`;
+      const relPath = level === 'project'
+        ? getRelativePath(projectPath, join(cmdsDir, entry.name))
+        : join(cmdsDir, entry.name);
+
+      state.commands.set(key, {
+        relativePath: relPath,
+        hash: null,
+        size: null,
+        category: 'command',
+        sourcePath: null,
+        metadata: { agent, level, commandName: cmdName, scanned: true }
+      });
     }
   }
 }

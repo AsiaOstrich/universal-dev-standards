@@ -51,8 +51,12 @@ vi.mock('../../../src/config/ai-agent-paths.js', () => ({
     if (agent === 'claude-code' && level === 'project') {
       return join(projectPath, '.claude', 'commands');
     }
+    if (agent === 'gemini-cli' && level === 'project') {
+      return join(projectPath, '.gemini', 'commands');
+    }
     return null;
-  })
+  }),
+  getCommandFileExtension: vi.fn((agent) => (agent === 'gemini-cli' ? '.toml' : '.md'))
 }));
 
 import { scanActualState, legacyDiscovery } from '../../../src/reconciler/actual-state-scanner.js';
@@ -183,6 +187,59 @@ describe('ActualStateScanner', () => {
       const state = scanActualState(TEST_DIR, manifest);
 
       expect(state.commands.size).toBe(1);
+      expect(state.commands.has('command:claude-code:project:commit')).toBe(true);
+    });
+
+    // XSPEC-343 R2. Gemini CLI installs commands as `.toml`; the scanner stripped
+    // a hard-coded `.md`, so the key stayed `commit.toml` and never matched the
+    // desired key `commit` — every Gemini command diffed as an orphan to delete.
+    it('should strip the agent-specific command extension (.toml for gemini-cli)', () => {
+      const cmdsDir = join(TEST_DIR, '.gemini', 'commands');
+      mkdirSync(cmdsDir, { recursive: true });
+      writeFileSync(join(cmdsDir, 'commit.toml'), 'command content');
+
+      const manifest = {
+        standards: [],
+        integrations: [],
+        skills: { installations: [] },
+        commands: {
+          installed: true,
+          installations: [{ agent: 'gemini-cli', level: 'project' }]
+        }
+      };
+
+      const state = scanActualState(TEST_DIR, manifest);
+
+      expect(state.commands.has('command:gemini-cli:project:commit')).toBe(true);
+      expect(state.commands.has('command:gemini-cli:project:commit.toml')).toBe(false);
+      // The path must keep the extension even though the key drops it.
+      expect(state.commands.get('command:gemini-cli:project:commit').relativePath)
+        .toBe(join('.gemini', 'commands', 'commit.toml'));
+    });
+
+    // XSPEC-343 R2. `.manifest.json` is written by UDS's own command installer.
+    // Counting it as a command made the reconciler propose deleting its own
+    // installation record.
+    it('should not treat the installer bookkeeping file as a command', () => {
+      const cmdsDir = join(TEST_DIR, '.claude', 'commands');
+      mkdirSync(cmdsDir, { recursive: true });
+      writeFileSync(join(cmdsDir, 'commit.md'), 'command content');
+      writeFileSync(join(cmdsDir, '.manifest.json'), '{"commands":["commit"]}');
+
+      const manifest = {
+        standards: [],
+        integrations: [],
+        skills: { installations: [] },
+        commands: {
+          installed: true,
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        }
+      };
+
+      const state = scanActualState(TEST_DIR, manifest);
+
+      expect(state.commands.size).toBe(1);
+      expect(state.commands.has('command:claude-code:project:.manifest.json')).toBe(false);
     });
   });
 

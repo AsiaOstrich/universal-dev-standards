@@ -14,8 +14,14 @@ import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
   getSkillsDirForAgent,
-  getCommandsDirForAgent
+  getCommandsDirForAgent,
+  getCommandFileExtension
 } from '../config/ai-agent-paths.js';
+import {
+  getAvailableSkillNames,
+  getAvailableCommandNames
+} from '../utils/skills-installer.js';
+import { MARKETPLACE_NAMES_SENTINEL } from '../core/manifest.js';
 
 /**
  * @typedef {Object} FileEntry
@@ -228,13 +234,35 @@ function calculateIntegrations(state, manifest) {
 
 /**
  * Calculate expected skill files.
+ *
+ * The desired set is **what this UDS version ships**, not `manifest.skills.names`.
+ * That field is written once by `init` and by no other code path — across five UDS
+ * upgrades it stayed frozen at its original 32 entries while the shipped set grew
+ * to 55, so every skill installed after init counted as "not desired" and was
+ * proposed for deletion. `uds update` always installs the full set (every call site
+ * passes `skillNames = null`), so the shipped list *is* the desired list.
+ * (XSPEC-343 R1/R2 — 40 of machine-setup's 86 proposed deletions.)
  */
 function calculateSkills(state, projectPath, manifest) {
   const skills = manifest.skills;
   if (!skills || !skills.installed) return;
 
-  const skillNames = skills.names || [];
-  if (skillNames.length === 0) return;
+  // Marketplace installs live inside the plugin, not the project. There is no
+  // project-level desired state to compute, and computing one would mark every
+  // on-disk skill for deletion.
+  if (skills.location === 'marketplace' || (skills.names || []).includes(MARKETPLACE_NAMES_SENTINEL)) return;
+
+  const skillNames = getAvailableSkillNames();
+  if (skillNames.length === 0) {
+    // An empty shipped list means the source tree is unreadable, not that the
+    // project should hold no skills. Returning here would leave `desired` empty
+    // and every installed skill would diff as a deletion — the failure mode this
+    // whole function exists to prevent. Fail loudly instead.
+    throw new Error(
+      'Cannot compute desired skill state: the UDS skills source directory is empty or unreadable. ' +
+      'Refusing to plan (an empty desired state would propose deleting every installed skill).'
+    );
+  }
 
   const installations = skills.installations || [];
 
@@ -265,13 +293,22 @@ function calculateSkills(state, projectPath, manifest) {
 
 /**
  * Calculate expected command files.
+ *
+ * Same reasoning as calculateSkills: derive from what UDS ships, not from the
+ * frozen `manifest.commands.names`. machine-setup's list said 31 while UDS
+ * shipped 51. (XSPEC-343 R1/R2)
  */
 function calculateCommands(state, projectPath, manifest) {
   const commands = manifest.commands;
   if (!commands || !commands.installed) return;
 
-  const commandNames = commands.names || [];
-  if (commandNames.length === 0) return;
+  const commandNames = getAvailableCommandNames();
+  if (commandNames.length === 0) {
+    throw new Error(
+      'Cannot compute desired command state: the UDS commands source directory is empty or unreadable. ' +
+      'Refusing to plan (an empty desired state would propose deleting every installed command).'
+    );
+  }
 
   const installations = commands.installations || [];
 
@@ -280,9 +317,12 @@ function calculateCommands(state, projectPath, manifest) {
     const commandsDir = getCommandsDirForAgent(agent, level, projectPath);
     if (!commandsDir) continue;
 
+    // The installed file carries the agent's extension; the key does not.
+    const ext = getCommandFileExtension(agent);
+
     for (const commandName of commandNames) {
       const relativeBase = level === 'project'
-        ? getRelativePath(projectPath, join(commandsDir, commandName))
+        ? getRelativePath(projectPath, join(commandsDir, `${commandName}${ext}`))
         : null;
 
       if (relativeBase) {

@@ -54,6 +54,7 @@ import {
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile } from '../core/constants.js';
+import { mergeInstalledNames } from '../core/manifest.js';
 
 /**
  * Determine the correct target directory for a standard file.
@@ -959,6 +960,7 @@ export async function updateCommand(options) {
             ...(manifest.skills.installations || []),
             ...installSkills
           ];
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, skillResult);
 
           // Derive location from installations if not set
           if (!manifest.skills.location) {
@@ -995,6 +997,7 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, updateResult);
 
           // Derive location from installations if not set
           if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
@@ -1036,6 +1039,7 @@ export async function updateCommand(options) {
             ...(manifest.commands.installations || []),
             ...installCommands
           ];
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, cmdResult);
 
           // Update command hashes for integrity tracking
           if (cmdResult.allFileHashes) {
@@ -1061,6 +1065,7 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.version = repoInfo.skills.version;
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, updateCmdResult);
 
           // Update command hashes for integrity tracking
           if (updateCmdResult.allFileHashes) {
@@ -1135,6 +1140,7 @@ export async function updateCommand(options) {
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
           manifest.skills.installations = [...(manifest.skills.installations || []), ...missingSkills];
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (result.allFileHashes) {
             if (!manifest.skillHashes) manifest.skillHashes = {};
             Object.assign(manifest.skillHashes, result.allFileHashes);
@@ -1152,6 +1158,7 @@ export async function updateCommand(options) {
           const result = await installSkillsToMultipleAgents(outdatedSkills, null, projectPath, skillsLocale);
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
             const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
             const uniqueLevels = [...new Set(levels)];
@@ -1176,6 +1183,7 @@ export async function updateCommand(options) {
           manifest.commands.installed = true;
           manifest.commands.version = repoInfo.skills.version;
           manifest.commands.installations = [...(manifest.commands.installations || []), ...missingCommands];
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
           if (result.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
             replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
@@ -1193,6 +1201,7 @@ export async function updateCommand(options) {
           const result = await installCommandsToMultipleAgents(outdatedCommands, null, projectPath, skillsLocale);
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.version = repoInfo.skills.version;
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
           if (result.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
             replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
@@ -1759,6 +1768,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // Update manifest
   manifest.skills.version = latestVersion;
   manifest.skills.installations = skillsInstallations;
+  manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
 
   // Update skill hashes for integrity tracking
   if (result.allFileHashes) {
@@ -1865,6 +1875,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     }
     return inst;
   });
+  manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
 
   // Update command hashes for integrity tracking
   if (result.allFileHashes) {

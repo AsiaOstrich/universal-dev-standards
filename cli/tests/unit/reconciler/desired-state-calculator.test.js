@@ -97,8 +97,12 @@ vi.mock('../../../src/config/ai-agent-paths.js', () => ({
     if (agent === 'claude-code' && level === 'project') {
       return `${projectPath}/.claude/commands`;
     }
+    if (agent === 'gemini-cli' && level === 'project') {
+      return `${projectPath}/.gemini/commands`;
+    }
     return null;
-  })
+  }),
+  getCommandFileExtension: vi.fn((agent) => (agent === 'gemini-cli' ? '.toml' : '.md'))
 }));
 
 // Mock skills-installer
@@ -108,6 +112,7 @@ vi.mock('../../../src/utils/skills-installer.js', () => ({
 }));
 
 import { calculateDesiredState } from '../../../src/reconciler/desired-state-calculator.js';
+import { getAvailableSkillNames, getAvailableCommandNames } from '../../../src/utils/skills-installer.js';
 
 describe('DesiredStateCalculator', () => {
   beforeEach(() => {
@@ -238,7 +243,89 @@ describe('DesiredStateCalculator', () => {
       expect(entry.metadata.optionId).toBe('bilingual');
     });
 
-    it('should calculate skill entries for project installations', () => {
+    // XSPEC-343 R1/R2. `manifest.skills.names` is written once by `init` and by no
+    // other code path — across five UDS upgrades machine-setup's stayed frozen at
+    // its original 32 while the shipped set grew to 55, so 40 usable skills diffed
+    // as "no longer in desired state". The desired set is what this UDS version
+    // ships (every install call site passes `skillNames = null` = all of them),
+    // deliberately *ignoring* the stale manifest list.
+    it('should derive skills from what UDS ships, not from the stale manifest list', () => {
+      const manifest = {
+        format: 'ai',
+        standards: [],
+        integrations: [],
+        options: {},
+        skills: {
+          installed: true,
+          location: 'project',
+          names: ['commit-standards'],   // stale: shipped set is [commit-standards, testing-guide]
+          version: '5.0.0',
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        },
+        commands: { installed: false, installations: [] }
+      };
+
+      const state = calculateDesiredState('/project', manifest);
+
+      expect(state.skills.size).toBe(2);
+      const key = 'skill:claude-code:project:commit-standards';
+      expect(state.skills.has(key)).toBe(true);
+      expect(state.skills.get(key).category).toBe('skill');
+      // The one the frozen list omitted must still be desired — otherwise it is
+      // scheduled for deletion despite being installed and usable.
+      expect(state.skills.has('skill:claude-code:project:testing-guide')).toBe(true);
+    });
+
+    // Marketplace installs live inside the Claude Code plugin, not the project.
+    // Computing a project-level desired state for them marks every on-disk skill
+    // for deletion.
+    it('should compute no project skill state for marketplace installs', () => {
+      const manifest = {
+        format: 'ai',
+        standards: [],
+        integrations: [],
+        options: {},
+        skills: {
+          installed: true,
+          location: 'marketplace',
+          names: ['all-via-plugin'],
+          version: '5.0.0',
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        },
+        commands: { installed: false, installations: [] }
+      };
+
+      expect(calculateDesiredState('/project', manifest).skills.size).toBe(0);
+    });
+
+    it('should derive commands from what UDS ships, not from the stale manifest list', () => {
+      const manifest = {
+        format: 'ai',
+        standards: [],
+        integrations: [],
+        options: {},
+        skills: { installed: false, installations: [] },
+        commands: {
+          installed: true,
+          names: ['commit'],   // stale: shipped set is [commit, review-pr]
+          version: '5.0.0',
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        }
+      };
+
+      const state = calculateDesiredState('/project', manifest);
+
+      expect(state.commands.size).toBe(2);
+      expect(state.commands.has('command:claude-code:project:commit')).toBe(true);
+      expect(state.commands.has('command:claude-code:project:review-pr')).toBe(true);
+    });
+
+    // An unreadable source tree yields an empty shipped list. Returning quietly
+    // would leave `desired` empty, and every installed skill would diff as a
+    // deletion — the exact shape this whole change exists to prevent. It has to
+    // fail loudly instead.
+    it('should throw rather than plan an empty desired state when the source is unreadable', () => {
+      getAvailableSkillNames.mockReturnValueOnce([]);
       const manifest = {
         format: 'ai',
         standards: [],
@@ -254,15 +341,11 @@ describe('DesiredStateCalculator', () => {
         commands: { installed: false, installations: [] }
       };
 
-      const state = calculateDesiredState('/project', manifest);
-
-      expect(state.skills.size).toBe(1);
-      const key = 'skill:claude-code:project:commit-standards';
-      expect(state.skills.has(key)).toBe(true);
-      expect(state.skills.get(key).category).toBe('skill');
+      expect(() => calculateDesiredState('/project', manifest)).toThrow(/deleting every installed skill/);
     });
 
-    it('should calculate command entries for project installations', () => {
+    it('should throw rather than plan an empty desired command state', () => {
+      getAvailableCommandNames.mockReturnValueOnce([]);
       const manifest = {
         format: 'ai',
         standards: [],
@@ -277,11 +360,31 @@ describe('DesiredStateCalculator', () => {
         }
       };
 
+      expect(() => calculateDesiredState('/project', manifest)).toThrow(/deleting every installed command/);
+    });
+
+    // The key drops the extension; the path must carry it, or a delete/create
+    // action would target a file that does not exist.
+    it('should use the agent-specific extension in command paths', () => {
+      const manifest = {
+        format: 'ai',
+        standards: [],
+        integrations: [],
+        options: {},
+        skills: { installed: false, installations: [] },
+        commands: {
+          installed: true,
+          names: [],
+          version: '5.0.0',
+          installations: [{ agent: 'gemini-cli', level: 'project' }]
+        }
+      };
+
       const state = calculateDesiredState('/project', manifest);
 
-      expect(state.commands.size).toBe(1);
-      const key = 'command:claude-code:project:commit';
-      expect(state.commands.has(key)).toBe(true);
+      const entry = state.commands.get('command:gemini-cli:project:commit');
+      expect(entry).toBeDefined();
+      expect(entry.relativePath.endsWith('.toml')).toBe(true);
     });
 
     it('should use ai format by default', () => {
