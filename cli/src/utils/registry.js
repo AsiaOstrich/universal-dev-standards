@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { MANIFEST_OPTION_BINDINGS } from '../core/constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -204,4 +205,42 @@ export function isMultiSelectOption(standard, categoryKey) {
     return false;
   }
   return standard.options[categoryKey].multiSelect === true;
+}
+
+/**
+ * Resolve the option source paths a manifest's `options` selection installs.
+ *
+ * `manifest.options` is the authoritative record of what the project chose;
+ * `manifest.standards` records option files inconsistently — most repos list
+ * them, machine-setup lists none — so anything counting options from
+ * `manifest.standards` alone reported "0 options" for a project that has seven
+ * of them on disk. (XSPEC-343 R2)
+ *
+ * @param {Object} manifestOptions - `manifest.options`
+ * @param {string} [format='ai'] - Source format
+ * @returns {string[]} Registry-relative source paths, e.g. ai/options/testing/unit-testing.ai.yaml
+ */
+export function resolveSelectedOptionSources(manifestOptions, format = 'ai') {
+  if (!manifestOptions) return [];
+  const all = getAllStandards();
+  const paths = [];
+
+  for (const binding of MANIFEST_OPTION_BINDINGS) {
+    const key = binding.manifestKeys.find((k) => manifestOptions[k] != null);
+    if (!key) continue;
+
+    const standard = all.find((s) => s.id === binding.standardId);
+    if (!standard) continue;
+
+    const selection = manifestOptions[key];
+    for (const optionId of Array.isArray(selection) ? selection : [selection]) {
+      if (typeof optionId !== 'string') continue;
+      const option = findOption(standard, binding.categoryKey, optionId);
+      if (!option) continue;
+      const source = getOptionSource(option, format);
+      if (source) paths.push(source);
+    }
+  }
+
+  return paths;
 }

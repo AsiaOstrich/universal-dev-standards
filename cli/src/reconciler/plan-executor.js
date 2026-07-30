@@ -14,7 +14,7 @@
 import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { copyStandard } from '../utils/copier.js';
-import { writeIntegrationFile } from '../utils/integration-generator.js';
+import { writeIntegrationFile, buildToolIntegrationConfig } from '../utils/integration-generator.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents
@@ -468,20 +468,16 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
 
 /**
  * Build integration generation config from manifest.
+ *
+ * Delegates to the shared builder so the reconciler and `uds update` generate the
+ * same block. The private copy that used to live here omitted `categories`,
+ * defaulted the output language to English, and read `integrationConfigs` by tool
+ * key when the manifest stores it by file name — so reconciling a repo silently
+ * dropped sections the normal update path always wrote. (XSPEC-343 R2)
  */
 function buildIntegrationConfig(manifest, toolName) {
   return {
-    tool: toolName,
-    installedStandards: (manifest.standards || []).map(s =>
-      s.startsWith('.standards/') ? s : `.standards/${s}`
-    ),
-    format: manifest.format || 'ai',
-    contentMode: manifest.contentMode || 'index',
-    language: manifest.integrationConfigs?.[toolName]?.language || 'en',
-    outputLanguage: manifest.integrationConfigs?.[toolName]?.outputLanguage || manifest.integrationConfigs?.[toolName]?.commitLanguage || 'english',
-    installedSkills: manifest.skills?.names || [],
-    installedCommands: manifest.commands?.names || [],
-    methodology: manifest.methodology,
-    ...(manifest.integrationConfigs?.[toolName] || {})
+    ...buildToolIntegrationConfig(manifest, toolName),
+    format: manifest.format || 'ai'
   };
 }

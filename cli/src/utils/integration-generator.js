@@ -3,6 +3,7 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
+import { resolveSelectedOptionSources } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
 
 /**
@@ -2994,6 +2995,60 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
 
   const plainBody = body.map((l) => l.replace(/`/g, ''));
   return [heading, '', ...(md ? body : plainBody), ''].join('\n');
+}
+
+/**
+ * Build the generation config for one AI tool from the manifest.
+ *
+ * Both the normal `uds update` path and the reconciler regenerate integration
+ * blocks, and they used to derive this config independently. The reconciler's
+ * copy omitted `categories` entirely, defaulted `outputLanguage` to English, and
+ * looked up `manifest.integrationConfigs` by **tool key** while the manifest
+ * stores it by **file name** — so the lookup always missed. The result was a
+ * strictly poorer block: reconciling machine-setup silently dropped its
+ * "提交訊息語言" and "Standards Compliance Instructions" sections, which the
+ * normal update path had always written. Two generators, one contract, one of
+ * them quietly lossy. (XSPEC-343 R2)
+ *
+ * `integrationConfigs` is deliberately NOT merged in: its `installedStandards`
+ * is a snapshot frozen at install time, and honouring it would reintroduce
+ * exactly the staleness this whole XSPEC is about.
+ *
+ * @param {Object} manifest - Project manifest
+ * @param {string} tool - Tool key (e.g. 'claude-code')
+ * @returns {Object} Config for generateIntegrationContent / writeIntegrationFile
+ */
+function withSelectedOptions(manifest) {
+  const standards = manifest.standards || [];
+  const seen = new Set(standards.map((p) => basename(p)));
+  const extra = resolveSelectedOptionSources(manifest.options, manifest.format || 'ai')
+    .filter((p) => !seen.has(basename(p)));
+  return [...standards, ...extra];
+}
+
+export function buildToolIntegrationConfig(manifest, tool) {
+  const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
+  const language = selected === 'bilingual'
+    ? 'bilingual'
+    : selected === 'traditional-chinese' ? 'zh-tw' : 'en';
+  const resolved = resolveContentModeForTool(tool, manifest.contentMode || 'auto');
+
+  return {
+    tool,
+    categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+    language,
+    // Pass manifest entries UNCHANGED. Every consumer here documents this
+    // parameter as "standard file paths" and basenames it for display, while
+    // classifying options by `path.includes('/options/')`. Reducing to basenames
+    // first destroys that signal: options silently count as core, so the index
+    // block reported "(70 core, 0 options)" and the minimal block listed option
+    // files under the wrong heading with a path that does not exist on disk.
+    installedStandards: withSelectedOptions(manifest),
+    contentMode: resolved.contentMode,
+    level: resolved.level,
+    outputLanguage: selected,
+    methodology: manifest.methodology
+  };
 }
 
 /**

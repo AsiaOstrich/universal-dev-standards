@@ -13,7 +13,8 @@ import {
   writeAgentsMdSummary,
   resolveContentModeForTool,
   generateIntegrationContent,
-  extractMarkedContent
+  extractMarkedContent,
+  buildToolIntegrationConfig
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
@@ -1336,17 +1337,6 @@ export function regenerateIntegrations(projectPath, manifest) {
     return { success: true, updated: [], errors: [] };
   }
 
-  // Build installed standards list
-  const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
-
-  // Determine language setting
-  let commonLanguage = 'en';
-  if ((manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual') {
-    commonLanguage = 'bilingual';
-  } else if ((manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese') {
-    commonLanguage = 'zh-tw';
-  }
-
   const results = {
     updated: [],
     errors: []
@@ -1362,19 +1352,8 @@ export function regenerateIntegrations(projectPath, manifest) {
       continue; // Skip if already generated (AGENTS.md sharing)
     }
 
-    // Resolve contentMode per tool based on tier
-    const savedMode = manifest.contentMode || 'auto';
-    const resolvedMode = resolveContentModeForTool(tool, savedMode);
-    const toolConfig = {
-      tool,
-      categories: ['anti-hallucination', 'commit-standards', 'code-review'],
-      language: commonLanguage,
-      installedStandards: installedStandardsList,
-      contentMode: resolvedMode.contentMode,
-      level: resolvedMode.level,
-      // Pass output_language for dynamic commit standards generation
-      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
-    };
+    // Shared with the reconciler so both paths emit the identical block.
+    const toolConfig = buildToolIntegrationConfig(manifest, tool);
 
     const result = writeIntegrationFile(tool, toolConfig, projectPath);
     if (result.success) {
@@ -1409,7 +1388,7 @@ export function regenerateIntegrations(projectPath, manifest) {
   // Regenerate universal AGENTS.md if enabled and not already covered
   if (manifest.generateAgentsMd && !generatedFiles.has('AGENTS.md')) {
     const summaryConfig = {
-      installedStandards: installedStandardsList,
+      installedStandards: (manifest.standards || []).map(s => basename(s)),
       language: manifest.options?.display_language || 'en',
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
       standardOptions: manifest.options || {}

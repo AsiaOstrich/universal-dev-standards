@@ -34,6 +34,16 @@ vi.mock('../../../src/utils/integration-generator.js', () => ({
     path: 'CLAUDE.md',
     absolutePath: join(projectPath, 'CLAUDE.md'),
     blockHashInfo: { blockHash: 'sha256:new', blockSize: 100, fullHash: 'sha256:full', fullSize: 200 }
+  })),
+  buildToolIntegrationConfig: vi.fn((manifest, tool) => ({
+    tool,
+    categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+    language: 'en',
+    installedStandards: (manifest.standards || []).map(s => s.split('/').pop()),
+    contentMode: manifest.contentMode || 'index',
+    level: 2,
+    outputLanguage: 'english',
+    methodology: manifest.methodology
   }))
 }));
 

@@ -133,6 +133,22 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
   resolveContentModeForTool: vi.fn((tool, userMode) => {
     if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
     return { contentMode: 'index', level: 2 };
+  }),
+  // Shared by `uds update` and the reconciler so both emit the same block
+  // (XSPEC-343 R2). Mirrors the real derivation rather than returning a stub, so
+  // a test cannot pass on a config shape the generator would never receive.
+  buildToolIntegrationConfig: vi.fn((manifest, tool) => {
+    const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
+    return {
+      tool,
+      categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+      language: selected === 'bilingual' ? 'bilingual' : selected === 'traditional-chinese' ? 'zh-tw' : 'en',
+      installedStandards: (manifest.standards || []).map(s => s.split('/').pop()),
+      contentMode: manifest.contentMode || 'index',
+      level: 2,
+      outputLanguage: selected,
+      methodology: manifest.methodology
+    };
   })
 }));
 
