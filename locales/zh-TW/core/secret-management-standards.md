@@ -2,8 +2,8 @@
 source: ../../../core/secret-management-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 1bb70238135b
+last_synced: 2026-07-30
+source_hash: d8efae1ed265
 status: current
 ---
 
