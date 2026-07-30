@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.1.1
-translation_version: 6.1.1
-last_synced: 2026-07-18
+source_version: 6.2.0
+translation_version: 6.2.0
+last_synced: 2026-07-31
 status: current
 ---
 
@@ -16,6 +16,36 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.0] - 2026-07-31
+
+> **Reconciler 一直在删除不是它安装的东西，事后还回报成功。** `uds update --plan` 在某个采用 repo 提议移除 86 个文件，其中 72 个是 UDS 有发布、项目也正在用的技能、命令与选项文件。十二个缺陷，形状完全相同：一个格式完好、却永远对不上的名字——所以什么都不会报错，而计划看起来很权威。**如果你曾看着 `--plan` 的输出、纳闷它为什么要删掉你的东西——那不是你的问题。**
+
+### 新增
+
+- **`CLAUDE.md` / `AGENTS.md` 的标准索引改为陈述数量并指向 manifest**，不再逐条列出标准名称（XSPEC-358 R1）。原本的列举每个项目约占 2 KB 的常驻 context，且与 `.standards/manifest.json` 重复——后者才是权威来源且永远不会过期。区块会在下次 `uds update` 时自行重建，你不需要做任何事。**若你有工具在解析那份列举，请改读 `manifest.standards`。**
+
+### 修复
+
+- **Reconciler 不再删除你自己写的技能。** `isUDSManaged` 对技能目录下的每一个子目录都返回 true，于是任何不是当前 UDS 版本发布的东西都被提议移除。某个采用端的计划列出了十四个手写的 ops 技能要删。现在改由 UDS 自己的 `skills/` 树判定来源——这同时涵盖旧版 CLI 误复制进来的非技能同级目录（`_shared`、`agents`、`ai`、`tools`、`workflows`），所以它们仍可被清理——或由已记录的哈希判定。其余一律发警告而非移除。**刻意付出的代价**：四个 UDS 此后已下架的技能改为只警告不删除，因为磁盘上没有任何东西能把它们和你自己的作品区分开。
+- **`manifest.skills.names` 与 `commands.names` 不再被当成期望状态。** 两者都只有 `init` 会写，其他代码路径一律不写。某个 repo 的清单跨越 9 个 commit、5 次 UDS 升级一直冻结在 32 个技能，而发布集合已增长到 55——于是 40 个可用的技能被判为「no longer in desired state」。期望集合现在改为「运行中的 UDS 版本发布什么」，那本来就是 `uds update` 实际安装的东西。全部 18 个安装点也改为同步维护这两份清单。
+- **Gemini CLI 的命令不再被提议删除。** 扫描器写死剥除 `.md`，而 Gemini 的命令是 `.toml`，键值停在 `commit.toml`，永远对不上期望键 `commit`——30 个全被判为孤儿。扩展名现在由 agent 配置提供，与写出这些文件的安装器共用同一份。
+- **UDS 不再提议删除它自己的安装记录。** 命令安装器写出的 `.manifest.json` 被当成了散落的命令。
+- **已选取的选项不再被提议删除。** `calculateOptions` 把 `manifest.options` 的键当成标准 id 迭代，找不到叫 `workflow` 的标准就跳过——于是每个项目的期望选项集合都是空的。某个 repo 的计划提议删掉它自己 manifest 指名的全部七个选项。manifest 键到注册表类别的映射现在放在单一份表，安装器与计算器共用。
+- **语言包与其他 extensions 不再被提议删除。** `manifest.extensions` 在 reconciler 里根本没有分支，于是每个已安装的 extension——语言包、语言风格指南、框架模式——都落在期望状态之外，而 manifest 仍列着它、说它已安装。
+- **Reconcile 不再把所有技能重装成英文。** 技能安装路径漏掉了命令路径有传的 locale 参数，于是本地化技能被无声换成英文 canonical 版，而 `skills.locale` 全程仍记着原本的语言。
+- **成功的 reconcile 现在会记下它 reconcile 到哪个版本。** `upstream.version` 从不更新，于是 `uds check` 仍报告项目落后，任何读取该字段的落后监测也会一直标记它。
+- **重写过的集成区块不再把自己报告为「已修改」。** `migrate_block` 刷新了 `integrationBlockHashes`，却没刷新 `fileHashes`——而后者才是文件完整性比对的对象。
+- **Reconciler 与 `uds update` 现在生成相同的集成区块。** 两个独立的构建者早已漂移：reconciler 那份完全没有内容类别，于是 reconcile 一个项目会无声删掉它的提交信息段落；它也把输出语言一律默认为英文（无视 `options.output_language`），并以工具键查 `integrationConfigs`，而 manifest 是以文件名为键。
+- **索引区块的选项数量计算正确了。** 原本从 `manifest.standards` 数，而该字段记录选项的方式并不一致——某个 repo 明明装了七个选项，区块却写着「options 0」。
+- **`uds check` 不再对新的索引区块报告假的「未同步」。** 有两处检查仍以已废止的列举为契约、逐一 grep 标准名，于是升级后报告 `5/70` 与 `0/7`，并建议运行 `uds update`——而那会重新生成同一个区块。两处现在改为核对声明数量与 manifest 是否一致，这反而抓得到「数量过期」，那是名称 grep 永远抓不到的。
+- **`manifest.integrations` 两种形状都能正确读取。** 它被一条路径写成工具键、被另一条写成文件路径；实测 21 个 repo 中有 20 个存的是文件路径，而 reconciler 只懂工具键——于是它在这 20 个 repo 全都提议剥掉 `CLAUDE.md` / `AGENTS.md` 的 UDS 区块。
+- **`uds update --plan --integrations-only` 不再写文件。** `--integrations-only` 的分支排在 `--plan` 检查之前。
+- **`uds init` 不再把 husky 装进 UDS source repo**（从 repo root 运行测试套件时）。
+
+### 变更
+
+- **发布闸门重新开始测量。** `pre-release-check.sh` 直接调用 `tsx`，于是在 PATH 上没有 tsx 的 shell 中，三项检查会因为找不到可执行文件而报告「✗ Failed」——与真正查出问题无从分辨；现在它会先解析 `tsx`，找不到就直接中止。另外它的 dogfooding 闸门运行 `uds check` 时没带 `--force`，而 DEC-044 的自我采用守卫会在本 repo 内拒绝该命令——**这个闸门自 5.15.1 加入以来，每一次发布都是红的。**
 
 ## [6.1.1] - 2026-07-18
 

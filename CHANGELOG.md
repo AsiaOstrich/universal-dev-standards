@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.0] - 2026-07-31
+
+> **The reconciler was deleting things it did not install, and reporting success afterwards.** `uds update --plan` proposed removing 86 files from one adopter repo; 72 of them were skills, commands and option files that UDS ships and the project uses. Twelve defects, all of one shape: a well-formed name that simply never matches, so nothing errors and the plan looks authoritative. If you have ever looked at a `--plan` output and wondered why it wanted to delete your work — it was not you.
+
+### Added
+
+- **The standards index in `CLAUDE.md` / `AGENTS.md` now states a count and points at the manifest** instead of listing every standard by name (XSPEC-358 R1). The enumerated list cost roughly 2 KB of always-loaded context per project and duplicated `.standards/manifest.json`, which is authoritative and never out of date. The block regenerates itself on the next `uds update`; no action is needed. **If you have tooling that parses the enumeration, read `manifest.standards` instead.**
+
+### Fixed
+
+- **The reconciler no longer deletes skills you wrote yourself.** `isUDSManaged` returned true for every directory under the skills folder, so anything not shipped by the running UDS version was proposed for removal. One adopter's plan listed fourteen hand-written ops skills for deletion. Provenance is now established from UDS's own `skills/` tree — which also covers the non-skill siblings (`_shared`, `agents`, `ai`, `tools`, `workflows`) that an older CLI copied in by mistake, so those remain cleanable — or from a recorded hash. Anything else is warned about, not removed. The deliberate cost: four skills UDS has since retired are now warned about rather than deleted, because nothing on disk distinguishes them from your own work.
+- **`manifest.skills.names` and `commands.names` are no longer treated as the desired state.** Both were written once by `init` and by no other code path. One repo's list stayed frozen at 32 skills across nine commits and five UDS upgrades while the shipped set grew to 55, so 40 usable skills diffed as "no longer in desired state". The desired set is now what the running UDS version ships, which is what `uds update` actually installs. All 18 install sites now keep the lists truthful as well.
+- **Gemini CLI commands are no longer proposed for deletion.** The scanner stripped a hard-coded `.md`; Gemini installs commands as `.toml`, so its keys stayed `commit.toml` and never matched the desired key `commit`. All 30 of them diffed as orphans. The extension now comes from the agent config, shared with the installer that writes those files.
+- **UDS no longer proposes deleting its own installation record.** `.manifest.json`, written by the command installer, was counted as a stray command.
+- **Selected options are no longer proposed for deletion.** `calculateOptions` iterated `manifest.options` as if its keys were standard ids, found no standard named `workflow`, and skipped — producing an empty desired option set for every project. One repo's plan proposed deleting all seven options its own manifest names. The manifest-key to registry-category mapping now lives in one table both the installer and the calculator read.
+- **Locale packs and other extensions are no longer proposed for deletion.** `manifest.extensions` had no branch in the reconciler at all, so every installed extension — locale packs, language style guides, framework patterns — fell outside the desired state while the manifest went on listing it as installed.
+- **A reconcile no longer reinstalls every skill in English.** The skill install path omitted the locale argument that the command path passed, silently replacing localized skills with their canonical English variants while `skills.locale` went on recording the original.
+- **A successful reconcile now records the version it reconciled to.** `upstream.version` was never advanced, so `uds check` still reported the project as behind and any staleness monitor reading that field kept flagging it.
+- **A rewritten integration block no longer reports itself as modified.** `migrate_block` refreshed `integrationBlockHashes` but not `fileHashes`, which is what File Integrity compares.
+- **The reconciler and `uds update` now generate the same integration block.** Two independent builders had drifted: the reconciler's omitted the content categories entirely, so reconciling a project silently dropped its commit-message section; it also defaulted the output language to English regardless of `options.output_language`, and looked up `integrationConfigs` by tool key when the manifest stores it by file name.
+- **Option files are counted correctly in the index block.** They were counted from `manifest.standards`, which records them inconsistently — one repo reported "0 options" with seven of them installed.
+- **`uds check` no longer reports a false out-of-sync on the new index block.** Two checks asserted the retired enumeration by grepping for every standard name, so after upgrading they reported `5/70` and `0/7` and advised running `uds update` — which regenerates the same block. Both now verify the declared count against the manifest, which also catches a stale count the name grep never could.
+- **`manifest.integrations` is read tolerantly in both shapes.** It has been written as tool keys by one path and as file paths by another; 20 of 21 measured repos stored file paths, and the reconciler understood only tool keys — so it proposed stripping the UDS block from `CLAUDE.md` / `AGENTS.md` in all of them.
+- **`uds update --plan --integrations-only` no longer writes files.** The `--integrations-only` branch ran before the `--plan` check.
+- **`uds init` no longer installs husky into the UDS source repo** when the test suite runs from the repository root.
+
+### Changed
+
+- **The release gate measures again.** `pre-release-check.sh` invoked `tsx` bare, so on a shell without it on PATH three checks reported "✗ Failed" for a missing binary — indistinguishable from a real finding; it now resolves `tsx` or stops. And its dogfooding gate ran `uds check` without `--force`, which DEC-044's self-adoption guard refuses inside this repo — the gate had failed on every release since it was added in 5.15.1.
+
+
 ## [6.1.1] - 2026-07-18
 
 > **`uds check` was measuring the wrong thing, quietly.** Its staleness check compared your standards against the CLI's own bundled copy instead of npm — so a stale CLI produced a backwards, meaningless message and could never actually say your standards were behind — and it buried that message under one line per unchanged file.

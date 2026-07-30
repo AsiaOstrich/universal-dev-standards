@@ -76,6 +76,22 @@ FAILED=0
 SKIPPED=0
 TOTAL=24
 
+# `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
+# Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
+# indistinguishable from the check actually finding something. Resolve it once,
+# loudly, and fail the run if it cannot be found at all.
+if command -v tsx >/dev/null 2>&1; then
+    TSX="tsx"
+elif [ -x "$ROOT_DIR/node_modules/.bin/tsx" ]; then
+    TSX="$ROOT_DIR/node_modules/.bin/tsx"
+elif npx --no-install tsx --version >/dev/null 2>&1; then
+    TSX="npx --no-install tsx"
+else
+    echo -e "${RED}✗ tsx not found — three checks below cannot run.${NC}"
+    echo "  Install it (npm i) or add it to PATH; do not read their result as a pass or a fail."
+    exit 1
+fi
+
 if [ "$SKIP_TESTS" = true ]; then
     TOTAL=20
 fi
@@ -269,17 +285,17 @@ fi
 run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$SCRIPT_DIR/check-registry-completeness.sh"
 
 # Step 18.5: Skill Structural Integrity (XSPEC-223)
-run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "tsx $SCRIPT_DIR/check-skill-structural-integrity.ts"
+run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "$TSX $SCRIPT_DIR/check-skill-structural-integrity.ts"
 
 # Step 18.6: Skill↔Standard content-coverage audit (XSPEC-070 Phase 2, advisory)
 # Runs without --strict: prints version-skew / mandatory-keyword / size-ratio
 # drift but never blocks. Promote to --strict here once drift stays at zero.
-run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | Skill↔Standard 內容覆蓋稽核（建議性）" "tsx $SCRIPT_DIR/check-skill-content-coverage.ts"
+run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | Skill↔Standard 內容覆蓋稽核（建議性）" "$TSX $SCRIPT_DIR/check-skill-content-coverage.ts"
 
 # Step 18.7: Integration liveness + cross-registry consistency (XSPEC-355 OQ5/OQ6)
 # A discontinued tool must not ship still labelled as supported, and the same field
 # must not carry different values in three registries.
-run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "tsx $SCRIPT_DIR/check-integration-liveness.ts"
+run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "$TSX $SCRIPT_DIR/check-integration-liveness.ts"
 
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
@@ -415,7 +431,12 @@ fi
 
 # Step 23: Dogfooding Gate — new CLI build must pass uds check on itself (XSPEC-222)
 echo -e "${CYAN}[23/$TOTAL]${NC} Dogfooding gate — UDS check on itself | 自我採用驗證..."
-dogfood_output=$(node "$CLI_DIR/bin/uds.js" check 2>&1)
+# `--force` is required: DEC-044's self-adoption guard (added 2026-04-18) refuses
+# `uds check` inside the UDS source repo, and this gate was added a month later
+# (2026-05-19). It has therefore failed on every release since — 5.15.1, 5.17.0,
+# 6.0.0, 6.1.0, 6.1.1 — which trained everyone to read its red as noise. With
+# --force the check runs and exits 0, so the gate measures something again.
+dogfood_output=$(node "$CLI_DIR/bin/uds.js" check --force 2>&1)
 dogfood_exit=$?
 if [ $dogfood_exit -eq 0 ]; then
     echo -e "      ${GREEN}✓ Dogfooding gate passed — UDS validates itself${NC}"
