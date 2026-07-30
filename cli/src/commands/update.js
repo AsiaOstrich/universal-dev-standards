@@ -957,6 +957,7 @@ export async function updateCommand(options) {
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = skillsLocale;
           manifest.skills.installations = [
             ...(manifest.skills.installations || []),
             ...installSkills
@@ -998,6 +999,7 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = updateLocale;
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, updateResult);
 
           // Derive location from installations if not set
@@ -1140,6 +1142,7 @@ export async function updateCommand(options) {
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = skillsLocale;
           manifest.skills.installations = [...(manifest.skills.installations || []), ...missingSkills];
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (result.allFileHashes) {
@@ -1159,6 +1162,7 @@ export async function updateCommand(options) {
           const result = await installSkillsToMultipleAgents(outdatedSkills, null, projectPath, skillsLocale);
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = skillsLocale;
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
             const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
@@ -1746,6 +1750,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
 
   // Update manifest
   manifest.skills.version = latestVersion;
+  manifest.skills.locale = skillsLocaleForUpdate;
   manifest.skills.installations = skillsInstallations;
   manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
 
