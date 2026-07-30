@@ -73,6 +73,9 @@ export function calculateDesiredState(projectPath, manifest) {
   // 2. Option files
   calculateOptions(state, manifest);
 
+  // 2b. Extension files (locale/language/framework add-ons)
+  calculateExtensions(state, manifest);
+
   // 3. Integration files (CLAUDE.md, .cursorrules, etc.)
   calculateIntegrations(state, manifest);
 
@@ -209,6 +212,48 @@ function calculateOptions(state, manifest) {
         metadata: { standardId: binding.standardId, categoryKey: binding.categoryKey, optionId, format }
       });
     }
+  }
+}
+
+/**
+ * Calculate expected extension files.
+ *
+ * `manifest.extensions` records add-ons installed alongside the standards —
+ * locale packs (`extensions/locales/zh-tw.md`), language style guides, framework
+ * patterns — copied flat into `.standards/` by the installer.
+ *
+ * The calculator had no branch for them at all: the word "extensions" appeared
+ * exactly once in the whole reconciler, in the scanner's empty initialiser. So
+ * every installed extension fell outside the desired state and was proposed for
+ * deletion, while `manifest.extensions` went on listing it. Three repos lost
+ * their 717-line Traditional Chinese locale pack to this before it was noticed —
+ * including one where the removal was applied and committed. (XSPEC-343 R2)
+ */
+function calculateExtensions(state, manifest) {
+  for (const source of (manifest.extensions || [])) {
+    if (typeof source !== 'string' || !source) continue;
+
+    const relativePath = `.standards/${basename(source)}`;
+    const absSource = PathResolver.getStandardSource(source);
+
+    let hash = null;
+    let size = null;
+    if (absSource) {
+      const hashInfo = computeFileHash(absSource);
+      if (hashInfo) {
+        hash = hashInfo.hash;
+        size = hashInfo.size;
+      }
+    }
+
+    state.standards.set(relativePath, {
+      relativePath,
+      hash,
+      size,
+      category: 'standard',
+      sourcePath: absSource,
+      metadata: { extensionSource: source }
+    });
   }
 }
 

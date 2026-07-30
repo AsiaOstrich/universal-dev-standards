@@ -316,6 +316,39 @@ describe('DesiredStateCalculator', () => {
       expect(state.skills.has('skill:claude-code:project:testing-guide')).toBe(true);
     });
 
+    // XSPEC-343 R2. `manifest.extensions` had no branch in the calculator at all —
+    // the word appeared once in the whole reconciler, in the scanner's empty
+    // initialiser. Every installed extension therefore fell outside the desired
+    // state and was proposed for deletion while the manifest went on listing it.
+    // Three repos lost their 717-line Traditional Chinese locale pack to this.
+    it('should keep installed extensions in the desired state', () => {
+      const manifest = {
+        format: 'ai',
+        standards: [],
+        integrations: [],
+        options: {},
+        extensions: ['extensions/locales/zh-tw.md'],
+        skills: { installed: false, installations: [] },
+        commands: { installed: false, installations: [] }
+      };
+
+      const state = calculateDesiredState('/project', manifest);
+
+      expect(state.standards.has('.standards/zh-tw.md')).toBe(true);
+      expect(state.standards.get('.standards/zh-tw.md').metadata.extensionSource)
+        .toBe('extensions/locales/zh-tw.md');
+    });
+
+    it('should tolerate a missing or malformed extensions field', () => {
+      const base = {
+        format: 'ai', standards: [], integrations: [], options: {},
+        skills: { installed: false, installations: [] },
+        commands: { installed: false, installations: [] }
+      };
+      expect(calculateDesiredState('/project', base).standards.size).toBe(0);
+      expect(calculateDesiredState('/project', { ...base, extensions: [null, ''] }).standards.size).toBe(0);
+    });
+
     // Marketplace installs live inside the Claude Code plugin, not the project.
     // Computing a project-level desired state for them marks every on-disk skill
     // for deletion.
