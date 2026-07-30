@@ -9,7 +9,12 @@
 
 import { join, basename } from 'path';
 import { getAllStandards, getStandardSource, findOption, getOptionSource } from '../utils/registry.js';
-import { resolveToolKey, SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import {
+  resolveToolKey,
+  SUPPORTED_AI_TOOLS,
+  MANIFEST_OPTION_BINDINGS,
+  OPTIONS_INSTALL_DIR
+} from '../core/constants.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
@@ -143,6 +148,19 @@ function calculateStandards(state, manifest) {
 
 /**
  * Calculate expected option files.
+ *
+ * `manifest.options` is flat — `{ workflow: 'github-flow', test_levels: [...] }` —
+ * and the registry nests options under a standard id and a category key whose
+ * name is not always the same word (`test_levels` vs `test_level`). This function
+ * used to iterate the manifest as if its keys were *standard ids*, look up a
+ * standard named `workflow`, find none, and `continue`. It therefore produced an
+ * **empty** desired option set for every adopter repo, and every installed option
+ * file diffed as "no longer in desired state" — including files the manifest had
+ * explicitly selected. EngramGraph's plan proposed deleting all seven of the
+ * options its own manifest names. (XSPEC-343 R2)
+ *
+ * The desired path is flat too: the installer copies into `.standards/options`,
+ * not into a `<standardId>/<categoryKey>/` tree.
  */
 function calculateOptions(state, manifest) {
   const format = manifest.format || 'ai';
@@ -150,46 +168,46 @@ function calculateOptions(state, manifest) {
 
   if (!manifest.options) return;
 
-  for (const [standardId, optionConfig] of Object.entries(manifest.options)) {
-    if (!optionConfig) continue;
+  for (const binding of MANIFEST_OPTION_BINDINGS) {
+    const key = binding.manifestKeys.find(k => manifest.options[k] != null);
+    if (!key) continue;
 
-    const registryEntry = allStandards.find(s => s.id === standardId);
+    const registryEntry = allStandards.find(s => s.id === binding.standardId);
     if (!registryEntry) continue;
 
-    for (const [categoryKey, selection] of Object.entries(optionConfig)) {
-      const selections = Array.isArray(selection) ? selection : [selection];
-      for (const optionId of selections) {
-        if (typeof optionId !== 'string') continue;
+    const selection = manifest.options[key];
+    const selections = Array.isArray(selection) ? selection : [selection];
 
-        const option = findOption(registryEntry, categoryKey, optionId);
-        if (!option) continue;
+    for (const optionId of selections) {
+      if (typeof optionId !== 'string') continue;
 
-        const source = getOptionSource(option, format);
-        if (!source) continue;
+      const option = findOption(registryEntry, binding.categoryKey, optionId);
+      if (!option) continue;
 
-        const fileName = basename(source);
-        const relativePath = `.standards/options/${standardId}/${categoryKey}/${fileName}`;
-        const absSource = PathResolver.getStandardSource(source);
+      const source = getOptionSource(option, format);
+      if (!source) continue;
 
-        let hash = null;
-        let size = null;
-        if (absSource) {
-          const hashInfo = computeFileHash(absSource);
-          if (hashInfo) {
-            hash = hashInfo.hash;
-            size = hashInfo.size;
-          }
+      const relativePath = `${OPTIONS_INSTALL_DIR}/${basename(source)}`;
+      const absSource = PathResolver.getStandardSource(source);
+
+      let hash = null;
+      let size = null;
+      if (absSource) {
+        const hashInfo = computeFileHash(absSource);
+        if (hashInfo) {
+          hash = hashInfo.hash;
+          size = hashInfo.size;
         }
-
-        state.options.set(relativePath, {
-          relativePath,
-          hash,
-          size,
-          category: 'option',
-          sourcePath: absSource,
-          metadata: { standardId, categoryKey, optionId, format }
-        });
       }
+
+      state.options.set(relativePath, {
+        relativePath,
+        hash,
+        size,
+        category: 'option',
+        sourcePath: absSource,
+        metadata: { standardId: binding.standardId, categoryKey: binding.categoryKey, optionId, format }
+      });
     }
   }
 }

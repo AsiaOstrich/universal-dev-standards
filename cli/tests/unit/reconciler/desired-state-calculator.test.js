@@ -8,7 +8,9 @@ vi.mock('../../../src/utils/registry.js', () => ({
       category: 'core',
       source: { ai: 'ai/standards/commit-message.ai.yaml', human: 'core/commit-message-guide.md' },
       options: {
-        outputLanguage: {
+        // 真實註冊表用 output_language（底線），舊 mock 寫 outputLanguage（駝峰）——
+        // mock 自成一個世界，於是把不存在的形狀釘成了「通過」。（XSPEC-343 R2）
+        output_language: {
           choices: [
             { id: 'english', source: { ai: 'ai/options/commit-message/outputLanguage/english.ai.yaml' } },
             { id: 'bilingual', source: { ai: 'ai/options/commit-message/outputLanguage/bilingual.ai.yaml' } }
@@ -20,7 +22,15 @@ vi.mock('../../../src/utils/registry.js', () => ({
     {
       id: 'testing',
       category: 'core',
-      source: { ai: 'ai/standards/testing.ai.yaml', human: 'core/testing-standards.md' }
+      source: { ai: 'ai/standards/testing.ai.yaml', human: 'core/testing-standards.md' },
+      options: {
+        test_level: {
+          choices: [
+            { id: 'unit-testing', source: { ai: 'ai/options/testing/unit-testing.ai.yaml' } },
+            { id: 'integration-testing', source: { ai: 'ai/options/testing/integration-testing.ai.yaml' } }
+          ]
+        }
+      }
     },
     {
       id: 'anti-hallucination',
@@ -69,6 +79,13 @@ vi.mock('../../../src/core/constants.js', () => {
   };
   return {
     SUPPORTED_AI_TOOLS: MOCK_TOOLS,
+    OPTIONS_INSTALL_DIR: '.standards/options',
+    MANIFEST_OPTION_BINDINGS: [
+      { manifestKeys: ['workflow'], standardId: 'git-workflow', categoryKey: 'workflow' },
+      { manifestKeys: ['merge_strategy'], standardId: 'git-workflow', categoryKey: 'merge_strategy' },
+      { manifestKeys: ['output_language', 'commit_language'], standardId: 'commit-message', categoryKey: 'output_language' },
+      { manifestKeys: ['test_levels'], standardId: 'testing', categoryKey: 'test_level' }
+    ],
     // `manifest.integrations` holds tool keys in some repos and file paths in
     // others (XSPEC-343 R1), so the calculator resolves through this helper.
     // Mirrors the real implementation rather than stubbing it to identity —
@@ -220,15 +237,19 @@ describe('DesiredStateCalculator', () => {
       expect(state.integrations.size).toBe(0);
     });
 
-    it('should calculate option entries', () => {
+    // XSPEC-343 R2. This test used to pass `{ 'commit-message': { outputLanguage:
+    // 'bilingual' } }` — a nested shape no writer has ever produced. It pinned the
+    // fiction the calculator believed, which is why the calculator's empty output
+    // went unnoticed. `manifest.options` is flat, exactly as manifest-installer.js
+    // writes it.
+    it('should calculate option entries from the flat manifest shape', () => {
       const manifest = {
         format: 'ai',
         standards: ['commit-message'],
         integrations: [],
         options: {
-          'commit-message': {
-            outputLanguage: 'bilingual'
-          }
+          display_language: 'zh-tw',   // 行為設定，不裝檔案
+          output_language: 'bilingual'
         },
         skills: { installed: false, installations: [] },
         commands: { installed: false, installations: [] }
@@ -238,9 +259,28 @@ describe('DesiredStateCalculator', () => {
 
       expect(state.options.size).toBe(1);
       const [key, entry] = [...state.options.entries()][0];
-      expect(key).toContain('options/');
+      // 安裝器把選項檔平放在 .standards/options/，不是 <standardId>/<categoryKey>/ 樹狀
+      expect(key).toBe('.standards/options/bilingual.ai.yaml');
       expect(entry.category).toBe('option');
       expect(entry.metadata.optionId).toBe('bilingual');
+    });
+
+    // The regression that mattered: a repo whose manifest names its selections
+    // must not have those very files diffed as unwanted.
+    it('should not leave selected options out of the desired state', () => {
+      const manifest = {
+        format: 'ai',
+        standards: ['commit-message'],
+        integrations: [],
+        options: { output_language: 'english' },
+        skills: { installed: false, installations: [] },
+        commands: { installed: false, installations: [] }
+      };
+
+      const state = calculateDesiredState('/project', manifest);
+
+      expect(state.options.size).toBeGreaterThan(0);
+      expect(state.options.has('.standards/options/english.ai.yaml')).toBe(true);
     });
 
     // XSPEC-343 R1/R2. `manifest.skills.names` is written once by `init` and by no
@@ -402,15 +442,16 @@ describe('DesiredStateCalculator', () => {
       expect(entry.metadata.format).toBe('ai');
     });
 
-    it('should handle multi-select options (array)', () => {
+    // The real multi-select is `test_levels`, and its manifest key is plural while
+    // the registry category is singular (`test_level`) — a mismatch the binding
+    // table exists to absorb. (XSPEC-343 R2)
+    it('should handle multi-select options (array) under a plural manifest key', () => {
       const manifest = {
         format: 'ai',
-        standards: ['commit-message'],
+        standards: ['testing'],
         integrations: [],
         options: {
-          'commit-message': {
-            outputLanguage: ['english', 'bilingual']
-          }
+          test_levels: ['unit-testing', 'integration-testing']
         },
         skills: { installed: false, installations: [] },
         commands: { installed: false, installations: [] }
@@ -419,6 +460,8 @@ describe('DesiredStateCalculator', () => {
       const state = calculateDesiredState('/project', manifest);
 
       expect(state.options.size).toBe(2);
+      expect(state.options.has('.standards/options/unit-testing.ai.yaml')).toBe(true);
+      expect(state.options.has('.standards/options/integration-testing.ai.yaml')).toBe(true);
     });
   });
 });
