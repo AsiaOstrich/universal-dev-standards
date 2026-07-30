@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.1
-translation_version: 6.2.1
+source_version: 6.2.2
+translation_version: 6.2.2
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.2] - 2026-07-31
+
+### 修復
+
+- **`uds check` 的技能完整性只檢查了你檔案中的一小部分。** 某個專案上它印出 `✓ All skill files intact (6 files)`，而實際安裝了 **345** 個。`scanDirectory` 以 `fullPath.slice(basePath.length + 1)` 推導相對路徑，這假設了 base path 不帶尾端分隔符——而三個 agent 的技能路徑帶（`.claude/skills/`、`.opencode/skill/`、`.cursor/skills/`）。於是每個項目都被砍掉第一個字元（`ac-coverage` → `c-coverage`、`.manifest.json` → `manifest.json`）；`computeDirectoryHashes` 用這個壞掉的名字重組絕對路徑、找不到檔案、跳過該項。**掃了 115 個檔，只算出 2 個雜湊。** 過程中沒有任何一步失敗——目錄存在、迴圈跑完、函式回傳物件，而檢查在 2% 的表面上印了綠勾。`manifest.skillHashes` 現在會被正確填入；同一個專案回報 345。
+
 
 ## [6.2.1] - 2026-07-31
 

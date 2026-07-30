@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.2] - 2026-07-31
+
+### Fixed
+
+- **`uds check` was reporting skill integrity over a fraction of your files.** On one project it printed `✓ All skill files intact (6 files)` with **345** installed. `scanDirectory` derived relative paths with `fullPath.slice(basePath.length + 1)`, which assumes the base path carries no trailing separator — and three agent skill paths do (`.claude/skills/`, `.opencode/skill/`, `.cursor/skills/`). Every entry therefore lost its first character (`ac-coverage` → `c-coverage`, `.manifest.json` → `manifest.json`); `computeDirectoryHashes` rebuilt an absolute path from the mangled name, found no file, and skipped the entry. 115 files scanned, 2 hashed. Nothing failed along the way — the directory existed, the loop completed, the function returned an object, and the check printed a green tick over 2% of the surface. `manifest.skillHashes` is now populated correctly; the same project reports 345.
+
+
 ## [6.2.1] - 2026-07-31
 
 ### Fixed

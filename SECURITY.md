@@ -6,7 +6,7 @@
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | Version | Supported | 支援狀態 |
 |---------|-----------|--------|
-| 6.2.1 | ✅ Latest stable | 最新正式版 |
+| 6.2.2 | ✅ Latest stable | 最新正式版 |
 | < 6.0.0 | ❌ End of life | 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->
 
