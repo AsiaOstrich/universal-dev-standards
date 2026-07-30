@@ -50,7 +50,7 @@ describe('setupHuskyHook — the adopter\'s prepare script', () => {
   it('chains onto an existing prepare instead of overwriting it (XSPEC-341)', async () => {
     makeProject({ prepare: 'tsup', build: 'tsup' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     // The defect: this used to be exactly "husky".
     expect(prepareOf()).toBe('tsup && husky');
@@ -61,7 +61,7 @@ describe('setupHuskyHook — the adopter\'s prepare script', () => {
   it('adds prepare when the project has none', async () => {
     makeProject({ build: 'tsc' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(prepareOf()).toBe('husky');
   });
@@ -69,7 +69,7 @@ describe('setupHuskyHook — the adopter\'s prepare script', () => {
   it('is idempotent when prepare already runs husky', async () => {
     makeProject({ prepare: 'tsup && husky' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(prepareOf()).toBe('tsup && husky');
   });
@@ -77,9 +77,9 @@ describe('setupHuskyHook — the adopter\'s prepare script', () => {
   it('does not double-chain husky across repeated inits', async () => {
     makeProject({ prepare: 'tsup' });
 
-    await setupHuskyHook(dir);
-    await setupHuskyHook(dir);
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
+    await setupHuskyHook(dir, { allowInTest: true });
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(prepareOf()).toBe('tsup && husky');
   });
@@ -87,7 +87,7 @@ describe('setupHuskyHook — the adopter\'s prepare script', () => {
   it('leaves every other script untouched', async () => {
     makeProject({ prepare: 'tsup', build: 'tsup', test: 'vitest run', typecheck: 'tsc --noEmit' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     const { scripts } = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8'));
     expect(scripts.build).toBe('tsup');
@@ -100,7 +100,7 @@ describe('setupHuskyHook — the pre-commit hook', () => {
   it('installs only the UDS check, not husky init\'s `npm test` boilerplate', async () => {
     makeProject({ prepare: 'tsup' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(preCommit()).toContain('npx uds check');
     // `npm test` came from husky init's template — a gate the adopter never asked for.
@@ -110,7 +110,7 @@ describe('setupHuskyHook — the pre-commit hook', () => {
   it('writes a husky v9 hook, not the v8 `_/husky.sh` form', async () => {
     makeProject({ prepare: 'tsup' });
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     // v8 syntax is deprecated in v9 and removed in v10; we install ^9.
     expect(preCommit()).not.toContain('husky.sh');
@@ -122,7 +122,7 @@ describe('setupHuskyHook — the pre-commit hook', () => {
     mkdirSync(join(dir, '.husky'), { recursive: true });
     writeFileSync(join(dir, '.husky', 'pre-commit'), 'npm run lint\n');
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(preCommit()).toContain('npm run lint');
     expect(preCommit()).toContain('npx uds check');
@@ -131,8 +131,8 @@ describe('setupHuskyHook — the pre-commit hook', () => {
   it('does not add the UDS check twice', async () => {
     makeProject({ prepare: 'tsup' });
 
-    await setupHuskyHook(dir);
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(preCommit().match(/npx uds check/g)).toHaveLength(1);
   });
@@ -142,7 +142,7 @@ describe('setupHuskyHook — guards', () => {
   it('does nothing outside a git repository', async () => {
     writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'x', scripts: { prepare: 'tsup' } }));
 
-    await setupHuskyHook(dir);
+    await setupHuskyHook(dir, { allowInTest: true });
 
     expect(existsSync(join(dir, '.husky'))).toBe(false);
     expect(prepareOf()).toBe('tsup');

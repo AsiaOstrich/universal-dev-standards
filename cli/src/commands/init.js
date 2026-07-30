@@ -240,7 +240,21 @@ export async function initCommand(options) {
  * - Node.js projects: use husky
  * - Non-Node.js projects: write native .git/hooks/pre-commit
  */
-export async function setupHuskyHook(projectPath) {
+export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) {
+  // 2026-07-30：本函式在跑測試時改寫了 universal-dev-standards 自己
+  // ——`npm install --save-dev husky`、改 package.json、建 .husky/pre-commit。
+  //
+  // 路徑是：測試呼叫 `initCommand({...})`（三個 init 測試檔都沒帶路徑、
+  // 也沒 mock child_process）→ `init.js` 取 `process.cwd()` → 走到這裡。
+  // 而下面那個 `.git` 是唯一的守衛，它只問「cwd 是不是一個 repo」：
+  //   從 `cli/` 跑 → cwd 沒有 .git → 提早 return，無害；
+  //   從 repo root 跑 → cwd **有** .git → 照跑，動到開發者自己的 repo。
+  // 同一批測試、不同 cwd，一個無害一個會寫檔。
+  //
+  // 守衛用顯式 opt-in 而非「偵測到測試就一律跳過」：`init.husky.test.js` 有十幾條
+  // 測試是**刻意**在暫存目錄裡驗這個函式的行為，一律跳過會把它們變成永遠通過的空測試。
+  if (process.env.VITEST && !allowInTest) return;
+
   const hasGit = existsSync(join(projectPath, '.git'));
   if (!hasGit) return;
 
