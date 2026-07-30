@@ -17,6 +17,7 @@ import {
 } from '../core/manifest.js';
 import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { resolveToolKey } from '../core/constants.js';
 
 /**
  * Migrate manifest to latest schema and backfill missing hashes.
@@ -144,8 +145,10 @@ export function backfillFileHashes(projectPath, manifest) {
   }
 
   // Backfill integration block hashes
-  for (const toolName of (updated.integrations || [])) {
-    const toolConfig = SUPPORTED_AI_TOOLS[toolName];
+  for (const entry of (updated.integrations || [])) {
+    // 兩種形狀都要能解出工具（XSPEC-343 R1）
+    const toolName = resolveToolKey(entry);
+    const toolConfig = toolName ? SUPPORTED_AI_TOOLS[toolName] : null;
     if (!toolConfig) continue;
     const filePath = join(projectPath, toolConfig.file);
     if (!updated.integrationBlockHashes[toolConfig.file] && existsSync(filePath)) {

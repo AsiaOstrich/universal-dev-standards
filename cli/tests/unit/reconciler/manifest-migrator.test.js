@@ -34,7 +34,11 @@ vi.mock('../../../src/utils/hasher.js', () => ({
 }));
 
 // Mock constants
-vi.mock('../../../src/core/constants.js', () => ({
+// 部分 mock：只覆寫工具表，`resolveToolKey` 等解析器沿用真實實作。
+// 用 importOriginal 而非自己再寫一份解析邏輯——複製一份的話，
+// 測試會驗到副本而非真的會跑的那個（XSPEC-343 R1）。
+vi.mock('../../../src/core/constants.js', async (importOriginal) => ({
+  ...(await importOriginal()),
   SUPPORTED_AI_TOOLS: {
     'claude-code': { name: 'Claude Code', file: 'CLAUDE.md', format: 'markdown' },
     'cursor': { name: 'Cursor', file: '.cursorrules', format: 'plaintext' }

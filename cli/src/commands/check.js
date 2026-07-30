@@ -39,6 +39,7 @@ import { WorkflowGate } from '../utils/workflow-gate.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } from '../lint/i18n.js';
+import { resolveIntegrationFile } from '../core/constants.js';
 
 /**
  * Display the summary of file integrity status
@@ -161,7 +162,9 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
     }
 
     // Check integrations
-    for (const int of manifest.integrations) {
+    for (const intEntry of manifest.integrations) {
+      // 兩種形狀都要能解出路徑（XSPEC-343 R1）
+      const int = resolveIntegrationFile(intEntry) || intEntry;
       const filePath = join(projectPath, int);
       if (existsSync(filePath)) {
         fileStatus.noHash.push(int);
@@ -727,7 +730,9 @@ function removeFromManifest(manifest, relativePath) {
   const fileName = basename(relativePath);
   manifest.standards = manifest.standards.filter(s => !s.endsWith(fileName));
   manifest.extensions = manifest.extensions.filter(e => typeof e !== 'string' || !e.endsWith(fileName));
-  manifest.integrations = manifest.integrations.filter(i => i !== relativePath);
+  manifest.integrations = manifest.integrations.filter(
+    i => (resolveIntegrationFile(i) || i) !== relativePath
+  );
 
   // Remove from integrationBlockHashes
   if (manifest.integrationBlockHashes && manifest.integrationBlockHashes[relativePath]) {
@@ -761,7 +766,7 @@ export function getSourcePathFromRelative(manifest, relativePath) {
   }
 
   // Check integrations - these might need special handling
-  if (manifest.integrations.includes(relativePath)) {
+  if (manifest.integrations.some(i => (resolveIntegrationFile(i) || i) === relativePath)) {
     // Integration files have different source paths
     const integrationMappings = {
       '.cursorrules': 'integrations/cursor/.cursorrules',
@@ -831,7 +836,8 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   }
 
   // Process integrations
-  for (const int of manifest.integrations) {
+  for (const intEntry of manifest.integrations) {
+    const int = resolveIntegrationFile(intEntry) || intEntry;
     const fullPath = join(projectPath, int);
 
     const hashInfo = computeFileHash(fullPath);
@@ -1264,7 +1270,8 @@ function checkReferenceSync(manifest, projectPath, msg) {
 
   // Pre-scan: collect results for files that have references
   const results = [];
-  for (const integrationPath of manifest.integrations) {
+  for (const integrationEntry of manifest.integrations) {
+    const integrationPath = resolveIntegrationFile(integrationEntry) || integrationEntry;
     const fullPath = join(projectPath, integrationPath);
 
     if (!existsSync(fullPath)) continue;
@@ -1700,7 +1707,7 @@ function getFileStatusCounts(manifest, projectPath) {
     const allFiles = [
       ...manifest.standards.map(s => `.standards/${basename(s)}`),
       ...manifest.extensions.filter(e => typeof e === 'string').map(e => `.standards/${basename(e)}`),
-      ...manifest.integrations
+      ...manifest.integrations.map(i => resolveIntegrationFile(i) || i)
     ];
     for (const relativePath of allFiles) {
       const fullPath = join(projectPath, relativePath);

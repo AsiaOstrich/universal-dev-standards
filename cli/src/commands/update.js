@@ -53,6 +53,7 @@ import {
 } from '../reconciler/index.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
+import { resolveIntegrationFile } from '../core/constants.js';
 
 /**
  * Determine the correct target directory for a standard file.
@@ -853,8 +854,9 @@ export async function updateCommand(options) {
     const fileName = basename(ext);
     allTrackedFiles.push(join('.standards', fileName));
   }
-  for (const int of (manifest.integrations || [])) {
-    const filePath = getToolFilePath(int);
+  for (const intEntry of (manifest.integrations || [])) {
+    // 兩種形狀都要能解出路徑（XSPEC-343 R1）
+    const filePath = resolveIntegrationFile(intEntry) || getToolFilePath(intEntry);
     if (filePath) {
       allTrackedFiles.push(filePath);
     }

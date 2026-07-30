@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { UDS_MARKERS } from '../core/constants.js';
+import { resolveIntegrationFile } from '../core/constants.js';
 
 /**
  * Compute SHA-256 hash for a file
@@ -109,10 +110,12 @@ export function getFileStatusSummary(projectPath, manifest) {
         source: e,
         target: join('.standards', e.split('/').pop())
       })),
-      ...manifest.integrations.map(i => ({
-        source: i,
-        target: i
-      }))
+      // `integrations` holds file names in most repos and tool keys in some
+      // (XSPEC-343 R1) — resolve so both shapes yield a real path.
+      ...manifest.integrations.map(i => {
+        const f = resolveIntegrationFile(i) || i;
+        return { source: f, target: f };
+      })
     ];
 
     for (const file of allFiles) {

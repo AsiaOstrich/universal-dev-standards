@@ -1,58 +1,71 @@
 import { describe, it, expect } from 'vitest';
-import { migrateIntegrationsToToolKeys, migrateManifest, CURRENT_SCHEMA_VERSION } from '../../../src/core/manifest.js';
+import { resolveToolKey, resolveIntegrationFile } from '../../../src/core/constants.js';
 
-// XSPEC-343 R1：`manifest.integrations` 由兩個寫入端產生不相容的形狀
+// XSPEC-343 R1：`manifest.integrations` 由兩條路徑以兩種形狀寫入
 // （integration-installer 推檔案路徑、init.js:521 推工具鍵），
-// 而 desired-state-calculator 只讀得懂工具鍵。查表落空 → 該整合檔從未進入
-// desired state → reconciler 判「integration no longer configured」並刪掉
-// CLAUDE.md 的 UDS 區塊。2026-07-30 實測：21 個採用 repo 中 20 個處於該狀態。
-describe('migrateIntegrationsToToolKeys (XSPEC-343 R1)', () => {
-  it('converts the shape 20 of 21 adopter repos actually had', () => {
-    expect(migrateIntegrationsToToolKeys(['CLAUDE.md'])).toEqual(['claude-code']);
-    expect(migrateIntegrationsToToolKeys(['CLAUDE.md', 'AGENTS.md']))
-      .toEqual(['claude-code', 'opencode']);
+// 而讀取端分成**兩個陣營**，大致均衡：
+//   期待檔名  ：hasher.js、check.js ×6（join(projectPath, int)、filter(i => i !== relativePath)）
+//   期待工具鍵：desired-state-calculator、manifest-migrator、update.js:856
+// 把資料正規化成任一種，就是修好一邊、弄壞另一邊——所以資料不動，讀取端全部經這兩個解析器。
+//
+// ⚠️ 一度真的做了「正規化為工具鍵」的 v3.5.0 遷移，而全套 3,240 個測試仍全綠。
+// 那不代表安全，只代表檔名陣營那幾條路徑沒有覆蓋。該遷移已撤回。
+describe('integration entry resolvers (XSPEC-343 R1)', () => {
+  describe('the shape 20 of 21 adopter repos actually had — file names', () => {
+    it('resolves to both a tool key and a file', () => {
+      expect(resolveToolKey('CLAUDE.md')).toBe('claude-code');
+      expect(resolveIntegrationFile('CLAUDE.md')).toBe('CLAUDE.md');
+      expect(resolveToolKey('AGENTS.md')).toBe('opencode');
+    });
+
+    it('resolves absolute paths — two repos stored those', () => {
+      expect(resolveToolKey('/Users/x/GitHub/proj/CLAUDE.md')).toBe('claude-code');
+      expect(resolveIntegrationFile('/Users/x/GitHub/proj/INSTRUCTIONS.md')).toBe('INSTRUCTIONS.md');
+    });
+
+    it('resolves a tool whose file sits in a subdirectory', () => {
+      expect(resolveToolKey('.github/copilot-instructions.md')).toBe('github-copilot');
+      expect(resolveIntegrationFile('.github/copilot-instructions.md'))
+        .toBe('.github/copilot-instructions.md');
+    });
   });
 
-  it('is idempotent for the one repo that already stored tool keys', () => {
-    expect(migrateIntegrationsToToolKeys(['claude-code'])).toEqual(['claude-code']);
+  describe('the shape vibeops had — tool keys', () => {
+    it('resolves to both, unchanged', () => {
+      expect(resolveToolKey('claude-code')).toBe('claude-code');
+      expect(resolveIntegrationFile('claude-code')).toBe('CLAUDE.md');
+      expect(resolveIntegrationFile('gemini-cli')).toBe('GEMINI.md');
+    });
   });
 
-  it('resolves absolute paths — two repos stored those', () => {
-    expect(migrateIntegrationsToToolKeys([
-      '/Users/someone/GitHub/proj/INSTRUCTIONS.md',
-      '/Users/someone/GitHub/proj/CLAUDE.md'
-    ])).toEqual(['antigravity', 'claude-code']);
+  describe('what must NOT resolve', () => {
+    it('rejects lookalike filenames rather than matching on basename', () => {
+      // A bare basename match would let an unrelated file be treated as the
+      // managed integration — and check.js would then rewrite its UDS block.
+      expect(resolveToolKey('MY-CLAUDE.md')).toBeNull();
+      expect(resolveToolKey('CLAUDE.md.bak')).toBeNull();
+      expect(resolveIntegrationFile('MY-CLAUDE.md')).toBeNull();
+    });
+
+    it('accepts a genuine path suffix', () => {
+      // `docs/CLAUDE.md` DOES end with `/CLAUDE.md`; that is intended.
+      expect(resolveToolKey('docs/CLAUDE.md')).toBe('claude-code');
+    });
+
+    it('returns null for junk rather than guessing', () => {
+      expect(resolveToolKey('NOT-A-TOOL.md')).toBeNull();
+      expect(resolveToolKey('')).toBeNull();
+      expect(resolveToolKey(null)).toBeNull();
+      expect(resolveToolKey(undefined)).toBeNull();
+      expect(resolveIntegrationFile(42)).toBeNull();
+    });
   });
 
-  it('resolves a tool whose file sits in a subdirectory', () => {
-    expect(migrateIntegrationsToToolKeys(['.github/copilot-instructions.md']))
-      .toEqual(['github-copilot']);
-  });
-
-  it('does NOT match on bare basename', () => {
-    // `docs/CLAUDE.md` is not the integration file; matching it would make the
-    // reconciler treat an unrelated document as the managed one.
-    expect(migrateIntegrationsToToolKeys(['docs/CLAUDE.md'])).toEqual(['claude-code']);
-    // ^ suffix match is intended: `docs/CLAUDE.md` DOES end with `/CLAUDE.md`.
-    // The guard that matters is that a name merely containing the file does not match:
-    expect(migrateIntegrationsToToolKeys(['MY-CLAUDE.md'])).toEqual([]);
-    expect(migrateIntegrationsToToolKeys(['CLAUDE.md.bak'])).toEqual([]);
-  });
-
-  it('drops entries matching no tool rather than inventing one', () => {
-    expect(migrateIntegrationsToToolKeys(['NOT-A-TOOL.md'])).toEqual([]);
-    expect(migrateIntegrationsToToolKeys([])).toEqual([]);
-    expect(migrateIntegrationsToToolKeys(null)).toEqual([]);
-  });
-
-  it('deduplicates when two entries resolve to the same tool', () => {
-    expect(migrateIntegrationsToToolKeys(['CLAUDE.md', '/abs/path/CLAUDE.md']))
-      .toEqual(['claude-code']);
-  });
-
-  it('migrateManifest normalises integrations and stamps the schema version', () => {
-    const out = migrateManifest({ version: '3.4.0', integrations: ['CLAUDE.md'] });
-    expect(out.integrations).toEqual(['claude-code']);
-    expect(out.version).toBe(CURRENT_SCHEMA_VERSION);
+  it('every SUPPORTED_AI_TOOLS file round-trips through both resolvers', async () => {
+    const { SUPPORTED_AI_TOOLS } = await import('../../../src/core/constants.js');
+    for (const [key, cfg] of Object.entries(SUPPORTED_AI_TOOLS)) {
+      expect(resolveToolKey(cfg.file)).toBe(key);
+      expect(resolveIntegrationFile(key)).toBe(cfg.file);
+    }
   });
 });
