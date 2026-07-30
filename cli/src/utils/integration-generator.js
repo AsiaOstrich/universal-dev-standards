@@ -2997,6 +2997,32 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
 }
 
 /**
+ * Heading of the index-mode standards block. Not localised — both the English and
+ * the Chinese body sit under this exact string, so it is a stable marker.
+ */
+export const STANDARDS_INDEX_HEADING = '## Installed Standards Index';
+
+/**
+ * Read the standards count declared by an index-mode block.
+ *
+ * XSPEC-358 R1 replaced the enumerated list with a count plus a pointer to the
+ * manifest. Two checks in `uds check` still asserted the old contract by grepping
+ * the integration file for every standard name, so after the change they reported
+ * `5/70` and `0/7` and told the user to run `uds update` — which regenerates the
+ * same non-enumerating block. An unsatisfiable loop. Checks must assert what the
+ * block claims now, not what it used to list. (XSPEC-343 R2 / XSPEC-358 R1)
+ *
+ * @param {string} content - Full integration file content
+ * @returns {number|null} Declared count, or null if this is not an index block
+ */
+export function parseStandardsIndexCount(content) {
+  const at = content.indexOf(STANDARDS_INDEX_HEADING);
+  if (at === -1) return null;
+  const match = content.slice(at).match(/\*\*(\d+)\*\*/);
+  return match ? Number(match[1]) : null;
+}
+
+/**
  * Wrap content with UDS marker blocks
  * @param {string} content - Content to wrap
  * @param {string} format - Output format: 'markdown' or 'plaintext'

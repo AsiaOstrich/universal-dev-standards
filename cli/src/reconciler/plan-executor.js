@@ -20,6 +20,7 @@ import {
   installCommandsToMultipleAgents
 } from '../utils/skills-installer.js';
 import { writeManifest } from '../core/manifest.js';
+import { getRepositoryInfo } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { createBackup, cleanupBackups } from './backup-manager.js';
@@ -143,6 +144,24 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
       for (const a of commandActions) {
         results.push({ action: a, success: true, dryRun: true });
       }
+    }
+  }
+
+  // Record the version we just reconciled to — but only on a clean run, mirroring
+  // `uds update`'s rule (a partial failure must stay retryable).
+  //
+  // Without this the reconciler applied everything and advanced nothing: the repo
+  // still recorded 6.1.0, `uds check` still said "behind the latest release", and
+  // the weekly staleness scout — which reads exactly `upstream.version` — kept
+  // reporting the repo as stale after a fully successful reconcile. (XSPEC-343 R2)
+  if (!dryRun && results.every(r => r.success)) {
+    const version = getRepositoryInfo()?.standards?.version;
+    if (version) {
+      updatedManifest.upstream = {
+        ...(updatedManifest.upstream || {}),
+        version,
+        installed: new Date().toISOString().split('T')[0]
+      };
     }
   }
 
@@ -303,6 +322,21 @@ function executeMigrateBlock(projectPath, action, manifest) {
     // Update block hash tracking
     if (result.blockHashInfo) {
       manifest.integrationBlockHashes[result.path] = result.blockHashInfo;
+    }
+    // `init` also records integration files in the whole-file `fileHashes`, which
+    // is what `uds check`'s File Integrity compares. Rewriting the block without
+    // refreshing that entry left the file permanently reported as "modified" —
+    // a successful reconcile that reads, afterwards, as a damaged install.
+    // (XSPEC-343 R2)
+    const tracked = manifest.fileHashes?.[result.path];
+    if (tracked) {
+      const info = computeFileHash(join(projectPath, result.path));
+      if (info) {
+        manifest.fileHashes[result.path] = {
+          ...info,
+          installedAt: tracked.installedAt || new Date().toISOString()
+        };
+      }
     }
     return { action, success: true };
   }

@@ -30,7 +30,7 @@ import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
-import { extractMarkedContent, getToolFilePath } from '../utils/integration-generator.js';
+import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount } from '../utils/integration-generator.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { writeUpdateCache } from '../utils/update-checker.js';
@@ -1154,6 +1154,27 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
     // Report status - use all installed standards as the total
     const totalTrackable = standardsFiles.length;
 
+    // Index-mode blocks deliberately do NOT enumerate standards (XSPEC-358 R1);
+    // grepping for each name reports a false failure and points at `uds update`,
+    // which regenerates the identical block. Assert the declared count instead.
+    const declaredCount = parseStandardsIndexCount(content);
+    if (declaredCount !== null) {
+      if (declaredCount === totalTrackable) {
+        console.log(chalk.green(`  ✓ ${toolFile}:`));
+        console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
+        console.log(chalk.gray(`    ${msg.standardsIndexCount
+          ? msg.standardsIndexCount.replace('{count}', declaredCount)
+          : `Index declares ${declaredCount} standards (matches manifest)`}`));
+      } else {
+        console.log(chalk.yellow(`  ⚠ ${toolFile}:`));
+        console.log(chalk.yellow(`    ${msg.standardsIndexCountMismatch
+          ? msg.standardsIndexCountMismatch.replace('{declared}', declaredCount).replace('{actual}', totalTrackable)
+          : `Index declares ${declaredCount} standards but the manifest has ${totalTrackable}`}`));
+        hasIssues = true;
+      }
+      continue;
+    }
+
     if (hasStandardsIndex && missingStandards.length === 0) {
       console.log(chalk.green(`  ✓ ${toolFile}:`));
       console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
@@ -1224,6 +1245,25 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
 
   const content = readFileSync(agentsMdPath, 'utf-8');
   const installedStandards = (manifest.standards || []).map(s => basename(s));
+
+  // Same as the AI-tool integration check above: an index-mode block declares a
+  // count instead of listing names, so the name grep below cannot apply to it.
+  const declaredCount = parseStandardsIndexCount(content);
+  if (declaredCount !== null) {
+    const actual = installedStandards.length;
+    if (declaredCount === actual) {
+      console.log(chalk.green(`  ✓ AGENTS.md ${msg.standardsSynced || 'standards synced'} (${declaredCount})`));
+    } else {
+      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${declaredCount} != ${actual})`));
+      console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
+    }
+    const idxLineCount = content.split('\n').length;
+    if (idxLineCount > 150) {
+      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${idxLineCount} lines)`));
+    }
+    console.log();
+    return;
+  }
 
   // Check standards listed in AGENTS.md vs manifest
   const aiYamlStandards = installedStandards.filter(s => s.endsWith('.ai.yaml'));
