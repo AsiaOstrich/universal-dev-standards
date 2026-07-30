@@ -9,7 +9,8 @@ import {
   computeFileHashes,
   hasFileHashes,
   getFileStatusSummary,
-  scanForUntrackedFiles
+  scanForUntrackedFiles,
+  computeDirectoryHashes
 } from '../../../src/utils/hasher.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -354,6 +355,44 @@ describe('Hasher Utils', () => {
       const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
 
       expect(untracked).toHaveLength(0);
+    });
+  });
+
+  // XSPEC-343 R2. `scanDirectory` derived relative paths with
+  // `fullPath.slice(basePath.length + 1)`, which silently assumed basePath had no
+  // trailing separator. Three agent skill paths do carry one
+  // (`.claude/skills/`, `.opencode/skill/`, `.cursor/skills/`), so every entry
+  // lost its first character and the rebuilt absolute path pointed at nothing —
+  // 115 files scanned, 2 hashed. `manifest.skillHashes` was therefore never
+  // populated and every `uds update` re-installed all 55 skill directories.
+  describe('computeDirectoryHashes — trailing separator in basePath', () => {
+    const DIR = join(TEST_DIR, 'skills-root');
+
+    beforeEach(() => {
+      mkdirSync(join(DIR, 'ac-coverage'), { recursive: true });
+      mkdirSync(join(DIR, 'adr-assistant'), { recursive: true });
+      writeFileSync(join(DIR, 'ac-coverage', 'SKILL.md'), 'a');
+      writeFileSync(join(DIR, 'adr-assistant', 'SKILL.md'), 'b');
+      writeFileSync(join(DIR, '.manifest.json'), '{}');
+    });
+
+    it('produces identical results with and without a trailing separator', () => {
+      const withSep = computeDirectoryHashes(`${DIR}/`, 'claude-code/project');
+      const without = computeDirectoryHashes(DIR, 'claude-code/project');
+
+      expect(Object.keys(withSep).sort()).toEqual(Object.keys(without).sort());
+      expect(Object.keys(withSep)).toHaveLength(3);
+    });
+
+    it('keeps the first character of every name', () => {
+      const hashes = computeDirectoryHashes(`${DIR}/`, 'claude-code/project');
+
+      expect(hashes['claude-code/project/ac-coverage/SKILL.md']).toBeDefined();
+      expect(hashes['claude-code/project/adr-assistant/SKILL.md']).toBeDefined();
+      expect(hashes['claude-code/project/.manifest.json']).toBeDefined();
+      // The mangled forms the old arithmetic produced.
+      expect(hashes['claude-code/project/c-coverage/SKILL.md']).toBeUndefined();
+      expect(hashes['claude-code/project/manifest.json']).toBeUndefined();
     });
   });
 });

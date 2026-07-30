@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { join, relative } from 'path';
 import { UDS_MARKERS } from '../core/constants.js';
 import { resolveIntegrationFile } from '../core/constants.js';
 
@@ -163,9 +163,17 @@ function scanDirectory(dirPath, basePath) {
 
   for (const item of items) {
     const fullPath = join(dirPath, item.name);
-    // Calculate relative path by removing basePath prefix
-    // Normalize to forward slashes for cross-platform consistency
-    const relativePath = fullPath.slice(basePath.length + 1).replace(/\\/g, '/');
+    // `relative()` rather than slice arithmetic. The old form was
+    // `fullPath.slice(basePath.length + 1)`, which assumed basePath carries no
+    // trailing separator. Three agent skill paths do (`.claude/skills/`,
+    // `.opencode/skill/`, `.cursor/skills/`), so every name lost its first
+    // character — `ac-coverage` became `c-coverage`, `.manifest.json` became
+    // `manifest.json`. computeDirectoryHashes then rebuilt an absolute path from
+    // the mangled name, found no file, and dropped the entry: 115 files in, 2
+    // out. `manifest.skillHashes` was therefore never populated, the reconciler
+    // read that as "no hash available for comparison", and every `uds update`
+    // rewrote all 55 skill directories forever. (XSPEC-343 R2)
+    const relativePath = relative(basePath, fullPath).replace(/\\/g, '/');
 
     if (item.isDirectory()) {
       files.push(...scanDirectory(fullPath, basePath));
