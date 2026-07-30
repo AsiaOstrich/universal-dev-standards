@@ -375,10 +375,19 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
 
     if (skillNames.length > 0) {
       try {
+        // The locale argument was omitted here while the command path below
+        // passes it, so a reconcile silently reinstalled every skill in English.
+        // telemetry-server lost 59 zh-TW skill files to this before it was caught,
+        // and its manifest went on recording `skills.locale: zh-TW` throughout.
+        // Prefer the recorded skills locale; fall back to the display language,
+        // which is what `uds update` uses. (XSPEC-343 R2)
+        const skillLocale = manifest.skills?.locale
+          || displayLanguageToLocale(manifest?.options?.display_language);
         const installResult = await installSkillsToMultipleAgents(
           manifest.skills.installations,
           skillNames,
-          projectPath
+          projectPath,
+          skillLocale
         );
 
         if (installResult.allFileHashes) {

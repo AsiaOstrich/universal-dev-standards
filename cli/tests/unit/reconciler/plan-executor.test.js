@@ -263,4 +263,56 @@ describe('PlanExecutor', () => {
       expect(result.summary.succeeded + result.summary.failed).toBeGreaterThan(0);
     });
   });
+
+  // XSPEC-343 R2. The locale argument was omitted on the skills path while the
+  // commands path passed it, so a reconcile silently reinstalled every skill in
+  // English. telemetry-server lost 59 zh-TW skill files to this while its own
+  // manifest went on recording `skills.locale: zh-TW`.
+  describe('skill locale', () => {
+    it('passes the recorded skills locale to the installer', async () => {
+      const manifest = {
+        standards: [],
+        skills: {
+          installed: true,
+          locale: 'zh-TW',
+          installations: [{ agent: 'claude-code', level: 'project' }]
+        },
+        options: { display_language: 'zh-tw' }
+      };
+      const plan = {
+        actions: [{
+          type: 'update', category: 'skill', path: '.claude/skills/tdd-assistant',
+          details: { metadata: { skillName: 'tdd-assistant' } }
+        }],
+        summary: {}, warnings: []
+      };
+
+      await executePlan(TEST_DIR, plan, manifest, { backup: false });
+
+      expect(installSkillsToMultipleAgents).toHaveBeenCalledWith(
+        manifest.skills.installations, ['tdd-assistant'], TEST_DIR, 'zh-TW'
+      );
+    });
+
+    it('falls back to the display language when skills.locale is unset', async () => {
+      const manifest = {
+        standards: [],
+        skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
+        options: { display_language: 'zh-tw' }
+      };
+      const plan = {
+        actions: [{
+          type: 'update', category: 'skill', path: '.claude/skills/tdd-assistant',
+          details: { metadata: { skillName: 'tdd-assistant' } }
+        }],
+        summary: {}, warnings: []
+      };
+
+      await executePlan(TEST_DIR, plan, manifest, { backup: false });
+
+      expect(installSkillsToMultipleAgents).toHaveBeenCalledWith(
+        manifest.skills.installations, ['tdd-assistant'], TEST_DIR, 'zh-TW'
+      );
+    });
+  });
 });
