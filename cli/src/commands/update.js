@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
-import { existsSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
@@ -11,7 +11,9 @@ import {
   writeIntegrationFile,
   getToolFilePath,
   writeAgentsMdSummary,
-  resolveContentModeForTool
+  resolveContentModeForTool,
+  generateIntegrationContent,
+  extractMarkedContent
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
@@ -335,8 +337,12 @@ export async function updateCommand(options) {
   }
 
   // Handle --integrations-only option
+  // ⚠️ 這個分支在 --plan 檢查（見下）**之前**，所以必須自己處理 --plan——
+  //    否則 `--plan --integrations-only` 會靜默寫檔。2026-07-30 實測踩到：
+  //    以該組合驗證 XSPEC-358 的區塊變更時，它改了 machine-setup 的
+  //    CLAUDE.md 與 .standards/manifest.json，而旗標文件寫的是 "without executing"。
   if (options.integrationsOnly) {
-    await updateIntegrationsOnly(projectPath, manifest);
+    await updateIntegrationsOnly(projectPath, manifest, options);
     return;
   }
 
@@ -1422,7 +1428,7 @@ export function regenerateIntegrations(projectPath, manifest) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  */
-async function updateIntegrationsOnly(projectPath, manifest) {
+async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
   const msg = t().commands.update;
 
   console.log(chalk.cyan(msg.updatingIntegrationsOnly));
@@ -1432,6 +1438,59 @@ async function updateIntegrationsOnly(projectPath, manifest) {
   if (aiTools.length === 0) {
     console.log(chalk.yellow(msg.noAiToolsConfigured));
     console.log(chalk.gray(`  ${msg.runConfigure}`));
+    console.log();
+    return;
+  }
+
+  // --plan：只比對、不寫任何檔（連 manifest 也不寫）。
+  // 這一段刻意不呼叫 regenerateIntegrations——那個函式會寫檔，
+  // 「先寫再還原」的作法在中途掛掉時會留下壞狀態，比沒有 dry-run 更糟。
+  if (options.plan) {
+    console.log(chalk.bold('=== Integration Plan (dry run — nothing is written) ==='));
+    const wouldChange = [];
+    const unchanged = [];
+    const seen = new Set();
+    for (const tool of aiTools) {
+      const targetFile = getToolFilePath(tool);
+      if (seen.has(targetFile)) continue;
+      seen.add(targetFile);
+      const savedMode = manifest.contentMode || 'auto';
+      const resolvedMode = resolveContentModeForTool(tool, savedMode);
+      const next = generateIntegrationContent({
+        tool,
+        categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+        language: (manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual'
+          ? 'bilingual'
+          : (manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese'
+            ? 'zh-tw' : 'en',
+        installedStandards: manifest.standards?.map((x) => basename(x)) || [],
+        contentMode: resolvedMode.contentMode,
+        level: resolvedMode.level,
+        outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
+      });
+      const full = join(projectPath, targetFile);
+      const current = existsSync(full) ? readFileSync(full, 'utf8') : '';
+      const format = targetFile.endsWith('.md') ? 'markdown' : 'plaintext';
+      const cur = extractMarkedContent(current, format).content || '';
+      // 比對正規化過的內容：只關心「受管區塊會不會變」，不關心尾端空白。
+      if (cur.trim() === String(next).trim()) {
+        unchanged.push(targetFile);
+      } else {
+        const delta = String(next).trim().length - cur.trim().length;
+        wouldChange.push(`${targetFile} (${delta >= 0 ? '+' : ''}${delta} bytes in the UDS block)`);
+      }
+    }
+    if (wouldChange.length > 0) {
+      console.log(chalk.yellow(`  ~ Would update (${wouldChange.length}):`));
+      for (const f of wouldChange) console.log(chalk.gray(`      ${f}`));
+    }
+    if (unchanged.length > 0) {
+      console.log(chalk.gray(`  = Unchanged (${unchanged.length}): ${unchanged.join(', ')}`));
+    }
+    console.log();
+    console.log(chalk.gray('  Also NOT written in plan mode: .standards/manifest.json'));
+    console.log(chalk.gray('  (a real run rewrites it — version, fileHashes, integrationBlockHashes,'));
+    console.log(chalk.gray('   and it normalises any standards entries stored as full paths)'));
     console.log();
     return;
   }
