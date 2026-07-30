@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { extractMarkedContent } from '../utils/integration-generator.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { resolveIntegrationFile } from '../core/constants.js';
 
 /**
  * Get the format for a given integration file name
@@ -36,7 +37,12 @@ export async function uninstallIntegrations(projectPath, manifest, options = {})
     return result;
   }
 
-  for (const fileName of integrations) {
+  for (const entry of integrations) {
+    // Accept both shapes: this uninstaller was written against file names,
+    // while the reconciler reads the same field as tool keys. Normalising the
+    // manifest to one shape fixes one consumer and breaks the other, so both
+    // resolve through the shared helper instead. (XSPEC-343 R1)
+    const fileName = resolveIntegrationFile(entry) || entry;
     const filePath = join(projectPath, fileName);
 
     if (!existsSync(filePath)) {

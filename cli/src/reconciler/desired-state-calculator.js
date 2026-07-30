@@ -9,7 +9,7 @@
 
 import { join, basename } from 'path';
 import { getAllStandards, getStandardSource, findOption, getOptionSource } from '../utils/registry.js';
-import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { resolveToolKey, SUPPORTED_AI_TOOLS } from '../core/constants.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
@@ -193,8 +193,19 @@ function calculateOptions(state, manifest) {
  * For integrations we track the UDS marker block, not the entire file.
  */
 function calculateIntegrations(state, manifest) {
-  for (const toolName of (manifest.integrations || [])) {
-    const toolConfig = SUPPORTED_AI_TOOLS[toolName];
+  for (const entry of (manifest.integrations || [])) {
+    // Accept both shapes. `manifest.integrations` is normalised to tool keys by
+    // the v3.5.0 migration, but a repo whose manifest has not been re-read and
+    // rewritten still holds file paths — and treating those as unknown tools
+    // silently produced an EMPTY desired state for integrations, which the
+    // reconciler then read as "delete CLAUDE.md's UDS block". Twenty of
+    // twenty-one adopter repos were in that state on 2026-07-30.
+    //
+    // Tolerating the legacy shape here rather than relying on migration alone
+    // is deliberate: the failure mode is silent and destructive, and the reader
+    // is the last place that can still tell the difference.
+    const toolName = resolveToolKey(entry);
+    const toolConfig = toolName ? SUPPORTED_AI_TOOLS[toolName] : null;
     if (!toolConfig) continue;
 
     const relativePath = toolConfig.file;

@@ -524,3 +524,34 @@ export default {
   getToolFormat,
   getToolFileName
 };
+
+/**
+ * `manifest.integrations` has been written in two shapes by two code paths:
+ * tool keys (`claude-code`) and file paths (`CLAUDE.md`, or even absolute).
+ * Three consumers read it with two different assumptions —
+ * desired-state-calculator expects tool keys, integration-uninstaller expects
+ * file names — so normalising to one shape fixes one and breaks the other.
+ *
+ * These two resolvers let every consumer accept either shape. Measured
+ * 2026-07-30: 20 of 21 adopter repos stored file names. (XSPEC-343 R1)
+ */
+
+/** Entry (tool key OR file path) → tool key, or null. */
+export function resolveToolKey(entry) {
+  if (typeof entry !== 'string' || entry.length === 0) return null;
+  if (SUPPORTED_AI_TOOLS[entry]) return entry;
+  const norm = entry.replace(/\\/g, '/');
+  for (const [key, cfg] of Object.entries(SUPPORTED_AI_TOOLS)) {
+    if (!cfg?.file) continue;
+    // Exact or path-suffix only. A bare basename match would let `MY-CLAUDE.md`
+    // or `CLAUDE.md.bak` pass as the managed integration file.
+    if (norm === cfg.file || norm.endsWith(`/${cfg.file}`)) return key;
+  }
+  return null;
+}
+
+/** Entry (tool key OR file path) → repo-relative integration file, or null. */
+export function resolveIntegrationFile(entry) {
+  const key = resolveToolKey(entry);
+  return key ? SUPPORTED_AI_TOOLS[key].file : null;
+}

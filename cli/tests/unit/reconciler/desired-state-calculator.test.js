@@ -60,12 +60,30 @@ vi.mock('../../../src/utils/hasher.js', () => ({
 }));
 
 // Mock constants
-vi.mock('../../../src/core/constants.js', () => ({
-  SUPPORTED_AI_TOOLS: {
+// ⚠️ vi.mock 的工廠會被提升到檔頂，所以工具表必須定義在工廠**內部**——
+// 放在頂層 const 會得到 "Cannot access 'MOCK_TOOLS' before initialization"。
+vi.mock('../../../src/core/constants.js', () => {
+  const MOCK_TOOLS = {
     'claude-code': { name: 'Claude Code', file: 'CLAUDE.md', format: 'markdown', category: 'primary', supports: ['skills', 'commands'] },
     'cursor': { name: 'Cursor', file: '.cursorrules', format: 'plaintext', category: 'secondary', supports: ['skills'] }
-  }
-}));
+  };
+  return {
+    SUPPORTED_AI_TOOLS: MOCK_TOOLS,
+    // `manifest.integrations` holds tool keys in some repos and file paths in
+    // others (XSPEC-343 R1), so the calculator resolves through this helper.
+    // Mirrors the real implementation rather than stubbing it to identity —
+    // an identity stub would make the legacy-shape tests pass for the wrong reason.
+    resolveToolKey: (entry) => {
+      if (typeof entry !== 'string' || !entry) return null;
+      if (MOCK_TOOLS[entry]) return entry;
+      const norm = entry.replace(/\\/g, '/');
+      for (const [key, cfg] of Object.entries(MOCK_TOOLS)) {
+        if (norm === cfg.file || norm.endsWith(`/${cfg.file}`)) return key;
+      }
+      return null;
+    }
+  };
+});
 
 // Mock ai-agent-paths
 vi.mock('../../../src/config/ai-agent-paths.js', () => ({
@@ -171,6 +189,30 @@ describe('DesiredStateCalculator', () => {
       const claudeEntry = state.integrations.get('CLAUDE.md');
       expect(claudeEntry.category).toBe('integration');
       expect(claudeEntry.metadata.toolName).toBe('claude-code');
+    });
+
+    // XSPEC-343 R1：20/21 個採用 repo 的 manifest.integrations 存的是檔名而非工具鍵。
+    // 舊版讀取端查表落空 → integrations 的 desired state 為空 →
+    // reconciler 判「integration no longer configured」並計畫刪掉 CLAUDE.md 的 UDS 區塊。
+    it('accepts the legacy file-path shape 20 of 21 adopter repos actually had', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: ['CLAUDE.md']
+      });
+      expect(state.integrations.has('CLAUDE.md')).toBe(true);
+    });
+
+    it('accepts an absolute path — two adopter repos stored those', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: ['/Users/x/GitHub/proj/CLAUDE.md']
+      });
+      expect(state.integrations.has('CLAUDE.md')).toBe(true);
+    });
+
+    it('does not treat a lookalike filename as the managed integration', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: ['MY-CLAUDE.md']
+      });
+      expect(state.integrations.size).toBe(0);
     });
 
     it('should calculate option entries', () => {

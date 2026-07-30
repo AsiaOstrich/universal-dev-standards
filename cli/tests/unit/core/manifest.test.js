@@ -69,7 +69,7 @@ describe('Schema Constants', () => {
 
   describe('CURRENT_SCHEMA_VERSION', () => {
     it('should be the latest version', () => {
-      expect(CURRENT_SCHEMA_VERSION).toBe('3.4.0');
+      expect(CURRENT_SCHEMA_VERSION).toBe('3.5.0');
     });
   });
 

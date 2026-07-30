@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { getAllStandards } from '../utils/registry.js';
+import { SUPPORTED_AI_TOOLS } from './constants.js';
 
 /**
  * UDS Manifest Schema v3.4.0
@@ -15,7 +16,7 @@ export const SUPPORTED_SCHEMA_VERSIONS = ['3.0.0', '3.1.0', '3.2.0', '3.3.0', '3
 /**
  * Current manifest schema version
  */
-export const CURRENT_SCHEMA_VERSION = '3.4.0';
+export const CURRENT_SCHEMA_VERSION = '3.5.0';
 
 /**
  * Default manifest values
@@ -300,6 +301,11 @@ export function migrateManifest(manifest) {
     migrated = migrateToV340(migrated);
   }
 
+  if (currentVersion < '3.5.0') {
+    // Migrate to 3.5.0 - convert integrations array from file paths to tool keys
+    migrated = migrateToV350(migrated);
+  }
+
   // Update schema version
   migrated.version = CURRENT_SCHEMA_VERSION;
 
@@ -387,6 +393,69 @@ function migrateToV340(manifest) {
     version: '3.4.0',
     standards: migrateStandardsPathsToIds(manifest.standards || [])
   };
+}
+
+/**
+ * Migration to version 3.5.0
+ *
+ * `integrations` was written in two incompatible shapes by two different code
+ * paths: the transaction path in init.js stores what integration-installer
+ * pushed — a file path — while another path stores normalised tool keys.
+ * `calculateIntegrations` only understands tool keys, so a manifest holding
+ * file names produces an empty desired state for integrations, and the
+ * reconciler then plans to DELETE the very files the repo is configured to
+ * have ("integration no longer configured, removing UDS block").
+ *
+ * Measured 2026-07-30 across 21 adopter repos: 20 stored file names (two of
+ * them absolute paths), 1 stored a tool key. The count of block removals in
+ * each repo's plan equalled its count of file-name entries, in all five repos
+ * that had been measured previously — which is what identified this.
+ *
+ * This is the same normalisation v3.4.0 applied to `standards`; integrations
+ * was simply missed.
+ *
+ * @param {Object} manifest - Pre-3.5.0 manifest
+ * @returns {Object} V3.5.0 compatible manifest
+ */
+function migrateToV350(manifest) {
+  return {
+    ...manifest,
+    version: '3.5.0',
+    integrations: migrateIntegrationsToToolKeys(manifest.integrations || [])
+  };
+}
+
+/**
+ * Convert an integrations array from file paths to SUPPORTED_AI_TOOLS keys.
+ *
+ * Entries that are already tool keys are kept. Path entries are matched
+ * against each tool's `file` by exact match or path suffix — deliberately NOT
+ * by bare basename, which would let `docs/CLAUDE.md` masquerade as the real
+ * one. Entries matching no tool are dropped, mirroring migrateStandardsPathsToIds.
+ *
+ * @param {string[]} integrations - May be tool keys or legacy file paths
+ * @returns {string[]} Sorted, deduplicated array of tool keys
+ */
+export function migrateIntegrationsToToolKeys(integrations) {
+  if (!integrations || integrations.length === 0) return [];
+
+  const out = new Set();
+  for (const entry of integrations) {
+    if (typeof entry !== 'string' || entry.length === 0) continue;
+    if (SUPPORTED_AI_TOOLS[entry]) {
+      out.add(entry);
+      continue;
+    }
+    const norm = entry.replace(/\\/g, '/');
+    for (const [key, cfg] of Object.entries(SUPPORTED_AI_TOOLS)) {
+      if (!cfg?.file) continue;
+      if (norm === cfg.file || norm.endsWith(`/${cfg.file}`)) {
+        out.add(key);
+        break;
+      }
+    }
+  }
+  return [...out].sort();
 }
 
 /**

@@ -1,3 +1,4 @@
+import { CURRENT_SCHEMA_VERSION } from '../../../src/core/manifest.js';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -84,7 +85,7 @@ describe('Copier Utils', () => {
 
       const result = readManifest(TEST_DIR);
       // readManifest auto-migrates to current schema version
-      expect(result.version).toBe('3.4.0');
+      expect(result.version).toBe(CURRENT_SCHEMA_VERSION);
       expect(result.level).toBe(2);
     });
   });
@@ -101,7 +102,7 @@ describe('Copier Utils', () => {
       const result = readManifest(TEST_DIR);
 
       // readManifest auto-migrates to current schema version
-      expect(result.version).toBe('3.4.0');
+      expect(result.version).toBe(CURRENT_SCHEMA_VERSION);
       expect(result.level).toBe(1);
     });
 
