@@ -107,24 +107,13 @@ const STANDARD_TASK_MAPPING = {
 /**
  * Standard descriptions for index generation
  */
-const STANDARD_DESCRIPTIONS = {
-  'anti-hallucination.md': 'AI 協作防幻覺規範',
-  'commit-message.ai.yaml': '提交訊息格式',
-  'checkin-standards.md': '程式碼簽入檢查',
-  'logging-standards.md': '日誌記錄標準',
-  'error-code-standards.md': '錯誤碼標準',
-  'testing.ai.yaml': '測試標準',
-  'versioning.md': '語意化版本',
-  'changelog-standards.md': '變更日誌標準',
-  'code-review-checklist.md': '程式碼審查清單',
-  'spec-driven-development.md': '規格驅動開發',
-  'test-completeness-dimensions.md': '測試完整性維度',
-  'git-workflow.ai.yaml': 'Git 工作流程',
-  'developer-memory.ai.yaml': '開發者持久記憶',
-  'project-context-memory.ai.yaml': '專案情境記憶',
-  'zh-tw.md': '繁體中文本地化',
-  'workflow-enforcement.ai.yaml': '工作流程強制執行'
-};
+// STANDARD_DESCRIPTIONS 已移除（XSPEC-358 R1 裁決為方案 A：索引區塊不再列名稱清單）。
+// 移除前的實況值得記錄，因為它是一個**綠燈測試釘住生產環境不成立假設**的實例：
+//   該表有 16 筆真實中文描述，鍵**帶副檔名**（'anti-hallucination.md'）。
+//   init 路徑傳入 copyStandard 的 sourcePath → basename **含副檔名** → 查表命中。
+//   update 路徑傳入 manifest.standards → **不含副檔名**（71/78 筆）→ 查表全 miss。
+//   於是同一個區塊在 `uds init` 後有描述、在 `uds update` 後全是 `名稱 - 名稱`。
+//   單元測試餵的是完整檔名，所以它一直是綠的；dev-platform 實測 78/78 皆 fallback。
 
 /**
  * Commit type templates for different output_language options
@@ -2908,6 +2897,11 @@ export function generateComplianceInstructions(installedStandards, mode, format,
   const sections = [];
 
   if (format === 'markdown') {
+    // 三個清單全空時不得留下一個空標題（XSPEC-358 §1）——
+    // 一個沒有內容的章節，讀起來像「這裡本來該有東西而它不見了」。
+    if (mustFollow.length === 0 && shouldFollow.length === 0) {
+      return '';
+    }
     sections.push('## Standards Compliance Instructions');
     sections.push('');
 
@@ -2936,6 +2930,9 @@ export function generateComplianceInstructions(installedStandards, mode, format,
     }
   } else {
     // Plaintext format
+    if (mustFollow.length === 0 && shouldFollow.length === 0) {
+      return '';
+    }
     sections.push('## Standards Compliance Instructions');
     sections.push('');
 
@@ -2975,71 +2972,28 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
     return '';
   }
 
-  const coreStandards = [];
-  const optionStandards = [];
+  const total = installedStandards.length;
+  const optionCount = installedStandards.filter(
+    (p) => p.includes('/options/') || p.includes('\\options\\')
+  ).length;
+  const coreCount = total - optionCount;
 
-  // Separate core standards from options
-  for (const standardPath of installedStandards) {
-    const filename = basename(standardPath);
-    const isOption = standardPath.includes('/options/') || standardPath.includes('\\options\\');
-    const description = STANDARD_DESCRIPTIONS[filename] || filename;
+  const heading = '## Installed Standards Index';
+  const md = format === 'markdown';
+  const body = language === 'en'
+    ? [
+      `This project has adopted **${total}** UDS standards (${coreCount} core, ${optionCount} options), installed in \`.standards/\`.`,
+      '',
+      'The authoritative list is the `standards` field of `.standards/manifest.json`. Read a standard\'s own file to see what it requires — and check its first line, which is where a deprecated standard says so.'
+    ]
+    : [
+      `本專案採用 UDS 標準共 **${total}** 條（core ${coreCount}、options ${optionCount}），安裝於 \`.standards/\`。`,
+      '',
+      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。'
+    ];
 
-    if (isOption) {
-      optionStandards.push({ filename, description, path: standardPath });
-    } else {
-      coreStandards.push({ filename, description, path: standardPath });
-    }
-  }
-
-  const sections = [];
-
-  if (format === 'markdown') {
-    sections.push('## Installed Standards Index');
-    sections.push('');
-    sections.push(language === 'en'
-      ? 'This project has adopted UDS standards. All standards are in `.standards/`:'
-      : '本專案採用 UDS 標準。所有規範位於 `.standards/`：');
-    sections.push('');
-
-    if (coreStandards.length > 0) {
-      sections.push(`### Core (${coreStandards.length} standards)`);
-      for (const std of coreStandards) {
-        sections.push(`- \`${std.filename}\` - ${std.description}`);
-      }
-      sections.push('');
-    }
-
-    if (optionStandards.length > 0) {
-      sections.push('### Options');
-      for (const std of optionStandards) {
-        sections.push(`- \`options/${std.filename}\` - ${std.description}`);
-      }
-      sections.push('');
-    }
-  } else {
-    // Plaintext format
-    sections.push('## Installed Standards Index');
-    sections.push('');
-    sections.push(language === 'en'
-      ? 'UDS standards installed in .standards/:'
-      : 'UDS 標準已安裝於 .standards/：');
-    sections.push('');
-
-    for (const std of coreStandards) {
-      sections.push(`- ${std.filename} - ${std.description}`);
-    }
-
-    if (optionStandards.length > 0) {
-      sections.push('');
-      sections.push('Options:');
-      for (const std of optionStandards) {
-        sections.push(`- options/${std.filename} - ${std.description}`);
-      }
-    }
-    sections.push('');
-  }
-
-  return sections.join('\n');
+  const plainBody = body.map((l) => l.replace(/`/g, ''));
+  return [heading, '', ...(md ? body : plainBody), ''].join('\n');
 }
 
 /**
@@ -3053,7 +3007,15 @@ export function wrapWithMarkers(content, format) {
   const warning = format === 'plaintext'
     ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify.'
     : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify. -->';
-  return `${markers.start}\n${warning}\n${content}\n${markers.end}`;
+  // 冪等：warning 位於 markers **內部**，而 extractMarkedContent 取出的內容也含它，
+  // 於是重新包裝會疊出第二份（dev-platform CLAUDE.md 實測 178/179 兩行完全相同）。
+  // 這裡先剝掉內容開頭既有的 warning，不論上游哪條路徑造成都能修掉。
+  // ⚠️ 未隔離出上游那條路徑——這是防禦性修法，如實記錄其範圍。
+  const stripped = content.replace(
+    /^(?:<!--\s*WARNING: This block is managed by UDS[\s\S]*?-->|#\s*WARNING: This block is managed by UDS[^\n]*)\n?/,
+    ''
+  );
+  return `${markers.start}\n${warning}\n${stripped}\n${markers.end}`;
 }
 
 /**

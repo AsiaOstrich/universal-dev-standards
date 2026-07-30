@@ -27,6 +27,7 @@ import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import {
   generateIntegrationContent,
   generateStandardsIndex,
+  wrapWithMarkers,
   generateComplianceInstructions,
   mergeRules,
   writeIntegrationFile,
@@ -897,12 +898,112 @@ describe('Integration Generator', () => {
   });
 
   describe('generateStandardsIndex', () => {
-    it('should include developer-memory description in standards index', () => {
+    // XSPEC-358 R1 裁決為方案 A：索引區塊不再列出名稱清單，改為「數量 + 權威清單指標」。
+    //
+    // 被移除的那條斷言值得留在註解裡：它原本斷言區塊含 '開發者持久記憶'，而它**一直是綠的**
+    // ——因為測試餵的是 '.standards/developer-memory.ai.yaml'（含副檔名），查表命中。
+    // 生產環境的 update 路徑餵的是 manifest.standards（**不含副檔名**），查表全 miss，
+    // dev-platform 實測 78/78 皆 fallback 成 `名稱 - 名稱`。
+    // **一個綠燈測試釘住了一個生產環境不成立的假設**，而它沒有守住任何東西。
+    it('should state the count and split, not list the names', () => {
       const result = generateStandardsIndex(
-        ['.standards/developer-memory.ai.yaml'],
-        'markdown', 'zh-tw', 3
+        ['.standards/anti-hallucination.ai.yaml', '.standards/testing.ai.yaml',
+          '.standards/options/bilingual.ai.yaml'],
+        'markdown', 'zh-tw'
       );
-      expect(result).toContain('開發者持久記憶');
+      expect(result).toContain('**3**');
+      expect(result).toContain('core 2');
+      expect(result).toContain('options 1');
+      // 方案 A 的核心：名稱清單不得再出現在常駐 context 裡
+      expect(result).not.toContain('anti-hallucination');
+      expect(result).not.toContain('testing.ai.yaml');
+      expect(result).not.toContain('bilingual');
+    });
+
+    it('should point at the authoritative machine-readable list', () => {
+      const result = generateStandardsIndex(
+        ['.standards/testing.ai.yaml'], 'markdown', 'zh-tw'
+      );
+      // 方案 A 只在替代文字指出權威來源時才成立，否則就只是把資訊刪掉
+      expect(result).toContain('.standards/manifest.json');
+      // 並且要指出存活狀態去哪裡看——區塊自己不再承擔這件事
+      expect(result).toContain('第一行');
+    });
+
+    it('should tell an English reader where deprecation is recorded', () => {
+      const result = generateStandardsIndex(
+        ['.standards/testing.ai.yaml'], 'markdown', 'en'
+      );
+      expect(result).toContain('manifest.json');
+      expect(result).toContain('first line');
+      expect(result).not.toContain('testing.ai.yaml');
+    });
+
+    it('should not emit markdown backticks in plaintext format', () => {
+      const result = generateStandardsIndex(
+        ['.standards/testing.ai.yaml'], 'plaintext', 'zh-tw'
+      );
+      expect(result).not.toContain('`');
+      expect(result).toContain('.standards/manifest.json');
+    });
+
+    it('should return empty string for no standards', () => {
+      expect(generateStandardsIndex([], 'markdown', 'zh-tw')).toBe('');
+      expect(generateStandardsIndex(null, 'markdown', 'zh-tw')).toBe('');
+    });
+
+    it('should stay small — the whole point is the standing token cost', () => {
+      // 78 條標準（dev-platform 實況）下，舊區塊 4,360 bytes／~1,090 est tokens。
+      const many = Array.from({ length: 78 }, (_, i) => `.standards/std-${i}.ai.yaml`);
+      const result = generateStandardsIndex(many, 'markdown', 'zh-tw');
+      expect(result.length).toBeLessThan(400);
+    });
+  });
+
+  describe('generateComplianceInstructions empty guard (XSPEC-358 §1)', () => {
+    // 這個分支的第一版引用了一個不存在的變數（憑印象發明的第三個清單），
+    // 而 **3,227 個通過的測試沒有抓到**——`&&` 短路：只要第一個清單非空就不會求值到它，
+    // 而所有既有案例都至少有一個非空。抓到它的是 eslint 的 no-undef。
+    // 所以這條測試存在的唯一理由是：**強迫走進那個短路後面的分支**。
+    it('should return empty string rather than a bare heading when nothing qualifies', () => {
+      const result = generateComplianceInstructions([], 'full', 'markdown', 'en');
+      expect(result).toBe('');
+    });
+
+    it('should not emit a heading with no content for unrecognised standards', () => {
+      const result = generateComplianceInstructions(
+        ['.standards/not-a-real-standard-xyz.ai.yaml'], 'full', 'markdown', 'zh-tw'
+      );
+      // 要嘛有內容，要嘛整段不出現——不得只有標題
+      if (result.includes('## Standards Compliance Instructions')) {
+        expect(result.replace('## Standards Compliance Instructions', '').trim().length)
+          .toBeGreaterThan(0);
+      } else {
+        expect(result).toBe('');
+      }
+    });
+  });
+
+  describe('wrapWithMarkers idempotency (XSPEC-358 §1)', () => {
+    // dev-platform CLAUDE.md 實測 178/179 兩行是完全相同的 WARNING。
+    // warning 位於 markers 內部，而 extractMarkedContent 取出的內容也含它。
+    it('should not duplicate the warning when content already carries one', () => {
+      const once = wrapWithMarkers('BODY', 'markdown');
+      const twice = wrapWithMarkers(
+        once.split('\n').slice(1, -1).join('\n'), 'markdown'
+      );
+      const count = (twice.match(/WARNING: This block is managed by UDS/g) || []).length;
+      expect(count).toBe(1);
+      expect(twice).toContain('BODY');
+    });
+
+    it('should be idempotent for plaintext too', () => {
+      const once = wrapWithMarkers('BODY', 'plaintext');
+      const twice = wrapWithMarkers(
+        once.split('\n').slice(1, -1).join('\n'), 'plaintext'
+      );
+      const count = (twice.match(/WARNING: This block is managed by UDS/g) || []).length;
+      expect(count).toBe(1);
     });
   });
 
