@@ -15,6 +15,7 @@ vi.mock('chalk', () => ({
 vi.mock('ora', () => ({
   default: vi.fn(() => ({
     start: vi.fn().mockReturnThis(),
+    stop: vi.fn().mockReturnThis(),
     succeed: vi.fn().mockReturnThis(),
     warn: vi.fn().mockReturnThis(),
     fail: vi.fn().mockReturnThis()
@@ -177,7 +178,30 @@ vi.mock('../../src/commands/check.js', () => ({
   getSourcePathFromRelative: vi.fn(() => 'core/test.md')
 }));
 
+// The reconciler is only reached by --plan/--apply/--force; plain `uds update`
+// never touches it, which is the defect these tests pin.
+vi.mock('../../src/reconciler/index.js', () => ({
+  reconcile: vi.fn(async () => ({
+    success: true,
+    plan: { actions: [], summary: {} },
+    execution: { summary: { succeeded: 0, failed: 0 }, backupId: null },
+    manifest: {},
+    errors: []
+  })),
+  plan: vi.fn(async () => ({
+    plan: {
+      actions: [{ type: 'delete', category: 'standard', path: '.standards/gone.ai.yaml', reason: 'x' }],
+      summary: { create: 0, update: 0, delete: 1, unchanged: 0, migrate_block: 0 }
+    },
+    errors: []
+  })),
+  rollbackLast: vi.fn(() => ({ success: true, restored: [], errors: [] })),
+  formatPlan: vi.fn(() => '=== Reconciliation Plan ==='),
+  listBackups: vi.fn(() => [])
+}));
+
 import { updateCommand } from '../../src/commands/update.js';
+import { reconcile as reconcilerReconcile, plan as reconcilerPlanMock } from '../../src/reconciler/index.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
 import { getRepositoryInfo, getAllStandards } from '../../src/utils/registry.js';
 import { refreshIntegrationBlockHashes } from '../../src/utils/hasher.js';
@@ -208,6 +232,65 @@ describe('Update Command', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
+  });
+
+  // `--plan` printed "Run `uds update` to apply these changes." and plain
+  // `uds update` never reaches the reconciler — it runs the legacy path, which
+  // reports success for refreshing existing standards. Upgrading one project it
+  // printed "✓ 69 standards updated" while all 8 deletions and 2 creations in the
+  // plan were skipped, and the files were still on disk afterwards. Nothing
+  // failed; it succeeded at different work.
+  describe('reconciler routing (XSPEC-343)', () => {
+    const initialisedManifest = () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '1.0.0' },
+        standards: [], extensions: [], integrations: [],
+        skills: { installed: false }, commands: { installations: [] }
+      });
+    };
+
+    it('should apply the printed plan under --apply, not force mode', async () => {
+      initialisedManifest();
+
+      await updateCommand({ apply: true, yes: true });
+
+      expect(reconcilerReconcile).toHaveBeenCalledTimes(1);
+      expect(reconcilerReconcile.mock.calls[0][1]).toMatchObject({ force: false });
+      // The plan it shows must be the same one it executes.
+      expect(reconcilerPlanMock.mock.calls[0][1]).toMatchObject({ force: false });
+    });
+
+    it('should keep --force on the larger force-mode plan', async () => {
+      initialisedManifest();
+
+      await updateCommand({ force: true, yes: true });
+
+      expect(reconcilerReconcile).toHaveBeenCalledTimes(1);
+      expect(reconcilerReconcile.mock.calls[0][1]).toMatchObject({ force: true });
+    });
+
+    it('should not reach the reconciler at all without a flag', async () => {
+      initialisedManifest();
+
+      // The legacy path runs to completion and exits; this suite's exit spy
+      // throws, so swallow it — what is under test is which path was taken.
+      await updateCommand({ yes: true }).catch(() => {});
+
+      expect(reconcilerReconcile).not.toHaveBeenCalled();
+    });
+
+    it('should point --plan at --apply, never at bare `uds update`', async () => {
+      initialisedManifest();
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('uds update --apply');
+      // The old hint. `Run \`uds update\` to apply` must not come back.
+      expect(output).not.toContain('`uds update` to apply');
+      expect(reconcilerReconcile).not.toHaveBeenCalled();
+    });
   });
 
   describe('updateCommand', () => {

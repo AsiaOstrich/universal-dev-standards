@@ -213,6 +213,7 @@ program
   .option('--commands', 'Install/update slash commands for configured AI tools')
   .option('--debug', 'Show debug output for Skills/Commands detection')
   .option('--plan', 'Show reconciliation plan without executing (like terraform plan)')
+  .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not)')
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--rollback', 'Rollback to the most recent backup')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')

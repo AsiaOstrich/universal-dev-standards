@@ -374,9 +374,15 @@ export async function updateCommand(options) {
     return;
   }
 
+  // Handle --apply option (DSR: execute the plan `--plan` prints)
+  if (options.apply) {
+    await handleReconcile(projectPath, options, { force: false });
+    return;
+  }
+
   // Handle --force option (DSR force reconciliation)
   if (options.force) {
-    await handleForceReconcile(projectPath, options);
+    await handleReconcile(projectPath, options, { force: true });
     return;
   }
 
@@ -2318,21 +2324,40 @@ async function handlePlan(projectPath, options) {
   console.log();
 
   if (result.plan.actions.length > 0) {
-    console.log(chalk.gray('Run `uds update` to apply these changes.'));
-    console.log(chalk.gray('Run `uds update --force` to force update all files.'));
+    // NOT `uds update`. That runs the legacy path, which never executes this
+    // plan — it refreshes existing standards and reports success for having done
+    // so, which reads exactly like the plan was applied. Upgrading one project it
+    // printed "✓ 69 standards updated" while all 8 deletions and 2 creations in
+    // the plan above were silently skipped; the files were still on disk
+    // afterwards. Nor is `--force` the answer for "apply what I just read": it
+    // recomputes with force:true, a larger plan that rewrites every managed file.
+    console.log(chalk.gray('Run `uds update --apply` to apply exactly these changes.'));
+    console.log(chalk.gray('Run `uds update --force` to rewrite every managed file (a larger plan than the one above).'));
     console.log();
   }
 }
 
 /**
- * Handle --force: run the full reconciler with force mode.
+ * Run the reconciler and apply its plan.
+ *
+ * `force` selects WHICH plan: force mode rewrites every managed file regardless
+ * of hash, so it is a different and larger plan than the one `--plan` prints.
+ * That difference is why `--apply` exists — see handlePlan.
+ *
+ * @param {string} projectPath
+ * @param {Object} options - Command options (uses `yes`)
+ * @param {{ force: boolean }} mode
  */
-async function handleForceReconcile(projectPath, options) {
-  console.log(chalk.cyan('Running declarative state reconciliation (force mode)...'));
+async function handleReconcile(projectPath, options, { force }) {
+  console.log(chalk.cyan(
+    force
+      ? 'Running declarative state reconciliation (force mode)...'
+      : 'Running declarative state reconciliation...'
+  ));
   console.log();
 
   // First show the plan
-  const planResult = await reconcilerPlan(projectPath, { force: true });
+  const planResult = await reconcilerPlan(projectPath, { force });
 
   if (planResult.plan.actions.length === 0) {
     console.log(chalk.green('Everything is up to date. No changes needed.'));
@@ -2360,7 +2385,7 @@ async function handleForceReconcile(projectPath, options) {
   const spinner = ora('Applying reconciliation plan...').start();
 
   const result = await reconcile(projectPath, {
-    force: true,
+    force,
     backup: true,
     onAction: (action, index, total) => {
       spinner.text = `[${index + 1}/${total}] ${action.type} ${action.path || action.category}`;
