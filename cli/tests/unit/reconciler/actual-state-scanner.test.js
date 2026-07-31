@@ -251,22 +251,42 @@ describe('ActualStateScanner', () => {
       expect(meta('my-own-skill').udsManaged).toBe(false);
     });
 
-    // skillHashes is authoritative when it happens to cover the skill, even for a
-    // name UDS no longer ships.
-    it('should treat a skill recorded in skillHashes as UDS-managed', () => {
+    // Regression pin for the interaction between two separately-correct fixes.
+    // `skillHashes` was once a second provenance signal, safe only because the
+    // hasher was recording 2 entries for 78 skills. Fixing the hasher (6.2.2)
+    // populated it with every file under the skills folder, so an adopter's own
+    // skill gained a hash and became a deletion candidate — re-opening the very
+    // defect the provenance check exists to close. A populated skillHashes must
+    // not make anything deletable that UDS does not ship.
+    it('should keep adopter skills safe even when skillHashes covers them', () => {
       const skillsDir = join(TEST_DIR, '.claude', 'skills');
-      mkdirSync(join(skillsDir, 'retired-skill'), { recursive: true });
-      writeFileSync(join(skillsDir, 'retired-skill', 'SKILL.md'), 'x');
+      for (const n of ['my-own-skill', 'retired-skill', 'known-skill']) {
+        mkdirSync(join(skillsDir, n), { recursive: true });
+        writeFileSync(join(skillsDir, n, 'SKILL.md'), 'x');
+      }
 
       const manifest = {
         standards: [], integrations: [],
         skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
         commands: { installations: [] },
-        skillHashes: { 'claude-code/project/retired-skill/SKILL.md': { hash: 'sha256:x' } }
+        // The post-6.2.2 shape: a hash for every file the scanner walked.
+        skillHashes: {
+          'claude-code/project/my-own-skill/SKILL.md': { hash: 'sha256:a' },
+          'claude-code/project/retired-skill/SKILL.md': { hash: 'sha256:b' },
+          'claude-code/project/known-skill/SKILL.md': { hash: 'sha256:c' }
+        }
       };
 
       const state = scanActualState(TEST_DIR, manifest);
-      expect(state.skills.get('skill:claude-code:project:retired-skill').metadata.udsManaged).toBe(true);
+      const meta = (n) => state.skills.get(`skill:claude-code:project:${n}`).metadata;
+
+      // Hand-written: never ours, hash or no hash.
+      expect(meta('my-own-skill').udsManaged).toBe(false);
+      // Once shipped, since removed: indistinguishable from the adopter's own work
+      // on disk, so it is warned about rather than deleted. Deliberate cost.
+      expect(meta('retired-skill').udsManaged).toBe(false);
+      // Still shipped by UDS: ours, and still cleanable.
+      expect(meta('known-skill').udsManaged).toBe(true);
     });
 
     // XSPEC-343 R2. `.manifest.json` is written by UDS's own command installer.

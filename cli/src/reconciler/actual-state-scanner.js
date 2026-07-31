@@ -295,10 +295,25 @@ function shippedCommandNames() {
  *
  * Anything else is the adopter's own, and is warned about rather than deleted.
  */
-function isUdsProvenance(skillName, manifest, agent, level) {
-  if (sourceEntryNames().has(skillName)) return true;
-  const prefix = `${agent}/${level}/${skillName}/`;
-  return Object.keys(manifest?.skillHashes || {}).some((k) => k.startsWith(prefix));
+// A directory whose name exists in UDS's own `skills/` tree was put there by UDS.
+// That is the only positive signal, and everything else is the adopter's.
+//
+// `manifest.skillHashes` USED TO BE a second signal here ("authoritative whenever
+// present"). That was only ever safe because the hasher was broken: a trailing
+// separator in three skill paths made it record 2 entries for 78 installed skills,
+// so the clause almost never fired. Fixing the hasher (6.2.2) populated the same
+// map with every file under the skills folder — including the adopter's own — and
+// each one of those became a deletion candidate, re-opening the exact defect this
+// function was written to close. The lesson is not about hashes: a broken tool's
+// sparse output was used as evidence that reading it was safe.
+//
+// The cost of the narrow signal is unchanged and still deliberate: skills UDS used
+// to ship and has since removed are warned about rather than deleted, because
+// nothing on disk distinguishes them from the adopter's own work. Leaving a few
+// stale directories with a warning is a better way to fail than deleting files
+// somebody hand-wrote.
+function isUdsProvenance(skillName) {
+  return sourceEntryNames().has(skillName);
 }
 
 /**
@@ -335,7 +350,7 @@ function scanSkills(state, projectPath, manifest) {
           // the skills folder used to be assumed UDS-managed, so a plan for a repo
           // with hand-written skills proposed deleting them: dev-platform's would
           // have removed fourteen. (XSPEC-343 R2)
-          udsManaged: isUdsProvenance(skillName, manifest, agent, level)
+          udsManaged: isUdsProvenance(skillName)
         }
       });
     }
