@@ -77,6 +77,7 @@ import { createBackup } from '../../../src/reconciler/backup-manager.js';
 import { writeManifest } from '../../../src/core/manifest.js';
 import { installSkillsToMultipleAgents, installCommandsToMultipleAgents } from '../../../src/utils/skills-installer.js';
 import { writeIntegrationFile } from '../../../src/utils/integration-generator.js';
+import { copyStandard } from '../../../src/utils/copier.js';
 
 describe('PlanExecutor', () => {
   beforeEach(() => {
@@ -92,6 +93,59 @@ describe('PlanExecutor', () => {
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });
     }
+  });
+
+  // `manifest.extensions` entries reach the executor with no resolved sourcePath
+  // whenever UDS was installed from npm: the published package's `files` list has
+  // no `extensions/`, so PathResolver finds nothing. The executor answered "No
+  // source path available" and failed the action — while the legacy update path,
+  // which calls copyStandard directly, refreshed the very same file. Two paths
+  // disagreeing about whether a file was reachable, one of them wrong.
+  describe('extension sources (XSPEC-343)', () => {
+    const extensionAction = (type) => ({
+      type,
+      category: 'standard',
+      path: '.standards/zh-tw.md',
+      reason: 'test',
+      details: {
+        sourcePath: null, // what an npm install produces
+        metadata: { extensionSource: 'extensions/locales/zh-tw.md' }
+      }
+    });
+
+    it('should fetch an extension through copyStandard when no path resolved', async () => {
+      const plan = {
+        actions: [extensionAction('update')],
+        summary: { create: 0, update: 1, delete: 0, unchanged: 0, migrate_block: 0 }
+      };
+
+      const result = await executePlan(TEST_DIR, plan, { fileHashes: {} }, { backup: false });
+
+      expect(copyStandard).toHaveBeenCalledWith('extensions/locales/zh-tw.md', '.standards', TEST_DIR);
+      expect(result.summary.failed).toBe(0);
+      expect(result.results[0].success).toBe(true);
+    });
+
+    it('should still report a genuinely unreachable entry as failed', async () => {
+      // The guard: the fix must not turn every unresolvable action into a
+      // success. An entry with neither a path nor any source metadata has
+      // nothing to fetch, and must keep saying so.
+      const plan = {
+        actions: [{
+          type: 'update',
+          category: 'standard',
+          path: '.standards/nowhere.yaml',
+          reason: 'test',
+          details: { sourcePath: null, metadata: {} }
+        }],
+        summary: { create: 0, update: 1, delete: 0, unchanged: 0, migrate_block: 0 }
+      };
+
+      const result = await executePlan(TEST_DIR, plan, { fileHashes: {} }, { backup: false });
+
+      expect(result.results[0].success).toBe(false);
+      expect(result.results[0].error).toBe('No source path available');
+    });
   });
 
   describe('executePlan', () => {

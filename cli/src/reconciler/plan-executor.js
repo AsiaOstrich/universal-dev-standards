@@ -221,32 +221,49 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
   if (action.category === 'standard' || action.category === 'option') {
     const sourcePath = action.details?.sourcePath;
     if (!sourcePath) {
-      // Use copyStandard which handles bundled/repo/download fallback
+      // No absolute path was resolved, so fall back to copyStandard, which walks
+      // bundled → repo → download. Two kinds of entry arrive here.
       const metadata = action.details?.metadata;
-      if (metadata?.registryEntry) {
+      let sourceStr = null;
+      let targetDir = '.standards';
+
+      if (metadata?.extensionSource) {
+        // An entry from `manifest.extensions`. PathResolver cannot resolve these
+        // from an npm install: the published package's `files` list is bin, src,
+        // bundled, standards-registry.json and README.md — no `extensions/`. So
+        // `sourcePath` is null for every adopter who did not install from a
+        // source checkout, and this function answered "No source path available"
+        // for a file it was perfectly able to fetch.
+        //
+        // The legacy update path never had the bug because it calls copyStandard
+        // directly (`update.js`, "Update extensions"). The same upgrade therefore
+        // refreshed `.standards/zh-tw.md` under `uds update` and failed under the
+        // reconciler — the two paths disagreed about whether the file was
+        // reachable, and only one of them was right. (XSPEC-343)
+        sourceStr = metadata.extensionSource;
+      } else if (metadata?.registryEntry) {
         const source = metadata.registryEntry.source;
-        const sourceStr = typeof source === 'string'
+        sourceStr = typeof source === 'string'
           ? source
           : (source?.[metadata.format] || source?.ai || source?.human);
-        if (sourceStr) {
-          const targetDir = action.category === 'option'
-            ? dirname(action.path)
-            : '.standards';
-          const result = await copyStandard(sourceStr, targetDir, projectPath);
-          if (result.success) {
-            // Update hash in manifest
-            const hashInfo = computeFileHash(join(projectPath, action.path));
-            if (hashInfo) {
-              const normalizedPath = action.path.replace(/\\/g, '/');
-              manifest.fileHashes[normalizedPath] = {
-                ...hashInfo,
-                installedAt: new Date().toISOString()
-              };
-            }
-            return { action, success: true };
+        targetDir = action.category === 'option' ? dirname(action.path) : '.standards';
+      }
+
+      if (sourceStr) {
+        const result = await copyStandard(sourceStr, targetDir, projectPath);
+        if (result.success) {
+          // Update hash in manifest
+          const hashInfo = computeFileHash(join(projectPath, action.path));
+          if (hashInfo) {
+            const normalizedPath = action.path.replace(/\\/g, '/');
+            manifest.fileHashes[normalizedPath] = {
+              ...hashInfo,
+              installedAt: new Date().toISOString()
+            };
           }
-          return { action, success: false, error: result.error };
+          return { action, success: true };
         }
+        return { action, success: false, error: result.error };
       }
       return { action, success: false, error: 'No source path available' };
     }
