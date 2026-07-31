@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.4
-translation_version: 6.2.4
+source_version: 6.2.5
+translation_version: 6.2.5
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.5] - 2026-07-31
+
+### 修复
+
+- **`uds update` 的备份目录可能被提交进你的 repo。** `.uds-backup-<时间戳>/` 会写在项目旁供回滚，而没有任何规则忽略它——于是一次 `git add -A` 就把它扫了进去。这在我们自己的 repo 发生过两次，其中一次把 360 个文件、73,992 行带进了公开 repo。备份现在会忽略自己：创建时就在目录内写一个内容为 `*` 的 `.gitignore`，`git status` 与 `git add -A` 不再看得到它，而**你的** `.gitignore` 不会被修改。旧版本产生的既有备份不会被追溯隐藏——请自行删除或补上规则。
 
 ## [6.2.4] - 2026-07-31
 

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.5] - 2026-07-31
+
+### Fixed
+
+- **`uds update`'s backup directory could be committed to your repository.** `.uds-backup-<timestamp>/` is written beside the project so a reconciliation can be rolled back, and nothing ignored it — so a `git add -A` swept it in. It happened twice in our own repos, once taking 360 files and 73,992 lines into a public one. The backup now ignores itself, via a `.gitignore` containing `*` written inside the directory at creation: `git status` and `git add -A` no longer see it, and **your** `.gitignore` is not modified. Existing backups from earlier versions are not retroactively hidden — delete them or add the rule yourself.
+
 ## [6.2.4] - 2026-07-31
 
 ### Fixed
