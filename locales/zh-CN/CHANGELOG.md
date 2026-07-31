@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.2
-translation_version: 6.2.2
+source_version: 6.2.3
+translation_version: 6.2.3
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.3] - 2026-07-31
+
+### 修复
+
+- **重新选取已安装的 agent 会追加一笔重复的 manifest 记录。** 四个 manifest 写入端以 `[...existing, ...new]` 追加安装记录，于是一个已被记录的 agent 每次被重新选取就多一笔；某个项目的 manifest 读起来是 `['claude-code', 'claude-code']`。安装器本身从未受影响——`installSkillsToMultipleAgents` 会对输入去重。损害仅限于**记录**，以及每一个会迭代它的消费端：`checkNewFeatures`、reconciler 的扫描器与期望状态计算器都把那个 agent 走了两遍。效果无害——**这正是它跨越五次升级都没被注意到的原因**。四个写入端现在改用安装器早就在用的那个 helper。
 
 ## [6.2.2] - 2026-07-31
 

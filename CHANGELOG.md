@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.3] - 2026-07-31
+
+### Fixed
+
+- **Re-selecting an already-installed agent appended a duplicate manifest entry.** Four manifest writers appended installations with `[...existing, ...new]`, so an agent already on record gained a second entry every time it was re-selected; one project's manifest read `['claude-code', 'claude-code']`. The installer itself was never affected — `installSkillsToMultipleAgents` deduplicates its input. The damage was confined to the *record* and to every consumer that iterates it: `checkNewFeatures` and the reconciler's scanner and desired-state calculator each walked the agent twice. Harmless in effect, which is precisely why it accumulated unnoticed across five upgrades. The four writers now use the same helper the installer already relied on.
+
 ## [6.2.2] - 2026-07-31
 
 ### Fixed
