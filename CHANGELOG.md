@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.4] - 2026-07-31
+
+### Fixed
+
+- **`uds update` proposed deleting skills you wrote yourself.** Provenance treated a skill as UDS's own if `manifest.skillHashes` recorded any file under it. That was safe only while the hasher was broken — it held 2 entries for 78 installed skills. Fixing the hasher in 6.2.2 filled the same map with all 137 files under the skills folder, including hand-written ones; each then fell outside a desired state built from what UDS ships and diffed as an orphan to remove. One project's plan proposed deleting 18 directories, 14 of them its own ops skills. Provenance is now a single signal: the name exists in UDS's own `skills/` tree. Skills UDS has since removed are warned about rather than deleted — nothing on disk distinguishes them from your own work, and leaving a stale directory with a warning is a better way to fail than deleting a file somebody hand-wrote. **If you are on 6.2.2 or 6.2.3 and keep your own skills alongside UDS's, run `uds update --plan` before applying anything.**
+
 ## [6.2.3] - 2026-07-31
 
 ### Fixed
