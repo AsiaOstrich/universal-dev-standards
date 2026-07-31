@@ -64,6 +64,28 @@ export function createBackup(projectPath, plan) {
     };
   }
 
+  // Make the backup invisible to git, from inside itself.
+  //
+  // WHY THIS IS NOT A LINE IN THE ADOPTER'S .gitignore. We create this directory
+  // in someone else's repository; making it disappear is our job, but editing
+  // their .gitignore to do it is not — that file is theirs, it may be generated,
+  // and a tool appending to it on every update is a worse trade than the problem.
+  // A `*` here ignores everything in this directory (this file included, which is
+  // fine: git reads .gitignore whether or not it is tracked), so `git status` and
+  // `git add -A` never see the backup at all, and nothing outside is touched.
+  //
+  // WHY IT EXISTS. Nothing ignored these directories, so `git add -A` in two
+  // sibling repos committed them: EngramGraph's 0.8.0 release commit took in 5
+  // backups — 360 files, 73,992 lines — and dev-platform took one. Both were
+  // public. The adopter is not the right place to put this responsibility: they
+  // did not create the directory and have no reason to expect it.
+  try {
+    writeFileSync(join(backupDir, '.gitignore'), '*\n', 'utf8');
+  } catch (err) {
+    // A backup that git can see still beats no backup — record and carry on.
+    errors.push(`Failed to write backup .gitignore: ${err.message}`);
+  }
+
   // Backup each file
   for (const relativePath of filesToBackup) {
     const sourcePath = join(projectPath, relativePath);
