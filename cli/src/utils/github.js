@@ -90,13 +90,32 @@ function httpGet(url) {
         return;
       }
 
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({
-        data,
-        statusCode: res.statusCode,
-        headers: res.headers
-      }));
+      // Collect Buffers and decode once at the end. `data += chunk` decoded each
+      // chunk on its own, so any character whose bytes straddled a chunk boundary
+      // became U+FFFD on both sides of the split. Latin text survived because its
+      // characters are one byte; Chinese standards are three bytes each and did
+      // not. `uds update --force` on one project downloaded four files and wrote
+      // 30 replacement characters into them — `日期` → `日�期`, `結構` → `結�構`
+      // — and reported every action as succeeded, because as far as the CLI was
+      // concerned the transfer completed and the file was written. (XSPEC-343)
+      const chunks = [];
+      res.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+      res.on('end', () => {
+        // try/catch because a throw inside an event handler does not reject the
+        // enclosing promise — it escapes, and the caller's await hangs forever.
+        // The first draft of this fix passed strings to Buffer.concat and the
+        // test run simply stopped, with no error to read. A hang is a worse
+        // failure than an exception: there is nothing to grep for.
+        try {
+          resolve({
+            data: Buffer.concat(chunks).toString('utf8'),
+            statusCode: res.statusCode,
+            headers: res.headers
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
       res.on('error', reject);
     }).on('error', reject);
   });
