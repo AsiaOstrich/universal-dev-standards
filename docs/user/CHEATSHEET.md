@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-07-22
+> Quick reference for all UDS features | Last updated: 2026-07-31
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -371,6 +371,7 @@
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Extract top-level Commander command names register |
+| `watch-model-versions.sh` | Model / tool version watch — XSPEC-357 AC-6.2 |
 
 ---
 

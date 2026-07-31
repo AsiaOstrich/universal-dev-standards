@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.6] - 2026-07-31
+
+### Added
+
+- **`uds update --apply`** — applies exactly the plan `uds update --plan` prints.
+
+### Fixed
+
+- **`--plan` told you to run a command that ignores the plan.** It printed "Run `uds update` to apply these changes", but plain `uds update` never reaches the reconciler — it runs the legacy path, refreshes existing standards, and reports success for that. On one upgrade it printed `✓ 69 standards updated` while all 8 deletions and 2 creations in the plan above were skipped; the files were still on disk afterwards. Nothing failed, so the output was indistinguishable from having applied the plan. `--force` was not the answer either: it recomputes with `force: true`, a larger plan that rewrites every managed file. **If you have been running `uds update` after reading a plan, the plan's deletions and creations were never applied** — run `uds update --plan` again to see what is still outstanding.
+
 ## [6.2.5] - 2026-07-31
 
 ### Fixed

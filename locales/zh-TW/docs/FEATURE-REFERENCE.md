@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-07-22
+> Auto-generated | Last updated: 2026-07-31
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (149)
-7. [腳本](#scripts) (57)
+7. [腳本](#scripts) (58)
 
-**Total Features: 331**
+**Total Features: 332**
 
 ---
 
@@ -108,6 +108,7 @@
 | `--commands` | Install/update slash commands for configured AI tools |
 | `--debug` | Show debug output for Skills/Commands detection |
 | `--plan` | Show reconciliation plan without executing (like terraform plan) |
+| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not) |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--rollback` | Rollback to the most recent backup |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
@@ -499,6 +500,7 @@
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Extract top-level Commander command names registered directly on the |
+| `watch-model-versions.sh` | Model / tool version watch — XSPEC-357 AC-6.2 |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.5
-translation_version: 6.2.5
+source_version: 6.2.6
+translation_version: 6.2.6
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,16 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.6] - 2026-07-31
+
+### 新增
+
+- **`uds update --apply`** —— 应用 `uds update --plan` 打印出的那个计划，一字不差。
+
+### 修复
+
+- **`--plan` 叫你去跑一个会忽略计划的命令。** 它打印出「Run `uds update` to apply these changes」，但 `uds update` 根本到不了 reconciler——它走 legacy 路径、更新既有标准，然后为**那件事**报告成功。某次升级它打印出 `✓ 已更新 69 个标准文件`，而上方计划里的 8 个删除、2 个新增一个都没做，那些文件事后仍在磁盘上。**没有任何一步失败**，所以输出与「已应用计划」无从分辨。`--force` 也不是答案：它以 `force: true` 重算，那是一个会重写每个受管文件的更大计划。**如果你过去读完计划后都是跑 `uds update`，那些删除与新增从未被应用**——请重跑 `uds update --plan` 看还有什么未处理。
 
 ## [6.2.5] - 2026-07-31
 
