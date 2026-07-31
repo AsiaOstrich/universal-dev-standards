@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.8] - 2026-07-31
+
+### Fixed
+
+- **Downloaded standards had their Chinese corrupted.** The HTTPS response was accumulated with `data += chunk`, which decodes each chunk on its own — so any character whose bytes straddled a chunk boundary became replacement characters (`日期` → `日�期`). One-byte Latin text was unaffected; three-byte CJK was not. Nothing failed along the way: the transfer completed, the file was written, the action reported success, and the damage was visible only by reading the text. Measured across one machine, **11 projects carried ~278 replacement characters** in their installed standards. The damage concentrates in `requirement-checklist.md`, `requirement-template.md`, `requirement-document-template.md` and locale packs — the files the published package does not ship (`files` carries no `templates/` or `extensions/`), so they can only arrive by download. **If your standards contain `�`, run `uds update --force` on 6.2.8 or later — the re-downloaded content is correct and replaces them.**
+
 ## [6.2.7] - 2026-07-31
 
 ### Fixed

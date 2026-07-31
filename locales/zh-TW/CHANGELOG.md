@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.7
-translation_version: 6.2.7
+source_version: 6.2.8
+translation_version: 6.2.8
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,12 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.8] - 2026-07-31
+
+### 修復
+
+- **下載回來的標準，中文是壞的。** HTTPS 回應以 `data += chunk` 累積，而那會對每一個分塊各自解碼——於是任何位元組跨在分塊邊界上的字元都變成替換字元（`日期` → `日�期`）。單位元組的拉丁文不受影響；三位元組的中日韓文字受影響。**過程中沒有任何一步失敗**：傳輸完成、檔案寫入、動作回報成功，損壞只有讀文字才看得見。在一台機器上實測，**11 個專案的已安裝標準裡共約 278 個替換字元**。損害集中在 `requirement-checklist.md`、`requirement-template.md`、`requirement-document-template.md` 與 locale 包——也就是發布包不出貨的那些檔（`files` 不含 `templates/` 與 `extensions/`），它們只可能靠下載取得。**若你的標準裡有 `�`，請在 6.2.8 以上跑 `uds update --force`——重新下載的內容是正確的，會覆蓋掉它們。**
 
 ## [6.2.7] - 2026-07-31
 
