@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.2.7] - 2026-07-31
+
+### Fixed
+
+- **The reconciler could not fetch extensions from any npm install.** Entries in `manifest.extensions` (locale packs and the like) reached the executor with no resolved source path, because the published package's `files` list carries no `extensions/` directory — so `uds update --force` failed them with `No source path available` while plain `uds update` refreshed the very same file. The executor now resolves extensions through `copyStandard`, the bundled → repo → download fallback it already used for registry entries and the one the legacy path had been using all along. Entries with no source of any kind still fail, as they should.
+
 ## [6.2.6] - 2026-07-31
 
 ### Added

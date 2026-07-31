@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.2.6
-translation_version: 6.2.6
+source_version: 6.2.7
+translation_version: 6.2.7
 last_synced: 2026-07-31
 status: current
 ---
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.2.7] - 2026-07-31
+
+### 修复
+
+- **reconciler 在任何 npm 安装下都取不到 extension。** `manifest.extensions` 的条目（locale 包之类）抵达 executor 时没有已解析的来源路径，因为发布包的 `files` 清单不含 `extensions/` 目录——于是 `uds update --force` 对它们报告 `No source path available`，而 `uds update` 却更新了同一个文件。executor 现在改以 `copyStandard` 解析 extension，那是它处理 registry entry 时本来就在用的 bundled → repo → download fallback，也正是 legacy 路径一直在用的那一条。完全没有任何来源的条目仍然会失败，本来就该如此。
 
 ## [6.2.6] - 2026-07-31
 
