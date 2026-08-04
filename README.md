@@ -215,6 +215,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 | **Documentation** | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | **CLI Tool** | [MIT](cli/LICENSE) |
 
+---
+
 ## Acknowledgments
 
 UDS draws architectural inspiration from these outstanding open-source projects:
