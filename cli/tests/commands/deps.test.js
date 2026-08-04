@@ -30,11 +30,24 @@ function fixture(pkg, lockVersions) {
   return dir;
 }
 
-/** A fake `npm view` driven by a name → result table. */
-function fakeNpm(table) {
+/**
+ * A fake `npm view` driven by a name → result table.
+ *
+ * Answers two shapes, because the real code makes two calls per dependency:
+ * `view <name>@<range> version --json` to resolve, then
+ * `view <name>@<version> --json` for the manifest that decides whether the
+ * package is native. `manifests` supplies the second; anything absent is
+ * treated as a plain JavaScript package.
+ */
+function fakeNpm(table, manifests = {}) {
   return async (args) => {
-    const spec = args[1]; // ['view', '<name>@<range>', 'version', '--json']
+    const spec = args[1];
     const name = spec.slice(0, spec.lastIndexOf('@'));
+    const wantsManifest = !args.includes('version');
+
+    if (wantsManifest) {
+      return { code: 0, stdout: JSON.stringify(manifests[name] ?? {}), stderr: '' };
+    }
     const entry = table[name];
     if (!entry) return { code: 1, stdout: '', stderr: 'npm error code E404\nnpm error 404 Not Found' };
     return { code: 0, stdout: JSON.stringify(entry), stderr: '' };
@@ -183,6 +196,93 @@ describe('measureResolutionDrift', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  describe('native dependencies behind a range (R2)', () => {
+    const NATIVE = { scripts: { install: 'node-gyp rebuild' }, dependencies: { 'node-addon-api': '^7.0.0' } };
+
+    it('flags a native dependency declared with a caret, even with no drift', async () => {
+      // The VibeOps tree-sitter case: the range matches exactly one published
+      // version today, so nothing drifts — and the exposure is total the
+      // moment upstream publishes again.
+      const dir = fixture({ name: 'p', dependencies: { 'tree-sitter': '^0.22.4' } }, { 'tree-sitter': '0.22.4' });
+      try {
+        const r = await measureResolutionDrift(dir, {
+          run: fakeNpm({ 'tree-sitter': '0.22.4' }, { 'tree-sitter': NATIVE }),
+        });
+        expect(r.drifted).toEqual([]);
+        expect(r.unpinnedNative).toHaveLength(1);
+        expect(r.unpinnedNative[0].name).toBe('tree-sitter');
+        expect(r.clean).toBe(false);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('accepts a native dependency pinned to an exact version', async () => {
+      const dir = fixture({ name: 'p', dependencies: { 'tree-sitter': '0.22.4' } }, { 'tree-sitter': '0.22.4' });
+      try {
+        const r = await measureResolutionDrift(dir, {
+          run: fakeNpm({ 'tree-sitter': '0.22.4' }, { 'tree-sitter': NATIVE }),
+        });
+        expect(r.unpinnedNative).toEqual([]);
+        expect(r.clean).toBe(true);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('leaves pure JavaScript dependencies alone', async () => {
+      // Flagging every caret would make the check unusable and train people to
+      // ignore it. Only native packages are held to the stricter rule.
+      const dir = fixture({ name: 'p', dependencies: { chalk: '^5.0.0' } }, { chalk: '5.6.2' });
+      try {
+        const r = await measureResolutionDrift(dir, {
+          run: fakeNpm({ chalk: '5.6.2' }, { chalk: { scripts: { test: 'ava' } } }),
+        });
+        expect(r.unpinnedNative).toEqual([]);
+        expect(r.clean).toBe(true);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('detects a native package by its build dependency alone', async () => {
+      // better-sqlite3 13.x dropped its install script while staying native.
+      // A detector keyed only on install scripts would silently stop flagging
+      // it, so the build-dependency signal has to stand on its own.
+      const dir = fixture({ name: 'p', dependencies: { 'better-sqlite3': '^12.8.0' } }, { 'better-sqlite3': '12.8.0' });
+      try {
+        const r = await measureResolutionDrift(dir, {
+          run: fakeNpm(
+            { 'better-sqlite3': '12.8.0' },
+            { 'better-sqlite3': { scripts: { test: 'mocha' }, dependencies: { 'prebuild-install': '^7.1.1' } } }
+          ),
+        });
+        expect(r.unpinnedNative).toHaveLength(1);
+        expect(r.unpinnedNative[0].native.reasons.join()).toMatch(/prebuild-install/);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
+    it('treats a manifest it cannot read as unknown, not as "not native"', async () => {
+      // Silence here would read as "this one is fine", which is the shape the
+      // whole module exists to refuse.
+      const dir = fixture({ name: 'p', dependencies: { thing: '^1.0.0' } }, { thing: '1.0.0' });
+      const run = async (args) => {
+        if (!args.includes('version')) return { code: 1, stdout: '', stderr: 'npm error E500' };
+        return { code: 0, stdout: JSON.stringify('1.0.0'), stderr: '' };
+      };
+      try {
+        const r = await measureResolutionDrift(dir, { run });
+        expect(r.unverifiable).toHaveLength(1);
+        expect(r.unverifiable[0].error).toMatch(/could not classify/);
+        expect(r.clean).toBe(false);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
   });
 
   it('fails loudly when there is no package.json to read', async () => {

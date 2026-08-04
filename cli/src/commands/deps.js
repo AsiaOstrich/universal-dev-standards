@@ -48,6 +48,23 @@ function render(result) {
     lines.push(chalk.dim('  themselves, because a published package does not ship a lockfile.'));
   }
 
+  if (result.unpinnedNative.length > 0) {
+    lines.push('');
+    lines.push(chalk.yellow(`  ${result.unpinnedNative.length} native dependenc${result.unpinnedNative.length === 1 ? 'y is' : 'ies are'} behind a version range:`));
+    for (const n of result.unpinnedNative) {
+      lines.push(
+        `    ${chalk.bold(n.name)}  ${chalk.dim(n.range)}` +
+          `  ${chalk.dim('(' + n.native.reasons.join('; ') + ')')}`
+      );
+    }
+    lines.push('');
+    lines.push(chalk.dim('  Flagged whether or not they are drifting today. semver makes no'));
+    lines.push(chalk.dim('  promise about native ABI compatibility, and this ecosystem has'));
+    lines.push(chalk.dim('  broken it inside a minor range. A range that matches one published'));
+    lines.push(chalk.dim('  version is safe because upstream has not published again — waiting'));
+    lines.push(chalk.dim('  for drift means waiting until your users already have it.'));
+  }
+
   if (result.unverifiable.length > 0) {
     lines.push('');
     lines.push(chalk.red(`  ${result.unverifiable.length} could not be checked:`));

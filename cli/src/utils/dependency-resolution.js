@@ -32,6 +32,21 @@
  * becomes `unverifiable` and makes the whole check non-zero. A tool whose
  * "everything is fine" and "I could not find out" look the same is worse than
  * no tool: it converts an unknown into a reassurance.
+ *
+ * ## Native dependencies are held to a stricter rule (XSPEC-366 R2)
+ *
+ * A package with a native binding is flagged when its declared version is a
+ * range rather than an exact version — **even when it is not currently
+ * drifting**. That is not general dependency hygiene, it is a response to
+ * measured behaviour: the tree-sitter ecosystem has broken ABI inside a minor
+ * range, and semver makes no promise about native ABI compatibility.
+ *
+ * The distinction matters because "not drifting" is a fact about today. Four
+ * tree-sitter ranges in one AsiaOstrich project currently match exactly one
+ * published version each, so nothing drifts — while the range that caused the
+ * incident next door matched two. They are safe because upstream has not
+ * published again, not because anything guarantees it, and waiting for drift
+ * means waiting until users already have it.
  */
 
 import { spawn } from 'node:child_process';
@@ -75,6 +90,55 @@ async function resolveViaNpm(name, range, run) {
     throw new Error(`no version in [${parsed.join(', ')}] satisfies ${range}`);
   }
   throw new Error('npm view returned no version');
+}
+
+/**
+ * Signals that a package carries a native binding, in the package's own
+ * manifest. Both are needed: `better-sqlite3@12.8.0` declares an `install`
+ * script *and* gyp-family dependencies, but its own 13.x dropped the install
+ * script while remaining native — a detector using only that signal would
+ * silently stop flagging it.
+ */
+const INSTALL_SCRIPTS = ['preinstall', 'install', 'postinstall'];
+const NATIVE_BUILD_DEPS = /node-gyp|prebuild|node-addon-api|cmake-js|^bindings$/;
+
+/** A declared version with no range operator at all. */
+function isExactVersion(range) {
+  return /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(range.trim());
+}
+
+/**
+ * Fetch the manifest of one exact version and decide whether it is native.
+ *
+ * **The version is always specified.** `npm view <name> scripts` answers about
+ * the *latest* published version, not the one being examined — measured on
+ * 2026-08-04: `better-sqlite3` at latest reports no install script while the
+ * 12.8.0 actually in use declares one. Querying the bare name would produce a
+ * confident answer about a different package version, which is the exact class
+ * of error this whole module exists to detect.
+ *
+ * The full manifest is requested rather than named fields, because npm
+ * unwraps the object when only one requested field exists — asking for
+ * `scripts dependencies` on a package with no dependencies returns the scripts
+ * map itself, with no `scripts` key to read it from.
+ */
+async function classifyNative(name, version, run) {
+  const { code, stdout, stderr } = await run(['view', `${name}@${version}`, '--json']);
+  if (code !== 0) {
+    const detail = (stderr || stdout || '').split('\n').find((l) => l.trim()) ?? '';
+    throw new Error(detail.trim() || `npm view exited ${code}`);
+  }
+  const manifest = JSON.parse(stdout);
+  const scripts = manifest.scripts ?? {};
+  const deps = { ...(manifest.dependencies ?? {}) };
+
+  const reasons = [];
+  const hookNames = INSTALL_SCRIPTS.filter((k) => typeof scripts[k] === 'string');
+  if (hookNames.length > 0) reasons.push(`${hookNames.join('/')} script`);
+  const buildDeps = Object.keys(deps).filter((d) => NATIVE_BUILD_DEPS.test(d));
+  if (buildDeps.length > 0) reasons.push(`depends on ${buildDeps.join(', ')}`);
+
+  return { native: reasons.length > 0, reasons };
 }
 
 /** Default runner: spawn npm and collect its output. */
@@ -139,11 +203,19 @@ export async function measureResolutionDrift(root, options = {}) {
 
   const rows = await mapWithConcurrency(declared, concurrency, async (dep) => {
     const locked = lock?.packages?.[`node_modules/${dep.name}`]?.version ?? null;
+    let resolved;
     try {
-      const resolved = await resolveViaNpm(dep.name, dep.range, run);
-      return { ...dep, locked, resolved, error: null };
+      resolved = await resolveViaNpm(dep.name, dep.range, run);
     } catch (err) {
-      return { ...dep, locked, resolved: null, error: err.message };
+      return { ...dep, locked, resolved: null, native: null, error: err.message };
+    }
+    try {
+      const native = await classifyNative(dep.name, resolved, run);
+      return { ...dep, locked, resolved, native, error: null };
+    } catch (err) {
+      // The version resolved but the manifest did not. We cannot say whether
+      // this one needs pinning, and saying nothing would read as "it doesn't".
+      return { ...dep, locked, resolved, native: null, error: `could not classify: ${err.message}` };
     }
   });
 
@@ -152,6 +224,13 @@ export async function measureResolutionDrift(root, options = {}) {
   // the same class of mistake as reporting a failed lookup as fine.
   const unverifiable = rows.filter((r) => r.error !== null || r.locked === null);
   const drifted = rows.filter((r) => r.error === null && r.locked !== null && r.locked !== r.resolved);
+
+  // XSPEC-366 R2. Independent of drift on purpose: a native dependency behind
+  // a range is exposed whether or not upstream has published into it yet.
+  const unpinnedNative = rows.filter(
+    (r) => r.native?.native === true && !isExactVersion(r.range)
+  );
+
   const consistent = rows.length - unverifiable.length - drifted.length;
 
   return {
@@ -162,7 +241,8 @@ export async function measureResolutionDrift(root, options = {}) {
     consistent,
     drifted,
     unverifiable,
-    /** True when every dependency was checked and every one agreed. */
-    clean: drifted.length === 0 && unverifiable.length === 0,
+    unpinnedNative,
+    /** True when every dependency was checked, agreed, and needs no pinning. */
+    clean: drifted.length === 0 && unverifiable.length === 0 && unpinnedNative.length === 0,
   };
 }
