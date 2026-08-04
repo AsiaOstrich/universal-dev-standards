@@ -1,6 +1,6 @@
 # Supply Chain Security Standards
 
-> **Language**: English | [繁體中文](../locales/zh-TW/core/supply-chain-security-standards.md)
+> **Language**: English | [繁體中文](../locales/zh-TW/core/supply-chain-security-standards.md) | [简体中文](../locales/zh-CN/core/supply-chain-security-standards.md)
 
 **Version**: 1.1.0
 **Last Updated**: 2026-08-04

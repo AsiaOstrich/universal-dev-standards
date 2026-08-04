@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.0] - 2026-08-04
+
+### Added
+
+- **`uds deps` — does what you test match what your users install?** A published package does not carry its lockfile: your CI tests the versions `package-lock.json` pins, your users get whatever the declared ranges resolve to at their install time. When those differ, the whole suite is green about a combination nobody installs, and that green is indistinguishable from a real one. The command compares all three numbers per runtime dependency and reports **only the differences**, with the denominator alongside — a table of agreeing rows gets skimmed, and so do the two that mattered.
+  - **Native dependencies are held to a stricter rule.** A package with a native binding is flagged when it is declared with a range, **whether or not it is currently drifting**. semver makes no promise about native ABI compatibility, and this ecosystem has broken it inside a minor range. A range matching exactly one published version is safe because upstream has not published again, not because anything guarantees it — waiting for drift means waiting until your users already have it.
+  - **A lookup that fails is never reported as agreement.** It becomes `unverifiable` and fails the run. A check whose "everything is fine" and "I could not find out" look the same converts an unknown into a reassurance.
+  - `--path`, `--json`, `--concurrency`.
+
+### Changed
+
+- **`supply-chain-security-standards` 1.0.0 → 1.1.0 — the Lock Strategy entry was correct and incomplete.** It said "use lock files, always committed to Git", which reads as complete and gave nobody following it a reason to look further — while a committed lock file constrains *your* build and reaches none of your users. Rewritten in place rather than annotated with a caveat, because a "but note…" appended under an unchanged rule leaves the original line misleading to anyone who reads only that line, and a standards table is mostly read one line at a time. The new section states the failure with the case that produced it, adds four requirements for projects that publish, and scopes itself explicitly to published artifacts — a deployed service ships its lock file with it and is unaffected.
+
+### Notes
+
+- The standard's `.ai.yaml` remains a five-line stub with no machine-readable rules — **one of four out of 141**, alongside `design-document-standards`, `estimation-standards` and `privacy-standards`, so an agent reading the `ai/` layer gets nothing for any of them. This release deliberately did not add its one new rule there: a single rule in an otherwise empty file makes coverage look better than it is. The gap is now recorded inside the file.
+
 ## [6.2.8] - 2026-07-31
 
 ### Fixed
