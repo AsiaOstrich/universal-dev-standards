@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/supply-chain-security-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-04-01
+**Version**: 1.1.0
+**Last Updated**: 2026-08-04
 **Applicability**: All software projects with external dependencies
 **Scope**: universal
 **Industry Standards**: SLSA, SPDX, CycloneDX, OpenSSF Scorecard
@@ -115,7 +115,7 @@ L1 (All projects) → L2 (CI/CD projects) → L3 (Security-critical) → L4 (Hig
 | **Patch** (x.y.Z) | Auto-merge after CI passes | Fully automated (Dependabot/Renovate) |
 | **Minor** (x.Y.0) | Auto-create PR, manual review | Semi-automated |
 | **Major** (X.0.0) | Manual evaluation, migration plan | Manual with changelog review |
-| **Lock Strategy** | Use lock files (package-lock.json, yarn.lock, Pipfile.lock) | Always committed to Git |
+| **Lock Strategy** | Commit lock files — **and, if you publish, separately verify what consumers resolve to** (see below) | Lock file committed; consumer resolution checked at release |
 
 ### Update Rules
 
@@ -123,6 +123,50 @@ L1 (All projects) → L2 (CI/CD projects) → L3 (Security-critical) → L4 (Hig
 - Patch updates SHOULD be applied within 7 days
 - Security patches MUST be applied within 48 hours (Critical) or 7 days (High)
 - Major version upgrades SHOULD be evaluated quarterly
+
+### A lock file does not constrain your consumers
+
+A committed lock file makes **your** builds reproducible. It does not reach
+anyone who installs your package: a published npm tarball, a PyPI wheel, a
+Ruby gem — none of them carry the lock file. Consumers resolve your declared
+ranges themselves, at their install time, and get whatever satisfies them then.
+
+**When those two differ, your test suite is green about a combination nobody
+installs — and that green is indistinguishable from a real one.**
+
+This is the failure mode, observed rather than hypothesised: a project declared
+`"tree-sitter-c-sharp": "^0.23.1"`. Three published versions satisfied that
+range and they did not share an API. npm resolves a caret to the newest match,
+so every fresh install received the incompatible one, and **no C# file ever
+parsed for anyone who installed from the registry** — while the lock file
+pinned the working version and every test passed, for the entire life of that
+feature. The project's own source comments even documented the incompatible
+version; the caret quietly re-admitted it.
+
+Projects that **publish a package** therefore MUST additionally:
+
+- **Know what a consumer's install resolves to.** Compare, per runtime
+  dependency, the declared range, the locked version, and the version that
+  range resolves to today. Report only the differences — a table of agreeing
+  rows gets skimmed, and the ones that mattered go with it.
+- **Declare native dependencies as exact versions.** Packages with a native
+  binding (an install-family script, or a dependency on node-gyp / prebuild /
+  node-addon-api / cmake-js and equivalents) MUST NOT be declared with a range.
+  semver makes no promise about native ABI compatibility, and this has been
+  broken inside a minor range in practice. Flag these **whether or not they are
+  currently drifting**: a range matching exactly one published version is safe
+  because upstream has not published again, not because anything guarantees it.
+- **Run the test suite against consumer resolution before release.** Install
+  without the lock file and run the real suite against the result. This is the
+  only check in this section that does not need to be told in advance which
+  dependency will break.
+- **Treat a lookup that fails as unknown, never as agreement.** A check whose
+  "everything is fine" and "I could not find out" look the same converts an
+  unknown into a reassurance.
+
+> **Applies to published artifacts, not to applications.** A deployed service
+> ships its lock file with it, so its build and its runtime see the same
+> versions. This section is about packages other people install.
 
 ---
 

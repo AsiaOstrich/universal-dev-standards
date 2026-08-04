@@ -1,5 +1,13 @@
 id: supply-chain-security-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-04-01"
+  version: "1.1.0"
+  updated: "2026-08-04"
   source: core/supply-chain-security-standards.md
+  # NOTE: this file is a STUB. It carries no machine-readable rules, so an
+  # agent reading the ai/ layer gets nothing for this standard — the same is
+  # true of design-document-standards, estimation-standards and
+  # privacy-standards (4 of 141 as of 2026-08-04). The version above tracks
+  # the .md it points at; it does not mean the .md's rules are represented
+  # here. XSPEC-366 R4 rewrote that .md's Lock Strategy section and
+  # deliberately did not add a single rule here: one rule in an otherwise
+  # empty file would make coverage look better than it is.
