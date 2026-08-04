@@ -15,6 +15,7 @@ import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { auditCommand } from '../src/commands/audit.js';
+import { depsCommand } from '../src/commands/deps.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand, specSearchCommand } from '../src/commands/spec.js';
 import { quickstartCommand } from '../src/commands/quickstart.js';
@@ -243,6 +244,14 @@ program
   .option('--ci', 'CI mode: output score only, exit 1 if below threshold (use with --score)')
   .option('--threshold <n>', 'Score threshold for CI mode (default: 75)', '75')
   .action(auditCommand);
+
+program
+  .command('deps')
+  .description('Compare what you test against what your users install (published packages ship no lockfile)')
+  .option('--path <dir>', 'Directory containing package.json (default: cwd)')
+  .option('--json', 'Output raw JSON')
+  .option('--concurrency <n>', 'Parallel registry lookups (default: 8)')
+  .action(depsCommand);
 
 program
   .command('uninstall')
