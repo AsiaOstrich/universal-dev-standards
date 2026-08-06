@@ -2,10 +2,20 @@
  * Shipped dependency resolution integrity. // implements XSPEC-366 R1
  *
  * **The problem this measures.** A published npm package does not carry its
- * lockfile. Your CI tests the versions `package-lock.json` pins; your users get
- * whatever the declared ranges resolve to at their install time. When those two
- * differ, the entire test suite is green about a combination nobody installs —
- * and that green is indistinguishable from a real one.
+ * lockfile. Your CI tests the versions `package-lock.json` pins; whoever
+ * installs the package gets whatever the declared ranges resolve to at their
+ * install time. When those two differ, the entire test suite is green about a
+ * combination nobody installs — and that green is indistinguishable from a
+ * real one.
+ *
+ * **Who "whoever" is depends on how the project ships, and this module cannot
+ * know that.** For a published package it is every consumer. For a product
+ * distributed as a container image built with `npm ci`, its users get the
+ * pinned column exactly, and the resolved column is instead what the next
+ * lockfile regeneration will pull in — unreviewed, whenever someone happens to
+ * run it. Both are worth knowing; neither is safe to assert as the other. The
+ * report says both rather than picking one, and labels the column `resolves=`
+ * for the same reason.
  *
  * This is not hypothetical. `engramgraph` declared
  * `"tree-sitter-c-sharp": "^0.23.1"`. Three published versions satisfy that

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds deps` asserted a distribution channel it cannot know.** The report ended with "consumers resolve the range themselves, because a published package does not ship a lockfile", and labelled the third column `users get=`. Both are false for a product distributed as a container image built with `npm ci` — its users get the `tested=` column exactly, and the resolved column is instead what the next lockfile regeneration will pull in, unreviewed. Found by running the command against a closed-source product that ships a Docker image and does not publish to npm at all. The column is now `resolves=` and the report states both readings, because a row read on its own must not say the opposite of the truth. This is the same correction 1.1.0 made to the Lock Strategy entry — appending a "but note…" under a misleading line leaves the line misleading, and a report, like a standards table, is mostly read one line at a time. Three tests now hold the wording in place; nothing did before.
+
 ## [6.3.1] - 2026-08-06
 
 ### Fixed

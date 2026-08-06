@@ -14,6 +14,10 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { measureResolutionDrift } from '../../src/utils/dependency-resolution.js';
+import { render } from '../../src/commands/deps.js';
+
+/** chalk keeps colour on in some CI shells; match on the text, not the escapes. */
+const stripAnsi = (s) => s.replace(/\u001b\[[0-9;]*m/g, '');
 
 /** Build a throwaway package/lock pair and return its directory. */
 function fixture(pkg, lockVersions) {
@@ -292,5 +296,50 @@ describe('measureResolutionDrift', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('the report does not assert a distribution channel it cannot know', () => {
+  // The first version of this output said only "consumers resolve the range
+  // themselves, because a published package does not ship a lockfile". That
+  // is plainly false for a product distributed as a container image built
+  // with `npm ci` — its users get the pinned column exactly. The standard
+  // this command implements scopes itself to published artifacts; the command
+  // did not. These assertions exist because nothing else held the wording in
+  // place, so the narrower claim could come back without a single test going
+  // red.
+  const drifted = {
+    packageName: 'demo',
+    root: '/tmp/demo',
+    examined: 2,
+    hasLockfile: true,
+    drifted: [{ name: 'left-pad', range: '^1.0.0', locked: '1.0.0', resolved: '1.3.0' }],
+    unverifiable: [],
+    unpinnedNative: [],
+    consistent: 1,
+    clean: false,
+  };
+
+  it('states the published-package reading', () => {
+    const out = stripAnsi(render(drifted));
+    expect(out).toMatch(/If you publish this package, that column reaches nobody/);
+    expect(out).toMatch(/consumers resolve the ranges themselves/);
+  });
+
+  it('labels the third column neutrally, because "users get" is false for some channels', () => {
+    const out = stripAnsi(render(drifted));
+    expect(out).toMatch(/tested=1\.0\.0\s+resolves=1\.3\.0/);
+    expect(out).not.toMatch(/users get=/);
+  });
+
+  it('states the ships-its-own-lockfile reading too', () => {
+    const out = stripAnsi(render(drifted));
+    expect(out).toMatch(/container image/);
+    expect(out).toMatch(/next lockfile\s+regeneration pulls in/);
+  });
+
+  it('says nothing about consumers when there is no drift to explain', () => {
+    const out = stripAnsi(render({ ...drifted, drifted: [], consistent: 2, clean: true }));
+    expect(out).not.toMatch(/consumers resolve/);
   });
 });

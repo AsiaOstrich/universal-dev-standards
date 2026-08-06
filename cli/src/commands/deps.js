@@ -23,7 +23,7 @@ import { measureResolutionDrift } from '../utils/dependency-resolution.js';
  * denominator is still printed, because "no drift" and "nothing was checked"
  * produce the same silence otherwise, and only one of them is good news.
  */
-function render(result) {
+export function render(result) {
   const lines = [];
   const label = result.packageName ? chalk.bold(result.packageName) : result.root;
 
@@ -40,12 +40,31 @@ function render(result) {
     for (const d of result.drifted) {
       lines.push(
         `    ${chalk.bold(d.name)}  ${chalk.dim(d.range)}` +
-          `  tested=${chalk.cyan(d.locked)}  users get=${chalk.yellow(d.resolved)}`
+          `  tested=${chalk.cyan(d.locked)}  resolves=${chalk.yellow(d.resolved)}`
       );
     }
     lines.push('');
-    lines.push(chalk.dim('  Your lockfile pins the tested column; consumers resolve the range'));
-    lines.push(chalk.dim('  themselves, because a published package does not ship a lockfile.'));
+    // Which of these two readings applies depends on how the project ships,
+    // and this command cannot know that — so it states both rather than
+    // asserting one. The first draft said only "consumers resolve the range
+    // themselves, because a published package does not ship a lockfile",
+    // which is plainly false for a product distributed as a container image
+    // built with `npm ci`. The standard this command implements scopes itself
+    // to published artifacts; the command did not, and a check that overstates
+    // its own conclusion is the thing it exists to catch.
+    // The column is labelled `resolves=`, not `users get=`. The second reads
+    // correctly on its own only for a published package; for a container image
+    // its users get the `tested=` column exactly, and a row read alone would
+    // then say the opposite of the truth. Leaving the label and explaining it
+    // underneath is the "but note…" this project's own supply-chain standard
+    // was rewritten to stop doing — a line of a report, like a line of a
+    // standards table, is mostly read one line at a time.
+    lines.push(chalk.dim('  Your lockfile pins the tested column.'));
+    lines.push(chalk.dim('  If you publish this package, that column reaches nobody — a published'));
+    lines.push(chalk.dim('  package ships no lockfile, so consumers resolve the ranges themselves.'));
+    lines.push(chalk.dim('  If instead you ship the lockfile with the artifact (a container image,'));
+    lines.push(chalk.dim('  a deployed service), the third column is what the next lockfile'));
+    lines.push(chalk.dim('  regeneration pulls in — unreviewed, and by whoever happens to run it.'));
   }
 
   if (result.unpinnedNative.length > 0) {
@@ -62,7 +81,7 @@ function render(result) {
     lines.push(chalk.dim('  promise about native ABI compatibility, and this ecosystem has'));
     lines.push(chalk.dim('  broken it inside a minor range. A range that matches one published'));
     lines.push(chalk.dim('  version is safe because upstream has not published again — waiting'));
-    lines.push(chalk.dim('  for drift means waiting until your users already have it.'));
+    lines.push(chalk.dim('  for drift means waiting until it is already inside something you ship.'));
   }
 
   if (result.unverifiable.length > 0) {

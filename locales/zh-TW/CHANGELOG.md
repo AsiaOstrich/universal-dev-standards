@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 修復
+
+- **`uds deps` 斷言了一個它無從得知的出貨管道。** 報告結尾寫著「consumers resolve the range themselves, because a published package does not ship a lockfile」，第三欄標為 `users get=`。對一個以 `npm ci` 建置、出貨 Docker image 的產品，這兩句都是錯的——它的使用者拿到的正是 `tested=` 那一欄，而解析出的那一欄實際代表的是「下一次 lockfile 重新產生時會被無人審閱地拉進來的東西」。發現方式是拿這個指令去跑一個出貨 Docker image、根本沒發到 npm 的閉源產品。欄位改為 `resolves=`，報告同時陳述兩種讀法——因為單獨讀一列時，它不能說出與事實相反的話。這與 1.1.0 對 Lock Strategy 條目所做的修正是同一件事：在一句誤導的話下面補「但是……」，那句話仍然誤導，而報告和標準表格一樣，多半是一次讀一行。現在有三個測試把措辭釘住，先前一個都沒有。
+
 ## [6.3.1] - 2026-08-06
 
 ### 修復
