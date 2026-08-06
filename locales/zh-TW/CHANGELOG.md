@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.0
-translation_version: 6.3.0
-last_synced: 2026-08-04
+source_version: 6.3.1
+translation_version: 6.3.1
+last_synced: 2026-08-06
 status: current
 ---
 
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.1] - 2026-08-06
+
+### 修復
+
+- **6.3.0 從來沒有到達 npm——而這一版的存在，正是因為它自己描述的那個失效。** 發版流程有跑，它的 clean-room job 在 `npm ci` 這一步失敗，錯誤是 `EUSAGE … Missing: @emnapi/core@1.11.3 from lock file`，`Publish to npm` 被跳過。lock 檔是被 `npm install --save semver` 重新產生的，過程中掉了 `npm ci` 需要的傳遞相依項目；我在本機跑的檢查接受了它，所以這個不一致要到發版 job 才顯形——那時 tag 與 GitHub Release 都已經公開。改以最後一份 `npm ci` 確實能通過的 lock 檔為基礎重建，只加進 semver 那一筆，並在整個 CI 矩陣上驗證，而不是只在一台機器上。
+- **`v6.3.0` 保留不刪，其 release 說明已改為註明它從未發布。** 一個沒有 npm 對應版本的 tag，正是 `uds deps` 被寫出來要抓的那種不一致；刪掉它移除的是證據，不是落差。**6.3.1 完整包含 6.3.0 的全部內容**，見下方。
 
 ## [6.3.0] - 2026-08-04
 
