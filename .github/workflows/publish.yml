@@ -3,6 +3,14 @@ name: Publish to npm
 on:
   release:
     types: [published]
+  # Lets the two gate jobs below be exercised without cutting a release.
+  # 6.3.0's tag and GitHub Release went public and its publish job was then
+  # skipped, because a gate ahead of it was executing for the first time
+  # against a real release. A gate that has never run is not a gate; it is an
+  # untested step that happens to sit on the critical path. `publish` is
+  # guarded by `if: github.event_name == 'release'`, so a manual dispatch runs
+  # the checks and cannot publish.
+  workflow_dispatch:
 
 jobs:
   clean-room-install:
@@ -163,6 +171,9 @@ jobs:
   publish:
     name: Publish to npm
     needs: [clean-room-install, consumer-resolution]
+    # A manual dispatch exercises the gates only. Publishing happens on a
+    # published release and nowhere else.
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     defaults:
       run:
