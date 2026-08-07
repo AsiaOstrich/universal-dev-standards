@@ -2,8 +2,8 @@
 source: ../../../core/verification-oracle.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 16e45bd68616
+last_synced: 2026-07-30
+source_hash: bfd2405d25cf
 status: current
 ---
 

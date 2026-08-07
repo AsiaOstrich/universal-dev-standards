@@ -3,8 +3,8 @@ name: dev-workflow-guide
 source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 5bf83f0db544
+last_synced: 2026-07-30
+source_hash: bb3068d840d8
 status: current
 description: "[UDS] 將軟體開發階段對應到 UDS 指令與功能的指南"
 ---

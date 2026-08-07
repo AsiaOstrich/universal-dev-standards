@@ -2,8 +2,8 @@
 source: ../../../core/runbook.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 443fb8c4e692
+last_synced: 2026-07-30
+source_hash: 7cb3480f8fda
 status: current
 ---
 

@@ -2,8 +2,8 @@
 source: ../../../core/user-journey-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-24
-source_hash: 6d57ca40bd8e
+last_synced: 2026-07-30
+source_hash: 11e0a5b9971d
 status: current
 ---
 
