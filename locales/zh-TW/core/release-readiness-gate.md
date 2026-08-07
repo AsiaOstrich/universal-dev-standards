@@ -2,8 +2,8 @@
 source: ../../../core/release-readiness-gate.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-02
-source_hash: 3d156e19680e
+last_synced: 2026-07-23
+source_hash: 622d8cb59abb
 ---
 
 # 發布就緒閘門（Release Readiness Gate）

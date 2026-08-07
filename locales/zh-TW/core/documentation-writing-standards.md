@@ -2,7 +2,8 @@
 source: ../../../core/documentation-writing-standards.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-03-17
+last_synced: 2026-07-23
+source_hash: 9d2d83e23aef
 status: current
 ---
 
@@ -13,6 +14,9 @@ status: current
 **版本**: 1.2.0
 **最後更新**: 2026-03-17
 **適用範圍**: 所有軟體專案（新建、重構、遷移、維護）
+**範圍**: partial
+**業界標準**: OpenAPI 3.1、AsyncAPI 2.6、JSON Schema 2020-12、WCAG 2.1（文件無障礙）
+**參考**: [openapis.org](https://www.openapis.org/)
 
 ---
 
@@ -115,6 +119,38 @@ status: current
 
 **建議文件**:
 - 依變更範圍更新其他文件
+
+---
+
+## 文件語言設定
+
+文件語言與 [commit-message-guide.md](commit-message-guide.md) 共用 `output_language` 設定。此統一設定控制專案中所有書面輸出的語言。
+
+### 語言選項
+
+| 設定值 | Commit 訊息 | 文件 |
+|--------------|----------------|---------------|
+| `english` | 僅英文 | 僅英文 |
+| `traditional-chinese` | 僅繁體中文 | 僅繁體中文 |
+| `bilingual` | 英文 + 中文 | 分層雙語（見下方） |
+
+### 文件分層（雙語模式）
+
+當 `output_language` 設為 `bilingual` 時，文件遵循三層系統：
+
+| 層級 | 文件 | 行為 | 理由 |
+|------|-----------|----------|-----------|
+| **L1 — 必要** | Commit 訊息、CHANGELOG.md、PR 說明 | 自動雙語 | 直接由語言設定控制 |
+| **L2 — 建議** | README.md、CONTRIBUTING.md、ADR/ | AI 建議雙語 | 開發者最常閱讀 |
+| **L3 — 不受影響** | ARCHITECTURE.md、API.md、DATABASE.md、DEPLOYMENT.md、MIGRATION.md | 遵循顯示語言 | 技術規格；雙語會造成過多冗餘 |
+
+### 雙語文件格式
+
+使用段落層級雙語格式，與雙語 commit 訊息內文一致：
+
+- 英文段落在前，接著空一行，然後是中文段落
+- 程式碼區塊和表格只寫一次（不重複）
+- 章節標題使用 `|` 分隔：`## Installation | 安裝`
 
 ---
 
@@ -502,17 +538,61 @@ version: 2.1.0
 last_updated: 2026-01-24
 owner: auth-team
 status: stable
+dependencies:
+  - user-service
+  - token-service
 ---
 ```
 
 **模式 2：清晰的章節標記**
 
+使用 AI 能辨識的一致章節標題：
+
 ```markdown
 ## Overview / 概述
+[此元件/API 的簡短說明]
+
 ## Quick Start / 快速開始
+[開始使用的最少步驟]
+
 ## API Reference / API 參考
+[詳細的 API 文件]
+
 ## Configuration / 配置
+[配置選項與預設值]
+
 ## Troubleshooting / 故障排除
+[常見問題與解決方法]
+```
+
+**模式 3：明確範例**
+
+提供帶有清晰情境的完整、可執行範例：
+
+```markdown
+### 範例：建立使用者
+
+**前置條件**：
+- 有效的 API 金鑰
+- Admin 角色
+
+**請求**：
+```bash
+curl -X POST https://api.example.com/v1/users \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John", "email": "john@example.com"}'
+```
+
+**回應**（201 Created）：
+```json
+{
+  "id": "usr_123",
+  "name": "John",
+  "email": "john@example.com",
+  "created_at": "2026-01-24T10:30:00Z"
+}
+```
 ```
 
 ### LLM 最佳化寫作規則
@@ -552,6 +632,8 @@ last_validated: 2026-03-17
 
 ### 為 AI 程式碼生成撰寫
 
+當文件將用於生成程式碼時：
+
 **包含明確限制**:
 
 ```markdown
@@ -564,6 +646,18 @@ last_validated: 2026-03-17
 | role | string | 列舉: "admin", "user", "guest" |
 ```
 
+**明確錯誤情境**:
+
+```markdown
+## 錯誤回應
+
+| 情境 | HTTP 狀態碼 | 錯誤碼 | 訊息 |
+|----------|-------------|------------|---------|
+| Email 無效 | 400 | INVALID_EMAIL | "Email format is invalid" |
+| 使用者已存在 | 409 | DUPLICATE_USER | "User with this email already exists" |
+| 缺少認證 | 401 | UNAUTHORIZED | "Authentication required" |
+```
+
 **明確業務邏輯**:
 
 ```markdown
@@ -572,7 +666,34 @@ last_validated: 2026-03-17
 1. 基礎折扣 = 0%
 2. 若客戶類型為 "VIP"，加 20%
 3. 若訂單總額 > $100，加 5%
-4. 最大總折扣 = 50%
+4. 若優惠券代碼有效，加上優惠券折扣
+5. 最大總折扣 = 50%
+6. 折扣套用於小計（不含稅）
+```
+
+### AI 提示詞整合
+
+對於定義 AI 輔助工作流程的文件：
+
+**內嵌提示詞範本**：
+
+```markdown
+## AI 程式碼審查提示詞
+
+審查程式碼變更時，使用以下提示詞：
+
+```
+Review this code change for:
+1. Security vulnerabilities (OWASP Top 10)
+2. Performance issues
+3. Error handling completeness
+4. Adherence to [project-conventions.md]
+
+Provide feedback in this format:
+- 🔴 Critical: [Must fix before merge]
+- 🟡 Important: [Should address]
+- 🟢 Suggestion: [Nice to have]
+```
 ```
 
 ---
@@ -590,6 +711,46 @@ last_validated: 2026-03-17
 | JSON Schema 對齊 | 與 JSON Schema 完全相容 |
 | Webhooks 支援 | 一級 webhook 文件 |
 | `type` 陣列 | 支援 `"type": ["string", "null"]` |
+| `$ref` 與屬性並存 | 可在同一物件中參照並擴充 |
+
+**OpenAPI 3.1 Schema 範例**：
+
+```yaml
+openapi: 3.1.0
+info:
+  title: 使用者 API
+  version: 2.1.0
+paths:
+  /users:
+    post:
+      summary: 建立新使用者
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: 使用者已建立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    CreateUserRequest:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+```
 
 ### AsyncAPI 2.6 用於事件驅動 API
 
@@ -605,6 +766,21 @@ channels:
     publish:
       message:
         $ref: '#/components/messages/OrderCreated'
+components:
+  messages:
+    OrderCreated:
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+          customerId:
+            type: string
+          totalAmount:
+            type: number
+          createdAt:
+            type: string
+            format: date-time
 ```
 
 ---
@@ -677,10 +853,59 @@ last_synced: 2026-03-17
 
 | 項目 | 標準 |
 |------|----------|
-| 同步更新 | 程式碼變更時同步更新文件 |
+| 同步更新 | **自動 AI 行為**：完成程式碼變更後，AI 必須檢查哪些文件受影響並列為提醒。詳見下方 [AI 行為：自動文件影響檢查](#自動文件影響檢查) |
 | 版本標記 | 文件頂部標記版本與更新日期 |
 | 審查納入 | 程式碼審查需包含文件變更 |
 | 定期檢視 | 每季檢視文件是否過時 |
+
+### 自動文件影響檢查
+
+**這是一項自動 AI 行為** — AI 助手必須在完成任何程式碼修改任務後執行此檢查，無需等待使用者詢問。
+
+**工作流程：**
+
+1. 完成程式碼變更後，識別哪些檔案被修改
+2. 對每個修改的檔案，檢查是否有文件引用它（README、CLI 文件、API 文件、規格、skills、翻譯）
+3. 若發現受影響的文件，附加提醒區塊並提供**建議指令**：
+
+```
+---
+📋 **Documentation Impact**
+The following documents may need updating:
+- `README.md` — describes changed CLI option `--xxx`
+  → `/docs readme`
+- `docs/CLI-INIT-OPTIONS.md` — references modified function `promptXxx()`
+  → manual update or `/docs generate`
+- `locales/zh-TW/docs/CLI-INIT-OPTIONS.md` — translation of modified source
+  → `/docs translate docs/CLI-INIT-OPTIONS.md --lang zh-TW`
+
+Or run `/docs impact` for a full analysis.
+---
+```
+
+4. 若無文件受影響，靜默略過
+5. **不自動修改文件** — 僅列出提醒並等待使用者確認
+
+**指令建議對照：**
+
+| 受影響文件 | 建議指令 |
+|-------------------|-------------------|
+| README.md | `/docs readme` |
+| API 文件 | `/docs api` |
+| 產生的文件（cheatsheet、參考文件） | `/docs generate` |
+| 翻譯檔案（`locales/`） | `/docs translate <source-file> --lang <lang>` |
+| 規格檔案、skill 檔案、其他文件 | 手動更新（建議具體檔案路徑） |
+| 多個文件受影響 | `/docs impact` 取得完整概覽 |
+
+**檢查範圍：**
+
+| 文件類型 | 對照檢查 |
+|--------------|---------------|
+| CLI 文件（`docs/`） | 修改的函式、CLI 選項、指令 |
+| 規格檔案（`docs/specs/`） | 修改的介面、schema、工作流程 |
+| Skills（`skills/`） | 修改的行為、標準參考 |
+| 翻譯（`locales/`） | 任何有翻譯的已修改原始檔案 |
+| README、CHANGELOG | 修改的公開 API、功能、配置 |
 
 ### 審查清單
 

@@ -2,8 +2,8 @@
 source: ../../../core/data-pipeline.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 5a7a49049bd8
+last_synced: 2026-07-23
+source_hash: 725ebadd1c75
 status: current
 ---
 

@@ -2,8 +2,8 @@
 source: ../../../core/product-metrics-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: e37a44aefd92
+last_synced: 2026-07-23
+source_hash: 111babd0b39d
 status: current
 ---
 
@@ -14,6 +14,8 @@ status: current
 > **版本**: 1.0.0 | **狀態**: Active | **更新日期**: 2026-06-17
 > **AI 最佳化版本**: `ai/standards/product-metrics-standards.ai.yaml`
 > **規格**: XSPEC-069（cross-project/specs/XSPEC-069-uds-product-layer-pack.md）
+
+**Scope**: universal
 
 ## 概觀
 
