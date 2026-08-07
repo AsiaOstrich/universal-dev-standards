@@ -38,27 +38,73 @@ function fixture(pkg, lockVersions) {
  * A fake `npm view` driven by a name → result table.
  *
  * Answers two shapes, because the real code makes two calls per dependency:
- * `view <name>@<range> version --json` to resolve, then
+ * `view <name> versions dist-tags --json` to resolve, then
  * `view <name>@<version> --json` for the manifest that decides whether the
  * package is native. `manifests` supplies the second; anything absent is
  * treated as a plain JavaScript package.
+ *
+ * A `table` entry may be an array of versions (no dist-tags — the registry
+ * shape for a package that has never tagged anything but `latest`), or an
+ * object `{ versions, 'dist-tags' }` when a test needs the tag to matter.
  */
 function fakeNpm(table, manifests = {}) {
   return async (args) => {
+    const wantsResolution = args.includes('versions');
+
+    if (wantsResolution) {
+      const entry = table[args[1]];
+      if (!entry) return { code: 1, stdout: '', stderr: 'npm error code E404\nnpm error 404 Not Found' };
+      const body = Array.isArray(entry) || typeof entry === 'string' ? { versions: entry } : entry;
+      return { code: 0, stdout: JSON.stringify(body), stderr: '' };
+    }
+
     const spec = args[1];
     const name = spec.slice(0, spec.lastIndexOf('@'));
-    const wantsManifest = !args.includes('version');
-
-    if (wantsManifest) {
-      return { code: 0, stdout: JSON.stringify(manifests[name] ?? {}), stderr: '' };
-    }
-    const entry = table[name];
-    if (!entry) return { code: 1, stdout: '', stderr: 'npm error code E404\nnpm error 404 Not Found' };
-    return { code: 0, stdout: JSON.stringify(entry), stderr: '' };
+    return { code: 0, stdout: JSON.stringify(manifests[name] ?? {}), stderr: '' };
   };
 }
 
 describe('measureResolutionDrift', () => {
+  // Measured on 2026-08-07: `@anthropic-ai/claude-agent-sdk` published
+  // latest=0.3.223 and next=0.3.224, both plain semver, both satisfying ^0.3.
+  // Taking the maximum satisfying version named 0.3.224; a real
+  // `npm install …@^0.3` installs 0.3.223, because npm-pick-manifest prefers
+  // the latest tag whenever it satisfies. The column exists to say what an
+  // install receives, so reporting the higher number was not a near miss — it
+  // was the one kind of wrong answer this module is built to catch, produced
+  // by the module itself.
+  it('prefers the latest dist-tag over a higher version published under another tag', async () => {
+    const dir = fixture({ name: 'p', dependencies: { sdk: '^0.3' } }, { sdk: '0.3.143' });
+    try {
+      const r = await measureResolutionDrift(dir, {
+        run: fakeNpm({
+          sdk: { versions: ['0.3.143', '0.3.223', '0.3.224'], 'dist-tags': { latest: '0.3.223', next: '0.3.224' } },
+        }),
+      });
+      expect(r.drifted).toHaveLength(1);
+      expect(r.drifted[0].resolved).toBe('0.3.223');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('falls back to the highest satisfying version when latest is outside the range', async () => {
+    // A project pinned to an older major still gets a truthful answer: latest
+    // does not satisfy, so npm would take the maximum inside the range.
+    const dir = fixture({ name: 'p', dependencies: { lib: '^1.0.0' } }, { lib: '1.0.0' });
+    try {
+      const r = await measureResolutionDrift(dir, {
+        run: fakeNpm({
+          lib: { versions: ['1.0.0', '1.4.2', '2.0.0'], 'dist-tags': { latest: '2.0.0' } },
+        }),
+      });
+      expect(r.drifted).toHaveLength(1);
+      expect(r.drifted[0].resolved).toBe('1.4.2');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('reports a dependency whose range resolves past the locked version', async () => {
     // The shape of the real incident: a caret spanning an API break, npm
     // taking the newest match, the lockfile pinning the working one.
@@ -275,8 +321,10 @@ describe('measureResolutionDrift', () => {
       // whole module exists to refuse.
       const dir = fixture({ name: 'p', dependencies: { thing: '^1.0.0' } }, { thing: '1.0.0' });
       const run = async (args) => {
-        if (!args.includes('version')) return { code: 1, stdout: '', stderr: 'npm error E500' };
-        return { code: 0, stdout: JSON.stringify('1.0.0'), stderr: '' };
+        // Resolution succeeds; only the manifest lookup fails, which is what
+        // this test is about.
+        if (args.includes('versions')) return { code: 0, stdout: JSON.stringify({ versions: ['1.0.0'] }), stderr: '' };
+        return { code: 1, stdout: '', stderr: 'npm error E500' };
       };
       try {
         const r = await measureResolutionDrift(dir, { run });

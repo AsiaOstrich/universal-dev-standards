@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.3
-translation_version: 6.3.3
+source_version: 6.3.4
+translation_version: 6.3.4
 last_synced: 2026-08-07
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.4] - 2026-08-07
+
+### Fixed
+
+- **`uds deps` 指名了一个 npm 不会安装的版本。** 解析字段原本取「所有已发布版本中满足声明范围的最高版本」。那是 semver 的规则，不是 npm 的：`npm-pick-manifest` 在 `latest` dist-tag 满足范围时优先采用它，存在的目的正是不让带着普通版本号的 `next` 或 `beta` 发布落到只要了一个 caret 的人身上。以 `@anthropic-ai/claude-agent-sdk` 实测（`latest = 0.3.223`、`next = 0.3.224`）：命令回报 0.3.224，而 `npm install …@^0.3` 实际装 0.3.223。**那个字段存在的全部目的就是说出「安装会拿到什么」，而它指名了没有任何安装会拿到的东西。** 现改为单次 `npm view` 同时取版本清单与 dist-tags，套用 npm 自己的优先顺序；`latest` 落在范围外时退回「范围内最高版本」——锁在旧 major 的项目仍得到诚实的答案。两个分支各有测试覆盖。
+- 前两个版本修的是这个命令的**措辞**，这一版修的是它的**算术**。值得直说：先前那些修正只是让一个错的数字变得更好读。
 
 ## [6.3.3] - 2026-08-07
 

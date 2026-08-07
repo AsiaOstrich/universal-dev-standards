@@ -38,6 +38,12 @@
  * silently answer a different question for anyone who does not install from
  * the public registry, and would answer it confidently.
  *
+ * **And it applies npm's resolution rule, not semver's.** The highest version
+ * satisfying a range is *not* what npm installs: npm prefers the `latest`
+ * dist-tag whenever it satisfies, so a `next` or `beta` publish carrying an
+ * ordinary version number does not land on people. Getting this wrong made the
+ * tool name a version no consumer receives — see `resolveViaNpm`.
+ *
  * **A registry lookup that fails is never folded into "consistent".** It
  * becomes `unverifiable` and makes the whole check non-zero. A tool whose
  * "everything is fine" and "I could not find out" look the same is worse than
@@ -68,18 +74,30 @@ import semver from 'semver';
 const DEFAULT_CONCURRENCY = 8;
 
 /**
- * Run `npm view <name>@<range> version --json` and return the highest version
- * that satisfies the range.
+ * Return the version an install of `range` would actually receive.
  *
- * npm prints a bare JSON string when exactly one version matches and a JSON
- * array when several do. The array is in publish order, **not** semver order —
- * a backport released after a major bump appears last while being the lowest
- * version — so the maximum is computed with semver rather than by taking the
- * final element. Guessing here would produce a confident wrong answer, which
- * is the failure mode this whole module exists to detect.
+ * **This deliberately reproduces npm's rule, not semver's.** The obvious
+ * implementation — take the highest published version satisfying the range —
+ * is wrong, and wrong in the direction this module exists to catch. npm's
+ * resolver (`npm-pick-manifest`) prefers the `latest` dist-tag whenever it
+ * satisfies the range, and only falls back to the maximum otherwise. That rule
+ * exists so a `next` or `beta` publish does not land on people who asked for a
+ * caret.
+ *
+ * Measured on 2026-08-07: `@anthropic-ai/claude-agent-sdk` published
+ * `latest = 0.3.223` and `next = 0.3.224`, both ordinary semver strings, both
+ * satisfying `^0.3`. The maximum-satisfying rule named 0.3.224;
+ * `npm install @anthropic-ai/claude-agent-sdk@^0.3` installs 0.3.223. **The
+ * earlier implementation reported a version no consumer receives** — in the one
+ * column whose entire purpose is to say what they receive.
+ *
+ * Versions and tags are read in a single `npm view` call. The version list is
+ * in publish order, **not** semver order — a backport released after a major
+ * bump appears last while being the lowest version — so the fallback maximum is
+ * computed with semver rather than by taking the final element.
  */
 async function resolveViaNpm(name, range, run) {
-  const { code, stdout, stderr } = await run(['view', `${name}@${range}`, 'version', '--json']);
+  const { code, stdout, stderr } = await run(['view', name, 'versions', 'dist-tags', '--json']);
 
   if (code !== 0) {
     const detail = (stderr || stdout || '').split('\n').find((l) => l.trim()) ?? '';
@@ -93,13 +111,30 @@ async function resolveViaNpm(name, range, run) {
     throw new Error(`npm view returned output that is not JSON: ${stdout.slice(0, 120)}`);
   }
 
-  if (typeof parsed === 'string') return parsed;
-  if (Array.isArray(parsed) && parsed.length > 0) {
-    const max = semver.maxSatisfying(parsed, range);
-    if (max) return max;
-    throw new Error(`no version in [${parsed.join(', ')}] satisfies ${range}`);
+  // npm flattens the response when only one of the requested fields exists on
+  // the package, so neither key can be assumed present. A package with exactly
+  // one published version reports `versions` as a bare string.
+  const versions = Array.isArray(parsed?.versions)
+    ? parsed.versions
+    : typeof parsed?.versions === 'string'
+      ? [parsed.versions]
+      : Array.isArray(parsed)
+        ? parsed
+        : typeof parsed === 'string'
+          ? [parsed]
+          : [];
+  const tags = parsed?.['dist-tags'] ?? {};
+
+  if (versions.length === 0) throw new Error('npm view returned no versions');
+
+  const latest = tags.latest;
+  if (typeof latest === 'string' && semver.valid(latest) && semver.satisfies(latest, range)) {
+    return latest;
   }
-  throw new Error('npm view returned no version');
+
+  const max = semver.maxSatisfying(versions, range);
+  if (max) return max;
+  throw new Error(`no published version of ${name} satisfies ${range}`);
 }
 
 /**

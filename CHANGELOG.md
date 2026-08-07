@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.4] - 2026-08-07
+
+### Fixed
+
+- **`uds deps` named the version npm would not install.** The resolved column was computed as the highest published version satisfying the declared range. That is semver's rule, not npm's: `npm-pick-manifest` prefers the `latest` dist-tag whenever it satisfies, precisely so a `next` or `beta` publish carrying an ordinary version number does not land on people who asked for a caret. Measured on `@anthropic-ai/claude-agent-sdk`, which publishes `latest = 0.3.223` and `next = 0.3.224`: the command reported 0.3.224 while `npm install …@^0.3` installs 0.3.223. The one column whose entire purpose is to say what an install receives was naming something no install receives. Versions and dist-tags are now read in a single `npm view` call and npm's own preference is applied, falling back to the maximum inside the range when `latest` sits outside it — a project pinned to an older major still gets a truthful answer. Two tests cover both branches.
+- The previous two releases corrected this command's wording. This one corrects its arithmetic, and it is worth saying plainly: the earlier fixes made a wrong number easier to read.
+
 ## [6.3.3] - 2026-08-07
 
 ### Fixed
