@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.5] - 2026-08-07
+
+### Fixed
+
+- **Four shipped `.ai.yaml` standards did not parse.** 6.3.4 delivered 141 machine-readable standards, of which `agent-behavior-discipline`, `container-security`, `full-coverage-testing` and `knowledge-graph-memory` were syntactically invalid YAML. The same four sat in `.standards/`, which is what `uds init` puts in an adopter's directory. An agent reading them gets an exception, not empty content — and a downstream that catches it gets a silence indistinguishable from "this standard has no rules". All four failed the same way: an unquoted scalar carrying YAML-significant characters — a colon inside parentheses, a flow sequence followed by prose, a quote closing mid-value, a key indented differently from its siblings. Fixed by quoting or re-indenting, with no restructuring.
+
+### Added
+
+- **`npm run check:ai-yaml` — every `.ai.yaml` must parse, and the check is wired into pre-commit and the release.** The four above reached a release because eight scripts read that directory and not one parsed the whole set; `check-standards-sync.sh` compares versions and registry entries, which an unparseable file passes without complaint. The check reads `ai/`, `.standards/` and `cli/bundled/`, and runs unconditionally rather than behind a path glob — a glob narrow enough to have skipped this one is the same mistake relocated. **Exit 2 is reserved for "the check could not run"**: an unreadable directory, a directory containing no `.ai.yaml`, a missing YAML library. That is not a pass, and it fails the release, because a check whose "nothing wrong" and "could not look" produce the same output converts an unknown into a reassurance.
+
 ## [6.3.4] - 2026-08-07
 
 ### Fixed

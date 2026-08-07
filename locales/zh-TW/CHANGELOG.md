@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.4
-translation_version: 6.3.4
+source_version: 6.3.5
+translation_version: 6.3.5
 last_synced: 2026-08-07
 status: current
 ---
@@ -16,6 +16,16 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.5] - 2026-08-07
+
+### Fixed
+
+- **四份出貨的 `.ai.yaml` 標準無法解析。** 6.3.4 交付了 141 份機器可讀標準，其中 `agent-behavior-discipline`、`container-security`、`full-coverage-testing`、`knowledge-graph-memory` 是語法無效的 YAML。同樣四份也在 `.standards/`——那正是 `uds init` 放進採用者目錄的東西。**agent 讀它們得到的是例外而非空內容**，而下游若 catch 掉，得到的沉默與「這份標準沒有規則」無從分辨。四份的失敗方式相同：未加引號的純量帶著 YAML 語意字元——括號內的冒號、flow 序列後接散文、在值中途結束的引號、與兄弟項不同縮排的鍵。以加引號或調縮排修正，不重構結構。
+
+### Added
+
+- **`npm run check:ai-yaml`——每一份 `.ai.yaml` 都必須可解析，並已接上 pre-commit 與發版流程。** 上述四份之所以進得了發版，是因為有八個腳本會讀那個目錄而**沒有一個解析全集**；`check-standards-sync.sh` 比對的是版本與註冊表項目，一份無法解析的檔案能安然通過。此檢查讀 `ai/`、`.standards/` 與 `cli/bundled/` 三處，且**無條件執行**而非藏在路徑 glob 後面——一個窄到會跳過這次的 glob 就是同一個錯誤換個位置。**exit 2 保留給「檢查跑不起來」**：讀不到的目錄、裡面沒有 `.ai.yaml` 的目錄、載不到的 YAML 函式庫。那不算通過，而且會擋下發版——因為一個「沒問題」與「查不了」輸出相同的檢查，會把未知轉成安心。
 
 ## [6.3.4] - 2026-08-07
 

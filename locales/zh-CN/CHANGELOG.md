@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.4
-translation_version: 6.3.4
+source_version: 6.3.5
+translation_version: 6.3.5
 last_synced: 2026-08-07
 status: current
 ---
@@ -16,6 +16,16 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.5] - 2026-08-07
+
+### Fixed
+
+- **四份出货的 `.ai.yaml` 标准无法解析。** 6.3.4 交付了 141 份机器可读标准，其中 `agent-behavior-discipline`、`container-security`、`full-coverage-testing`、`knowledge-graph-memory` 是语法无效的 YAML。同样四份也在 `.standards/`——那正是 `uds init` 放进采用者目录的东西。**agent 读它们得到的是异常而非空内容**，而下游若 catch 掉，得到的沉默与「这份标准没有规则」无从分辨。四份的失败方式相同：未加引号的纯量带着 YAML 语义字符——括号内的冒号、flow 序列后接散文、在值中途结束的引号、与兄弟项不同缩进的键。以加引号或调缩进修正，不重构结构。
+
+### Added
+
+- **`npm run check:ai-yaml`——每一份 `.ai.yaml` 都必须可解析，并已接上 pre-commit 与发版流程。** 上述四份之所以进得了发版，是因为有八个脚本会读那个目录而**没有一个解析全集**；`check-standards-sync.sh` 比对的是版本与注册表项目，一份无法解析的文件能安然通过。此检查读 `ai/`、`.standards/` 与 `cli/bundled/` 三处，且**无条件执行**而非藏在路径 glob 后面——一个窄到会跳过这次的 glob 就是同一个错误换个位置。**exit 2 保留给「检查跑不起来」**：读不到的目录、里面没有 `.ai.yaml` 的目录、载不到的 YAML 库。那不算通过，而且会挡下发版——因为一个「没问题」与「查不了」输出相同的检查，会把未知转成安心。
 
 ## [6.3.4] - 2026-08-07
 
