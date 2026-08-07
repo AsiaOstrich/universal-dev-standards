@@ -215,6 +215,15 @@ jobs:
         working-directory: .
         run: ./scripts/check-standards-sync.sh
 
+      # XSPEC-367 R1 — every .ai.yaml must parse. 6.3.4 shipped four that did
+      # not; the sync check above compares versions and registry entries, which
+      # an unparseable file passes without complaint. Exit 2 from this script
+      # means it could not run, and that fails the release too — "could not
+      # look" must not be released as "nothing wrong".
+      - name: Check every .ai.yaml parses (XSPEC-367 R1)
+        working-directory: .
+        run: node scripts/check-ai-yaml-parses.mjs
+
       - name: Run linting
         run: npm run lint
 

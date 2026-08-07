@@ -44,7 +44,7 @@ inconsistency_categories:
   - id: 3
     name: count_drift
     description: Explicit number in text out of sync with actual count
-    example: "self-audit has 4 questions" but list has 7
+    example: '"self-audit has 4 questions" but list has 7'
     check: grep for "N questions", "N rows", "N items" and verify
   - id: 4
     name: stale_template

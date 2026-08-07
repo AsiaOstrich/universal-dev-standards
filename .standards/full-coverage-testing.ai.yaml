@@ -161,23 +161,23 @@ standard:
   deployment_gates:
     pre_push_to_main:
       action: block
-      trigger: "// WARNING: STUB" marker found in src/
+      trigger: '"// WARNING: STUB" marker found in src/'
       message: "[STUB-BLOCK] STUB markers detected. Push to main rejected."
     deploy_to_uat:
       action: block
-      trigger: "// WARNING: STUB" marker found in src/
+      trigger: '"// WARNING: STUB" marker found in src/'
       message: "[DEPLOY-BLOCK] STUB markers detected. UAT deployment aborted."
     deploy_to_production:
       action: block
-      trigger: "// WARNING: STUB" marker found in src/
+      trigger: '"// WARNING: STUB" marker found in src/'
       message: "[CRITICAL] Production deployment with STUB markers is strictly prohibited."
     deploy_to_staging:
       action: warn
-      trigger: "// WARNING: STUB" marker found in src/
+      trigger: '"// WARNING: STUB" marker found in src/'
       message: "[STUB-WARN] Deploying with STUB markers to staging. NOT permitted in UAT/production."
     feature_branch_push:
       action: warn
-      trigger: "// WARNING: STUB" marker found in src/
+      trigger: '"// WARNING: STUB" marker found in src/'
       message: "[STUB-WARN] STUB markers found. Must remove before merging to main."
 
   migration_from_pyramid:

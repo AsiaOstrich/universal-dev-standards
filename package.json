@@ -31,7 +31,8 @@
     "split-bilingual": "tsx scripts/split-bilingual.ts",
     "check:naming-refs": "tsx scripts/check-naming-and-refs.ts",
     "check:liveness": "tsx scripts/check-integration-liveness.ts",
-    "sync:standard": "tsx scripts/sync-standard.ts"
+    "sync:standard": "tsx scripts/sync-standard.ts",
+    "check:ai-yaml": "node scripts/check-ai-yaml-parses.mjs"
   },
   "type": "module",
   "dependencies": {

@@ -59,7 +59,7 @@ principles:
     triggers:
       - Any edit or refactor task
     do:
-      - Declare scope before editing ("I will modify: X. I will not touch: Y.")
+      - 'Declare scope before editing ("I will modify: X. I will not touch: Y.")'
       - Match the local code style rather than enforcing personal preferences
       - Flag pre-existing issues found out-of-scope with a verbal note only
     do_not:
