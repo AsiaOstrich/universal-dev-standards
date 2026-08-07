@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.7] - 2026-08-07
+
+### Fixed
+
+- **`uds deps` read only the root manifest, so a monorepo got a clean answer about part of itself.** npm workspaces put declarations in more than one `package.json`, and this command examined one of them. Measured on a real project: 34 dependencies reported, 47 declared — the 13 in a workspace were invisible, and among them a package carrying a high-severity advisory. **A count without its scope cannot be told apart from a complete one**, which is the failure this command exists to report. Workspaces are now expanded from the `workspaces` field, every manifest is examined, and the report prints which workspaces were included so the denominator carries its own scope. Each drift row names the workspace it came from — otherwise a reader knows a package drifted but not which `package.json` to edit.
+- Three details that make the difference between covering workspaces and appearing to. A lockfile entry may be hoisted to the root **or** nested under the workspace, so both are tried; checking one reports the other as "not present in package-lock.json", and a fabricated unknown reads as a finding. A workspace depending on a sibling workspace is a file link, not a published package, so it is skipped rather than queried — asking npm returns 404 and would be recorded as unverifiable. And a `workspaces` pattern more complex than a trailing `*` in the last segment now **fails loudly** instead of matching a subset: silently covering less than the author meant is the same defect in a new place.
+
 ## [6.3.6] - 2026-08-07
 
 ### Fixed

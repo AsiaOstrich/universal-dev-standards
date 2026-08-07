@@ -37,6 +37,15 @@ export function render(result) {
   lines.push('');
   lines.push(`${label} — ${result.examined} runtime dependenc${result.examined === 1 ? 'y' : 'ies'} checked`);
 
+  // The scope of the count, printed whenever it is more than the root. A
+  // denominator without its scope is what let this command report "34
+  // dependencies checked" for a repository that declared 47 across two
+  // manifests — the reader has no way to tell a complete answer from a subset.
+  const wsCount = result.workspaces?.length ?? 0;
+  if (wsCount > 0) {
+    lines.push(chalk.dim(`  across the root and ${wsCount} workspace${wsCount === 1 ? '' : 's'}: ${result.workspaces.join(', ')}`));
+  }
+
   if (!result.hasLockfile) {
     lines.push(chalk.yellow('  no package-lock.json — nothing to compare the registry against'));
   }
@@ -52,9 +61,12 @@ export function render(result) {
     // underneath it" shape that R4 rewrote the supply-chain standard to stop.
     lines.push(chalk.yellow(`  ${result.drifted.length} tested ≠ resolves:`));
     for (const d of result.drifted) {
+      // The workspace is part of the finding, not decoration: without it the
+      // reader knows a package drifted but not which package.json to edit.
+      const where = d.workspaceDir ? chalk.dim(`  [${d.workspaceDir}]`) : '';
       lines.push(
         `    ${chalk.bold(d.name)}  ${chalk.dim(d.range)}` +
-          `  tested=${chalk.cyan(d.locked)}  resolves=${chalk.yellow(d.resolved)}`
+          `  tested=${chalk.cyan(d.locked)}  resolves=${chalk.yellow(d.resolved)}${where}`
       );
     }
     lines.push('');

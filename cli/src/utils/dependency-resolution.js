@@ -66,7 +66,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import semver from 'semver';
 
@@ -200,6 +200,66 @@ function spawnNpm(cwd) {
     });
 }
 
+/**
+ * Expand npm's `workspaces` field into directories that contain a
+ * package.json. // implements XSPEC-366 R1 (workspaces)
+ *
+ * Accepts both spellings — an array, or `{ packages: [...] }` — and supports a
+ * trailing `*` in the last segment, which is what `packages/*` needs and is the
+ * shape npm's own docs use. A pattern that matches nothing is returned as
+ * nothing rather than as an error: an empty `packages/*` is a normal state for
+ * a repository that has not added one yet.
+ */
+function expandWorkspaces(root, field) {
+  const patterns = Array.isArray(field) ? field : Array.isArray(field?.packages) ? field.packages : [];
+  const dirs = [];
+  for (const pattern of patterns) {
+    if (typeof pattern !== 'string' || pattern.length === 0) continue;
+    const star = pattern.indexOf('*');
+    if (star === -1) {
+      if (existsSync(join(root, pattern, 'package.json'))) dirs.push(pattern);
+      continue;
+    }
+    // Only a trailing `*` in the final segment is supported. Anything more
+    // exotic is rejected loudly rather than silently matching less than the
+    // author meant — a workspace quietly outside the denominator is the defect
+    // this module exists to report.
+    const prefix = pattern.slice(0, star);
+    if (!pattern.endsWith('*') || prefix.includes('*') || (prefix.length > 0 && !prefix.endsWith('/'))) {
+      throw new Error(
+        `unsupported workspaces pattern ${JSON.stringify(pattern)} — only a trailing "*" in the last segment is understood`
+      );
+    }
+    const parent = join(root, prefix);
+    if (!existsSync(parent)) continue;
+    for (const entry of readdirSync(parent, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const rel = `${prefix}${entry.name}`;
+      if (existsSync(join(root, rel, 'package.json'))) dirs.push(rel);
+    }
+  }
+  return dirs;
+}
+
+/**
+ * Where the lockfile records this dependency.
+ *
+ * npm hoists what it can to the root `node_modules` and nests the rest under
+ * the workspace, so both have to be tried; checking only one under-reports and
+ * calls the miss "unverifiable", which is noise that trains people to ignore
+ * the report.
+ */
+function lockedVersionFor(lock, workspaceDir, name) {
+  const candidates = workspaceDir
+    ? [`${workspaceDir}/node_modules/${name}`, `node_modules/${name}`]
+    : [`node_modules/${name}`];
+  for (const key of candidates) {
+    const entry = lock?.packages?.[key];
+    if (entry?.version) return entry.version;
+  }
+  return null;
+}
+
 /** Map over `items` with a bounded number of concurrent workers. */
 async function mapWithConcurrency(items, limit, worker) {
   const results = new Array(items.length);
@@ -238,16 +298,37 @@ export async function measureResolutionDrift(root, options = {}) {
   const lockPath = join(root, 'package-lock.json');
   const lock = existsSync(lockPath) ? JSON.parse(readFileSync(lockPath, 'utf8')) : null;
 
-  const declared = [
-    ...Object.entries(pkg.dependencies ?? {}).map(([name, range]) => ({ name, range, kind: 'dependencies' })),
-    ...Object.entries(pkg.optionalDependencies ?? {}).map(([name, range]) => ({ name, range, kind: 'optionalDependencies' })),
-  ];
+  // Workspaces are examined too. A monorepo that declares its shipped
+  // front-end in a workspace and its server at the root has two manifests, and
+  // reading only the root reports a clean subset as if it were the whole — the
+  // failure this module exists to catch, performed by the tool itself.
+  const workspaceDirs = expandWorkspaces(root, pkg.workspaces);
+  const manifests = [{ dir: null, name: pkg.name ?? null, pkg }];
+  for (const dir of workspaceDirs) {
+    const wsPkg = JSON.parse(readFileSync(join(root, dir, 'package.json'), 'utf8'));
+    manifests.push({ dir, name: wsPkg.name ?? dir, pkg: wsPkg });
+  }
+  // A workspace depending on a sibling workspace is a file link, not a
+  // registry package. Querying npm for it returns 404, which would be recorded
+  // as unverifiable — a fabricated unknown, which is worse than a missing one
+  // because it looks like a finding.
+  const localNames = new Set(manifests.map((m) => m.pkg.name).filter(Boolean));
+
+  const declared = [];
+  for (const { dir, name: workspace, pkg: manifest } of manifests) {
+    for (const kind of ['dependencies', 'optionalDependencies']) {
+      for (const [name, range] of Object.entries(manifest[kind] ?? {})) {
+        if (localNames.has(name)) continue;
+        declared.push({ name, range, kind, workspace, workspaceDir: dir });
+      }
+    }
+  }
 
   const run = options.run ?? spawnNpm(root);
   const concurrency = options.concurrency ?? DEFAULT_CONCURRENCY;
 
   const rows = await mapWithConcurrency(declared, concurrency, async (dep) => {
-    const locked = lock?.packages?.[`node_modules/${dep.name}`]?.version ?? null;
+    const locked = lockedVersionFor(lock, dep.workspaceDir, dep.name);
     let resolved;
     try {
       resolved = await resolveViaNpm(dep.name, dep.range, run);
@@ -282,6 +363,13 @@ export async function measureResolutionDrift(root, options = {}) {
     root,
     packageName: pkg.name ?? null,
     hasLockfile: lock !== null,
+    /**
+     * Workspace directories examined alongside the root, so a reader can tell
+     * "no workspaces here" from "workspaces were not looked at". The count
+     * printed by the report is the denominator, and a denominator without its
+     * scope is the shape this module was written to refuse.
+     */
+    workspaces: workspaceDirs,
     examined: rows.length,
     consistent,
     drifted,

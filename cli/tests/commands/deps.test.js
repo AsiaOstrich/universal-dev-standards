@@ -64,6 +64,128 @@ function fakeNpm(table, manifests = {}) {
   };
 }
 
+/**
+ * A root package.json with workspaces, each workspace's own manifest, and a
+ * lockfile whose entries may sit at the root or nested under a workspace —
+ * which is the arrangement npm actually produces, and the reason a single
+ * lookup path under-reports.
+ */
+function workspaceFixture({ root, workspaces, hoisted = {}, nested = {} }) {
+  const dir = mkdtempSync(join(tmpdir(), 'uds-deps-ws-'));
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(root, null, 2));
+  for (const [rel, pkg] of Object.entries(workspaces)) {
+    mkdirSync(join(dir, ...rel.split('/')), { recursive: true });
+    writeFileSync(join(dir, ...rel.split('/'), 'package.json'), JSON.stringify(pkg, null, 2));
+  }
+  const packages = {};
+  for (const [name, version] of Object.entries(hoisted)) packages[`node_modules/${name}`] = { version };
+  for (const [key, version] of Object.entries(nested)) packages[key] = { version };
+  writeFileSync(join(dir, 'package-lock.json'), JSON.stringify({ lockfileVersion: 3, packages }, null, 2));
+  return dir;
+}
+
+describe('measureResolutionDrift — npm workspaces', () => {
+  // A repository declaring its shipped front-end in a workspace and its server
+  // at the root has two manifests. Reading only the root reported 34 of 47
+  // declared dependencies for one real project and called it "34 checked" —
+  // a clean subset presented as the whole, which is the failure this module
+  // exists to detect, performed by the module.
+  it('examines workspace manifests as well as the root', async () => {
+    const dir = workspaceFixture({
+      root: { name: 'server', workspaces: ['packages/ui'], dependencies: { fastify: '^5.0.0' } },
+      workspaces: { 'packages/ui': { name: '@app/ui', dependencies: { react: '^19.0.0' } } },
+      hoisted: { fastify: '5.0.0', react: '19.0.0' },
+    });
+    try {
+      const r = await measureResolutionDrift(dir, {
+        run: fakeNpm({ fastify: ['5.0.0'], react: ['19.0.0', '19.2.0'] }),
+      });
+      expect(r.examined).toBe(2);
+      expect(r.workspaces).toEqual(['packages/ui']);
+      expect(r.drifted.map((d) => d.name)).toEqual(['react']);
+      // Which manifest to edit is part of the finding, not context.
+      expect(r.drifted[0].workspaceDir).toBe('packages/ui');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('finds a lockfile entry nested under the workspace, not only the hoisted one', async () => {
+    // npm hoists what it can and nests the rest. Checking `node_modules/<name>`
+    // alone reports the nested ones as "not present in package-lock.json" —
+    // a fabricated unknown, which reads as a finding and trains people to skim.
+    const dir = workspaceFixture({
+      root: { name: 'server', workspaces: ['packages/ui'], dependencies: {} },
+      workspaces: { 'packages/ui': { name: '@app/ui', dependencies: { left: '^1.0.0' } } },
+      nested: { 'packages/ui/node_modules/left': '1.0.0' },
+    });
+    try {
+      const r = await measureResolutionDrift(dir, { run: fakeNpm({ left: ['1.0.0', '1.3.0'] }) });
+      expect(r.unverifiable).toHaveLength(0);
+      expect(r.drifted[0]).toMatchObject({ name: 'left', locked: '1.0.0', resolved: '1.3.0' });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not query the registry for a sibling workspace', async () => {
+    // `@app/ui` is a file link, not a published package. Asking npm about it
+    // returns 404, which would be recorded as unverifiable — an unknown this
+    // tool invented, which is worse than one it failed to resolve.
+    const asked = [];
+    const run = async (args) => {
+      asked.push(args[1]);
+      if (args.includes('versions')) {
+        const table = { left: ['1.0.0'] };
+        const entry = table[args[1]];
+        if (!entry) return { code: 1, stdout: '', stderr: 'npm error code E404' };
+        return { code: 0, stdout: JSON.stringify({ versions: entry }), stderr: '' };
+      }
+      return { code: 0, stdout: '{}', stderr: '' };
+    };
+    const dir = workspaceFixture({
+      root: { name: 'server', workspaces: ['packages/ui'], dependencies: { '@app/ui': '^1.0.0', left: '^1.0.0' } },
+      workspaces: { 'packages/ui': { name: '@app/ui', dependencies: {} } },
+      hoisted: { left: '1.0.0' },
+    });
+    try {
+      const r = await measureResolutionDrift(dir, { run });
+      expect(asked).not.toContain('@app/ui');
+      expect(r.examined).toBe(1);
+      expect(r.unverifiable).toHaveLength(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('reports no workspaces rather than pretending there were none to look at', async () => {
+    // `workspaces: []` and "this field is absent" are the same result here, but
+    // the field is reported either way so a reader can tell the scope of the
+    // count from the count itself.
+    const dir = fixture({ name: 'plain', dependencies: { left: '^1.0.0' } }, { left: '1.0.0' });
+    try {
+      const r = await measureResolutionDrift(dir, { run: fakeNpm({ left: ['1.0.0'] }) });
+      expect(r.workspaces).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('refuses a glob it does not fully understand instead of matching less', async () => {
+    // A pattern that silently matches a subset puts workspaces outside the
+    // denominator without saying so — the same defect in a new place.
+    const dir = workspaceFixture({
+      root: { name: 'server', workspaces: ['packages/*/lib'], dependencies: {} },
+      workspaces: {},
+    });
+    try {
+      await expect(measureResolutionDrift(dir, { run: fakeNpm({}) })).rejects.toThrow(/unsupported workspaces pattern/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('measureResolutionDrift', () => {
   // Measured on 2026-08-07: `@anthropic-ai/claude-agent-sdk` published
   // latest=0.3.223 and next=0.3.224, both plain semver, both satisfying ^0.3.

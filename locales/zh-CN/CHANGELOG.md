@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.6
-translation_version: 6.3.6
+source_version: 6.3.7
+translation_version: 6.3.7
 last_synced: 2026-08-07
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.7] - 2026-08-07
+
+### Fixed
+
+- **`uds deps` 只读 root 的 manifest，于是 monorepo 得到一个关于自己一部分的干净答案。** npm workspaces 会把声明放在不只一份 `package.json`，而这个命令只看了其中一份。实测于一个真实项目：回报 34 个依赖，实际声明 47 个——**在 workspace 里的那 13 个是隐形的，而其中一个带着 high 级别的公告**。**一个没有带着自己范围的计数，与一个完整的计数无从分辨**，而那正是这个命令存在要回报的失效。现在会从 `workspaces` 字段展开、检查每一份 manifest，并在报告中打印纳入了哪些 workspace，让分母自己带着范围。每一行漂移都标明它来自哪个 workspace——否则读者知道某个包漂移了，却不知道该去改哪一份 `package.json`。
+- 三个细节决定了「有覆盖 workspaces」与「看起来有覆盖」的差别。lockfile 的条目可能被 hoist 到 root，**也可能**嵌套在 workspace 底下，所以两处都查；只查一处会把另一处回报成「not present in package-lock.json」，而**一个被捏造出来的未知读起来像一个发现**。workspace 依赖于另一个 workspace 时是文件链接而非已发布包，因此跳过而不查询——问 npm 会得到 404 并被记成 unverifiable。以及，比「最后一段结尾一个 `*`」更复杂的 `workspaces` 模式现在会**大声失败**而非匹配一个子集：**静静地覆盖得比作者本意少，是同一个缺陷换个地方发生**。
 
 ## [6.3.6] - 2026-08-07
 
