@@ -342,4 +342,17 @@ describe('the report does not assert a distribution channel it cannot know', () 
     const out = stripAnsi(render({ ...drifted, drifted: [], consistent: 2, clean: true }));
     expect(out).not.toMatch(/consumers resolve/);
   });
+
+  // 6.3.2 fixed the explanation and the column label, then left the summary
+  // heading above them reading `1 shipped ≠ tested`. For an artifact that
+  // ships its own lockfile, shipped IS tested, so the heading said the
+  // opposite of the truth — in yellow, one line above the dim correction.
+  // The heading is the line a reader skims; the correction is the line they
+  // skip. Naming the two columns keeps it a statement about the measurement
+  // rather than a conclusion about who received it.
+  it('heads the drift section with the two columns, not with who received them', () => {
+    const out = stripAnsi(render(drifted));
+    expect(out).toMatch(/1 tested ≠ resolves:/);
+    expect(out).not.toMatch(/shipped ≠ tested/);
+  });
 });

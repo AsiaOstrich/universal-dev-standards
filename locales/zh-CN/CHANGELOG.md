@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.2
-translation_version: 6.3.2
-last_synced: 2026-08-06
+source_version: 6.3.3
+translation_version: 6.3.3
+last_synced: 2026-08-07
 status: current
 ---
 
@@ -16,6 +16,13 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.3] - 2026-08-07
+
+### Fixed
+
+- **6.3.2 改好了说明，却把说明刚刚撤回的那个主张留在它上方的标题里。** 漂移区段的标题是 `N shipped ≠ tested`——黄色，就在那段说明「出货的与测到的是否不同，取决于项目怎么出货」的 dim 文字上一行。对随产物出货 lockfile 的产物而言，出货的**就是**测到的，因此那个标题在整份报告最醒目的位置说了与事实相反的话。这正是 1.1.0 改写 Lock Strategy 条目所要根除的形状：一句误导的话，下面附一句限定。标题现在改为指出两个不一致的字段——`N tested ≠ resolves`——这是对测量结果的陈述，不是对「谁收到了它」的结论。已加测试钉住。
+- **另有两处在说同一件事，其中一处是采用者最先读到的。** `uds deps --help` 把这个命令描述为「Compare what you test against what your users install (published packages ship no lockfile)」，模块自身的摘要行则写「does what you test match what your users install?」。两者现在都改以「声明范围会解析到什么」表述。发现方式是修完标题后对整个 repo grep 已撤回的措辞——那是我自己那一轮修正漏掉的两处。
 
 ## [6.3.2] - 2026-08-06
 

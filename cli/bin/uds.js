@@ -247,7 +247,7 @@ program
 
 program
   .command('deps')
-  .description('Compare what you test against what your users install (published packages ship no lockfile)')
+  .description('Compare the versions you test against the versions your declared ranges resolve to')
   .option('--path <dir>', 'Directory containing package.json (default: cwd)')
   .option('--json', 'Output raw JSON')
   .option('--concurrency <n>', 'Parallel registry lookups (default: 8)')

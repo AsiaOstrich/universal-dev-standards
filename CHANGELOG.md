@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.3] - 2026-08-07
+
+### Fixed
+
+- **6.3.2 corrected the explanation and left the heading above it asserting what the explanation had just withdrawn.** The drift section was headed `N shipped ≠ tested` — in yellow, one line above the dim paragraph explaining that whether shipped differs from tested depends on how the project ships. For an artifact that carries its own lockfile, shipped *is* tested, so the heading stated the opposite of the truth in the most prominent line of the report. This is precisely the shape 1.1.0 rewrote the Lock Strategy entry to stop producing: a misleading line with a qualification underneath it. The heading now names the two columns that disagree — `N tested ≠ resolves` — which is a statement about the measurement rather than a conclusion about who received it. A test holds it.
+- **Two more places said the same thing, including the first one an adopter reads.** `uds deps --help` described the command as "Compare what you test against what your users install (published packages ship no lockfile)", and the module's own summary line asked "does what you test match what your users install?". Both now speak in terms of what the declared ranges resolve to. Found by grepping the repository for the withdrawn wording after fixing the heading — the two instances my own pass had missed.
+
 ## [6.3.2] - 2026-08-06
 
 ### Fixed

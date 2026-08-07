@@ -1,10 +1,17 @@
 /**
- * `uds deps` — does what you test match what your users install?
+ * `uds deps` — does what you test match what your ranges resolve to?
  * // implements XSPEC-366 R1
  *
- * A published npm package does not carry its lockfile. This compares, per
- * runtime dependency, the declared range, the version the lockfile pins, and
- * the version a consumer's install would actually resolve to.
+ * Compares, per runtime dependency, the declared range, the version the
+ * lockfile pins, and the version a fresh install would resolve that range to.
+ *
+ * It deliberately stops there. Whether a gap between the second and third
+ * numbers is already in a user's hands depends on how the project ships —
+ * a published npm package carries no lockfile, so consumers resolve the
+ * ranges themselves; an artifact that ships its lockfile (a container image,
+ * a deployed service) hands users the pinned column and meets the third one
+ * at its next lockfile regeneration. This module cannot know which applies,
+ * so it never phrases the gap as something users already have.
  *
  * See `utils/dependency-resolution.js` for why resolution goes through
  * `npm view` and why a failed lookup is never reported as agreement.
@@ -36,7 +43,14 @@ export function render(result) {
 
   if (result.drifted.length > 0) {
     lines.push('');
-    lines.push(chalk.yellow(`  ${result.drifted.length} shipped ≠ tested:`));
+    // Named after the two columns that disagree, not after a conclusion about
+    // who receives them. `shipped ≠ tested` — the wording this replaced — is
+    // false for an artifact that ships its own lockfile, where shipped IS
+    // tested. 6.3.2 rewrote the explanation below to state both readings but
+    // left this heading asserting one of them, in yellow, one line above the
+    // dim correction. That is the "misleading line with a qualification
+    // underneath it" shape that R4 rewrote the supply-chain standard to stop.
+    lines.push(chalk.yellow(`  ${result.drifted.length} tested ≠ resolves:`));
     for (const d of result.drifted) {
       lines.push(
         `    ${chalk.bold(d.name)}  ${chalk.dim(d.range)}` +
