@@ -1,32 +1,43 @@
 #!/usr/bin/env node
 /**
- * Every shipped .ai.yaml must parse. // implements XSPEC-367 R1
+ * Every shipped .ai.yaml must parse, and must parse into what it says.
+ * // implements XSPEC-367 R1
  *
- * **Why this exists.** On 2026-08-07, `universal-dev-standards@6.3.4` on npm
- * shipped 141 `.ai.yaml` files of which four were syntactically invalid YAML.
- * The same four sat in `.standards/`, which is what an adopter's directory
- * receives. An agent reading them gets an exception, not empty content — and a
- * downstream that catches it gets a silence indistinguishable from "this
- * standard has no rules". They had been that way long enough to reach a
- * release because **eight scripts read that directory and not one parsed the
- * whole set**: an artifact that has never been checked and one that has been
- * checked look identical from outside.
+ * **Why this exists.** On 2026-08-07, `universal-dev-standards@6.3.4` shipped
+ * 141 `.ai.yaml` files of which four were syntactically invalid YAML. An agent
+ * reading them gets an exception, not empty content — and a downstream that
+ * catches it gets a silence indistinguishable from "this standard has no
+ * rules". They reached a release because **eight scripts read that directory
+ * and not one parsed the whole set**.
  *
- * All four failed the same way — an unquoted scalar carrying YAML-significant
- * characters. A colon inside parentheses, a flow sequence followed by prose, a
- * quote closing mid-value, a key indented differently from its siblings. None
- * of them is exotic; they are what hand-authored YAML does when nothing reads
- * it back.
+ * **Why it was rewritten the same day.** The first version fixed those four and
+ * then reported `OK — 423 files across 3 locations`, while npm was still
+ * shipping ten unparseable files. It named three directories explicitly and did
+ * not recurse, so `ai/options/`, `locales/`, and `skills/` — all of which
+ * prepack bundles into the tarball — were outside its denominator. A gate that
+ * enumerates its own scope is a gate that goes stale the next time a directory
+ * is added, so this version enumerates nothing: it walks the repo and checks
+ * every `.ai.yaml` that is not in an excluded build/vendor path.
  *
- * **A failure of this script is not a clean result.** If a directory cannot be
- * read, or the YAML library cannot be loaded, that exits non-zero and says so.
- * A check whose "nothing wrong" and "could not look" produce the same output
- * converts an unknown into a reassurance — the shape XSPEC-366 was written to
- * catch, and the shape that let this defect ship.
+ * **Two failure modes, not one.** Ten files threw. Eight more parsed *and were
+ * wrong*: `{UT:70%,IT:20%}` is not a mapping — without the space after the
+ * colon YAML reads one plain scalar key `UT:70%` whose value is null. Same for
+ * an unquoted `- git commit -m "feat: add model"`, which becomes
+ * `{'git commit -m "feat': 'add model"'}`. These pass any parses-or-not check
+ * while handing an agent nonsense, so the check also rejects keys carrying
+ * quote characters or an unspaced colon — the fingerprint of a scalar that was
+ * silently read as a mapping.
+ *
+ * **A failure of this script is not a clean result.** Unreadable directory,
+ * missing YAML library, or a walk that finds no files at all exits 2 and says
+ * so. A check whose "nothing wrong" and "could not look" produce the same
+ * output converts an unknown into a reassurance — the shape XSPEC-366 was
+ * written to catch, and the shape that let this defect ship twice.
  */
 
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
@@ -43,71 +54,101 @@ try {
   process.exit(2);
 }
 
-/**
- * `ai/` is the source prepack copies into `cli/bundled/`, so it is what
- * reaches npm. `.standards/` is this repo's own adopted copy — not shipped,
- * but read by agents working here, and it has drifted from `ai/` before.
- * `cli/bundled/` is gitignored and regenerated, so it is checked only when a
- * prepack has already produced it.
- */
-const DIRS = ['ai/standards', '.standards', 'cli/bundled/ai/standards'];
+// Excluded because they are vendored or generated *inputs*, not because they
+// are uninteresting. `cli/bundled/` is generated but IS checked: it is the
+// literal tarball content, and checking it catches a prepack that copies a
+// stale tree.
+const EXCLUDE = new Set(['node_modules', '.git', 'dist', 'coverage', '.next', 'build']);
 
-let checked = 0;
-const invalid = [];
-const missing = [];
-
-for (const rel of DIRS) {
-  const dir = join(ROOT, rel);
-  if (!existsSync(dir)) {
-    // cli/bundled/ is generated; absent is normal outside a pack. The other
-    // two are tracked, and their absence is a real problem, not a pass.
-    if (rel === 'cli/bundled/ai/standards') continue;
-    missing.push(rel);
-    continue;
-  }
-
+const files = [];
+(function walk(dir) {
   let entries;
   try {
-    entries = readdirSync(dir).filter((f) => f.endsWith('.ai.yaml'));
+    entries = readdirSync(dir);
   } catch (err) {
-    console.error(`[check-ai-yaml] cannot read ${rel} — the check did not run: ${err.message}`);
+    console.error(`[check-ai-yaml] cannot read ${relative(ROOT, dir) || '.'} — the check did not run: ${err.message}`);
     process.exit(2);
   }
-
-  if (entries.length === 0) {
-    // Zero files is not "all files valid". Say so rather than exit green on an
-    // empty denominator.
-    missing.push(`${rel} (contains no .ai.yaml)`);
-    continue;
-  }
-
-  for (const file of entries) {
-    checked += 1;
+  for (const entry of entries) {
+    if (EXCLUDE.has(entry)) continue;
+    const full = join(dir, entry);
+    let st;
     try {
-      yaml.load(readFileSync(join(dir, file), 'utf8'));
-    } catch (err) {
-      const where = err.mark ? `${err.mark.line + 1}:${err.mark.column + 1}` : 'unknown position';
-      invalid.push({ path: `${rel}/${file}`, reason: err.message.split('\n')[0], where });
+      st = statSync(full);
+    } catch {
+      continue; // broken symlink; not a YAML problem
     }
+    if (st.isDirectory()) walk(full);
+    else if (entry.endsWith('.ai.yaml')) files.push(full);
   }
-}
+})(ROOT);
 
-if (missing.length > 0) {
-  console.error('[check-ai-yaml] expected directories are missing or empty — the check could not speak for them:');
-  for (const m of missing) console.error(`  ${m}`);
+if (files.length === 0) {
+  console.error('[check-ai-yaml] walked the repo and found no .ai.yaml at all — the check did not run.');
+  console.error('Zero files is not "all files valid"; something is wrong with the walk or the tree.');
   process.exit(2);
 }
 
-if (invalid.length > 0) {
-  console.error(`[check-ai-yaml] ${invalid.length} of ${checked} files do not parse:\n`);
-  for (const { path, where, reason } of invalid) {
-    console.error(`  ${path}`);
+/**
+ * A key holding a quote character, or a colon with no space after it, is the
+ * fingerprint of a plain scalar that YAML read as a mapping. Real keys in this
+ * repo never look like that.
+ */
+const MISREAD_KEY = /["']|:\S/;
+
+function collectMisreadKeys(node, path, out) {
+  if (!node || typeof node !== 'object') return;
+  if (!Array.isArray(node)) {
+    for (const key of Object.keys(node)) {
+      if (MISREAD_KEY.test(key)) out.push(`${path}.${key}`);
+    }
+  }
+  for (const [key, value] of Object.entries(node)) collectMisreadKeys(value, `${path}.${key}`, out);
+}
+
+const unparseable = [];
+const misread = [];
+
+for (const full of files) {
+  const rel = relative(ROOT, full).split(sep).join('/');
+  let doc;
+  try {
+    doc = yaml.load(readFileSync(full, 'utf8'));
+  } catch (err) {
+    const where = err.mark ? `${err.mark.line + 1}:${err.mark.column + 1}` : 'unknown position';
+    unparseable.push({ rel, where, reason: err.message.split('\n')[0] });
+    continue;
+  }
+  const hits = [];
+  collectMisreadKeys(doc, '', hits);
+  if (hits.length > 0) misread.push({ rel, hits });
+}
+
+if (unparseable.length > 0) {
+  console.error(`[check-ai-yaml] ${unparseable.length} of ${files.length} files do not parse:\n`);
+  for (const { rel, where, reason } of unparseable) {
+    console.error(`  ${rel}`);
     console.error(`    ${where} — ${reason}`);
   }
   console.error('\nAn agent reading these gets an exception, not empty content.');
   console.error('Usually an unquoted scalar carrying ":", a flow sequence followed by');
   console.error('prose, a quote that closes mid-value, or inconsistent indentation.');
-  process.exit(1);
 }
 
-console.log(`[check-ai-yaml] OK — ${checked} .ai.yaml files across ${DIRS.length} locations all parse.`);
+if (misread.length > 0) {
+  const total = misread.reduce((sum, m) => sum + m.hits.length, 0);
+  console.error(`\n[check-ai-yaml] ${misread.length} files parse but were misread — ${total} keys:\n`);
+  for (const { rel, hits } of misread) {
+    console.error(`  ${rel}  (${hits.length})`);
+    for (const hit of hits.slice(0, 4)) console.error(`    ${hit.slice(0, 110)}`);
+    if (hits.length > 4) console.error(`    …and ${hits.length - 4} more`);
+  }
+  console.error('\nThese are worse than a parse error: they pass every parses-or-not');
+  console.error('check while the agent reads a key like `UT:70%` whose value is null.');
+  console.error('`{a:1,b:2}` needs a space after each colon; a shell command containing');
+  console.error('": " inside a block sequence needs quoting.');
+}
+
+if (unparseable.length > 0 || misread.length > 0) process.exit(1);
+
+console.log(`[check-ai-yaml] OK — ${files.length} .ai.yaml files parse and none were misread.`);

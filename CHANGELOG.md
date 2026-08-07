@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.6] - 2026-08-07
+
+### Fixed
+
+- **6.3.5 said the shipped standards all parsed. It had counted 141 of 287.** The gate added in 6.3.5 named three directories explicitly and did not recurse, so `ai/options/`, `locales/` and `skills/` — all of which `prepack` bundles into the tarball — sat outside its denominator. Ten files in those directories still failed to parse after 6.3.5 shipped, in both Chinese locales and in `skills/`. **A gate that enumerates its own scope goes stale the moment a directory is added**, so it now walks the repo and checks every `.ai.yaml` outside build and vendor paths — 759 files here, against the 423 it previously claimed as complete.
+- **Eight more files parsed and were wrong, which no parses-or-not check can see.** `{UT:70%,IT:20%}` is not a mapping: without a space after the colon, YAML reads a single plain scalar key `UT:70%` whose value is null. An unquoted `- git commit -m "feat: add model"` becomes `{'git commit -m "feat': 'add model"'}`. These pass every syntax check while handing an agent nonsense. The gate now also rejects keys carrying a quote character or a colon with no space after it — the fingerprint of a scalar silently read as a mapping — and both branches are covered by a control test rather than assumed.
+
 ## [6.3.5] - 2026-08-07
 
 ### Fixed

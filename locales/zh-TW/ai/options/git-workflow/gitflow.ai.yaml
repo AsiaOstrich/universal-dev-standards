@@ -76,7 +76,7 @@ workflow:
       commands:
         - "# 進行變更..."
         - git add .
-        - git commit -m "feat: {描述}"
+        - 'git commit -m "feat: {描述}"'
 
     - step: 合併到 develop
       commands:
@@ -114,7 +114,7 @@ workflow:
     - step: 修正並完成
       commands:
         - "# 修正問題"
-        - git commit -m "fix: {描述}"
+        - 'git commit -m "fix: {描述}"'
         - git checkout main
         - git merge --no-ff hotfix/{問題}
         - git tag -a v{版本}
@@ -126,8 +126,8 @@ quick_reference:
   branches:
     columns: [分支, 用途, 來源, 合併到]
     rows:
-      - [main, 正式發布, -, -]
-      - [develop, 整合, main, -]
+      - [main, 正式發布, "-", "-"]
+      - [develop, 整合, main, "-"]
       - [feature/*, 新功能, develop, develop]
       - [release/*, 發布準備, develop, "main, develop"]
       - [hotfix/*, 緊急修正, main, "main, develop"]

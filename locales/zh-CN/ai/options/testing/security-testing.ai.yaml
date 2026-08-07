@@ -157,4 +157,4 @@ quick_reference:
       - [动态分析, DAST, 预备環境, OWASP ZAP/Burp]
       - [相依套件掃描, SCA, 每次建置, Snyk/Dependabot]
       - [滲透测试, Pentest, 每年, 人工/專业]
-      - [机密掃描, -, 提交前, GitLeaks/TruffleHog]
+      - [机密掃描, "-", 提交前, GitLeaks/TruffleHog]

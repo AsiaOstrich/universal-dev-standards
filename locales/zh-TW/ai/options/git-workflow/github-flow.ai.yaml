@@ -53,7 +53,7 @@ workflow:
     commands:
       - "# 進行變更..."
       - git add .
-      - git commit -m "feat: {描述}"
+      - 'git commit -m "feat: {描述}"'
 
   - step: 推送並建立 PR
     description: 推送到遠端並開啟 Pull Request

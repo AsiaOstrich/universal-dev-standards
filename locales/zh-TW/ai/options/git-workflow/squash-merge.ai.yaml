@@ -43,9 +43,9 @@ workflow:
 
   - step: 進行多次提交
     commands:
-      - git commit -m "wip: initial implementation"
-      - git commit -m "wip: add tests"
-      - git commit -m "wip: fix lint errors"
+      - 'git commit -m "wip: initial implementation"'
+      - 'git commit -m "wip: add tests"'
+      - 'git commit -m "wip: fix lint errors"'
 
   - step: 壓縮合併（通過 GitHub/GitLab）
     commands:
@@ -56,7 +56,7 @@ workflow:
     commands:
       - git checkout main
       - git merge --squash feature/{功能名稱}
-      - git commit -m "feat(scope): 總結訊息 (#PR號)"
+      - 'git commit -m "feat(scope): 總結訊息 (#PR號)"'
 
 example:
   before: |

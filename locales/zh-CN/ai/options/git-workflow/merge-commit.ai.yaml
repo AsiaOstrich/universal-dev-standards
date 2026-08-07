@@ -44,9 +44,9 @@ workflow:
 
   - step: 进行多次有意義的提交
     commands:
-      - git commit -m "feat: add user model"
-      - git commit -m "feat: add user service"
-      - git commit -m "test: add user tests"
+      - 'git commit -m "feat: add user model"'
+      - 'git commit -m "feat: add user service"'
+      - 'git commit -m "test: add user tests"'
 
   - step: 使用合併提交合併
     commands:
