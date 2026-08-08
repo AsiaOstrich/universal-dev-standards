@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.7
-translation_version: 6.3.7
-last_synced: 2026-08-07
+source_version: 6.3.8
+translation_version: 6.3.8
+last_synced: 2026-08-08
 status: current
 ---
 
@@ -16,6 +16,15 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.8] - 2026-08-08
+
+### 修复
+
+- **`uds deps` 对一个它没有检查过的集合打了绿勾。** 對一個没有运行期依赖、且使用 pnpm lockfile 的專案執行時，它印出 `0 runtime dependencies checked`，接著 `no package-lock.json — nothing to compare the registry against`，接著 `✓ every dependency resolves to the version you test against`，然後 exit 0。两项事实都为真；合起来却宣称一個这个命令读不了的 repo 已被检查而且没问题，而任何接在这个 exit code 上的闸门都会同意。`clean` 的定义是三个空列表的合取，在空集合上恒真——而覆盖它的测试正是以「分母会跟着结论一起走」为由断言了这件事。分母确实跟着走了，却什么也没改变：打勾紧接其后，而 exit code 完全没有带上那个计数。**打印分母不足以阻止空集合被读成安心；拒绝给出结论才可以。** 同時修复該訊息的後半：该项目有一份完全正常的 `pnpm-lock.yaml`，而被告知「你没有 lockfile」正是读者判定工具搞错、从此不再读它的方式。命令现在会说出找到的是什么、以及自己读的是哪一种格式。
+- **registry ID 不是檔名，而有八個地方把它當成檔名用。** manifest 的 `standards` 陣列是刻意混合的：core 標準自 v3.4.0 起改為 registry ID，option 條目維持其上游來源路徑，因為 option 沒有 ID。而每個消費端都對兩者一律套 `basename()`——對路徑正確，對 ID 是 no-op。`error-code-standards` 安裝為 `error-codes.ai.yaml`、`logging-standards` 為 `logging.ai.yaml`、`ai-agreement` 為 `ai-agreement-standards.ai.yaml`；多數 ID 確實等於它的 basename，這正是它能存活的原因。同一個錯誤導出三種失效：minimal 模式印出 `.standards/<id>`，使**某採用者 AGENTS.md 的七十個路徑中有七個指不到東西**，而它們正下方那一行寫著「你必須讀取並遵循 `.standards/` 裡的標準」；索引區塊用 `.ai.yaml` 後綴過濾，而沒有任何 ID 帶這個後綴，於是**所有核心標準都被丟掉**，同一個採用者先前的區塊列了七個 option、六十三項核心標準一個也沒有；任務對應表以檔名為鍵，ID 一個也對不上，該標準就安靜地沒有對應。解析現在是一個匯出的函式，八個呼叫點共用，而解析不出的條目會列在清單下方回報，不會被印成路徑。
+- **那個專門用來抓這種漂移的檢查，帶著同一個缺陷。** `AGENTS.md Standards Sync` 對一份七十項的 manifest 回報 `7/7`：`.ai.yaml` 過濾只留下七個 option 條目，七個都在，於是打勾——升級前六十三項標準不在區塊裡時打勾，升級後區塊裡有七個死路徑時也打勾。對它所量測對象的九成視而不見，而且全程綠燈。在同一個專案上現在是 67/67，而手動弄壞一個路徑會回報 66/67 並指名該檔。它需要的那份對照，早就建在它上方一百七十行處，註解甚至指名了那個案例。
+- **產生器仍把 6.0.0 移除的路徑寫進採用者的指令檔。** `MIGRATION-v6` §2 移除了八個機器可讀標準，它們的執行期已移往採用層；三行 `Reference:` 與一筆 MUST 等級的任務對應仍指向 `.standards/workflow-enforcement.ai.yaml`。人類可讀的 `core/workflow-enforcement.md` 是刻意保留在上游的，但採用者收到的是 `.standards/` 而非 `core/`，所以它不是替代路徑——這幾行是刪除而非改指。控制該段落的判斷式比對的檔名，自 3.4.0 起沒有任何 manifest 持有，於是那段落對兩個仍宣告該標準的專案早已悄悄不再產生；現在兩種形式都比對。
 
 ## [6.3.7] - 2026-08-07
 
