@@ -917,7 +917,10 @@ export async function runProjectConfiguration(options) {
     const intSpinner = ora(msgObj.regeneratingIntegrations).start();
 
     // Build installed standards list
-    const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
+    // Raw, not basename()d. Resolution needs the registry (an ID is not a
+    // filename) and the `/options/` segment (it is what classifies an entry).
+    // basename() removes both. See resolveStandardFilename.
+    const installedStandardsList = manifest.standards || [];
 
     // Determine language setting
     let commonLanguage = 'en';
@@ -941,6 +944,7 @@ export async function runProjectConfiguration(options) {
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
         language: commonLanguage,
         installedStandards: installedStandardsList,
+        standardsFormat: manifest.format || 'ai',
         contentMode: newContentMode,
         // Pass output_language for dynamic commit standards generation
         outputLanguage: newOptions.output_language || 'english'

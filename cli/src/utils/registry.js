@@ -244,3 +244,48 @@ export function resolveSelectedOptionSources(manifestOptions, format = 'ai') {
 
   return paths;
 }
+
+/**
+ * The filename a manifest entry has on disk under `.standards/`.
+ *
+ * The `standards` array in a manifest is deliberately mixed: core standards are
+ * stored as registry IDs (v3.4.0 onwards), option files as their upstream
+ * source path, because options have no registry ID. Anything that turns those
+ * entries into paths has to handle both, and three places in
+ * integration-generator.js did not — each failing differently and silently:
+ *
+ *   - minimal mode printed `.standards/<id>`, and an ID is not a filename.
+ *     `error-code-standards` installs as `error-codes.ai.yaml`, `ai-agreement`
+ *     as `ai-agreement-standards.ai.yaml`. Seven of seventy paths in a real
+ *     adopter's AGENTS.md pointed at nothing, in a block whose first line tells
+ *     the agent it must read them.
+ *   - the index block filtered entries by an `.ai.yaml` suffix, which no ID
+ *     has, so every core standard was dropped. That is why the same adopter's
+ *     previous block listed seven options and none of its sixty-three core
+ *     standards.
+ *   - the task-mapping lookup is keyed by filename, so an ID missed every
+ *     time and the standard quietly got no mapping.
+ *
+ * Returns null when the entry cannot be resolved — a caller must not fall back
+ * to printing the raw entry, which is the bug above.
+ *
+ * @param {string} entry - A manifest `standards` entry: registry ID or path
+ * @param {string} format - Content format: 'ai' or 'human'
+ * @returns {string|null} Basename as installed, or null if unresolvable
+ */
+export function resolveStandardFilename(entry, format = 'ai') {
+  if (typeof entry !== 'string' || entry.length === 0) return null;
+
+  // A path (option files, and legacy pre-3.4.0 manifests) already names itself.
+  if (entry.includes('/') || entry.includes('.')) {
+    const parts = entry.split(/[/\\]/);
+    return parts[parts.length - 1] || null;
+  }
+
+  const found = getAllStandards().find((s) => s.id === entry);
+  if (!found) return null;
+  const source = getStandardSource(found, format);
+  if (!source) return null;
+  const parts = source.split(/[/\\]/);
+  return parts[parts.length - 1] || null;
+}

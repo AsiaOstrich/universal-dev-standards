@@ -589,7 +589,10 @@ export async function updateCommand(options) {
     const intSpinner = ora(msg.syncingIntegrations).start();
 
     // Build installed standards list
-    const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
+    // Raw, not basename()d. Resolution needs the registry (an ID is not a
+    // filename) and the `/options/` segment (it is what classifies an entry).
+    // basename() removes both. See resolveStandardFilename.
+    const installedStandardsList = manifest.standards || [];
 
     // Determine language setting
     let commonLanguage = 'en';
@@ -617,6 +620,7 @@ export async function updateCommand(options) {
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
         language: commonLanguage,
         installedStandards: installedStandardsList,
+        standardsFormat: manifest.format || 'ai',
         contentMode: resolved.contentMode,
         level: resolved.level,
         // Pass output_language for dynamic commit standards generation
@@ -645,6 +649,7 @@ export async function updateCommand(options) {
     if (manifest.generateAgentsMd && !generatedFiles.has('AGENTS.md')) {
       const summaryConfig = {
         installedStandards: installedStandardsList,
+        standardsFormat: manifest.format || 'ai',
         language: manifest.options?.display_language || 'en',
         outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
         standardOptions: manifest.options || {}
@@ -1404,7 +1409,8 @@ export function regenerateIntegrations(projectPath, manifest) {
   // Regenerate universal AGENTS.md if enabled and not already covered
   if (manifest.generateAgentsMd && !generatedFiles.has('AGENTS.md')) {
     const summaryConfig = {
-      installedStandards: (manifest.standards || []).map(s => basename(s)),
+      // Raw — writeAgentsMdSummary resolves via the registry now.
+      installedStandards: manifest.standards || [],
       language: manifest.options?.display_language || 'en',
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
       standardOptions: manifest.options || {}
@@ -1469,7 +1475,14 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
           ? 'bilingual'
           : (manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese'
             ? 'zh-tw' : 'en',
-        installedStandards: manifest.standards?.map((x) => basename(x)) || [],
+        // Passed raw. `basename()` here destroyed the two things the
+        // generator needs: a registry ID cannot be turned back into a
+        // filename once it has been through basename() (it comes out
+        // unchanged, and an ID is not a filename), and an option entry loses
+        // the `/options/` segment that classifies it. Resolution belongs
+        // where the registry is consulted, not at the call site.
+        installedStandards: manifest.standards || [],
+        standardsFormat: manifest.format || 'ai',
         contentMode: resolvedMode.contentMode,
         level: resolvedMode.level,
         outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'

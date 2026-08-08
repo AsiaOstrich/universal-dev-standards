@@ -7,8 +7,7 @@ import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
   getAllStandards,
-  getRepositoryInfo
-} from '../utils/registry.js';
+  getRepositoryInfo, resolveStandardFilename } from '../utils/registry.js';
 import {
   computeFileHash,
   compareFileHash,
@@ -1244,7 +1243,23 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   }
 
   const content = readFileSync(agentsMdPath, 'utf-8');
-  const installedStandards = (manifest.standards || []).map(s => basename(s));
+  // Resolved through the registry, not basename()d.
+  //
+  // This check reported "standards synced (7/7)" for a project with seventy
+  // standards in its manifest. basename() leaves a registry ID unchanged, the
+  // `.ai.yaml` filter below then drops every ID, and only the seven option
+  // entries — which are stored as paths — survived to become the denominator.
+  // Seven of seven were present, so it ticked, both before the AGENTS.md block
+  // listed the other sixty-three and after, when seven of its paths pointed at
+  // nothing. A drift check blind to ninety percent of the content.
+  //
+  // The AI-tool integration check ~170 lines above already builds this exact
+  // mapping and its comment names the exact case (`error-code-standards` ->
+  // `error-codes.ai.yaml`). The knowledge was in the file; it had not reached
+  // its sibling.
+  const installedStandards = (manifest.standards || [])
+    .map(entry => resolveStandardFilename(entry, manifest.format || 'ai'))
+    .filter(Boolean);
 
   // Same as the AI-tool integration check above: an index-mode block declares a
   // count instead of listing names, so the name grep below cannot apply to it.

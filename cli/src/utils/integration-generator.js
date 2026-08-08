@@ -3,7 +3,7 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
-import { resolveSelectedOptionSources } from './registry.js';
+import { resolveSelectedOptionSources, resolveStandardFilename } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
 
 /**
@@ -2399,18 +2399,39 @@ All responses should be in **Traditional Chinese (繁體中文)**, with technica
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated minimal reference
  */
-export function generateMinimalStandardsReference(installedStandards, format, language = 'zh-tw') {
+export function generateMinimalStandardsReference(
+  installedStandards,
+  format,
+  language = 'zh-tw',
+  standardsFormat = 'ai',
+) {
   if (!installedStandards || installedStandards.length === 0) {
     return '';
   }
 
   const coreStandards = [];
   const optionStandards = [];
+  const unresolved = [];
 
-  // Separate core standards from options
+  // Separate core standards from options.
+  //
+  // `basename(entry)` used to serve for both, and it is only right for one:
+  // option entries are paths, core entries are registry IDs, and an ID is not
+  // a filename. That produced `.standards/error-code-standards` for a file
+  // installed as `error-codes.ai.yaml` — seven dead paths out of seventy in a
+  // real adopter's AGENTS.md, directly under a line telling the agent it must
+  // read them.
   for (const standardPath of installedStandards) {
-    const filename = basename(standardPath);
     const isOption = standardPath.includes('/options/') || standardPath.includes('\\options\\');
+    const filename = resolveStandardFilename(standardPath, standardsFormat);
+
+    // An entry we cannot resolve is not written out as if it were a path. A
+    // listed path that does not exist is worse than an omission: the reader
+    // cannot tell it apart from the ones that do, so it discredits the list.
+    if (!filename) {
+      unresolved.push(standardPath);
+      continue;
+    }
 
     if (isOption) {
       optionStandards.push({ filename, path: standardPath });
@@ -2446,6 +2467,15 @@ export function generateMinimalStandardsReference(installedStandards, format, la
       }
       sections.push('');
     }
+
+    // Said out loud rather than dropped quietly. A shorter list and a complete
+    // one read the same, and only the manifest knows which this is.
+    if (unresolved.length > 0) {
+      sections.push(language === 'en'
+        ? `> ${unresolved.length} manifest entr${unresolved.length === 1 ? 'y' : 'ies'} could not be matched to an installed file and ${unresolved.length === 1 ? 'is' : 'are'} not listed above: ${unresolved.join(', ')}. Run \`uds update\` — if that does not clear it, the manifest and the registry disagree.`
+        : `> 有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列於上方：${unresolved.join('、')}。請執行 \`uds update\`；若仍未消失，代表 manifest 與 registry 不一致。`);
+      sections.push('');
+    }
   } else {
     // Plaintext format
     sections.push(language === 'en'
@@ -2467,6 +2497,13 @@ export function generateMinimalStandardsReference(installedStandards, format, la
       for (const std of optionStandards) {
         sections.push(`- .standards/options/${std.filename}`);
       }
+    }
+
+    if (unresolved.length > 0) {
+      sections.push('');
+      sections.push(language === 'en'
+        ? `NOTE: ${unresolved.length} manifest entries could not be matched to an installed file and are not listed: ${unresolved.join(', ')}`
+        : `注意：有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列出：${unresolved.join('、')}`);
     }
     sections.push('');
   }
@@ -2631,6 +2668,10 @@ export function generateIntegrationContent(config) {
     // New fields for enhanced standards compliance
     installedStandards = [],
     contentMode = 'minimal',
+    // Content format of the installed standards ('ai' -> *.ai.yaml,
+    // 'human' -> *.md). Needed to turn a manifest's registry IDs into the
+    // filenames actually on disk; without it the block prints IDs as paths.
+    standardsFormat = 'ai',
     // Output language option for dynamic commit standards generation
     outputLanguage = 'english'
   } = config;
@@ -2691,7 +2732,8 @@ export function generateIntegrationContent(config) {
         standardsContent += generateMinimalStandardsReference(
           installedStandards,
           format,
-          language
+          language,
+          standardsFormat
         );
       } else {
         // Index/Full mode: detailed compliance instructions + index
@@ -2699,7 +2741,8 @@ export function generateIntegrationContent(config) {
           installedStandards,
           contentMode,
           format,
-          language
+          language,
+          standardsFormat
         );
 
         const standardsIndex = generateStandardsIndex(
@@ -2868,7 +2911,13 @@ export function integrationFileExists(tool, projectPath) {
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated compliance instructions
  */
-export function generateComplianceInstructions(installedStandards, mode, format, language = 'zh-tw') {
+export function generateComplianceInstructions(
+  installedStandards,
+  mode,
+  format,
+  language = 'zh-tw',
+  standardsFormat = 'ai',
+) {
   if (mode === 'minimal' || !installedStandards || installedStandards.length === 0) {
     return '';
   }
@@ -2876,9 +2925,16 @@ export function generateComplianceInstructions(installedStandards, mode, format,
   const mustFollow = [];
   const shouldFollow = [];
 
-  // Categorize standards by priority
+  // Categorize standards by priority.
+  //
+  // Keyed by installed filename, so a registry ID has to be resolved first —
+  // `basename()` on an ID returns the ID, which matches nothing in the table,
+  // and the standard silently gets no task mapping. No error, no shorter
+  // output anyone would notice: just a standard the agent is never told when
+  // to apply.
   for (const standardPath of installedStandards) {
-    const filename = basename(standardPath);
+    const filename = resolveStandardFilename(standardPath, standardsFormat);
+    if (!filename) continue;
     const mapping = STANDARD_TASK_MAPPING[filename];
     if (mapping) {
       const entry = {
@@ -3327,15 +3383,18 @@ export function generateAgentsMdSummary(config = {}) {
     lines.push('All standards are in `.standards/`. Installed standards:');
     lines.push('');
 
-    const keyStandards = installedStandards
-      .filter(s => {
-        const name = basename(s);
-        return name.endsWith('.ai.yaml');
-      });
+    // Resolved before filtering, not after. The filter asks for an `.ai.yaml`
+    // suffix and a manifest's core entries are registry IDs, which carry no
+    // suffix — so every core standard failed the test and the block listed
+    // only the option files. On one adopter that meant seven lines standing in
+    // for seventy, under a heading reading "Installed Standards", with nothing
+    // anywhere reporting the sixty-three that had been dropped.
+    const resolved = installedStandards
+      .map((s) => resolveStandardFilename(s, 'ai'))
+      .filter((name) => name?.endsWith('.ai.yaml'));
 
-    for (const std of keyStandards) {
-      const name = basename(std).replace('.ai.yaml', '');
-      lines.push(`- \`.standards/${basename(std)}\` — ${name}`);
+    for (const filename of resolved) {
+      lines.push(`- \`.standards/${filename}\` — ${filename.replace('.ai.yaml', '')}`);
     }
   } else {
     lines.push('No standards installed yet. Run `npx uds init` to install.');
