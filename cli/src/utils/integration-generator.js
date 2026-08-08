@@ -101,8 +101,14 @@ const STANDARD_TASK_MAPPING = {
   'test-completeness-dimensions.md': { task: 'Test coverage', when: 'When evaluating tests', priority: 'SHOULD' },
   'git-workflow.ai.yaml': { task: 'Git workflow', when: 'Branch/merge decisions', priority: 'SHOULD' },
   'developer-memory.ai.yaml': { task: 'Developer memory', when: 'Always (protocol)', priority: 'SHOULD' },
-  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' },
-  'workflow-enforcement.ai.yaml': { task: 'Workflow gates', when: 'Before any workflow phase', priority: 'MUST' }
+  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' }
+  // 'workflow-enforcement.ai.yaml' was removed in 6.0.0 (MIGRATION-v6 §2) along
+  // with seven other machine-readable standards whose runtime moved to the
+  // adoption layer. Its entry here pointed a task mapping at
+  // `.standards/workflow-enforcement.ai.yaml`, a file that has not shipped
+  // since. The human-readable core/workflow-enforcement.md was deliberately
+  // kept upstream, but adopters receive .standards/, not core/, so it is not a
+  // substitute path.
 };
 
 /**
@@ -2599,7 +2605,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
     sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+
   } else if (language === 'zh-cn') {
     sections.push('## 工作流程强制闸门');
     sections.push('');
@@ -2622,7 +2628,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` 文件存在 | → FORMULATION |');
     sections.push('| Commit | feat/fix | 检查活跃 spec | → 建议 `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('参考: `.standards/workflow-enforcement.ai.yaml`');
+
   } else {
     sections.push('## Workflow Enforcement Gates');
     sections.push('');
@@ -2645,7 +2651,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
     sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+
   }
 
   return sections.join('\n');
@@ -2761,8 +2767,20 @@ export function generateIntegrationContent(config) {
     sections.push('\n---\n');
   }
 
-  // Add workflow enforcement gates if workflow-enforcement standard is installed
-  if (installedStandards.some(s => basename(s) === 'workflow-enforcement.ai.yaml')) {
+  // Add workflow enforcement gates if the project still declares the standard.
+  //
+  // Matched against both forms because a manifest can hold either: the legacy
+  // path (pre-3.4.0) or the ID. vibeops and dev-platform both still carry
+  // `workflow-enforcement` as an ID today, two majors after 6.0.0 removed the
+  // file — checking only the filename silently stopped honouring their
+  // declaration. The section's content is self-contained; what it no longer
+  // does is point at `.standards/workflow-enforcement.ai.yaml`, which has not
+  // existed since 6.0.0 and was being written into adopters' instruction
+  // files regardless (asiaostrich-telemetry-client/CLAUDE.md:145).
+  if (installedStandards.some(s => {
+    const name = basename(s);
+    return name === 'workflow-enforcement.ai.yaml' || name === 'workflow-enforcement';
+  })) {
     const workflowGateContent = generateWorkflowGateContent(language);
     sections.push(workflowGateContent);
     sections.push('\n---\n');
@@ -3209,7 +3227,6 @@ export function updateMarkedSection(existingContent, newMarkedContent, format) {
 export function getToolFilePath(tool) {
   return getToolFileName(tool) || null;
 }
-
 
 
 /**
