@@ -298,6 +298,15 @@ export async function measureResolutionDrift(root, options = {}) {
   const lockPath = join(root, 'package-lock.json');
   const lock = existsSync(lockPath) ? JSON.parse(readFileSync(lockPath, 'utf8')) : null;
 
+  // Which lockfile is present, when it is not npm's. Only package-lock.json is
+  // understood, and "not understood" has to be reported as a different thing
+  // from "not there" — a pnpm project told it had no lockfile will reasonably
+  // conclude the command is confused, and stop reading.
+  const foreignLockfile =
+    lock === null
+      ? ['pnpm-lock.yaml', 'yarn.lock', 'bun.lockb', 'bun.lock'].find((f) => existsSync(join(root, f))) ?? null
+      : null;
+
   // Workspaces are examined too. A monorepo that declares its shipped
   // front-end in a workspace and its server at the root has two manifests, and
   // reading only the root reports a clean subset as if it were the whole — the
@@ -375,7 +384,30 @@ export async function measureResolutionDrift(root, options = {}) {
     drifted,
     unverifiable,
     unpinnedNative,
-    /** True when every dependency was checked, agreed, and needs no pinning. */
-    clean: drifted.length === 0 && unverifiable.length === 0 && unpinnedNative.length === 0,
+    /**
+     * A lockfile in a format this command cannot read, when there is no
+     * package-lock.json. `hasLockfile: false` alone reads as "this project has
+     * no lockfile", which for a pnpm or yarn project is simply untrue, and the
+     * report said so out loud: "no package-lock.json — nothing to compare"
+     * printed against a repo holding a perfectly good pnpm-lock.yaml.
+     */
+    foreignLockfile,
+    /**
+     * True when every dependency was checked, agreed, and needs no pinning.
+     *
+     * `examined === 0` is excluded, and that exclusion is the point. Run
+     * against asiaostrich-telemetry-client — zero runtime dependencies, a
+     * pnpm lockfile this command cannot read — the three problem lists came
+     * back empty and the report printed "✓ every dependency resolves to the
+     * version you test against". Nothing had been examined. The tick was
+     * true and it was also the exact shape this command exists to refuse:
+     * "nothing to check" and "everything checked out" arriving as the same
+     * green line.
+     */
+    clean:
+      rows.length > 0 &&
+      drifted.length === 0 &&
+      unverifiable.length === 0 &&
+      unpinnedNative.length === 0,
   };
 }

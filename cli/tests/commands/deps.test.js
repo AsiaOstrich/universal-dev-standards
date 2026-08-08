@@ -356,15 +356,52 @@ describe('measureResolutionDrift', () => {
     }
   });
 
-  it('reports the denominator, so "no drift" cannot be confused with "nothing checked"', async () => {
+  it('refuses to call an empty set clean, denominator printed or not', async () => {
     const dir = fixture({ name: 'p', dependencies: {} }, {});
     try {
       const r = await measureResolutionDrift(dir, { run: fakeNpm({}) });
       expect(r.examined).toBe(0);
-      // Zero dependencies is genuinely clean, but the count has to travel with
-      // the verdict — a bare "clean" over an empty set reads as reassurance.
-      expect(r.clean).toBe(true);
+      // This assertion used to be `clean === true`, on the reasoning that zero
+      // dependencies is genuinely nothing to worry about so long as the count
+      // travels with the verdict. Running the command against
+      // asiaostrich-telemetry-client on 2026-08-08 settled it the other way:
+      // the count did travel — "0 runtime dependencies checked" — and the very
+      // next line was "✓ every dependency resolves to the version you test
+      // against", and the process exited 0. A gate wired to that exit code
+      // passes. Printing the denominator does not stop an empty set reading as
+      // reassurance; refusing the verdict does.
+      expect(r.clean).toBe(false);
       expect(r.consistent).toBe(0);
+      // And it is not a *finding* either — nothing is wrong, nothing was seen.
+      expect(r.drifted).toHaveLength(0);
+      expect(r.unverifiable).toHaveLength(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('names the lockfile it found rather than claiming there is none', async () => {
+    // "no package-lock.json" is true and reads as "you have no lockfile",
+    // which for a pnpm project is false. A reader who knows their lockfile is
+    // right there concludes the tool is confused and stops reading it.
+    const dir = fixture({ name: 'p', dependencies: {} }, null);
+    try {
+      writeFileSync(join(dir, 'pnpm-lock.yaml'), "lockfileVersion: '9.0'\n");
+      const r = await measureResolutionDrift(dir, { run: fakeNpm({}) });
+      expect(r.hasLockfile).toBe(false);
+      expect(r.foreignLockfile).toBe('pnpm-lock.yaml');
+      expect(stripAnsi(render(r))).toContain('found pnpm-lock.yaml');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('reports no foreign lockfile when package-lock.json is the one present', async () => {
+    const dir = fixture({ name: 'p', dependencies: { a: '^1.0.0' } }, { a: '1.0.0' });
+    try {
+      const r = await measureResolutionDrift(dir, { run: fakeNpm({ a: ['1.0.0'] }) });
+      expect(r.hasLockfile).toBe(true);
+      expect(r.foreignLockfile).toBeNull();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

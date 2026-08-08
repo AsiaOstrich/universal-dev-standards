@@ -47,7 +47,37 @@ export function render(result) {
   }
 
   if (!result.hasLockfile) {
-    lines.push(chalk.yellow('  no package-lock.json — nothing to compare the registry against'));
+    lines.push(
+      result.foreignLockfile
+        ? chalk.yellow(
+            `  found ${result.foreignLockfile}, and this command reads package-lock.json — the` +
+              ' tested column cannot be filled in',
+          )
+        : chalk.yellow('  no package-lock.json — nothing to compare the registry against'),
+    );
+  }
+
+  // Zero examined is reported before anything else can be said about the
+  // result, because everything else would be said about nothing. The three
+  // problem lists are empty here for the same reason an empty room has no
+  // untidy corners, and the tick below used to fire on exactly that.
+  if (result.examined === 0) {
+    lines.push('');
+    lines.push(chalk.yellow('  Nothing was examined, so nothing is being asserted.'));
+    lines.push(
+      chalk.dim(
+        result.hasLockfile
+          ? '  This package declares no runtime dependencies. If you expected some,'
+          : '  Without a readable lockfile there is no tested column. If you expected',
+      ),
+    );
+    lines.push(
+      chalk.dim(
+        result.hasLockfile
+          ? '  check that they are in "dependencies" rather than "devDependencies".'
+          : '  dependencies here, check the manifest and the lockfile format.',
+      ),
+    );
   }
 
   if (result.drifted.length > 0) {
