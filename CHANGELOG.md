@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.9] - 2026-08-09
+
+### Fixed
+
+- **The standards index announced a number the sync check disagreed with, and both were describing the same manifest.** 6.3.8 taught the check to resolve manifest entries through the registry; the index block kept announcing `installedStandards.length` straight off the manifest. On a real project that is 78 against 70, and the difference is the eight machine-readable standards `MIGRATION-v6` §2 removed in 6.0.0, still declared in manifests two majors later because `uds update` does not prune them. Seventy-eight was the wrong number irrespective of the check: it sat directly above "the authoritative list is the `standards` field of `.standards/manifest.json`" — pointing the reader at the source of the discrepancy as though that settled it — and it told an agent to expect eight files that are not there. The block now counts entries that resolve to a file and names the rest underneath, with a line saying why they linger, so both numbers appear and neither has to be inferred.
+
 ## [6.3.8] - 2026-08-08
 
 ### Fixed

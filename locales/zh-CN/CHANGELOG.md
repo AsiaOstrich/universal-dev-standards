@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.8
-translation_version: 6.3.8
-last_synced: 2026-08-08
+source_version: 6.3.9
+translation_version: 6.3.9
+last_synced: 2026-08-09
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.9] - 2026-08-09
+
+### 修复
+
+- **标准索引声明的数字與 sync 检查对不上，而两者描述的是同一份 manifest。** 6.3.8 让检查改為透過 registry 解析 manifest 项目；而索引区块仍直接声明 manifest 的 `installedStandards.length`。在一個真实项目上那是 78 對 70，差额正是 `MIGRATION-v6` §2 於 6.0.0 移除的八個机器可读标准——它们在兩個主版本之后仍声明於 manifest 中，因为 `uds update` 不会修剪它们。撇开检查不谈，七十八本来就是错的数字：它就写在「權威清單為 `.standards/manifest.json` 的 `standards` 字段」正上方——把读者指向这个差異的来源、仿佛那就解決了它——并且告訴 agent 去期待八個并不存在的文件。区块现在数的是解析得到文件的项目，其余在下方指名並说明它们为何还在，于是兩個数字都会出现，都不必靠推测。
 
 ## [6.3.8] - 2026-08-08
 
