@@ -2754,7 +2754,8 @@ export function generateIntegrationContent(config) {
         const standardsIndex = generateStandardsIndex(
           installedStandards,
           format,
-          language
+          language,
+          standardsFormat
         );
 
         standardsContent += complianceInstructions + '\n\n' + standardsIndex;
@@ -3042,13 +3043,27 @@ export function generateComplianceInstructions(
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated standards index
  */
-export function generateStandardsIndex(installedStandards, format, language = 'zh-tw') {
+export function generateStandardsIndex(installedStandards, format, language = 'zh-tw', standardsFormat = 'ai') {
   if (!installedStandards || installedStandards.length === 0) {
     return '';
   }
 
-  const total = installedStandards.length;
-  const optionCount = installedStandards.filter(
+  // Counted after resolution, so the number matches the files that exist.
+  //
+  // It used to be `installedStandards.length` straight off the manifest, which
+  // includes entries with nothing behind them — the eight standards
+  // MIGRATION-v6 §2 removed in 6.0.0 are still declared in manifests two
+  // majors later. On dev-platform that made the block announce 78 while 70
+  // resolve, and it announced it directly above "the authoritative list is the
+  // `standards` field of `.standards/manifest.json`", pointing the reader at
+  // the source of the discrepancy as if it settled it. The sync check counts
+  // resolvable entries, so the two disagreed by exactly those eight.
+  //
+  // Saying 70 and naming the 8 is the honest version of both numbers.
+  const resolvable = installedStandards.filter((e) => resolveStandardFilename(e, standardsFormat));
+  const unresolved = installedStandards.filter((e) => !resolveStandardFilename(e, standardsFormat));
+  const total = resolvable.length;
+  const optionCount = resolvable.filter(
     (p) => p.includes('/options/') || p.includes('\\options\\')
   ).length;
   const coreCount = total - optionCount;
@@ -3059,12 +3074,18 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
     ? [
       `This project has adopted **${total}** UDS standards (${coreCount} core, ${optionCount} options), installed in \`.standards/\`.`,
       '',
-      'The authoritative list is the `standards` field of `.standards/manifest.json`. Read a standard\'s own file to see what it requires — and check its first line, which is where a deprecated standard says so.'
+      'The authoritative list is the `standards` field of `.standards/manifest.json`. Read a standard\'s own file to see what it requires — and check its first line, which is where a deprecated standard says so.',
+      ...(unresolved.length > 0
+        ? ['', `${unresolved.length} further manifest entr${unresolved.length === 1 ? 'y has' : 'ies have'} no installed file and ${unresolved.length === 1 ? 'is' : 'are'} not counted above: ${unresolved.join(', ')}. Standards removed upstream stay in a manifest until someone drops them; \`uds update\` does not prune them.`]
+        : [])
     ]
     : [
       `本專案採用 UDS 標準共 **${total}** 條（core ${coreCount}、options ${optionCount}），安裝於 \`.standards/\`。`,
       '',
-      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。'
+      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。',
+      ...(unresolved.length > 0
+        ? ['', `另有 ${unresolved.length} 筆 manifest 項目沒有已安裝的檔案，未計入上方數字：${unresolved.join('、')}。上游移除的標準會留在 manifest 裡直到有人拿掉它；\`uds update\` 不會修剪它們。`]
+        : [])
     ];
 
   const plainBody = body.map((l) => l.replace(/`/g, ''));
