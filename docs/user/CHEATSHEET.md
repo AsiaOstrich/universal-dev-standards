@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-07-31
+> Quick reference for all UDS features | Last updated: 2026-08-10
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -190,6 +190,7 @@
 | `chaos-injection-tests` | Chaos Injection Tests |
 | `checkin-standards` | This standard defines quality gates that MUST be p |
 | `circuit-breaker` | Circuit Breaker Standard |
+| `class-level-fix` | A defect is almost never alone. It is one member o |
 | `code-review-checklist` | This standard provides a comprehensive checklist f |
 | `commit-message-guide` | Standardized commit messages improve code review e |
 | `container-image-standards` | Container Image Build and Security Standards |
@@ -322,6 +323,7 @@
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-ai-behavior-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-ai-behavior |
+| `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse  |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |

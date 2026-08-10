@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-07-31
+> Auto-generated | Last updated: 2026-08-10
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -14,10 +14,10 @@
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心規範](#core-standards) (149)
-7. [腳本](#scripts) (58)
+6. [核心規範](#core-standards) (150)
+7. [腳本](#scripts) (59)
 
-**Total Features: 332**
+**Total Features: 334**
 
 ---
 
@@ -107,8 +107,8 @@
 | `--skills` | Install/update Skills for configured AI tools |
 | `--commands` | Install/update slash commands for configured AI tools |
 | `--debug` | Show debug output for Skills/Commands detection |
-| `--plan` | Show reconciliation plan without executing (like terraform plan) |
-| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not) |
+| `--plan` | Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing |
+| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--rollback` | Rollback to the most recent backup |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
@@ -317,6 +317,7 @@
 | `chaos-injection-tests` | - |  |
 | `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
+| `class-level-fix` | 1.0.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
 | `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -417,7 +418,7 @@
 | `standard-lifecycle-management` | - |  |
 | `structured-task-definition` | 1.0.0 |  |
 | `supply-chain-attestation` | - |  |
-| `supply-chain-security-standards` | 1.0.0 |  |
+| `supply-chain-security-standards` | 1.1.0 |  |
 | `systematic-debugging` | 1.0.0 | Define a structured, four-phase debugging workflow that prevents the common anti |
 | `tech-debt-standards` | 1.0.0 |  |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
@@ -451,6 +452,7 @@
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-ai-behavior-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-ai-behavior-sync.ts' instead (cross-platform). |
+| `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse into what it says. |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
