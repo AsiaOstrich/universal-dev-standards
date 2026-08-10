@@ -1743,6 +1743,18 @@
       "description": "Git worktree lifecycle management: setup → baseline → execute → merge → cleanup"
     },
     {
+      "id": "class-level-fix",
+      "name": "Class-Level Fix Standard",
+      "nameZh": "類別層修正標準",
+      "source": {
+        "human": "core/class-level-fix.md",
+        "ai": "ai/standards/class-level-fix.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Aim a fix at the set, not the member. Walk the set from the source the system reads, never from a typed list; print the denominator and what was excluded; prove the check non-vacuous per sub-set"
+    },
+    {
       "id": "verification-evidence",
       "name": "Verification Evidence Standard",
       "nameZh": "驗證證據標準",

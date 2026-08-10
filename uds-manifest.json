@@ -3,10 +3,10 @@
   "version": "6.3.10",
   "last_updated": "2026-08-10",
   "stats": {
-    "core_standards": 149,
+    "core_standards": 150,
     "skills": 55,
     "slash_commands": 51,
-    "cli_commands": 21
+    "cli_commands": 22
   },
   "standards": [
     {
@@ -751,6 +751,11 @@
     },
     {
       "id": "push-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "class-level-fix",
       "category": "uncategorized",
       "level": 3
     }

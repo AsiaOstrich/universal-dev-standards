@@ -1,0 +1,143 @@
+# Class-Level Fix Standard - AI Optimized
+# Source: core/class-level-fix.md
+
+standard:
+  id: class-level-fix
+  name: Class-Level Fix Standard
+  description: 類別層修正標準——修正瞄準集合，不是瞄準成員
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-08-10"
+    source: core/class-level-fix.md
+    description: >
+      一個缺陷幾乎從不孤單，它是某個集合的一員。修掉被指出的那一員，
+      集合裡其餘的原封不動，而沒有東西會通知你下一個在哪。
+      本標準要求修正瞄準集合：指出可窮舉集合，並加上一個「走訪」而非「列舉」該集合的檢查。
+
+  iron_law: >
+    修一個缺陷之前，先指出它所屬的可窮舉集合，並加上一個走訪該集合的檢查。
+    若該集合無法被走訪，寫下為什麼——沉默不算答案。
+
+  guidelines:
+    - "修正瞄準集合，不是瞄準成員"
+    - "**走訪並排除，絕不列舉**——列舉正確到有人新增第四個成員為止，而沒有東西會告訴你"
+    - "走訪必須從系統自己讀的那個來源讀（CLI 定義／目錄／manifest），**不從手打的清單讀**"
+    - "檢查要印出分母**與被排除的數量**，不是只印「全部通過」"
+    - "類別層檢查在被信任之前，先以合成成員證明它不是空跑——**逐子集做，不要整體做**"
+    - "集合無法走訪是合法答案，但要寫下理由與解除條件"
+    - "**註解描述了類別，不等於有檢查涵蓋類別**——散文不會執行"
+
+  # 依序回答，第 3 題決定這道檢查活不活得下去
+  three_questions:
+    - order: 1
+      question: "這個缺陷是哪個集合的一員？"
+      examples: ["分派鏈裡的旗標", "manifest 的條目", "agents/ 底下的目錄", "目錄樹裡的設定檔"]
+    - order: 2
+      question: "那個集合能不能被走訪而不是被列舉？"
+    - order: 3
+      question: "走訪從哪裡讀出成員？"
+      note: >
+        必須從系統自己讀的那個來源讀。從手打的清單讀，等於把同一個缺陷
+        換一個位置重新製造一次。
+
+  walk_vs_enumerate:
+    enumerate:
+      shape: "for (const x of ['a','b','c'])"
+      new_member: "靜默地不被涵蓋"
+      failure_mode: "對一部分表面回報綠燈"
+    walk_and_exclude:
+      shape: "for (const x of readAll()) if (!EXCLUDED.has(x))"
+      new_member: "**預設被涵蓋**"
+      failure_mode: "吵——而吵是看得見的"
+    why: >
+      不對稱正是重點。列舉失敗時是靜默的；排除清單失敗時是吵的，
+      因為那條排除必須由一個人寫下來，而他得說明理由。
+
+  # 一道類別層檢查在被信任之前必須先被證明非空跑
+  evidence_requirement:
+    steps:
+      - "塞一個違反規則的合成成員"
+      - "確認檢查失敗**且指名該成員**"
+      - "移除後確認回到綠燈"
+    granularity: per_subset
+    why_per_subset: >
+      一道涵蓋五份清單、卻只對第一份測過的檢查，是一道涵蓋一份清單的檢查。
+
+  output_requirement:
+    must_print: ["實際檢查的數量（分母）", "被排除的數量"]
+    rationale: >
+      只印分母不夠。「檢查了 4,012 條宣告」讀起來像涵蓋率，
+      而篩選器悄悄跳過了每一條目錄條目。
+
+  # 集合無法走訪時的合法出口
+  when_not_walkable:
+    legitimate: true
+    must_record: ["理由", "什麼條件下會改變"]
+    common_cause: >
+      成員只能相對於某個基準目錄才知道，而那個基準沒有記在任何機器讀得到的地方
+      （例如 manifest 的路徑基準只活在讀取它的程式裡）。對這種宣告做通用掃描，
+      假陽性率高到讓檢查在第一週就被關掉。
+    workable_form: >
+      逐份清冊——一種宣告一道檢查，各自知道自己的基準與條目形狀。
+      說出清冊有幾份，並確認每一份都有檢查。
+
+  anti_patterns:
+    - pattern: "修掉被回報的那一員就結案"
+      why: "集合沒有變；下一個成員會以新事故的形式抵達"
+    - pattern: "寫一段註解說明通則"
+      why: "散文不會執行"
+    - pattern: "檢查自行列舉它的範圍"
+      why: "正確到有人新增第四個成員為止"
+    - pattern: "類別層檢查只對一個成員測過"
+      why: "證明的是那一個成員，不是那個類別"
+    - pattern: "`✓ all pass` 而沒有分母"
+      why: "掃了全部與什麼都沒掃，輸出一模一樣"
+
+  rules:
+    - id: CLF-001
+      rule: "修正前必須指出缺陷所屬的可窮舉集合"
+      severity: error
+    - id: CLF-002
+      rule: "類別層檢查必須走訪集合並排除例外，不得列舉成員"
+      severity: error
+    - id: CLF-003
+      rule: "走訪的成員來源必須是系統自己讀的來源，不得是手寫清單"
+      severity: error
+    - id: CLF-004
+      rule: "檢查輸出必須包含分母與被排除的數量"
+      severity: error
+    - id: CLF-005
+      rule: "類別層檢查須以合成成員逐子集證明非空跑"
+      severity: error
+    - id: CLF-006
+      rule: "集合無法走訪時，須記錄理由與解除條件"
+      severity: warning
+
+  # 本標準自己沒有自動閘門——依它自己的規則，這件事必須寫下來而不是暗示強制力存在
+  enforcement:
+    automated_gate: false
+    why_not: >
+      沒有任何檢查能走訪「現在正在被修的所有缺陷」。套用本標準是修的當下所做的判斷。
+    enforced_by: review
+    review_question: "這是哪個集合的一員？"
+    reopen_condition: >
+      若 repo 取得「能把一次缺陷修正落地看成離散事件」的機制（有標記的 commit 型別、
+      issue↔commit 連結），即可斷言這類 commit 要嘛動到一個走訪集合的測試，
+      要嘛帶著寫下來的理由。
+    note: >
+      一份陳述了規則而沒有東西執行它的標準，正是「寫下來的風險沒有東西在執行」那個形狀。
+      不承認這一點的標準比承認的更糟，因為讀的人會以為有東西在盯。
+
+  related:
+    - id: verification-evidence
+      relation: "同一族：工具靜默失敗時，其輸出與真結果無從分辨。本標準是同一件事套用在**範圍**而非**執行**上"
+    - id: anti-hallucination
+      relation: "那個防「沒查」；這個防「查了其中一個，卻對全部下結論」"
+
+physical_spec:
+  applies_to:
+    - "任何缺陷修正（程式碼或設定）"
+  deliverables:
+    - "一道走訪集合的檢查，或一份「為何無法走訪」的紀錄"
+    - "該檢查的逐子集對照組證據"
