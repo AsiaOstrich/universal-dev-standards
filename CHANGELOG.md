@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.4.0] - 2026-08-10
+
+### Added
+
+- **`class-level-fix` standard — aim a fix at the set, not the member.** A defect is rarely alone: it is one flag in a dispatch chain, one entry in a manifest, one directory under `agents/`. Fixing the member you were shown leaves the rest of the set exactly as it was, and nothing announces the next one — it returns months later as a fresh incident, which is why this kind of work feels endless. The rule: before fixing, name the enumerable set the defect belongs to and add a check that **walks** that set. The third question is the one that decides whether the check survives — where does the walk read its members from? It has to be the source the system itself reads (the CLI definition, the directory, the manifest), never a list someone typed, because a typed list is correct until the fourth member arrives and nothing will say so. Enumerating fails silently; walking with an exclusion list fails loudly, because an exclusion has to be written down by a person who has to justify it. The check must print its denominator **and what it excluded** — "checked 4,012 declarations" reads like coverage while the filter silently skipped every directory entry. And it must be proven non-vacuous per sub-set before it is trusted, because a check over five lists that was only ever tested against the first is a check over one list.
+
+  Every example in the standard was measured on 2026-08-10. The one that carries it is the counter-example: this repository had already fixed exactly this defect for `--integrations-only` eleven days earlier, **with a comment explaining the general problem**, and left the other three branches untouched. The knowledge was in the file; it had not reached its siblings. A comment describing the class is not a check over the class.
+
+  The standard states plainly that **it has no automated gate** — nothing can walk "every defect being fixed right now" — and records why, what enforces it (review, with one question: *what set is this a member of?*), and what would make a gate possible. Omitting that would have made it the next instance of the thing it was written to prevent.
+
+### Fixed
+
+- **`--plan` and `--apply` scope behaviour now reaches `--help`.** 6.3.10 documented the new combined behaviour by editing `docs/reference/FEATURE-REFERENCE.md` — a generated file. The edit survived exactly as long as nobody regenerated it. The text now lives in the `.option()` strings in `cli/bin/uds.js`, so it appears in `uds update --help` as well, which the hand-edited copy never did.
+
 ## [6.3.10] - 2026-08-10
 
 ### Fixed
