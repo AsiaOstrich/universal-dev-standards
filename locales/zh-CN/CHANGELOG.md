@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.9
-translation_version: 6.3.9
-last_synced: 2026-08-09
+source_version: 6.3.10
+translation_version: 6.3.10
+last_synced: 2026-08-10
 status: current
 ---
 
@@ -16,6 +16,15 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.10] - 2026-08-10
+
+### 修复
+
+- **`--plan` 会被另外四个标志吃掉，而唯一能防止破坏的正是被忽略的那一个。** `uds update --plan --skills` 会安装 Skills；`--plan --sync-refs` 会改写集成文件与 manifest。那个文档写着「Show reconciliation plan without executing (like terraform plan)」的标志被静默丢弃——因为范围标志（`--skills`、`--commands`、`--integrations-only`、`--sync-refs`）在一条先到先得、每个分支都 return 的链里，排在模式标志（`--plan`、`--apply`、`--force`、`--rollback`）之前。`--integrations-only` 早在 2026-07-30 就为了同一件事修过；另外三个没有被碰，十一天后它们仍在写文件。现在模式先于范围决定，而测试改为**从 CLI 定义读出标志清单**而非人工列举——之后新增的标志不需要有人记得就会被覆盖。第四个实例正是那个测试找出来的。
+- **`--apply --skills` 只升级 Skills、安静地把标准留在原地，并报告成功。** 同一条链：`--skills` 在协调器执行之前就 return 了。以此方式升级一个真实项目，结果它停在旧的标准版本，而屏幕上没有任何一行说明。现在 `--apply` 与 `--force` 会执行协调**并且**执行所要求的范围。
+- **没有人能回答的确认提示，返回 exit 0。** 非交互 shell 下 `@inquirer/prompts` 会抛出 `ExitPromptError`，该异常从未被捕获而进程仍以 exit code 0 结束——于是在 CI 里「什么都没写」与「更新成功」返回同一个值。现在它会说明没有任何东西被写入、指向 `--yes`，并以 exit 2 结束。检测方式是**提示真的失败了**，而不是探测 `process.stdin.isTTY`——后者在两个方向上都会答错。
+- **`--rollback` 现在会说明 `--skills`／`--commands` 无法缩小它的范围**，而不是接受它们却照样还原全部。
 
 ## [6.3.9] - 2026-08-09
 

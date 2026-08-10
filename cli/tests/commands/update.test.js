@@ -200,6 +200,9 @@ vi.mock('../../src/reconciler/index.js', () => ({
   listBackups: vi.fn(() => [])
 }));
 
+import { readFileSync as realReadFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { updateCommand } from '../../src/commands/update.js';
 import { reconcile as reconcilerReconcile, plan as reconcilerPlanMock } from '../../src/reconciler/index.js';
 import { isInitialized, readManifest, writeManifest, copyStandard } from '../../src/utils/copier.js';
@@ -1403,6 +1406,188 @@ describe('Update Command', () => {
       expect(exitSpy).toHaveBeenCalledWith(0);
       const versionWrites = writeManifest.mock.calls.map(c => c[0].upstream.version);
       expect(versionWrites).toContain('3.0.0');
+    });
+  });
+
+  describe('XSPEC-372: mode flags must not be eaten by scope flags, and a prompt with nobody to answer it must fail', () => {
+    const skillsManifest = () => ({
+      upstream: { version: '2.0.0' },
+      standards: ['core/test.md'],
+      extensions: [],
+      integrations: [],
+      aiTools: ['claude-code'],
+      skills: {
+        installed: true,
+        version: '0.9.0',
+        installations: [{ agent: 'claude-code', level: 'project' }],
+        names: []
+      }
+    });
+
+    beforeEach(() => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue(skillsManifest());
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '0.9.0' });
+      installSkillsToMultipleAgents.mockClear();
+      writeManifest.mockClear();
+      reconcilerReconcile.mockClear();
+    });
+
+    it('--plan --skills writes nothing', async () => {
+      // The flag documented as "without executing" used to be dropped because
+      // --skills was checked first in a first-match-wins chain. Measured
+      // 2026-08-10: it installed Skills and said nothing about --plan.
+      await updateCommand({ plan: true, skills: true });
+
+      expect(installSkillsToMultipleAgents).not.toHaveBeenCalled();
+      expect(writeManifest).not.toHaveBeenCalled();
+      expect(consoleLogs.join('\n')).toContain('nothing is written');
+    });
+
+    it('--plan --skills reports what would change, not just that it is a dry run', async () => {
+      await updateCommand({ plan: true, skills: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('v0.9.0');
+      expect(output).toContain('1 installation(s) would be updated');
+    });
+
+    it('says the manifest records no installation rather than reporting up to date', async () => {
+      // vibeops has 140 skill files on disk and installations: [] in the
+      // manifest. "All up to date" would be the wrong answer to give it.
+      readManifest.mockReturnValue({ ...skillsManifest(), skills: { installed: true, installations: [] } });
+
+      await updateCommand({ plan: true, skills: true });
+
+      expect(consoleLogs.join('\n')).toContain('nothing for --skills to update');
+    });
+
+    it('--apply --skills does BOTH the reconciliation and the Skills update', async () => {
+      // The defect that mattered in practice: telemetry-client reported success
+      // with its standards still on the old version, because --skills returned
+      // before the reconciler ever ran.
+      await expect(updateCommand({ apply: true, yes: true, skills: true }))
+        .rejects.toThrow('process.exit called'); // updateSkillsOnly exits 0
+
+      expect(reconcilerReconcile).toHaveBeenCalled();
+      expect(installSkillsToMultipleAgents).toHaveBeenCalled();
+    });
+
+    it('--rollback --skills says the scope flag is ignored instead of appearing to honour it', async () => {
+      await updateCommand({ rollback: true, skills: true });
+
+      expect(consoleLogs.join('\n')).toContain('cannot narrow it and are ignored');
+      expect(installSkillsToMultipleAgents).not.toHaveBeenCalled();
+    });
+
+    it('exits 2 without writing when the prompt cannot be answered', async () => {
+      // Reproduced 2026-08-10: ExitPromptError, zero files written, exit 0 —
+      // in CI indistinguishable from a successful update. The condition is the
+      // prompt failing, not `isTTY`, so that is what the test induces.
+      mockPrompt.mockRejectedValueOnce(
+        Object.assign(new Error('User force closed the prompt with 0 null'), { name: 'ExitPromptError' })
+      );
+
+      await expect(updateCommand({ apply: true })).rejects.toThrow('process.exit called');
+
+      expect(exitSpy).toHaveBeenCalledWith(2);
+      expect(reconcilerReconcile).not.toHaveBeenCalled();
+      expect(consoleLogs.join('\n')).toContain('Nothing has been written');
+    });
+
+    it('--yes never reaches the prompt, so unattended use keeps working', async () => {
+      // The guard must not turn every CI run into a failure — only the ones
+      // that would otherwise have silently done nothing.
+      mockPrompt.mockRejectedValue(
+        Object.assign(new Error('User force closed the prompt with 0 null'), { name: 'ExitPromptError' })
+      );
+
+      await updateCommand({ apply: true, yes: true });
+
+      expect(reconcilerReconcile).toHaveBeenCalled();
+      expect(exitSpy).not.toHaveBeenCalledWith(2);
+    });
+
+    it('does not swallow an unrelated prompt failure as "nobody can answer"', async () => {
+      // Treating every prompt error as a missing TTY would hide real bugs
+      // behind a friendly message and a fixed exit code.
+      mockPrompt.mockRejectedValueOnce(new TypeError('something else broke'));
+
+      await expect(updateCommand({ apply: true })).rejects.toThrow('something else broke');
+      expect(exitSpy).not.toHaveBeenCalledWith(2);
+    });
+  });
+
+  describe('XSPEC-372 class-level: --plan must write nothing, whatever it is combined with', () => {
+    // The instance-level fix (--skills, --commands) is not the defect. The
+    // defect is that a scope flag can reach a writing branch before --plan is
+    // ever consulted, and 2026-07-30 c6409792 already fixed exactly this for
+    // --integrations-only while leaving the other two — eleven days later they
+    // were still writing. Enumerating the three that exist today would repeat
+    // that mistake the moment a fourth is added.
+    //
+    // So this reads the flag list off the CLI definition and excludes the ones
+    // that are not scopes. A new flag is in scope by default: it gets tested
+    // without anyone remembering to add it, which is the whole point.
+    const MODES = ['plan', 'apply', 'force', 'rollback'];
+    const NOT_A_SCOPE = ['yes', 'offline', 'beta', 'debug', 'locale'];
+
+    function updateFlagsFromCli() {
+      const src = realReadFileSync(
+        join(dirname(fileURLToPath(import.meta.url)), '../../bin/uds.js'),
+        'utf8'
+      );
+      const block = src.slice(src.indexOf("command('update')"));
+      const end = block.indexOf('.action(');
+      const decl = block.slice(0, end);
+      const names = [];
+      for (const m of decl.matchAll(/\.option\('(?:-\w, )?--([a-z-]+)/g)) {
+        const camel = m[1].replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+        names.push(camel);
+      }
+      return names;
+    }
+
+    it('the flag list is read from the CLI and is not empty', () => {
+      // Without this, a parser that silently matched nothing would make every
+      // assertion below vacuous and the suite would still be green.
+      const flags = updateFlagsFromCli();
+      expect(flags.length).toBeGreaterThan(8);
+      expect(flags).toContain('skills');
+      expect(flags).toContain('plan');
+    });
+
+    it.each(
+      updateFlagsFromCli().filter(f => !MODES.includes(f) && !NOT_A_SCOPE.includes(f))
+    )('--plan --%s writes nothing', async (flag) => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        aiTools: ['claude-code'],
+        // Every scope's write path must be REACHABLE, or the test passes
+        // because the code bailed out early rather than because --plan was
+        // honoured. --sync-refs returns immediately without integrationConfigs,
+        // and its assertions were vacuous until this was added.
+        integrationConfigs: { 'CLAUDE.md': { tool: 'claude-code', categories: ['stale-category'] } },
+        skills: { installed: true, version: '0.9.0', installations: [{ agent: 'claude-code', level: 'project' }], names: [] },
+        commands: { installed: true, installations: [{ agent: 'opencode', level: 'project' }] }
+      });
+      writeManifest.mockClear();
+      copyStandard.mockClear();
+      writeIntegrationFile.mockClear();
+      installSkillsToMultipleAgents.mockClear();
+      reconcilerReconcile.mockClear();
+
+      await updateCommand({ plan: true, [flag]: true }).catch(() => {});
+
+      expect(writeManifest, `--plan --${flag} wrote the manifest`).not.toHaveBeenCalled();
+      expect(copyStandard, `--plan --${flag} copied a standard`).not.toHaveBeenCalled();
+      expect(writeIntegrationFile, `--plan --${flag} wrote an integration file`).not.toHaveBeenCalled();
+      expect(installSkillsToMultipleAgents, `--plan --${flag} installed Skills`).not.toHaveBeenCalled();
+      expect(reconcilerReconcile, `--plan --${flag} ran the reconciler`).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.3.9
-translation_version: 6.3.9
-last_synced: 2026-08-09
+source_version: 6.3.10
+translation_version: 6.3.10
+last_synced: 2026-08-10
 status: current
 ---
 
@@ -16,6 +16,15 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.3.10] - 2026-08-10
+
+### 修正
+
+- **`--plan` 會被另外四個旗標吃掉，而唯一能防止破壞的正是被忽略的那一個。** `uds update --plan --skills` 會安裝 Skills；`--plan --sync-refs` 會改寫整合檔與 manifest。那個文件寫著「Show reconciliation plan without executing (like terraform plan)」的旗標被靜默丟棄——因為範圍旗標（`--skills`、`--commands`、`--integrations-only`、`--sync-refs`）在一條先到先得、每個分支都 return 的鏈裡，排在模式旗標（`--plan`、`--apply`、`--force`、`--rollback`）之前。`--integrations-only` 早在 2026-07-30 就為了同一件事修過；另外三個沒有被碰，十一天後它們仍在寫檔。現在模式先於範圍決定，而測試改為**從 CLI 定義讀出旗標清單**而非人工列舉——之後新增的旗標不需要有人記得就會被涵蓋。第四個實例正是那個測試找出來的。
+- **`--apply --skills` 只升級 Skills、安靜地把標準留在原地，並回報成功。** 同一條鏈：`--skills` 在調和器執行之前就 return 了。以此方式升級一個真實專案，結果它停在舊的標準版本，而畫面上沒有任何一行說明。現在 `--apply` 與 `--force` 會執行調和**並且**執行所要求的範圍。
+- **沒有人能回答的確認提示，回傳 exit 0。** 非互動 shell 下 `@inquirer/prompts` 會擲 `ExitPromptError`，該例外從未被攔截而程序仍以 exit code 0 結束——於是在 CI 裡「什麼都沒寫」與「更新成功」回傳同一個值。現在它會說明沒有任何東西被寫入、指向 `--yes`，並以 exit 2 結束。偵測方式是**提示真的失敗了**，而不是探測 `process.stdin.isTTY`——後者在兩個方向上都會答錯。
+- **`--rollback` 現在會說明 `--skills`／`--commands` 無法縮小它的範圍**，而不是接受它們卻照樣還原全部。
 
 ## [6.3.9] - 2026-08-09
 

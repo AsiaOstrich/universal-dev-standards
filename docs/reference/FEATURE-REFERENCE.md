@@ -107,8 +107,8 @@
 | `--skills` | Install/update Skills for configured AI tools |
 | `--commands` | Install/update slash commands for configured AI tools |
 | `--debug` | Show debug output for Skills/Commands detection |
-| `--plan` | Show reconciliation plan without executing (like terraform plan) |
-| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not) |
+| `--plan` | Show reconciliation plan without executing (like terraform plan). Combines with `--skills` / `--commands` to plan just that scope — still writing nothing |
+| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not). With `--skills` / `--commands` it does the reconciliation **and** that scope, rather than only the scope |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--rollback` | Rollback to the most recent backup |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |

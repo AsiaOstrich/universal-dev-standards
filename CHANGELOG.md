@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.3.10] - 2026-08-10
+
+### Fixed
+
+- **`--plan` was dropped by four other flags, and the one that prevents damage is the one that got ignored.** `uds update --plan --skills` installed Skills; `--plan --sync-refs` rewrote integration files and the manifest. The flag documented as "Show reconciliation plan without executing (like terraform plan)" was silently discarded, because scope flags (`--skills`, `--commands`, `--integrations-only`, `--sync-refs`) sat ahead of mode flags (`--plan`, `--apply`, `--force`, `--rollback`) in one first-match-wins chain where every branch returns. `--integrations-only` had already been fixed on 2026-07-30 for exactly this; the other three were left, and eleven days later they were still writing. Mode is now decided before scope, and a test enumerates the flag list from the CLI definition rather than from a hand-written list — a flag added later is covered without anybody remembering to add it. That test is what found the fourth instance.
+- **`--apply --skills` upgraded Skills and silently left the standards behind, reporting success.** Same chain: `--skills` returned before the reconciler ever ran. Upgrading a real project this way left it on the previous standards version with nothing on screen saying so. `--apply` and `--force` now do the reconciliation *and* the requested scope.
+- **A confirmation prompt with nobody to answer it exited 0.** In a non-interactive shell `@inquirer/prompts` throws `ExitPromptError`; the exception was never caught and the process still ended with exit code 0 — so in CI "wrote nothing" and "updated successfully" returned the same value. It now explains that nothing was written, points at `--yes`, and exits 2. Detection is by the prompt actually failing rather than by probing `process.stdin.isTTY`, which is wrong in both directions.
+- **`--rollback` now says that `--skills`/`--commands` cannot narrow it**, instead of accepting them and restoring everything anyway.
+
 ## [6.3.9] - 2026-08-09
 
 ### Fixed

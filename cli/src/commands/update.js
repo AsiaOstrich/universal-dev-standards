@@ -334,9 +334,13 @@ export async function updateCommand(options) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
-  // Handle --sync-refs option
+  // Handle --sync-refs option.
+  // `--plan` is honoured here too. This branch is above the mode dispatch
+  // because sync-refs is its own operation rather than a scope of the
+  // reconciler — but "above the dispatch" is exactly how --plan got dropped by
+  // three other branches, so it passes the flag down instead of assuming.
   if (options.syncRefs) {
-    await syncIntegrationReferences(projectPath, manifest);
+    await syncIntegrationReferences(projectPath, manifest, { plan: !!options.plan });
     return;
   }
 
@@ -350,39 +354,68 @@ export async function updateCommand(options) {
     return;
   }
 
-  // Handle --skills option
-  if (options.skills) {
-    await updateSkillsOnly(projectPath, manifest, options);
-    return;
-  }
+  // ── Flags come in two axes, and they must not eat each other ──────────
+  // // implements XSPEC-372 R1/R2
+  //
+  //   mode  : --plan / --apply / --force / --rollback   (what to do)
+  //   scope : --skills / --commands / --integrations-only / --standards-only
+  //
+  // These used to sit in one first-match-wins if/return chain with the scope
+  // flags first. `--plan --skills` therefore *installed* Skills — the flag
+  // documented as "without executing" was dropped with nothing said — and
+  // `--apply --skills` upgraded Skills while silently leaving the standards
+  // behind, reporting success either way. Both measured 2026-08-10 while
+  // upgrading four repos to 6.3.9.
+  //
+  // Mode is now decided first, and scope narrows it instead of replacing it.
+  const scopedToSkills = !!options.skills;
+  const scopedToCommands = !!options.commands;
 
-  // Handle --commands option
-  if (options.commands) {
-    await updateCommandsOnly(projectPath, manifest, options);
-    return;
-  }
-
-  // Handle --rollback option (DSR)
+  // Handle --rollback option (DSR). It restores a whole backup, so a scope
+  // flag cannot narrow it — say so rather than appearing to honour it.
   if (options.rollback) {
+    if (scopedToSkills || scopedToCommands) {
+      console.log(chalk.yellow('  ! --rollback restores a complete backup; --skills/--commands cannot narrow it and are ignored.'));
+      console.log();
+    }
     await handleRollback(projectPath);
     return;
   }
 
-  // Handle --plan option (DSR dry-run)
+  // Handle --plan option (DSR dry-run). Nothing below this line writes.
   if (options.plan) {
-    await handlePlan(projectPath, options);
+    if (!scopedToSkills && !scopedToCommands) {
+      await handlePlan(projectPath, options);
+    }
+    if (scopedToSkills) await planSkills(projectPath, manifest, options);
+    if (scopedToCommands) await planCommands(projectPath, manifest, options);
     return;
   }
 
-  // Handle --apply option (DSR: execute the plan `--plan` prints)
-  if (options.apply) {
-    await handleReconcile(projectPath, options, { force: false });
+  // Handle --apply / --force (DSR reconciliation), composing with scope.
+  // A scope flag alone still means "only that scope"; combined with a mode it
+  // means "that mode, and also that scope" — the reconciler tracks Skills
+  // files only when the manifest records them, so `--skills` is not redundant.
+  if (options.apply || options.force) {
+    if (!scopedToSkills && !scopedToCommands) {
+      await handleReconcile(projectPath, options, { force: !!options.force });
+      return;
+    }
+    await handleReconcile(projectPath, options, { force: !!options.force });
+    // These exit the process on completion, so run Skills last.
+    if (scopedToCommands) await updateCommandsOnly(projectPath, manifest, options);
+    if (scopedToSkills) await updateSkillsOnly(projectPath, manifest, options);
     return;
   }
 
-  // Handle --force option (DSR force reconciliation)
-  if (options.force) {
-    await handleReconcile(projectPath, options, { force: true });
+  // Scope without a mode: the original shortcuts.
+  if (scopedToSkills) {
+    await updateSkillsOnly(projectPath, manifest, options);
+    return;
+  }
+
+  if (scopedToCommands) {
+    await updateCommandsOnly(projectPath, manifest, options);
     return;
   }
 
@@ -494,11 +527,8 @@ export async function updateCommand(options) {
   console.log();
 
   // Confirm
-  if (!options.yes) {
-    const confirmed = await inquirerConfirm({
-      message: msg.confirmUpdate,
-      default: true
-    });
+  {
+    const confirmed = await confirmOrFail({ message: msg.confirmUpdate, options });
 
     if (!confirmed) {
       console.log(chalk.yellow(msg.updateCancelled));
@@ -558,10 +588,7 @@ export async function updateCommand(options) {
       shouldInstallNew = true;
     } else {
       // Interactive mode: ask user
-      const installNew = await inquirerConfirm({
-        message: msg.installNewStandards,
-        default: true
-      });
+      const installNew = await confirmOrFail({ message: msg.installNewStandards, options });
       shouldInstallNew = installNew;
     }
 
@@ -886,9 +913,9 @@ export async function updateCommand(options) {
     if (options.yes) {
       shouldRestore = true;
     } else {
-      const restoreMissing = await inquirerConfirm({
+      const restoreMissing = await confirmOrFail({
         message: (msg.restoreMissingPrompt || 'Restore {count} missing file(s)?').replace('{count}', missingFiles.length),
-        default: true
+        options
       });
       shouldRestore = restoreMissing;
     }
@@ -1440,6 +1467,40 @@ export function regenerateIntegrations(projectPath, manifest) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  */
+/**
+ * Ask for confirmation, or fail loudly when there is nobody to ask.
+ * // implements XSPEC-372 R3
+ *
+ * `@inquirer/prompts` throws `ExitPromptError` when stdin is not a TTY. That
+ * exception was never caught, and the process still ended with **exit code 0**
+ * — so in CI a run that wrote nothing was indistinguishable from a successful
+ * update. Measured 2026-08-10 on `uds update --apply` and reproduced with
+ * `--force --apply`: zero files written, `echo $?` printed 0.
+ *
+ * Not auto-confirming: that would give an unattended environment broader
+ * permission than an interactive one. Exit 2 rather than 1 keeps "could not
+ * run" distinct from "ran and found a problem".
+ */
+async function confirmOrFail({ message, defaultValue = true, options }) {
+  if (options?.yes) return true;
+  try {
+    return await inquirerConfirm({ message, default: defaultValue });
+  } catch (err) {
+    // Detect by what the prompt does, not by probing `process.stdin.isTTY`.
+    // isTTY is a proxy for "somebody can answer", and it is wrong in both
+    // directions — a mocked or wrapped stdin answers fine with isTTY unset.
+    // The prompt failing IS the condition; anything else is a guess about it.
+    const closed = err?.name === 'ExitPromptError' || /force closed the prompt/i.test(err?.message || '');
+    if (!closed) throw err;
+    console.log();
+    console.log(chalk.red('Cannot ask for confirmation: there is nothing attached to answer the prompt (non-interactive shell, CI, or a pipe).'));
+    console.log(chalk.gray(`  Pending question: ${message}`));
+    console.log(chalk.gray('  Re-run with --yes to confirm up front. Nothing has been written.'));
+    console.log();
+    process.exit(2);
+  }
+}
+
 async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
   const msg = t().commands.update;
 
@@ -1548,7 +1609,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  */
-async function syncIntegrationReferences(projectPath, manifest) {
+async function syncIntegrationReferences(projectPath, manifest, { plan = false } = {}) {
   const msg = t().commands.update;
 
   console.log(chalk.cyan(msg.syncingRefs));
@@ -1615,6 +1676,12 @@ async function syncIntegrationReferences(projectPath, manifest) {
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || config.outputLanguage || config.commitLanguage || 'english'
     };
 
+    if (plan) {
+      console.log(chalk.yellow(`  ~ ${integrationPath}: categories would change to ${expectedCategories.join(', ') || '(none)'} (dry run — nothing is written)`));
+      updatedCount++;
+      continue;
+    }
+
     const result = writeIntegrationFile(toolName, newConfig, projectPath);
 
     if (result.success) {
@@ -1657,7 +1724,11 @@ async function syncIntegrationReferences(projectPath, manifest) {
   if (updatedCount > 0) {
     manifest.version = '3.3.0';
     refreshIntegrationBlockHashes(manifest, projectPath);
-    writeManifest(manifest, projectPath);
+    if (plan) {
+      console.log(chalk.gray('  (dry run — the manifest was not written)'));
+    } else {
+      writeManifest(manifest, projectPath);
+    }
   }
 
   // Summary
@@ -1680,6 +1751,83 @@ async function syncIntegrationReferences(projectPath, manifest) {
  * @param {Object} manifest - Manifest object
  * @param {Object} [options] - CLI options (forwarded for locale resolution)
  */
+/**
+ * `--plan --skills`: say what a Skills update would do, and write nothing.
+ * // implements XSPEC-372 R1
+ *
+ * Deliberately does not call installSkillsToMultipleAgents and roll back.
+ * "Write then restore" leaves a broken tree if it dies halfway, which is worse
+ * than having no dry run at all — the same reasoning as the integrations plan.
+ */
+async function planSkills(projectPath, manifest, options) {
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+  const installations = (manifest.skills?.installations || []).filter(i => i.level !== 'marketplace');
+
+  console.log(chalk.bold('=== Skills Plan (dry run — nothing is written) ==='));
+
+  if (installations.length === 0) {
+    // Not "up to date". The manifest records no installation, so a Skills
+    // update has nothing to act on — which is a different answer, and the one
+    // that explains why `--skills` appears to do nothing here.
+    console.log(chalk.yellow('  No Skills installations recorded in the manifest — nothing for --skills to update.'));
+    if (manifest.skills?.installed) {
+      console.log(chalk.gray('  (manifest.skills.installed is true but installations[] is empty; run `uds skills` to re-register)'));
+    }
+    console.log();
+    return;
+  }
+
+  let changed = 0;
+  for (const inst of installations) {
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const current = info?.version || 'unknown';
+    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+    if (current === latestVersion) {
+      console.log(chalk.gray(`  = ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} — unchanged`));
+    } else {
+      changed++;
+      console.log(chalk.yellow(`  ~ ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} → v${latestVersion}  ${dir}`));
+    }
+  }
+
+  console.log();
+  console.log(`Summary: ${changed} installation(s) would be updated, ${installations.length - changed} unchanged.`);
+  console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
+  console.log(chalk.gray('  Run `uds update --apply --yes --skills` to apply.'));
+  console.log();
+}
+
+/**
+ * `--plan --commands`: same contract as planSkills.
+ * // implements XSPEC-372 R1
+ */
+async function planCommands(projectPath, manifest, options) {
+  const installations = manifest.commands?.installations || [];
+
+  console.log(chalk.bold('=== Commands Plan (dry run — nothing is written) ==='));
+
+  if (installations.length === 0) {
+    console.log(chalk.yellow('  No slash-command installations recorded in the manifest — nothing for --commands to update.'));
+    console.log();
+    return;
+  }
+
+  for (const inst of installations) {
+    const agent = typeof inst === 'string' ? inst : inst.agent;
+    const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
+    const info = getInstalledCommandsForAgent(agent, level, projectPath);
+    const dir = getCommandsDirForAgent(agent, level, projectPath);
+    console.log(chalk.yellow(`  ~ ${getAgentDisplayName(agent)} (${level}): ${info?.count || 0} command(s) would be reinstalled  ${dir}`));
+  }
+
+  console.log();
+  console.log(`Summary: ${installations.length} installation(s) would be reinstalled.`);
+  console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
+  console.log(chalk.gray('  Run `uds update --apply --yes --commands` to apply.'));
+  console.log();
+}
+
 async function updateSkillsOnly(projectPath, manifest, options) {
   const msg = t().commands.update;
   const repoInfo = getRepositoryInfo();
@@ -2382,10 +2530,10 @@ async function handleReconcile(projectPath, options, { force }) {
   console.log();
 
   // Confirm unless --yes
-  if (!options.yes) {
-    const confirmed = await inquirerConfirm({
+  {
+    const confirmed = await confirmOrFail({
       message: `Apply ${planResult.plan.actions.length} changes?`,
-      default: true
+      options
     });
 
     if (!confirmed) {
