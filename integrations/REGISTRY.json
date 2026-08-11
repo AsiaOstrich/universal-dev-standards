@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": "1.0.0",
-  "lastUpdated": "2026-01-26",
+  "lastUpdated": "2026-08-12",
   "description": "AI Agent integration registry for cross-agent sync verification",
   "descriptionZh": "AI Agent 整合註冊表，用於跨 Agent 同步驗證",
   "agents": {
@@ -9,10 +9,18 @@
       "name": "Claude Code",
       "tier": "complete",
       "integrationFiles": [
-        "CLAUDE.md"
+        "CLAUDE.md",
+        "integrations/claude-code/model-selection-mapping.md",
+        "integrations/claude-code/model-selection-mapping.ai.yaml",
+        "integrations/claude-code/dispatch-template.md",
+        "integrations/claude-code/.claude/agents/uds-mechanical-edit.md",
+        "integrations/claude-code/.claude/agents/uds-feature-implementer.md",
+        "integrations/claude-code/.claude/agents/uds-architecture-reviewer.md",
+        "integrations/claude-code/.claude/agents/uds-deep-investigator.md"
       ],
       "instructionFile": "CLAUDE.md",
       "rulesLocation": "project-root",
+      "modelSelectionMapping": "integrations/claude-code/model-selection-mapping.ai.yaml",
       "supportsSkills": true,
       "supportsAgents": true,
       "supportsWorkflows": true,

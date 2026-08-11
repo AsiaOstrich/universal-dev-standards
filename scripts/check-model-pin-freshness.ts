@@ -17,6 +17,9 @@
  *                Examples are read as templates; a real model ID in one is a
  *                citation with an expiry date and no owner. R4 requires
  *                placeholders (`<provider>/<model-name>`) instead.
+ *                Suppressed under `integrations/`, which R5 designates as the home
+ *                for concrete IDs — see `vendorIdsBelongHere`. STALE is not
+ *                suppressed there: the clock is exactly why that tree is scanned.
  *
  * ── WARN, never BLOCK ──────────────────────────────────────────────────────
  * Per XSPEC-361 R8: purely in-file invariants have a measured false-positive
@@ -65,7 +68,24 @@ const NC = '\x1b[0m';
 const THRESHOLD_DAYS = Number(process.env.THRESHOLD_DAYS ?? '90');
 
 /** Directories walked. Each is a tree the repo actually ships or self-adopts. */
-const SCAN_ROOTS = ['ai', '.standards', 'options', 'core'];
+const SCAN_ROOTS = ['ai', '.standards', 'options', 'core', 'integrations'];
+
+/**
+ * `integrations/` is the one tree where a concrete vendor model ID is the *required*
+ * form, not a defect (XSPEC-362 R5): the standards stay vendor-neutral and the host-layer
+ * mapping is where the real identifiers live. So VENDOR is suppressed there.
+ *
+ * STALE is **not** suppressed, and that is the whole point of scanning the tree at all.
+ * The reason a model ID rots in a standard — a citation with an expiry date and no clock —
+ * applies to a host mapping just as much. A concrete ID here is correct; a concrete ID
+ * here that is 91 days old is not.
+ *
+ * Suppressed VENDOR hits are recorded in `skipped`, not dropped, so the exclusion stays
+ * visible in the denominator rather than becoming an invisible carve-out.
+ */
+function vendorIdsBelongHere(file: string): boolean {
+  return file === '<host-fixture>' || file.split(/[/\\]/)[0] === 'integrations';
+}
 
 const args = new Set(process.argv.slice(2));
 const JSON_OUTPUT = args.has('--json');
@@ -130,6 +150,14 @@ function inspectEntry(
         field: 'model_id',
         value: e.model_id,
         reason: 'placeholder (the required form)',
+      });
+    } else if (vendorIdsBelongHere(file)) {
+      skipped.push({
+        file,
+        modelId,
+        field: 'model_id',
+        value: e.model_id,
+        reason: 'host-layer mapping (concrete IDs are the required form here) — STALE still applies',
       });
     } else {
       findings.push({
@@ -208,7 +236,12 @@ function walkYaml(dir: string, acc: string[]): void {
 // ───────────────────────────────────────────────────────────────────────────
 function selfTest(): number {
   const now = new Date('2026-08-12T00:00:00Z');
-  const cases: Array<{ name: string; entry: unknown; expect: Finding['kind'] | 'clean' }> = [
+  const cases: Array<{
+    name: string;
+    entry: unknown;
+    file?: string;
+    expect: Finding['kind'] | 'clean';
+  }> = [
     {
       name: 'concrete vendor model_id',
       entry: { model_id: 'anthropic/claude-sonnet-4-6', pin_date: '2026-08-01' },
@@ -237,6 +270,21 @@ function selfTest(): number {
       entry: { model_id: '<provider>/<model>', pin_date: '<YYYY-MM-DD>' },
       expect: 'clean',
     },
+    // XSPEC-362 R5 — the host-layer carve-out, in both directions. A suppression that
+    // is only tested in the direction it suppresses is indistinguishable from a
+    // suppression that swallowed everything.
+    {
+      name: 'concrete vendor model_id in a host-layer mapping (VENDOR suppressed)',
+      entry: { model_id: 'claude-code/opus', pin_date: '2026-08-01' },
+      file: '<host-fixture>',
+      expect: 'clean',
+    },
+    {
+      name: 'host-layer mapping with an expired pin_date (STALE must still fire)',
+      entry: { model_id: 'claude-code/opus', pin_date: '2026-04-13' },
+      file: '<host-fixture>',
+      expect: 'STALE',
+    },
   ];
 
   let failed = 0;
@@ -244,7 +292,7 @@ function selfTest(): number {
   for (const c of cases) {
     const f: Finding[] = [];
     const s: Skipped[] = [];
-    inspectEntry(c.entry, '<fixture>', now, f, s);
+    inspectEntry(c.entry, c.file ?? '<fixture>', now, f, s);
     const kinds = new Set(f.map((x) => x.kind));
     const ok = c.expect === 'clean' ? f.length === 0 : kinds.has(c.expect);
     console.log(
