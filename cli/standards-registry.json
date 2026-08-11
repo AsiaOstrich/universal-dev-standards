@@ -1728,7 +1728,19 @@
       },
       "category": "skill",
       "skillName": null,
-      "description": "Three-tier model selection strategy (fast/standard/capable) with cost-effective escalation"
+      "description": "Two-axis model selection: model tier (reasoning ceiling × specification definiteness) × effort (reasoning depth), plus reverse-exclusion hard boundaries and four-state capability routing"
+    },
+    {
+      "id": "agent-dispatch",
+      "name": "Agent Dispatch & Parallel Coordination",
+      "nameZh": "代理派遣與並行協調",
+      "source": {
+        "human": "core/agent-dispatch.md",
+        "ai": "ai/standards/agent-dispatch.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Parallel sub-agent dispatch: independent-domain criterion (no shared mutable state), four-state status protocol, conflict detection, prompt design principles"
     },
     {
       "id": "git-worktree",

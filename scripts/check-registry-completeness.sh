@@ -90,7 +90,8 @@ is_reference_only() {
         "requirement-checklist"|"requirement-template"|"requirement-document-template")
             return 0 ;;
         # 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
-        "agent-communication-protocol"|"agent-dispatch"|"branch-completion"|"change-batching-standards")
+        # 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）。剩餘 7 份仍為 reference-only。
+        "agent-communication-protocol"|"branch-completion"|"change-batching-standards")
             return 0 ;;
         "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
             return 0 ;;

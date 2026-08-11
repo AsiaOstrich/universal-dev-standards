@@ -48,8 +48,10 @@ const REFERENCE_ONLY: ReadonlyArray<string> = [
   'requirement-template',
   'requirement-document-template',
   // 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+  // 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）：
+  // 該批次的前提是 canonical owner 為 dev-autopilot，而該 owner 於 2026-04-28 進入維護模式，
+  // 機器可讀版自此無人維護，散文版卻仍隨 bundle 出貨。剩餘 7 份仍為 reference-only。
   'agent-communication-protocol',
-  'agent-dispatch',
   'branch-completion',
   'change-batching-standards',
   'execution-history',

@@ -297,6 +297,39 @@ run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | S
 # must not carry different values in three registries.
 run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "$TSX $SCRIPT_DIR/check-integration-liveness.ts"
 
+# Step 18.8: capability_registry rot (XSPEC-362 R4) — advisory, never blocks.
+# DEC-031 D1 required pin_date to be recorded; nothing ever required it to be read.
+# It expired 120 days over threshold and looked identical to a current entry.
+# Warnings are printed here rather than via run_check, because run_check hides the
+# output of anything that exits 0 — and this check exits 0 by design.
+echo -e "${CYAN}[18.8/$TOTAL]${NC} Running capability_registry freshness check | 模型鎖定新鮮度檢查..."
+if [ -f "$SCRIPT_DIR/check-model-pin-freshness.ts" ]; then
+    # Self-test first: a clean scan means nothing unless the predicates fire.
+    if ! $TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" --self-test > /dev/null; then
+        echo -e "      ${RED}✗ Predicate self-test failed — a clean scan from this build proves nothing${NC}"
+        $TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" --self-test | sed 's/^/      /'
+        FAILED=$((FAILED + 1))
+    else
+        pin_output=$($TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" 2>&1)
+        pin_exit=$?
+        if [ $pin_exit -ne 0 ]; then
+            echo -e "      ${RED}✗ Check did not complete (exit $pin_exit) — this is not 'no findings'${NC}"
+            echo "$pin_output" | sed 's/^/      /'
+            FAILED=$((FAILED + 1))
+        elif echo "$pin_output" | grep -q "\[WARN\]"; then
+            echo -e "      ${YELLOW}⚠ capability_registry warnings (advisory only)${NC}"
+            echo "$pin_output" | grep -E "\[WARN\]|^  [A-Za-z_.-]+/|^    " | sed 's/^/      /'
+            PASSED=$((PASSED + 1))
+        else
+            echo -e "      ${GREEN}✓ No stale pins, no concrete vendor model IDs${NC}"
+            PASSED=$((PASSED + 1))
+        fi
+    fi
+else
+    echo -e "      ${YELLOW}⏭ check-model-pin-freshness.ts not found${NC}"
+    SKIPPED=$((SKIPPED + 1))
+fi
+
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
     echo -e "${CYAN}[19/$TOTAL]${NC} Running unit tests..."

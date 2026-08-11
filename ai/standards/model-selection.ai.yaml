@@ -5,74 +5,259 @@
 standard:
   id: model-selection
   name: AI Model Selection Strategy
-  description: AI 模型分級選擇策略
+  description: AI 模型選擇策略（模型軸 × effort 軸）
 
   meta:
-    version: "2.0.1"
-    updated: "2026-06-10"
+    version: "2.1.0"
+    updated: "2026-08-11"
     source: core/model-selection.md
-    description: "三層模型分級選擇策略 + 多模型池能力管理（XSPEC-027）"
+    description: "模型軸（天花板 × 規格明確度）× effort 軸（思考深度）+ 反向排除 + 多模型池能力管理（XSPEC-027, XSPEC-362）"
     inspired_by: superpowers/subagent-driven-development
+    version_semantics: >
+      This version field corresponds to the WHOLE FILE version in core/model-selection.md's header,
+      never to a section version. Sections do not carry their own version markers (XSPEC-362 R6a).
 
   guidelines:
-    - "使用最便宜能勝任的模型（成本效益原則）"
-    - "根據任務複雜度信號選擇模型等級"
-    - "BLOCKED 狀態時考慮升級模型再試"
+    - "模型軸與 effort 軸正交：模型軸選天花板與性格，effort 軸選這次要它想多深"
+    - "使用能勝任的最便宜組合（成本效益原則）"
+    - "模型軸判準是「推理天花板需求 × 規格明確度」，不是修改檔案數"
+    - "任務失敗時先判斷是深度不足（調 effort）還是天花板不足（換模型），兩者不可互換"
+    - "硬邊界（context 上限、effort 參數支援、modality）在成本比較之前排除，不是排名較低"
+    - "拒絕不是錯誤：呼叫端必須檢查拒絕標記，而非只檢查有無例外"
+
+  version_field_semantics:
+    rule: "core/model-selection.md 只有一個版本欄（檔頭），涵蓋全檔；章節不得自帶版本標記"
+    ai_yaml_mapping: "standard.meta.version 對應全檔版本"
+    section_history_location: "章節變更歷程記於 core/model-selection.md 的 Version History 表"
+
+  axes:
+    model:
+      purpose: "選天花板與性格（which model）"
+      criteria:
+        - id: reasoning_ceiling
+          name: "推理天花板需求"
+          question: "這個任務是否存在「想更久也想不出來」的成分？"
+          if_no: "較低層即可，用 effort 買深度而非用錢買天花板"
+          if_yes: "需要更高天花板；在較低層加多少 effort 都到不了"
+        - id: specification_definiteness
+          name: "規格明確度"
+          bidirectional: true
+          note: "非單調遞增判準——兩個方向都會出錯"
+          definite_spec:
+            prefer: "字面遵循型（較低層）"
+            inverted_failure: "把已寫死的步驟餵給高天花板型反而降低品質——它會重新詮釋已經決定過的事"
+          ambiguous_spec:
+            prefer: "模糊性導航型（較高層）"
+            inverted_failure: "把模糊任務給字面遵循型會得到「精確執行了錯誤的那句話」"
+      removed_signal:
+        signal: "修改檔案數"
+        removed_in: "2.1.0"
+        reason: >
+          3 檔的深度重構可能遠難於 8 檔的機械改名。檔案數會系統性把「深而窄」的任務誤判到低層，
+          且誤判方向固定——是偏差不是噪音。它之所以存活是因為便宜好量，不是因為它預測得準。
+    effort:
+      purpose: "選這次要它想多深（how deep）"
+      nature: "單次派工的請求參數，不是模型屬性"
+      vendor_neutral: true
+      levels:
+        - id: low
+          label_zh: "低"
+          semantics: "最少斟酌，主要依模式作答"
+          typical_use: "機械性編輯、查詢、格式化"
+        - id: medium
+          label_zh: "中"
+          semantics: "一般斟酌；預設值"
+          typical_use: "多數已定義的實作工作"
+        - id: high
+          label_zh: "高"
+          semantics: "延伸斟酌，作答前考慮替代方案"
+          typical_use: "含局部決策的整合工作"
+        - id: very-high
+          label_zh: "極高"
+          semantics: "探索並淘汰候選方法"
+          typical_use: "設計、審查、非顯而易見的除錯"
+        - id: max
+          label_zh: "極限"
+          semantics: "該模型可用的最大深度"
+          typical_use: "升級模型軸前的最後一次嘗試"
+      support_is_a_hard_boundary: >
+        並非每一層都支援每一個 effort 級距。是否支援 effort 參數是硬邊界（能力有無），
+        不是品質梯度。平台的 tier→模型映射必須登記每個模型接受哪些級距。
+
+  failure_diagnosis:
+    rule: "任務失敗時，先判斷哪一軸不足。兩者的補救方式不可互換。"
+    ordering: "先調 effort，再升級模型層；只有在當前層的最高可用 effort 也失敗後才升級模型軸"
+    exception: >
+      若判準 1（推理天花板需求）事前已識別出「想更久也想不出來」的成分，直接從較高層開始。
+      排序規則是關於「診斷失敗」，不是關於忽略事前判準。
+    cases:
+      - id: depth_insufficient
+        observation: "產出淺、略過考量、提早收手，但它做過的推理本身是對的"
+        diagnosis: "深度不足"
+        remedy: "在同一個模型上提高 effort"
+        wrong_remedy_cost: "升級模型層＝為一個從來不是瓶頸的天花板多付錢"
+      - id: ceiling_insufficient
+        observation: "產出在種類上就錯了——誤解問題、提出不可行的方法——且在 max effort 下仍如此"
+        diagnosis: "天花板不足"
+        remedy: "升級模型層"
+        wrong_remedy_cost: "再提高 effort 買不到任何東西；級距已經用盡"
+
+  reverse_exclusion:
+    description: "什麼工作不該給哪一層（XSPEC-362 R3）。此問題無法由「該升到哪層」的判準推導出來。"
+    hard_boundaries:
+      id: R3a
+      principle: "硬邊界是能力有無，不是程度差。裝不下的模型不是「做得比較差」，是做不了。"
+      exclusion_timing: "在成本比較「之前」排除，不是在其中排名較低"
+      exclusion_timing_reason: "事後排除會讓比較便宜但做不到的模型在價格上勝出"
+      boundaries:
+        - id: context_capacity
+          question: "輸入裝得下嗎？"
+          violation: "截斷或報錯——模型從未看過任務的一部分"
+        - id: effort_parameter_support
+          question: "這個模型接受 effort 參數嗎？"
+          violation: "請求被拒，或靜默以模型固定深度執行"
+        - id: modality_support
+          question: "它接受這種輸入型別嗎（影像、語音）？"
+          violation: "輸入被丟棄或拒絕"
+      registration: "硬邊界對應 capability registry 的 declared（布林，連線時可得，成本趨近零）"
+      score_1_is_not_a_hard_boundary: "分數 1 不是硬邊界，是量到的低品質；兩者的動作不同"
+    reverse_risks:
+      id: R3b
+      risks:
+        - id: safety_classifier_refusal
+          description: >
+            高能力層可能帶更嚴格的安全分類器。合法但形似禁止類別的工作（資安加固、
+            緩解措施實作、憑證處理程式碼、red-team 工具）可能被拒絕。
+          silent_failure_mechanism: >
+            拒絕不是錯誤。呼叫回傳的是正常回應加上拒絕標記。
+            對只看 exit code、或只看有無擲出例外的呼叫端而言，這是靜默失效：
+            管線記錄成功，而工作根本沒做。
+          requirements:
+            - "呼叫端必須檢查回應中的拒絕標記；沒有錯誤不等於完成"
+            - "規格敏感類工作在批次派往高能力層前，須先以廉價探測請求驗證可行性"
+            - "遇到拒絕時改派其他層或其他 provider；不要以更高 effort 重試同一請求——effort 移動不了分類器的判定"
+          related_standard: verification-evidence
+        - id: over_specified_prompt_degrades_high_tier
+          description: >
+            寫出每一個步驟對字面遵循型是正確做法，對高天花板型是錯誤做法——
+            後者會重新詮釋已經決定過的事，產出反而變差。
+          rule: "prompt 顆粒度隨層級走。若唯一可用的 prompt 是完整步驟清單，判準 2 本來就要求送到較低層"
 
   tiers:
     - id: fast
-      description: "機械性實作 — 單一檔案、明確 spec、無需判斷"
+      description: "無推理天花板需求、規格完全明確"
       signals:
-        - "修改單一檔案"
-        - "spec 完全明確，無歧義"
+        - "不存在「想更久也想不出來」的成分"
+        - "步驟已寫出，無需尋路"
         - "不需要設計判斷"
-        - "模式化的重複工作"
+        - "字面遵循正是想要的行為"
       examples:
-        - "更新 package.json 版本號"
-        - "新增一個 export"
+        - "在一組檔案上套用已定義的編輯（機械改名、版本號提升）"
         - "修正 typo"
+        - "新增規格中已指名的 export"
     - id: standard
-      description: "整合性實作 — 多檔案、需要判斷力"
+      description: "需要一定推理天花板，規格大致明確但留有局部決策空間"
       signals:
-        - "修改 2-5 個檔案"
+        - "部分成分需要推理，但沒有一項是「想更久也想不出來」"
+        - "目標與多數步驟已定義，剩下有限的局部選擇"
         - "需要理解模組間關係"
-        - "需要一定設計判斷"
       examples:
-        - "新增一個 API endpoint（含 route + handler + test）"
-        - "重構一個模組的內部結構"
+        - "實作整合點已知的既定功能"
+        - "依既定目標結構重構模組"
+        - "為指定子系統撰寫整合測試"
     - id: capable
-      description: "架構性工作 — 設計、審查、除錯"
+      description: "需要高推理天花板，或規格僅有目標與約束、路徑未知"
       signals:
-        - "修改 5+ 個檔案"
-        - "需要架構決策"
-        - "跨模組協調"
-        - "除錯複雜問題"
+        - "存在單靠更多思考時間解決不了的成分"
+        - "路徑未知；答案要找出來，不是套用"
+        - "需要導航模糊性而非遵循文字"
       examples:
-        - "設計新的子系統架構"
-        - "審查大型 PR"
-        - "診斷跨服務的效能問題"
+        - "設計子系統架構（路徑未知）"
+        - "審查大型 PR（重點事前未載明）"
+        - "診斷尚未形成假設的失效"
+      note: >
+        目標結構「已定」的大型重構不自動屬於 capable——依判準 2 它是明確規格，
+        高天花板模型的產出可能比字面遵循型更差。使它升到 capable 的是「目標結構未定」。
 
   rules:
     - id: MS-001
-      trigger: "BLOCKED 狀態且當前為 fast"
-      action: "升級至 standard 再試"
+      trigger: "BLOCKED 且當前為 fast，effort 已用盡"
+      action: "升級至 standard"
       priority: high
     - id: MS-002
-      trigger: "BLOCKED 狀態且當前為 standard"
-      action: "升級至 capable 再試"
+      trigger: "BLOCKED 且當前為 standard，effort 已用盡"
+      action: "升級至 capable"
       priority: high
     - id: MS-003
-      trigger: "BLOCKED 狀態且當前為 capable"
+      trigger: "BLOCKED 且當前為 capable，effort 已用盡"
       action: "標記為需要人工介入"
       priority: critical
     - id: MS-004
-      trigger: "任務需求不明確"
+      trigger: "任務規格僅有目標與約束"
       action: "從 standard 或更高層級開始"
+      priority: medium
+    - id: MS-005
+      trigger: "產出淺但推理健全，且 effort 尚未達 max"
+      action: "在同一模型上提高 effort — 不要升級模型層"
+      priority: high
+    - id: MS-006
+      trigger: "產出在種類上就錯了，且 effort 已達 max"
+      action: "升級模型層 — 再提高 effort 買不到任何東西"
+      priority: high
+    - id: MS-007
+      trigger: "候選模型不滿足某項必要硬邊界（context、effort 支援、modality）"
+      action: "在成本比較「之前」排除"
+      priority: critical
+    - id: MS-008
+      trigger: "將規格敏感類工作派往高能力層"
+      action: "先探測可行性；每一則回應都要檢查拒絕標記"
+      priority: critical
+    - id: MS-009
+      trigger: "prompt 是完整寫出的步驟清單"
+      action: "偏好字面遵循型；不要升到高天花板層"
+      priority: medium
+    - id: MS-010
+      trigger: "pin_date 或 measured.at 距今超過 90 天"
+      action: "發出 WARN 並排入重測佇列（不阻擋發版）"
       priority: medium
 
   capability_dimensions:
-    description: "能力維度分類與評分說明（XSPEC-027, DEC-031, DEC-032）"
+    description: "能力維度分類與評分說明（XSPEC-027, DEC-031, DEC-032, XSPEC-362 R7b）"
+    two_fields_per_subdimension:
+      rationale: >
+        單一 1–5 分無法同時表達兩件事：「支不支援」是二元、廠商宣告、連線時可低成本查得；
+        「有多好」是連續、需實測。壓成同一個數字，會讓便宜的事實與昂貴的事實無從分辨，
+        而昂貴的那個會靜默勝出。
+      declared:
+        type: boolean
+        source: "provider 的模型描述端點或設定宣告"
+        cost: "趨近零，連線建立時可得"
+        meaning: "做不做得到這件事"
+      measured:
+        type: object
+        fields:
+          score: "1–5 整數"
+          at: "量測日期 YYYY-MM-DD"
+          version_identifier: "量測時所用的版本識別"
+        source: "benchmark"
+        cost: "高，離線"
+        meaning: "做得多好"
+    normative_rules:
+      - id: declared_false_is_hard_boundary
+        rule: "declared: false 是硬邊界——無論任何分數皆排除，且「不」排入校準佇列（校準無意義）"
+      - id: declared_true_measured_absent_is_unknown
+        rule: "declared: true 且 measured 缺失 = UNKNOWN（做得到，但不知道做得多好）；這是資訊缺口不是結論"
+      - id: supported_must_not_derive_from_score
+        rule: >
+          禁止由分數推導支援與否。任何以 supported = score > 0（或類似）計算的實作，
+          都已把兩個欄位合併回單軸，重新製造了本規則要防止的缺陷。
+      - id: failed_measurement_must_not_be_scored
+        rule: >
+          量測失敗不得記為任何分數，必須記為缺失（UNKNOWN）。
+          以預設值填補（包括 0，而 0 不在 1–5 量表內）會讓「量不到」與「量到了且很差」無從分辨。
     scoring_scale:
+      applies_to: "measured.score only"
+      zero_does_not_exist: "沒有 0 分。量測缺失以「measured 物件不存在」表達，絕不以分數表達。"
       5: "生產就緒 — 高準確率，可直接使用"
       4: "良好 — 偶有遺漏，可接受"
       3: "基本可用 — 需人工補充"
@@ -122,77 +307,190 @@ standard:
 
   capability_registry:
     description: "模型能力登記表（DEC-031 D1）。各子專案依實際測試維護分數。"
+    no_concrete_model_ids:
+      rule: "本標準的 examples 不得登記任何具體廠商模型 ID"
+      reason: >
+        寫進標準的模型 ID 是「有到期日卻沒有時鐘」的引用端：它會過期，
+        而過期的樣子與正常的樣子在檔案上無從分辨。具體登記由採用者在自己的 registry 維護。
+      enforced_since: "2.1.0（XSPEC-362 R4）"
     format:
-      model_id: "provider/model-name"
-      version_pinned: "版本鎖定識別（SHA、日期戳或 model_version）"
-      pin_date: "鎖定日期（YYYY-MM-DD）"
-      eol_date: "預期淘汰日期（可選，YYYY-MM-DD）"
+      model_id: "<provider>/<model-name>"
+      version_pinned: "<version-identifier>（SHA、日期戳或 model_version）"
+      pin_date: "<YYYY-MM-DD>"
+      eol_date: "<YYYY-MM-DD>（可選）"
       capabilities:
-        "<dimension>.<subdimension>": "<1-5 整數分>"
+        "<dimension>.<subdimension>":
+          declared: "<boolean>"
+          measured:
+            score: "<1-5 整數>"
+            at: "<YYYY-MM-DD>"
+            version_identifier: "<量測時所用的版本識別>"
     examples:
-      - model_id: "anthropic/claude-sonnet-4-6"
-        version_pinned: "claude-sonnet-4-6"
-        pin_date: "2026-04-13"
+      - model_id: "<provider>/<model-name-a>"
+        version_pinned: "<version-identifier-a>"
+        pin_date: "<YYYY-MM-DD>"
         capabilities:
-          "modality.vision": 4
-          "reasoning.instruction_following": 5
-          "reasoning.code_reasoning": 5
-          "output.structured_output": 5
-          "output.tool_use": 5
-          "language.multilingual_zh_tw": 5
-      - model_id: "anthropic/claude-haiku-4-5"
-        version_pinned: "claude-haiku-4-5-20251001"
-        pin_date: "2026-04-13"
-        capabilities:
-          "modality.vision": 3
-          "reasoning.instruction_following": 4
-          "reasoning.code_reasoning": 4
-          "output.structured_output": 4
-          "output.tool_use": 4
-          "language.multilingual_zh_tw": 4
+          "modality.vision":
+            declared: true
+            measured:
+              score: 4
+              at: "<YYYY-MM-DD>"
+              version_identifier: "<version-identifier-a>"
+          "modality.audio":
+            declared: false
+          "output.tool_use":
+            declared: true
+    example_notes:
+      - "modality.audio 的 declared: false 是硬邊界——無 measured 欄位，也不需要"
+      - "output.tool_use 的 measured 缺失 → UNKNOWN → 排入校準佇列（不是 UNSUPPORTED）"
+    staleness_check:
+      threshold_days: 90
+      applies_to: ["pin_date", "measured.at"]
+      severity: WARN
+      must_not_block: true
+      rationale: "依 XSPEC-361 R8 量測結論，純檔內不變量的誤報率偏高，不適合作為 BLOCK 閘門"
+      output_requirement: "WARN 須指名受影響的 model_id 與子維度"
 
   routing_rules:
-    description: "能力路由決策規則（DEC-031 D2, DEC-032 D3）"
+    description: "能力路由決策規則（DEC-031 D2, DEC-032 D3, XSPEC-362 R7a）"
     selection_strategy: "pareto_weighted"
+    selection_strategy_scope: "僅在通過硬邊界排除的候選之中比較"
+    states:
+      - id: SUPPORTED
+        condition: "所需能力的 measured.score 皆 ≥ min_score"
+        action: "正常執行"
+        calibration_queue: false
+      - id: DEGRADED
+        condition: "measured.score 存在、≥ 2、但低於 min_score"
+        action: "降級執行，產出標記 [DEGRADED]"
+        calibration_queue: false
+      - id: UNSUPPORTED
+        condition: "measured 存在且 score ≤ 1"
+        action: "排除，不再嘗試"
+        calibration_queue: false
+        calibration_queue_reason: "已有結論"
+      - id: UNKNOWN
+        condition: "declared: true 但 measured 缺失——未登記、量測失敗或資料逾期"
+        action: "排入校準佇列；在校準完成前不得靜默排除"
+        calibration_queue: true
+    hard_boundary_precedes_states: "declared: false 在本表之前處理：硬邊界排除，且不排入校準佇列"
+    observability_requirement:
+      rule: "UNKNOWN 與 UNSUPPORTED 必須在「回傳結構」上可分辨，不能只在 log 上分辨"
+      reason: >
+        呼叫端必須能分辨「這個模型不行」與「我還不知道這個模型行不行」——兩者導向不同的下一步動作。
+        回傳單一布林、或回傳三態的路由 API，表達不了這件事。
+    anti_pattern:
+      description: "把「查無」與「低分」放進同一個判斷式，並以預設值填補缺資料"
+      example: "if (!cap || !cap.supported || cap.score < 2) — 三件事一個判斷式；以 ?? 0 填補缺資料"
+      consequence: "任何新偵測到的模型必定被排除，新模型永遠進不了候選池——與「支援更多模型」的目標直接相反"
+    decision_tree: |
+      任務需要 capability X
+        ├── declared == false                    → HARD BOUNDARY — 排除，不校準
+        ├── measured 缺失／失敗／逾期            → UNKNOWN     — 排入校準佇列
+        ├── measured.score ≤ 1                   → UNSUPPORTED — 排除，不校準
+        ├── measured.score ≥ 2 且 < min_score    → DEGRADED    — 執行並標記 [DEGRADED]
+        └── measured.score ≥ min_score           → SUPPORTED   — 執行
     rules:
       - id: CAP-001
-        condition: "任務需要 capability X，模型得分 ≥ min_score"
+        condition: "任務需要 capability X，measured.score ≥ min_score"
         action: "SUPPORTED — 正常執行"
         priority: high
       - id: CAP-002
-        condition: "任務需要 capability X，模型得分 2-3（min_score 未達但 ≥ 2）"
+        condition: "measured.score ≥ 2 但低於 min_score"
         action: "DEGRADED — 降級流程執行，產出標記 [DEGRADED]"
         priority: medium
       - id: CAP-003
-        condition: "任務需要 capability X，模型得分 ≤ 1 或未登記"
-        action: "UNSUPPORTED — 使用替代流程或提示用戶"
+        condition: "measured 存在且 score ≤ 1"
+        action: "UNSUPPORTED — 使用替代流程或提示用戶；不排入校準佇列"
         priority: high
       - id: CAP-004
         condition: "模型降智偵測（DEC-033）觸發 moderate 信號"
-        action: "啟動金絲雀測試，同時記錄降智警告"
+        action: "啟動金絲雀測試，記錄降智警告，並將受影響能力排入重測"
         priority: high
       - id: CAP-005
         condition: "模型降智偵測觸發 critical 信號"
-        action: "自動切換備用模型，上報 P1 Issue"
+        action: "自動切換備用模型，上報 P1 Issue，並將受影響能力排入重測"
         priority: critical
+      - id: CAP-006
+        condition: "declared: true 且 measured 缺失、失敗或逾期"
+        action: "UNKNOWN — 排入校準佇列；不得靜默排除"
+        priority: high
+      - id: CAP-007
+        condition: "所需 capability 的 declared: false"
+        action: "硬邊界 — 在成本比較之前排除；不排入校準佇列"
+        priority: critical
+      - id: CAP-008
+        condition: "version_identifier 與 measured.version_identifier 不同"
+        action: "立即失效該量測 → UNKNOWN"
+        priority: high
+
+  remeasurement_triggers:
+    description: "重測觸發（XSPEC-362 R7c）"
+    principle: "版本變更是充分條件，不是必要條件"
+    principle_reason: >
+      DEC-033 降智偵測的存在前提，正是模型 ID 與版本字串不變而行為改變。
+      僅依賴版本變更的實作，會漏掉 DEC-033 整個要防的情境。
+    independence: "三條路徑彼此獨立：各自單獨觸發，且沒有任何一條是另一條的前提"
+    triggers:
+      - id: version_identifier_changed
+        trigger: "version_identifier 與 measured 中記錄的不同"
+        effect: "既有量測立即失效 → 狀態變為 UNKNOWN"
+      - id: measurement_expired
+        trigger: "measured.at 距今超過 90 天"
+        effect: "排入重測；發出 WARN（見 MS-010）"
+      - id: degradation_alert
+        trigger: "降智偵測告警（DEC-033 CAP-004／CAP-005）"
+        effect: "排入重測——即使版本字串未變"
+
+  relationship_to_axes:
+    model_axis: "推理天花板與性格（選哪個模型）"
+    effort_axis: "這次派工的思考深度（想多深）"
+    capability_dimensions: "選中的模型做不做得到這「種」事，以及做得多好"
+    order_of_application: >
+      硬邊界排除 → 依兩個判準選 tier → 確認所需能力為 SUPPORTED 或可接受的 DEGRADED → 選 effort 級距
 
   navigation_integration:
     description: >
       The ai-response-navigation standard (Rule R6, optional) allows next-step suggestion
       options to carry a Tier annotation (〔model: Fast〕 / 〔model: Standard〕 / 〔model: Capable〕).
-      The complexity signals in this standard serve as the judgment basis for those annotations.
+      The criteria in this standard serve as the judgment basis for those annotations.
+    changed_in_2_1_0: >
+      Annotations previously derived from file count. Existing annotations made under the old
+      criteria may no longer be accurate. Tier ids are unchanged, so no data migration is required.
     vendor_neutral_principle: >
-      Tier names (Fast / Standard / Capable) are vendor-agnostic labels.
-      Each platform independently maps these tiers to its available models.
+      Tier names (Fast / Standard / Capable) and effort labels (low … max) are vendor-agnostic.
+      They do not correspond to any specific vendor's model identifiers or parameter names.
+      Each platform independently maps these tiers to its available models, maps effort labels to
+      its own parameter, and maintains its own hard-boundary register.
+
+  related_standards:
+    - id: agent-dispatch
+      relationship: >
+        agent-dispatch 管「怎麼派」（並行安全、獨立域判準、狀態協定、prompt 設計）；
+        model-selection 管「派給誰、想多深」（模型軸 × effort 軸）。
+        兩者互補，不得互相重寫——並行安全規則屬於 agent-dispatch，不屬於這裡。
+    - id: verification-evidence
+      relationship: "「沒有擲出錯誤」不是完成的證據；R3b 拒絕標記要求的依據"
+    - id: systematic-debugging
+      relationship: "先診斷再修改，在此適用於「深度不足 vs 天花板不足」的判斷"
 
 physical_spec:
   type: checklist
   validator:
     type: ai_review
-    rule: "檢查模型選擇是否基於任務複雜度信號，而非固定使用最高等級"
+    rule: "檢查模型選擇是否依「推理天花板需求 × 規格明確度」判準，且 effort 與模型軸分開決定"
   checks:
-    - "是否根據複雜度信號選擇模型等級"
-    - "BLOCKED 時是否嘗試升級而非直接失敗"
-    - "簡單任務是否避免使用過高等級模型"
+    - "模型層級是否依推理天花板需求與規格明確度選擇，而非依修改檔案數"
+    - "effort 級距是否與模型層級分開決定"
+    - "失敗時是否先判斷「深度不足」或「天花板不足」，再選擇對應補救"
+    - "升級模型層之前，當前層的最高可用 effort 是否已嘗試過"
+    - "硬邊界（context、effort 支援、modality）是否在成本比較之前排除"
+    - "規格敏感類工作的呼叫端是否檢查拒絕標記，而非只檢查有無例外"
     - "能力登記表是否包含 version_pinned 與 pin_date"
-    - "路由決策是否依 SUPPORTED/DEGRADED/UNSUPPORTED 三態處理"
+    - "能力登記表的 examples 是否不含具體廠商模型 ID"
+    - "每個子維度是否同時具備 declared（布林）與 measured（分數＋時間＋版本識別）兩個獨立欄位"
+    - "是否不存在任何以分數推導支援與否的實作（如 supported = score > 0）"
+    - "量測失敗是否記為缺失，而非以預設值（如 0）填補"
+    - "路由決策是否依 SUPPORTED/DEGRADED/UNSUPPORTED/UNKNOWN 四態處理"
+    - "UNKNOWN 與 UNSUPPORTED 是否在回傳結構上可分辨"
+    - "重測觸發是否包含版本變更、時間逾期、降智告警三條獨立路徑"

@@ -32,7 +32,9 @@
     "check:naming-refs": "tsx scripts/check-naming-and-refs.ts",
     "check:liveness": "tsx scripts/check-integration-liveness.ts",
     "sync:standard": "tsx scripts/sync-standard.ts",
-    "check:ai-yaml": "node scripts/check-ai-yaml-parses.mjs"
+    "check:ai-yaml": "node scripts/check-ai-yaml-parses.mjs",
+    "check:model-pins": "tsx scripts/check-model-pin-freshness.ts",
+    "check:model-pins:self-test": "tsx scripts/check-model-pin-freshness.ts --self-test"
   },
   "type": "module",
   "dependencies": {

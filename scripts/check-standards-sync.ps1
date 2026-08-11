@@ -57,11 +57,11 @@ function Map-CoreToAi {
 
 # Standards whose core/*.md is reference-only (no .ai.yaml counterpart)
 # 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
+# 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）。剩餘 7 份仍為 reference-only。
 function Test-ReferenceOnlyCore {
     param([string]$Name)
     switch ($Name) {
         "agent-communication-protocol"    { return $true }
-        "agent-dispatch"                  { return $true }
         "branch-completion"               { return $true }
         "change-batching-standards"       { return $true }
         "execution-history"               { return $true }
