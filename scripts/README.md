@@ -13,12 +13,18 @@ Maintenance, sync-check and release-automation scripts for the UDS repository.
 
 ## Cross-platform release scripts / 跨平台發版腳本
 
-The following Node.js ESM scripts are the **recommended** way to run release operations
-on any platform (macOS, Linux, Windows). The `.sh` originals are kept for legacy
-compatibility but carry a DEPRECATED notice.
+The following Node.js ESM scripts are the **only copy of the logic** and the
+**recommended** way to run release operations on any platform (macOS, Linux,
+Windows). Their `.sh` counterparts are now thin wrappers that `exec` straight
+into the `.mjs` — kept only because a few other files (tests, CLAUDE.md,
+`detect-self-adoption.js`) still name the `.sh` filename directly, not because
+they carry any logic or deprecation notice of their own.
 
-以下 Node.js ESM 腳本是在任何平台（macOS、Linux、Windows）執行發版操作的**推薦方式**。
-`.sh` 原檔保留供舊環境相容，但已標記為棄用。
+以下 Node.js ESM 腳本是**唯一一份邏輯**，也是在任何平台（macOS、Linux、
+Windows）執行發版操作的**推薦方式**。對應的 `.sh` 現在是直接 `exec` 進
+`.mjs` 的極薄 wrapper——保留只是因為還有少數地方（測試、CLAUDE.md、
+`detect-self-adoption.js`）直接指名 `.sh` 這個檔名，不是因為它們自己帶有
+邏輯或棄用標記。
 
 ### `bump-version.mjs` — Version bump / 版本升版
 
@@ -32,6 +38,7 @@ node scripts/bump-version.mjs 5.7.0
 
 Updates all version files atomically:
 - `cli/package.json`
+- `cli/package-lock.json` (`"version"` + `packages[""].version`)
 - `cli/standards-registry.json` (all `version` fields)
 - `uds-manifest.json` (`version` + `last_updated`)
 - `README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`
@@ -41,7 +48,7 @@ Updates all version files atomically:
 Then verifies consistency via `check-version-sync.sh` and runs `check-translation-sync.sh`
 as an advisory check.
 
-Legacy equivalent: `./scripts/bump-version.sh <version>` (macOS/Linux only)
+POSIX wrapper (macOS/Linux only, same logic): `./scripts/bump-version.sh <version>`
 
 ### `install-hooks.mjs` — Git hooks installer / Git Hooks 安裝程式
 

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/translation-lifecycle-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-04-20
+**Version**: 1.0.1
+**Last Updated**: 2026-08-12
 **Status**: Trial (expires 2026-10-20)
 **Applicability**: All projects with multi-language documentation
 **Scope**: universal
@@ -100,7 +100,7 @@ When updating a translation after a source change:
 
 When `core/*.md` files are staged, the pre-commit hook runs `check-translation-sync.sh` and shows OUTDATED warnings. The hook **never blocks** the commit (blocking at commit time is too disruptive) — it is a reminder only.
 
-Setup: `./scripts/install-hooks.sh` (one-time, after clone)
+Setup: `node scripts/install-hooks.mjs` (one-time, after clone; `./scripts/install-hooks.sh` is a POSIX wrapper around the same logic)
 
 ### Release Gate (`check-translation-sync.sh`)
 
@@ -112,9 +112,9 @@ bash scripts/check-translation-sync.sh
 # exit 0 if only MINOR/PATCH gaps (with advisory output)
 ```
 
-### Version Bump Integration (`bump-version.sh`)
+### Version Bump Integration (`bump-version.mjs`)
 
-`bump-version.sh` automatically runs `check-translation-sync.sh` after version files are updated, showing the translation health snapshot at the moment of bump — giving the author immediate feedback on what needs updating before publish.
+`bump-version.mjs` automatically runs `check-translation-sync.sh` after version files are updated, showing the translation health snapshot at the moment of bump — giving the author immediate feedback on what needs updating before publish. `scripts/bump-version.sh` is a thin POSIX wrapper that execs `bump-version.mjs` — the bump logic itself lives only in the `.mjs` file.
 
 ---
 
@@ -159,4 +159,4 @@ bash scripts/check-translation-sync.sh
 - [standard-admission-criteria.md](standard-admission-criteria.md) — How new standards are admitted (triggers TRANS-001)
 - `scripts/check-translation-sync.sh` — Implementation of this standard's automation rules
 - `.githooks/pre-commit` — Pre-commit integration
-- `scripts/install-hooks.sh` — Hook installation
+- `scripts/install-hooks.mjs` — Hook installation (`scripts/install-hooks.sh` is a POSIX wrapper)
