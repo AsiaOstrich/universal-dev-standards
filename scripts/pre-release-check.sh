@@ -298,7 +298,16 @@ else
 fi
 
 # Step 18: Registry Completeness
-run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$SCRIPT_DIR/check-registry-completeness.sh"
+# Calls the .ts directly (not check-registry-completeness.sh): the .sh's
+# Check 3 only ever tested file existence, never content, so a .standards/
+# copy that had drifted out of sync with its ai/standards/ source read as
+# [OK] here at release-gate time even though the .ts version's sha256
+# comparison (added to catch exactly that drift) would have flagged it.
+# check-registry-completeness.sh is now a thin wrapper around this same
+# .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
+run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$TSX $SCRIPT_DIR/check-registry-completeness.ts"
 
 # Step 18.5: Skill Structural Integrity (XSPEC-223)
 run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "$TSX $SCRIPT_DIR/check-skill-structural-integrity.ts"

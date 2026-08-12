@@ -4,7 +4,11 @@
  * 註冊表完整性檢查器
  *
  * Cross-platform TypeScript implementation. Run with `tsx`.
- * Replaces check-registry-completeness.sh.
+ * This is the only copy of the comparison logic. pre-release-check.sh's
+ * step 18 calls this file directly (via its resolved $TSX). The old
+ * check-registry-completeness.sh is now a thin wrapper that execs this
+ * file — kept only because tests/scripts/check-registry-completeness.bats
+ * targets the .sh by name; it does not duplicate any check.
  *
  * Ensures every core standard has all required sync artifacts:
  *   1. core/*.md exists → ai/standards/*.ai.yaml exists
@@ -15,7 +19,7 @@
  *      check for months; the check exists to catch exactly that shape of drift,
  *      so "the file is there" cannot be the whole test.
  *
- * Usage: tsx scripts/check-registry-completeness.ts
+ * Usage: tsx scripts/check-registry-completeness.ts [--verbose]
  */
 
 import { createHash } from 'node:crypto';
@@ -26,6 +30,15 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = dirname(__filename);
 const ROOT_DIR = dirname(SCRIPT_DIR);
+
+// Verbose control (default quiet). Matches the --verbose convention landed
+// across this repo's other check-*.sh scripts in c8051d93 — [OK] lines are
+// per-item routine status (up to ~135 of them here: every core standard and
+// every ai/standards/*.ai.yaml), the bulk of this script's output once it
+// becomes part of pre-release-check.sh's step 18 instead of a lone `npm run
+// check:registry`. [MISSING]/[WARN] always print regardless of --verbose —
+// those are the lines that mean something is actually wrong.
+const VERBOSE = process.argv.includes('--verbose');
 
 const CORE_DIR = join(ROOT_DIR, 'core');
 const AI_STANDARDS_DIR = join(ROOT_DIR, 'ai', 'standards');
@@ -112,9 +125,11 @@ function main(): void {
     const aiFile = join(AI_STANDARDS_DIR, `${aiName}.ai.yaml`);
 
     if (existsSync(aiFile)) {
-      process.stdout.write(
-        `  ${GREEN}[OK]${NC}      ${coreBasename}.md → ${aiName}.ai.yaml\n`,
-      );
+      if (VERBOSE) {
+        process.stdout.write(
+          `  ${GREEN}[OK]${NC}      ${coreBasename}.md → ${aiName}.ai.yaml\n`,
+        );
+      }
     } else {
       process.stdout.write(
         `  ${RED}[MISSING]${NC} ${coreBasename}.md → ${aiName}.ai.yaml (not found)\n`,
@@ -151,9 +166,11 @@ function main(): void {
     const aiKey = `"ai/standards/${aiName}.ai.yaml"`;
 
     if (registryContent.includes(humanKey) || registryContent.includes(aiKey)) {
-      process.stdout.write(
-        `  ${GREEN}[OK]${NC}      ${coreBasename}.md → registry entry found\n`,
-      );
+      if (VERBOSE) {
+        process.stdout.write(
+          `  ${GREEN}[OK]${NC}      ${coreBasename}.md → registry entry found\n`,
+        );
+      }
     } else {
       process.stdout.write(
         `  ${RED}[MISSING]${NC} ${coreBasename}.md → no registry entry\n`,
@@ -210,9 +227,11 @@ function main(): void {
     const installedHash = createHash('sha256').update(installedBuf).digest('hex');
 
     if (sourceHash === installedHash) {
-      process.stdout.write(
-        `  ${GREEN}[OK]${NC}      ${aiBasename} → .standards/ installed, content matches\n`,
-      );
+      if (VERBOSE) {
+        process.stdout.write(
+          `  ${GREEN}[OK]${NC}      ${aiBasename} → .standards/ installed, content matches\n`,
+        );
+      }
     } else {
       const sourceLines = sourceBuf.toString('utf8').split('\n').length;
       const installedLines = installedBuf.toString('utf8').split('\n').length;

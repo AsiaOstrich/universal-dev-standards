@@ -1,272 +1,49 @@
 #!/bin/bash
-# DEPRECATED: Use 'npx tsx scripts/check-registry-completeness.ts' instead (cross-platform).
-# This script remains for legacy Linux/macOS compatibility.
+# Thin wrapper — scripts/check-registry-completeness.ts is the only copy of
+# the comparison logic. This file used to be a full second implementation
+# (bash), but its Check 3 only ever tested file *existence* ([ -f "$dot_file" ]),
+# never content — so a .standards/ copy that drifted out of sync with its
+# ai/standards/ source read as [OK] here while pre-release-check.sh's step 18
+# called this .sh (not the .ts) at release-gate time. The content comparison
+# added to the .ts version (sha256, catches exactly that drift) never ran in
+# the actual release gate as a result.
 #
-# Registry Completeness Checker
-# 註冊表完整性檢查器
+# Fixed by converging on one implementation instead of maintaining two: this
+# file now execs check-registry-completeness.ts and kept only because
+# tests/scripts/check-registry-completeness.bats targets this filename
+# directly. Do not add logic here — add it to the .ts file.
 #
-# Ensures every core standard has all required sync artifacts:
-# 1. core/*.md exists → ai/standards/*.ai.yaml exists
-# 2. core/*.md exists → standards-registry.json has entry
-# 3. core/*.md exists → .standards/*.ai.yaml exists (installed copy)
+# 極薄 wrapper —— scripts/check-registry-completeness.ts 是唯一一份比對邏輯。
+# 這個檔案曾是完整的第二份實作（bash），但它的第 3 項檢查一直只驗證檔案
+# 是否「存在」（[ -f "$dot_file" ]），從未比對內容——所以一份已與
+# ai/standards/ 來源漂移的 .standards/ 複本在這裡會顯示 [OK]，而
+# pre-release-check.sh 第 18 步呼叫的正是這支 .sh（不是 .ts）。加在 .ts
+# 版本上的內容比對（sha256，正好能抓到這種漂移）因此從未在真正的發版閘門
+# 跑過。
 #
-# This script catches the "added core standard but forgot to sync" problem.
+# 解法是收斂成一份實作而非維護兩份：這個檔案現在直接 exec
+# check-registry-completeness.ts，保留只是因為
+# tests/scripts/check-registry-completeness.bats 是用這個檔名去呼叫的。
+# 不要在這裡加邏輯——邏輯一律加在 .ts 檔。
 #
-# Usage: ./scripts/check-registry-completeness.sh
-#
-
-set -e
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# Usage: ./scripts/check-registry-completeness.sh [--verbose]
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Verbose control (default quiet). [OK] lines are per-item routine status —
-# the bulk of this script's output. [MISSING]/[WARN]/[ERROR] always print
-# regardless of --verbose.
-VERBOSE=false
-for arg in "$@"; do
-    case "$arg" in
-        --verbose) VERBOSE=true ;;
-    esac
-done
-
-# Directories
-CORE_DIR="$ROOT_DIR/core"
-AI_STANDARDS_DIR="$ROOT_DIR/ai/standards"
-DOT_STANDARDS_DIR="$ROOT_DIR/.standards"
-REGISTRY_FILE="$ROOT_DIR/cli/standards-registry.json"
-REFERENCE_ONLY_FILE="$ROOT_DIR/scripts/reference-only-standards.json"
-
-# Temp files for counting
-ERROR_FILE=$(mktemp)
-WARNING_FILE=$(mktemp)
-echo "0" > "$ERROR_FILE"
-echo "0" > "$WARNING_FILE"
-
-# Cleanup on exit
-cleanup() {
-    rm -f "$ERROR_FILE" "$WARNING_FILE"
-    if [ -f "NULL" ]; then rm -f "NULL"; fi
-}
-trap cleanup EXIT
-
-# Helper functions
-inc_errors() {
-    local count
-    count=$(cat "$ERROR_FILE")
-    echo $((count + 1)) > "$ERROR_FILE"
-}
-
-inc_warnings() {
-    local count
-    count=$(cat "$WARNING_FILE")
-    echo $((count + 1)) > "$WARNING_FILE"
-}
-
-get_errors() {
-    cat "$ERROR_FILE"
-}
-
-get_warnings() {
-    cat "$WARNING_FILE"
-}
-
-# Name mapping (reuse from check-standards-sync.sh)
-map_core_to_ai() {
-    local core_name="$1"
-    case "$core_name" in
-        "changelog-standards")    echo "changelog" ;;
-        "code-review-checklist")  echo "code-review" ;;
-        "commit-message-guide")   echo "commit-message" ;;
-        "error-code-standards")   echo "error-codes" ;;
-        "logging-standards")      echo "logging" ;;
-        "testing-standards")      echo "testing" ;;
-        *)                        echo "$core_name" ;;
-    esac
-}
-
-# Standards that are reference-only (no separate .standards/ install needed).
-# Single source: scripts/reference-only-standards.json — do not hand-copy this
-# list here. Loaded once into REFERENCE_ONLY_LIST (space-separated) below.
-if command -v jq &>/dev/null; then
-    REFERENCE_ONLY_LIST=$(jq -r '.referenceOnlyCore[]' "$REFERENCE_ONLY_FILE" | tr '\n' ' ')
+# Same tsx-resolution fallback as scripts/pre-release-check.sh: `tsx` is not
+# on PATH in every shell (nvm-managed installs, non-login shells, a bats
+# subshell), so resolve it explicitly rather than assume a bare `tsx` works.
+if command -v tsx >/dev/null 2>&1; then
+    TSX="tsx"
+elif [ -x "$ROOT_DIR/node_modules/.bin/tsx" ]; then
+    TSX="$ROOT_DIR/node_modules/.bin/tsx"
+elif npx --no-install tsx --version >/dev/null 2>&1; then
+    TSX="npx --no-install tsx"
 else
-    REFERENCE_ONLY_LIST=$(node -e "
-      const d = JSON.parse(require('fs').readFileSync('$REFERENCE_ONLY_FILE', 'utf8'));
-      console.log(d.referenceOnlyCore.join(' '));
-    ")
-fi
-
-is_reference_only() {
-    local name="$1"
-    for entry in $REFERENCE_ONLY_LIST; do
-        if [ "$entry" = "$name" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
-echo ""
-echo "=========================================="
-echo "  Registry Completeness Checker"
-echo "  註冊表完整性檢查器"
-echo "=========================================="
-echo ""
-
-# =============================================================================
-# Check 1: core/*.md → ai/standards/*.ai.yaml
-# =============================================================================
-
-echo -e "${BLUE}[1/3] Checking core/ → ai/standards/ completeness${NC}"
-echo "----------------------------------------"
-
-CORE_COUNT=0
-AI_MISSING=0
-
-for core_file in "$CORE_DIR"/*.md; do
-    [ -f "$core_file" ] || continue
-
-    core_basename=$(basename "$core_file" .md)
-
-    # Skip guide directories and template files
-    if is_reference_only "$core_basename"; then
-        continue
-    fi
-
-    CORE_COUNT=$((CORE_COUNT + 1))
-
-    ai_name=$(map_core_to_ai "$core_basename")
-    ai_file="$AI_STANDARDS_DIR/${ai_name}.ai.yaml"
-
-    if [ -f "$ai_file" ]; then
-        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → ${ai_name}.ai.yaml"
-    else
-        echo -e "  ${RED}[MISSING]${NC} $core_basename.md → ${ai_name}.ai.yaml (not found)"
-        inc_errors
-        AI_MISSING=$((AI_MISSING + 1))
-    fi
-done
-
-echo ""
-echo -e "  Core standards: $CORE_COUNT | AI YAML missing: $AI_MISSING"
-echo ""
-
-# =============================================================================
-# Check 2: core/*.md → standards-registry.json
-# =============================================================================
-
-echo -e "${BLUE}[2/3] Checking core/ → standards-registry.json completeness${NC}"
-echo "----------------------------------------"
-
-REGISTRY_MISSING=0
-
-for core_file in "$CORE_DIR"/*.md; do
-    [ -f "$core_file" ] || continue
-
-    core_basename=$(basename "$core_file" .md)
-
-    if is_reference_only "$core_basename"; then
-        continue
-    fi
-
-    ai_name=$(map_core_to_ai "$core_basename")
-
-    # Check if registry has an entry with source.human or source.ai matching
-    if grep -q "\"core/${core_basename}.md\"" "$REGISTRY_FILE" 2>/dev/null || \
-       grep -q "\"ai/standards/${ai_name}.ai.yaml\"" "$REGISTRY_FILE" 2>/dev/null; then
-        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → registry entry found"
-    else
-        echo -e "  ${RED}[MISSING]${NC} $core_basename.md → no registry entry"
-        inc_errors
-        REGISTRY_MISSING=$((REGISTRY_MISSING + 1))
-    fi
-done
-
-echo ""
-echo -e "  Registry missing: $REGISTRY_MISSING"
-echo ""
-
-# =============================================================================
-# Check 3: ai/standards/*.ai.yaml → .standards/*.ai.yaml (installed copy)
-# =============================================================================
-
-echo -e "${BLUE}[3/3] Checking ai/standards/ → .standards/ installed copies${NC}"
-echo "----------------------------------------"
-
-DOT_MISSING=0
-DOT_TOTAL=0
-
-for ai_file in "$AI_STANDARDS_DIR"/*.ai.yaml; do
-    [ -f "$ai_file" ] || continue
-
-    ai_basename=$(basename "$ai_file")
-    DOT_TOTAL=$((DOT_TOTAL + 1))
-
-    dot_file="$DOT_STANDARDS_DIR/$ai_basename"
-
-    if [ -f "$dot_file" ]; then
-        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $ai_basename → .standards/ installed"
-    else
-        echo -e "  ${YELLOW}[WARN]${NC}    $ai_basename → not in .standards/ (run 'uds update' to sync)"
-        inc_warnings
-        DOT_MISSING=$((DOT_MISSING + 1))
-    fi
-done
-
-echo ""
-echo -e "  AI standards: $DOT_TOTAL | .standards/ missing: $DOT_MISSING"
-echo ""
-
-# =============================================================================
-# Summary
-# =============================================================================
-
-echo "=========================================="
-echo "  Summary | 摘要"
-echo "=========================================="
-
-ERRORS=$(get_errors)
-WARNINGS=$(get_warnings)
-
-if [ "$ERRORS" -gt 0 ]; then
-    echo -e "${RED}Errors: $ERRORS${NC} (Missing AI files or registry entries)"
-    echo ""
-    echo "To fix errors:"
-    echo "  - Create missing .ai.yaml files in ai/standards/"
-    echo "  - Add missing entries to cli/standards-registry.json"
-    echo "  - Run: ./scripts/check-standards-sync.sh for detailed sync info"
-fi
-
-if [ "$WARNINGS" -gt 0 ]; then
-    echo -e "${YELLOW}Warnings: $WARNINGS${NC} (Missing .standards/ copies)"
-    echo ""
-    echo "To fix warnings:"
-    echo "  - Run 'uds update' in this project to sync .standards/"
-    echo "  - Or manually copy ai/standards/*.ai.yaml to .standards/"
-fi
-
-if [ "$ERRORS" -eq 0 ] && [ "$WARNINGS" -eq 0 ]; then
-    echo -e "${GREEN}All checks passed! ✓${NC}"
-    echo "  Core standards: $CORE_COUNT"
-    echo "  AI YAML files: $DOT_TOTAL"
-    echo "  Registry entries: complete"
-    echo "  .standards/ copies: complete"
-fi
-
-echo ""
-
-# Exit with error if there are errors (not warnings)
-if [ "$ERRORS" -gt 0 ]; then
+    echo "tsx not found — cannot run check-registry-completeness.ts" >&2
+    echo "Install it (npm i) or add tsx to PATH." >&2
     exit 1
 fi
 
-exit 0
+exec $TSX "$SCRIPT_DIR/check-registry-completeness.ts" "$@"
