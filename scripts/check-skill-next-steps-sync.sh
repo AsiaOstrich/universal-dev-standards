@@ -31,6 +31,17 @@ SKILLS_DIR="$ROOT_DIR/skills"
 ZH_TW_DIR="$ROOT_DIR/locales/zh-TW/skills"
 ZH_CN_DIR="$ROOT_DIR/locales/zh-CN/skills"
 
+# Verbose control (default quiet). The per-skill "fully synced" ✓ line is
+# routine status printed once per skill (55 today) — gated behind
+# --verbose. ⚠ (missing translation file) and ✗ (missing section) lines
+# always print.
+VERBOSE=false
+for arg in "$@"; do
+    case "$arg" in
+        --verbose) VERBOSE=true ;;
+    esac
+done
+
 # Counters
 SYNCED=0
 WARNINGS=0
@@ -87,7 +98,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
 
     # Determine overall status
     if [ "$tw_status" = "✓" ] && [ "$cn_status" = "✓" ]; then
-        echo -e "  ${GREEN}✓${NC} ${skill_name}: EN ✓ | zh-TW ✓ | zh-CN ✓"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}✓${NC} ${skill_name}: EN ✓ | zh-TW ✓ | zh-CN ✓"
         SYNCED=$((SYNCED + 1))
     elif [ "$tw_status" = "✓" ] && [ -z "$cn_note" ] || [ "$cn_note" = "(no translation file)" ]; then
         # zh-CN file doesn't exist — warning, not error

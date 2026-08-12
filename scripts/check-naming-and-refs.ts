@@ -195,11 +195,56 @@ interface DanglingResult {
   linksChecked: number; // every relative *.md link inspected, resolved or not
 }
 
+// Blank out fenced code block bodies (```/~~~, any length, CommonMark nesting
+// rule: a fence only closes on a same-char run >= the opening run's length).
+// Line count is preserved (blanked, not removed) so this stays a pure filter.
+//
+// Why this exists: docs/skills that TEACH markdown structure embed literal
+// example links inside fenced blocks — e.g. documentation-structure.md's
+// `docs/index.md` template shows `[Getting Started](getting-started.md)` as
+// sample content, never meant to resolve against this repo. Without this,
+// every such example is indistinguishable from a real dangling link; 48 of
+// the 59 T15 findings measured in the dev-platform XSPEC-362 governance
+// batch were exactly this shape, spread across 6 files (core/skills copies
+// of documentation-structure.md in 3 locales, plus one testing-guide.md
+// sample report link). EXAMPLE_RE/EXAMPLE_DIR_RE could not have caught these
+// by filename — bare names like `getting-started.md` carry no "example"-ish
+// marker — because the signal isn't in the filename, it's in the fact that
+// the surrounding prose is a code sample, not live content.
+function stripFencedCode(text: string): string {
+  const lines = text.split('\n');
+  let inFence = false;
+  let fenceChar = '';
+  let fenceLen = 0;
+  return lines
+    .map((line) => {
+      const trimmed = line.trimStart();
+      if (!inFence) {
+        const open = trimmed.match(/^(`{3,}|~{3,})/);
+        if (open) {
+          fenceChar = open[1][0];
+          fenceLen = open[1].length;
+          inFence = true;
+          return '';
+        }
+        return line;
+      }
+      // Inside a fence: only a run of the same char, >= opening length,
+      // filling the rest of the trimmed line, closes it (CommonMark).
+      const closeRe = new RegExp(`^${fenceChar}{${fenceLen},}\\s*$`);
+      if (closeRe.test(trimmed)) {
+        inFence = false;
+      }
+      return '';
+    })
+    .join('\n');
+}
+
 function checkDangling(files: string[]): DanglingResult {
   const dangling: string[] = [];
   let linksChecked = 0;
   for (const file of files) {
-    const txt = readFileSync(file, 'utf8');
+    const txt = stripFencedCode(readFileSync(file, 'utf8'));
     const baseDir = dirname(file);
     const rel = relative(ROOT_DIR, file);
     for (const m of txt.matchAll(/\]\(([^)]+\.md)\)/g)) {

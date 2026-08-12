@@ -27,11 +27,24 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Verbose control (default quiet). [OK]/[SKIP] lines are per-item routine
+# status printed once for every core standard / option category this script
+# walks — the bulk of its output. [WARN]/[MISSING]/[ERROR] always print
+# regardless of --verbose; those are the only lines that mean something is
+# actually wrong.
+VERBOSE=false
+for arg in "$@"; do
+    case "$arg" in
+        --verbose) VERBOSE=true ;;
+    esac
+done
+
 # Directories
 CORE_DIR="$ROOT_DIR/core"
 AI_STANDARDS_DIR="$ROOT_DIR/ai/standards"
 OPTIONS_DIR="$ROOT_DIR/options"
 AI_OPTIONS_DIR="$ROOT_DIR/ai/options"
+REFERENCE_ONLY_FILE="$ROOT_DIR/scripts/reference-only-standards.json"
 
 # Temp files for counting (to avoid subshell issues)
 ERROR_FILE=$(mktemp)
@@ -93,19 +106,26 @@ map_core_to_ai() {
     esac
 }
 
-# Standards whose core/*.md is reference-only (no .ai.yaml counterpart)
-# 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
-# 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）。剩餘 7 份仍為 reference-only。
+# Standards whose core/*.md is reference-only (no .ai.yaml counterpart).
+# Single source: scripts/reference-only-standards.json — do not hand-copy this
+# list here (three other scripts read the same file).
+if command -v jq &>/dev/null; then
+    REFERENCE_ONLY_LIST=$(jq -r '.referenceOnlyCore[]' "$REFERENCE_ONLY_FILE" | tr '\n' ' ')
+else
+    REFERENCE_ONLY_LIST=$(node -e "
+      const d = JSON.parse(require('fs').readFileSync('$REFERENCE_ONLY_FILE', 'utf8'));
+      console.log(d.referenceOnlyCore.join(' '));
+    ")
+fi
+
 is_reference_only_core() {
     local name="$1"
-    case "$name" in
-        "agent-communication-protocol"|"branch-completion"|"change-batching-standards")
-            return 0 ;;
-        "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
-            return 0 ;;
-        *)
-            return 1 ;;
-    esac
+    for entry in $REFERENCE_ONLY_LIST; do
+        if [ "$entry" = "$name" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 # Map ai/standards/*.ai.yaml filename to core/*.md filename
@@ -138,7 +158,7 @@ if [ -d "$CORE_DIR" ]; then
             base_name=$(basename "$md_file" .md)
 
             if is_reference_only_core "$base_name"; then
-                echo -e "  ${GREEN}[SKIP]${NC}    $base_name.md (reference-only, .ai.yaml removed in 6.0.0)"
+                [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[SKIP]${NC}    $base_name.md (reference-only, .ai.yaml removed in 6.0.0)"
                 continue
             fi
 
@@ -146,7 +166,7 @@ if [ -d "$CORE_DIR" ]; then
             ai_file="$AI_STANDARDS_DIR/$ai_name.ai.yaml"
 
             if [ -f "$ai_file" ]; then
-                echo -e "  ${GREEN}[OK]${NC}      $base_name.md → $ai_name.ai.yaml"
+                [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $base_name.md → $ai_name.ai.yaml"
             else
                 echo -e "  ${RED}[MISSING]${NC} $base_name.md → $ai_name.ai.yaml (not found)"
                 inc_errors
@@ -170,7 +190,7 @@ if [ -d "$AI_STANDARDS_DIR" ]; then
             core_file="$CORE_DIR/$core_name.md"
 
             if [ -f "$core_file" ]; then
-                echo -e "  ${GREEN}[OK]${NC}      $base_name.ai.yaml → $core_name.md"
+                [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $base_name.ai.yaml → $core_name.md"
             else
                 echo -e "  ${YELLOW}[WARN]${NC}    $base_name.ai.yaml → $core_name.md (not found)"
                 inc_warnings
@@ -234,7 +254,7 @@ for category in $ALL_CATEGORIES; do
                     ai_file="$ai_option_cat_dir/$base_name.ai.yaml"
 
                     if [ -f "$ai_file" ]; then
-                        echo -e "  ${GREEN}[OK]${NC}      $base_name.md → $base_name.ai.yaml"
+                        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $base_name.md → $base_name.ai.yaml"
                     else
                         echo -e "  ${RED}[MISSING]${NC} $base_name.md → $base_name.ai.yaml (AI version not found)"
                         inc_errors
@@ -282,7 +302,7 @@ if [ -f "$REGISTRY_FILE" ]; then
             base_name=$(basename "$yaml_file")
 
             if grep -q "\"ai/standards/$base_name\"" "$REGISTRY_FILE"; then
-                echo -e "  ${GREEN}[OK]${NC}      $base_name → referenced in registry"
+                [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $base_name → referenced in registry"
             else
                 echo -e "  ${RED}[MISSING]${NC} $base_name → NOT in registry source.ai!"
                 inc_errors

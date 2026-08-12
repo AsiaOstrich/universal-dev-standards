@@ -72,6 +72,28 @@ compute_source_hash() {
     git hash-object "$f" 2>/dev/null | cut -c1-12
 }
 
+# Verbose control (default quiet). Routine per-file PASS lines ([CURRENT],
+# with or without the "no source_hash" advisory annotation) are the bulk of
+# this script's output — measured at 664 of ~1122 default-run lines, with the
+# "no source_hash" variant alone accounting for 549. Every other marker
+# ([MISSING]/[NO META]/[DRIFT]/[MAJOR]/[MINOR]/[PATCH]/[CHECK]) signals an
+# actual gap, drift, or open question and always prints regardless of
+# --verbose — only the two pure-pass shapes are gated. This is a judgment
+# call made here, with full knowledge of what each marker means, not a
+# generic marker-string filter downstream (pre-release-check.sh's run_check
+# stays a faithful pass-through; classification-by-marker-string was rejected
+# there specifically because new spellings won't be caught by an enumerated
+# list — this file's own author knows there are exactly two pass shapes).
+VERBOSE=false
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --verbose) VERBOSE=true ;;
+        *) ARGS+=("$arg") ;;
+    esac
+done
+set -- "${ARGS[@]}"
+
 # Determine which locales to check
 if [ -z "$1" ] || [ "$1" = "--all" ] || [ "$1" = "-a" ]; then
     # Check all locales
@@ -269,17 +291,24 @@ check_locale() {
                 OUTDATED=$((OUTDATED + 1))
             elif [ "$hash_verdict" = "nohash" ]; then
                 # Advisory only: majority of managed translations lack source_hash.
-                # Keep the green line to avoid churn; surface the gap in the summary.
+                # The per-file line is the routine-status bulk (549 of 664
+                # [CURRENT] lines carry this exact annotation) — gated behind
+                # --verbose; the aggregate still surfaces via GLOBAL_NOHASH in
+                # both the per-locale and final summary blocks.
                 NOHASH=$((NOHASH + 1))
                 if [ "$status" = "current" ]; then
-                    echo -e "${GREEN}[CURRENT]${NC} $rel_path  ${YELLOW}(no source_hash — drift undetectable)${NC}"
+                    if [ "$VERBOSE" = true ]; then
+                        echo -e "${GREEN}[CURRENT]${NC} $rel_path  ${YELLOW}(no source_hash — drift undetectable)${NC}"
+                    fi
                 else
                     echo -e "${YELLOW}[CHECK]${NC}  $rel_path"
                     echo "          Status: $status (should be 'current'?)"
                 fi
                 CURRENT=$((CURRENT + 1))
             elif [ "$status" = "current" ]; then
-                echo -e "${GREEN}[CURRENT]${NC} $rel_path"
+                if [ "$VERBOSE" = true ]; then
+                    echo -e "${GREEN}[CURRENT]${NC} $rel_path"
+                fi
                 CURRENT=$((CURRENT + 1))
             else
                 echo -e "${YELLOW}[CHECK]${NC}  $rel_path"

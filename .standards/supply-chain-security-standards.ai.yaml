@@ -1,5 +1,161 @@
 id: supply-chain-security-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-04-01"
+  version: "1.1.0"
+  updated: "2026-08-07"
   source: core/supply-chain-security-standards.md
+  # Rules below are extracted from that .md by hand. The repository's
+  # convert-md-to-yaml.mjs was tried first and rejected (XSPEC-367 R2): its
+  # output does not parse, truncates every long value mid-sentence, and turns
+  # bold fragments into instructions — one generated rule was `"McConnell, S"`,
+  # half an author name from the references section.
+  # MUST/SHOULD below carry the .md's own wording, not a re-grading.
+
+# ─────────────────────────────────────────────────────────────
+# Rules an agent can act on. `trigger` is when to apply the rule;
+# `priority` mirrors the RFC-2119 term used in the source.
+# ─────────────────────────────────────────────────────────────
+rules:
+  - id: sbom-on-every-release
+    trigger: cutting a release
+    instruction: >-
+      Ship an SBOM listing every direct and transitive dependency, with
+      component name, version, supplier, license, and known vulnerabilities.
+    priority: required
+
+  - id: sbom-generated-in-ci
+    trigger: setting up a release pipeline
+    instruction: Generate the SBOM automatically in CI rather than by hand.
+    priority: recommended
+
+  - id: lockfile-committed
+    trigger: adding or updating a dependency
+    instruction: Commit the lock file to version control.
+    priority: required
+
+  - id: lockfile-does-not-reach-consumers
+    trigger: publishing a package to a registry
+    instruction: >-
+      A committed lock file makes your own builds reproducible and constrains
+      nobody who installs your package — a published tarball or wheel carries
+      no lock file, so consumers resolve your declared ranges themselves.
+      Separately measure what those ranges resolve to, and run the test suite
+      against that resolution before release.
+    scope: published artifacts only
+    note: >-
+      A deployed service that ships its lock file with the artifact is not
+      affected by this rule. Applying it there adds ceremony to a project the
+      problem cannot reach.
+    priority: required
+
+  - id: security-patch-window
+    trigger: a security advisory affects a dependency
+    instruction: Apply within 48 hours for Critical, within 7 days for High.
+    priority: required
+
+  - id: patch-update-window
+    trigger: a non-security patch release is available
+    instruction: Apply within 7 days.
+    priority: recommended
+
+  - id: major-upgrade-cadence
+    trigger: planning quarterly work
+    instruction: Evaluate major version upgrades, with a migration plan and changelog review.
+    priority: recommended
+
+  - id: no-license-means-proprietary
+    trigger: introducing a new dependency
+    instruction: >-
+      Treat a dependency with no license as proprietary. Do not use it without
+      explicit permission.
+    priority: required
+
+  - id: agpl-in-saas
+    trigger: introducing a dependency into a hosted service
+    instruction: >-
+      AGPL triggers copyleft for the entire service. Evaluate before adopting,
+      not after.
+    priority: required
+
+  - id: copyleft-combination-review
+    trigger: combining two copyleft licenses
+    instruction: >-
+      Different copyleft licenses are often incompatible. Get legal review
+      rather than assuming.
+    priority: required
+
+# ─────────────────────────────────────────────────────────────
+# What to check, and what each finding means. Severity here is the
+# action, not a label: "block" stops the pipeline.
+# ─────────────────────────────────────────────────────────────
+audit_dimensions:
+  - dimension: known_vulnerabilities
+    check: CVE databases — NVD, OSV, GitHub Advisory
+    critical: block
+    high: warn
+  - dimension: license_compliance
+    check: compatibility with the project's own license
+    incompatible: block
+  - dimension: maintenance_status
+    check: last commit date, open issues, maintainer count
+    unmaintained_over_2_years: warn
+  - dimension: version_currency
+    check: how many major/minor versions behind latest
+    more_than_2_majors_behind: warn
+
+audit_frequency:
+  every_ci_build: automated vulnerability scan
+  weekly: automated full audit report
+  before_release: manual review of every warning
+  on_security_advisory: immediate assessment of affected dependencies
+
+# ─────────────────────────────────────────────────────────────
+# Update strategy by change type.
+# ─────────────────────────────────────────────────────────────
+update_strategy:
+  patch:
+    strategy: auto-merge once CI passes
+    automation: fully automated (Dependabot / Renovate)
+  minor:
+    strategy: open a PR automatically, review by hand
+    automation: semi-automated
+  major:
+    strategy: manual evaluation with a migration plan
+    automation: manual, with changelog review
+  lock_strategy:
+    strategy: >-
+      Commit lock files — and, if you publish, separately verify what consumers
+      resolve to.
+    automation: lock file committed; consumer resolution checked at release
+
+# ─────────────────────────────────────────────────────────────
+# CI gate. The thresholds are the point: a scan that reports
+# everything at the same level is a scan nobody reads.
+# ─────────────────────────────────────────────────────────────
+ci_gate:
+  required_steps:
+    - generate SBOM on every build
+    - scan for vulnerabilities against CVE databases
+    - scan licenses for compatibility
+    - report dependency freshness
+  on_finding:
+    critical: block the PR
+    high: warn and create a ticket
+    medium_or_low: log only
+
+license_compatibility:
+  permissive_with_permissive: always compatible
+  permissive_with_copyleft: compatible if the copyleft terms are followed
+  copyleft_with_different_copyleft: often incompatible — legal review required
+  agpl_in_saas: triggers copyleft for the whole service — evaluate carefully
+  no_license: treat as proprietary — do not use without explicit permission
+
+quick_reference:
+  new_dependency: license compatible? CVE-free? maintained? popular?
+  ci_build: auto-scan vulnerabilities and licenses
+  release: generate SBOM, review every warning
+  critical_cve: patch within 48 hours
+
+related_standards:
+  - supply-chain-attestation
+  - versioning
+  - release-readiness-gate

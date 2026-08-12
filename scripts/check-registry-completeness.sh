@@ -28,11 +28,22 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Verbose control (default quiet). [OK] lines are per-item routine status —
+# the bulk of this script's output. [MISSING]/[WARN]/[ERROR] always print
+# regardless of --verbose.
+VERBOSE=false
+for arg in "$@"; do
+    case "$arg" in
+        --verbose) VERBOSE=true ;;
+    esac
+done
+
 # Directories
 CORE_DIR="$ROOT_DIR/core"
 AI_STANDARDS_DIR="$ROOT_DIR/ai/standards"
 DOT_STANDARDS_DIR="$ROOT_DIR/.standards"
 REGISTRY_FILE="$ROOT_DIR/cli/standards-registry.json"
+REFERENCE_ONLY_FILE="$ROOT_DIR/scripts/reference-only-standards.json"
 
 # Temp files for counting
 ERROR_FILE=$(mktemp)
@@ -82,22 +93,26 @@ map_core_to_ai() {
     esac
 }
 
-# Standards that are reference-only (no separate .standards/ install needed)
-# These are protocol-type standards loaded via context-aware-loading
+# Standards that are reference-only (no separate .standards/ install needed).
+# Single source: scripts/reference-only-standards.json — do not hand-copy this
+# list here. Loaded once into REFERENCE_ONLY_LIST (space-separated) below.
+if command -v jq &>/dev/null; then
+    REFERENCE_ONLY_LIST=$(jq -r '.referenceOnlyCore[]' "$REFERENCE_ONLY_FILE" | tr '\n' ' ')
+else
+    REFERENCE_ONLY_LIST=$(node -e "
+      const d = JSON.parse(require('fs').readFileSync('$REFERENCE_ONLY_FILE', 'utf8'));
+      console.log(d.referenceOnlyCore.join(' '));
+    ")
+fi
+
 is_reference_only() {
     local name="$1"
-    case "$name" in
-        "requirement-checklist"|"requirement-template"|"requirement-document-template")
-            return 0 ;;
-        # 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
-        # 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）。剩餘 7 份仍為 reference-only。
-        "agent-communication-protocol"|"branch-completion"|"change-batching-standards")
-            return 0 ;;
-        "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
-            return 0 ;;
-        *)
-            return 1 ;;
-    esac
+    for entry in $REFERENCE_ONLY_LIST; do
+        if [ "$entry" = "$name" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 echo ""
@@ -133,7 +148,7 @@ for core_file in "$CORE_DIR"/*.md; do
     ai_file="$AI_STANDARDS_DIR/${ai_name}.ai.yaml"
 
     if [ -f "$ai_file" ]; then
-        echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → ${ai_name}.ai.yaml"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → ${ai_name}.ai.yaml"
     else
         echo -e "  ${RED}[MISSING]${NC} $core_basename.md → ${ai_name}.ai.yaml (not found)"
         inc_errors
@@ -168,7 +183,7 @@ for core_file in "$CORE_DIR"/*.md; do
     # Check if registry has an entry with source.human or source.ai matching
     if grep -q "\"core/${core_basename}.md\"" "$REGISTRY_FILE" 2>/dev/null || \
        grep -q "\"ai/standards/${ai_name}.ai.yaml\"" "$REGISTRY_FILE" 2>/dev/null; then
-        echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → registry entry found"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $core_basename.md → registry entry found"
     else
         echo -e "  ${RED}[MISSING]${NC} $core_basename.md → no registry entry"
         inc_errors
@@ -199,7 +214,7 @@ for ai_file in "$AI_STANDARDS_DIR"/*.ai.yaml; do
     dot_file="$DOT_STANDARDS_DIR/$ai_basename"
 
     if [ -f "$dot_file" ]; then
-        echo -e "  ${GREEN}[OK]${NC}      $ai_basename → .standards/ installed"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}[OK]${NC}      $ai_basename → .standards/ installed"
     else
         echo -e "  ${YELLOW}[WARN]${NC}    $ai_basename → not in .standards/ (run 'uds update' to sync)"
         inc_warnings

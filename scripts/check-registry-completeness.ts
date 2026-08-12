@@ -31,6 +31,7 @@ const CORE_DIR = join(ROOT_DIR, 'core');
 const AI_STANDARDS_DIR = join(ROOT_DIR, 'ai', 'standards');
 const DOT_STANDARDS_DIR = join(ROOT_DIR, '.standards');
 const REGISTRY_FILE = join(ROOT_DIR, 'cli', 'standards-registry.json');
+const REFERENCE_ONLY_FILE = join(ROOT_DIR, 'scripts', 'reference-only-standards.json');
 
 // ANSI colors
 const RED = '\x1b[0;31m';
@@ -48,22 +49,20 @@ const NAME_MAP: Record<string, string> = {
   'testing-standards': 'testing',
 };
 
-const REFERENCE_ONLY: ReadonlyArray<string> = [
-  'requirement-checklist',
-  'requirement-template',
-  'requirement-document-template',
-  // 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
-  // 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）：
-  // 該批次的前提是 canonical owner 為 dev-autopilot，而該 owner 於 2026-04-28 進入維護模式，
-  // 機器可讀版自此無人維護，散文版卻仍隨 bundle 出貨。剩餘 7 份仍為 reference-only。
-  'agent-communication-protocol',
-  'branch-completion',
-  'change-batching-standards',
-  'execution-history',
-  'pipeline-integration-standards',
-  'workflow-enforcement',
-  'workflow-state-protocol',
-];
+// Single source: scripts/reference-only-standards.json. Do not hand-copy this
+// list — three other scripts (check-registry-completeness.sh,
+// check-standards-sync.sh, check-standards-sync.ps1) read the same file.
+//
+// NOTE: the previous inline copy also listed 'requirement-checklist',
+// 'requirement-template', 'requirement-document-template'. Those three are
+// templates/*.md, not core/*.md — listCoreMd() below only ever iterates
+// core/*.md, so those three names never matched anything here and were dead
+// entries in this script specifically. Dropped from the shared source; if a
+// future consumer needs them, add a separate list rather than reviving this
+// dead one.
+const REFERENCE_ONLY: ReadonlyArray<string> = JSON.parse(
+  readFileSync(REFERENCE_ONLY_FILE, 'utf8'),
+).referenceOnlyCore;
 
 function mapCoreToAi(coreName: string): string {
   return NAME_MAP[coreName] ?? coreName;
