@@ -392,9 +392,16 @@ else
 fi
 
 # Step 22: Flow Gate Report (warning-only until next minor release)
+# Calls the .ts directly (not check-flow-gate-report.sh): the .sh's jq path,
+# under `set -euo pipefail`, aborted on malformed JSON with jq's own raw parse
+# error (exit 5) instead of the script's own "malformed or missing
+# summary.status field" message (exit 1). check-flow-gate-report.sh is now a
+# thin wrapper around this same .ts file, so this call and a direct call to
+# the .sh are equivalent — calling the .ts directly here just skips the
+# wrapper's own tsx-resolution step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[22/$TOTAL]${NC} Checking flow gate report | 流程閘門報告檢查..."
-if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
-    flowgate_output=$("$SCRIPT_DIR/check-flow-gate-report.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-flow-gate-report.ts" ]; then
+    flowgate_output=$($TSX "$SCRIPT_DIR/check-flow-gate-report.ts" 2>&1)
     flowgate_exit=$?
     if [ $flowgate_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ flow_gate_report.json missing or incomplete (advisory) | flow_gate_report.json 缺失或不完整（僅警告）${NC}"
@@ -405,7 +412,7 @@ if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-flow-gate-report.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
