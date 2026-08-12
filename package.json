@@ -23,6 +23,7 @@
     "check:flow-gate": "tsx scripts/check-flow-gate-report.ts",
     "check:integration-commands": "tsx scripts/check-integration-commands-sync.ts",
     "check:registry": "tsx scripts/check-registry-completeness.ts",
+    "check:drift-override-clean": "tsx scripts/check-drift-override-clean.ts",
     "check:release-signoff": "tsx scripts/check-release-readiness-signoff.ts",
     "check:workflow-compliance": "tsx scripts/check-workflow-compliance.ts",
     "check:skill-integrity": "tsx scripts/check-skill-structural-integrity.ts",

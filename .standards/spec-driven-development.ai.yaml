@@ -4,7 +4,7 @@
 id: spec-driven-development
 meta:
   version: "1.3.0"
-  updated: "2026-05-13"
+  updated: "2026-08-12"
   source: methodologies/guides/sdd-guide.md
   description: Spec-Driven Development workflow where documentation precedes implementation
 
@@ -196,16 +196,6 @@ rules:
   - id: archive-completed-specs
     trigger: spec implementation verified
     instruction: Archive spec with links to commits/PRs
-    priority: required
-
-  - id: spec-type-agent-template
-    trigger: creating spec for an Agent or role definition
-    instruction: Use spec-type agent and follow agent_spec_template with 5 required sections (Role Definition, Capability Scope, Interface Contract, Agent Interactions, Related Feature SPECs)
-    priority: required
-
-  - id: spec-type-backward-compat
-    trigger: reading any existing spec without spec-type field
-    instruction: Treat as spec-type feature (default). Existing specs require no migration.
     priority: required
 
 best_practices:

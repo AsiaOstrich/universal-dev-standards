@@ -373,6 +373,14 @@ else
     SKIPPED=$((SKIPPED + 1))
 fi
 
+# Step 18.9: Drift-override anti-permanence (XSPEC-376 R3b) — blocking.
+# check-registry-completeness.ts step 18's .standards/ drift gate has a
+# one-shot escape hatch (UDS_STANDARDS_DRIFT_OVERRIDE). This step makes sure
+# that variable's name was never checked into a tracked file — which would
+# turn "block, with a manual one-time exception" into "never actually
+# blocks". Unlike step 18.8, this is a real gate: a hit here is not advisory.
+run_check "18.9" "Running drift-override anti-permanence check | 漂移逃生門防永久化檢查" "$TSX $SCRIPT_DIR/check-drift-override-clean.ts"
+
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
     echo -e "${CYAN}[19/$TOTAL]${NC} Running unit tests..."

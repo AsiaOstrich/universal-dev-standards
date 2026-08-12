@@ -185,6 +185,32 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+# ── check-drift-override-clean.ts ────────────────────────────────────────────
+# XSPEC-376 R3b anti-permanence gate for UDS_STANDARDS_DRIFT_OVERRIDE.
+
+@test "check-drift-override-clean.ts exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run npx tsx scripts/check-drift-override-clean.ts
+  [ "$status" -eq 0 ]
+}
+
+@test "check-drift-override-clean.ts blocks when the variable is assigned in a tracked file" {
+  cd "$REPO_ROOT"
+  # Built from parts at runtime (not a literal "NAME=value" in this bats
+  # source) so this test file itself never contains an assignment the check
+  # would flag — only the temporary probe file it writes and stages does.
+  local probe="tests/scripts/drift-override-probe.bats-tmp"
+  local var_name="UDS_STANDARDS_DRIFT"
+  var_name="${var_name}_OVERRIDE"
+  printf '%s=1\n' "$var_name" > "$probe"
+  git add "$probe"
+  run npx tsx scripts/check-drift-override-clean.ts
+  git reset -- "$probe"
+  rm -f "$probe"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"$probe"* ]]
+}
+
 # ── fix-manifest-paths.sh ────────────────────────────────────────────────────
 # Not a check script; asserts intended argument-validation behaviour.
 
