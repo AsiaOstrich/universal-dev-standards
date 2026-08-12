@@ -1,5 +1,151 @@
 id: privacy-standards
 meta:
-  version: "1.1.0"
-  updated: "2026-06-18"
+  version: "1.0.0"
+  updated: "2026-08-07"
   source: core/privacy-standards.md
+  # Extracted by hand (XSPEC-367 R2). convert-md-to-yaml.mjs was rejected: its
+  # output does not parse, truncates long values mid-sentence, and turns bold
+  # fragments into instructions.
+
+rules:
+  - id: privacy-is-the-default
+    trigger: designing any feature that touches personal data
+    instruction: >-
+      Personal data is protected without the user doing anything. A setting the
+      user must find and switch on is not a default.
+    priority: required
+
+  - id: classify-before-storing
+    trigger: introducing a new data field
+    instruction: >-
+      Assign a sensitivity level (public / internal / confidential / restricted)
+      and apply that level's handling requirements. Unclassified data gets no
+      protection by accident.
+    priority: required
+
+  - id: every-field-has-a-documented-purpose
+    trigger: adding a field to a form, event, or record
+    instruction: >-
+      Collect only what is necessary, and write down why each field exists.
+      A field nobody can justify is a field to remove.
+    priority: required
+
+  - id: every-data-type-has-a-retention-period
+    trigger: defining a new data type
+    instruction: >-
+      Set an explicit retention period and make expiry delete or anonymise the
+      data automatically. Retention without automatic deletion is a plan, not a
+      control.
+    priority: required
+
+  - id: purpose-limitation
+    trigger: reusing existing data for a new purpose
+    instruction: >-
+      Data collected for one purpose must not be used for another without
+      consent. "We already have it" is not a basis.
+    priority: required
+
+  - id: dpia-before-processing
+    trigger: any condition in dpia.triggers is met
+    instruction: >-
+      Conduct a DPIA before the processing starts, not after it ships.
+    priority: required
+
+  - id: support-the-five-user-rights
+    trigger: building account or data features
+    instruction: >-
+      Access, rectification, erasure, portability and objection each need a real
+      mechanism. See user_rights for what "real" means per right.
+    priority: required
+
+  - id: erasure-reaches-backups
+    trigger: implementing account deletion
+    instruction: >-
+      Deletion must cascade to backups within 30 days. A delete that leaves the
+      data in a backup is a delay, not an erasure.
+    priority: required
+
+data_classification:
+  public:
+    describes: freely shareable — marketing content, docs
+    handling: no restrictions
+  internal:
+    describes: internal use only — internal reports, meeting notes
+    handling: access control, no public sharing
+  confidential:
+    describes: sensitive business data — financials, strategies
+    handling: encryption at rest and in transit, audit logging, need-to-know access
+  restricted:
+    describes: highly sensitive PII, health, financial — SSN, medical records
+    handling: strongest encryption, strict access, data masking, regulatory compliance
+
+dpia:
+  triggers:
+    - processing personal data at large scale (see large_scale below)
+    - systematic monitoring of public areas
+    - automated decision-making with legal effects
+    - processing special category data (health, biometric, genetic)
+    - combining datasets from different sources
+    - processing data of vulnerable individuals (children, employees)
+  large_scale:
+    source: "GDPR Art. 35; WP29 DPIA Guidelines WP248rev.01"
+    note: >-
+      No single number defines large scale. Assess four factors and treat the
+      processing as large scale when it is significant on two or more.
+    factors:
+      - number of data subjects — absolute count, or a proportion of the relevant population
+      - volume and range of data items
+      - duration or permanence of the processing
+      - geographical extent
+    exception: >-
+      One-off processing, a single individual's data, or an individual
+      practitioner's records are not large scale and do not trigger a DPIA on
+      that ground alone. The other triggers may still apply.
+
+retention_guidelines:
+  session_data:
+    period: duration of the session
+    why: not needed after logout
+  activity_logs:
+    period: 90 days
+    why: debugging and support
+  account_data:
+    period: until account deletion, plus 30 days
+    why: grace period for recovery
+  transaction_records:
+    period: 7 years
+    why: tax and audit compliance
+  marketing_preferences:
+    period: until consent is withdrawn
+    why: consent-based
+
+user_rights:
+  access:
+    right: receive a copy of their personal data
+    implementation: export endpoint, machine-readable format (JSON/CSV)
+  rectification:
+    right: correct inaccurate personal data
+    implementation: profile editing, support channel for fields that are not self-service
+  erasure:
+    right: have their data deleted
+    implementation: account deletion flow, cascading to backups within 30 days
+  portability:
+    right: receive their data in a portable format
+    implementation: standard-format export (JSON, CSV), API for bulk export
+  objection:
+    right: object to specific processing
+    implementation: opt-out mechanisms, granular consent management
+
+privacy_by_design:
+  - proactive not reactive — anticipate and prevent, do not respond after the fact
+  - privacy as the default — protection without user action
+  - privacy embedded into design — architectural, not an add-on
+  - full functionality — positive-sum, privacy AND function, not privacy OR function
+  - end-to-end security — protected from collection through deletion
+  - visibility and transparency — practices documented, verifiable, open to scrutiny
+  - respect for user privacy — strong defaults, clear options, user interests first
+
+related_standards:
+  - security-standards
+  - logging-standards
+  - data-lifecycle-management

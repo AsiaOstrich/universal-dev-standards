@@ -1,9 +1,5 @@
 # Dual-Phase LLM Output Standard - AI Optimized
 # Source: XSPEC-035 (claude-code-book Ch.7 AutoCompact dual-phase design)
-# DEPRECATION NOTICE (XSPEC-086 Phase 3, 2026-04-28):
-#   Post-processing flow (extract→discard→fallback, phase-switch logic) is now
-#   adoption-layer responsibility — UDS no longer ships an executable runtime.
-#   This file retains format definition, prompt_template, and token_impact data only.
 
 standard:
   id: dual-phase-output
