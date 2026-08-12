@@ -97,15 +97,15 @@ The following quality-check scripts are implemented in TypeScript and run via
 以下品質檢查腳本以 TypeScript 實作，透過 `tsx` 執行。它們取代了原 bash 版本以
 達成跨平台一致性（XSPEC-179 Phase 2）。
 
-| Script | npm script | Replaces |
+| Script | npm script | Former `.sh` |
 |--------|------------|----------|
-| `check-ai-behavior-sync.ts` | `npm run check:ai-behavior` | `check-ai-behavior-sync.sh` |
-| `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` |
-| `check-flow-gate-report.ts` | `npm run check:flow-gate` | `check-flow-gate-report.sh` |
-| `check-integration-commands-sync.ts` | `npm run check:integration-commands` | `check-integration-commands-sync.sh` |
-| `check-registry-completeness.ts` | `npm run check:registry` | `check-registry-completeness.sh` (now a thin wrapper — see below) |
-| `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | `check-release-readiness-signoff.sh` |
-| `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` |
+| `check-ai-behavior-sync.ts` | `npm run check:ai-behavior` | removed (XSPEC-376 R4/R7) |
+| `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` (kept — real git hook, see below) |
+| `check-flow-gate-report.ts` | `npm run check:flow-gate` | removed (XSPEC-376 R4/R7) |
+| `check-integration-commands-sync.ts` | `npm run check:integration-commands` | removed (XSPEC-376 R4/R7) |
+| `check-registry-completeness.ts` | `npm run check:registry` | removed (XSPEC-376 R4/R7) |
+| `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | removed (XSPEC-376 R4/R7) |
+| `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` (kept — real git hook, see below) |
 
 ### Strategy: single TypeScript source / 策略：單一 TypeScript 來源
 
@@ -116,23 +116,37 @@ pattern. A single `.ts` file runs unchanged on macOS / Linux / Windows via
 本批次刻意避開先前 bash + PowerShell 雙軌模式。單一 `.ts` 檔透過 `tsx` 在
 macOS / Linux / Windows 上執行結果一致，消除「只能在 Windows 驗證」的反饋落差。
 
-The original `.sh` files are kept with `DEPRECATED` notices for legacy
-Linux/macOS compatibility but should not be added to.
+XSPEC-376 R1/R2 first converged every `.sh` counterpart into a thin
+`exec $TSX ....ts` wrapper (closing a drift risk: several `.sh` headers had
+said `DEPRECATED` for a while, yet the `.sh` — not the `.ts` — was what
+`pre-release-check.sh` and the git hooks actually ran). R4/R7 then walked
+every address point of each wrapper and deleted the ones where every
+consumer could be repointed at the `.ts` directly: `check-ai-behavior-sync.sh`,
+`check-flow-gate-report.sh`, `check-integration-commands-sync.sh`,
+`check-registry-completeness.sh`, `check-release-readiness-signoff.sh`.
 
-原 `.sh` 檔保留並加 `DEPRECATED` 警告供 legacy Linux/macOS 相容，但不應再新增。
+XSPEC-376 R1/R2 先把每一份 `.sh` 收斂成極薄的 `exec $TSX ....ts` wrapper
+（關掉一個漂移風險：好幾份 `.sh` 檔頭早已寫著 `DEPRECATED`，但
+`pre-release-check.sh` 與 git hooks 實際執行的仍是 `.sh` 而不是 `.ts`）。
+R4/R7 接著逐一走訪每個 wrapper 的全部定址點，把所有定址點都能改指向 `.ts`
+的那些直接刪除：`check-ai-behavior-sync.sh`、`check-flow-gate-report.sh`、
+`check-integration-commands-sync.sh`、`check-registry-completeness.sh`、
+`check-release-readiness-signoff.sh`。
 
-`check-registry-completeness.sh` is a stronger case of this than a notice:
-its Check 3 only ever tested file *existence*, never content, so a drifted
-`.standards/` copy read as `[OK]` at release-gate time (`pre-release-check.sh`
-called the `.sh`, not the `.ts`) while the `.ts` version's content comparison
-never ran there. Converged by making the `.sh` `exec` the `.ts` directly —
-one copy of the logic, not a second one a human has to keep in sync.
+Two wrappers are kept — not because their address points couldn't be found,
+but because they're real, active git hooks with a "never exit non-zero"
+contract: `check-commit-spec-reference.sh` (`cli/.husky/commit-msg`) and
+`check-workflow-compliance.sh` (`cli/.husky/pre-commit`), both invoked via a
+hardcoded `[ -f scripts/<name>.sh ]` probe. Both `.sh` files fall back to a
+silent `exit 0` when `tsx` cannot be resolved, matching that contract; do not
+add logic to either — add it to the `.ts` file.
 
-`check-registry-completeness.sh`比其他幾個更進一步：它的第 3 項檢查一直只
-驗證檔案是否存在、從未比對內容，於是漂移的 `.standards/` 複本在發版閘門
-時間點顯示為 `[OK]`（`pre-release-check.sh` 呼叫的是 `.sh` 不是 `.ts`），
-`.ts` 版本的內容比對從未在那裡跑過。解法是讓 `.sh` 直接 `exec` `.ts`——
-只有一份邏輯，不是需要人工維持同步的第二份。
+有兩個 wrapper 予以保留——不是因為找不到定址點，而是因為它們是真正、生效中
+的 git hook，且契約是「絕不非零結束」：`check-commit-spec-reference.sh`
+（`cli/.husky/commit-msg`）與 `check-workflow-compliance.sh`
+（`cli/.husky/pre-commit`），兩者都是被硬編碼的 `[ -f scripts/<name>.sh ]`
+探測後呼叫。兩份 `.sh` 在解析不到 `tsx` 時都會退回靜默 `exit 0`，符合這個
+契約；不要在其中任一個檔案加邏輯——邏輯一律加在 `.ts` 檔。
 
 ## Testing convention / 測試慣例
 

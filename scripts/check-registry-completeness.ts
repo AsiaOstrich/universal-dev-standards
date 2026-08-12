@@ -6,9 +6,11 @@
  * Cross-platform TypeScript implementation. Run with `tsx`.
  * This is the only copy of the comparison logic. pre-release-check.sh's
  * step 18 calls this file directly (via its resolved $TSX). The old
- * check-registry-completeness.sh is now a thin wrapper that execs this
- * file — kept only because tests/scripts/check-registry-completeness.bats
- * targets the .sh by name; it does not duplicate any check.
+ * check-registry-completeness.sh (formerly a full second implementation,
+ * later a thin wrapper that execs this file) was removed under XSPEC-376
+ * R4/R7 — tests/scripts/check-registry-completeness.bats and
+ * scripts/reference-only-standards.json's $comment were updated in the
+ * same pass to address this file directly.
  *
  * Ensures every core standard has all required sync artifacts:
  *   1. core/*.md exists → ai/standards/*.ai.yaml exists
@@ -31,6 +33,25 @@
  *      claude-code --dry-run` on a project with only that file installed —
  *      the field-presence check below is the general form of that probe.
  *
+ * Check 3 (.standards/ drift) is a BLOCKING gate (XSPEC-376 R3b): a missing
+ * or content-drifted .standards/ copy exits 1, same as Check 1/2/4. Before
+ * this change it only ever produced an advisory warning (exit 0), which is
+ * how 5 real drifts (XSPEC-376 R3a) sat unnoticed across multiple releases
+ * — content that had been edited directly into the generated .standards/
+ * layer, invisible to every release gate that ran this script. See R3a's
+ * commit for how those 5 were reconciled before the gate was tightened.
+ *
+ * Escape hatch: set UDS_STANDARDS_DRIFT_OVERRIDE (any non-empty value) to
+ * downgrade a drift block to an advisory warning for THIS invocation only.
+ * There is no persistent "already used" state — the override is scoped to
+ * the environment variable being set for that one process, exactly like any
+ * other env var. Do not export it in a shell profile or bake it into any
+ * version-controlled file (CI workflow, package.json script, Dockerfile,
+ * Makefile, shell rc file): `tsx scripts/check-drift-override-clean.ts`
+ * fails the moment this variable's name appears in a tracked file, so a
+ * committed "always override" would break that separate gate instead of
+ * silently working forever.
+ *
  * Usage: tsx scripts/check-registry-completeness.ts [--verbose]
  */
 
@@ -52,6 +73,13 @@ const ROOT_DIR = dirname(SCRIPT_DIR);
 // check:registry`. [MISSING]/[WARN] always print regardless of --verbose —
 // those are the lines that mean something is actually wrong.
 const VERBOSE = process.argv.includes('--verbose');
+
+// One-shot escape hatch for Check 3 (.standards/ drift is a BLOCKING gate —
+// see the file header). Truthy for any non-empty value; downgrades a drift
+// block to an advisory warning for this process only. There is nothing to
+// "reset" — simply not setting it next time is what makes the next run
+// block again.
+const DRIFT_OVERRIDE = Boolean(process.env.UDS_STANDARDS_DRIFT_OVERRIDE);
 
 const CORE_DIR = join(ROOT_DIR, 'core');
 const AI_STANDARDS_DIR = join(ROOT_DIR, 'ai', 'standards');
@@ -216,18 +244,29 @@ function main(): void {
   }
 
   let dotDrifted = 0;
+  let driftOverridden = 0;
   const driftDetails: Array<{ name: string; sourceLines: number; installedLines: number }> = [];
+  const overriddenDetails: string[] = [];
 
   for (const aiBasename of aiFiles) {
     dotTotal += 1;
     const aiFile = join(AI_STANDARDS_DIR, aiBasename);
     const dotFile = join(DOT_STANDARDS_DIR, aiBasename);
     if (!existsSync(dotFile)) {
-      process.stdout.write(
-        `  ${YELLOW}[WARN]${NC}    ${aiBasename} → not in .standards/ (run 'uds update' to sync)\n`,
-      );
-      warnings += 1;
       dotMissing += 1;
+      if (DRIFT_OVERRIDE) {
+        process.stdout.write(
+          `  ${YELLOW}[OVERRIDE]${NC} ${aiBasename} → not in .standards/ (blocking suppressed by UDS_STANDARDS_DRIFT_OVERRIDE)\n`,
+        );
+        warnings += 1;
+        driftOverridden += 1;
+        overriddenDetails.push(`${aiBasename} (missing from .standards/)`);
+      } else {
+        process.stdout.write(
+          `  ${RED}[BLOCKED]${NC}  ${aiBasename} → not in .standards/ (run 'uds update' to sync)\n`,
+        );
+        errors += 1;
+      }
       continue;
     }
 
@@ -248,12 +287,22 @@ function main(): void {
     } else {
       const sourceLines = sourceBuf.toString('utf8').split('\n').length;
       const installedLines = installedBuf.toString('utf8').split('\n').length;
-      process.stdout.write(
-        `  ${YELLOW}[WARN]${NC}    ${aiBasename} → .standards/ copy DRIFTED ` +
-          `(source ${sourceLines} lines vs installed ${installedLines} lines)\n`,
-      );
-      warnings += 1;
       dotDrifted += 1;
+      if (DRIFT_OVERRIDE) {
+        process.stdout.write(
+          `  ${YELLOW}[OVERRIDE]${NC} ${aiBasename} → .standards/ copy DRIFTED ` +
+            `(source ${sourceLines} lines vs installed ${installedLines} lines; blocking suppressed by UDS_STANDARDS_DRIFT_OVERRIDE)\n`,
+        );
+        warnings += 1;
+        driftOverridden += 1;
+        overriddenDetails.push(`${aiBasename} (${sourceLines} vs ${installedLines} lines)`);
+      } else {
+        process.stdout.write(
+          `  ${RED}[BLOCKED]${NC}  ${aiBasename} → .standards/ copy DRIFTED ` +
+            `(source ${sourceLines} lines vs installed ${installedLines} lines)\n`,
+        );
+        errors += 1;
+      }
       driftDetails.push({ name: aiBasename, sourceLines, installedLines });
     }
   }
@@ -262,6 +311,17 @@ function main(): void {
   process.stdout.write(
     `  AI standards: ${dotTotal} | .standards/ missing: ${dotMissing} | .standards/ content drifted: ${dotDrifted}\n`,
   );
+  if (driftOverridden > 0) {
+    process.stdout.write(
+      `\n  ${YELLOW}⚠️  UDS_STANDARDS_DRIFT_OVERRIDE is set — ${driftOverridden} drift(s) downgraded from BLOCK to warning for this run only:${NC}\n`,
+    );
+    for (const d of overriddenDetails) {
+      process.stdout.write(`      - ${d}\n`);
+    }
+    process.stdout.write(
+      `  ${YELLOW}This override does not persist — the next run (without the variable set) will BLOCK on the same drift.${NC}\n`,
+    );
+  }
   if (driftDetails.length > 0) {
     process.stdout.write('\n  Drifted files (source lines vs installed lines):\n');
     for (const d of driftDetails) {
@@ -339,7 +399,8 @@ function main(): void {
 
   if (errors > 0) {
     process.stdout.write(
-      `${RED}Errors: ${errors}${NC} (Missing AI files, registry entries, or broken enforcement blocks)\n`,
+      `${RED}Errors: ${errors}${NC} (Missing AI files, registry entries, broken enforcement ` +
+        'blocks, or blocked .standards/ drift)\n',
     );
     process.stdout.write('\n');
     process.stdout.write('To fix errors:\n');
@@ -353,11 +414,22 @@ function main(): void {
         '    fields, or fix the `hook_script` path, in ai/standards/<name>.ai.yaml,\n' +
         '    then re-sync .standards/ (tsx scripts/sync-standard.ts <name>)\n',
     );
+    process.stdout.write(
+      "  - For [BLOCKED] .standards/ drift: run 'uds update' in this project to sync\n" +
+        '    .standards/, or manually copy ai/standards/*.ai.yaml to .standards/. If\n' +
+        '    .standards/ has real content ai/standards/ lacks (edited directly into the\n' +
+        '    installed copy instead of the source), rescue that content into\n' +
+        '    ai/standards/ first — do not just overwrite it away (XSPEC-376 R3a).\n' +
+        '    One-shot override for this run only: UDS_STANDARDS_DRIFT_OVERRIDE=1\n' +
+        '    (see this file\'s header; never commit that variable to a tracked file —\n' +
+        '    tsx scripts/check-drift-override-clean.ts enforces that separately).\n',
+    );
   }
 
   if (warnings > 0) {
     process.stdout.write(
-      `${YELLOW}Warnings: ${warnings}${NC} (Missing or content-drifted .standards/ copies)\n`,
+      `${YELLOW}Warnings: ${warnings}${NC} (.standards/ drift overridden by ` +
+        'UDS_STANDARDS_DRIFT_OVERRIDE for this run)\n',
     );
     process.stdout.write('\n');
     process.stdout.write('To fix warnings:\n');

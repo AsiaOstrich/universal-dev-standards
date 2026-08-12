@@ -613,7 +613,7 @@ After ANY modification, run:
 ./scripts/check-scope-sync.sh       # Scope universality check
 ./scripts/check-docs-integrity.sh   # Documentation integrity
 ./scripts/check-orphan-specs.sh     # Orphan spec detection
-./scripts/check-ai-behavior-sync.sh # AI Agent Behavior coverage
+npx tsx scripts/check-ai-behavior-sync.ts # AI Agent Behavior coverage
 cd cli && npm test && npm run lint
 ```
 
@@ -884,7 +884,7 @@ This runs 19 checks including:
 13. Skill next steps sync (`check-skill-next-steps-sync.sh`)
 14. Linting
 15. Orphan spec detection (`check-orphan-specs.sh`)
-16. AI Agent Behavior coverage (`check-ai-behavior-sync.sh`)
+16. AI Agent Behavior coverage (`check-ai-behavior-sync.ts`)
 17. Workflow compliance
 18. Unit Tests
 19. E2E Tests (Bug Regression)

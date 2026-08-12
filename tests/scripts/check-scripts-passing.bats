@@ -103,11 +103,14 @@ setup() {
 # Ratchet rule: once a check is here, it must stay green.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# ── check-ai-behavior-sync.sh ────────────────────────────────────────────────
+# ── check-ai-behavior-sync.ts ────────────────────────────────────────────────
+# The .sh wrapper was removed under XSPEC-376 R4/R7 (address points walked and
+# updated: this file, pre-release-check.sh step 16); the .ts is now the only
+# entry point, invoked the same way check-integration-liveness.ts is below.
 
-@test "check-ai-behavior-sync.sh exits 0 on clean repo" {
+@test "check-ai-behavior-sync.ts exits 0 on clean repo" {
   cd "$REPO_ROOT"
-  run bash scripts/check-ai-behavior-sync.sh
+  run npx tsx scripts/check-ai-behavior-sync.ts
   [ "$status" -eq 0 ]
 }
 
@@ -127,11 +130,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-# ── check-integration-commands-sync.sh ───────────────────────────────────────
+# ── check-integration-commands-sync.ts ───────────────────────────────────────
+# The .sh wrapper was removed under XSPEC-376 R4/R7 (address points walked and
+# updated: this file, pre-release-check.sh step 7.5,
+# cli/tests/unit/scripts/integration-commands-sync.test.js AC-7); the .ts is
+# now the only entry point.
 
-@test "check-integration-commands-sync.sh exits 0 on clean repo" {
+@test "check-integration-commands-sync.ts exits 0 on clean repo" {
   cd "$REPO_ROOT"
-  run bash scripts/check-integration-commands-sync.sh
+  run npx tsx scripts/check-integration-commands-sync.ts
   [ "$status" -eq 0 ]
 }
 
@@ -176,6 +183,32 @@ setup() {
   cd "$REPO_ROOT"
   run npx tsx scripts/check-integration-liveness.ts
   [ "$status" -eq 0 ]
+}
+
+# ── check-drift-override-clean.ts ────────────────────────────────────────────
+# XSPEC-376 R3b anti-permanence gate for UDS_STANDARDS_DRIFT_OVERRIDE.
+
+@test "check-drift-override-clean.ts exits 0 on clean repo" {
+  cd "$REPO_ROOT"
+  run npx tsx scripts/check-drift-override-clean.ts
+  [ "$status" -eq 0 ]
+}
+
+@test "check-drift-override-clean.ts blocks when the variable is assigned in a tracked file" {
+  cd "$REPO_ROOT"
+  # Built from parts at runtime (not a literal "NAME=value" in this bats
+  # source) so this test file itself never contains an assignment the check
+  # would flag — only the temporary probe file it writes and stages does.
+  local probe="tests/scripts/drift-override-probe.bats-tmp"
+  local var_name="UDS_STANDARDS_DRIFT"
+  var_name="${var_name}_OVERRIDE"
+  printf '%s=1\n' "$var_name" > "$probe"
+  git add "$probe"
+  run npx tsx scripts/check-drift-override-clean.ts
+  git reset -- "$probe"
+  rm -f "$probe"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"$probe"* ]]
 }
 
 # ── fix-manifest-paths.sh ────────────────────────────────────────────────────

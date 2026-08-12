@@ -110,7 +110,7 @@ physical_spec:
   schema:
     root:
       required: ["src", "tests", "docs"]
-      ignored: ["dist", "build", "node_modules", "out", "bin"]
+      ignored: ["dist", "build", "node_modules", "out", "bin", "__pycache__", ".venv", "venv", "target", "vendor", ".gradle", "pkg", ".dart_tool"]
   validator:
     command: "find . -maxdepth 1 -not -path '*/.*'"
     rule: "check_required_directories"
