@@ -111,6 +111,22 @@ run_check() {
     if [ $exit_code -eq 0 ]; then
         echo -e "      ${GREEN}✓ Passed${NC}"
         PASSED=$((PASSED + 1))
+        # exit 0 means "did not block the release", not "found nothing to say".
+        # A check can pass while still carrying non-blocking warnings, and this
+        # repo's checks spell "warning" at least 7 different ways (WARN/[WARN]/
+        # WARN:/⚠️/⚠/ADVISORY/警告— none of them a closed set). Matching against
+        # a hand-typed list of marker strings is the same "gate enumerates the
+        # set" mistake as check-naming-and-refs.ts's fixed directory list — the
+        # 8th spelling would go unprinted and nothing would say so. So: don't
+        # sniff for a marker at all — print any output the check produced,
+        # whether or not it exited 0. Silence stays silent; anything the check
+        # had to say is shown.
+        trimmed=$(echo "$output" | tr -d '[:space:]')
+        if [ -n "$trimmed" ]; then
+            echo ""
+            echo "$output" | sed 's/^/      /'
+            echo ""
+        fi
         return 0
     else
         echo -e "      ${RED}✗ Failed${NC}"
