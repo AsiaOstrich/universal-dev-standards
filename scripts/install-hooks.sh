@@ -1,60 +1,47 @@
 #!/bin/bash
-# DEPRECATED: Use 'node scripts/install-hooks.mjs' instead (cross-platform).
-# This script remains for legacy Linux/macOS compatibility.
+# Thin wrapper — scripts/install-hooks.mjs is the only copy of the installer
+# logic. This file used to be a full second implementation (bash). Unlike the
+# bump-version pair, no check was missing here: on macOS/Linux the two files
+# did the same three things (set core.hooksPath, chmod the hooks, list them),
+# so this convergence closes a drift risk rather than a present defect.
 #
-# UDS Git Hooks Installer
-# 安裝 Git Hooks 腳本
+# The risk was real, though, because the two entry points disagreed about
+# which file to run. core/translation-lifecycle-standards.md and its
+# .standards/ + ai/ .ai.yaml copies name this .sh in their machine-readable
+# `setup:` field, while scripts/README.md, scripts/pre-commit.mjs and
+# .githooks/pre-commit name the .mjs. Control-group test before this change: a
+# temporary probe line added only to install-hooks.mjs printed under `node
+# scripts/install-hooks.mjs` but not under `bash scripts/install-hooks.sh` —
+# the path the standard's `setup:` field sends you down. Anything fixed in the
+# file every comment calls canonical would never have reached that path.
 #
-# Run once after cloning to activate UDS pre-commit checks:
-#   ./scripts/install-hooks.sh
+# Do not add logic here — add it to the .mjs file.
 #
-# What it does:
-#   Configures git to use .githooks/ as the hooks directory.
-#   All hooks in .githooks/ are tracked in version control.
+# 極薄 wrapper —— scripts/install-hooks.mjs 是唯一一份安裝邏輯。這個檔案曾是
+# 完整的第二份實作（bash）。與 bump-version 那一對不同，這裡沒有任何缺漏的
+# 檢查：在 macOS/Linux 上兩份做的是同樣三件事（設定 core.hooksPath、對 hooks
+# 執行 chmod、列出它們），所以這次收斂關掉的是漂移風險，不是現存缺陷。
 #
-# Uninstall:
-#   git config --unset core.hooksPath
+# 但風險是真的，因為兩個入口對「該跑哪一份」的說法不一致。
+# core/translation-lifecycle-standards.md 及它在 .standards/ 與 ai/ 的
+# .ai.yaml 複本，在機器可讀的 `setup:` 欄位指名這支 .sh；而
+# scripts/README.md、scripts/pre-commit.mjs 與 .githooks/pre-commit 指名的是
+# .mjs。改動前的對照組實測：只加在 install-hooks.mjs 的一行暫時探針，在
+# `node scripts/install-hooks.mjs` 下會印出，在 `bash
+# scripts/install-hooks.sh` 下不會——而後者正是標準的 `setup:` 欄位把人送去
+# 的那條路徑。任何修在「所有註解都稱之為正典」那個檔案上的東西，都到不了這
+# 條路徑。
 #
-
-set -e
+# 不要在這裡加邏輯——邏輯一律加在 .mjs 檔。
+#
+# Usage: ./scripts/install-hooks.sh
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-HOOKS_DIR="$ROOT_DIR/.githooks"
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-echo ""
-echo "=========================================="
-echo "  UDS Git Hooks Installer"
-echo "  Git Hooks 安裝程式"
-echo "=========================================="
-echo ""
-
-if [ ! -d "$HOOKS_DIR" ]; then
-    echo "Error: .githooks/ directory not found at $HOOKS_DIR"
+if ! command -v node >/dev/null 2>&1; then
+    echo "node not found — cannot run install-hooks.mjs" >&2
+    echo "Install Node.js (or add it to PATH) and retry." >&2
     exit 1
 fi
 
-# Set hooksPath to use .githooks/
-git -C "$ROOT_DIR" config core.hooksPath .githooks
-echo -e "  ${GREEN}[OK]${NC} git config core.hooksPath → .githooks/"
-
-# Ensure all hooks are executable
-chmod +x "$HOOKS_DIR"/* 2>/dev/null && \
-    echo -e "  ${GREEN}[OK]${NC} chmod +x .githooks/*"
-
-echo ""
-echo "Installed hooks:"
-for hook in "$HOOKS_DIR"/*; do
-    [ -f "$hook" ] || continue
-    echo -e "  ${GREEN}✓${NC} $(basename "$hook")"
-done
-
-echo ""
-echo -e "${YELLOW}Note:${NC} Run \`git config --unset core.hooksPath\` to uninstall."
-echo ""
-echo "Done! | 完成！"
-echo ""
+exec node "$SCRIPT_DIR/install-hooks.mjs" "$@"
