@@ -9,11 +9,16 @@
  * Ensures every core standard has all required sync artifacts:
  *   1. core/*.md exists → ai/standards/*.ai.yaml exists
  *   2. core/*.md exists → standards-registry.json has entry
- *   3. ai/standards/*.ai.yaml → .standards/*.ai.yaml (installed copy)
+ *   3. ai/standards/*.ai.yaml → .standards/*.ai.yaml (installed copy) — content
+ *      matches, not merely present. A present-but-stale copy (91 lines against
+ *      a 496-line source, XSPEC-362 W2) read as `[OK]` under an existence-only
+ *      check for months; the check exists to catch exactly that shape of drift,
+ *      so "the file is there" cannot be the whole test.
  *
  * Usage: tsx scripts/check-registry-completeness.ts
  */
 
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -181,24 +186,57 @@ function main(): void {
       .sort();
   }
 
+  let dotDrifted = 0;
+  const driftDetails: Array<{ name: string; sourceLines: number; installedLines: number }> = [];
+
   for (const aiBasename of aiFiles) {
     dotTotal += 1;
+    const aiFile = join(AI_STANDARDS_DIR, aiBasename);
     const dotFile = join(DOT_STANDARDS_DIR, aiBasename);
-    if (existsSync(dotFile)) {
-      process.stdout.write(
-        `  ${GREEN}[OK]${NC}      ${aiBasename} → .standards/ installed\n`,
-      );
-    } else {
+    if (!existsSync(dotFile)) {
       process.stdout.write(
         `  ${YELLOW}[WARN]${NC}    ${aiBasename} → not in .standards/ (run 'uds update' to sync)\n`,
       );
       warnings += 1;
       dotMissing += 1;
+      continue;
+    }
+
+    const sourceBuf = readFileSync(aiFile);
+    const installedBuf = readFileSync(dotFile);
+    // Content, not presence: a file that exists but no longer matches its
+    // source is exactly the failure mode check 3 exists to catch, and a
+    // presence-only test cannot distinguish it from a fresh sync.
+    const sourceHash = createHash('sha256').update(sourceBuf).digest('hex');
+    const installedHash = createHash('sha256').update(installedBuf).digest('hex');
+
+    if (sourceHash === installedHash) {
+      process.stdout.write(
+        `  ${GREEN}[OK]${NC}      ${aiBasename} → .standards/ installed, content matches\n`,
+      );
+    } else {
+      const sourceLines = sourceBuf.toString('utf8').split('\n').length;
+      const installedLines = installedBuf.toString('utf8').split('\n').length;
+      process.stdout.write(
+        `  ${YELLOW}[WARN]${NC}    ${aiBasename} → .standards/ copy DRIFTED ` +
+          `(source ${sourceLines} lines vs installed ${installedLines} lines)\n`,
+      );
+      warnings += 1;
+      dotDrifted += 1;
+      driftDetails.push({ name: aiBasename, sourceLines, installedLines });
     }
   }
 
   process.stdout.write('\n');
-  process.stdout.write(`  AI standards: ${dotTotal} | .standards/ missing: ${dotMissing}\n`);
+  process.stdout.write(
+    `  AI standards: ${dotTotal} | .standards/ missing: ${dotMissing} | .standards/ content drifted: ${dotDrifted}\n`,
+  );
+  if (driftDetails.length > 0) {
+    process.stdout.write('\n  Drifted files (source lines vs installed lines):\n');
+    for (const d of driftDetails) {
+      process.stdout.write(`    - ${d.name}: ${d.sourceLines} vs ${d.installedLines}\n`);
+    }
+  }
   process.stdout.write('\n');
 
   // ───────────────────────────────────────────────────────────
@@ -223,7 +261,7 @@ function main(): void {
 
   if (warnings > 0) {
     process.stdout.write(
-      `${YELLOW}Warnings: ${warnings}${NC} (Missing .standards/ copies)\n`,
+      `${YELLOW}Warnings: ${warnings}${NC} (Missing or content-drifted .standards/ copies)\n`,
     );
     process.stdout.write('\n');
     process.stdout.write('To fix warnings:\n');
