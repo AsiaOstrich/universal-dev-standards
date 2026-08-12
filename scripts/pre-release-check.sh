@@ -374,9 +374,17 @@ else
 fi
 
 # Step 21: Release Readiness Sign-off (warning-only until next minor release)
+# Calls the .ts directly (not check-release-readiness-signoff.sh): the .sh's
+# `grep -c ... || echo "0"` counters produced a malformed "0\n0" value (and
+# spurious "integer expression expected" stderr) on the common case of a
+# clean sign-off, because `grep -c` exits 1 (not 0) on zero matches.
+# check-release-readiness-signoff.sh is now a thin wrapper around this same
+# .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[21/$TOTAL]${NC} Checking release readiness sign-off | 釋出準備簽核檢查..."
-if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
-    signoff_output=$("$SCRIPT_DIR/check-release-readiness-signoff.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.ts" ]; then
+    signoff_output=$($TSX "$SCRIPT_DIR/check-release-readiness-signoff.ts" 2>&1)
     signoff_exit=$?
     if [ $signoff_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ Release readiness sign-off incomplete (advisory) | 釋出準備簽核不完整（僅警告）${NC}"
@@ -387,7 +395,7 @@ if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
