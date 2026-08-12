@@ -278,7 +278,13 @@ else
 fi
 
 # Step 16: AI Agent Behavior coverage
-run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$SCRIPT_DIR/check-ai-behavior-sync.sh"
+# Calls the .ts directly (not check-ai-behavior-sync.sh): the .sh was a full
+# second implementation whose deprecation header was never enforced — this
+# gate called the .sh filename directly. check-ai-behavior-sync.sh is now a
+# thin wrapper around this same .ts file, so this call and a direct call to
+# the .sh are equivalent — calling the .ts directly here just skips the
+# wrapper's own tsx-resolution step, reusing the $TSX already resolved above.
+run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$TSX $SCRIPT_DIR/check-ai-behavior-sync.ts"
 
 # Step 17: Workflow Compliance (warning only)
 # Calls the .ts directly (not check-workflow-compliance.sh): the .sh was a
