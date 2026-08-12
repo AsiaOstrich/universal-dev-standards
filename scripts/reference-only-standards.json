@@ -1,0 +1,13 @@
+{
+  "$comment": "Single source of truth for the REFERENCE_ONLY core standards list. Consumed by scripts/check-registry-completeness.{ts,sh} and scripts/check-standards-sync.{sh,ps1}. Do not hand-copy this list into another script — read this file instead. See dev-platform XSPEC-362 實作回饋 #5 (four hand-typed copies drifting, XSPEC-371 shape).",
+  "description": "core/*.md standards that are intentionally shipped without an ai/standards/*.ai.yaml counterpart (DEC-090, 6.0.0 release batch: .ai.yaml removed, core/*.md kept as reference). 'agent-dispatch' was removed from this list and its .ai.yaml restored in XSPEC-362 R5a — its canonical owner (dev-autopilot) entered maintenance mode on 2026-04-28, so the machine-readable copy stopped being maintained while the prose copy kept shipping in the bundle. The remaining 7 are still reference-only.",
+  "referenceOnlyCore": [
+    "agent-communication-protocol",
+    "branch-completion",
+    "change-batching-standards",
+    "execution-history",
+    "pipeline-integration-standards",
+    "workflow-enforcement",
+    "workflow-state-protocol"
+  ]
+}

@@ -33,6 +33,7 @@ CORE_DIR="$ROOT_DIR/core"
 AI_STANDARDS_DIR="$ROOT_DIR/ai/standards"
 DOT_STANDARDS_DIR="$ROOT_DIR/.standards"
 REGISTRY_FILE="$ROOT_DIR/cli/standards-registry.json"
+REFERENCE_ONLY_FILE="$ROOT_DIR/scripts/reference-only-standards.json"
 
 # Temp files for counting
 ERROR_FILE=$(mktemp)
@@ -82,22 +83,26 @@ map_core_to_ai() {
     esac
 }
 
-# Standards that are reference-only (no separate .standards/ install needed)
-# These are protocol-type standards loaded via context-aware-loading
+# Standards that are reference-only (no separate .standards/ install needed).
+# Single source: scripts/reference-only-standards.json — do not hand-copy this
+# list here. Loaded once into REFERENCE_ONLY_LIST (space-separated) below.
+if command -v jq &>/dev/null; then
+    REFERENCE_ONLY_LIST=$(jq -r '.referenceOnlyCore[]' "$REFERENCE_ONLY_FILE" | tr '\n' ' ')
+else
+    REFERENCE_ONLY_LIST=$(node -e "
+      const d = JSON.parse(require('fs').readFileSync('$REFERENCE_ONLY_FILE', 'utf8'));
+      console.log(d.referenceOnlyCore.join(' '));
+    ")
+fi
+
 is_reference_only() {
     local name="$1"
-    case "$name" in
-        "requirement-checklist"|"requirement-template"|"requirement-document-template")
-            return 0 ;;
-        # 6.0.0 移除 .ai.yaml、core .md 留作 reference（DEC-090 發版批次）
-        # 'agent-dispatch' 已移出本清單並復原 .ai.yaml（XSPEC-362 R5a）。剩餘 7 份仍為 reference-only。
-        "agent-communication-protocol"|"branch-completion"|"change-batching-standards")
-            return 0 ;;
-        "execution-history"|"pipeline-integration-standards"|"workflow-enforcement"|"workflow-state-protocol")
-            return 0 ;;
-        *)
-            return 1 ;;
-    esac
+    for entry in $REFERENCE_ONLY_LIST; do
+        if [ "$entry" = "$name" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 echo ""
