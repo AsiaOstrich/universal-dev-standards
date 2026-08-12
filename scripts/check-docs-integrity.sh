@@ -27,6 +27,16 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Verbose control (default quiet). Only the per-file-pair table-parity [OK]
+# line (§4) repeats in a genuine loop; everything else here is a small,
+# distinct set of facts, not routine per-item spam, so it stays unconditional.
+VERBOSE=false
+for arg in "$@"; do
+    case "$arg" in
+        --verbose) VERBOSE=true ;;
+    esac
+done
+
 # Temp files for counting (to avoid subshell issues)
 ERROR_FILE=$(mktemp)
 WARNING_FILE=$(mktemp)
@@ -558,7 +568,9 @@ check_table_parity() {
     done
 
     if $parity_ok; then
-        echo -e "  ${GREEN}[OK] $rel_en ↔ $rel_trans ($en_tables tables match)${NC}"
+        if [ "$VERBOSE" = true ]; then
+            echo -e "  ${GREEN}[OK] $rel_en ↔ $rel_trans ($en_tables tables match)${NC}"
+        fi
     fi
 }
 
