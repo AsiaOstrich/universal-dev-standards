@@ -281,9 +281,16 @@ fi
 run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$SCRIPT_DIR/check-ai-behavior-sync.sh"
 
 # Step 17: Workflow Compliance (warning only)
+# Calls the .ts directly (not check-workflow-compliance.sh): the .sh was a
+# full second implementation whose deprecation header was never enforced —
+# both this gate and cli/.husky/pre-commit still called the .sh filename
+# directly. check-workflow-compliance.sh is now a thin wrapper around this
+# same .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[17/$TOTAL]${NC} Running workflow compliance check | 工作流程合規檢查..."
-if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
-    wf_output=$("$SCRIPT_DIR/check-workflow-compliance.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-workflow-compliance.ts" ]; then
+    wf_output=$($TSX "$SCRIPT_DIR/check-workflow-compliance.ts" 2>&1)
     wf_warnings=$(echo "$wf_output" | grep -c "⚠️" 2>/dev/null || echo "0")
     if [ "$wf_warnings" -gt 0 ]; then
         echo -e "      ${YELLOW}⚠ $wf_warnings workflow warning(s) (advisory only)${NC}"
@@ -293,7 +300,7 @@ if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
     fi
     PASSED=$((PASSED + 1))
 else
-    echo -e "      ${YELLOW}⏭ check-workflow-compliance.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-workflow-compliance.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
