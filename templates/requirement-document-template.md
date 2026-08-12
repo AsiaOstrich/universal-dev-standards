@@ -464,7 +464,7 @@ public class Example {
 
 ### 6.1 語言使用
 
-- **文件內容**: 繁體中文 (遵循 [.standards/zh-tw.md](zh-tw.md))
+- **文件內容**: 繁體中文 (遵循 [extensions/locales/zh-tw.md](../extensions/locales/zh-tw.md))
 - **程式碼**: 英文命名
 - **專有名詞**: 保留英文 (如 API, Regex, JSON)
 - **混合使用**: 「白名單字串檢查（Whitelist String Check）」
