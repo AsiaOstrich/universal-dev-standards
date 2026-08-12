@@ -1,96 +1,77 @@
-#!/bin/sh
-# DEPRECATED: Use 'npx tsx scripts/check-workflow-compliance.ts' instead (cross-platform).
-# This script remains for legacy Linux/macOS compatibility.
+#!/bin/bash
+# Thin wrapper — scripts/check-workflow-compliance.ts is the only copy of the
+# comparison logic. This file used to be a full second implementation
+# (POSIX sh) with a header that already read "DEPRECATED: Use ... .ts
+# instead" — but the deprecation marker was never enforced: two real, active
+# entry points still called this .sh filename directly:
+#   - cli/.husky/pre-commit (the real pre-commit hook — this repo's
+#     core.hooksPath is cli/.husky/_) runs it unconditionally on every commit
+#     and ignores its exit code entirely.
+#   - pre-release-check.sh step 17 ran it and counted "⚠️" occurrences in its
+#     output.
+# The .ts was only reachable via `npm run check:workflow-compliance` or a
+# manual `tsx` call. A fix landing only in the "documented canonical" .ts
+# file (as its own comment instructs future edits to do) would silently
+# never run through either real entry point — verified: a temporary probe
+# line added to the .ts main() printed when run via `tsx`, but not through
+# `bash check-workflow-compliance.sh` before this change.
 #
-# Workflow Compliance Check — WARNING ONLY (non-blocking)
+# The two implementations were otherwise a faithful port — including
+# preserving the one subtle behavioral distinction between its two workflow-
+# state checks: Check 1 (active workflows) recurses into subdirectories
+# (`find -name`), Check 3 (stale workflow states) only looks at top-level
+# files (a bash glob, `"$DIR"/*.yaml`). The .ts mirrors both, not just one.
 #
-# Checks for workflow compliance issues and prints warnings.
-# Designed to run in pre-commit hook. Never exits with non-zero status.
+# Fixed by converging on one implementation instead of maintaining two: this
+# file now execs check-workflow-compliance.ts. Kept (not deleted) because
+# cli/.husky/pre-commit and tests/scripts/check-scripts-passing.bats both
+# target this filename directly. Do not add logic here — add it to the .ts
+# file.
+#
+# 極薄 wrapper —— scripts/check-workflow-compliance.ts 是唯一一份比對邏輯。
+# 這個檔案曾是完整的第二份實作（POSIX sh），檔頭本來就寫著「DEPRECATED: Use
+# ... .ts instead」——但這個棄用標記從未被強制執行：有兩個真正、生效中的進
+# 入點仍直接呼叫這個 .sh 檔名：
+#   - cli/.husky/pre-commit（真正的 pre-commit hook——本 repo 的
+#     core.hooksPath 是 cli/.husky/_）在每一次 commit 都無條件執行它，且完
+#     全忽略它的 exit code。
+#   - pre-release-check.sh 第 17 步會執行它並計算輸出中「⚠️」出現的次數。
+# .ts 只能透過 `npm run check:workflow-compliance` 或手動 `tsx` 呼叫觸及。一
+# 個只落在「文件上寫明的正典」.ts 檔（它自己的註解也指示未來的修改都加在這
+# 裡）的修正，會透過這兩個真正進入點悄悄地永遠不會執行——已驗證：在 .ts 的
+# main() 加一行暫時的探針，透過 `tsx` 執行時會印出，但透過 `bash
+# check-workflow-compliance.sh`（收斂前）執行時不會。
+#
+# 兩份實作在其餘部分是忠實移植——包括保留了它兩項工作流程狀態檢查之間一個
+# 細微的行為差異：Check 1（活躍工作流程）會遞迴進子目錄（`find -name`），
+# Check 3（過期工作流程狀態）只看頂層檔案（bash glob，`"$DIR"/*.yaml`）。
+# .ts 兩者都對應到了，不是只做了其中一個。
+#
+# 解法是收斂成一份實作而非維護兩份：這個檔案現在直接 exec
+# check-workflow-compliance.ts。保留（不刪除）是因為 cli/.husky/pre-commit
+# 與 tests/scripts/check-scripts-passing.bats 都是用這個檔名直接定址的。不
+# 要在這裡加邏輯——邏輯一律加在 .ts 檔。
 #
 # Usage: ./scripts/check-workflow-compliance.sh
 
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-# Check both possible workflow state locations
-# .workflow-state/ (workflow-state-protocol standard)
-# .standards/workflow-state/ (CLI WorkflowStateManager)
-WORKFLOW_STATE_DIR=""
-if [ -d "$REPO_ROOT/.workflow-state" ]; then
-  WORKFLOW_STATE_DIR="$REPO_ROOT/.workflow-state"
-elif [ -d "$REPO_ROOT/.standards/workflow-state" ]; then
-  WORKFLOW_STATE_DIR="$REPO_ROOT/.standards/workflow-state"
-fi
-SPECS_DIR="$REPO_ROOT/docs/specs"
-WARNINGS=0
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-warn() {
-  echo "[Workflow] ⚠️  $1"
-  WARNINGS=$((WARNINGS + 1))
-}
-
-# --- Check 1: Active workflows ---
-# If there are active workflow state files, remind the developer
-if [ -n "$WORKFLOW_STATE_DIR" ] && [ -d "$WORKFLOW_STATE_DIR" ]; then
-  ACTIVE_WORKFLOWS=$(find "$WORKFLOW_STATE_DIR" -name "*.yaml" -o -name "*.json" 2>/dev/null | head -5)
-  if [ -n "$ACTIVE_WORKFLOWS" ]; then
-    echo "[Workflow] Active workflows detected:"
-    for wf in $ACTIVE_WORKFLOWS; do
-      WF_NAME=$(basename "$wf" | sed 's/\.[^.]*$//')
-      echo "  → $WF_NAME"
-    done
-    echo "[Workflow] Ensure your commit aligns with the active workflow phase."
-    echo ""
-  fi
+# Same tsx-resolution fallback as scripts/pre-release-check.sh and
+# scripts/check-registry-completeness.sh: `tsx` is not on PATH in every shell
+# (nvm-managed installs, non-login shells, a bats subshell, or a bare `git
+# commit` outside an interactive login shell), so resolve it explicitly
+# rather than assume a bare `tsx` works. This check is advisory-only (never
+# blocks a commit either way, per its own "Always exit 0" contract), so a
+# missing tsx here degrades to a silent no-op rather than an error.
+if command -v tsx >/dev/null 2>&1; then
+    TSX="tsx"
+elif [ -x "$ROOT_DIR/node_modules/.bin/tsx" ]; then
+    TSX="$ROOT_DIR/node_modules/.bin/tsx"
+elif npx --no-install tsx --version >/dev/null 2>&1; then
+    TSX="npx --no-install tsx"
+else
+    exit 0
 fi
 
-# --- Check 2: feat/fix commits without spec reference ---
-# Read the staged commit message (if available via $1 in commit-msg hook)
-# In pre-commit context, check staged file count for significant changes
-STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
-STAGED_COUNT=0
-if [ -n "$STAGED_FILES" ]; then
-  STAGED_COUNT=$(echo "$STAGED_FILES" | wc -l | tr -d ' ')
-fi
-
-# Check if this looks like a feat/fix (new files, significant changes)
-NEW_FILES_LIST=$(git diff --cached --name-only --diff-filter=A 2>/dev/null || true)
-NEW_FILES=0
-if [ -n "$NEW_FILES_LIST" ]; then
-  NEW_FILES=$(echo "$NEW_FILES_LIST" | wc -l | tr -d ' ')
-fi
-
-if [ "$STAGED_COUNT" -gt 3 ] || [ "$NEW_FILES" -gt 0 ]; then
-  # Check if any specs exist
-  if [ -d "$SPECS_DIR" ]; then
-    ACTIVE_SPECS=$(find "$SPECS_DIR" -name "SPEC-*.md" 2>/dev/null | head -1)
-    if [ -n "$ACTIVE_SPECS" ]; then
-      warn "Significant change detected ($STAGED_COUNT files staged). Consider adding 'Refs: SPEC-XXX' to your commit message."
-    fi
-  fi
-fi
-
-# --- Check 3: Stale workflow states ---
-if [ -n "$WORKFLOW_STATE_DIR" ] && [ -d "$WORKFLOW_STATE_DIR" ]; then
-  STALE_THRESHOLD=$((7 * 24 * 60 * 60))  # 7 days in seconds
-  NOW=$(date +%s)
-
-  for state_file in "$WORKFLOW_STATE_DIR"/*.yaml "$WORKFLOW_STATE_DIR"/*.json; do
-    [ -f "$state_file" ] || continue
-    FILE_MOD=$(stat -f %m "$state_file" 2>/dev/null || stat -c %Y "$state_file" 2>/dev/null || echo "0")
-    if [ "$FILE_MOD" -gt 0 ]; then
-      AGE=$((NOW - FILE_MOD))
-      if [ "$AGE" -gt "$STALE_THRESHOLD" ]; then
-        WF_NAME=$(basename "$state_file" | sed 's/\.[^.]*$//')
-        warn "Stale workflow state: $WF_NAME (last updated $(( AGE / 86400 )) days ago). Consider closing or cleaning up."
-      fi
-    fi
-  done
-fi
-
-# --- Summary ---
-if [ "$WARNINGS" -gt 0 ]; then
-  echo ""
-  echo "[Workflow] $WARNINGS warning(s) found. These are advisory — your commit will proceed."
-fi
-
-# Always exit 0 — warnings never block commits
-exit 0
+exec $TSX "$SCRIPT_DIR/check-workflow-compliance.ts" "$@"

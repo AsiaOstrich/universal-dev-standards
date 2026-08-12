@@ -229,7 +229,17 @@ run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh
 run_check "7" "Running AI Agent sync check" "$SCRIPT_DIR/check-ai-agent-sync.sh"
 
 # Step 7.5: Integration commands sync (SPEC-INTSYNC-001)
-run_check "7.5" "Running integration commands sync check" "$SCRIPT_DIR/check-integration-commands-sync.sh"
+# Calls the .ts directly (not check-integration-commands-sync.sh): the .sh's
+# per-command match piped `echo "$file_content" | grep -qE ...` — grep -q's
+# early exit on match can SIGPIPE the echo, leaking intermittent bash
+# "write error: Broken pipe" lines into this step's captured output (0-9
+# stray lines across 3 consecutive runs in local testing). The .ts matches
+# in-memory (RegExp.test), no subprocess or pipe involved.
+# check-integration-commands-sync.sh is now a thin wrapper around this same
+# .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
+run_check "7.5" "Running integration commands sync check" "$TSX $SCRIPT_DIR/check-integration-commands-sync.ts"
 
 # Step 8: Usage docs sync
 run_check "8" "Running usage docs sync check" "$SCRIPT_DIR/check-usage-docs-sync.sh"
@@ -278,12 +288,25 @@ else
 fi
 
 # Step 16: AI Agent Behavior coverage
-run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$SCRIPT_DIR/check-ai-behavior-sync.sh"
+# Calls the .ts directly (not check-ai-behavior-sync.sh): the .sh was a full
+# second implementation whose deprecation header was never enforced — this
+# gate called the .sh filename directly. check-ai-behavior-sync.sh is now a
+# thin wrapper around this same .ts file, so this call and a direct call to
+# the .sh are equivalent — calling the .ts directly here just skips the
+# wrapper's own tsx-resolution step, reusing the $TSX already resolved above.
+run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$TSX $SCRIPT_DIR/check-ai-behavior-sync.ts"
 
 # Step 17: Workflow Compliance (warning only)
+# Calls the .ts directly (not check-workflow-compliance.sh): the .sh was a
+# full second implementation whose deprecation header was never enforced —
+# both this gate and cli/.husky/pre-commit still called the .sh filename
+# directly. check-workflow-compliance.sh is now a thin wrapper around this
+# same .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[17/$TOTAL]${NC} Running workflow compliance check | 工作流程合規檢查..."
-if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
-    wf_output=$("$SCRIPT_DIR/check-workflow-compliance.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-workflow-compliance.ts" ]; then
+    wf_output=$($TSX "$SCRIPT_DIR/check-workflow-compliance.ts" 2>&1)
     wf_warnings=$(echo "$wf_output" | grep -c "⚠️" 2>/dev/null || echo "0")
     if [ "$wf_warnings" -gt 0 ]; then
         echo -e "      ${YELLOW}⚠ $wf_warnings workflow warning(s) (advisory only)${NC}"
@@ -293,7 +316,7 @@ if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
     fi
     PASSED=$((PASSED + 1))
 else
-    echo -e "      ${YELLOW}⏭ check-workflow-compliance.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-workflow-compliance.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
@@ -374,9 +397,17 @@ else
 fi
 
 # Step 21: Release Readiness Sign-off (warning-only until next minor release)
+# Calls the .ts directly (not check-release-readiness-signoff.sh): the .sh's
+# `grep -c ... || echo "0"` counters produced a malformed "0\n0" value (and
+# spurious "integer expression expected" stderr) on the common case of a
+# clean sign-off, because `grep -c` exits 1 (not 0) on zero matches.
+# check-release-readiness-signoff.sh is now a thin wrapper around this same
+# .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[21/$TOTAL]${NC} Checking release readiness sign-off | 釋出準備簽核檢查..."
-if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
-    signoff_output=$("$SCRIPT_DIR/check-release-readiness-signoff.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.ts" ]; then
+    signoff_output=$($TSX "$SCRIPT_DIR/check-release-readiness-signoff.ts" 2>&1)
     signoff_exit=$?
     if [ $signoff_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ Release readiness sign-off incomplete (advisory) | 釋出準備簽核不完整（僅警告）${NC}"
@@ -387,14 +418,21 @@ if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
 # Step 22: Flow Gate Report (warning-only until next minor release)
+# Calls the .ts directly (not check-flow-gate-report.sh): the .sh's jq path,
+# under `set -euo pipefail`, aborted on malformed JSON with jq's own raw parse
+# error (exit 5) instead of the script's own "malformed or missing
+# summary.status field" message (exit 1). check-flow-gate-report.sh is now a
+# thin wrapper around this same .ts file, so this call and a direct call to
+# the .sh are equivalent — calling the .ts directly here just skips the
+# wrapper's own tsx-resolution step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[22/$TOTAL]${NC} Checking flow gate report | 流程閘門報告檢查..."
-if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
-    flowgate_output=$("$SCRIPT_DIR/check-flow-gate-report.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-flow-gate-report.ts" ]; then
+    flowgate_output=$($TSX "$SCRIPT_DIR/check-flow-gate-report.ts" 2>&1)
     flowgate_exit=$?
     if [ $flowgate_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ flow_gate_report.json missing or incomplete (advisory) | flow_gate_report.json 缺失或不完整（僅警告）${NC}"
@@ -405,7 +443,7 @@ if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-flow-gate-report.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
