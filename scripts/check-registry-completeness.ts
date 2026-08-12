@@ -18,6 +18,18 @@
  *      a 496-line source, XSPEC-362 W2) read as `[OK]` under an existence-only
  *      check for months; the check exists to catch exactly that shape of drift,
  *      so "the file is there" cannot be the whole test.
+ *   4. ai/standards/*.ai.yaml `enforcement:` blocks are complete and their
+ *      `hook_script` resolves to a real file. cli/src/compilers/claude-code
+ *      -compiler.js destructures `{ hook_script, trigger }` from this block
+ *      with no presence check upstream (base-compiler.js only requires
+ *      `enforcement != null`); a block missing either field compiles
+ *      silently into `hooks["undefined"]: [{ hooks: ["node undefined"] }]`
+ *      — no parse error, no exit 1, just a broken hook shipped in the
+ *      adopter's .claude/settings.json. Found this way in commit-message
+ *      .ai.yaml and security-standards.ai.yaml (both missing `trigger` +
+ *      `hook_script` since eff714e7, 2026-04-03) via `uds compile --target
+ *      claude-code --dry-run` on a project with only that file installed —
+ *      the field-presence check below is the general form of that probe.
  *
  * Usage: tsx scripts/check-registry-completeness.ts [--verbose]
  */
@@ -26,6 +38,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = dirname(__filename);
@@ -107,7 +120,7 @@ function main(): void {
   // Check 1: core/*.md → ai/standards/*.ai.yaml
   // ───────────────────────────────────────────────────────────
   process.stdout.write(
-    `${BLUE}[1/3] Checking core/ → ai/standards/ completeness${NC}\n`,
+    `${BLUE}[1/4] Checking core/ → ai/standards/ completeness${NC}\n`,
   );
   process.stdout.write('----------------------------------------\n');
 
@@ -147,7 +160,7 @@ function main(): void {
   // Check 2: core/*.md → standards-registry.json
   // ───────────────────────────────────────────────────────────
   process.stdout.write(
-    `${BLUE}[2/3] Checking core/ → standards-registry.json completeness${NC}\n`,
+    `${BLUE}[2/4] Checking core/ → standards-registry.json completeness${NC}\n`,
   );
   process.stdout.write('----------------------------------------\n');
 
@@ -188,7 +201,7 @@ function main(): void {
   // Check 3: ai/standards/*.ai.yaml → .standards/*.ai.yaml
   // ───────────────────────────────────────────────────────────
   process.stdout.write(
-    `${BLUE}[3/3] Checking ai/standards/ → .standards/ installed copies${NC}\n`,
+    `${BLUE}[3/4] Checking ai/standards/ → .standards/ installed copies${NC}\n`,
   );
   process.stdout.write('----------------------------------------\n');
 
@@ -258,6 +271,66 @@ function main(): void {
   process.stdout.write('\n');
 
   // ───────────────────────────────────────────────────────────
+  // Check 4: ai/standards/*.ai.yaml `enforcement:` block completeness
+  // ───────────────────────────────────────────────────────────
+  process.stdout.write(
+    `${BLUE}[4/4] Checking ai/standards/ enforcement block completeness${NC}\n`,
+  );
+  process.stdout.write('----------------------------------------\n');
+
+  let enforcementCount = 0;
+  let enforcementBroken = 0;
+
+  for (const aiBasename of aiFiles) {
+    const aiFile = join(AI_STANDARDS_DIR, aiBasename);
+    let parsed: unknown;
+    try {
+      parsed = yaml.load(readFileSync(aiFile, 'utf8'));
+    } catch {
+      // check:ai-yaml already owns "does this file parse"; a parse failure
+      // here just means there is nothing to check for this file.
+      continue;
+    }
+    const enforcement = (parsed as { enforcement?: Record<string, unknown> } | null)
+      ?.enforcement;
+    if (enforcement == null) continue;
+
+    enforcementCount += 1;
+    const problems: string[] = [];
+
+    const trigger = enforcement.trigger;
+    if (typeof trigger !== 'string' || trigger.trim() === '') {
+      problems.push('missing `trigger` (compiles to hooks["undefined"])');
+    }
+
+    const hookScript = enforcement.hook_script;
+    if (typeof hookScript !== 'string' || hookScript.trim() === '') {
+      problems.push('missing `hook_script` (compiles to "node undefined")');
+    } else if (!existsSync(join(ROOT_DIR, hookScript))) {
+      problems.push(`hook_script points to a file that does not exist: ${hookScript}`);
+    }
+
+    if (problems.length === 0) {
+      if (VERBOSE) {
+        process.stdout.write(`  ${GREEN}[OK]${NC}      ${aiBasename}\n`);
+      }
+    } else {
+      enforcementBroken += 1;
+      errors += 1;
+      process.stdout.write(`  ${RED}[BROKEN]${NC}  ${aiBasename}\n`);
+      for (const p of problems) {
+        process.stdout.write(`             - ${p}\n`);
+      }
+    }
+  }
+
+  process.stdout.write('\n');
+  process.stdout.write(
+    `  Files with enforcement: blocks: ${enforcementCount} | broken: ${enforcementBroken}\n`,
+  );
+  process.stdout.write('\n');
+
+  // ───────────────────────────────────────────────────────────
   // Summary
   // ───────────────────────────────────────────────────────────
   process.stdout.write('==========================================\n');
@@ -266,7 +339,7 @@ function main(): void {
 
   if (errors > 0) {
     process.stdout.write(
-      `${RED}Errors: ${errors}${NC} (Missing AI files or registry entries)\n`,
+      `${RED}Errors: ${errors}${NC} (Missing AI files, registry entries, or broken enforcement blocks)\n`,
     );
     process.stdout.write('\n');
     process.stdout.write('To fix errors:\n');
@@ -274,6 +347,11 @@ function main(): void {
     process.stdout.write('  - Add missing entries to cli/standards-registry.json\n');
     process.stdout.write(
       '  - Run: ./scripts/check-standards-sync.sh for detailed sync info\n',
+    );
+    process.stdout.write(
+      '  - For [BROKEN] enforcement blocks: add the missing `trigger`/`hook_script`\n' +
+        '    fields, or fix the `hook_script` path, in ai/standards/<name>.ai.yaml,\n' +
+        '    then re-sync .standards/ (tsx scripts/sync-standard.ts <name>)\n',
     );
   }
 
@@ -293,6 +371,7 @@ function main(): void {
     process.stdout.write(`  AI YAML files: ${dotTotal}\n`);
     process.stdout.write('  Registry entries: complete\n');
     process.stdout.write('  .standards/ copies: complete\n');
+    process.stdout.write(`  Enforcement blocks: ${enforcementCount} checked, all complete\n`);
   }
 
   process.stdout.write('\n');
