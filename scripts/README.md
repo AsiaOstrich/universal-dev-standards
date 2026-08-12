@@ -96,7 +96,7 @@ The following quality-check scripts are implemented in TypeScript and run via
 | `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` |
 | `check-flow-gate-report.ts` | `npm run check:flow-gate` | `check-flow-gate-report.sh` |
 | `check-integration-commands-sync.ts` | `npm run check:integration-commands` | `check-integration-commands-sync.sh` |
-| `check-registry-completeness.ts` | `npm run check:registry` | `check-registry-completeness.sh` |
+| `check-registry-completeness.ts` | `npm run check:registry` | `check-registry-completeness.sh` (now a thin wrapper — see below) |
 | `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | `check-release-readiness-signoff.sh` |
 | `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` |
 
@@ -113,6 +113,19 @@ The original `.sh` files are kept with `DEPRECATED` notices for legacy
 Linux/macOS compatibility but should not be added to.
 
 原 `.sh` 檔保留並加 `DEPRECATED` 警告供 legacy Linux/macOS 相容，但不應再新增。
+
+`check-registry-completeness.sh` is a stronger case of this than a notice:
+its Check 3 only ever tested file *existence*, never content, so a drifted
+`.standards/` copy read as `[OK]` at release-gate time (`pre-release-check.sh`
+called the `.sh`, not the `.ts`) while the `.ts` version's content comparison
+never ran there. Converged by making the `.sh` `exec` the `.ts` directly —
+one copy of the logic, not a second one a human has to keep in sync.
+
+`check-registry-completeness.sh`比其他幾個更進一步：它的第 3 項檢查一直只
+驗證檔案是否存在、從未比對內容，於是漂移的 `.standards/` 複本在發版閘門
+時間點顯示為 `[OK]`（`pre-release-check.sh` 呼叫的是 `.sh` 不是 `.ts`），
+`.ts` 版本的內容比對從未在那裡跑過。解法是讓 `.sh` 直接 `exec` `.ts`——
+只有一份邏輯，不是需要人工維持同步的第二份。
 
 ## Testing convention / 測試慣例
 
