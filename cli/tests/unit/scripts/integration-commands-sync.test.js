@@ -196,15 +196,22 @@ describe('SPEC-INTSYNC-001: Integration Commands Sync', () => {
   });
 
   // @AC-7
-  describe('AC-7: 腳本在 macOS/Linux 正確運作', () => {
-    it('should_have_script_file_with_bash_shebang', () => {
+  // The .sh wrapper this AC used to check was removed under XSPEC-376 R4/R7:
+  // scripts/check-integration-commands-sync.ts (run via `tsx`, cross-platform
+  // on macOS/Linux/Windows) is now the only entry point, so the assertion
+  // is updated to the .ts file's own shebang contract instead of the retired
+  // bash one. Other address points updated in the same pass: pre-release-
+  // check.sh step 7.5 (already called the .ts directly before this change),
+  // tests/scripts/check-scripts-passing.bats.
+  describe('AC-7: 腳本在 macOS/Linux/Windows 正確運作（tsx 跨平台）', () => {
+    it('should_have_script_file_with_tsx_shebang', () => {
       // Arrange
-      const scriptPath = join(ROOT_DIR, 'scripts', 'check-integration-commands-sync.sh');
+      const scriptPath = join(ROOT_DIR, 'scripts', 'check-integration-commands-sync.ts');
 
       // Act & Assert
-      expect(existsSync(scriptPath), 'check-integration-commands-sync.sh must exist').toBe(true);
+      expect(existsSync(scriptPath), 'check-integration-commands-sync.ts must exist').toBe(true);
       const content = readFileSync(scriptPath, 'utf-8');
-      expect(content.startsWith('#!/bin/bash'), 'Script must start with bash shebang').toBe(true);
+      expect(content.startsWith('#!/usr/bin/env tsx'), 'Script must start with tsx shebang').toBe(true);
     });
   });
 });

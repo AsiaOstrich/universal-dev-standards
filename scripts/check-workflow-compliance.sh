@@ -58,7 +58,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 # Same tsx-resolution fallback as scripts/pre-release-check.sh and
-# scripts/check-registry-completeness.sh: `tsx` is not on PATH in every shell
+# scripts/check-commit-spec-reference.sh (the repo's other real-git-hook
+# wrapper): `tsx` is not on PATH in every shell
 # (nvm-managed installs, non-login shells, a bats subshell, or a bare `git
 # commit` outside an interactive login shell), so resolve it explicitly
 # rather than assume a bare `tsx` works. This check is advisory-only (never

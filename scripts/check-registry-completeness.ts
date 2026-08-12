@@ -6,9 +6,11 @@
  * Cross-platform TypeScript implementation. Run with `tsx`.
  * This is the only copy of the comparison logic. pre-release-check.sh's
  * step 18 calls this file directly (via its resolved $TSX). The old
- * check-registry-completeness.sh is now a thin wrapper that execs this
- * file — kept only because tests/scripts/check-registry-completeness.bats
- * targets the .sh by name; it does not duplicate any check.
+ * check-registry-completeness.sh (formerly a full second implementation,
+ * later a thin wrapper that execs this file) was removed under XSPEC-376
+ * R4/R7 — tests/scripts/check-registry-completeness.bats and
+ * scripts/reference-only-standards.json's $comment were updated in the
+ * same pass to address this file directly.
  *
  * Ensures every core standard has all required sync artifacts:
  *   1. core/*.md exists → ai/standards/*.ai.yaml exists

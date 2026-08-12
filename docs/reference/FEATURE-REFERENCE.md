@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-10
+> Auto-generated | Last updated: 2026-08-12
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (150)
-7. [Scripts](#scripts) (59)
+7. [Scripts](#scripts) (54)
 
-**Total Features: 334**
+**Total Features: 329**
 
 ---
 
@@ -367,7 +367,7 @@
 | `logging-standards` | 1.4.0 |  |
 | `mock-boundary` | 1.1.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
 | `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `model-selection` | 1.0.1 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
+| `model-selection` | 2.1.0 | Define how to choose **which model** and **how deeply it should think** — two in |
 | `multi-environment-e2e-testing` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
 | `mutation-testing` | 1.0.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
@@ -428,7 +428,7 @@
 | `testing-standards` | 3.2.0 | This standard defines actionable testing rules and conventions for AI agents and |
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
-| `translation-lifecycle-standards` | 1.0.0 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
+| `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.2.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
@@ -448,27 +448,22 @@
 | `aggregate-effectiveness.mjs` | Aggregate Standards Effectiveness Reports |
 | `analyze-hook-stats.mjs` | Hook Statistics Analyzer (SPEC-SELFDIAG-001 REQ-7, AC-11) |
 | `bump-version.mjs` | Build a platform-aware shell command for a .sh script. |
-| `bump-version.sh` | DEPRECATED: Use 'node scripts/bump-version.mjs <version>' instead (cross-platform). |
+| `bump-version.sh` | Thin wrapper — scripts/bump-version.mjs is the only copy of the bump logic. |
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
-| `check-ai-behavior-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-ai-behavior-sync.ts' instead (cross-platform). |
 | `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse into what it says. |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
-| `check-commit-spec-reference.sh` | DEPRECATED: Use 'npx tsx scripts/check-commit-spec-reference.ts' instead (cross-platform). |
+| `check-commit-spec-reference.sh` | Thin wrapper — scripts/check-commit-spec-reference.ts is the only copy of |
 | `check-docs-integrity.ps1` | Check Docs Integrity |
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
-| `check-flow-gate-report.sh` | DEPRECATED: Use 'npx tsx scripts/check-flow-gate-report.ts' instead (cross-platform). |
-| `check-integration-commands-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-integration-commands-sync.ts' instead (cross-platform). |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
-| `check-registry-completeness.sh` | DEPRECATED: Use 'npx tsx scripts/check-registry-completeness.ts' instead (cross-platform). |
-| `check-release-readiness-signoff.sh` | DEPRECATED: Use 'npx tsx scripts/check-release-readiness-signoff.ts' instead (cross-platform). |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
@@ -485,16 +480,16 @@
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
-| `check-workflow-compliance.sh` | DEPRECATED: Use 'npx tsx scripts/check-workflow-compliance.ts' instead (cross-platform). |
+| `check-workflow-compliance.sh` | Thin wrapper — scripts/check-workflow-compliance.ts is the only copy of the |
 | `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint rules enforcing the |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Sync the "AI Tool Support" table's Skills/Slash Commands numeric columns |
+| `generate-docs.mjs` | Look up the release date for `version` from CHANGELOG.md's own |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
-| `install-hooks.sh` | DEPRECATED: Use 'node scripts/install-hooks.mjs' instead (cross-platform). |
+| `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the only copy of the installer |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh script. |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |

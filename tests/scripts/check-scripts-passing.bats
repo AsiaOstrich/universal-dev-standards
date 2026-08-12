@@ -103,11 +103,14 @@ setup() {
 # Ratchet rule: once a check is here, it must stay green.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# ── check-ai-behavior-sync.sh ────────────────────────────────────────────────
+# ── check-ai-behavior-sync.ts ────────────────────────────────────────────────
+# The .sh wrapper was removed under XSPEC-376 R4/R7 (address points walked and
+# updated: this file, pre-release-check.sh step 16); the .ts is now the only
+# entry point, invoked the same way check-integration-liveness.ts is below.
 
-@test "check-ai-behavior-sync.sh exits 0 on clean repo" {
+@test "check-ai-behavior-sync.ts exits 0 on clean repo" {
   cd "$REPO_ROOT"
-  run bash scripts/check-ai-behavior-sync.sh
+  run npx tsx scripts/check-ai-behavior-sync.ts
   [ "$status" -eq 0 ]
 }
 
@@ -127,11 +130,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-# ── check-integration-commands-sync.sh ───────────────────────────────────────
+# ── check-integration-commands-sync.ts ───────────────────────────────────────
+# The .sh wrapper was removed under XSPEC-376 R4/R7 (address points walked and
+# updated: this file, pre-release-check.sh step 7.5,
+# cli/tests/unit/scripts/integration-commands-sync.test.js AC-7); the .ts is
+# now the only entry point.
 
-@test "check-integration-commands-sync.sh exits 0 on clean repo" {
+@test "check-integration-commands-sync.ts exits 0 on clean repo" {
   cd "$REPO_ROOT"
-  run bash scripts/check-integration-commands-sync.sh
+  run npx tsx scripts/check-integration-commands-sync.ts
   [ "$status" -eq 0 ]
 }
 

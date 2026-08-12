@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-08-10
+> Quick reference for all UDS features | Last updated: 2026-08-12
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -240,7 +240,7 @@
 | `logging-standards` | Logging Standards |
 | `mock-boundary` | This document defines rules for what can and canno |
 | `model-provenance` | Model Provenance Policy Standards |
-| `model-selection` | Define a cost-effective strategy for selecting AI  |
+| `model-selection` | Define how to choose **which model** and **how dee |
 | `multi-environment-e2e-testing` | Multi-Environment E2E Testing Standards |
 | `mutation-testing` | Mutation testing evaluates test suite effectivenes |
 | `no-cicd-deployment` | No-CI/CD Deployment Strategy |
@@ -319,27 +319,22 @@
 | `aggregate-effectiveness.mjs` | Aggregate Standards Effectiveness Reports |
 | `analyze-hook-stats.mjs` | Hook Statistics Analyzer (SPEC-SELFDIAG-001 REQ-7, |
 | `bump-version.mjs` | Build a platform-aware shell command for a .sh scr |
-| `bump-version.sh` | DEPRECATED: Use 'node scripts/bump-version.mjs <ve |
+| `bump-version.sh` | Thin wrapper — scripts/bump-version.mjs is the onl |
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
-| `check-ai-behavior-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-ai-behavior |
 | `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse  |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
-| `check-commit-spec-reference.sh` | DEPRECATED: Use 'npx tsx scripts/check-commit-spec |
+| `check-commit-spec-reference.sh` | Thin wrapper — scripts/check-commit-spec-reference |
 | `check-docs-integrity.ps1` | Check Docs Integrity |
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ- |
-| `check-flow-gate-report.sh` | DEPRECATED: Use 'npx tsx scripts/check-flow-gate-r |
-| `check-integration-commands-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-integration |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
-| `check-registry-completeness.sh` | DEPRECATED: Use 'npx tsx scripts/check-registry-co |
-| `check-release-readiness-signoff.sh` | DEPRECATED: Use 'npx tsx scripts/check-release-rea |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
@@ -356,16 +351,16 @@
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
-| `check-workflow-compliance.sh` | DEPRECATED: Use 'npx tsx scripts/check-workflow-co |
+| `check-workflow-compliance.sh` | Thin wrapper — scripts/check-workflow-compliance.t |
 | `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint  |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Sync the "AI Tool Support" table's Skills/Slash Co |
+| `generate-docs.mjs` | Look up the release date for `version` from CHANGE |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |
-| `install-hooks.sh` | DEPRECATED: Use 'node scripts/install-hooks.mjs' i |
+| `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the on |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh scr |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
