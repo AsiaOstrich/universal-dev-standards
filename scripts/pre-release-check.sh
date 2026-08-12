@@ -229,7 +229,17 @@ run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh
 run_check "7" "Running AI Agent sync check" "$SCRIPT_DIR/check-ai-agent-sync.sh"
 
 # Step 7.5: Integration commands sync (SPEC-INTSYNC-001)
-run_check "7.5" "Running integration commands sync check" "$SCRIPT_DIR/check-integration-commands-sync.sh"
+# Calls the .ts directly (not check-integration-commands-sync.sh): the .sh's
+# per-command match piped `echo "$file_content" | grep -qE ...` — grep -q's
+# early exit on match can SIGPIPE the echo, leaking intermittent bash
+# "write error: Broken pipe" lines into this step's captured output (0-9
+# stray lines across 3 consecutive runs in local testing). The .ts matches
+# in-memory (RegExp.test), no subprocess or pipe involved.
+# check-integration-commands-sync.sh is now a thin wrapper around this same
+# .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
+run_check "7.5" "Running integration commands sync check" "$TSX $SCRIPT_DIR/check-integration-commands-sync.ts"
 
 # Step 8: Usage docs sync
 run_check "8" "Running usage docs sync check" "$SCRIPT_DIR/check-usage-docs-sync.sh"

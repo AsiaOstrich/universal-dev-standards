@@ -1,324 +1,73 @@
 #!/bin/bash
-# DEPRECATED: Use 'npx tsx scripts/check-integration-commands-sync.ts' instead (cross-platform).
-# This script remains for legacy Linux/macOS compatibility.
+# Thin wrapper — scripts/check-integration-commands-sync.ts is the only copy
+# of the comparison logic. This file used to be a full second implementation
+# (bash) with a header that already read "DEPRECATED: Use ... .ts instead"
+# — but the deprecation marker was never enforced: pre-release-check.sh
+# step 7.5 still called this .sh filename directly (unconditional run_check,
+# its exit code counted toward PASSED/FAILED), and
+# tests/scripts/check-scripts-passing.bats targets it by filename. The .ts
+# was only reachable via `npm run check:integration-commands` or a manual
+# `tsx` call.
 #
-# Integration Commands Sync Checker
-# 整合命令同步檢查器
+# The .sh also had a real, intermittent defect the .ts does not share: its
+# per-command match used `echo "$file_content" | grep -qE "..."` — `grep -q`
+# exits as soon as it finds a match, which can close the pipe's read end
+# before `echo` finishes writing, producing a bash "write error: Broken
+# pipe" line on stderr. Reproduced 3 consecutive runs against this repo's
+# real integrations/REGISTRY.json + agent instruction files: 0, 9, then 0
+# stray "Broken pipe" lines — a timing-dependent count, not a fixed one.
+# Those lines would leak into pre-release-check.sh's captured `2>&1` output
+# on a real release-gate run. The .ts version matches with an in-memory
+# RegExp.test() — no subprocess, no pipe, no possible SIGPIPE — and was
+# immune across the same 3 runs.
 #
-# This script checks if AI Agent integration files reference all required
-# slash commands based on their tier level and COMMAND-INDEX.json registry.
+# Fixed by converging on one implementation instead of maintaining two: this
+# file now execs check-integration-commands-sync.ts. Kept (not deleted)
+# because tests/scripts/check-scripts-passing.bats targets this filename
+# directly. Do not add logic here — add it to the .ts file.
 #
-# 此腳本檢查 AI Agent 整合檔案是否依 tier 層級引用所有必要的斜線命令。
+# 極薄 wrapper —— scripts/check-integration-commands-sync.ts 是唯一一份比對
+# 邏輯。這個檔案曾是完整的第二份實作（bash），檔頭本來就寫著「DEPRECATED:
+# Use ... .ts instead」——但這個棄用標記從未被強制執行：pre-release-check.sh
+# 第 7.5 步仍直接呼叫這個 .sh 檔名（無條件的 run_check，其 exit code 會計入
+# PASSED/FAILED），且 tests/scripts/check-scripts-passing.bats 是用這個檔名
+# 直接定址的。.ts 只能透過 `npm run check:integration-commands` 或手動
+# `tsx` 呼叫觸及。
+#
+# .sh 還有一個 .ts 沒有的真實、間歇性缺陷：它逐一比對指令時用的是
+# `echo "$file_content" | grep -qE "..."`——`grep -q` 一找到匹配就會提早結
+# 束，可能在 `echo` 寫完之前就關閉管線的讀取端，讓 bash 在 stderr 印出
+# 「write error: Broken pipe」。對這個 repo 真實的 integrations/REGISTRY.json
+# 與 agent 指令檔連續跑 3 次重現：0、9、再 0 筆雜訊「Broken pipe」——次數
+# 隨時序而變，不是固定值。這些雜訊在真正的發版閘門執行時會透過 `2>&1` 洩漏
+# 進 pre-release-check.sh 捕捉到的輸出。.ts 版本用記憶體內的
+# RegExp.test() 比對——沒有子行程、沒有管線、不可能有 SIGPIPE——同樣 3 次
+# 執行完全不受影響。
+#
+# 解法是收斂成一份實作而非維護兩份：這個檔案現在直接 exec
+# check-integration-commands-sync.ts。保留（不刪除）是因為
+# tests/scripts/check-scripts-passing.bats 是用這個檔名直接定址的。不要在
+# 這裡加邏輯——邏輯一律加在 .ts 檔。
 #
 # Usage: ./scripts/check-integration-commands-sync.sh [options]
-#
-# Options:
-#   --verbose    Show detailed matching per agent
-#   --json       Output in JSON format
-#   --help       Show this help message
-#
-
-set -e
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-REGISTRY_FILE="$ROOT_DIR/integrations/REGISTRY.json"
-INDEX_FILE="$ROOT_DIR/skills/commands/COMMAND-INDEX.json"
-COMMANDS_DIR="$ROOT_DIR/skills/commands"
 
-# Parse arguments
-VERBOSE=false
-JSON_OUTPUT=false
-
-for arg in "$@"; do
-    case $arg in
-        --verbose)
-            VERBOSE=true
-            shift
-            ;;
-        --json)
-            JSON_OUTPUT=true
-            shift
-            ;;
-        --help)
-            echo "Usage: ./scripts/check-integration-commands-sync.sh [options]"
-            echo ""
-            echo "Options:"
-            echo "  --verbose    Show detailed matching per agent"
-            echo "  --json       Output in JSON format"
-            echo "  --help       Show this help message"
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}Unknown option: $arg${NC}"
-            echo "Use --help for usage information"
-            exit 1
-            ;;
-    esac
-done
-
-# Temp files for counting
-ERROR_FILE=$(mktemp)
-WARNING_FILE=$(mktemp)
-PASSED_FILE=$(mktemp)
-SKIPPED_FILE=$(mktemp)
-echo "0" > "$ERROR_FILE"
-echo "0" > "$WARNING_FILE"
-echo "0" > "$PASSED_FILE"
-echo "0" > "$SKIPPED_FILE"
-
-# Cleanup on exit
-cleanup() {
-    rm -f "$ERROR_FILE" "$WARNING_FILE" "$PASSED_FILE" "$SKIPPED_FILE"
-    if [ -f "NULL" ]; then rm -f "NULL"; fi
-}
-trap cleanup EXIT
-
-# Helper functions
-inc_errors() { echo $(( $(cat "$ERROR_FILE") + 1 )) > "$ERROR_FILE"; }
-inc_warnings() { echo $(( $(cat "$WARNING_FILE") + 1 )) > "$WARNING_FILE"; }
-inc_passed() { echo $(( $(cat "$PASSED_FILE") + 1 )) > "$PASSED_FILE"; }
-inc_skipped() { echo $(( $(cat "$SKIPPED_FILE") + 1 )) > "$SKIPPED_FILE"; }
-get_errors() { cat "$ERROR_FILE"; }
-get_warnings() { cat "$WARNING_FILE"; }
-get_passed() { cat "$PASSED_FILE"; }
-get_skipped() { cat "$SKIPPED_FILE"; }
-
-# Check required files
-if [ ! -f "$REGISTRY_FILE" ]; then
-    echo -e "${RED}ERROR: Registry file not found: $REGISTRY_FILE${NC}"
+# Same tsx-resolution fallback as scripts/pre-release-check.sh and
+# scripts/check-registry-completeness.sh: `tsx` is not on PATH in every shell
+# (nvm-managed installs, non-login shells, a bats subshell), so resolve it
+# explicitly rather than assume a bare `tsx` works.
+if command -v tsx >/dev/null 2>&1; then
+    TSX="tsx"
+elif [ -x "$ROOT_DIR/node_modules/.bin/tsx" ]; then
+    TSX="$ROOT_DIR/node_modules/.bin/tsx"
+elif npx --no-install tsx --version >/dev/null 2>&1; then
+    TSX="npx --no-install tsx"
+else
+    echo "tsx not found — cannot run check-integration-commands-sync.ts" >&2
+    echo "Install it (npm i) or add tsx to PATH." >&2
     exit 1
 fi
 
-if [ ! -f "$INDEX_FILE" ]; then
-    echo -e "${RED}ERROR: Command index file not found: $INDEX_FILE${NC}"
-    exit 1
-fi
-
-# Header
-if [ "$JSON_OUTPUT" = false ]; then
-    echo ""
-    echo "=========================================="
-    echo "  Integration Commands Sync Checker"
-    echo "  整合命令同步檢查器"
-    echo "=========================================="
-    echo ""
-fi
-
-# ─── Phase 1: Check for unregistered commands ───
-
-if [ "$JSON_OUTPUT" = false ]; then
-    echo -e "${BLUE}Phase 1: Checking for unregistered commands${NC}"
-    echo -e "${BLUE}階段 1: 檢查未登記的命令${NC}"
-    echo ""
-fi
-
-# Get all indexed commands and excluded files from COMMAND-INDEX.json using node
-INDEXED_COMMANDS=$(node -e "
-const idx = require('$INDEX_FILE');
-const cmds = Object.values(idx.categories).flatMap(c => c.commands);
-console.log(cmds.join('\n'));
-")
-
-EXCLUDED_FILES=$(node -e "
-const idx = require('$INDEX_FILE');
-console.log(idx.excluded.join('\n'));
-")
-
-UNREGISTERED_COUNT=0
-for file in "$COMMANDS_DIR"/*.md; do
-    filename=$(basename "$file")
-
-    # Skip excluded files
-    is_excluded=false
-    while IFS= read -r excl; do
-        if [ "$filename" = "$excl" ]; then
-            is_excluded=true
-            break
-        fi
-    done <<< "$EXCLUDED_FILES"
-    if [ "$is_excluded" = true ]; then
-        continue
-    fi
-
-    cmd_name="${filename%.md}"
-
-    # Check if command is in index
-    is_registered=false
-    while IFS= read -r indexed_cmd; do
-        if [ "$cmd_name" = "$indexed_cmd" ]; then
-            is_registered=true
-            break
-        fi
-    done <<< "$INDEXED_COMMANDS"
-
-    if [ "$is_registered" = false ]; then
-        if [ "$JSON_OUTPUT" = false ]; then
-            echo -e "  ${YELLOW}⚠️  Unregistered command: ${BOLD}$cmd_name${NC}"
-        fi
-        inc_warnings
-        UNREGISTERED_COUNT=$((UNREGISTERED_COUNT + 1))
-    fi
-done
-
-if [ "$UNREGISTERED_COUNT" -eq 0 ] && [ "$JSON_OUTPUT" = false ]; then
-    echo -e "  ${GREEN}✅ All command files are registered in COMMAND-INDEX.json${NC}"
-fi
-
-echo ""
-
-# ─── Phase 2: Check agent integration files for slash command references ───
-
-if [ "$JSON_OUTPUT" = false ]; then
-    echo -e "${BLUE}Phase 2: Checking agent integration files for /command references${NC}"
-    echo -e "${BLUE}階段 2: 檢查 Agent 整合檔的 /command 引用${NC}"
-    echo ""
-fi
-
-# Get agent info from REGISTRY.json using node
-AGENT_DATA=$(node -e "
-const reg = require('$REGISTRY_FILE');
-const idx = require('$INDEX_FILE');
-const allCategories = Object.keys(idx.categories);
-const allCommands = Object.values(idx.categories).flatMap(c => c.commands);
-
-for (const [agentId, agent] of Object.entries(reg.agents)) {
-    const tier = agent.tier;
-    const tierDef = reg.tiers[tier];
-    const reqCats = tierDef.requiredCategories || [];
-    const instrFile = agent.instructionFile || '';
-    // Output: agentId|tier|instructionFile|requiredCategories(comma-sep)|allCommandsForCategories(comma-sep)
-    if (reqCats.length === 0) {
-        console.log(agentId + '|' + tier + '|' + instrFile + '|NONE|NONE');
-    } else {
-        const reqCommands = reqCats.flatMap(cat => idx.categories[cat]?.commands || []);
-        console.log(agentId + '|' + tier + '|' + instrFile + '|' + reqCats.join(',') + '|' + reqCommands.join(','));
-    }
-}
-")
-
-while IFS='|' read -r agent_id tier instr_file req_cats req_commands; do
-    if [ -z "$agent_id" ]; then continue; fi
-
-    # Skip agents with no command requirements
-    if [ "$req_cats" = "NONE" ]; then
-        if [ "$JSON_OUTPUT" = false ]; then
-            echo -e "${CYAN}Checking ${BOLD}$agent_id${NC}${CYAN} (${tier})${NC}"
-            echo -e "  ${BLUE}ℹ️  Skipped (no command requirements for $tier tier)${NC}"
-            echo ""
-        fi
-        inc_skipped
-        continue
-    fi
-
-    # Check if instruction file exists
-    full_path="$ROOT_DIR/$instr_file"
-    if [ ! -f "$full_path" ]; then
-        if [ "$JSON_OUTPUT" = false ]; then
-            echo -e "${CYAN}Checking ${BOLD}$agent_id${NC}${CYAN} (${tier})${NC}"
-            echo -e "  ${YELLOW}[SKIP]${NC} File not found: $instr_file"
-            echo ""
-        fi
-        inc_skipped
-        continue
-    fi
-
-    file_content=$(cat "$full_path")
-    agent_missing=()
-    agent_found=0
-    agent_total=0
-
-    # Check each required command with strict /command matching
-    IFS=',' read -ra COMMANDS <<< "$req_commands"
-    for cmd in "${COMMANDS[@]}"; do
-        agent_total=$((agent_total + 1))
-        # Strict match: /command followed by non-alphanumeric-dash or end of line
-        if echo "$file_content" | grep -qE "/${cmd}([^a-z0-9-]|$)" 2>/dev/null; then
-            agent_found=$((agent_found + 1))
-        else
-            agent_missing+=("$cmd")
-        fi
-    done
-
-    if [ "$JSON_OUTPUT" = false ]; then
-        echo -e "${CYAN}Checking ${BOLD}$agent_id${NC}${CYAN} (${tier})${NC}"
-
-        if [ ${#agent_missing[@]} -eq 0 ]; then
-            echo -e "  ${GREEN}✅ All $agent_total commands referenced${NC}"
-            inc_passed
-        else
-            echo -e "  ${RED}❌ Missing ${#agent_missing[@]}/$agent_total commands:${NC}"
-            for missing_cmd in "${agent_missing[@]}"; do
-                echo -e "     ${RED}• /${missing_cmd}${NC}"
-                inc_errors
-            done
-
-            if [ "$VERBOSE" = true ]; then
-                echo -e "  ${GREEN}Found $agent_found/$agent_total:${NC}"
-                for cmd in "${COMMANDS[@]}"; do
-                    is_missing=false
-                    for m in "${agent_missing[@]}"; do
-                        if [ "$cmd" = "$m" ]; then is_missing=true; break; fi
-                    done
-                    if [ "$is_missing" = false ]; then
-                        echo -e "     ${GREEN}✓ /${cmd}${NC}"
-                    fi
-                done
-            fi
-        fi
-        echo ""
-    else
-        if [ ${#agent_missing[@]} -gt 0 ]; then
-            inc_errors
-        else
-            inc_passed
-        fi
-    fi
-
-done <<< "$AGENT_DATA"
-
-# ─── Summary ───
-
-errors=$(get_errors)
-warnings=$(get_warnings)
-passed=$(get_passed)
-skipped=$(get_skipped)
-
-if [ "$JSON_OUTPUT" = false ]; then
-    echo "=========================================="
-    echo -e "  ${GREEN}Passed: $passed${NC}"
-    echo -e "  ${RED}Errors: $errors${NC}"
-    echo -e "  ${YELLOW}Warnings: $warnings${NC}"
-    echo -e "  ${BLUE}Skipped: $skipped${NC}"
-    echo "=========================================="
-    echo ""
-fi
-
-# Exit with error if any errors found
-if [ "$errors" -gt 0 ]; then
-    if [ "$JSON_OUTPUT" = false ]; then
-        echo -e "${RED}FAIL: $errors missing command references found${NC}"
-    fi
-    exit 1
-fi
-
-if [ "$warnings" -gt 0 ]; then
-    if [ "$JSON_OUTPUT" = false ]; then
-        echo -e "${YELLOW}WARN: $warnings warnings found (unregistered commands)${NC}"
-    fi
-    exit 0
-fi
-
-if [ "$JSON_OUTPUT" = false ]; then
-    echo -e "${GREEN}PASS: All integration files are in sync${NC}"
-fi
-exit 0
+exec $TSX "$SCRIPT_DIR/check-integration-commands-sync.ts" "$@"
