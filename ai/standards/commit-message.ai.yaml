@@ -120,6 +120,8 @@ physical_spec:
 
 enforcement:
   hook_type: PreCommit
+  trigger: UserPromptSubmit
   script_ref: "scripts/hooks/validate-commit-msg.js"
+  hook_script: "scripts/hooks/validate-commit-msg.js"
   severity: error
   timeout_ms: 500
