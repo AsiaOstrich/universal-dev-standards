@@ -8,9 +8,30 @@
  * Surfaces three classes of issue found in the dev-platform UDS Stage 2 review
  * (XSPEC-292):
  *   1. T15 Dangling references (ERROR) — relative markdown links to *.md that
- *      do not resolve, in core/*.md, skills/**\/SKILL.md and their locale copies.
+ *      do not resolve, across this repo's content roots (core/, skills/,
+ *      locales/, integrations/) and their locale copies.
  *      Illustrative example filenames (ADR-NNN, docs/getting-started.md, …) are
  *      excluded so only real broken links fail.
+ *
+ *      Content roots (core/class-level-fix.md: walk, don't enumerate) are read
+ *      from cli/src/core/constants.js's DIRECTORIES registry — the same registry
+ *      other CLI code already treats as authoritative — rather than a second,
+ *      independently hand-typed list here. `integrations/` was invisible to this
+ *      checker until 2026-08-12 (XSPEC-362 R5 shipped its whole content into a
+ *      directory this file's include-list had never heard of); it is a member
+ *      of DIRECTORIES like `core`/`skills`, so had this file consulted that
+ *      registry from the start, R5 would not have needed a corresponding edit
+ *      here. Self-install/copy targets — `.standards/` and every AI agent's
+ *      project skill/command/agent/workflow path from ai-agent-paths.js's
+ *      AI_AGENT_PATHS (`.claude/`, `.gemini/`, …) — are excluded: they are
+ *      WRITTEN BY the CLI as installed copies, so their relative links resolve
+ *      against an install root, not this repo tree, and checking them here
+ *      always false-positives (same category as `cli/bundled/`, just not
+ *      gitignored). Each content root is walked completely — no per-root
+ *      filename cherry-picking (the old code's `skills/` did, catching only
+ *      `SKILL.md` and missing sibling reference docs shipped in the same
+ *      folder) — and the scan prints its denominator plus what it excluded
+ *      and why, per class-level-fix's non-vacuity requirement.
  *   2. T5 Acceptance-criteria annotation consistency (ADVISORY) — flags genuine
  *      violations of the canonical contract defined in
  *      acceptance-criteria-traceability.md, NOT mere coexistence of forms:
@@ -32,6 +53,9 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { DIRECTORIES } from '../cli/src/core/constants.js';
+import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = dirname(dirname(__filename));
@@ -40,9 +64,73 @@ const RED = '\x1b[0;31m';
 const GREEN = '\x1b[0;32m';
 const YELLOW = '\x1b[1;33m';
 const BLUE = '\x1b[0;34m';
+const DIM = '\x1b[2m';
 const NC = '\x1b[0m';
 
-// Markdown files to scan: core standards, skill cards, and their locale copies.
+// ── Content roots: derived, not hand-typed ──────────────────────────────────
+// DIRECTORIES (cli/src/core/constants.js) is the CLI's own registry of
+// top-level content directories. Using it here — instead of a second,
+// independently maintained list — means a directory added there for other
+// tooling (as `integrations` already was) is picked up automatically.
+// A candidate only becomes a scanned root if it actually exists at repo root
+// AND is not a self-install/copy target (see EXCLUDED_ROOTS below).
+const EXCLUDED_ROOTS = buildExcludedRoots();
+
+function buildExcludedRoots(): Map<string, string> {
+  const excluded = new Map<string, string>();
+  // `.standards/` is the CLI's own install target for adopters (and for this
+  // repo's own self-adoption copy) — a written COPY, not source.
+  excluded.set(
+    DIRECTORIES.STANDARDS,
+    'self-install target (uds init/update writes an adopted copy here; relative links resolve against the install root, not this repo)',
+  );
+  // Every AI agent's project-level skill/command/agent/workflow install path
+  // (`.claude/`, `.gemini/`, `.opencode/`, …) — read from ai-agent-paths.js's
+  // own AI_AGENT_PATHS rather than re-typed, so a newly supported agent's
+  // install directory is excluded automatically too.
+  for (const config of Object.values(AI_AGENT_PATHS) as Array<Record<string, unknown>>) {
+    for (const kind of ['skills', 'commands', 'agents', 'workflows']) {
+      const projectPath = (config[kind] as { project?: string } | null)?.project;
+      if (!projectPath) continue;
+      const top = projectPath.split('/')[0];
+      if (!excluded.has(top)) {
+        excluded.set(top, `AI agent install target (${config.name as string}) — installed copy, not source`);
+      }
+    }
+  }
+  return excluded;
+}
+
+/** True when `.gitignore` (read by git itself, not re-parsed by hand) covers this path. */
+function isGitIgnored(relPath: string): boolean {
+  try {
+    execFileSync('git', ['check-ignore', '-q', relPath], { cwd: ROOT_DIR });
+    return true; // exit 0 = ignored
+  } catch (err) {
+    const status = (err as { status?: number }).status;
+    if (status === 1) return false; // exit 1 = not ignored (git's own contract)
+    // Any other exit (128 = not a git repo / bad path, etc.) is "git could not
+    // answer" — the reason a naive `2>/dev/null` around a query is banned:
+    // that silences exactly this case and makes it indistinguishable from
+    // "not ignored". Surface it instead of guessing.
+    throw new Error(`git check-ignore failed unexpectedly on "${relPath}" (exit ${status}): ${String(err)}`);
+  }
+}
+
+for (const d of Object.values(DIRECTORIES)) {
+  if (!EXCLUDED_ROOTS.has(d) && existsSync(join(ROOT_DIR, d)) && isGitIgnored(d)) {
+    EXCLUDED_ROOTS.set(d, 'gitignored (untracked local/runtime data, per .gitignore)');
+  }
+}
+
+const CONTENT_ROOTS = Object.values(DIRECTORIES).filter(
+  (d) => existsSync(join(ROOT_DIR, d)) && !EXCLUDED_ROOTS.has(d),
+);
+
+// Markdown files to scan: everything under each content root, walked in full —
+// no per-root filename cherry-picking (the previous code's `skills/` walk kept
+// only `SKILL.md`, silently dropping sibling reference docs shipped in the
+// same skill folder).
 function walk(dir: string, acc: string[]): string[] {
   if (!existsSync(dir)) return acc;
   for (const entry of readdirSync(dir)) {
@@ -58,22 +146,23 @@ function walk(dir: string, acc: string[]): string[] {
   return acc;
 }
 
-function collectFiles(): string[] {
+interface CollectResult {
+  files: string[];
+  roots: string[];
+  excludedRoots: Array<{ dir: string; reason: string; existed: boolean }>;
+}
+
+function collectFiles(): CollectResult {
   const files: string[] = [];
-  walk(join(ROOT_DIR, 'core'), files);
-  // skill cards (canonical + locale)
-  const skillRoots = [join(ROOT_DIR, 'skills')];
-  for (const loc of ['zh-TW', 'zh-CN']) {
-    skillRoots.push(join(ROOT_DIR, 'locales', loc, 'skills'));
-    files.push(...walk(join(ROOT_DIR, 'locales', loc, 'core'), []));
+  for (const root of CONTENT_ROOTS) {
+    walk(join(ROOT_DIR, root), files);
   }
-  for (const root of skillRoots) {
-    if (!existsSync(root)) continue;
-    for (const f of walk(root, [])) {
-      if (f.endsWith('SKILL.md')) files.push(f);
-    }
-  }
-  return [...new Set(files)];
+  const excludedRoots = [...EXCLUDED_ROOTS.entries()].map(([dir, reason]) => ({
+    dir,
+    reason,
+    existed: existsSync(join(ROOT_DIR, dir)),
+  }));
+  return { files: [...new Set(files)], roots: CONTENT_ROOTS, excludedRoots };
 }
 
 // Illustrative example targets that are NOT real repo files (skip these).
@@ -160,8 +249,19 @@ function main(): void {
   process.stdout.write('  命名與交叉引用一致性檢查器\n');
   process.stdout.write('==========================================\n\n');
 
-  const files = collectFiles();
-  process.stdout.write(`Scanned ${files.length} markdown files (core + skills + locales)\n\n`);
+  const collected = collectFiles();
+  const files = collected.files;
+  process.stdout.write(
+    `Scanned ${files.length} markdown files across content roots: ${collected.roots.join(', ')}\n`,
+  );
+  const existingExclusions = collected.excludedRoots.filter((e) => e.existed);
+  process.stdout.write(
+    `Excluded ${existingExclusions.length} self-install root(s) (present on disk, not scanned):\n`,
+  );
+  for (const e of existingExclusions) {
+    process.stdout.write(`  ${DIM}- ${e.dir}/ — ${e.reason}${NC}\n`);
+  }
+  process.stdout.write('\n');
 
   // 1. Dangling (ERROR)
   process.stdout.write(`${BLUE}[1/3] Dangling cross-references (T15)${NC}\n`);
