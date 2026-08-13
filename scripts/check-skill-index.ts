@@ -14,6 +14,8 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
+import { withoutRegenerationStamp } from './generated-doc-stamp.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 
@@ -41,9 +43,22 @@ try {
   process.exit(1);
 }
 
-// Compare
+// Compare on content, ignoring the regeneration date — see generated-doc-stamp.ts
+// for why a byte comparison made this gate fire on the calendar rather than on
+// drift.
 const after = FILES_TO_CHECK.map(f => fs.readFileSync(f, 'utf8'));
-const stale = FILES_TO_CHECK.filter((_, i) => before[i] !== after[i]);
+const stale = FILES_TO_CHECK.filter(
+  (_, i) => withoutRegenerationStamp(before[i]) !== withoutRegenerationStamp(after[i])
+);
+
+// Regenerating is how this check reads the truth, but it must not be how it
+// leaves the repo: put back any file whose only change was the stamp, so
+// running the check is not itself an edit.
+FILES_TO_CHECK.forEach((f, i) => {
+  if (!stale.includes(f) && before[i] !== after[i]) {
+    fs.writeFileSync(f, before[i], 'utf8');
+  }
+});
 
 if (stale.length > 0) {
   console.error('❌ Generated docs are out of sync with manifest/SKILL.md files.');
