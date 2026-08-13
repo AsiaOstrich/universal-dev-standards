@@ -75,18 +75,35 @@ export const STANDARD_TO_CATEGORY = {
  * Matches patterns like:
  * - Reference: .standards/anti-hallucination.md
  * - 參考: .standards/anti-hallucination.md (Chinese)
+ * - Reference: .standards/a.ai.yaml, .standards/options/b.ai.yaml (more than one)
+ * - Reference: `.standards/a.ai.yaml` (quoted, as markdown renders it)
+ *
+ * The first version anchored `.standards/` directly after the label and ran to
+ * the first space, which made it see EXACTLY ONE path per line, keep whatever
+ * punctuation followed it, and miss any path that was quoted. Measured on the
+ * two telemetry repos: of three references it reported, one was a false
+ * positive (`commit-message.ai.yaml,` — the file exists, the comma did not),
+ * and it silently skipped two more, one of which
+ * (`workflow-enforcement.ai.yaml`) does not exist in any repo or upstream.
  *
  * @param {string} content - Integration file content
  * @returns {string[]} - Array of referenced standard filenames (e.g., ['anti-hallucination.md'])
  */
 export function parseReferences(content) {
-  // Match both English and Chinese reference patterns
-  const referencePattern = /(?:Reference|參考):\s*\.standards\/([^\s\n)]+)/gi;
+  // Both English and Chinese labels, and both colon widths.
+  const referenceLinePattern = /(?:Reference|參考)[:：][^\n]*/gi;
+  // Every `.standards/` path on that line, stopping at anything that quotes or
+  // separates rather than names: whitespace, brackets, backticks, quotes,
+  // commas and semicolons.
+  const pathPattern = /\.standards\/([^\s\n)\]`,;'"]+)/g;
   const references = new Set();
-  let match;
 
-  while ((match = referencePattern.exec(content)) !== null) {
-    references.add(match[1]);
+  for (const line of content.match(referenceLinePattern) ?? []) {
+    for (const [, path] of line.matchAll(pathPattern)) {
+      // Sentence punctuation is not part of a filename.
+      const cleaned = path.replace(/[.,;:!?]+$/, '');
+      if (cleaned) references.add(cleaned);
+    }
   }
 
   return Array.from(references);
@@ -114,6 +131,42 @@ export function getStandardCategory(sourcePath) {
 }
 
 /**
+ * Reduce a standard to the identity all three of its spellings share.
+ *
+ * The same standard appears as a manifest stem (`commit-message`), a shipped
+ * file (`commit-message.ai.yaml`) and a human-readable reference
+ * (`.standards/commit-message.md`). Comparing any two of those literally
+ * fails, and it fails as "this standard is not adopted".
+ *
+ * @param {string} pathOrName - Any of the three spellings
+ * @returns {string} - Bare stem, e.g. 'commit-message'
+ */
+export function standardStem(pathOrName) {
+  return pathOrName
+    .split('/')
+    .pop()
+    .replace(/\.(ai\.yaml|yaml|md)$/i, '');
+}
+
+/**
+ * Category for a standard, accepting a manifest stem as well as a filename.
+ *
+ * {@link STANDARD_TO_CATEGORY} is keyed by filename; manifests store stems.
+ * Looking a stem up directly always missed, which is what emptied
+ * `manifestCategories`.
+ *
+ * @param {string} pathOrName - Manifest stem, filename or reference path
+ * @returns {string|null} - Category ID, or null when the table does not cover it
+ */
+function categoryForStandard(pathOrName) {
+  const fileName = pathOrName.split('/').pop();
+  if (STANDARD_TO_CATEGORY[fileName]) return STANDARD_TO_CATEGORY[fileName];
+
+  const stem = standardStem(pathOrName);
+  return STANDARD_TO_CATEGORY[`${stem}.md`] || STANDARD_TO_CATEGORY[`${stem}.ai.yaml`] || null;
+}
+
+/**
  * Compare manifest standards with integration file references
  *
  * @param {string[]} manifestStandards - Array of standard source paths from manifest
@@ -124,27 +177,44 @@ export function getStandardCategory(sourcePath) {
  *   - syncedRefs: Standards that are properly synced
  */
 export function compareStandardsWithReferences(manifestStandards, integrationReferences) {
-  // Compare at category level to handle .md vs .ai.yaml format differences
-  // e.g., manifest has 'anti-hallucination.ai.yaml' but integration references 'anti-hallucination.md'
+  // The manifest is the source of truth for what this project adopted, so ask
+  // it directly. The category map below is a hand-written table covering a
+  // small fraction of the standards UDS ships (compare its size against
+  // `cli/standards-registry.json` — a count written here would go stale the
+  // next time a standard lands); using it as the primary test reported every
+  // standard outside the table as "not in manifest", which is a different
+  // claim, and a false one.
+  //
+  // It was worse than partial coverage: manifest entries are bare stems
+  // (`commit-message`) while the table is keyed by filename
+  // (`commit-message.md`), so `manifestCategories` came out EMPTY on the
+  // current manifest format and every reference fell through to orphaned.
+  // Both halves were wrong at once, which is why the output still looked
+  // plausible — three orphans reported on the telemetry repos, one of which
+  // (`commit-message.ai.yaml`) is adopted, and the only genuinely dead one
+  // (`workflow-enforcement.ai.yaml`) was not among them.
+  const manifestStems = new Set(manifestStandards.map(standardStem));
+
   const manifestCategories = new Set();
   for (const std of manifestStandards) {
-    const fileName = std.split('/').pop();
-    const category = STANDARD_TO_CATEGORY[fileName];
+    const category = categoryForStandard(std);
     if (category) {
       manifestCategories.add(category);
     }
   }
 
-  // References in integration file but not backed by any manifest standard (by category)
+  // A reference is orphaned when nothing in the manifest answers to it, by
+  // stem (extension- and directory-insensitive) or by legacy category name.
   const orphanedRefs = integrationReferences.filter(ref => {
-    const category = STANDARD_TO_CATEGORY[ref];
+    if (manifestStems.has(standardStem(ref))) return false;
+    const category = categoryForStandard(ref);
     return !category || !manifestCategories.has(category);
   });
 
   // Categories in manifest but not referenced in integration file
   const refCategories = new Set();
   for (const ref of integrationReferences) {
-    const category = STANDARD_TO_CATEGORY[ref];
+    const category = categoryForStandard(ref);
     if (category) {
       refCategories.add(category);
     }
@@ -157,10 +227,7 @@ export function compareStandardsWithReferences(manifestStandards, integrationRef
   });
 
   // Properly synced references
-  const syncedRefs = integrationReferences.filter(ref => {
-    const category = STANDARD_TO_CATEGORY[ref];
-    return category && manifestCategories.has(category);
-  });
+  const syncedRefs = integrationReferences.filter(ref => !orphanedRefs.includes(ref));
 
   return { orphanedRefs, missingRefs, syncedRefs };
 }

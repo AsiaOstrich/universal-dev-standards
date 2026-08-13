@@ -102,6 +102,73 @@ reference: .standards/commit-message.ai.yaml`;
 
       expect(refs).toHaveLength(2);
     });
+
+    // Every case above puts one clean path on its own line — the shape under
+    // which the original defect was invisible. These are the shapes found in
+    // real adopter CLAUDE.md files.
+
+    it('should parse every path on a line, not just the first', () => {
+      const content = 'Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml';
+
+      const refs = parseReferences(content);
+
+      expect(refs).toEqual(
+        expect.arrayContaining(['commit-message.ai.yaml', 'options/bilingual.ai.yaml'])
+      );
+      expect(refs).toHaveLength(2);
+    });
+
+    it('should not keep the separator that followed a path', () => {
+      const content = 'Reference: .standards/commit-message.ai.yaml, .standards/options/bilingual.ai.yaml';
+
+      expect(parseReferences(content)).not.toContain('commit-message.ai.yaml,');
+    });
+
+    it('should see a path wrapped in backticks', () => {
+      const content = 'Reference: `.standards/workflow-enforcement.ai.yaml`';
+
+      expect(parseReferences(content)).toContain('workflow-enforcement.ai.yaml');
+    });
+
+    it('should see a path inside a markdown link', () => {
+      const content = 'Reference: [commit-message](.standards/commit-message.ai.yaml)';
+
+      expect(parseReferences(content)).toContain('commit-message.ai.yaml');
+    });
+
+    it('should not keep sentence punctuation that ends the line', () => {
+      const content = '參考: .standards/anti-hallucination.md.';
+
+      expect(parseReferences(content)).toEqual(['anti-hallucination.md']);
+    });
+
+    it('should accept a full-width colon after a Chinese label', () => {
+      const content = '參考：.standards/anti-hallucination.md';
+
+      expect(parseReferences(content)).toContain('anti-hallucination.md');
+    });
+
+    // Shape-independent: whatever the input, an emitted reference must look
+    // like a filename. A path that carries quoting or separator characters is
+    // a parse error being reported to the user as a missing standard, and it
+    // costs more than the miss — a warning that is wrong one time in three
+    // teaches the reader to skip it.
+    it('should never emit a path carrying quoting or separator characters', () => {
+      const content = [
+        'Reference: .standards/a.ai.yaml, .standards/b.ai.yaml; .standards/c.ai.yaml',
+        'Reference: `.standards/d.ai.yaml`, ".standards/e.ai.yaml"',
+        '參考：[f](.standards/f.md), .standards/options/g.ai.yaml.',
+        "參考: '.standards/h.ai.yaml'"
+      ].join('\n');
+
+      const refs = parseReferences(content);
+
+      expect(refs.length).toBeGreaterThan(0);
+      for (const ref of refs) {
+        expect(ref).not.toMatch(/[`'"\[\](),;]/);
+        expect(ref).not.toMatch(/[.,;:!?]$/);
+      }
+    });
   });
 
   describe('getCategoryStandardPaths', () => {
@@ -203,6 +270,82 @@ reference: .standards/commit-message.ai.yaml`;
       // versioning.md is not in STANDARD_TO_CATEGORY, so it should not be in missingRefs
       expect(result.missingRefs).not.toContain('versioning.md');
       expect(result.syncedRefs).toContain('anti-hallucination.md');
+    });
+
+    // Every case above passes manifest entries as `core/<name>.md` paths.
+    // Real manifests have stored bare stems for several major versions, and
+    // under that format the category lookup matched nothing at all — so these
+    // cases were green while the function was answering wrongly in the field.
+
+    it('should not call an adopted standard orphaned when the manifest stores bare stems', () => {
+      const manifestStandards = ['commit-message', 'anti-hallucination', 'bilingual'];
+      const integrationRefs = [
+        'commit-message.ai.yaml',
+        'anti-hallucination.md',
+        'options/bilingual.ai.yaml'
+      ];
+
+      const result = compareStandardsWithReferences(manifestStandards, integrationRefs);
+
+      expect(result.orphanedRefs).toHaveLength(0);
+      expect(result.syncedRefs).toHaveLength(3);
+    });
+
+    it('should still flag a reference no manifest entry answers to', () => {
+      const manifestStandards = ['commit-message', 'git-workflow'];
+      const integrationRefs = ['commit-message.ai.yaml', 'workflow-enforcement.ai.yaml'];
+
+      const result = compareStandardsWithReferences(manifestStandards, integrationRefs);
+
+      expect(result.orphanedRefs).toEqual(['workflow-enforcement.ai.yaml']);
+    });
+
+    it('should match across the .md / .ai.yaml spelling of the same standard', () => {
+      const result = compareStandardsWithReferences(
+        ['checkin-standards'],
+        ['checkin-standards.md']
+      );
+
+      expect(result.orphanedRefs).toHaveLength(0);
+    });
+
+    it('should ignore the directory a reference was written with', () => {
+      const result = compareStandardsWithReferences(
+        ['bilingual'],
+        ['.standards/options/bilingual.ai.yaml']
+      );
+
+      expect(result.orphanedRefs).toHaveLength(0);
+    });
+
+    // orphaned and synced partition the references; nothing may fall between
+    // them or land in both. The previous implementation derived each from its
+    // own category test, so a reference the table did not cover was reported
+    // as orphaned AND omitted from synced — the two counts never had to agree.
+    it('should partition every reference into exactly one of orphaned or synced', () => {
+      const manifestStandards = ['commit-message', 'anti-hallucination', 'versioning'];
+      const integrationRefs = [
+        'commit-message.ai.yaml',
+        'anti-hallucination.md',
+        'versioning.ai.yaml',
+        'workflow-enforcement.ai.yaml',
+        'never-existed.md'
+      ];
+
+      const result = compareStandardsWithReferences(manifestStandards, integrationRefs);
+
+      // The partition alone holds trivially when everything lands in one side
+      // — it did on the broken implementation, where all five were orphaned.
+      // Pin which side each belongs to as well.
+      expect(result.syncedRefs).toHaveLength(3);
+      expect(result.orphanedRefs).toHaveLength(2);
+
+      expect(result.orphanedRefs.length + result.syncedRefs.length).toBe(integrationRefs.length);
+      for (const ref of integrationRefs) {
+        const inOrphaned = result.orphanedRefs.includes(ref);
+        const inSynced = result.syncedRefs.includes(ref);
+        expect(inOrphaned !== inSynced).toBe(true);
+      }
     });
   });
 
