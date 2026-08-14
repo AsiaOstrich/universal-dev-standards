@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/class-level-fix.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-08-10
+**Version**: 1.1.0
+**Last Updated**: 2026-08-14
 **Applicability**: Any defect fix, in code or in configuration
 **Scope**: universal
 
@@ -83,6 +83,12 @@ Do this **per sub-set**, not in aggregate. A check over five lists that was only
 
 一道類別層檢查在被信任之前，必須先被證明不是空跑：塞一個違反規則的合成成員 → 確認檢查失敗**且指名該成員** → 移除後確認回到綠燈。**逐子集做，不要整體做**——一道涵蓋五份清單、卻只對第一份測過的檢查，是一道涵蓋一份清單的檢查。
 
+### What a passing negative control does not prove
+
+A negative control that passes once demonstrates only that **one** known-bad case reaches the checker's failure path. **It does not demonstrate** that the checker recognizes **every** violation of the rule it purports to guard. A grep-based gate can fail-closed perfectly while guarding a spelling, not a behavior — the synthetic member proves the wire is connected, not that the net is wide enough to catch what it claims to catch.
+
+一次通過的負向控制，只證明**一個**已知壞案例能到達檢查器的失敗路徑。**它不證明**該檢查器認得它所宣稱守護的規則的**每一種**違反。一道 grep 閘可以 fail-closed 得很完美，卻守著一個拼字而不是一個行為——那個合成成員證明的是線路接通了，不是那張網夠寬，足以抓住它自稱要抓的東西。
+
 ---
 
 ## Worked examples (measured, 2026-08-10)
@@ -121,6 +127,22 @@ In that case the workable form is **per-inventory**: one check per declaration k
 
 ---
 
+## Narrow Coverage Must Be Registered, Not Just Disclosed
+
+When a gate's actual coverage is narrower than the rule it serves, writing a sentence that says so is not enough. A prose disclosure is cheap — cheaper than widening the gate — and every narrow gate that gets reviewed once grows an honest paragraph and then stays narrow forever. **Disclosure earns nothing on its own; it earns something only paired with a mechanism that can prove it didn't just become a permanent excuse.**
+
+**Requirement**: any documented coverage gap of this kind must also be registered in a dated exception inventory — a list, external to the standard prose itself, that names the gap, states why it exists, and carries a review or expiry date. A disclosure with no entry in such an inventory does not satisfy this rule.
+
+**Falsifiable condition**: if an entry sits unchanged across two consecutive inventory review cycles, the disclosure has become an escape hatch and this rule is violated for that entry — not "partially satisfied", violated. The inventory mechanism itself (its location, format, and cadence) is left to the adopting project; this standard requires that one exist and that entries move, not that it take any particular shape.
+
+當一道閘門的實際涵蓋面窄於它所服務的規則時，只寫一句話說明是不夠的。散文式揭露很便宜——比擴大涵蓋面便宜得多——於是每一道被審過一次的窄閘門都會長出一段誠實的文字，然後永遠維持窄下去。**揭露本身不換來任何東西；只有配上一個能證明它沒有淪為永久藉口的機制，它才換得到東西。**
+
+**要求**：這一類已記錄的涵蓋缺口，必須同時登記到一份**帶到期日的例外清冊**——一份獨立於標準本文之外的清單，指名缺口、說明成因、並附上覆核或到期日期。沒有登記到這種清冊裡的揭露，不滿足本條。
+
+**可證偽條件**：若某條目連續兩期清冊審查都未變動，該揭露就已經變成逃生口，本條對該條目**失效**——不是「部分滿足」，是失效。清冊機制本身（放在哪裡、什麼格式、多久審一次）留給採用它的專案自行決定；本標準要求的是「有這麼一份東西存在，且條目會動」，不是要求它長成特定形狀。
+
+---
+
 ## Anti-patterns
 
 | Anti-pattern | Why it fails |
@@ -130,6 +152,7 @@ In that case the workable form is **per-inventory**: one check per declaration k
 | A check that lists its own scope | Correct until someone adds the fourth member |
 | Testing the class check against one member | Proves that member, not the class |
 | `✓ all pass` with no denominator | Identical output whether it scanned everything or nothing |
+| A disclosure sentence with no entry in a dated exception inventory | Cheaper than widening the gate; nothing forces it to ever change |
 
 ---
 
@@ -157,5 +180,5 @@ Applying this standard is a judgement made at the moment of fixing. There is no 
 
 ## Relationship to other standards
 
-- [verification-evidence](verification-evidence.md) — evidence validity: a tool can fail silently and its output is indistinguishable from a real result. This standard is the same concern applied to *scope* rather than to *execution*.
+- [verification-evidence](verification-evidence.md) — evidence validity: a tool can fail silently and its output is indistinguishable from a real result. This standard is the same concern applied to *scope* rather than to *execution*. It also shares the narrow-coverage-must-be-registered requirement (VE-012) with this standard's own rule of the same shape.
 - [anti-hallucination](anti-hallucination.md) — that one guards "did not check"; this one guards "checked one of many and reported on all".

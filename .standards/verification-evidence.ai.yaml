@@ -8,14 +8,18 @@ standard:
   description: 驗證證據標準，強化 anti-hallucination
 
   meta:
-    version: "1.2.0"
-    updated: "2026-07-17"
+    version: "1.3.0"
+    updated: "2026-08-14"
     source: core/verification-evidence.md
     description: >
       驗證證據標準 — Iron Law: 無驗證證據不可聲稱完成。
       v1.1.0: Evidence must specify which environment layer it was collected from (XSPEC-204).
       v1.2.0: Evidence itself must be validated — a tool can fail silently and its
       output is indistinguishable from a real result (XSPEC-340).
+      v1.3.0: Evidence must postdate the last edit to what it verifies (VE-011,
+      stale evidence); a documented coverage gap must be registered in a dated
+      exception inventory, not left as prose alone (VE-012, narrow-coverage
+      registration — shared with class-level-fix).
     inspired_by: superpowers/verification-before-completion
 
   guidelines:
@@ -27,6 +31,8 @@ standard:
     - "代理報告 success ≠ 實際 success，需獨立驗證"
     - "**工具回報 success ≠ 實際 success**——驗證指令本身可能沒跑起來，而其輸出與真結果無法區分"
     - "驗證輸出截斷至合理長度（2000 字元）但保留關鍵資訊"
+    - "**證據必須晚於它所驗證對象的最後一次編輯**——最近一次執行剛好通過，不代表它驗證的是現狀（VE-011）"
+    - "**窄涵蓋必須登記，不能只揭露**——文件化的證據/涵蓋缺口須登記到帶到期日的例外清冊，單純寫下來不算滿足（VE-012）"
 
   # 以下不構成驗證證據。原本只存在於 zh-TW 譯文裡（英文來源與本檔皆無）——
   # v1.2.0 一併升上來源與本檔（XSPEC-340 R4：譯文比來源更完整，且無 gate 會報）。
@@ -67,12 +73,22 @@ standard:
         detail: >
           `set -o pipefail` 下 `producer | grep -q pattern` 會繼承 producer 的非 0，
           grep 中不中都無關。需要依內容決策時：**先接住輸出，再判斷**。
+      - name: "證據必須晚於它所驗證對象的最後一次編輯"
+        detail: >
+          在受測程式碼、提示詞或設定的最近一次變更之前擷取的驗證執行，證明的是別的東西——
+          不是正在被主張的那件事。陷阱是靜默的：完整套件先跑過且全綠，之後才編輯了某個東西
+          （提示詞、設定檔、門檻），編輯之後只跑了範圍更窄的檢查（lint、部分套件），
+          結果卻拿更早的那次綠燈當作現狀的證據。**證據必須是最後一次編輯之後的單一次新鮮執行，
+          不是「剛好通過的最近一次執行」。**（VE-011）
     provenance: >
-      證據來自 2026-07-17 單一 agent（Claude Opus 4.8）單日的十次實例，
+      規則 1–4 的證據來自 2026-07-17 單一 agent（Claude Opus 4.8）單日的十次實例，
       記錄於 AsiaOstrich XSPEC-340；其中 exit_code=0 四次為假、exit_code≠0 兩次為真
       且依 VE-002 行動摧毀了健康的產物。樣本密集但來源單一——然而每個失敗都源自
       **工具本身的語意**（sudo / gpg / pipefail / POSIX exit code）而非模型的性質，
-      故任何驅動同一批工具的 agent 都暴露在同樣的陷阱下。
+      故任何驅動同一批工具的 agent 都暴露在同樣的陷阱下。規則 5（VE-011）為獨立補強，
+      非同一批樣本：其失效樣態為「完整套件跑過通過 → 之後改了提示詞/設定 →
+      只跑範圍更窄的檢查（如 lint）就提交 → CI 紅在釘住新內容雜湊的測試」——
+      通過的是「最後一次變更之前」的套件。
 
   evidence_format:
     fields:
@@ -117,6 +133,7 @@ standard:
     - "exit_code ≠ 0 → 標記為驗證失敗——**除非**該工具在受測狀態下設計上就回非 0（見 VE-007），此時改依輸出內容判斷"
     - "exit_code = 0 但該指令不可能量到它宣稱的東西 → 標記為未驗證"
     - "證據斷言「不存在」（0／空／查無）→ 未證明查詢工具執行成功前，標記為未驗證"
+    - "證據的時間戳早於它所驗證對象的最後一次編輯 → 標記為過期（stale），須在編輯後重跑，不得引用更早那次通過"
     - "多個驗證步驟 → 所有步驟都必須通過"
 
   rules:
@@ -174,6 +191,31 @@ standard:
       trigger: "證據的 exit_code 來自管線（尤其在 `set -o pipefail` 下）"
       action: "該 exit code 不歸屬於任何單一階段。先接住輸出，再依內容判斷。"
       priority: medium
+    - id: VE-011
+      trigger: "證據的執行時間戳早於它所宣稱驗證之產物的最後一次編輯"
+      action: >
+        標記為過期（stale）——對現狀不成立為證據；要求在編輯後補一次單一次新鮮執行。
+      priority: high
+
+  # ── v1.3.0 窄涵蓋登記規則（B-01 借鑒）──
+  # 與 class-level-fix 的同名規則共用同一條要求：文件化的缺口若沒有登記到
+  # 帶到期日的例外清冊，揭露就會變成永久豁免。
+  narrow_coverage_registration:
+    description: "文件化的證據/涵蓋缺口（environment-stratification ⚠️/❌、或任何窄於其主張的檢查）必須登記，不能只揭露"
+    requirement: >
+      任何這一類已記錄的缺口，須同時登記到一份帶到期日的例外清冊——獨立於標準本文或
+      matrix 條目本身之外——指名缺口、其成因、並附上覆核或到期日期。只有一則註腳而沒有
+      對應清冊條目，不滿足此規則。
+    falsifiable_condition: >
+      一則清冊條目連續兩期審查都未變動，代表該揭露已經變成逃生口，本條對該條目失效——
+      不是「部分滿足」，是失效。清冊放在哪裡、什麼格式、多久審一次，留給採用專案自行決定；
+      本標準只要求「有這麼一份東西存在，且條目會動」。
+    shared_with: class-level-fix
+    rules:
+      - id: VE-012
+        trigger: "文件化的證據/涵蓋缺口（environment-stratification ⚠️/❌，或任何窄於其主張的檢查）沒有登記到帶到期日的例外清冊"
+        action: "揭露本身不滿足此規則——要求一則登記過、帶到期日的清冊條目，指名缺口與其覆核/到期日期"
+        priority: required
 
 physical_spec:
   type: checklist
@@ -189,5 +231,7 @@ physical_spec:
     - "證據若斷言「不存在」，是否已證明查詢工具執行成功（VE-008）"
     - "判斷存在與否的指令是否抑制了 stderr（VE-009）"
     - "exit_code 是否來自管線而非受測指令本身（VE-010）"
+    - "證據的執行時間戳是否晚於它所驗證對象的最後一次編輯（VE-011）"
+    - "文件化的證據/涵蓋缺口是否登記於帶到期日的例外清冊，而非只有揭露文字（VE-012）"
     - "Bug fix 是否有 RED → GREEN 循環證據"
     - "有外部服務依賴的 AC 是否標明 environment_layer"

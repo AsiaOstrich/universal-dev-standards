@@ -3,7 +3,7 @@ source: ../../../core/test-governance.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-04-20
-status: current
+status: stale
 ---
 
 > **语言**: [English](../../../core/test-governance.md) | 简体中文
