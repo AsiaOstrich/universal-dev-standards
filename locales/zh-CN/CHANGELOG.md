@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.4.0
-translation_version: 6.4.0
-last_synced: 2026-08-10
+source_version: 6.5.0
+translation_version: 6.5.0
+last_synced: 2026-08-14
 status: current
 ---
 
@@ -16,6 +16,15 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.5.0] - 2026-08-14
+
+> ⚠️ **本节简体译文待补。** 本次发布包含两批内容：XSPEC 借鉴 B-01 的五条标准补强
+> （`verification-evidence` VE-011/VE-012、`test-governance` 门槛闸须 fail-closed、
+> `mutation-testing` kill 归因、`class-level-fix` 负向控制极限声明），
+> 以及 XSPEC-362 的 `model-selection` 2.1.0 与 `agent-dispatch` 复位。
+> 完整内容见 [English](../../CHANGELOG.md) 或 [繁體中文](../zh-TW/CHANGELOG.md)。
+> **此处明示未翻译，而非以繁体内容充当简体译文。**
 
 ## [6.4.0] - 2026-08-10
 
