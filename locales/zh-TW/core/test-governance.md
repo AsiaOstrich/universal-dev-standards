@@ -1,8 +1,8 @@
 ---
 source: ../../../core/test-governance.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-04-20
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-08-14
 status: current
 ---
 
@@ -72,6 +72,23 @@ status: current
 | 程式碼審查完成 | 至少一位審查者核准 |
 | 文件更新 | API 文件和 CHANGELOG 已更新 |
 
+### 門檻閘門必須 Fail Closed
+
+一個印出百分比、卻無論有沒有達標都以 exit code `0` 結束的量測層，是一份報告，不是一道閘門。它會在自己印出的數字連續多次 commit 持續下滑時始終保持綠燈，而沒有東西擋下下一次合併。
+
+任何有通過/失敗門檻的檢查（coverage、lint、mutation score，或任何有界的量測指標）都必須把「未達門檻」轉譯成非 0 的 exit code——透過工具自己的強制旗標，而不是透過事後重新解析輸出的包裝腳本：
+
+| 工具 | Fail-closed 旗標 |
+|------|-------------------|
+| pytest-cov | `--cov-fail-under=<N>` |
+| coverage.py | `coverage report --fail-under=<N>` |
+| diff-cover | `diff-cover coverage.xml --fail-under=<N>` |
+| nyc / Istanbul | `--check-coverage --lines <N>` |
+| Stryker Mutator | `stryker.config.json` 中的 `thresholds.break` |
+| ESLint | `--max-warnings 0` |
+
+一個計算出數字、印出來、卻永遠 `exit 0` 的包裝腳本，既不滿足本條規則，也不滿足 `verification-evidence` 的證據有效性規則 1——工具的 exit code 不再帶有任何關於它量測對象的資訊。
+
 ## 測試環境管理
 
 | 環境 | 用途 | 管理責任 |
@@ -89,6 +106,7 @@ status: current
 | pyramid-compliance | 規劃測試策略時 | 以 70/20/7/3 金字塔比例為指引。可接受偏差，但需有文件記錄的正當理由 | 必須 |
 | sit-isolation | 執行系統測試時 | 系統測試應對外部相依性使用 Stub，但使用真實的內部服務。使用 SIT 環境進行系統層級的驗證 | 建議 |
 | test-execution-continuity | 新增或完成測試案例時 | 測試案例必須連接到自動化執行觸發器（CI gate、build hook 或排程執行）。存在但從未執行的測試提供假信心，比沒有測試更糟。在將測試覆蓋率標記為完成前，請確認執行歷程存在。| 必須 |
+| fail-closed-threshold-gate | 設定或審查任何 coverage/lint/mutation 或其他門檻檢查時 | 該檢查必須使用工具自己的 fail-under（或等價）強制旗標，使其在未達門檻時以非 0 退出。只印出數字、永遠 exit 0 的腳本是報告，不是閘門，不滿足本條 | 必須 |
 
 ---
 
@@ -97,3 +115,4 @@ status: current
 - [測試標準](testing-standards.md)
 - [提交規範](checkin-standards.md)
 - [部署標準](deployment-standards.md)
+- [驗證證據標準](verification-evidence.md) —— 證據有效性規範的是產出 exit code 之後如何**解讀**它；`fail-closed-threshold-gate` 規範的是閘門必須如何被**建造**，讓 exit code 一開始就帶有真實資訊

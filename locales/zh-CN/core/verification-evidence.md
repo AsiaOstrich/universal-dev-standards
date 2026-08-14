@@ -3,7 +3,7 @@ source: ../../../core/verification-evidence.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-07-17
-status: current
+status: stale
 ---
 
 > **语言**: [English](../../../core/verification-evidence.md) | 简体中文
