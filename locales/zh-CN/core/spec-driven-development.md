@@ -4,7 +4,7 @@ source_version: 2.3.0
 translation_version: 2.3.0
 last_synced: 2026-06-10
 source_hash: 08dd8c2bee20
-status: current
+status: stale
 ---
 
 # 规格驱动开发 (SDD) 标准
