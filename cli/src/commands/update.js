@@ -1933,7 +1933,26 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     Object.assign(manifest.skillHashes, result.allFileHashes);
   }
 
-  writeManifest(manifest, projectPath);
+  // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
+  // command, BEFORE the reconciler ran; the reconciler writes its own copy to
+  // disk — including the advanced `upstream.version` — and writing this stale
+  // object back silently reverts it.
+  //
+  // Measured 2026-08-18 with probes inside plan-executor: results=57 failing=0,
+  // registry version "6.7.1", "about to write upstream = {version:'6.7.1'}" —
+  // and the value on disk afterwards was still the old one. The reconciler did
+  // everything right and this write undid it. Both runs exited 0 and printed
+  // "57 succeeded", so a repo could be fully upgraded while its own manifest
+  // said otherwise, and the weekly staleness scout — which reads exactly
+  // `upstream.version` — kept reporting it as behind. (XSPEC-382 R5)
+  //
+  // Only the fields this function owns are carried over: copying the whole
+  // object back would reintroduce the same overwrite for any field a later
+  // step adds.
+  const freshForSkills = readManifest(projectPath) || manifest;
+  freshForSkills.skills = manifest.skills;
+  freshForSkills.skillHashes = manifest.skillHashes;
+  writeManifest(freshForSkills, projectPath);
 
   console.log();
   process.exit(0);
@@ -2040,7 +2059,28 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
   }
 
-  writeManifest(manifest, projectPath);
+  // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
+  // command, BEFORE the reconciler ran; the reconciler writes its own copy to
+  // disk — including the advanced `upstream.version` — and writing this stale
+  // object back silently reverts it.
+  //
+  // Measured 2026-08-18 with probes inside plan-executor: results=57 failing=0,
+  // registry version "6.7.1", "about to write upstream = {version:'6.7.1'}" —
+  // and the value on disk afterwards was still the old one. The reconciler did
+  // everything right and this write undid it. Both runs exited 0 and printed
+  // "57 succeeded", so a repo could be fully upgraded while its own manifest
+  // said otherwise, and the weekly staleness scout — which reads exactly
+  // `upstream.version` — kept reporting it as behind. (XSPEC-382 R5)
+  //
+  // Only the fields this function owns are carried over: copying the whole
+  // object back would reintroduce the same overwrite for any field a later
+  // step adds.
+  // Found by traversal, not by hitting it: the same shape existed here, and
+  // fixing only the instance I ran into would have left the class open.
+  const freshForCommands = readManifest(projectPath) || manifest;
+  freshForCommands.commands = manifest.commands;
+  freshForCommands.commandHashes = manifest.commandHashes;
+  writeManifest(freshForCommands, projectPath);
 
   console.log();
   process.exit(0);
