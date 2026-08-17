@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/durable-execution-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导工作流程故障恢复，包含检查点、重试与回滚策略。
-  使用时机：工作流中途失败、需要重试逻辑、设计容错流程。
-  关键字：durable, execution, checkpoint, retry, rollback, recovery, 持久执行, 恢复。
+  [UDS] 引导容错工作流设计，包含检查点、重试策略与回滚计划。
+  Use when: 长时间运行的工作流总是中途失败、设计检查点的粒度、选择重试或退避策略。
+  Not for: 处理正在发生中的线上事故——请用 /incident；部署回滚的实现机制——请用 /deploy。
+  Keywords: durable execution, checkpoint, retry, backoff, idempotency, rollback, 持久执行, 检查点, 重试策略, 幂等.
 ---
 
 # 持久执行助手

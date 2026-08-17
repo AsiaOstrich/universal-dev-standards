@@ -2,10 +2,14 @@
 name: refactoring-assistant
 source: ../../../../skills/refactoring-assistant/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-02-10
+translation_version: 2.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導重構決策、推薦策略，並提供逐步執行工作流程"
+description: |
+  [UDS] 引導重構決策與策略選擇，包含「重構還是重寫」這個判斷。
+  Use when: 程式碼已經難以修改、在戰術性與架構性重構之間做選擇、要在老舊程式碼裡安全地動手。
+  Not for: 換到不同框架或主版本——請用 /migrate；清除除錯殘留與死碼——請用 /sweep。
+  Keywords: refactor, rewrite, strangler, legacy code, technical debt, code smell, 重構, 重寫, 技術債, 壞味道.
 ---
 
 # 重構助手

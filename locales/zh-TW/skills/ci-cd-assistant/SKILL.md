@@ -2,10 +2,14 @@
 name: ci-cd-assistant
 source: ../../../../skills/ci-cd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 CI/CD 管線設計、配置和優化"
+description: |
+  引導 CI/CD 管線的設計、設定與最佳化。
+  Use when: 建置管線、縮短建置時間、設定部署階段。
+  Not for: 沒有 CI/CD 平台的部署——請用 /deploy；版本號遞增與晉級——請用 /release。
+  Keywords: CI/CD, pipeline, GitHub Actions, deployment, build, 持續整合, 持續部署, 管線.
 ---
 
 # CI/CD 管線助手

@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/ai-instruction-standards/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-05-05
+translation_version: 2.1.0
+last_synced: 2026-08-17
 status: current
 scope: partial
 description: |
-  创建和维护 AI 指令文件（CLAUDE.md、.cursorrules 等）并采用适当结构。
-  使用时机：创建 AI 指令文件、区分通用与项目特定规则、配置 AI 工具。
-  关键字：CLAUDE.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令文件, AI 设定.
+  创建并维护 AI 指令文件（CLAUDE.md、AGENTS.md、.cursor/rules/ 等），并采用适当结构。
+  Use when: 创建 AI 指令文件、区分通用规则与项目特定规则、配置 AI 工具。
+  Not for: 调整代码库结构让 AI 好导览——请用 /ai-friendly-architecture；要求以证据为基础的回答——请用 /ai-collaboration-standards。
+  Keywords: CLAUDE.md, AGENTS.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令文件, AI 设定, 系统提示词.
 ---
 
 # AI 指令文件标准指南

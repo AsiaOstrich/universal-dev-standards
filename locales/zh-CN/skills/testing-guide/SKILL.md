@@ -1,16 +1,17 @@
 ---
 source: ../../../../skills/testing-guide/SKILL.md
 source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-07-16
-source_hash: 2a5e2a667b04
+translation_version: 1.3.0
+last_synced: 2026-08-17
+source_hash: 372f9eca773d
 status: current
 name: testing
 description: |
-  面向 UT/IT/ST/E2E 的测试金字塔与测试编写标准。
+  测试金字塔，以及 UT/IT/ST/E2E 的测试编写标准。
   支持 ISTQB 与业界通行金字塔两种框架。
-  使用时机：编写测试、讨论测试覆盖率、测试策略或测试命名时。
-  关键词：test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 测试, 单元, 集成, 端对端。
+  Use when: 编写测试、讨论测试覆盖率、测试策略或测试命名时。
+  Not for: 驱动红-绿-重构循环——请用 /tdd；测量实际达成的覆盖率——请用 /coverage。
+  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 测试, 单元测试, 集成测试, 端对端.
 ---
 
 # 测试指南

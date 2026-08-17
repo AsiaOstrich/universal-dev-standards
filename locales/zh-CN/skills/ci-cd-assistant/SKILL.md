@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/ci-cd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导 CI/CD 管线设计、配置和优化。
-  使用时机：设置管线、优化构建时间、配置部署阶段。
-  关键字：CI/CD, pipeline, GitHub Actions, deployment, build, 持续集成, 持续部署。
+  引导 CI/CD 流水线的设计、配置与优化。
+  Use when: 搭建流水线、缩短构建时间、配置部署阶段。
+  Not for: 没有 CI/CD 平台的部署——请用 /deploy；版本号递增与晋级——请用 /release。
+  Keywords: CI/CD, pipeline, GitHub Actions, deployment, build, 持续集成, 持续部署, 流水线.
 ---
 
 # CI/CD 管线助手

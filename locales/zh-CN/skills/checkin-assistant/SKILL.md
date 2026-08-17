@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  在提交代码前验证品质关卡，确保代码库稳定性。
-  使用时机：提交前检查、品质验证、pre-commit 检查。
-  关键字：checkin, pre-commit, quality gate, 签入, 品质关卡, 验证。
+  [UDS] 提交前质量关卡的参考资料：关卡定义、检查清单项目，以及绝不可提交的规则。
+  Use when: 决定 commit 前必须通过哪些检查、审计项目实际强制了哪些质量关卡、确认是否已可签入。
+  Not for: 执行关卡流程或中止 commit——该部分已移至采用层（XSPEC-095）；找出并清除调试残留——请用 /sweep。
+  Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 签入, 提交前检查, 质量关卡, 检查清单.
 ---
 
 # 签入助手

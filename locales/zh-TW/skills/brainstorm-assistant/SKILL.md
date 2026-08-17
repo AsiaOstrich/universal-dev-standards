@@ -2,11 +2,15 @@
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
 source_version: 4.1.0
-source_hash: 0c1fa3392232
-translation_version: 4.1.0
-last_synced: 2026-07-09
+source_hash: 711404f2c4af
+translation_version: 4.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 在撰寫規格前進行結構化 AI 輔助腦力激盪"
+description: |
+  [UDS] 在規格出現之前執行的結構化多角色腦力激盪，並附帶評分品質關卡。
+  Use when: 想法還很模糊、在敲定方向前探索替代方案、需要多樣性而不是第一個看似合理的答案。
+  Not for: 方向已經定了的工作規劃——請用 /plan 或 /sdd；記錄已經做成的決策——請用 /adr。
+  Keywords: brainstorm, ideation, divergence, convergence, persona ensemble, devil advocate, 腦力激盪, 發想, 發散收斂, 多角色.
 ---
 
 # 腦力激盪助手

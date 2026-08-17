@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/security-scan-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导自动化安全扫描、依赖包审计和机密检测。
-  使用时机：依赖审计、CVE 扫描、机密检测、许可证合规。
-  关键字：scan, audit, CVE, dependency, secret, SBOM, vulnerability, 扫描, 漏洞。
+  引导自动化安全扫描、依赖包审计与密钥检测。
+  Use when: 依赖包审计、CVE 扫描、密钥检测、许可证合规。
+  Not for: 人工的威胁建模与安全设计审查——请用 /security；一般的代码整洁度——请用 /sweep。
+  Keywords: scan, audit, CVE, dependency, secret, SBOM, vulnerability, 扫描, 审计, 依赖包, 密钥检测.
 ---
 
 # 安全扫描助手

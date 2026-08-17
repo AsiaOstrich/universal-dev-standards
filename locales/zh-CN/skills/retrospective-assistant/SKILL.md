@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/retrospective-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: e9de3576878e
-translation_version: 1.0.0
-last_synced: 2026-07-16
+source_hash: 3efae30b9297
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
   [UDS] 引导 Sprint 与 Release 周期的结构化团队回顾。
-  使用时机：迭代结束、发布复盘、流程改善。
-  关键字：retrospective, retro, 回顾, 复盘, 持续改善。
+  Use when: Sprint 结束、发布后复盘、迭代审视、流程改善。
+  Not for: 生产环境事故的事后复盘——请用 /incident；追踪两次回顾之间的指标趋势——请用 /metrics。
+  Keywords: retrospective, retro, sprint review, lessons learned, action items, 回顾, 复盘, 迭代审视, 流程改善.
 ---
 
 # 回顾助手

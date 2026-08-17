@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/release-standards/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-02-10
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导遵循语义化版本和变更日志最佳实践的发布流程。
-  使用时机：版本发布、版本管理、变更日志更新。
-  关键字：release, version, semver, changelog, 发布, 版本, 语义化。
+  [UDS] 引导发布流程——语义化版本、发布模式，以及 start/finish/promote/deploy 的顺序。
+  Use when: 切一个发布版本、决定语义化版本要升哪一位、把 release candidate 晋级为稳定版、记录一次部署。
+  Not for: 撰写变更日志条目本身——请用 /changelog；部署的实现机制——请用 /deploy。
+  Keywords: release, semantic versioning, version bump, release candidate, promote, 发布, 语义化版本, 发版流程, 版本晋级.
 ---
 
 # 发布助手

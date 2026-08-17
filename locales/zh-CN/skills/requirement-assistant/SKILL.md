@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/requirement-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  编写结构良好的用户故事和需求文件，遵循 INVEST 准则。
-  使用时机：编写需求、定义用户故事、验收条件。
-  关键字：requirement, user story, INVEST, acceptance criteria, 需求, 用户故事, 验收条件。
+  [UDS] 撰写符合 INVEST 准则的用户故事与需求。
+  Use when: 把一个功能构想转成用户故事、定义可测试的验收条件、检视待办项目的质量。
+  Not for: 带有设计与差异操作的完整规格文档——请用 /sdd；判断这个构想本身对不对——请用 /brainstorm。
+  Keywords: requirement, user story, INVEST, acceptance criteria, backlog refinement, 需求, 用户故事, 验收条件, 待办梳理.
 ---
 
 # 需求助手

@@ -2,10 +2,14 @@
 name: security-scan-assistant
 source: ../../../../skills/security-scan-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導自動化安全掃描、相依套件審計和機密偵測"
+description: |
+  引導自動化安全掃描、相依套件稽核與機密偵測。
+  Use when: 相依套件稽核、CVE 掃描、機密偵測、授權條款合規。
+  Not for: 人工的威脅建模與安全設計審查——請用 /security；一般的程式碼整潔度——請用 /sweep。
+  Keywords: scan, audit, CVE, dependency, secret, SBOM, vulnerability, 掃描, 稽核, 相依套件, 機密偵測.
 ---
 
 # 安全掃描助手

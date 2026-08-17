@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/contract-test-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: c8b082114d48
-translation_version: 1.0.0
-last_synced: 2026-07-09
+source_hash: 35b654f0b277
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  [UDS] 引导 API 和微服务的契约测试策略。
-  使用时机：API 契约、微服务、消费者驱动测试。
-  关键字：contract test, Pact, OpenAPI, 契约测试。
+  [UDS] 引导 API 与微服务的契约测试策略。
+  Use when: API 契约、微服务、消费者驱动测试、提供者验证。
+  Not for: 一开始的 API 接口设计——请用 /api-design；经由 UI 的用户可见流程——请用 /e2e。
+  Keywords: contract test, Pact, OpenAPI, consumer-driven, provider, 契约测试, 消费者驱动, 提供者验证.
 ---
 
 # 契约测试助手

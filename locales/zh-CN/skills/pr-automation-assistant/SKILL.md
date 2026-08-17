@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导 Pull Request 创建、审查自动化和合并策略。
-  使用时机：创建 PR、自动化审查、配置合并策略。
-  关键字：pull request, PR, merge, review, GitHub, GitLab, 合并请求, 审查。
+  引导 pull request 创建、审查自动化与合并策略。
+  Use when: 创建 PR、自动化审查流程、配置合并策略。
+  Not for: 审查本身的内容实质——请用 /code-review；分支命名与合并策略——请用 /git-workflow-guide。
+  Keywords: pull request, PR, merge, review, GitHub, GitLab, 合并请求, 审查自动化, 合并策略.
 ---
 
 # PR 自动化助手

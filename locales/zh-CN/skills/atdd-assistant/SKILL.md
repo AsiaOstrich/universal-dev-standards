@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/atdd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导验收测试驱动开发（ATDD）流程，用于定义和验证用户故事。
-  使用时机：定义验收条件、用户故事验证、ATDD 流程。
-  关键字：atdd, acceptance, user story, INVEST, 验收测试, 用户故事, 验收条件。
+  [UDS] 验收测试驱动开发（ATDD）的参考资料：INVEST 准则、Gherkin 验收条件格式与 Three Amigos 结构。
+  Use when: 与 Product Owner 一起定义验收条件、进行规格工作坊、用 INVEST 检视用户故事。
+  Not for: 执行 ATDD 生命周期或强制 PO 签核关卡——该部分已移至采用层（XSPEC-095）；编写单元测试——请用 /tdd。
+  Keywords: ATDD, acceptance test, acceptance criteria, INVEST, specification workshop, Three Amigos, 验收测试驱动开发, 验收条件, 规格工作坊.
 ---
 
 # ATDD 助手

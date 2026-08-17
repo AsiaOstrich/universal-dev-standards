@@ -2,10 +2,14 @@
 name: ac-coverage
 source: ../../../../skills/ac-coverage/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: universal
-description: "[UDS] 分析驗收條件（AC）與測試之間的追蹤關係並產生覆蓋率報告"
+description: |
+  [UDS] 分析驗收條件（AC）與測試之間的追蹤關係，並產生需求層級的覆蓋率報告。
+  Use when: 稽核哪些驗收條件已有測試、從 SPEC 檔建立追蹤矩陣、發布前找出尚未被覆蓋的 AC。
+  Not for: 程式碼層級的行／分支／函式覆蓋率——請用 /coverage；補寫缺少的測試——請用 /tdd 或 /spec-derive。
+  Keywords: AC coverage, traceability, acceptance criteria, SPEC, traceability matrix, 驗收條件, 需求追蹤, 覆蓋率矩陣, 追蹤矩陣.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[規格檔案路徑]"
 ---

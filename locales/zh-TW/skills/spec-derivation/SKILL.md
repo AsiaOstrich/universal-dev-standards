@@ -2,10 +2,14 @@
 name: spec-derive
 source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: partial
-description: "[UDS] 從規格衍生 BDD 場景、TDD 骨架或 ATDD 表格"
+description: |
+  [UDS] 從已核准的規格推導出 BDD 場景、TDD 骨架、整合與 E2E 測試，以及 ATDD 表格。
+  Use when: 規格已核准且需要產出測試產物、從驗收條件產生帶標籤的測試骨架、從規格產生合約樁。
+  Not for: 從既有程式碼回推規格——請用 /reverse；撰寫或審查規格本身——請用 /sdd。
+  Keywords: forward derivation, spec to test, BDD scenario, TDD skeleton, ATDD table, 正向推演, 規格衍生, 測試生成, 合約樁.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file>"
 prerequisites: ["spec-approved"]

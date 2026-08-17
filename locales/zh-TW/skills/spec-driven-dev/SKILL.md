@@ -2,11 +2,15 @@
 name: spec-driven-dev
 source: ../../../../skills/spec-driven-dev/SKILL.md
 source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-06-02
+translation_version: 1.3.0
+last_synced: 2026-08-17
 source_hash: 195f50bcbfb7
 status: current
-description: "[UDS] 在撰寫程式碼前，建立、審查和管理規格文件"
+description: |
+  [UDS] 在寫程式碼之前建立並審查規格文件——規格格式、狀態與差異操作。
+  Use when: 某項變更需要先有書面規格、審查規格的完整性、用 delta 區段修訂既有規格。
+  Not for: 執行帶關卡的 SDD 生命週期——該部分已移至採用層（XSPEC-095）；快速迭代用的輕量微規格——請用 uds spec 指令。
+  Keywords: SDD, spec, specification, design document, delta operation, spec review, 規格驅動開發, 規格文件, 變更操作, 規格審查.
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   SDD 生命週期編排（7 階段狀態機、階段轉換、閘門檢查）已遷移至

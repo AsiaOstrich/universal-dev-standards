@@ -2,10 +2,14 @@
 name: security-assistant
 source: ../../../../skills/security-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導安全審查和漏洞評估，遵循 OWASP 標準"
+description: |
+  引導安全審查與弱點評估，遵循 OWASP 標準。
+  Use when: 安全稽核、弱點檢查、安全程式碼審查、威脅建模。
+  Not for: 自動化的相依套件、CVE 與機密掃描——請用 /scan；處理正在發生的資安事件——請用 /incident。
+  Keywords: security, OWASP, vulnerability, authentication, authorization, 資訊安全, 弱點, 認證, 授權, 威脅建模.
 ---
 
 # 安全審計助手

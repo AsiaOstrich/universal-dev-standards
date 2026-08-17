@@ -1,10 +1,14 @@
 ---
 source: ../../../../skills/slo-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引导 SLI 选取、SLO 设置和 Error Budget 管理"
+description: |
+  引导 SLI 选取、SLO 设置与 Error Budget 管理。
+  Use when: 定义服务质量目标、建立以 SLO 为基础的告警、Error Budget 策略。
+  Not for: 埋点与指标收集——请用 /observability；处理正在违反目标的状况——请用 /incident。
+  Keywords: SLI, SLO, SLA, Error Budget, burn rate, service level, 服务等级, 错误预算, 燃烧率, 服务质量目标.
 ---
 
 # SLO 助手

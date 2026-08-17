@@ -1,14 +1,15 @@
 ---
 name: logging
 description: |
-  实现结构化日志，包含正确的日志级别和敏感数据处理。
-  使用时机：新增日志、调试、设置可观测性。
-  关键字：logging, log level, structured logging, observability, 日志, 记录, 结构化日志。
+  实现结构化日志，包含适当的日志级别与敏感数据处理。
+  Use when: 加入日志、调试、建立可观测性。
+  Not for: 指标、追踪与告警设计——请用 /observability；错误码分类体系——请用 /error-code-guide。
+  Keywords: logging, log level, structured logging, observability, 日志, 结构化日志, 日志级别, 敏感数据.
 source: ../../../../skills/logging-guide/SKILL.md
 source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-07-08
-source_hash: cf114de1df86
+translation_version: 1.5.0
+last_synced: 2026-08-17
+source_hash: ca969fdf7847
 status: current
 ---
 

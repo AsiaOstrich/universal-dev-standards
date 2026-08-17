@@ -2,11 +2,15 @@
 name: ai-friendly-architecture
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 scope: universal
-description: "[UDS] 設計 AI 友善架構，包含明確模式、分層文件和語義邊界"
+description: |
+  設計 AI 友善架構，包含明確的模式、分層文件與語意邊界。
+  Use when: 為 AI 協作規劃專案結構、最佳化程式碼庫以利 AI 分析、建立 AI 上下文。
+  Not for: 撰寫指令檔本身——請用 /ai-instruction-standards；依語言慣例安排目錄配置——請用 /project-structure-guide。
+  Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架構, AI 友善, 上下文, 語意邊界.
 ---
 
 # AI 友善架構指南

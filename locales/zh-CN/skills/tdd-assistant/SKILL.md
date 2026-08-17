@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/tdd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导测试驱动开发（TDD）流程：红-绿-重构。
-  使用时机：TDD 开发、撰写测试先行的代码、学习 TDD。
-  关键字：TDD, test-driven, red-green-refactor, 测试驱动, 红绿重构。
+  [UDS] 测试驱动开发（TDD）的参考资料：红-绿-重构循环、FIRST 原则与 Arrange-Act-Assert 结构。
+  Use when: 在实现前先写一个会失败的测试、用 Arrange-Act-Assert 组织测试、以 FIRST 检视既有测试。
+  Not for: 交互式地驱动 RED/GREEN 循环——该部分已移至采用层（XSPEC-095）；测量测试覆盖了多少代码——请用 /coverage。
+  Keywords: TDD, test first, Red Green Refactor, FIRST, Arrange Act Assert, unit test, 测试驱动开发, 红绿重构, 单元测试.
 ---
 
 # TDD 助手

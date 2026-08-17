@@ -2,10 +2,14 @@
 name: skill-builder
 source: ../../../../skills/skill-builder/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: universal
-description: "[UDS] 識別重複流程並以正確開發深度建立 Skill"
+description: |
+  [UDS] 把重複的手動流程轉成範圍界定得宜的 Skill，過程中拿捏恰當的流程份量。
+  Use when: 同一段多步驟流程已經手動做過三次以上、把臨時湊出來的 Skill 正式化、決定某個 Skill 該放在哪一層。
+  Not for: 記錄歷史事實或專案狀態——那屬於記憶，不是 Skill；不會再發生的一次性任務。
+  Keywords: skill, skill builder, process knowledge, repeated process, automation, 技能建立, 流程知識, 自動化, 重複流程.
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash
 argument-hint: "[流程描述]"
 ---
