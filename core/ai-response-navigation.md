@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-response-navigation.md) | [简体中文](../locales/zh-CN/core/ai-response-navigation.md)
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-08-17
 **Applicability**: All projects using AI-assisted development
 **Scope**: universal
@@ -19,11 +19,12 @@ This standard defines navigation behavior for AI responses: every substantive AI
 
 **Solution**: A standard "Navigation Footer" appended to every substantive AI response, with contextual templates, recommendation marking, and adaptive option quantities.
 
-**Scope note (v1.2.0)**: Rules 1–6 govern what comes *after* the answer. Rules 7–9 — added in 1.2.0
-and **optional** — govern the answer itself: lead with the finding, restate state across turns, no
-preamble. They were added because a response can satisfy every one of Rules 1–6 while burying its
-conclusion, and a reader who cannot find the answer is not helped by a correct footer telling them
-what to do next.
+**Scope note (v1.2.0, extended in 1.3.0)**: Rules 1–6 govern what comes *after* the answer.
+Rules 7–11 — **all optional** — govern the answer itself: lead with the finding (R7), restate state
+across turns (R8), no preamble (R9), plain language as the subject (R10), and a trade-off on every
+option rather than only the recommended one (R11). They exist because a response can satisfy every
+one of Rules 1–6 while burying its conclusion, stating it in vocabulary only its author holds, or
+listing options the reader still has to compare themselves.
 
 ---
 
@@ -103,9 +104,11 @@ Tier names are **vendor-neutral**. Each tool or platform maps these tiers to its
 
 ---
 
-## The Answer Before the Navigation (Rules 7–9, Optional)
+## The Answer Before the Navigation (Rules 7–11, Optional)
 
-> **Borrowed from**: [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd) (MIT), 3 of its 10 rules.
+> **R7–R9 borrowed from**: [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd) (MIT), 3 of its 10 rules.
+> **R10–R11 added in 1.3.0** from a different source — a user telling the author, twice in one session,
+> that a correct and complete answer was unreadable. R7–R9 had already shipped and were being followed.
 > The other 7 were dropped: 2 are already covered by Rules 1–2 above, and 5 either conflict with
 > this standard (its "no recap / no closers" contradicts Rule 1's Navigation Footer; its
 > "cap lists at 5" would truncate evidence tables and traversal denominators) or duplicate
@@ -116,7 +119,7 @@ itself — a response could bury its conclusion under a wall of evidence and sti
 in this standard by appending a correct Navigation Footer. A reader who cannot find the answer is
 not helped by being told what to do next.
 
-**These three rules are optional**, in the same sense as Rule 6: adopting projects are not required
+**These five rules are optional**, in the same sense as Rule 6: adopting projects are not required
 to enable them, and existing skills need no retroactive update. A project MAY promote any of them to
 required in its own configuration. What is *not* optional is that they have precise triggers — a rule
 phrased so loosely that it never fires is indistinguishable from not having the rule.
@@ -163,6 +166,53 @@ but the delay it puts between the reader and the answer.
 
 **Rule 9 does not apply to closers.** Rule 1 requires a Navigation Footer, and that requirement
 stands — the end of a response is where this standard puts the reader's next move.
+
+### Rule 10: Plain Language Is the Subject; Identifiers Are Support （Optional）
+
+**Trigger**: any response explaining a situation, a defect, or a system's behaviour to a human.
+
+Explain what happened in the words the reader would use. File paths, symbol names, line
+references, command output and version strings are **support** — they belong after the sentence
+they support, not as the sentence itself.
+
+| Instead of | Write |
+|-----------|-------|
+| "`load_topics()` at `intel-scout.py:883` reads `intel-topics.yaml`, while `load_feeds()` at `:1033` reads `intel-feeds.yaml`." | "It gathers material two ways: by searching keywords, and by subscribing to a fixed set of blogs." *(then cite both call sites)* |
+| "`manifest.skillHashes` has 137 entries keyed by `claude-code/project/<n>/SKILL.md` while the lookup uses `.claude/skills/<n>`." | "The hashes are stored under one naming scheme and looked up under another, so none are ever found." *(then show both keys)* |
+
+This is **not** a licence to omit the identifiers — a reader who wants to verify must be able to.
+It governs which of the two is the subject of the sentence.
+
+**Why it is separate from R7**: R7 orders *finding before evidence*. R10 governs *register* — a
+response can lead with its finding and still state that finding in vocabulary only its author
+holds. Both failures leave the reader unable to act; they are different failures.
+
+### Rule 11: Every Option Carries Its Own Trade-off （Optional）
+
+**Trigger**: a response that asks the reader to choose between two or more courses of action.
+
+Rule 2 requires marking the recommended option and giving *its* reason. Rule 11 extends that to
+the rest: **each** option states what it buys and what it costs, in its own terms.
+
+A list of options where only the recommended one is argued hands the comparison back to the
+reader — which is the work they asked to have done. And an option presented without its downside
+reads as having none, which is rarely true and never verifiable from the list alone.
+
+```markdown
+> **Please choose:**
+> | Option | Buys you | Costs you |
+> |---|---|---|
+> | **(A) …** ⭐ **Recommended** — [why this one] | … | … |
+> | **(B) …** | … | … |
+```
+
+**A trade-off is not a hedge.** "This may be slightly harder" is not a cost; "this rewrites 110
+files and needs a human to check the translations" is. If an option genuinely has no downside
+worth stating, say so explicitly rather than leaving the column empty — an empty cell reads as
+"not analysed", and the reader cannot tell those apart.
+
+**Composes with Rule 4**: the option count stays bounded (1–5). Trade-offs make each option
+costlier to read, so this rule makes Rule 4's cap matter more, not less.
 
 ---
 
@@ -356,6 +406,8 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 | R7 | *(Optional)* Lead with the finding; evidence follows the claim it supports |
 | R8 | *(Optional)* 3+ turns or 3+ steps → restate state in one line |
 | R9 | *(Optional)* No preamble. Closers still required — see R1 |
+| R10 | *(Optional)* Plain language is the subject; identifiers support it, after the claim |
+| R11 | *(Optional)* Every option states what it buys and costs — not only the recommended one |
 
 | Exempt | Not Exempt |
 |--------|------------|
@@ -379,6 +431,7 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-08-17 | Add optional R10–R11. R10 governs register: plain language is the subject of the sentence and identifiers support it — distinct from R7, which orders finding before evidence, because a response can lead with its finding and still state it in vocabulary only its author holds. R11 extends Rule 2 from the recommended option to all of them: a list where only the recommendation is argued hands the comparison back to the reader, and an option shown without its cost reads as having none |
 | 1.2.0 | 2026-08-17 | Add optional R7–R9 governing the answer itself (lead with the finding, restate state, no preamble). Borrowed from `ayghri/i-have-adhd` (MIT), 3 of its 10 rules; the other 7 were dropped as duplicated by R1–R2, in conflict with R1, or covered by estimation-standards. Rules 1–6 could all be satisfied by a response that buries its conclusion — R7–R9 close that |
 | 1.1.0 | 2026-06-10 | Add R6 optional model tier annotation (`〔model: Fast\|Standard\|Capable〕`); vendor-neutral; no forced changes to existing skills |
 | 1.0.0 | 2026-03-25 | Initial release |

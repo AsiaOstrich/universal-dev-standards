@@ -3,13 +3,14 @@
 
 id: ai-response-navigation
 meta:
-  version: "1.2.0"
+  version: "1.3.0"
   updated: "2026-08-17"
   source: core/ai-response-navigation.md
   description: >
     Every substantive AI response must include contextual next-step suggestions with recommended
-    options (rules 1-6, required). Optional rules 7-9 govern the answer itself: lead with the
-    finding, restate state across turns, no preamble.
+    options (rules 1-6, required). Optional rules 7-11 govern the answer itself: lead with the
+    finding, restate state across turns, no preamble, plain language as the subject, and a
+    trade-off on every option rather than only the recommended one.
 
 rules:
   - id: navigation-footer
@@ -114,6 +115,32 @@ rules:
       from critiques to every substantive response — for a different reason: not flattery,
       but the delay it puts between the reader and the answer.
       Does NOT apply to closers: navigation-footer still stands.
+    priority: optional
+
+  - id: plain-language-is-the-subject
+    trigger: any response explaining a situation, a defect, or a system's behaviour to a human
+    instruction: >
+      Explain what happened in the words the reader would use. File paths, symbol names, line
+      references, command output and version strings are support: they belong after the sentence
+      they support, not as the sentence itself. This does NOT license omitting them — a reader who
+      wants to verify must be able to. It governs which of the two is the subject.
+      Distinct from lead-with-the-finding: that rule orders finding before evidence, this one
+      governs register. A response can lead with its finding and still state that finding in
+      vocabulary only its author holds; both leave the reader unable to act.
+    priority: optional
+
+  - id: every-option-carries-its-trade-off
+    trigger: a response asking the reader to choose between two or more courses of action
+    instruction: >
+      recommendation-marking requires marking the recommended option and giving ITS reason. This
+      extends that to the rest: each option states what it buys and what it costs, in its own terms.
+      A list where only the recommendation is argued hands the comparison back to the reader, which
+      is the work they asked to have done; and an option shown without its downside reads as having
+      none. A trade-off is not a hedge — "this may be slightly harder" is not a cost, "this rewrites
+      110 files and needs a human to check the translations" is. If an option genuinely has no
+      downside worth stating, say so explicitly: an empty cell reads as "not analysed" and the
+      reader cannot tell those apart. Composes with adaptive-quantity — trade-offs make each option
+      costlier to read, so the 1-5 cap matters more, not less.
     priority: optional
 
 related_standards:
