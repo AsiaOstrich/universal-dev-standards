@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.7.0] - 2026-08-17
+
+### Fixed
+
+- **Skill trigger surface restored across all three layers — 55 skills × English, zh-TW, zh-CN.** A skill's `description` is the only thing a model sees when deciding whether to invoke it. Commit `d415937e` (2026-02-10) rewrote 17 of them to `[UDS] <label>` and deleted the `Use when:` and `Keywords:` lines, **Chinese keywords included**; the neighbouring commit's title says `token optimization`. Only tokens were countable — nothing was measuring trigger surface, so the trade looked one-sided when it was not. Measured on 2026-08-14: of 55 skills carrying a `SKILL.md`, **27 had a trigger condition, 27 had keywords, 0 had an exclusion condition, and 28 had neither** — and the 28 were the methodology core: tdd, bdd, atdd, spec-driven-dev, code-review, commit-standards, checkin, requirement.
+  - **English source**: 28 restored, and **all 55 gained an exclusion condition** (`Not for:`). Adding triggers without exclusions buys over-triggering, and a skill that fires when it should not gets switched off entirely — taking the working ones with it. Of the 15 recoverable from git history, **8 were rewritten** because the historical text no longer described current behaviour: six claim to drive a lifecycle that moved to the adoption layer in XSPEC-095. Restoring a stale description is worse than restoring none.
+  - **Locale layers**: zh-TW and zh-CN, **55/55 each, translated rather than transcoded**. This half is the point — a project installing with `--locale zh-tw` was still receiving the stripped descriptions while the English source was already fixed, so the repair would not have reached the reader it was for. Traditional and Simplified are each written in their own idiom, and three zh-CN descriptions that had Traditional characters mixed in were corrected.
+  - **Translation drift 62 → 38**, and the remaining 38 is a deliberate stop: 24 files whose drift came only from this description edit had their hashes updated, while 12 whose bodies had already drifted keep their stale hashes — updating those would assert a whole-file sync nobody verified.
+  - ⚠️ **Ten of the 28 carry `disable-model-invocation: true`**, added by the same `d415937e`. For those, a description does not restore selectability — the flag does, and whether to lift it is a design decision rather than a defect. The count of skills a model can actually select is **45, not 55**.
+
+### Added
+
+- **`ai-response-navigation` 1.2.0 → 1.3.0 — optional R10 and R11.** Their source is not the same as R7–R9's: a user stating twice in one session that a correct and complete answer was unreadable, while R7–R9 had already shipped and were being followed. Leading with the finding was not enough.
+  - **R10 — plain language is the subject; identifiers are support.** *Trigger*: any response explaining a situation, a defect, or a system's behaviour to a human. Explain what happened in the words the reader would use; paths, symbols, line numbers, command output and version strings belong **after** the sentence they support, not as the sentence. It does **not** license omitting them — a reader who wants to verify must be able to. **Deliberately separate from R7**: R7 orders finding before evidence, and a response can lead with its finding while stating it in vocabulary only its author holds. Both leave the reader unable to act; they are different failures.
+  - **R11 — every option carries its own trade-off.** *Trigger*: a response asking the reader to choose between two or more courses of action. Rule 2 already requires marking the recommendation and giving *its* reason; R11 requires **each** option to state what it buys and what it costs. A list where only the recommendation is argued hands the comparison back to the reader — the work they asked to have done — and an option shown without a downside reads as having none. **A trade-off is not a hedge**: "slightly harder" is not a cost, "rewrites 110 files and needs a human to check the translations" is. An empty cost cell reads as "not analysed", and the reader cannot tell those apart.
+
 ## [6.6.0] - 2026-08-17
 
 ### Added
