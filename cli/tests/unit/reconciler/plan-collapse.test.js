@@ -92,6 +92,26 @@ describe('formatPlan — unconditional reinstall collapse (XSPEC-382 R3)', () =>
     expect(out).toMatch(/1 UDS-managed skill\/command directory reinstalled/);
   });
 
+  it('the Summary alone answers "how many actually changed" (R4)', () => {
+    // R4 is triggered by R3 landing first: before this, the Summary said
+    // `Update: 57` — true, and useless, because no number anywhere answered
+    // how many things this upgrade actually changed. Someone who reads only
+    // the Summary must not be left with that.
+    const out = formatPlan(
+      planWith(55, [
+        realUpdate('.standards/a.ai.yaml', 'content changed'),
+        realUpdate('.standards/b.ai.yaml', 'content changed')
+      ])
+    );
+    expect(out).toMatch(/Update: 57 \(2 changed, 55 unconditional reinstall\)/);
+  });
+
+  it('leaves the Summary line plain when nothing was collapsed', () => {
+    // Second arm: the annotation must not appear where it would be noise.
+    const out = formatPlan(planWith(0, [realUpdate('.standards/a.ai.yaml', 'content changed')]));
+    expect(out).toMatch(/Update: 1$/m);
+  });
+
   it('the reason string is shared, not duplicated', () => {
     // If someone edits the reason at the production site and not here, the
     // collapse silently stops collapsing. Importing the constant is what makes

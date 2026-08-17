@@ -350,6 +350,14 @@ export function formatPlan(plan) {
     (grouped[action.type] || []).push(action);
   }
 
+  // XSPEC-382 R3/R4 — how many updates are unconditional reinstalls rather than
+  // real changes. Computed once here because both the Update section and the
+  // Summary need it, and a reader of the Summary alone must not be left with a
+  // number that answers nothing: `Update: 57` is true and useless.
+  const unconditionalCount = grouped.update.filter(
+    (a) => a.reason === UNCONDITIONAL_REINSTALL_REASON
+  ).length;
+
   if (grouped.create.length > 0) {
     lines.push(`+ Create (${grouped.create.length}):`);
     for (const a of grouped.create) {
@@ -372,7 +380,7 @@ export function formatPlan(plan) {
     // this repo keeps finding. Printing the denominator alongside the excluded
     // count is the `class-level-fix` rule.
     const real = grouped.update.filter((a) => a.reason !== UNCONDITIONAL_REINSTALL_REASON);
-    const collapsed = grouped.update.length - real.length;
+    const collapsed = unconditionalCount;
 
     lines.push(`~ Update (${grouped.update.length}):`);
     for (const a of real) {
@@ -404,7 +412,11 @@ export function formatPlan(plan) {
 
   lines.push('Summary:');
   lines.push(`  Create: ${plan.summary.create}`);
-  lines.push(`  Update: ${plan.summary.update}`);
+  lines.push(
+    unconditionalCount > 0
+      ? `  Update: ${plan.summary.update} (${plan.summary.update - unconditionalCount} changed, ${unconditionalCount} unconditional reinstall)`
+      : `  Update: ${plan.summary.update}`
+  );
   lines.push(`  Migrate Block: ${plan.summary.migrate_block}`);
   lines.push(`  Delete: ${plan.summary.delete}`);
   lines.push(`  Unchanged: ${plan.summary.unchanged}`);
