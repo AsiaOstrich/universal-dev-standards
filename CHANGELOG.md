@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.7.1] - 2026-08-18
+
+### Fixed
+
+- **The localized cheat sheets embedded English skill descriptions — for every locale, always.** `scripts/generate-usage-docs.mjs` scanned skills once, before the language loop, and always from `skills/` (the English source), so all three cheat sheets and feature references shared one set of descriptions. Measured before the fix: **all 82 descriptions in `locales/zh-TW/docs/CHEATSHEET.md` were byte-identical to the English ones** — and they were the pre-6.7.0 stripped `[UDS] <label>` form, so a Traditional Chinese reader saw a stale description in the wrong language while the `SKILL.md` they had installed carried the full Chinese trigger surface. `scanSkills()` now takes a language and is called **inside** the loop, preferring the locale variant and falling back to English per skill when one is missing. Fixed in the generator rather than in the 82 rows: a hand-edited cheat sheet is guaranteed to diverge from `SKILL.md` on the next edit.
+- **`disable-model-invocation: true` removed from `code-review-assistant` and `checkin-assistant`.** The flag followed no stateable rule. Of the six skills carrying `status: reference`, **four (`tdd`, `bdd`, `atdd`, `pr-automation`) were never disabled** despite the identical XSPEC-095 relocation of their lifecycle to the adoption layer — same category, opposite treatment — and the other eight disabled skills carry no `status` at all. The system had already recorded the consequence: `pr-automation-assistant` routes *"the substance of the review itself — use `/code-review`"*, and that referral was unreachable from any model-initiated path. All six references are now treated alike, which makes the rule statable: **a reference is model-invocable**. Both files carry the reasoning inline. The remaining eight are deliberately untouched — they have no `status`, so lifting them would replace one unruled state with another unruled action; they are named in XSPEC-378 R5 rather than left unexplained.
+
 ## [6.7.0] - 2026-08-17
 
 ### Fixed

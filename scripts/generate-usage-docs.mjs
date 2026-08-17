@@ -371,9 +371,24 @@ async function scanCliCommands() {
   return commands;
 }
 
-// Scan skills from SKILL.md files
-async function scanSkills() {
+// Scan skills from SKILL.md files.
+//
+// ⚠️ 2026-08-17: this took no language and always read `skills/` — the English
+// source — so the zh-TW and zh-CN cheat sheets embedded English descriptions.
+// Measured before the fix: all 82 descriptions in locales/zh-TW/docs/CHEATSHEET.md
+// were byte-identical to the English ones. Worse, they were the pre-6.7.0
+// stripped `[UDS] <label>` form, so a Traditional Chinese reader got a stale
+// description in the wrong language while the SKILL.md they install had the full
+// trigger surface in Chinese.
+//
+// The fix is here rather than in the 82 rows: a hand-edited cheat sheet is
+// guaranteed to diverge from SKILL.md again on the next edit. Falls back to the
+// English source per skill when a locale variant is missing, so a partially
+// translated locale degrades to English for those rows instead of losing them.
+async function scanSkills(lang = 'en') {
   const skills = [];
+  const localeSkillsDir =
+    lang === 'en' ? null : path.join(ROOT_DIR, 'locales', lang, 'skills');
   const skillsDir = path.join(ROOT_DIR, 'skills');
 
   if (!fs.existsSync(skillsDir)) return skills;
@@ -391,11 +406,33 @@ async function scanSkills() {
       const content = fs.readFileSync(skillPath, 'utf-8');
       const { frontmatter, title, purpose } = extractDocInfo(content);
 
+      // Prefer the locale variant's description; fall back to English per skill.
+      let desc =
+        frontmatter?.description?.split('\n')[0] || purpose || title || '';
+      if (localeSkillsDir) {
+        const localePath = path.join(localeSkillsDir, entry.name, 'SKILL.md');
+        if (fs.existsSync(localePath)) {
+          try {
+            const lc = fs.readFileSync(localePath, 'utf-8');
+            const li = extractDocInfo(lc);
+            const ld =
+              li.frontmatter?.description?.split('\n')[0] ||
+              li.purpose ||
+              li.title ||
+              '';
+            if (ld) desc = ld;
+          } catch {
+            // Keep the English description. A locale file that cannot be read is
+            // not a reason to emit an empty cell — an empty description reads as
+            // "this skill has none", which is the defect this whole change is about.
+          }
+        }
+      }
+
       skills.push({
         id: entry.name,
         name: frontmatter?.name || entry.name,
-        description:
-          frontmatter?.description?.split('\n')[0] || purpose || title || '',
+        description: desc,
         path: `skills/${entry.name}/SKILL.md`,
       });
     } catch (error) {
@@ -1078,10 +1115,14 @@ Examples:
   const scripts = await scanScripts();
   log(`  ✓ Found ${scripts.length} scripts`, COLORS.green);
 
-  const data = { cli, skills, commands, agents, workflows, standards, scripts };
+  // Language-independent parts. `skills` is re-scanned per language inside the
+  // generation loop below, because skill descriptions are localized.
+  const dataBase = { cli, skills, commands, agents, workflows, standards, scripts };
 
   // Calculate total
-  const total = Object.values(data).reduce((sum, arr) => sum + arr.length, 0);
+  // Counts are language-independent (the same skills exist in every locale;
+  // only their descriptions differ), so the base set is the right denominator.
+  const total = Object.values(dataBase).reduce((sum, arr) => sum + arr.length, 0);
   log(`\n  📊 Total features: ${total}`, COLORS.bold);
 
   // Determine languages to generate (from config or command line)
@@ -1105,6 +1146,15 @@ Examples:
         : path.join(ROOT_DIR, 'locales', lang, 'docs');
 
     ensureDir(outputPath);
+
+    // ⚠️ Skills are re-scanned PER LANGUAGE. The shared `data` above is built once
+    // from the English source, which is correct for everything except skill
+    // descriptions — those exist per locale, and using the shared set is exactly
+    // how 82 English descriptions ended up in the Traditional Chinese cheat sheet.
+    // Adding the `lang` parameter to scanSkills without moving the call inside
+    // this loop would have left it permanently at its default and changed nothing.
+    const langSkills = await scanSkills(lang);
+    const data = { ...dataBase, skills: langSkills };
 
     // Generate reference
     if (!args.cheatsheetOnly) {

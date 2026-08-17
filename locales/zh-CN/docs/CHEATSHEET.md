@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-08-12
+> Quick reference for all UDS features | Last updated: 2026-08-17
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
@@ -80,61 +80,61 @@
 
 | Skill | 说明 |
 |-------|-------------|
-| `ac-coverage` | "[UDS] Analyze AC-to-test traceability and coverage" |
-| `adr-assistant` | [UDS] Create, manage, and track Architecture Decision Record |
-| `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses |
-| `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, laye |
-| `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS. |
-| `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best prac |
-| `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development work |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
-| `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
-| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec crea |
-| `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
-| `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
-| `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization |
-| `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
-| `commit-standards` | "[UDS] Generate commit messages following Conventional Commi |
-| `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microserv |
-| `database-assistant` | Guide database design, migration, and query optimization. |
-| `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub A |
-| `dev-methodology` | "[UDS] Manage development methodology workflow" |
-| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS  |
-| `docs-generator` | "[UDS] Generate usage documentation from project sources" |
-| `documentation-guide` | Guide documentation structure, content requirements, and pro |
-| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, ret |
-| `e2e-assistant` | "[UDS] Generate E2E test skeletons from BDD scenarios" |
-| `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |
-| `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge ope |
-| `incident-response-assistant` | Guide incident response, root cause analysis, and post-morte |
-| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN)  |
-| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledg |
-| `logging-guide` | Implement structured logging with proper log levels and sens |
-| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, a |
-| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technol |
-| `observability-assistant` | Guide observability setup, metrics design, and alerting conf |
-| `orchestrate` | Orchestrate multi-task execution plans using Claude's native |
-| `plan` | Generate plan.json from Spec documents, OpenSpec changes, or |
-| `pr-automation-assistant` | Guide pull request creation, review automation, and merge st |
-| `project-discovery` | "[UDS] Assess project health, architecture, and risks before |
-| `project-structure-guide` | Guide for organizing project directories following language- |
-| `push` | AI-assisted safety layer for git push operations with qualit |
-| `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
-| `release-standards` | "[UDS] Guide release process and changelogs" |
-| `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
-| `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Re |
-| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logi |
-| `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
-| `security-assistant` | Guide security review and vulnerability assessment following |
-| `security-scan-assistant` | Guide automated security scanning, dependency auditing, and  |
-| `skill-builder` | "[UDS] Identify repeated processes and build Skills with the |
-| `slo-assistant` | Guide SLI selection, SLO setting, and Error Budget managemen |
-| `spec-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables f |
-| `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Dri |
-| `sweep` | Scan codebase for debug artifacts and code quality issues; o |
-| `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
-| `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
-| `testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
+| `ac-coverage` | [UDS] 分析验收条件（AC）与测试之间的追踪关系，并生成需求层级的覆盖率报告。 |
+| `adr-assistant` | [UDS] 创建、管理并追踪架构决策记录（ADR）。 |
+| `ai-collaboration-standards` | 防止 AI 幻觉，确保分析代码或提出建议时给出以证据为基础的回应。 |
+| `ai-friendly-architecture` | 设计 AI 友善架构，包含明确的模式、分层文档与语义边界。 |
+| `ai-instruction-standards` | 创建并维护 AI 指令文件（CLAUDE.md、AGENTS.md、.cursor/rules/ 等），并采用适当结构。 |
+| `api-design-assistant` | 引导 API 设计，遵循 REST、GraphQL 与 gRPC 最佳实践。 |
+| `atdd-assistant` | [UDS] 验收测试驱动开发（ATDD）的参考资料：INVEST 准则、Gherkin 验收条件格式与 Three Am |
+| `audit-assistant` | [UDS] 诊断 UDS 安装的健康状态，并向上游提交结构化反馈。 |
+| `bdd-assistant` | [UDS] 行为驱动开发（BDD）的参考资料：Gherkin 的 Given-When-Then 格式与 Three A |
+| `brainstorm-assistant` | [UDS] 在规格出现之前执行的结构化多角色头脑风暴，并附带评分质量关卡。 |
+| `changelog-guide` | [UDS] 以 Keep a Changelog 格式生成并维护 CHANGELOG.md 条目。 |
+| `checkin-assistant` | [UDS] 提交前质量关卡的参考资料：关卡定义、检查清单项目，以及绝不可提交的规则。 |
+| `ci-cd-assistant` | 引导 CI/CD 流水线的设计、配置与优化。 |
+| `code-review-assistant` | [UDS] 系统性代码审查的参考资料：八大审查类别，以及 BLOCKING/IMPORTANT/SUGGESTION 评 |
+| `commit-standards` | [UDS] 生成符合 Conventional Commits 规范的 commit message，包含双语格式。 |
+| `contract-test-assistant` | [UDS] 引导 API 与微服务的契约测试策略。 |
+| `database-assistant` | 引导数据库设计、迁移与查询优化。 |
+| `deploy-assistant` | 引导在没有 CI/CD 平台（GitHub Actions／GitLab CI）的情况下完成可靠部署。 |
+| `dev-methodology` | [UDS] 为项目选择并追踪当前采用的开发方法论（SDD、BDD、TDD）。 |
+| `dev-workflow-guide` | [UDS] 把目前的软件开发阶段对应到正确的 UDS 命令与 Skill。 |
+| `docs-generator` | [UDS] 从项目源文件生成使用文档（速查表、参考手册、使用指南）。 |
+| `documentation-guide` | 引导文档结构、内容需求与项目文档的最佳实践。 |
+| `durable-execution-assistant` | [UDS] 引导容错工作流设计，包含检查点、重试策略与回滚计划。 |
+| `e2e-assistant` | [UDS] 从 BDD 的 .feature 场景生成 E2E 测试骨架，并支持框架检测与覆盖缺口分析。 |
+| `error-code-guide` | 设计一致的错误码，遵循 PREFIX_CATEGORY_NUMBER 格式。 |
+| `git-workflow-guide` | 引导 Git 分支策略、分支命名与合并操作。 |
+| `incident-response-assistant` | 引导事故响应、根因分析与事后复盘文档撰写。 |
+| `journey-test-assistant` | [UDS] 从项目描述生成连贯的用户旅程测试计划（TESTPLAN）与旅程 E2E 骨架。 |
+| `knowledge-graph` | [UDS] 通过知识图谱追踪规格、决策与代码之间的影响链；没有引擎时以 Markdown 后备方案运作。 |
+| `logging-guide` | 实现结构化日志，包含适当的日志级别与敏感数据处理。 |
+| `metrics-dashboard-assistant` | [UDS] 长期追踪开发指标、代码质量指标与技术债。 |
+| `migration-assistant` | [UDS] 引导系统性的代码迁移、框架升级与技术现代化。 |
+| `observability-assistant` | 引导可观测性建设、指标设计与告警配置。 |
+| `orchestrate` | 以 Claude 原生 Agent tool 编排多任务执行计划（以 DAG 为基础，不需外部引擎）。 |
+| `plan` | 从 Spec 文档、OpenSpec 变更或自由文本需求生成 plan.json。 |
+| `pr-automation-assistant` | 引导 pull request 创建、审查自动化与合并策略。 |
+| `project-discovery` | [UDS] 在既有代码库新增功能之前，评估项目健康度、架构与风险。 |
+| `project-structure-guide` | 依各语言的最佳实践组织项目目录结构的指南。 |
+| `push` | AI 辅助的 git push 安全层，提供质量关卡与协作护栏。 |
+| `refactoring-assistant` | [UDS] 引导重构决策与策略选择，包含「重构还是重写」这个判断。 |
+| `release-standards` | [UDS] 引导发布流程——语义化版本、发布模式，以及 start/finish/promote/deploy 的顺序。 |
+| `requirement-assistant` | [UDS] 撰写符合 INVEST 准则的用户故事与需求。 |
+| `retrospective-assistant` | [UDS] 引导 Sprint 与 Release 周期的结构化团队回顾。 |
+| `reverse-engineer` | [UDS] 系统考古——从逻辑、数据、运行时三个维度对既有系统做逆向工程。 |
+| `runbook-assistant` | 引导 Runbook 的撰写、维护与演练。 |
+| `security-assistant` | 引导安全审查与漏洞评估，遵循 OWASP 标准。 |
+| `security-scan-assistant` | 引导自动化安全扫描、依赖包审计与密钥检测。 |
+| `skill-builder` | [UDS] 把重复的手动流程转成范围界定得宜的 Skill，过程中拿捏恰当的流程分量。 |
+| `slo-assistant` | 引导 SLI 选取、SLO 设置与 Error Budget 管理。 |
+| `spec-derivation` | [UDS] 从已批准的规格推导出 BDD 场景、TDD 骨架、集成与 E2E 测试，以及 ATDD 表格。 |
+| `spec-driven-dev` | [UDS] 在写代码之前建立并审查规格文档——规格格式、状态与差异操作。 |
+| `sweep` | 扫描代码库中的调试残留与代码质量问题；可选择自动修正安全的模式。 |
+| `tdd-assistant` | [UDS] 测试驱动开发（TDD）的参考资料：红-绿-重构循环、FIRST 原则与 Arrange-Act-Assert |
+| `test-coverage-assistant` | [UDS] 以八维度框架分析代码层级的测试覆盖率，并建议该优先补上哪些缺口。 |
+| `testing-guide` | 测试金字塔，以及 UT/IT/ST/E2E 的测试编写标准。 |
 
 ## 🤖 代理
 

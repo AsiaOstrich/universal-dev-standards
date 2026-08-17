@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.0
-translation_version: 6.7.0
+source_version: 6.7.1
+translation_version: 6.7.1
 last_synced: 2026-08-17
 status: current
 ---
@@ -16,6 +16,13 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.7.1] - 2026-08-18
+
+### 修正
+
+- **各語系的速查表內嵌的是英文 skill 描述——每一個語系、每一次都是。** `scripts/generate-usage-docs.mjs` 在語系迴圈**之外**掃描 skill 一次，且固定讀 `skills/`（英文來源），於是三份速查表與功能參考共用同一組描述。修正前實測：**`locales/zh-TW/docs/CHEATSHEET.md` 的 82 則描述與英文版逐位元組相同**——而且是 6.7.0 之前那個被剝過的 `[UDS] <標籤>` 形式，所以繁體中文讀者看到的是**用錯語言的過期描述**，而他實際安裝的 `SKILL.md` 帶著完整的中文觸發面。`scanSkills()` 現在接受語系並在**迴圈內**呼叫，優先取語系版、缺漏時逐個 skill 回退英文。**修在產生器而不是那 82 列**：手改的速查表下一次編輯必然再度與 `SKILL.md` 分岔。
+- **`code-review-assistant` 與 `checkin-assistant` 的 `disable-model-invocation: true` 已移除。** 那個旗標**不遵循任何可陳述的規則**：六個帶 `status: reference` 的 skill 中，**有四個（`tdd`、`bdd`、`atdd`、`pr-automation`）從未被禁用**，而它們經歷的是同一次 XSPEC-095 生命週期遷移——同一個類別、相反的處置——另外八個被禁用的**連 `status` 都沒有**。系統自己早已記下後果：`pr-automation-assistant` 把*「審查的實質內容——請用 `/code-review`」*導向那裡，**而那條轉介在任何模型自主的路徑上都到不了**。六個 reference 現在處置一致，規則因此說得出口：**reference 一律可被模型叫用**。兩個檔案內都就地記錄了理由。**其餘八個刻意不動**——它們沒有 `status`，拿掉等於用另一個沒有規則的動作覆蓋一個沒有規則的狀態；它們已在 XSPEC-378 R5 具名，不再是「不知道為什麼關著」。
 
 ## [6.7.0] - 2026-08-17
 

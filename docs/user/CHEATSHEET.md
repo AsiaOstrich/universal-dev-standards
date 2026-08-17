@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-08-12
+> Quick reference for all UDS features | Last updated: 2026-08-17
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -80,60 +80,60 @@
 
 | Skill | Description |
 |-------|-------------|
-| `ac-coverage` | "[UDS] Analyze AC-to-test traceability and coverage" |
+| `ac-coverage` | [UDS] Analyze AC-to-test traceability and generate requireme |
 | `adr-assistant` | [UDS] Create, manage, and track Architecture Decision Record |
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, laye |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS. |
 | `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best prac |
-| `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development work |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
-| `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
-| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec crea |
-| `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
-| `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `atdd-assistant` | [UDS] Reference for Acceptance Test-Driven Development: INVE |
+| `audit-assistant` | [UDS] Diagnose UDS installation health and submit structured |
+| `bdd-assistant` | [UDS] Reference for Behavior-Driven Development: Gherkin Giv |
+| `brainstorm-assistant` | [UDS] Structured multi-persona brainstorming with a scored q |
+| `changelog-guide` | [UDS] Generate and maintain CHANGELOG.md entries in Keep a C |
+| `checkin-assistant` | [UDS] Reference for pre-commit quality gates: gate definitio |
 | `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization |
-| `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
-| `commit-standards` | "[UDS] Generate commit messages following Conventional Commi |
+| `code-review-assistant` | [UDS] Reference for systematic code review: eight review cat |
+| `commit-standards` | [UDS] Generate commit messages that follow Conventional Comm |
 | `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microserv |
 | `database-assistant` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub A |
-| `dev-methodology` | "[UDS] Manage development methodology workflow" |
-| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS  |
-| `docs-generator` | "[UDS] Generate usage documentation from project sources" |
+| `dev-methodology` | [UDS] Select and track the active development methodology (S |
+| `dev-workflow-guide` | [UDS] Map the current software development phase to the righ |
+| `docs-generator` | [UDS] Generate usage documentation (cheatsheets, references, |
 | `documentation-guide` | Guide documentation structure, content requirements, and pro |
-| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, ret |
-| `e2e-assistant` | "[UDS] Generate E2E test skeletons from BDD scenarios" |
+| `durable-execution-assistant` | [UDS] Guide fault-tolerant workflow design with checkpoints, |
+| `e2e-assistant` | [UDS] Generate E2E test skeletons from BDD .feature scenario |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_ |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge ope |
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-morte |
-| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN)  |
-| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledg |
+| `journey-test-assistant` | [UDS] Generate coherent user-journey test plans (TESTPLAN) a |
+| `knowledge-graph` | [UDS] Trace impact chains across specs, decisions, and code  |
 | `logging-guide` | Implement structured logging with proper log levels and sens |
-| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, a |
-| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technol |
+| `metrics-dashboard-assistant` | [UDS] Track development metrics, code quality indicators, an |
+| `migration-assistant` | [UDS] Guide systematic code migration, framework upgrades, a |
 | `observability-assistant` | Guide observability setup, metrics design, and alerting conf |
 | `orchestrate` | Orchestrate multi-task execution plans using Claude's native |
 | `plan` | Generate plan.json from Spec documents, OpenSpec changes, or |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge st |
-| `project-discovery` | "[UDS] Assess project health, architecture, and risks before |
+| `project-discovery` | [UDS] Assess project health, architecture, and risks before  |
 | `project-structure-guide` | Guide for organizing project directories following language- |
 | `push` | AI-assisted safety layer for git push operations with qualit |
-| `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
-| `release-standards` | "[UDS] Guide release process and changelogs" |
-| `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST  |
+| `refactoring-assistant` | [UDS] Guide refactoring decisions and strategy selection, in |
+| `release-standards` | [UDS] Guide the release process — semantic versioning, relea |
+| `requirement-assistant` | [UDS] Write user stories and requirements that satisfy the I |
 | `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Re |
-| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logi |
+| `reverse-engineer` | [UDS] System archeology — reverse engineer an existing syste |
 | `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-assistant` | Guide security review and vulnerability assessment following |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and  |
-| `skill-builder` | "[UDS] Identify repeated processes and build Skills with the |
+| `skill-builder` | [UDS] Turn a repeated manual process into a properly scoped  |
 | `slo-assistant` | Guide SLI selection, SLO setting, and Error Budget managemen |
-| `spec-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables f |
-| `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Dri |
+| `spec-derivation` | [UDS] Derive BDD scenarios, TDD skeletons, integration and E |
+| `spec-driven-dev` | [UDS] Create and review specification documents before writi |
 | `sweep` | Scan codebase for debug artifacts and code quality issues; o |
-| `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
-| `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
+| `tdd-assistant` | [UDS] Reference for Test-Driven Development: the Red-Green-R |
+| `test-coverage-assistant` | [UDS] Analyze code-level test coverage across the eight-dime |
 | `testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
 ## 🤖 Agents

@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-12
+> Auto-generated | Last updated: 2026-08-17
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -201,60 +201,60 @@
 
 | Skill | Description |
 |-------|-------------|
-| `ac-coverage` | "[UDS] Analyze AC-to-test traceability and coverage" |
+| `ac-coverage` | [UDS] Analyze AC-to-test traceability and generate requirement-level coverage reports. |
 | `adr-assistant` | [UDS] Create, manage, and track Architecture Decision Records (ADR). |
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions. |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS.md, .cursor/rules/, etc.) with proper structure. |
 | `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best practices. |
-| `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
-| `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
-| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
-| `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
-| `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `atdd-assistant` | [UDS] Reference for Acceptance Test-Driven Development: INVEST criteria, Gherkin AC format, and Three Amigos structure. |
+| `audit-assistant` | [UDS] Diagnose UDS installation health and submit structured feedback upstream. |
+| `bdd-assistant` | [UDS] Reference for Behavior-Driven Development: Gherkin Given-When-Then format and Three Amigos structure. |
+| `brainstorm-assistant` | [UDS] Structured multi-persona brainstorming with a scored quality gate, run before a spec exists. |
+| `changelog-guide` | [UDS] Generate and maintain CHANGELOG.md entries in Keep a Changelog format. |
+| `checkin-assistant` | [UDS] Reference for pre-commit quality gates: gate definitions, checklist items, and never-commit rules. |
 | `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization. |
-| `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
-| `commit-standards` | "[UDS] Generate commit messages following Conventional Commits standard" |
+| `code-review-assistant` | [UDS] Reference for systematic code review: eight review categories and BLOCKING/IMPORTANT/SUGGESTION comment prefixes. |
+| `commit-standards` | [UDS] Generate commit messages that follow Conventional Commits, including the bilingual format. |
 | `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microservices. |
 | `database-assistant` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub Actions / GitLab CI). |
-| `dev-methodology` | "[UDS] Manage development methodology workflow" |
-| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
-| `docs-generator` | "[UDS] Generate usage documentation from project sources" |
+| `dev-methodology` | [UDS] Select and track the active development methodology (SDD, BDD, TDD) for a project. |
+| `dev-workflow-guide` | [UDS] Map the current software development phase to the right UDS commands and skills. |
+| `docs-generator` | [UDS] Generate usage documentation (cheatsheets, references, guides) from project sources. |
 | `documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
-| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, retries, and rollback" |
-| `e2e-assistant` | "[UDS] Generate E2E test skeletons from BDD scenarios" |
+| `durable-execution-assistant` | [UDS] Guide fault-tolerant workflow design with checkpoints, retry policies, and rollback plans. |
+| `e2e-assistant` | [UDS] Generate E2E test skeletons from BDD .feature scenarios, with framework detection and coverage gap analysis. |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-mortem documentation. |
-| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description." |
-| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback)" |
+| `journey-test-assistant` | [UDS] Generate coherent user-journey test plans (TESTPLAN) and journey E2E skeletons from a project description. |
+| `knowledge-graph` | [UDS] Trace impact chains across specs, decisions, and code via a knowledge graph, with a Markdown fallback when no engine is present. |
 | `logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
-| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, and project health" |
-| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technology modernization" |
+| `metrics-dashboard-assistant` | [UDS] Track development metrics, code quality indicators, and technical debt over time. |
+| `migration-assistant` | [UDS] Guide systematic code migration, framework upgrades, and technology modernization. |
 | `observability-assistant` | Guide observability setup, metrics design, and alerting configuration. |
 | `orchestrate` | Orchestrate multi-task execution plans using Claude's native Agent tool (DAG-based, no external engine). |
 | `plan` | Generate plan.json from Spec documents, OpenSpec changes, or free-text requirements. |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge strategies. |
-| `project-discovery` | "[UDS] Assess project health, architecture, and risks before adding features" |
+| `project-discovery` | [UDS] Assess project health, architecture, and risks before adding features to an existing codebase. |
 | `project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
 | `push` | AI-assisted safety layer for git push operations with quality gates and collaboration guardrails. |
-| `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
-| `release-standards` | "[UDS] Guide release process and changelogs" |
-| `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
+| `refactoring-assistant` | [UDS] Guide refactoring decisions and strategy selection, including the refactor-versus-rewrite call. |
+| `release-standards` | [UDS] Guide the release process — semantic versioning, release modes, and the start/finish/promote/deploy sequence. |
+| `requirement-assistant` | [UDS] Write user stories and requirements that satisfy the INVEST criteria. |
 | `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Release cycles. |
-| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logic, Data, and Runtime dimensions" |
+| `reverse-engineer` | [UDS] System archeology — reverse engineer an existing system across the Logic, Data, and Runtime dimensions. |
 | `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-assistant` | Guide security review and vulnerability assessment following OWASP standards. |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and secret detection. |
-| `skill-builder` | "[UDS] Identify repeated processes and build Skills with the right development depth" |
+| `skill-builder` | [UDS] Turn a repeated manual process into a properly scoped Skill, with the right amount of process along the way. |
 | `slo-assistant` | Guide SLI selection, SLO setting, and Error Budget management. |
-| `spec-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications" |
-| `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
+| `spec-derivation` | [UDS] Derive BDD scenarios, TDD skeletons, integration and E2E tests, and ATDD tables from an approved specification. |
+| `spec-driven-dev` | [UDS] Create and review specification documents before writing code — spec format, states, and delta operations. |
 | `sweep` | Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns. |
-| `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
-| `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
+| `tdd-assistant` | [UDS] Reference for Test-Driven Development: the Red-Green-Refactor cycle, FIRST principles, and Arrange-Act-Assert structure. |
+| `test-coverage-assistant` | [UDS] Analyze code-level test coverage across the eight-dimension framework and recommend which gaps to close. |
 | `testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
 ---
@@ -299,7 +299,7 @@
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
 | `ai-instruction-standards` | 1.1.0 | This standard defines best practices for creating and maintaining AI instruction |
-| `ai-response-navigation` | 1.1.0 | This standard defines navigation behavior for AI responses: every substantive AI |
+| `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
@@ -317,7 +317,7 @@
 | `chaos-injection-tests` | - |  |
 | `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
-| `class-level-fix` | 1.0.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
+| `class-level-fix` | 1.1.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
 | `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -369,7 +369,7 @@
 | `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `model-selection` | 2.1.0 | Define how to choose **which model** and **how deeply it should think** — two in |
 | `multi-environment-e2e-testing` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
-| `mutation-testing` | 1.0.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
+| `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
@@ -413,7 +413,7 @@
 | `slo-sli` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `slo-standards` | 1.0.0 |  |
 | `smoke-test` | - |  |
-| `spec-driven-development` | 2.3.0 |  |
+| `spec-driven-development` | 2.4.0 |  |
 | `standard-admission-criteria` | - |  |
 | `standard-lifecycle-management` | - |  |
 | `structured-task-definition` | 1.0.0 |  |
@@ -424,14 +424,14 @@
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-data-standards` | 1.0.0 |  |
 | `test-driven-development` | 1.2.0 |  |
-| `test-governance` | 1.1.0 |  |
+| `test-governance` | 1.2.0 |  |
 | `testing-standards` | 3.2.0 | This standard defines actionable testing rules and conventions for AI agents and |
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `verification-evidence` | 1.2.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
+| `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `versioning` | 1.5.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
