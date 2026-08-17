@@ -1,0 +1,8 @@
+# universal-dev-standards
+
+> Universal, language-agnostic development standards for software projects. Includes coding standards, git workflows, testing guidelines, documentation structure, and AI collaboration rules.
+
+## Pages
+
+- [Repository](https://github.com/AsiaOstrich/universal-dev-standards)
+- [Homepage/Docs](https://github.com/AsiaOstrich/universal-dev-standards)
