@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-response-navigation.md) | [简体中文](../locales/zh-CN/core/ai-response-navigation.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-06-10
+**Version**: 1.2.0
+**Last Updated**: 2026-08-17
 **Applicability**: All projects using AI-assisted development
 **Scope**: universal
 **Industry Standards**: None (Emerging AI tool practice)
@@ -18,6 +18,12 @@ This standard defines navigation behavior for AI responses: every substantive AI
 **Problem**: Users don't know what to do next after receiving an AI response. With 30+ slash commands available, the cognitive load is high and workflow continuity is broken.
 
 **Solution**: A standard "Navigation Footer" appended to every substantive AI response, with contextual templates, recommendation marking, and adaptive option quantities.
+
+**Scope note (v1.2.0)**: Rules 1–6 govern what comes *after* the answer. Rules 7–9 — added in 1.2.0
+and **optional** — govern the answer itself: lead with the finding, restate state across turns, no
+preamble. They were added because a response can satisfy every one of Rules 1–6 while burying its
+conclusion, and a reader who cannot find the answer is not helped by a correct footer telling them
+what to do next.
 
 ---
 
@@ -94,6 +100,69 @@ Tier names are **vendor-neutral**. Each tool or platform maps these tiers to its
 > - Run `/checkin` for quality gate verification ⭐ **Recommended** `〔model: Standard〕` — inter-module judgment required
 > - Run `/sdd` for integrated architecture design `〔model: Capable〕` — cross-system impact analysis
 ```
+
+---
+
+## The Answer Before the Navigation (Rules 7–9, Optional)
+
+> **Borrowed from**: [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd) (MIT), 3 of its 10 rules.
+> The other 7 were dropped: 2 are already covered by Rules 1–2 above, and 5 either conflict with
+> this standard (its "no recap / no closers" contradicts Rule 1's Navigation Footer; its
+> "cap lists at 5" would truncate evidence tables and traversal denominators) or duplicate
+> [estimation-standards](estimation-standards.md).
+
+**Why this section exists**: Rules 1–6 govern what follows the answer. Nothing governed the answer
+itself — a response could bury its conclusion under a wall of evidence and still satisfy every rule
+in this standard by appending a correct Navigation Footer. A reader who cannot find the answer is
+not helped by being told what to do next.
+
+**These three rules are optional**, in the same sense as Rule 6: adopting projects are not required
+to enable them, and existing skills need no retroactive update. A project MAY promote any of them to
+required in its own configuration. What is *not* optional is that they have precise triggers — a rule
+phrased so loosely that it never fires is indistinguishable from not having the rule.
+
+### Rule 7: Lead With the Finding, Not the Process （Optional）
+
+**Trigger**: a response that answers a question, reports an investigation result, or presents a decision.
+
+The first line states **what was found or what to do**. Not the method, not a restatement of the
+request, not a plan for answering.
+
+Evidence — file:line references, command output, tables, measurements — is **support**, and belongs
+after the claim it supports. Leading with evidence forces the reader to reconstruct the conclusion
+themselves, which is the work they asked to have done.
+
+| Instead of | Write |
+|-----------|-------|
+| "I checked 44 days of data across 63 domains and found that…" | "Delete those three queries. 46% of what they return is download pages." |
+| "Let me look at how this is configured." | "It is configured in `x.yaml:12`; the value is wrong because…" |
+
+**This does not license omitting the evidence.** It orders it.
+
+### Rule 8: Restate State in Multi-Turn Work （Optional）
+
+**Trigger**: work spanning 3 or more exchanges, or a task with 3 or more steps.
+
+Each response restates where the work stands, in one line. The reader cannot be assumed to hold
+"we are on step 3 of 5" across messages, and the cost of restating it is one sentence.
+
+This composes with Template 4 (*In Progress*) below: Rule 8 governs the **opening**, Template 4
+governs the **footer**.
+
+### Rule 9: No Preamble （Optional）
+
+**Trigger**: any substantive response.
+
+Start with the answer. Do not open with a summary of what you are about to do, an acknowledgement
+of the request, or an assessment of the question.
+
+This generalizes one existing prohibition: [anti-sycophancy-prompting](anti-sycophancy-prompting.md)
+already forbids *"Opening critique with positive affirmation"* — but only for critiques. Rule 9
+extends the same prohibition to every substantive response, for a different reason: not flattery,
+but the delay it puts between the reader and the answer.
+
+**Rule 9 does not apply to closers.** Rule 1 requires a Navigation Footer, and that requirement
+stands — the end of a response is where this standard puts the reader's next move.
 
 ---
 
@@ -284,6 +353,9 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 | R4 | 1–5 options, adapt to context |
 | R5 | Use `/command` format when applicable |
 | R6 | *(Optional)* Append `〔model: Fast\|Standard\|Capable〕` when tier is clear |
+| R7 | *(Optional)* Lead with the finding; evidence follows the claim it supports |
+| R8 | *(Optional)* 3+ turns or 3+ steps → restate state in one line |
+| R9 | *(Optional)* No preamble. Closers still required — see R1 |
 
 | Exempt | Not Exempt |
 |--------|------------|
@@ -307,6 +379,7 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-08-17 | Add optional R7–R9 governing the answer itself (lead with the finding, restate state, no preamble). Borrowed from `ayghri/i-have-adhd` (MIT), 3 of its 10 rules; the other 7 were dropped as duplicated by R1–R2, in conflict with R1, or covered by estimation-standards. Rules 1–6 could all be satisfied by a response that buries its conclusion — R7–R9 close that |
 | 1.1.0 | 2026-06-10 | Add R6 optional model tier annotation (`〔model: Fast\|Standard\|Capable〕`); vendor-neutral; no forced changes to existing skills |
 | 1.0.0 | 2026-03-25 | Initial release |
 

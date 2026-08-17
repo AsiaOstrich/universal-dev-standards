@@ -3,10 +3,13 @@
 
 id: ai-response-navigation
 meta:
-  version: "1.1.0"
-  updated: "2026-06-10"
+  version: "1.2.0"
+  updated: "2026-08-17"
   source: core/ai-response-navigation.md
-  description: Every substantive AI response must include contextual next-step suggestions with recommended options
+  description: >
+    Every substantive AI response must include contextual next-step suggestions with recommended
+    options (rules 1-6, required). Optional rules 7-9 govern the answer itself: lead with the
+    finding, restate state across turns, no preamble.
 
 rules:
   - id: navigation-footer
@@ -77,7 +80,44 @@ rules:
       Localized notation: 〔模型：Fast〕 / 〔模型：Standard〕 / 〔模型：Capable〕
     priority: optional
 
+  # ── Rules 7-9 (v1.2.0): the answer itself, not the navigation after it ──
+  # Borrowed from ayghri/i-have-adhd (MIT), 3 of its 10 rules. The other 7 were dropped:
+  # 2 duplicate navigation-footer/recommendation-marking above, and 5 conflict with this
+  # standard ("no recap/no closers" contradicts navigation-footer; "cap lists at 5" would
+  # truncate evidence tables) or duplicate estimation-standards.
+  # Optional in the same sense as model-tier-annotation: a project MAY promote them to required.
+  # Their triggers are deliberately precise — a rule too loose to fire is not a rule.
+
+  - id: lead-with-the-finding
+    trigger: a response that answers a question, reports an investigation result, or presents a decision
+    instruction: >
+      Open with what was found or what to do — not the method, not a restatement of the request,
+      not a plan for answering. Evidence (file:line, command output, tables, measurements) is
+      support and belongs after the claim it supports. This orders the evidence; it does not
+      license omitting it.
+    priority: optional
+
+  - id: restate-state-each-turn
+    trigger: work spanning 3 or more exchanges, or a task with 3 or more steps
+    instruction: >
+      Restate in one line where the work stands. The reader cannot be assumed to hold
+      "we are on step 3 of 5" across messages. Composes with the in-progress template:
+      this rule governs the opening, that template governs the footer.
+    priority: optional
+
+  - id: no-preamble
+    trigger: any substantive response
+    instruction: >
+      Start with the answer. Do not open with a summary of what you are about to do, an
+      acknowledgement of the request, or an assessment of the question. Generalizes the
+      anti-sycophancy-prompting prohibition on "opening critique with positive affirmation"
+      from critiques to every substantive response — for a different reason: not flattery,
+      but the delay it puts between the reader and the answer.
+      Does NOT apply to closers: navigation-footer still stands.
+    priority: optional
+
 related_standards:
   - ai-command-behavior
   - ai-instruction-standards
   - ai-agreement-standards
+  - anti-sycophancy-prompting
