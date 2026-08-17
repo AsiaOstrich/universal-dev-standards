@@ -39,6 +39,17 @@
  * @param {boolean} [options.force=false] - Force update even if hashes match
  * @returns {ReconciliationPlan}
  */
+/**
+ * The reason attached to every skill/command action, because no content
+ * comparison is implemented for them (XSPEC-382 R1).
+ *
+ * Exported and referenced by `formatPlan` rather than spelled out twice: two
+ * copies of a string are two things that can drift, and the drift here is
+ * silent — the collapse would just stop collapsing and the plan would go back
+ * to listing all 57 rows, which is indistinguishable from "it always did that".
+ */
+export const UNCONDITIONAL_REINSTALL_REASON = 'no hash available for comparison, re-installing';
+
 export function computeDiff(desired, actual, options = {}) {
   const { force = false } = options;
   const actions = [];
@@ -138,7 +149,7 @@ function diffCategory(desiredMap, actualMap, category, actions, warnings, summar
           type: 'update',
           category,
           path: desiredEntry.relativePath,
-          reason: 'no hash available for comparison, re-installing',
+          reason: UNCONDITIONAL_REINSTALL_REASON,
           details: {
             sourcePath: desiredEntry.sourcePath,
             metadata: desiredEntry.metadata
@@ -348,9 +359,29 @@ export function formatPlan(plan) {
   }
 
   if (grouped.update.length > 0) {
+    // XSPEC-382 R3 — collapse the unconditional reinstalls.
+    //
+    // Every skill is always an `update` because no content comparison exists for
+    // them (see the `hash: null` on both sides of the diff, and R1). On a real
+    // upgrade that produced `Update (57)` where 55 rows carried one identical
+    // reason and only 2 were actual changes — the two a reviewer needs to see,
+    // buried under fifty-five that say nothing about this upgrade.
+    //
+    // Collapsed, NOT hidden: the count is printed. A capped list that does not
+    // say it was capped reads as "these are all of them", which is the failure
+    // this repo keeps finding. Printing the denominator alongside the excluded
+    // count is the `class-level-fix` rule.
+    const real = grouped.update.filter((a) => a.reason !== UNCONDITIONAL_REINSTALL_REASON);
+    const collapsed = grouped.update.length - real.length;
+
     lines.push(`~ Update (${grouped.update.length}):`);
-    for (const a of grouped.update) {
+    for (const a of real) {
       lines.push(`  ~ ${a.path} (${a.reason})`);
+    }
+    if (collapsed > 0) {
+      lines.push(
+        `  i ${collapsed} UDS-managed skill/command director${collapsed === 1 ? 'y' : 'ies'} reinstalled unconditionally — no content comparison is implemented for them (XSPEC-382)`
+      );
     }
     lines.push('');
   }
