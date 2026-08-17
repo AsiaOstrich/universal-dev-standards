@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/security-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导安全审查和漏洞评估，遵循 OWASP 标准。
-  使用时机：安全审计、漏洞检查、安全编码审查、威胁建模。
-  关键字：security, OWASP, vulnerability, authentication, authorization, 安全, 漏洞, 认证。
+  引导安全审查与漏洞评估，遵循 OWASP 标准。
+  Use when: 安全审计、漏洞检查、安全编码审查、威胁建模。
+  Not for: 自动化的依赖包、CVE 与密钥扫描——请用 /scan；处理正在发生的安全事件——请用 /incident。
+  Keywords: security, OWASP, vulnerability, authentication, authorization, 信息安全, 漏洞, 认证, 授权, 威胁建模.
 ---
 
 # 安全审计助手

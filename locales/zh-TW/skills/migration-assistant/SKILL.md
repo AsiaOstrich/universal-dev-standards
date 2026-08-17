@@ -3,10 +3,14 @@ name: migration-assistant
 source: ../../../../skills/migration-assistant/SKILL.md
 source_version: 1.0.0
 source_hash: 67b6f33f825e
-translation_version: 1.0.0
-last_synced: 2026-06-01
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導程式碼遷移、框架升級與技術現代化"
+description: |
+  [UDS] 引導系統性的程式碼遷移、框架升級與技術現代化。
+  Use when: 規劃框架或主版本升級、評估遷移風險、在 API 遷移前先擷取合約測試的固定樣本。
+  Not for: 維持同一套框架的原地改善——請用 /refactor；資料庫 schema 設計——請用 /database。
+  Keywords: migration, framework upgrade, modernization, breaking change, dependency upgrade, 遷移, 升級, 技術現代化, 破壞性變更.
 ---
 
 # 遷移助手

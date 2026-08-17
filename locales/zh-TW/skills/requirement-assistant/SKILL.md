@@ -2,10 +2,14 @@
 name: requirement-assistant
 source: ../../../../skills/requirement-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則"
+description: |
+  [UDS] 撰寫符合 INVEST 準則的使用者故事與需求。
+  Use when: 把一個功能構想轉成使用者故事、定義可測試的驗收條件、檢視待辦項目的品質。
+  Not for: 帶有設計與差異操作的完整規格文件——請用 /sdd；判斷這個構想本身對不對——請用 /brainstorm。
+  Keywords: requirement, user story, INVEST, acceptance criteria, backlog refinement, 需求, 使用者故事, 驗收條件, 待辦整理.
 ---
 
 # 需求助手

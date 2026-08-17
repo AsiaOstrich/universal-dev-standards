@@ -4,6 +4,7 @@ scope: universal
 description: |
   [UDS] Guide structured team retrospectives for Sprint and Release cycles.
   Use when: sprint end, release post-mortem, iteration review, process improvement.
+  Not for: post-mortems for a production incident — use /incident; tracking metric trends between retros — use /metrics.
   Keywords: retrospective, retro, sprint review, lessons learned, action items.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[sprint | release | actions | --technique starfish]"

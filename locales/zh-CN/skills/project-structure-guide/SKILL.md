@@ -1,9 +1,14 @@
 ---
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-04
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
+description: |
+  依各语言的最佳实践组织项目目录结构的指南。
+  Use when: 创建项目、重整结构、新增模块、配置构建流程、决定文件该放哪里。
+  Not for: 专门为 AI 导览而设计的结构——请用 /ai-friendly-architecture；原地重整既有代码——请用 /refactor。
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, 项目结构, 目录布局, 文件摆放.
 ---
 
 # 项目结构指南

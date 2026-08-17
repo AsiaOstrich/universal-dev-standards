@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/commit-standards/SKILL.md
 source_version: 1.0.0
-source_hash: bc13c6166e8d
-translation_version: 1.0.0
-last_synced: 2026-07-09
+source_hash: 4a341b634146
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  [UDS] 根据 Conventional Commits 规范产生格式正确的 commit message。
-  使用时机：提交代码、撰写 commit message、检查提交格式。
-  关键字：commit, conventional commits, 提交, 消息, feat, fix, refactor。
+  [UDS] 生成符合 Conventional Commits 规范的 commit message，包含双语格式。
+  Use when: 为已暂存的变更撰写 commit message、选择 type 与 scope、产出英文与中文并列的主旨与正文。
+  Not for: 判断这份变更是否已可提交——请用 /checkin；把多个 commit 汇整成发布说明——请用 /changelog。
+  Keywords: commit message, Conventional Commits, feat, fix, refactor, scope, bilingual, 提交信息, 双语 commit, 提交规范.
 ---
 
 # Commit Message 助手

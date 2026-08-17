@@ -2,11 +2,15 @@
 name: dev-workflow-guide
 source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-06-02
+translation_version: 1.1.0
+last_synced: 2026-08-17
 source_hash: 5bf83f0db544
 status: current
-description: "[UDS] 將軟體開發階段對應到 UDS 指令與功能的指南"
+description: |
+  [UDS] 把目前的軟體開發階段對應到正確的 UDS 指令與 Skill。
+  Use when: 不確定手上的任務該用哪個 UDS 指令、初次上手 UDS、帶著一個功能從規劃走到發布。
+  Not for: 選擇或切換方法論——請用 /methodology；實際執行某階段的工作——請用該階段自己的 Skill。
+  Keywords: workflow, development phase, command routing, which command, UDS guide, 開發階段, 指令對照, 流程指南.
 ---
 
 # 開發工作流程指南

@@ -1,7 +1,11 @@
 ---
 name: migrate
 scope: universal
-description: "[UDS] Guide code migration, framework upgrades, and technology modernization"
+description: |
+  [UDS] Guide systematic code migration, framework upgrades, and technology modernization.
+  Use when: planning a framework or major-version upgrade, assessing migration risk, capturing contract-test fixtures before an API migration.
+  Not for: in-place improvement that keeps the same framework — use /refactor; database schema design — use /database.
+  Keywords: migration, framework upgrade, modernization, breaking change, dependency upgrade, 遷移, 升級, 技術現代化.
 allowed-tools: Read, Grep, Glob, Bash(npm:*, git:*)
 argument-hint: "[migration target or framework | 遷移目標或框架]"
 ---

@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/refactoring-assistant/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-02-10
+translation_version: 2.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导重构决策、推荐策略，并提供逐步执行工作流程。
-  使用时机：重构代码、评估重构 vs 重写、处理遗留代码。
-  关键字：refactor, strategy, legacy, technical debt, 重构, 策略, 遗留代码, 技术债。
+  [UDS] 引导重构决策与策略选择，包含「重构还是重写」这个判断。
+  Use when: 代码已经难以修改、在战术性与架构性重构之间做选择、要在老旧代码里安全地动手。
+  Not for: 换到不同框架或主版本——请用 /migrate；清除调试残留与死代码——请用 /sweep。
+  Keywords: refactor, rewrite, strangler, legacy code, technical debt, code smell, 重构, 重写, 技术债, 坏味道.
 ---
 
 # 重构助手

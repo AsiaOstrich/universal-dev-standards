@@ -4,6 +4,7 @@ scope: universal
 description: |
   AI-assisted safety layer for git push operations with quality gates and collaboration guardrails.
   Use when: pushing commits, force pushing, pushing to protected branches, pushing feature branches.
+  Not for: composing the commit — use /commit; branch and merge strategy decisions — use /git-workflow-guide.
   Keywords: git push, force push, protected branch, quality gate, push receipt, PR automation.
 allowed-tools: Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*)
 argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"

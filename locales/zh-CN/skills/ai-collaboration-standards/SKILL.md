@@ -1,9 +1,14 @@
 ---
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-25
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
+description: |
+  防止 AI 幻觉，确保分析代码或提出建议时给出以证据为基础的回应。
+  Use when: 分析代码、提出建议、提供选项，或用户询问把握度／确定性时。
+  Not for: 编写 AI 指令文件本身——请用 /ai-instruction-standards；审查具体的 diff——请用 /code-review。
+  Keywords: certainty, assumption, inference, evidence, source, 证据, 假设, 推论, 确定性, 反幻觉.
 ---
 
 # AI 协作标准

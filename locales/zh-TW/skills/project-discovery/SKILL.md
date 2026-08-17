@@ -2,10 +2,14 @@
 name: project-discovery
 source: ../../../../skills/project-discovery/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 在既有程式碼庫新增功能前的 Phase 0 評估，評估專案健康度與風險"
+description: |
+  [UDS] 在既有程式碼庫新增功能之前，評估專案健康度、架構與風險。
+  Use when: 接手不熟悉或老舊的專案、動工前先估算風險、建立風險登記簿。
+  Not for: 對已經熟悉的程式碼庫做持續指標追蹤——請用 /metrics；從程式碼回推規格——請用 /reverse。
+  Keywords: discovery, project assessment, legacy onboarding, risk register, technical debt, 現況評估, 專案盤點, 風險登記簿, 老舊系統.
 ---
 
 # 專案現況評估

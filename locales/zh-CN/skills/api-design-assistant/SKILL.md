@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/api-design-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导 API 设计，遵循 REST、GraphQL 和 gRPC 最佳实践。
-  使用时机：设计 API、审查端点、API 版本决策。
-  关键字：API, REST, GraphQL, gRPC, endpoint, versioning, 接口设计。
+  引导 API 设计，遵循 REST、GraphQL 与 gRPC 最佳实践。
+  Use when: 设计 API、审查端点、API 版本策略决策。
+  Not for: 验证运行中的 API 是否符合消费端期待——请用 /contract-test；API 背后的 schema 设计——请用 /database。
+  Keywords: API, REST, GraphQL, gRPC, endpoint, versioning, 接口设计, 端点, 版本策略.
 ---
 
 # API 设计助手

@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/database-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导数据库设计、迁移规划和查询优化。
-  使用时机：schema 设计、迁移规划、查询优化、索引策略。
-  关键字：database, schema, migration, SQL, index, query, 数据库, 迁移, 查询。
+  引导数据库设计、迁移与查询优化。
+  Use when: schema 设计、迁移规划、查询优化、索引策略。
+  Not for: 应用程序代码迁移或框架升级——请用 /migrate；数据之上的 API 契约——请用 /api-design。
+  Keywords: database, schema, migration, SQL, index, query, 数据库, 迁移, 查询, 索引策略.
 ---
 
 # 数据库助手

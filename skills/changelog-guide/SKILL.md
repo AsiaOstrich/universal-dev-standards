@@ -1,7 +1,11 @@
 ---
 name: changelog
 scope: partial
-description: "[UDS] Generate and maintain CHANGELOG.md entries"
+description: |
+  [UDS] Generate and maintain CHANGELOG.md entries in Keep a Changelog format.
+  Use when: writing changelog entries from commit history, filling the Unreleased section, categorising changes as Added/Changed/Fixed.
+  Not for: choosing the next version number or running the release — use /release; writing the commit messages themselves — use /commit.
+  Keywords: changelog, CHANGELOG.md, Keep a Changelog, release notes, unreleased, 變更日誌, 發布說明, 版本紀錄.
 allowed-tools: Read, Write, Grep, Bash(git log:*)
 disable-model-invocation: true
 ---

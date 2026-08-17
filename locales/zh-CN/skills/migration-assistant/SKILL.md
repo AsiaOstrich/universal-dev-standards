@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/migration-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 5d58f55f3f68
-translation_version: 1.0.0
-last_synced: 2026-07-09
+source_hash: 317e388b2b82
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导代码迁移、框架升级与技术现代化。
-  使用时机：框架升级、语言迁移、API 版本更新、依赖现代化。
-  关键字：migration, upgrade, modernize, framework, dependency, 迁移, 升级, 现代化。
+  [UDS] 引导系统性的代码迁移、框架升级与技术现代化。
+  Use when: 规划框架或主版本升级、评估迁移风险、在 API 迁移前先抓取契约测试的固定样本。
+  Not for: 维持同一套框架的原地改善——请用 /refactor；数据库 schema 设计——请用 /database。
+  Keywords: migration, framework upgrade, modernization, breaking change, dependency upgrade, 迁移, 升级, 技术现代化, 破坏性变更.
 ---
 
 # 迁移助手

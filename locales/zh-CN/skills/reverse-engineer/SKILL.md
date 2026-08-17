@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/reverse-engineer/SKILL.md
 source_version: 1.2.0
-source_hash: 469dcdc76a83
-translation_version: 1.2.0
-last_synced: 2026-07-16
+source_hash: 4645517162ab
+translation_version: 1.3.0
+last_synced: 2026-08-17
 status: current
 description: |
-  系统考古——跨逻辑、数据、运行时三维度逆向工程代码。
-  使用时机：从代码提取规格、分析数据模型、分析运行时基准、生成 Gherkin 场景、分析测试覆盖率。
-  关键字：reverse engineering, spec, data, runtime, bdd, tdd, 逆向工程, 规格, 覆盖率。
+  [UDS] 系统考古——从逻辑、数据、运行时三个维度对既有系统做逆向工程。
+  Use when: 为没有文档的系统补上文档、从既有代码回推规格、绘制未知的数据模型或运行时拓扑。
+  Not for: 动工前评估健康度与风险——请用 /discover；从已批准的规格正向推导测试——请用 /spec-derive。
+  Keywords: reverse engineering, system archeology, legacy code, spec extraction, data model, runtime, 逆向工程, 系统考古, 规格提取, 数据模型.
 ---
 
 # 逆向工程助手

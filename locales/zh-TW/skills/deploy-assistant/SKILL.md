@@ -2,13 +2,14 @@
 name: deploy
 source: ../../../../skills/deploy-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: universal
 description: |
-  [UDS] 無 CI/CD 平台環境下的可靠部署指引（不依賴 GitHub Actions / GitLab CI）。
-  Use when: deploying to VPS, air-gapped servers, or environments without CI/CD infrastructure.
-  Keywords: deployment, no-cicd, shell script, blue-green, smoke test, rollback, 無CI/CD, 部署.
+  引導在沒有 CI/CD 平台（GitHub Actions／GitLab CI）的情況下完成可靠部署。
+  Use when: 部署到 VPS、離線隔離的伺服器，或任何沒有 CI/CD 基礎設施的環境。
+  Not for: 建立在 GitHub Actions 或 GitLab CI 上的管線——請用 /ci-cd；版本號遞增與發布晉級——請用 /release。
+  Keywords: deployment, no-cicd, shell script, blue-green, smoke test, rollback, 無 CI/CD, 部署, 藍綠部署, 回滾.
 allowed-tools: Read, Bash(cat VERSION:*), Bash(git describe:*), Bash(which nginx:*), Bash(which rsync:*)
 argument-hint: "[專案類型: node/python/docker/go]"
 ---

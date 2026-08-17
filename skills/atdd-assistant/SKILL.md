@@ -1,7 +1,11 @@
 ---
 name: atdd
 scope: partial
-description: "[UDS] Guide through Acceptance Test-Driven Development workflow"
+description: |
+  [UDS] Reference for Acceptance Test-Driven Development: INVEST criteria, Gherkin AC format, and Three Amigos structure.
+  Use when: defining acceptance criteria with a product owner, running a specification workshop, checking a user story against INVEST.
+  Not for: executing the ATDD lifecycle or enforcing PO sign-off gates — that moved to the adoption layer (XSPEC-095); writing unit tests — use /tdd.
+  Keywords: ATDD, acceptance test, acceptance criteria, INVEST, specification workshop, Three Amigos, 驗收測試驅動開發, 驗收條件, 規格工作坊.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature or spec | 功能或規格]"
 status: reference

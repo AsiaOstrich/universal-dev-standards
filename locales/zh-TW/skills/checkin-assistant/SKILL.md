@@ -2,10 +2,14 @@
 name: checkin-assistant
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 在提交程式碼前驗證品質關卡，確保程式碼庫穩定性"
+description: |
+  [UDS] 提交前品質關卡的參考資料：關卡定義、檢查清單項目，以及絕不可提交的規則。
+  Use when: 決定 commit 前必須通過哪些檢查、稽核專案實際強制了哪些品質關卡、確認是否已可簽入。
+  Not for: 執行關卡流程或中止 commit——該部分已移至採用層（XSPEC-095）；找出並清除除錯殘留——請用 /sweep。
+  Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 簽入, 提交前檢查, 品質關卡, 檢查清單.
 ---
 
 # 簽入助手

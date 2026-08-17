@@ -2,10 +2,14 @@
 name: api-design-assistant
 source: ../../../../skills/api-design-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 API 設計，遵循 REST、GraphQL 和 gRPC 最佳實踐"
+description: |
+  引導 API 設計，遵循 REST、GraphQL 與 gRPC 最佳實踐。
+  Use when: 設計 API、審查端點、API 版本策略決策。
+  Not for: 驗證運行中的 API 是否符合消費端期待——請用 /contract-test；API 背後的 schema 設計——請用 /database。
+  Keywords: API, REST, GraphQL, gRPC, endpoint, versioning, 介面設計, 端點, 版本策略.
 ---
 
 # API 設計助手

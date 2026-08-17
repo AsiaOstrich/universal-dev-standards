@@ -2,7 +2,11 @@
 name: ac-coverage
 scope: universal
 anchor_standard: acceptance-criteria-traceability
-description: "[UDS] Analyze AC-to-test traceability and coverage"
+description: |
+  [UDS] Analyze AC-to-test traceability and generate requirement-level coverage reports.
+  Use when: auditing which acceptance criteria have tests, building a traceability matrix from a SPEC file, finding uncovered AC before release.
+  Not for: code-level line/branch/function coverage — use /coverage; writing the missing tests — use /tdd or /spec-derive.
+  Keywords: AC coverage, traceability, acceptance criteria, SPEC, traceability matrix, 驗收條件, 需求追蹤, 覆蓋率矩陣.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[spec file path | 規格檔案路徑]"
 ---

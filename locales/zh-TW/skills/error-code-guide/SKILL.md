@@ -1,10 +1,14 @@
 ---
 name: errors
-description: "[UDS] 設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式"
+description: |
+  設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式。
+  Use when: 定義錯誤碼、建立錯誤處理機制、設計 API。
+  Not for: 日誌格式與層級——請用 /logging-guide；處理已經到達正式環境的錯誤——請用 /incident。
+  Keywords: error code, error handling, error format, API errors, 錯誤碼, 錯誤處理, 錯誤格式.
 source: ../../../../skills/error-code-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 ---
 

@@ -1,10 +1,14 @@
 ---
 source: ../../../../skills/e2e-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 从 BDD 场景生成 E2E 测试骨架，支持框架检测与覆盖差距分析"
+description: |
+  [UDS] 从 BDD 的 .feature 场景生成 E2E 测试骨架，并支持框架检测与覆盖缺口分析。
+  Use when: 把已完成的 .feature 场景转成可运行的 E2E 骨架、检测项目使用的 E2E 框架、找出没有 E2E 覆盖的 AC。
+  Not for: 跨多个故事且带有共享状态的旅程——请用 journey-test Skill；编写 .feature 场景本身——请用 /bdd。
+  Keywords: E2E, end-to-end test, feature file, test skeleton, framework detection, 端对端测试, 测试骨架, 场景转测试, 覆盖缺口.
 ---
 
 # E2E 助手

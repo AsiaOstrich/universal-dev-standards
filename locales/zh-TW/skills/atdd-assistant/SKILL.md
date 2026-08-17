@@ -2,10 +2,14 @@
 name: atdd-assistant
 source: ../../../../skills/atdd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導驗收測試驅動開發（ATDD）流程，用於定義和驗證使用者故事"
+description: |
+  [UDS] 驗收測試驅動開發（ATDD）的參考資料：INVEST 準則、Gherkin 驗收條件格式與 Three Amigos 結構。
+  Use when: 與 Product Owner 一起定義驗收條件、進行規格工作坊、用 INVEST 檢視使用者故事。
+  Not for: 執行 ATDD 生命週期或強制 PO 簽核關卡——該部分已移至採用層（XSPEC-095）；撰寫單元測試——請用 /tdd。
+  Keywords: ATDD, acceptance test, acceptance criteria, INVEST, specification workshop, Three Amigos, 驗收測試驅動開發, 驗收條件, 規格工作坊.
 ---
 
 # ATDD 助手

@@ -5,6 +5,7 @@ anchor_standard: observability-standards
 description: |
   Guide observability setup, metrics design, and alerting configuration.
   Use when: new service instrumentation, SLO definition, alert design, maturity assessment.
+  Not for: setting numeric targets and Error Budget policy — use /slo; log format and levels — use /logging-guide.
   Keywords: observability, metrics, traces, golden signals, alerting, SLO.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[service name or observability topic | 服務名稱或可觀測性主題]"

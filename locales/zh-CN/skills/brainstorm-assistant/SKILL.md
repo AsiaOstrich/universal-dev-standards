@@ -2,14 +2,15 @@
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
 source_version: 4.1.0
-source_hash: 0c1fa3392232
-translation_version: 4.1.0
-last_synced: 2026-07-09
+source_hash: 711404f2c4af
+translation_version: 4.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  在编写规格前进行结构化 AI 辅助头脑风暴。
-  使用时机：功能规划、创意发想、问题定义。
-  关键字：brainstorm, persona, multi-critic, HMW, SCAMPER, 头脑风暴, 发想。
+  [UDS] 在规格出现之前执行的结构化多角色头脑风暴，并附带评分质量关卡。
+  Use when: 想法还很模糊、在敲定方向前探索替代方案、需要多样性而不是第一个看似合理的答案。
+  Not for: 方向已经定了的工作规划——请用 /plan 或 /sdd；记录已经做成的决策——请用 /adr。
+  Keywords: brainstorm, ideation, divergence, convergence, persona ensemble, devil advocate, 头脑风暴, 发想, 发散收敛, 多角色.
 ---
 
 # 头脑风暴助手

@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 scope: universal
 description: |
-  设计 AI 友善架构，包含明确模式、分层文档和语义边界。
-  使用时机：为 AI 协作规划项目结构、优化代码库以利 AI 分析、设置 AI 上下文。
-  关键字：architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架构, AI 友善, 上下文.
+  设计 AI 友善架构，包含明确的模式、分层文档与语义边界。
+  Use when: 为 AI 协作规划项目结构、优化代码库以利 AI 分析、建立 AI 上下文。
+  Not for: 编写指令文件本身——请用 /ai-instruction-standards；依语言惯例安排目录布局——请用 /project-structure-guide。
+  Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架构, AI 友善, 上下文, 语义边界.
 ---
 
 # AI 友善架构指南

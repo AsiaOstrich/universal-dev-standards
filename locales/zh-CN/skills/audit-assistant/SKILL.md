@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/audit-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-04
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  UDS 健康检查与反馈系统。诊断安装完整性、检测开发模式、识别摩擦点。
-  使用时机：检查 UDS 安装、报告问题、发现规范化机会。
-  关键字：audit, health, pattern, friction, feedback, 审计, 健康, 模式, 摩擦, 反馈。
+  [UDS] 诊断 UDS 安装的健康状态，并向上游提交结构化反馈。
+  Use when: .standards/ 看起来损坏或不同步、验证 manifest 完整性、反馈既有 UDS 标准用起来的摩擦点。
+  Not for: 审计你自己应用程序的代码质量——请用 /metrics 或 /code-review；依赖包与密钥扫描——请用 /scan。
+  Keywords: UDS audit, health check, manifest integrity, standards feedback, friction, 安装健康, 标准审计, 反馈, 完整性检查.
 ---
 
 # 审计助手

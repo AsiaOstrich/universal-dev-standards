@@ -2,10 +2,14 @@
 name: durable-execution-assistant
 source: ../../../../skills/durable-execution-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導工作流程故障恢復，包含檢查點、重試與回滾策略"
+description: |
+  [UDS] 引導容錯工作流程設計，包含檢查點、重試策略與回滾計畫。
+  Use when: 長時間執行的工作流程總是中途失敗、設計檢查點的粒度、選擇重試或退避策略。
+  Not for: 處理正在發生中的線上事故——請用 /incident；部署回滾的實作機制——請用 /deploy。
+  Keywords: durable execution, checkpoint, retry, backoff, idempotency, rollback, 持久執行, 檢查點, 重試策略, 冪等.
 ---
 
 # 持久執行助手

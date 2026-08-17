@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/project-discovery/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  在既有代码库新增功能前的 Phase 0 评估，评估项目健康度、架构与风险。
-  使用时机：新增功能前、项目健康度检查、风险评估。
-  关键字：discover, assessment, health, risk, 评估, 健康度, 风险, 架构。
+  [UDS] 在既有代码库新增功能之前，评估项目健康度、架构与风险。
+  Use when: 接手不熟悉或老旧的项目、动工前先估算风险、建立风险登记簿。
+  Not for: 对已经熟悉的代码库做持续指标追踪——请用 /metrics；从代码回推规格——请用 /reverse。
+  Keywords: discovery, project assessment, legacy onboarding, risk register, technical debt, 现状评估, 项目盘点, 风险登记簿, 老旧系统.
 ---
 
 # 项目现况评估

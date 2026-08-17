@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/docs-generator/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  从项目源文件生成使用文档（速查表、参考手册、使用指南）。
-  使用时机：生成文档、建立速查表、生成参考手册。
-  关键字：docgen, documentation, cheatsheet, reference, 文档生成, 速查表, 参考手册。
+  [UDS] 从项目源文件生成使用文档（速查表、参考手册、使用指南）。
+  Use when: 从 CLI 与 Skill 定义产出速查表或功能参考手册、命令变更后重新生成文档、确认生成的文档是否为最新。
+  Not for: 决定项目需要哪些文档或手写叙述性内容——请用 /documentation-guide；变更日志条目——请用 /changelog。
+  Keywords: docgen, usage docs, cheatsheet, feature reference, generated documentation, 使用文档, 速查表, 文档生成, 参考手册.
 ---
 
 # 文档生成器

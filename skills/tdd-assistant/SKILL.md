@@ -1,7 +1,11 @@
 ---
 name: tdd
 scope: partial
-description: "[UDS] Guide through Test-Driven Development workflow"
+description: |
+  [UDS] Reference for Test-Driven Development: the Red-Green-Refactor cycle, FIRST principles, and Arrange-Act-Assert structure.
+  Use when: writing a failing test before implementation, structuring a test with Arrange-Act-Assert, checking tests against FIRST.
+  Not for: driving the RED/GREEN cycle interactively — that moved to the adoption layer (XSPEC-095); measuring how much code the tests cover — use /coverage.
+  Keywords: TDD, test first, Red Green Refactor, FIRST, Arrange Act Assert, unit test, 測試驅動開發, 紅綠重構, 單元測試.
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx vitest:*)
 argument-hint: "[feature or file | 功能或檔案]"
 status: reference

@@ -2,10 +2,14 @@
 name: bdd-assistant
 source: ../../../../skills/bdd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導行為驅動開發（BDD）流程，使用 Given-When-Then 格式撰寫場景"
+description: |
+  [UDS] 行為驅動開發（BDD）的參考資料：Gherkin 的 Given-When-Then 格式與 Three Amigos 結構。
+  Use when: 撰寫或審查 .feature 場景、選定通用語言、針對行為進行探索式對話。
+  Not for: 執行 BDD 生命週期或 RED/GREEN 自動化——該部分已移至採用層（XSPEC-095）；把 .feature 檔轉成 E2E 骨架——請用 /e2e。
+  Keywords: BDD, Gherkin, Given When Then, feature file, scenario, Three Amigos, 行為驅動開發, 場景, 特性檔, 通用語言.
 ---
 
 # BDD 助手

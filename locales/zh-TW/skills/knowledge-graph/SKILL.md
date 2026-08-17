@@ -2,10 +2,14 @@
 name: knowledge-graph
 source: ../../../../skills/knowledge-graph/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-30
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 透過知識圖追蹤規格／決策／程式碼的影響鏈（引擎或 Markdown 後備）"
+description: |
+  [UDS] 透過知識圖追蹤規格、決策與程式碼之間的影響鏈；沒有引擎時以 Markdown 後備方案運作。
+  Use when: 想知道某份規格或決策會影響到什麼、找出哪些程式碼實作了某個產物、追蹤規格、ADR 與模組之間的相依關係。
+  Not for: 沒有規格或決策錨點的純文字搜尋——請用 Grep；撰寫規格本身——請用 /sdd。
+  Keywords: knowledge graph, impact chain, traceability, spec impact, decision graph, 知識圖, 影響鏈, 規格追蹤, 相依關係.
 ---
 
 # 知識圖

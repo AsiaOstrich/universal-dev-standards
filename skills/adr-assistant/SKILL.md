@@ -4,6 +4,7 @@ scope: universal
 description: |
   [UDS] Create, manage, and track Architecture Decision Records (ADR).
   Use when: architecture decisions, technology choices, design trade-offs, pattern selection.
+  Not for: decisions that do not change architecture — record them in the spec or commit; ideas not yet formed enough to decide — use /brainstorm.
   Keywords: ADR, architecture decision, decision record, trade-off.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[create | list | supersede ADR-NNN | 決策主題]"

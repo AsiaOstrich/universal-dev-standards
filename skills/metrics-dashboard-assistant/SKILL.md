@@ -1,7 +1,11 @@
 ---
 name: metrics
 scope: universal
-description: "[UDS] Track development metrics, code quality indicators, and project health"
+description: |
+  [UDS] Track development metrics, code quality indicators, and technical debt over time.
+  Use when: assessing ongoing project health, classifying and trending technical debt, reporting code quality to a team.
+  Not for: first-time assessment of an unfamiliar codebase — use /discover; test coverage specifically — use /coverage or /ac-coverage.
+  Keywords: metrics, code quality, technical debt, project health, debt trend, 開發指標, 技術債, 專案健康度.
 allowed-tools: Read, Grep, Glob, Bash(npm:*, git:log)
 argument-hint: "[metric type or module | 指標類型或模組]"
 ---

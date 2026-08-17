@@ -1,7 +1,11 @@
 ---
 name: audit
 scope: universal
-description: "[UDS] UDS Health & Feedback System"
+description: |
+  [UDS] Diagnose UDS installation health and submit structured feedback upstream.
+  Use when: .standards/ looks broken or out of sync, verifying manifest integrity, reporting friction with an existing UDS standard.
+  Not for: auditing your own application code quality — use /metrics or /code-review; dependency and secret scanning — use /scan.
+  Keywords: UDS audit, health check, manifest integrity, standards feedback, friction, 安裝健康, 標準稽核, 回饋.
 allowed-tools: Read, Grep, Glob, Bash(git log, uds audit)
 argument-hint: "[--health | --patterns | --friction | --report]"
 disable-model-invocation: true

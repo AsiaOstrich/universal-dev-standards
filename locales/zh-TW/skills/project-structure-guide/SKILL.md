@@ -2,13 +2,14 @@
 name: project-structure-guide
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-05-28
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  [UDS] 引導依語言特性最佳實踐組織專案目錄結構。
-  Use when: creating projects, reorganizing structure, adding modules, setting up builds, deciding file placement.
-  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, 專案結構, 目錄配置.
+  依各語言的最佳實踐組織專案目錄結構的指南。
+  Use when: 建立專案、重整結構、新增模組、設定建置流程、決定檔案該放哪裡。
+  Not for: 專門為 AI 導覽而設計的結構——請用 /ai-friendly-architecture；原地重整既有程式碼——請用 /refactor。
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, 專案結構, 目錄配置, 檔案擺放.
 ---
 
 # 專案結構指南

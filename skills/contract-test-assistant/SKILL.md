@@ -4,6 +4,7 @@ scope: universal
 description: |
   [UDS] Guide contract testing strategy for APIs and microservices.
   Use when: API contracts, microservices, consumer-driven testing, provider verification.
+  Not for: designing the API surface in the first place — use /api-design; user-visible flows through a UI — use /e2e.
   Keywords: contract test, Pact, OpenAPI, consumer-driven, provider.
 allowed-tools: Read, Write, Glob, Grep
 argument-hint: "[verify | consumer | provider | 策略選擇]"

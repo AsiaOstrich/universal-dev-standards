@@ -1,7 +1,11 @@
 ---
 name: brainstorm
 scope: universal
-description: "[UDS] Structured AI-assisted brainstorming before spec creation"
+description: |
+  [UDS] Structured multi-persona brainstorming with a scored quality gate, run before a spec exists.
+  Use when: an idea is still vague, exploring alternatives before committing to a direction, needing diversity rather than the first plausible answer.
+  Not for: planning work whose direction is already decided — use /plan or /sdd; recording a decision already made — use /adr.
+  Keywords: brainstorm, ideation, divergence, convergence, persona ensemble, devil advocate, 腦力激盪, 發想, 發散收斂.
 allowed-tools: Read, Glob, Grep, Write
 argument-hint: "[problem or feature idea | 問題或功能構想]"
 ---

@@ -2,10 +2,14 @@
 name: documentation-guide
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
-translation_version: 2.1.0
-last_synced: 2026-03-17
+translation_version: 2.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導文件結構、內容需求和專案文件最佳實踐"
+description: |
+  引導文件結構、內容需求與專案文件的最佳實踐。
+  Use when: 建立 README、撰寫文件、規劃 docs 目錄、專案初始設定、技術文件。
+  Not for: 從原始碼機械式產生文件——請用 /docgen；變更日誌條目——請用 /changelog。
+  Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文件, 說明文件, 技術文件.
 ---
 
 # 文件指南

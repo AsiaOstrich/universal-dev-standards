@@ -4,6 +4,7 @@ scope: universal
 description: |
   Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries.
   Use when: structuring projects for AI collaboration, optimizing codebase for AI analysis, setting up AI context.
+  Not for: writing the instruction files — use /ai-instruction-standards; language-conventional directory layout — use /project-structure-guide.
   Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml.
 ---
 

@@ -1,7 +1,11 @@
 ---
 name: knowledge-graph
 scope: partial
-description: "[UDS] Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback)"
+description: |
+  [UDS] Trace impact chains across specs, decisions, and code via a knowledge graph, with a Markdown fallback when no engine is present.
+  Use when: asking what a spec or decision affects, finding which code implements an artifact, tracing dependencies between specs, ADRs, and modules.
+  Not for: plain text search with no spec or decision anchor — use Grep; authoring the spec itself — use /sdd.
+  Keywords: knowledge graph, impact chain, traceability, spec impact, decision graph, 知識圖, 影響鏈, 規格追蹤.
 allowed-tools: Read, Glob, Grep, Bash(curl:*)
 argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 ---

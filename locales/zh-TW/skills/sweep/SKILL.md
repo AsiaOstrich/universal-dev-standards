@@ -2,13 +2,14 @@
 name: sweep
 source: ../../../../skills/sweep/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: universal
 description: |
-  [UDS] 掃描程式庫的除錯殘留與程式碼品質問題；可自動修正安全模式。
-  Use when: before committing, during PR review, or periodic codebase cleanup.
-  Keywords: sweep, debug cleanup, console.log, debugger, TODO, ts-any, code quality, 掃描, 清理.
+  掃描程式碼庫中的除錯殘留與程式碼品質問題；可選擇自動修正安全的模式。
+  Use when: 提交前、PR 審查期間，或定期清理程式碼庫。
+  Not for: 結構性的程式碼改善——請用 /refactor；針對安全的專門掃描——請用 /scan。
+  Keywords: sweep, debug cleanup, console.log, debugger, TODO, ts-any, code quality, 掃描, 清理, 除錯殘留.
 allowed-tools: Read, Grep, Glob, Bash(find:*), Edit, Write
 argument-hint: "[--fix] [--report] [--path <dir>] [--exclude <pattern>]"
 ---

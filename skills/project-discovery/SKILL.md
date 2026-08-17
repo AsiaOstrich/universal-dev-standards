@@ -1,7 +1,11 @@
 ---
 name: discover
 scope: universal
-description: "[UDS] Assess project health, architecture, and risks before adding features"
+description: |
+  [UDS] Assess project health, architecture, and risks before adding features to an existing codebase.
+  Use when: onboarding to an unfamiliar or legacy project, sizing risk before starting a feature, building a risk register.
+  Not for: ongoing metric tracking on a codebase you already know — use /metrics; recovering specs from code — use /reverse.
+  Keywords: discovery, project assessment, legacy onboarding, risk register, technical debt, 現況評估, 專案盤點, 風險登記簿.
 allowed-tools: Read, Grep, Glob, Bash(npm test:*), Bash(npm audit:*), Bash(npm outdated:*)
 argument-hint: "[feature area | 功能範圍]"
 disable-model-invocation: true

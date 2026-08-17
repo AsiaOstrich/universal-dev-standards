@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide Git branching strategies, branch naming, and merge operations.
   Use when: creating branches, merging, pull requests, Git workflow questions.
+  Not for: composing the commit message — use /commit; the safety checks around pushing — use /push.
   Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow.
 ---
 

@@ -5,6 +5,7 @@ anchor_standard: logging-standards
 description: |
   Implement structured logging with proper log levels and sensitive data handling.
   Use when: adding logging, debugging, setting up observability.
+  Not for: metrics, traces, and alerting design — use /observability; error code taxonomy — use /error-code-guide.
   Keywords: logging, log level, structured logging, observability.
 ---
 

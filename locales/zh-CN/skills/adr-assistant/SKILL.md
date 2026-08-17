@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 900a9a7b5b04
-translation_version: 1.0.0
-last_synced: 2026-07-09
+source_hash: a5c79c6a04fe
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  [UDS] 创建、管理和追踪架构决策记录（ADR）。
-  使用时机：架构决策、技术选型、设计取舍、模式选择。
-  关键字：ADR, architecture decision, decision record, 架构决策, 决策记录。
+  [UDS] 创建、管理并追踪架构决策记录（ADR）。
+  Use when: 架构决策、技术选型、设计取舍、模式选择。
+  Not for: 不改变架构的决策——记在规格或 commit 里即可；想法还没成形到足以下决定——请用 /brainstorm。
+  Keywords: ADR, architecture decision, decision record, trade-off, 架构决策, 决策记录, 设计取舍.
 ---
 
 # 架构决策记录助手

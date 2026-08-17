@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/changelog-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  根据 Keep a Changelog 格式产生和维护 CHANGELOG.md 条目。
-  使用时机：更新变更日志、版本发布、记录变更。
-  关键字：changelog, CHANGELOG.md, keep a changelog, 变更日志, 版本记录。
+  [UDS] 以 Keep a Changelog 格式生成并维护 CHANGELOG.md 条目。
+  Use when: 从 commit 历史撰写变更日志条目、填写 Unreleased 区段、将变更分类为 Added/Changed/Fixed。
+  Not for: 决定下一个版本号或执行发版——请用 /release；撰写 commit message 本身——请用 /commit。
+  Keywords: changelog, CHANGELOG.md, Keep a Changelog, release notes, unreleased, 变更日志, 发布说明, 版本记录.
 ---
 
 # 变更日志助手
