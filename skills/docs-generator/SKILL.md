@@ -1,7 +1,11 @@
 ---
 name: docgen
 scope: universal
-description: "[UDS] Generate usage documentation from project sources"
+description: |
+  [UDS] Generate usage documentation (cheatsheets, references, guides) from project sources.
+  Use when: producing a cheatsheet or feature reference from CLI and skill definitions, regenerating docs after commands change, checking generated docs are current.
+  Not for: deciding what documentation a project needs or writing prose by hand — use /documentation-guide; changelog entries — use /changelog.
+  Keywords: docgen, usage docs, cheatsheet, feature reference, generated documentation, 使用文件, 速查表, 文件產生.
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
 argument-hint: "[config file | 設定檔]"
 disable-model-invocation: true

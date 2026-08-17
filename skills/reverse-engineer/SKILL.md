@@ -1,7 +1,11 @@
 ---
 name: reverse
 scope: partial
-description: "[UDS] System archeology - reverse engineer code across Logic, Data, and Runtime dimensions"
+description: |
+  [UDS] System archeology — reverse engineer an existing system across the Logic, Data, and Runtime dimensions.
+  Use when: documenting an undocumented system, recovering specifications from existing code, mapping an unknown data model or runtime topology.
+  Not for: assessing health and risk before a feature — use /discover; deriving tests forward from an approved spec — use /spec-derive.
+  Keywords: reverse engineering, system archeology, legacy code, spec extraction, data model, runtime, 反向工程, 系統考古, 規格提取.
 allowed-tools: Read, Grep, Glob, Bash(pg_dump:*), Bash(mysql:*), Bash(sqlite3:*), Bash(npm run:*), Bash(cat:*), Bash(docker:*)
 argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 disable-model-invocation: true

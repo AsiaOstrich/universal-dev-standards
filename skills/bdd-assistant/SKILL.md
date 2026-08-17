@@ -1,7 +1,11 @@
 ---
 name: bdd
 scope: partial
-description: "[UDS] Guide through Behavior-Driven Development workflow"
+description: |
+  [UDS] Reference for Behavior-Driven Development: Gherkin Given-When-Then format and Three Amigos structure.
+  Use when: writing or reviewing .feature scenarios, choosing ubiquitous language, running a discovery conversation about behaviour.
+  Not for: executing the BDD lifecycle or RED/GREEN automation — that moved to the adoption layer (XSPEC-095); turning .feature files into E2E skeletons — use /e2e.
+  Keywords: BDD, Gherkin, Given When Then, feature file, scenario, Three Amigos, 行為驅動開發, 場景, 特性檔.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature or spec | 功能或規格]"
 status: reference

@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide API design following REST, GraphQL, and gRPC best practices.
   Use when: designing APIs, reviewing endpoints, API versioning decisions.
+  Not for: verifying a running API against its consumers — use /contract-test; schema design behind the API — use /database.
   Keywords: API, REST, GraphQL, gRPC, endpoint, versioning.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[API endpoint or module | API 端點或模組]"

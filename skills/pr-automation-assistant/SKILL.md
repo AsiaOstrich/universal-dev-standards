@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide pull request creation, review automation, and merge strategies.
   Use when: creating PRs, automating reviews, configuring merge policies.
+  Not for: the substance of the review itself — use /code-review; branch naming and merge strategy — use /git-workflow-guide.
   Keywords: pull request, PR, merge, review, GitHub, GitLab.
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"

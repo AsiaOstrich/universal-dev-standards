@@ -1,7 +1,11 @@
 ---
 name: methodology
 scope: partial
-description: "[UDS] Manage development methodology workflow"
+description: |
+  [UDS] Select and track the active development methodology (SDD, BDD, TDD) for a project.
+  Use when: deciding which methodology a project should follow, switching methodology, checking which phase the current methodology is in.
+  Not for: finding which command to run at a given development stage — use /dev-workflow; executing a methodology itself — use /sdd, /bdd, or /tdd.
+  Keywords: methodology, SDD, BDD, TDD, phase tracking, methodology selection, 方法論, 開發方法選擇, 階段追蹤.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[action] [argument]"
 ---

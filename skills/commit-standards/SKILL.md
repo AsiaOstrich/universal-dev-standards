@@ -1,7 +1,11 @@
 ---
 name: commit
 scope: universal
-description: "[UDS] Generate commit messages following Conventional Commits standard"
+description: |
+  [UDS] Generate commit messages that follow Conventional Commits, including the bilingual format.
+  Use when: writing a commit message for staged changes, choosing a type and scope, producing a bilingual English and 中文 subject and body.
+  Not for: deciding whether the change is ready to commit — use /checkin; aggregating commits into release notes — use /changelog.
+  Keywords: commit message, Conventional Commits, feat, fix, refactor, scope, bilingual, 提交訊息, 雙語 commit, 提交規範.
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
 argument-hint: "[description of changes | 變更描述]"
 disable-model-invocation: true

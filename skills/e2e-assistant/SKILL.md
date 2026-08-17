@@ -1,7 +1,11 @@
 ---
 name: e2e
 scope: partial
-description: "[UDS] Generate E2E test skeletons from BDD scenarios"
+description: |
+  [UDS] Generate E2E test skeletons from BDD .feature scenarios, with framework detection and coverage gap analysis.
+  Use when: turning finished .feature scenarios into runnable E2E skeletons, detecting the project E2E framework, finding AC with no E2E coverage.
+  Not for: multi-story journeys with shared state — use the journey-test skill; writing the .feature scenarios themselves — use /bdd.
+  Keywords: E2E, end-to-end test, feature file, test skeleton, framework detection, 端對端測試, 測試骨架, 場景轉測試.
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*)
 argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 status: experimental

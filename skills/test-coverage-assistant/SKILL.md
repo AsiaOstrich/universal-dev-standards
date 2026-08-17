@@ -1,7 +1,11 @@
 ---
 name: coverage
 scope: partial
-description: "[UDS] Analyze test coverage and provide recommendations"
+description: |
+  [UDS] Analyze code-level test coverage across the eight-dimension framework and recommend which gaps to close.
+  Use when: coverage percentages look healthy but defects still ship, judging test completeness beyond line percentage, setting coverage targets.
+  Not for: requirement-level AC-to-test traceability — use /ac-coverage; writing the missing tests — use /tdd or /spec-derive.
+  Keywords: test coverage, eight dimensions, line coverage, branch coverage, test quality, 測試覆蓋率, 八維度, 測試完整性.
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
 argument-hint: "[file or module | 檔案或模組]"
 ---

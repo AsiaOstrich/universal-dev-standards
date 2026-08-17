@@ -1,7 +1,11 @@
 ---
 name: requirement
 scope: universal
-description: "[UDS] Write user stories and requirements following INVEST criteria"
+description: |
+  [UDS] Write user stories and requirements that satisfy the INVEST criteria.
+  Use when: turning a feature idea into a user story, defining testable acceptance criteria, checking a backlog item for quality.
+  Not for: full specification documents with design and delta operations — use /sdd; deciding whether the idea is right at all — use /brainstorm.
+  Keywords: requirement, user story, INVEST, acceptance criteria, backlog refinement, 需求, 使用者故事, 驗收條件.
 allowed-tools: Read, Write, Grep
 argument-hint: "[feature description | 功能描述]"
 ---

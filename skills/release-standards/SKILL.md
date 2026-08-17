@@ -1,7 +1,11 @@
 ---
 name: release
 scope: universal
-description: "[UDS] Guide release process and changelogs"
+description: |
+  [UDS] Guide the release process — semantic versioning, release modes, and the start/finish/promote/deploy sequence.
+  Use when: cutting a release, deciding a semantic version bump, promoting a release candidate to stable, recording a deployment.
+  Not for: writing the changelog entries themselves — use /changelog; the deployment mechanics — use /deploy.
+  Keywords: release, semantic versioning, version bump, release candidate, promote, 發布, 語意化版本, 發版流程.
 allowed-tools: Read, Write, Grep, Bash(git:*), Bash(npm version:*)
 argument-hint: "[version]"
 prerequisites: ["release-check"]

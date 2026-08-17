@@ -1,7 +1,11 @@
 ---
 name: checkin
 scope: partial
-description: "[UDS] Pre-commit quality gates verification"
+description: |
+  [UDS] Reference for pre-commit quality gates: gate definitions, checklist items, and never-commit rules.
+  Use when: deciding what must pass before a commit, auditing which quality gates a project enforces, checking readiness to check in.
+  Not for: executing the gate sequence or aborting a commit — that moved to the adoption layer (XSPEC-095); finding and removing debug artifacts — use /sweep.
+  Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 簽入, 提交前檢查, 品質關卡.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 disable-model-invocation: true
 status: reference

@@ -1,7 +1,11 @@
 ---
 name: spec-derive
 scope: partial
-description: "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications"
+description: |
+  [UDS] Derive BDD scenarios, TDD skeletons, integration and E2E tests, and ATDD tables from an approved specification.
+  Use when: a spec has been approved and needs test artifacts, generating tagged test skeletons from acceptance criteria, producing contract stubs from a spec.
+  Not for: recovering a spec from existing code — use /reverse; writing or reviewing the spec itself — use /sdd.
+  Keywords: forward derivation, spec to test, BDD scenario, TDD skeleton, ATDD table, 正向推演, 規格衍生, 測試生成.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file>"
 prerequisites: ["spec-approved"]

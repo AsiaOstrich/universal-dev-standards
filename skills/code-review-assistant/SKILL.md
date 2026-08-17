@@ -1,7 +1,11 @@
 ---
 name: code-review
 scope: universal
-description: "[UDS] Perform systematic code review with checklist"
+description: |
+  [UDS] Reference for systematic code review: eight review categories and BLOCKING/IMPORTANT/SUGGESTION comment prefixes.
+  Use when: reviewing a pull request or diff, deciding how to phrase and prioritise review comments, agreeing review scope with a team.
+  Not for: executing a gated review workflow — that moved to the adoption layer (XSPEC-095); pre-commit gate verification — use /checkin.
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 disable-model-invocation: true

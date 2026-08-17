@@ -1,7 +1,11 @@
 ---
 name: dev-workflow
 scope: universal
-description: "[UDS] Guide for mapping software development phases to UDS commands and features"
+description: |
+  [UDS] Map the current software development phase to the right UDS commands and skills.
+  Use when: unsure which UDS command fits the task at hand, onboarding to UDS, walking a feature from planning through release.
+  Not for: choosing or switching a methodology — use /methodology; doing the actual work of a phase — use that phase own skill.
+  Keywords: workflow, development phase, command routing, which command, UDS guide, 開發階段, 指令對照, 流程指南.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 ---
