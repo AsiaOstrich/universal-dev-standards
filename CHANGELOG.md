@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.6.0] - 2026-08-17
+
+### Added
+
+- **`ai-response-navigation` 1.1.0 → 1.2.0 — optional rules R7–R9 governing the answer itself** (XSPEC borrow B-10, from [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd), MIT). Rules 1–6 govern what comes *after* the answer: a Navigation Footer, a marked recommendation, a template matched to the response type. Nothing governed the answer. A response could therefore bury its conclusion under a wall of evidence and still satisfy **every rule in this standard** by appending a correct footer — and a reader who cannot find the answer is not helped by being told what to do next.
+  - **R7 — lead with the finding, not the process.** *Trigger*: a response that answers a question, reports an investigation result, or presents a decision. The first line states what was found or what to do — not the method, not a restatement of the request, not a plan for answering. Evidence (`file:line`, command output, tables, measurements) is **support** and belongs after the claim it supports; leading with it forces the reader to reconstruct the conclusion themselves, which is the work they asked to have done. This orders the evidence; it does **not** license omitting it.
+  - **R8 — restate state each turn.** *Trigger*: work spanning 3 or more exchanges, or a task with 3 or more steps. One line on where the work stands. The reader cannot be assumed to hold "we are on step 3 of 5" across messages, and restating it costs a sentence. Composes with Template 4 (*In Progress*): R8 governs the opening, the template governs the footer.
+  - **R9 — no preamble.** *Trigger*: any substantive response. Generalizes an existing prohibition: [`anti-sycophancy-prompting`](core/anti-sycophancy-prompting.md) already forbids *"opening critique with positive affirmation"*, but only for critiques. R9 extends the same prohibition to every substantive response for a different reason — not flattery, but the delay it puts between the reader and the answer. **R9 does not apply to closers**; R1's Navigation Footer requirement stands.
+  - **3 of the source's 10 rules were taken; the reasons for dropping the other 7 are recorded in the standard itself**, not only in a backlog. Two duplicate R1–R2. Three conflict with this standard or others: its *"no recap / no closers"* directly contradicts R1's Navigation Footer, its *"cap lists at 5 items"* would truncate evidence tables and traversal denominators, and its *"specific time estimates"* is already governed by [`estimation-standards`](core/estimation-standards.md).
+  - **Optional in the same sense as R6** (model tier annotation): adopters need not enable them, existing skills need no retroactive change, and a project MAY promote any of them to required in its own configuration. **What is not optional is that each carries a precise trigger** — a rule phrased too loosely to fire is indistinguishable from not having the rule, which is the failure mode recorded in XSPEC-378.
+  - Extends the **existing** standard rather than adding a new one: a second standard covering "how an AI writes to a human reader" would put two implementations on one axis.
+
 ## [6.5.0] - 2026-08-14
 
 ### Added
