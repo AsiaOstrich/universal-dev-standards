@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.2
-translation_version: 6.7.2
+source_version: 6.7.3
+translation_version: 6.7.3
 last_synced: 2026-08-18
 status: current
 ---
@@ -16,6 +16,19 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.7.3] - 2026-08-18
+
+### 修正
+
+- **skill 改為內容比對，升級不再重印 55 列毫無意義的變更。** diff 兩端都硬寫 `hash: null`，於是每個 skill 都是無條件重裝。**兩端各算來源目錄的雜湊行不通**——安裝不是逐位元複製：locale 版的 `SKILL.md` 會被併入英文 frontmatter（`brainstorm-assistant`：23,753 bytes 的 zh-TW 來源變成 23,866 bytes 的安裝結果）、來源是執行期依 locale 逐 skill 選擇並可回退英文、子目錄被略過。照那樣做，55 個全都會顯示為內容**變更**，每次升級皆然——**與真的變更無從分辨，比那個已知的無訊號更糟**。改為只有一個函式：`resolveSkillFiles(name, locale)` 說明一次安裝會包含什麼，**安裝器寫它、計畫器雜湊它**，兩者因此不可能漂移。與真實已安裝的專案對帳：110 個檔逐位元相符、0 個不符，18 個採用者自寫的 skill 正確地解不出來。actual 端**只對 UDS 管理的目錄計算雜湊**；採用者自己的 skill 永遠不被比較、也永遠不會變成刪除候選。真實升級中的 `Update (57)` 現在是 `Update: 0, Unchanged: 127`。
+- **`uds check --restore` 對 72 個受追蹤標準中的 64 個無法還原。** 它拿 `entry.endsWith(fileName)` 去比對 `manifest.standards`，而那些條目**自 3.4.0 起是 ID（`commit-message`）而非路徑**——這個比較永遠不可能為真。會動的那 8 個是仍存路徑格式的 `options/`，**這正是失敗從來看起來不像全面失敗的原因**；其餘一律回報「Could not determine source」。同一段 ID→來源的解析在這個檔案裡已經存在兩次，而這一處從來沒拿到過，所以修法是在 `registry.js` 收斂出一支解析器，**與它必須一致的那支檔名解析器配對**。
+- **一個逐位元正確的標準，沒辦法停止被報成「已修改」。** actual state 是從磁碟算雜湊的，所以與上游相符的檔案被歸為 `unchanged`、不產生動作、也永遠不會被重新雜湊——而 reconciliation 在計畫為空時早退出、連 manifest 都不寫。**沒有回頭路。** diff 現在回報它**證明過**與上游相同的那些檔案，並在早退出之前補正記錄。**刻意做得很窄**：只有在證明磁碟與 desired 相符之後才記錄，所以手改永遠不會被吸收。把記錄同步成磁碟上的任何內容，會讓 `uds check` 從此再也報不出任何被改過的標準。
+- **備份不含 skills，而且沒有任何東西說出這件事。** skill 是目錄，而備份對它們呼叫 `copyFileSync`，那在每個平台都會拋（本機兩個檔案系統實測皆 ENOTSUP——**不是暫存目錄的產物**）。失敗被藏了兩層：執行器只在**一個都沒成功**時中止，於是單一一次成功掩蓋了任意數量的失敗；備份 manifest 沒有 errors 欄位，使得「129 個計畫路徑備了 74 個」在磁碟上與完整備份無從分辨。修正前於真實 repo 量測：備份 manifest 記錄 74 個路徑、而計畫有 129 個動作，其中 **55 個 skill 目錄一個都不在裡面**——**一個不涵蓋它即將覆寫的最大一塊的回復點**。現在目錄遞迴複製、manifest 記錄 `failedToBackUp` 與 `coverage: {planned, backedUp, failed}`，且**任一**備份失敗即中止整次執行：拒絕覆寫一個沒能先複製起來的檔案，正是備份的用途。
+
+### 變更
+
+- **無條件重裝的摺疊保留，措辭放寬。** commands 仍然沒有內容比對，所以那個分支是活的。它沒有跟著 skill 那一半一起移除，因為**一個靜默停止套用的摺疊，與一個本來就沒東西可摺的計畫，長得一模一樣**。
 
 ## [6.7.2] - 2026-08-18
 

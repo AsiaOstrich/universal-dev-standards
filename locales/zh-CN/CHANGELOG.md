@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.2
-translation_version: 6.7.2
+source_version: 6.7.3
+translation_version: 6.7.3
 last_synced: 2026-08-18
 status: current
 ---
@@ -16,6 +16,19 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.7.3] - 2026-08-18
+
+### 修正
+
+- **skill 改为内容比对，升级不再重印 55 行毫无意义的变更。** diff 两端都硬写 `hash: null`，于是每个 skill 都是无条件重装。**两端各算来源目录的哈希行不通**——安装不是逐字节复制：locale 版的 `SKILL.md` 会被并入英文 frontmatter（`brainstorm-assistant`：23,753 字节的 zh-TW 来源变成 23,866 字节的安装结果）、来源是运行期依 locale 逐 skill 选择并可回退英文、子目录被跳过。照那样做，55 个全都会显示为内容**变更**，每次升级皆然——**与真的变更无从分辨，比那个已知的无信号更糟**。改为只有一个函数：`resolveSkillFiles(name, locale)` 说明一次安装会包含什么，**安装器写它、计划器哈希它**，两者因此不可能漂移。与真实已安装的项目对账：110 个文件逐字节相符、0 个不符，18 个采用者自写的 skill 正确地解不出来。actual 端**只对 UDS 管理的目录计算哈希**；采用者自己的 skill 永远不被比较、也永远不会变成删除候选。真实升级中的 `Update (57)` 现在是 `Update: 0, Unchanged: 127`。
+- **`uds check --restore` 对 72 个受追踪标准中的 64 个无法还原。** 它拿 `entry.endsWith(fileName)` 去比对 `manifest.standards`，而那些条目**自 3.4.0 起是 ID（`commit-message`）而非路径**——这个比较永远不可能为真。能用的那 8 个是仍存路径格式的 `options/`，**这正是失败从来看起来不像全面失败的原因**；其余一律报告「Could not determine source」。同一段 ID→来源的解析在这个文件里已经存在两次，而这一处从来没拿到过，所以修法是在 `registry.js` 收敛出一支解析器，**与它必须一致的那支文件名解析器配对**。
+- **一个逐字节正确的标准，没办法停止被报成「已修改」。** actual state 是从磁盘算哈希的，所以与上游相符的文件被归为 `unchanged`、不产生动作、也永远不会被重新哈希——而 reconciliation 在计划为空时提前返回、连 manifest 都不写。**没有回头路。** diff 现在报告它**证明过**与上游相同的那些文件，并在提前返回之前补正记录。**刻意做得很窄**：只有在证明磁盘与 desired 相符之后才记录，所以手改永远不会被吸收。把记录同步成磁盘上的任何内容，会让 `uds check` 从此再也报不出任何被改过的标准。
+- **备份不含 skills，而且没有任何东西说出这件事。** skill 是目录，而备份对它们调用 `copyFileSync`，那在每个平台都会抛（本机两个文件系统实测皆 ENOTSUP——**不是临时目录的产物**）。失败被藏了两层：执行器只在**一个都没成功**时中止，于是单一一次成功掩盖了任意数量的失败；备份 manifest 没有 errors 字段，使得「129 个计划路径备了 74 个」在磁盘上与完整备份无从分辨。修正前于真实 repo 测量：备份 manifest 记录 74 个路径、而计划有 129 个动作，其中 **55 个 skill 目录一个都不在里面**——**一个不涵盖它即将覆写的最大一块的回复点**。现在目录递归复制、manifest 记录 `failedToBackUp` 与 `coverage: {planned, backedUp, failed}`，且**任一**备份失败即中止整次执行：拒绝覆写一个没能先复制起来的文件，正是备份的用途。
+
+### 变更
+
+- **无条件重装的折叠保留，措辞放宽。** commands 仍然没有内容比对，所以那个分支是活的。它没有跟着 skill 那一半一起移除，因为**一个静默停止套用的折叠，与一个本来就没东西可折的计划，长得一模一样**。
 
 ## [6.7.2] - 2026-08-18
 
