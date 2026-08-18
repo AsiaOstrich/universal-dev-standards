@@ -1,3 +1,4 @@
 codex-cli=codex-cli 0.145.0
 antigravity-cli=1.0.14
+antigravity-models=11:80eb6abf802c
 codex-model=gpt-5.6-terra
