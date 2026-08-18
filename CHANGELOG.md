@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.7.2] - 2026-08-18
+
+### Fixed
+
+- **`uds update --skills` updated everything and never advanced the version marker.** Four of five adopter repos sat on 6.6.0 while the same manifest's `skills.version` already read 6.7.0; the only one that advanced was the one with no skills installed. Both runs exited 0, both printed "57 succeeded", and neither printed a failure. The earlier reading of this — that something reported failure and it never surfaced — was wrong. Probes showed `results=57 failing=0`, the registry version resolving to `"6.7.1"`, and the value about to be written being correct: **the reconciler did everything right and a later write undid it.** `update.js` loads the manifest once at the top of the command, before the reconciler runs, and `updateSkillsOnly()` then writes that stale in-memory object back over it. `updateCommandsOnly()` had the identical defect and was found by traversing rather than by hitting it. Both now re-read the manifest and apply **only the fields they own** — copying the whole object back would re-open the same defect for any field a later step adds. This matters because the mechanism's own comment says it exists so the weekly staleness scout, which reads exactly this field, stops misreporting.
+- **A plan that listed 57 changes, 55 of them unconditional.** Skills carry no content comparison (XSPEC-382 R1), so every upgrade reprinted the same 55 rows with one identical reason, burying the two rows a reviewer actually had to approve. They are now collapsed into a single line **that states how many were collapsed**, with the total unchanged — a cap that does not announce itself reads as "these are all of them". The Summary line likewise now reads `Update: 57 (2 changed, 55 unconditional reinstall)`; `Update: 57` alone was true and answered nothing, and the Summary is what you read when deciding whether to approve an upgrade.
+
+### Changed
+
+- **The reason string for unconditional reinstalls is a single exported constant** rather than one copy at the site that produces it and another at the site that renders it. Drift between two copies would be silent here: the collapse would simply stop collapsing and the plan would look exactly as it always had.
+
+### Testing
+
+- **A behavioural test for the version marker, alongside the existing shape test.** The regression test added with the fix asserts source text — that the two functions contain `readManifest(projectPath)` — which would stay green for a refactor that calls it and discards the result. The claim being made is behavioural, so `tests/e2e/update-version-advances.test.js` now runs a real install, seeds a probe version, runs `update --apply --yes --skills`, and asserts the marker moved. Verified in both directions: green with the fix, red with it reverted.
+- Both new suites assert **both arms**. The collapse test checks that ordinary plans are left untouched, because a test that only checks "the 55 are gone" passes equally for a renderer that drops every update row.
+
 ## [6.7.1] - 2026-08-18
 
 ### Fixed
