@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.7.5] - 2026-08-18
+
+### Changed
+
+- **Eight skills can be selected by a model again.** `audit-assistant`, `changelog-guide`, `commit-standards`, `docs-generator`, `project-discovery`, `release-standards`, `reverse-engineer` and `spec-derivation` carried `disable-model-invocation: true`, applied by `d415937e` alongside the description rewrite and following no stateable rule. They were deliberately left alone on 2026-08-17 for a reason that was correct then: the rule settled on was "a reference is model-invocable", and none of these carried a `status` at all, so lifting them would have replaced one unruled state with one unruled action. Measured since: **all eight carry a full `Use when:` trigger and a `Not for:` exclusion, all eight describe an action rather than reference material, and all eight already have a paired slash command** — which is exactly the shape of `code-review-assistant`, whose `/code-review` was ruled not to justify the flag. `journey-test-assistant` is the standing precedent: same "Generate X" shape, `status: stable`, never disabled. Each now records `status: stable` with the reasoning inline. `stable` rather than a new value, because `skills/` uses reference, stable and experimental and inventing a fourth would be the same unruled action in different clothing.
+- **The count of skills a model can actually select is now 55 of 55.** It was 45.
+
+### Fixed
+
+- **A localized install still shipped the flag after the English source dropped it.** `spec-derivation` is the only skill whose locale packs carried `disable-model-invocation` of their own, and frontmatter merging only copies fields the English source *has* — so a field English no longer declares survives untouched in the locale file and ships anyway. Both zh-TW and zh-CN corrected. Verified by resolving all **60 skills × 3 locales = 165 installed results**: zero still disabled.
+
 ## [6.7.4] - 2026-08-18
 
 ### Fixed

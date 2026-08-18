@@ -13,7 +13,11 @@ description: |
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file>"
 prerequisites: ["spec-approved"]
-disable-model-invocation: true
+# 2026-08-18: `disable-model-invocation: true` 已移除,與英文來源同步。
+# 這一份是唯一在 locale 包裡自帶該旗標的 skill。
+# 英文來源移除它並不會讓這裡消失——frontmatter 合併只併入「英文有的欄位」,
+# 所以一個英文已經沒有的欄位,在 locale 檔裡會原封不動地留下來並照樣出貨。
+# (XSPEC-378 R5)
 ---
 
 # 正向推演

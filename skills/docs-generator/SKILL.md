@@ -8,7 +8,30 @@ description: |
   Keywords: docgen, usage docs, cheatsheet, feature reference, generated documentation, 使用文件, 速查表, 文件產生.
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
 argument-hint: "[config file | 設定檔]"
-disable-model-invocation: true
+status: stable
+# 2026-08-18: `disable-model-invocation: true` removed, and a status recorded.
+#
+# The flag was applied by d415937e alongside the description rewrite and, like
+# the two lifted on 2026-08-17, followed no stateable rule. These eight were
+# left alone that day for a reason that was correct at the time: the rule
+# settled on was "a reference is model-invocable", and none of them carried a
+# `status` at all, so lifting them would have replaced one unruled state with
+# one unruled action.
+#
+# Measured 2026-08-18, which is what closed it: all eight carry a full
+# `Use when:` trigger and a `Not for:` exclusion, all eight describe an action
+# rather than reference material, and all eight already have a slash command —
+# which is exactly the shape of `code-review-assistant`, whose paired `/code-review`
+# was ruled not to justify the flag. `journey-test-assistant` is the standing
+# precedent: same "Generate X" shape, `status: stable`, never disabled.
+#
+# `stable` rather than a new value: `skills/` uses reference, stable and
+# experimental, and inventing a fourth would be the same unruled-action mistake
+# in different clothing.
+#
+# The cost of being wrong is asymmetric and observable in only one direction.
+# Over-triggering shows up and is undone by deleting a line; a skill that is
+# structurally unable to fire produces no signal at all. (XSPEC-378 R5)
 ---
 
 # Documentation Generator | 文件產生器

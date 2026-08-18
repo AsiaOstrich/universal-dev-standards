@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.4
-translation_version: 6.7.4
+source_version: 6.7.5
+translation_version: 6.7.5
 last_synced: 2026-08-18
 status: current
 ---
@@ -16,6 +16,17 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.7.5] - 2026-08-18
+
+### 變更
+
+- **八個 skill 重新可以被模型選中。** `audit-assistant`、`changelog-guide`、`commit-standards`、`docs-generator`、`project-discovery`、`release-standards`、`reverse-engineer` 與 `spec-derivation` 都帶著 `disable-model-invocation: true`，那是 `d415937e` 在改寫描述時一併加上的，**沒有依循任何說得出口的規則**。2026-08-17 刻意沒有動它們，而那個理由在當時是對的：當時定下的規則是「reference 是可以被模型叫用的」，而這些**一個都沒有 `status` 欄位**，解除它們等於用一個沒有規則的動作，換掉一個沒有規則的狀態。此後量測：**八個全都有完整的 `Use when:` 觸發條件與 `Not for:` 排除條件、八個描述的都是動作而非參考資料、八個都已經有對應的斜線指令**——這正是 `code-review-assistant` 的形狀，而它的 `/code-review` 已被裁定不構成保留該旗標的理由。`journey-test-assistant` 是現成的先例：同樣的「Generate X」形狀、`status: stable`、從未被禁用。每一份現在都記上 `status: stable` 並在檔內寫明理由。用 `stable` 而非新值，因為 `skills/` 只用 reference、stable、experimental 三個值，**發明第四個等於換了件衣服的同一個無規則動作**。
+- **模型實際選得到的 skill 數,現在是 55/55。** 先前是 45。
+
+### 修正
+
+- **英文來源移除旗標後，locale 版仍然照樣出貨帶著它。** `spec-derivation` 是唯一在 locale 包裡自帶 `disable-model-invocation` 的 skill，而 frontmatter 合併**只複製英文來源「有」的欄位**——所以一個英文已經不再宣告的欄位，會在 locale 檔裡原封不動地留下並照樣出貨。zh-TW 與 zh-CN 均已更正。以解析 **60 個 skill × 3 個 locale ＝ 165 份安裝結果**驗證：零個仍被禁用。
 
 ## [6.7.4] - 2026-08-18
 
