@@ -452,12 +452,36 @@ export function resolveSkillFiles(skillName, locale = 'en') {
     return { files: [], fallbackToEn, error: `Skill not found: ${skillName}` };
   }
 
+  // Per-FILE fallback to English, not per-skill.
+  //
+  // A locale pack that has SKILL.md but not its companion files used to install
+  // just the SKILL.md, leaving the companions uninstalled entirely. Measured:
+  // 4 of 59 localized skills in zh-TW and 5 of 59 in zh-CN are short of the
+  // English source, and two of those gaps are REFERENCED — the zh-TW
+  // `dev-workflow-guide/SKILL.md` points at `workflow-phases.md` three times
+  // and `testing-guide/SKILL.md` at `test-skeleton-templates.md` three times,
+  // neither of which the locale pack ships. Those installs shipped a document
+  // pointing at files that were never going to be there.
+  //
+  // Taking the union — locale file where it exists, English where it does not —
+  // is also what makes the content comparison usable: without it those skills
+  // would report as changed on every upgrade forever. (XSPEC-382 R7)
+  const names = new Map(); // fileName -> absolute source path
+  const collect = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const fileName of readdirSync(dir)) {
+      const sourcePath = join(dir, fileName);
+      // Subdirectories are skipped — matching what the installer has always done.
+      if (statSync(sourcePath).isDirectory()) continue;
+      if (!names.has(fileName)) names.set(fileName, sourcePath);
+    }
+  };
+  collect(sourceDir);            // locale first, so it wins
+  if (sourceDir !== enSourceDir) collect(enSourceDir);
+
   const files = [];
-  for (const fileName of readdirSync(sourceDir)) {
-    const sourcePath = join(sourceDir, fileName);
-    // Subdirectories are skipped — matching what the installer has always done.
-    if (statSync(sourcePath).isDirectory()) continue;
-    files.push({ name: fileName, content: readFileSync(sourcePath, 'utf-8') });
+  for (const [name, sourcePath] of names) {
+    files.push({ name, content: readFileSync(sourcePath, 'utf-8') });
   }
 
   if (needsFrontmatterMerge) {
@@ -547,7 +571,32 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
       writeFileSync(join(targetDir, file.name), file.content, 'utf-8');
     }
 
-    return { success: true, skillName, path: targetDir, fallbackToEn };
+    // Remove top-level files UDS does not ship for this skill.
+    //
+    // Without this, a file UDS once shipped (or that arrived some other way)
+    // stays forever, and the content comparison reports the skill as changed on
+    // every upgrade with no way to make it stop — the same permanently-true
+    // false positive that made `uds check` useless before R6. Found in vibeops:
+    // `deploy-assistant/guide.md`, which is in no UDS skills tree and never was.
+    //
+    // Scoped to files directly inside a directory whose name UDS itself ships,
+    // which is the same provenance test that keeps an adopter's OWN skill
+    // directories out of every code path here. Subdirectories are left alone —
+    // the installer has never written them, so it has no claim on them.
+    // (XSPEC-382 R7)
+    const shipped = new Set(resolved.files.map((f) => f.name));
+    const pruned = [];
+    for (const entry of readdirSync(targetDir, { withFileTypes: true })) {
+      if (!entry.isFile() || shipped.has(entry.name)) continue;
+      try {
+        unlinkSync(join(targetDir, entry.name));
+        pruned.push(entry.name);
+      } catch {
+        // Leave it; a stale file is a smaller problem than a failed install.
+      }
+    }
+
+    return { success: true, skillName, path: targetDir, fallbackToEn, pruned };
   } catch (error) {
     return {
       success: false,
@@ -683,44 +732,77 @@ export async function installCommandsForAgent(agent, level = 'project', commandN
  * @param {string} locale - Locale for command content (default: 'en')
  * @returns {Object} Result
  */
-function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {
+/**
+ * Resolve what installing a command would put on disk, without writing anything.
+ *
+ * The command-side twin of `resolveSkillFiles`, and for the same reason: what
+ * gets installed is not what is in the source tree. The source is chosen at
+ * runtime by locale with fallback to English, and `transformCommandForAgent`
+ * rewrites the content per agent. Hashing the source file would report every
+ * command as changed on every upgrade for any agent that transforms.
+ *
+ * XSPEC-382 R1 covered skills and left commands on `hash: null`, which kept the
+ * unconditional-reinstall branch alive for them. R7 closes it the same way —
+ * one function the installer writes from and the planner hashes, rather than a
+ * second copy of the resolution in the planner.
+ *
+ * @param {string} cmdName
+ * @param {string} agent
+ * @param {string} locale
+ * @returns {{content: string|null, error: string|null}}
+ */
+export function resolveCommandContent(cmdName, agent, locale = 'en') {
   let sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
 
-  // Check for localized command file
   if (isLocalizedLocale(locale)) {
-    const localizedDir = getLocalizedCommandsSourceDir(locale);
-    const localizedPath = join(localizedDir, `${cmdName}.md`);
-    if (existsSync(localizedPath)) {
-      sourcePath = localizedPath;
-    }
+    const localizedPath = join(getLocalizedCommandsSourceDir(locale), `${cmdName}.md`);
+    if (existsSync(localizedPath)) sourcePath = localizedPath;
     // else: fall back to English source
   }
 
-  const targetExt = getCommandFileExtension(agent);
-  const targetPath = join(targetDir, `${cmdName}${targetExt}`);
-
   if (!existsSync(sourcePath)) {
-    return {
-      success: false,
-      command: cmdName,
-      error: `Command not found: ${cmdName}`
-    };
+    return { content: null, error: `Command not found: ${cmdName}` };
   }
 
   try {
-    let content = readFileSync(sourcePath, 'utf-8');
+    return {
+      content: transformCommandForAgent(readFileSync(sourcePath, 'utf-8'), cmdName, agent),
+      error: null
+    };
+  } catch (error) {
+    return { content: null, error: error.message };
+  }
+}
 
-    // Transform content if needed for specific agents
-    content = transformCommandForAgent(content, cmdName, agent);
+/**
+ * Content hash of a resolved command.
+ *
+ * Same `sha256:` shape as `computeSkillContentHash` so the two sides of the
+ * diff can be compared without caring which category an entry came from.
+ *
+ * @param {string|null} content
+ * @returns {string|null}
+ */
+export function computeCommandContentHash(content) {
+  if (content === null || content === undefined) return null;
+  return `sha256:${createHash('sha256').update(content).digest('hex')}`;
+}
 
-    writeFileSync(targetPath, content);
+function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {
+  const targetPath = join(targetDir, `${cmdName}${getCommandFileExtension(agent)}`);
+
+  // Write what `resolveCommandContent` says this install is; the planner asks
+  // the same function what it WOULD be. (XSPEC-382 R7)
+  const resolved = resolveCommandContent(cmdName, agent, locale);
+  if (resolved.error) {
+    return { success: false, command: cmdName, error: resolved.error };
+  }
+
+  try {
+    writeFileSync(targetPath, resolved.content);
     return { success: true, command: cmdName, path: targetPath };
   } catch (error) {
-    return {
-      success: false,
-      command: cmdName,
-      error: error.message
-    };
+    return { success: false, command: cmdName, error: error.message };
   }
 }
 

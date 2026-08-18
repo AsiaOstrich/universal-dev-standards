@@ -182,7 +182,17 @@ function diffCategory(desiredMap, actualMap, category, actions, warnings, summar
       // reverted `fileHashes` along with `upstream.version`). Recording it here
       // is safe precisely because we got here by proving disk === desired.
       summary.unchanged++;
-      if (actualEntry.hash) {
+      // Only file-backed categories. `manifest.fileHashes` is a FILE map that
+      // `uds check` validates with a `isFile()` test; skills are directories and
+      // commands live in `commandHashes`, so recording either there makes the
+      // integrity check report them as missing.
+      //
+      // This branch was unreachable for skills until R1 gave them hashes, so
+      // the two changes shipped together and the fault only appeared once both
+      // were in: 6.7.3 put 52 skill directory paths into `fileHashes` in every
+      // adopter repo and `uds check` reported 52 phantom missing files. Nothing
+      // was deleted — the record was wrong, not the disk. (XSPEC-382 R7)
+      if (actualEntry.hash && (category === 'standard' || category === 'option')) {
         verifiedPristine.push({
           path: desiredEntry.relativePath,
           hash: actualEntry.hash,

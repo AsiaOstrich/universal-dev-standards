@@ -26,7 +26,9 @@ import {
   getAvailableSkillNames,
   getAvailableCommandNames,
   resolveSkillFiles,
-  computeSkillContentHash
+  computeSkillContentHash,
+  resolveCommandContent,
+  computeCommandContentHash
 } from '../utils/skills-installer.js';
 import { MARKETPLACE_NAMES_SENTINEL } from '../core/manifest.js';
 
@@ -379,6 +381,9 @@ function calculateSkills(state, projectPath, manifest) {
 function calculateCommands(state, projectPath, manifest) {
   const commands = manifest.commands;
   if (!commands || !commands.installed) return;
+  // Commands are installed alongside skills and share their locale; fall back
+  // to the skills locale, then English.
+  const commandsLocale = commands.locale || manifest.skills?.locale || 'en';
 
   const commandNames = getAvailableCommandNames();
   if (commandNames.length === 0) {
@@ -404,9 +409,12 @@ function calculateCommands(state, projectPath, manifest) {
         : null;
 
       if (relativeBase) {
+        // Content hash of what installing this command WOULD produce, from the
+        // same function the installer writes from. (XSPEC-382 R7)
+        const resolvedCmd = resolveCommandContent(commandName, agent, commandsLocale);
         state.commands.set(`command:${agent}:${level}:${commandName}`, {
           relativePath: relativeBase,
-          hash: null,
+          hash: resolvedCmd.error ? null : computeCommandContentHash(resolvedCmd.content),
           size: null,
           category: 'command',
           sourcePath: null,

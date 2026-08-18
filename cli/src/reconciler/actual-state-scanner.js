@@ -434,9 +434,26 @@ function scanCommands(state, projectPath, manifest) {
         ? getRelativePath(projectPath, join(cmdsDir, entry.name))
         : join(cmdsDir, entry.name);
 
+      // Content hash of the installed file, for UDS-managed commands only —
+      // same reasoning as skills: an adopter's own command has no desired
+      // counterpart to compare against. (XSPEC-382 R7)
+      const cmdUdsManaged = shippedCommandNames().has(cmdName);
+      let cmdHash = null;
+      if (cmdUdsManaged) {
+        try {
+          cmdHash = `sha256:${createHash('sha256')
+            .update(readFileSync(join(cmdsDir, entry.name), 'utf-8'))
+            .digest('hex')}`;
+        } catch {
+          // Unreadable → no hash. A partial answer would claim a match that
+          // was never checked.
+          cmdHash = null;
+        }
+      }
+
       state.commands.set(key, {
         relativePath: relPath,
-        hash: null,
+        hash: cmdHash,
         size: null,
         category: 'command',
         sourcePath: null,
@@ -445,7 +462,7 @@ function scanCommands(state, projectPath, manifest) {
           level,
           commandName: cmdName,
           scanned: true,
-          udsManaged: shippedCommandNames().has(cmdName)
+          udsManaged: cmdUdsManaged
         }
       });
     }

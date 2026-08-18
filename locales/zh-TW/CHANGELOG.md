@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.3
-translation_version: 6.7.3
+source_version: 6.7.4
+translation_version: 6.7.4
 last_synced: 2026-08-18
 status: current
 ---
@@ -16,6 +16,15 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.7.4] - 2026-08-18
+
+### 修正
+
+- **6.7.3 讓 `uds check` 每個 repo 報出 52 個不存在的「遺失」檔案。** 6.7.3 的兩個改動要**同時在場**才會互相作用：R1 給了 skill 內容雜湊，使它們第一次走進 `unchanged` 分支；而 R6b 會把那個分支的項目收進 `manifest.fileHashes`。那張表是用 `isFile()` 驗證的，而 skill 是目錄，於是每一個都被報成遺失。**沒有任何東西被刪除——錯的是紀錄不是磁碟**（已驗證：59 個 skill 目錄與其內容完好）。`verifiedPristine` 現在限縮於檔案類別；而且**修好寫入端不會讓已經寫進去的東西消失**，所以 `uds update` 也會清掉 `fileHashes` 裡的 `.claude/skills/` 與 `.claude/commands/` 鍵——**一個壞掉的鍵不會有第二次機會被造訪**，因為磁碟上沒有任何東西對應它。
+- **commands 也改為內容比對（XSPEC-382 R7）。** R1 只涵蓋 skills，把 commands 留在 `hash: null`，於是無條件重裝的分支對它們仍然活著。與 skills 同一個形狀：`resolveCommandContent(name, agent, locale)` 說明一次安裝會包含什麼（locale 選擇＋英文回退，加上逐 agent 的轉換），安裝器寫它、計畫器雜湊它。
+- **裝了 locale 版的人，拿到的 SKILL.md 指向從來不會被安裝的檔案。** locale 包不是英文來源的完整複本——實測 **zh-TW 59 個中有 4 個、zh-CN 59 個中有 5 個**缺少英文有出貨的檔——而安裝器把 locale 目錄整包換上去，於是那些伴隨檔根本沒被寫入。其中兩個缺口**是被引用的**：zh-TW 的 `dev-workflow-guide/SKILL.md` 引用 `workflow-phases.md` 三次、`testing-guide/SKILL.md` 引用 `test-skeleton-templates.md` 三次。**回退改為逐檔而非逐 skill**——locale 有就用 locale 的，沒有就用英文的。
+- **UDS 不出貨的檔案，不再讓一個 skill 永遠停在「已變更」。** 安裝一個 skill 現在會移除其目錄下**解析結果沒有指名**的頂層檔案（實地發現：`deploy-assistant/guide.md`，它不在任何 UDS skills 樹裡，而且從來就不在）。範圍由同一個 provenance 判準界定，也就是讓採用者自己的 skill 目錄不進入此處任何路徑的那一個——**已驗證手寫的 skill 目錄與其額外檔案在 `--force` 之後完好無損**——子目錄一律不動，因為安裝器從來沒有寫過它們。
 
 ## [6.7.3] - 2026-08-18
 

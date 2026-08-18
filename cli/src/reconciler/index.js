@@ -59,15 +59,28 @@ import { rollback } from './backup-manager.js';
  * is the one thing that check exists to do.
  */
 function reconcileFileHashes(manifest, verifiedPristine) {
-  if (!verifiedPristine?.length) return null;
-
   const current = manifest.fileHashes || {};
-  const corrected = {};
-  let count = 0;
 
-  for (const entry of verifiedPristine) {
+  // Drop entries 6.7.3 wrote here that do not belong: skill directories and
+  // command files are tracked in `skillHashes` / `commandHashes`, and
+  // `uds check` validates everything in `fileHashes` with an `isFile()` test,
+  // so those entries surfaced as phantom "missing" reports — 52 of them per
+  // adopter repo. Fixing the writer does not remove what it already wrote, and
+  // there is no other path that would: a bad key is never revisited because
+  // nothing on disk corresponds to it. (XSPEC-382 R7)
+  const stale = Object.keys(current).filter(
+    (k) => k.startsWith('.claude/skills/') || k.startsWith('.claude/commands/')
+  );
+
+  if (!verifiedPristine?.length && stale.length === 0) return null;
+
+  const kept = Object.fromEntries(Object.entries(current).filter(([k]) => !stale.includes(k)));
+  const corrected = {};
+  let count = stale.length;
+
+  for (const entry of verifiedPristine || []) {
     const key = entry.path.replace(/\\/g, '/');
-    const recorded = current[key];
+    const recorded = kept[key];
     if (recorded && recorded.hash === entry.hash && recorded.size === entry.size) continue;
     corrected[key] = {
       hash: entry.hash,
@@ -79,7 +92,7 @@ function reconcileFileHashes(manifest, verifiedPristine) {
 
   if (count === 0) return null;
   return {
-    manifest: { ...manifest, fileHashes: { ...current, ...corrected } },
+    manifest: { ...manifest, fileHashes: { ...kept, ...corrected } },
     count
   };
 }

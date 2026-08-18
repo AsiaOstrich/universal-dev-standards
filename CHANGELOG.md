@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.7.4] - 2026-08-18
+
+### Fixed
+
+- **6.7.3 made `uds check` report 52 phantom missing files per repo.** Two 6.7.3 changes only interact once both are present: R1 gave skills a content hash, which made them reach the `unchanged` branch for the first time, and R6b collects entries from that branch into `manifest.fileHashes`. That map is validated with an `isFile()` test and skill entries are directories, so every one of them reported as missing. **Nothing was deleted — the record was wrong, not the disk** (verified: 59 skill directories and their contents intact). `verifiedPristine` is now restricted to file-backed categories, and because fixing the writer does not remove what it already wrote, `uds update` also drops `.claude/skills/` and `.claude/commands/` keys it finds in `fileHashes` — a bad key is never revisited otherwise, since nothing on disk corresponds to it.
+- **Commands now compare by content too (XSPEC-382 R7).** R1 covered skills and left commands on `hash: null`, keeping the unconditional-reinstall branch alive for them. Same shape as the skills fix: `resolveCommandContent(name, agent, locale)` says what an install would contain — locale selection with English fallback, plus the per-agent transform — and the installer writes it while the planner hashes it.
+- **Localized installs shipped SKILL.md files pointing at files that were never installed.** Locale packs are not complete copies of the English source — measured, **4 of 59 localized skills in zh-TW and 5 of 59 in zh-CN** are missing files English ships — and the installer swapped in the locale directory wholesale, so those companions were simply not written. Two of the gaps are referenced: the zh-TW `dev-workflow-guide/SKILL.md` points at `workflow-phases.md` three times and `testing-guide/SKILL.md` at `test-skeleton-templates.md` three times. **Fallback is now per file rather than per skill** — locale file where it exists, English where it does not.
+- **A file UDS does not ship no longer keeps a skill permanently "changed".** Installing a skill now removes top-level files in its directory that the resolution does not name (found in the wild: `deploy-assistant/guide.md`, which is in no UDS skills tree and never was). Scoped by the same provenance test that keeps an adopter's own skill directories out of every path here — verified that a hand-written skill directory and its extra files survive `--force` untouched — and subdirectories are left alone, since the installer has never written them.
+
 ## [6.7.3] - 2026-08-18
 
 ### Fixed
