@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
   getAllStandards,
-  getRepositoryInfo, resolveStandardFilename } from '../utils/registry.js';
+  getRepositoryInfo, resolveStandardFilename, resolveStandardSourcePath } from '../utils/registry.js';
 import {
   computeFileHash,
   compareFileHash,
@@ -749,11 +749,20 @@ function removeFromManifest(manifest, relativePath) {
  */
 export function getSourcePathFromRelative(manifest, relativePath) {
   const fileName = basename(relativePath);
+  const format = manifest.format || 'ai';
 
-  // Check standards
+  // Check standards.
+  //
+  // Compare the RESOLVED filename, not the raw entry. Manifests have stored IDs
+  // (`commit-message`) rather than paths since 3.4.0, and `'commit-message'
+  // .endsWith('commit-message.ai.yaml')` is false for every one of them —
+  // so this returned null for 64 of 72 tracked standards and `uds check
+  // --restore` reported "Could not determine source" for all of them. The eight
+  // that worked were the `options/` entries, still stored as paths, which is
+  // why the failure never looked total. (XSPEC-382 R6)
   for (const std of manifest.standards) {
-    if (std.endsWith(fileName)) {
-      return std;
+    if (resolveStandardFilename(std, format) === fileName) {
+      return resolveStandardSourcePath(std, format);
     }
   }
 

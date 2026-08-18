@@ -71,8 +71,19 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   // Create backup
   if (backup && !dryRun) {
     const backupResult = createBackup(projectPath, plan);
-    if (backupResult.errors.length > 0 && backupResult.backedUp.length === 0) {
-      // Backup completely failed — abort
+    // Abort if ANY planned path could not be backed up — not only if every one
+    // failed.
+    //
+    // The old condition required `backedUp.length === 0`, so a run that backed
+    // up 74 paths and failed on 55 proceeded silently and overwrote all 55 with
+    // no rollback point. One success was enough to hide any number of failures:
+    // the same aggregate-masks-partial-failure shape this repo keeps finding.
+    // Those 55 were the skill directories, which failed on every platform
+    // because the backup called `copyFileSync` on a directory. With that fixed
+    // this branch should be rare — and when it does fire, refusing to overwrite
+    // a file we could not copy first is the whole point of taking a backup.
+    // (XSPEC-382 R6)
+    if (backupResult.errors.length > 0) {
       return {
         success: false,
         backupId: null,

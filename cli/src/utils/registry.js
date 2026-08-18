@@ -273,6 +273,37 @@ export function resolveSelectedOptionSources(manifestOptions, format = 'ai') {
  * @param {string} format - Content format: 'ai' or 'human'
  * @returns {string|null} Basename as installed, or null if unresolvable
  */
+/**
+ * Resolve a manifest `standards` entry to the source path it was installed from.
+ *
+ * Manifests have stored IDs (`commit-message`) rather than paths since 3.4.0,
+ * and four places in the CLI needed to turn one back into a path. Three of them
+ * grew their own copy of the lookup; the fourth — the one `uds check --restore`
+ * depends on — never did, and matched `entry.endsWith(fileName)` instead. That
+ * cannot match an ID, so restore failed for **64 of 72** tracked standards with
+ * "Could not determine source". Only the eight `options/` entries worked,
+ * because those are still stored as paths. (XSPEC-382 R6)
+ *
+ * Paired with `resolveStandardFilename` on purpose: same input handling, same
+ * registry lookup, one returns the path and the other its basename. Two
+ * separately-written resolvers would answer differently the first time an entry
+ * form changed, and neither would be obviously wrong.
+ *
+ * @param {string} entry - Manifest standards entry: an ID or a legacy path
+ * @param {string} format - 'ai' or 'human'
+ * @returns {string|null} Source path, or null when unresolvable
+ */
+export function resolveStandardSourcePath(entry, format = 'ai') {
+  if (typeof entry !== 'string' || entry.length === 0) return null;
+
+  // A path (option files, and legacy pre-3.4.0 manifests) already names itself.
+  if (entry.includes('/') || entry.includes('.')) return entry;
+
+  const found = getAllStandards().find((s) => s.id === entry);
+  if (!found) return null;
+  return getStandardSource(found, format) || null;
+}
+
 export function resolveStandardFilename(entry, format = 'ai') {
   if (typeof entry !== 'string' || entry.length === 0) return null;
 

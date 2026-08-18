@@ -8,6 +8,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { createHash } from 'crypto';
 import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
 import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
@@ -312,6 +313,45 @@ function shippedCommandNames() {
 // nothing on disk distinguishes them from the adopter's own work. Leaving a few
 // stale directories with a warning is a better way to fail than deleting files
 // somebody hand-wrote.
+/**
+ * Hash an installed skill directory the way the desired side hashes a resolved
+ * one: top-level files only, sorted by name, name and content both fed in.
+ *
+ * Written against `computeSkillContentHash`'s format rather than calling it,
+ * because the input here is paths on disk and there is nothing gained by
+ * materialising a second array first. The format is the contract; if it changes
+ * in one place and not the other every skill reports as changed, which the
+ * paired tests in `skill-content-hash.test.js` exist to catch.
+ */
+function hashInstalledSkillDir(dirPath) {
+  let entries;
+  try {
+    entries = readdirSync(dirPath, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+
+  const names = entries.filter((e) => e.isFile()).map((e) => e.name).sort();
+  if (names.length === 0) return null;
+
+  const h = createHash('sha256');
+  for (const name of names) {
+    let content;
+    try {
+      content = readFileSync(join(dirPath, name), 'utf-8');
+    } catch {
+      // Unreadable file → no trustworthy hash. Returning a partial one would
+      // claim the directory matches upstream when part of it was never read.
+      return null;
+    }
+    h.update(name);
+    h.update('\0');
+    h.update(content);
+    h.update('\0');
+  }
+  return `sha256:${h.digest('hex')}`;
+}
+
 function isUdsProvenance(skillName) {
   return sourceEntryNames().has(skillName);
 }
@@ -335,9 +375,18 @@ function scanSkills(state, projectPath, manifest) {
         ? getRelativePath(projectPath, join(skillsDir, skillName))
         : join(skillsDir, skillName);
 
+      // Content hash of what is actually installed, over the same file set and
+      // the same algorithm the desired side uses (XSPEC-382 R1).
+      //
+      // Computed ONLY for UDS-managed skills. An adopter's own skill has no
+      // desired counterpart, so a hash for it could only ever feed a comparison
+      // against nothing — and this scanner has already been the site of a
+      // defect that proposed deleting fourteen of dev-platform's hand-written
+      // skills. It does not get a second chance to reason about them.
+      const udsManaged = isUdsProvenance(skillName);
       state.skills.set(key, {
         relativePath: relPath,
-        hash: null,  // Directory-level hashes tracked in manifest.skillHashes
+        hash: udsManaged ? hashInstalledSkillDir(join(skillsDir, skillName)) : null,
         size: null,
         category: 'skill',
         sourcePath: null,
@@ -350,7 +399,7 @@ function scanSkills(state, projectPath, manifest) {
           // the skills folder used to be assumed UDS-managed, so a plan for a repo
           // with hand-written skills proposed deleting them: dev-platform's would
           // have removed fourteen. (XSPEC-343 R2)
-          udsManaged: isUdsProvenance(skillName)
+          udsManaged
         }
       });
     }

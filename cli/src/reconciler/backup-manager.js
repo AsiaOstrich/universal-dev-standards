@@ -17,6 +17,8 @@ import {
   existsSync,
   mkdirSync,
   copyFileSync,
+  cpSync,
+  statSync,
   readFileSync,
   writeFileSync,
   readdirSync,
@@ -86,7 +88,15 @@ export function createBackup(projectPath, plan) {
     errors.push(`Failed to write backup .gitignore: ${err.message}`);
   }
 
-  // Backup each file
+  // Backup each entry.
+  //
+  // Skills are DIRECTORIES (`.claude/skills/<name>`), and `copyFileSync` on a
+  // directory throws — ENOTSUP on macOS, EISDIR on Linux. Every skill in every
+  // plan failed here, and the failures went nowhere (see the partial-failure
+  // note below). Measured on a real repo before the fix: a vibeops backup
+  // recorded 74 files for a plan of 129 actions, with **0 of the 55 skill
+  // directories** among them — a rollback point that did not cover the largest
+  // part of what was about to be overwritten. (XSPEC-382 R6)
   for (const relativePath of filesToBackup) {
     const sourcePath = join(projectPath, relativePath);
     if (!existsSync(sourcePath)) continue;
@@ -94,7 +104,11 @@ export function createBackup(projectPath, plan) {
     const targetPath = join(backupDir, relativePath);
     try {
       mkdirSync(dirname(targetPath), { recursive: true });
-      copyFileSync(sourcePath, targetPath);
+      if (statSync(sourcePath).isDirectory()) {
+        cpSync(sourcePath, targetPath, { recursive: true });
+      } else {
+        copyFileSync(sourcePath, targetPath);
+      }
       backedUp.push(relativePath);
     } catch (err) {
       errors.push(`Failed to backup ${relativePath}: ${err.message}`);
@@ -116,6 +130,19 @@ export function createBackup(projectPath, plan) {
       }))
     },
     backedUpFiles: backedUp,
+    // What could NOT be backed up, and the resulting gap.
+    //
+    // The manifest previously recorded only successes, with no errors field at
+    // all — so a backup covering 74 of 129 planned paths was indistinguishable
+    // on disk from one covering all of them. Anyone reaching for this directory
+    // is reaching for it because something went wrong; it has to say what it
+    // does not contain. (XSPEC-382 R6)
+    failedToBackUp: errors.slice(),
+    coverage: {
+      planned: filesToBackup.length,
+      backedUp: backedUp.length,
+      failed: filesToBackup.length - backedUp.length
+    },
     projectPath
   };
 

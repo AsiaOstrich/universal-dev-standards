@@ -9,6 +9,7 @@
 
 import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync, rmSync, unlinkSync } from 'fs';
 import { dirname, join, basename } from 'path';
+import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
 import {
   getAgentConfig,
@@ -399,33 +400,137 @@ function mergeSkillFrontmatter(enSourceDir, targetDir) {
  * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {{success: boolean, skillName: string, path?: string, error?: string, fallbackToEn?: boolean}} Result
  */
-function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
+/**
+ * Resolve what installing a skill would put on disk, without writing anything.
+ *
+ * This is THE definition of a skill's installed content, and it exists as one
+ * function because both the installer and the reconciler need that answer.
+ * XSPEC-382 R1 originally proposed hashing the source directory on both sides
+ * and letting the existing comparison work. Measurement killed that: installing
+ * is not a verbatim copy. Three things sit in between, any one of them fatal to
+ * a source-directory hash —
+ *
+ *   1. a localized SKILL.md gets English frontmatter fields merged in, so the
+ *      installed file matches no source file (measured: brainstorm-assistant is
+ *      23,866 bytes installed against a 23,753-byte zh-TW source);
+ *   2. the source directory is chosen at runtime by locale with fallback to
+ *      English per skill, so there is no single path to hash;
+ *   3. subdirectories are skipped, making the install a strict subset.
+ *
+ * The alternative was a second copy of this logic inside the planner. That is
+ * the arrangement this file has already been bitten by twice; two copies answer
+ * differently the first time one changes, and a planner that disagrees with the
+ * installer reports every skill as changed on every upgrade — worse than the
+ * no-signal it replaced, because a false signal is indistinguishable from a
+ * real one.
+ *
+ * All 514 installable files are UTF-8 text (508 .md, 5 .yaml, 1 .json), checked
+ * by decoding every one of them, so reading content as a string is lossless.
+ *
+ * @param {string} skillName
+ * @param {string} locale
+ * @returns {{files: Array<{name: string, content: string}>, fallbackToEn: boolean, error: string|null}}
+ */
+export function resolveSkillFiles(skillName, locale = 'en') {
   const enSourceDir = join(SKILLS_LOCAL_DIR, skillName);
-  const targetDir = join(targetBaseDir, skillName);
 
-  // Determine the actual source directory based on locale
   let sourceDir = enSourceDir;
   let needsFrontmatterMerge = false;
   let fallbackToEn = false;
 
   if (isLocalizedLocale(locale)) {
-    const localizedDir = getLocalizedSkillsSourceDir(locale);
-    const localizedSkillDir = join(localizedDir, skillName);
+    const localizedSkillDir = join(getLocalizedSkillsSourceDir(locale), skillName);
     if (existsSync(localizedSkillDir)) {
       sourceDir = localizedSkillDir;
       needsFrontmatterMerge = true;
     } else {
-      // Locale requested but missing for this skill — fall back to English source.
-      // Flag the result so the caller can aggregate a WARN.
       fallbackToEn = true;
     }
   }
 
   if (!existsSync(sourceDir)) {
+    return { files: [], fallbackToEn, error: `Skill not found: ${skillName}` };
+  }
+
+  const files = [];
+  for (const fileName of readdirSync(sourceDir)) {
+    const sourcePath = join(sourceDir, fileName);
+    // Subdirectories are skipped — matching what the installer has always done.
+    if (statSync(sourcePath).isDirectory()) continue;
+    files.push({ name: fileName, content: readFileSync(sourcePath, 'utf-8') });
+  }
+
+  if (needsFrontmatterMerge) {
+    const skill = files.find((f) => f.name === 'SKILL.md');
+    if (skill) {
+      const merged = mergeFrontmatterContent(enSourceDir, skill.content);
+      if (merged !== null) skill.content = merged;
+    }
+  }
+
+  // Sorted so a hash over this list depends on content, not on directory order.
+  files.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  return { files, fallbackToEn, error: null };
+}
+
+/**
+ * Content hash of a resolved skill, over names and contents.
+ *
+ * Names are included: two skills with the same bodies under different filenames
+ * are different installs, and a hash over contents alone would call a rename
+ * "unchanged".
+ *
+ * @param {Array<{name: string, content: string}>} files
+ * @returns {string|null} `sha256:<hex>`, or null for an empty resolution
+ */
+export function computeSkillContentHash(files) {
+  if (!files?.length) return null;
+  const h = createHash('sha256');
+  for (const f of files) {
+    h.update(f.name);
+    h.update('\0');
+    h.update(f.content);
+    h.update('\0');
+  }
+  return `sha256:${h.digest('hex')}`;
+}
+
+/**
+ * The in-memory half of `mergeSkillFrontmatter`, so resolution and installation
+ * agree by construction rather than by both being kept up to date.
+ *
+ * @returns {string|null} merged content, or null when there is nothing to merge
+ */
+function mergeFrontmatterContent(enSourceDir, targetContent) {
+  const enSkillPath = join(enSourceDir, 'SKILL.md');
+  if (!existsSync(enSkillPath)) return null;
+
+  const enParsed = parseFrontmatter(readFileSync(enSkillPath, 'utf-8'));
+  if (!enParsed) return null;
+
+  const REQUIRED_FIELDS = ['name', 'allowed-tools', 'scope', 'argument-hint', 'disable-model-invocation'];
+  const fieldsToMerge = {};
+  for (const field of REQUIRED_FIELDS) {
+    if (enParsed.frontmatter[field] !== undefined) {
+      fieldsToMerge[field] = enParsed.frontmatter[field];
+    }
+  }
+  if (Object.keys(fieldsToMerge).length === 0) return null;
+
+  return rebuildWithFrontmatter(targetContent, fieldsToMerge);
+}
+
+function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
+  const targetDir = join(targetBaseDir, skillName);
+
+  const resolved = resolveSkillFiles(skillName, locale);
+  const { fallbackToEn } = resolved;
+
+  if (resolved.error) {
     return {
       success: false,
       skillName,
-      error: `Skill not found: ${skillName}`
+      error: resolved.error
     };
   }
 
@@ -435,20 +540,11 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
   }
 
   try {
-    const files = readdirSync(sourceDir);
-    for (const fileName of files) {
-      const sourcePath = join(sourceDir, fileName);
-      const targetPath = join(targetDir, fileName);
-
-      // Skip directories for now (could be extended to handle subdirs)
-      if (statSync(sourcePath).isDirectory()) continue;
-
-      copyFileSync(sourcePath, targetPath);
-    }
-
-    // Merge required frontmatter fields from English source into localized SKILL.md
-    if (needsFrontmatterMerge) {
-      mergeSkillFrontmatter(enSourceDir, targetDir);
+    // Write what `resolveSkillFiles` says this install is. The planner asks the
+    // same function what it WOULD be, so the two cannot disagree — which is the
+    // whole point of routing installation through it. (XSPEC-382 R1)
+    for (const file of resolved.files) {
+      writeFileSync(join(targetDir, file.name), file.content, 'utf-8');
     }
 
     return { success: true, skillName, path: targetDir, fallbackToEn };

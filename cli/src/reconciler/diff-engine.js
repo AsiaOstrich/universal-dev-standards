@@ -56,16 +56,30 @@ export function computeDiff(desired, actual, options = {}) {
   const warnings = [];
   const summary = { create: 0, update: 0, delete: 0, unchanged: 0, migrate_block: 0 };
 
+  // Files whose content on disk is byte-identical to what UDS ships (XSPEC-382 R6).
+  //
+  // These produce no action — there is nothing to install. They are collected
+  // so the caller can bring `manifest.fileHashes` back in line with a disk that
+  // is already correct. Without this there is no path back: a stale recorded
+  // hash makes `uds check` report a pristine file as modified forever, because
+  // an unchanged file is never re-hashed and the reconciler returns early when
+  // the action list is empty.
+  //
+  // Only ever recorded when disk === desired. Syncing the record to whatever is
+  // on disk would silently absorb a hand edit and empty the integrity check of
+  // its purpose — it exists to tell you somebody changed a standard.
+  const verifiedPristine = [];
+
   // Diff standards
   diffCategory(
     desired.standards, actual.standards,
-    'standard', actions, warnings, summary, force
+    'standard', actions, warnings, summary, force, verifiedPristine
   );
 
   // Diff options
   diffCategory(
     desired.options, actual.options,
-    'option', actions, warnings, summary, force
+    'option', actions, warnings, summary, force, verifiedPristine
   );
 
   // Diff integrations (special: use migrate_block)
@@ -77,22 +91,22 @@ export function computeDiff(desired, actual, options = {}) {
   // Diff skills
   diffCategory(
     desired.skills, actual.skills,
-    'skill', actions, warnings, summary, force
+    'skill', actions, warnings, summary, force, verifiedPristine
   );
 
   // Diff commands
   diffCategory(
     desired.commands, actual.commands,
-    'command', actions, warnings, summary, force
+    'command', actions, warnings, summary, force, verifiedPristine
   );
 
-  return { actions, summary, warnings };
+  return { actions, summary, warnings, verifiedPristine };
 }
 
 /**
  * Diff a single category (standards, options, skills, commands).
  */
-function diffCategory(desiredMap, actualMap, category, actions, warnings, summary, force) {
+function diffCategory(desiredMap, actualMap, category, actions, warnings, summary, force, verifiedPristine = []) {
   // Check desired entries against actual
   for (const [key, desiredEntry] of desiredMap) {
     const actualEntry = actualMap.get(key);
@@ -160,8 +174,21 @@ function diffCategory(desiredMap, actualMap, category, actions, warnings, summar
         summary.unchanged++;
       }
     } else {
-      // Hashes match → unchanged
+      // Hashes match → unchanged.
+      //
+      // The file is byte-identical to what UDS ships, so there is nothing to
+      // install — but the manifest's recorded hash may still be stale (XSPEC-382
+      // R6: a pre-reconciler manifest written back over the reconciler's output
+      // reverted `fileHashes` along with `upstream.version`). Recording it here
+      // is safe precisely because we got here by proving disk === desired.
       summary.unchanged++;
+      if (actualEntry.hash) {
+        verifiedPristine.push({
+          path: desiredEntry.relativePath,
+          hash: actualEntry.hash,
+          size: actualEntry.size ?? null
+        });
+      }
     }
   }
 
@@ -369,11 +396,17 @@ export function formatPlan(plan) {
   if (grouped.update.length > 0) {
     // XSPEC-382 R3 — collapse the unconditional reinstalls.
     //
-    // Every skill is always an `update` because no content comparison exists for
-    // them (see the `hash: null` on both sides of the diff, and R1). On a real
-    // upgrade that produced `Update (57)` where 55 rows carried one identical
-    // reason and only 2 were actual changes — the two a reviewer needs to see,
-    // buried under fifty-five that say nothing about this upgrade.
+    // On a real upgrade this produced `Update (57)` where 55 rows carried one
+    // identical reason and only 2 were actual changes — the two a reviewer
+    // needs to see, buried under fifty-five that say nothing about this
+    // upgrade.
+    //
+    // R1 has since given SKILLS a content comparison, so those rows are gone;
+    // the same upgrade now reports `Update: 0, Unchanged: 127`. COMMANDS still
+    // hardcode `hash: null` on both sides, so this branch is live and still
+    // needed. It is deliberately not deleted along with the skills half: a
+    // collapse that silently stops applying looks exactly like a plan that
+    // never had anything to collapse.
     //
     // Collapsed, NOT hidden: the count is printed. A capped list that does not
     // say it was capped reads as "these are all of them", which is the failure
@@ -388,7 +421,7 @@ export function formatPlan(plan) {
     }
     if (collapsed > 0) {
       lines.push(
-        `  i ${collapsed} UDS-managed skill/command director${collapsed === 1 ? 'y' : 'ies'} reinstalled unconditionally — no content comparison is implemented for them (XSPEC-382)`
+        `  i ${collapsed} UDS-managed item${collapsed === 1 ? '' : 's'} reinstalled unconditionally — no content comparison is implemented for them (XSPEC-382 R1 covers skills; commands do not have one yet)`
       );
     }
     lines.push('');

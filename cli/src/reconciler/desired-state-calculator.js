@@ -24,7 +24,9 @@ import {
 } from '../config/ai-agent-paths.js';
 import {
   getAvailableSkillNames,
-  getAvailableCommandNames
+  getAvailableCommandNames,
+  resolveSkillFiles,
+  computeSkillContentHash
 } from '../utils/skills-installer.js';
 import { MARKETPLACE_NAMES_SENTINEL } from '../core/manifest.js';
 
@@ -328,6 +330,9 @@ function calculateSkills(state, projectPath, manifest) {
   }
 
   const installations = skills.installations || [];
+  // The locale the project installed with; skills fall back to English per skill
+  // when a locale variant is missing, which `resolveSkillFiles` handles.
+  const skillsLocale = skills.locale || 'en';
 
   for (const installation of installations) {
     const { agent, level } = installation;
@@ -341,9 +346,19 @@ function calculateSkills(state, projectPath, manifest) {
         : null;
 
       if (relativeBase) {
+        // Content hash of what installing this skill WOULD produce.
+        //
+        // Asked of `resolveSkillFiles` — the same function the installer writes
+        // from — so the two answers cannot drift. Hashing the source directory
+        // instead does not work: installing is not a verbatim copy (locale
+        // selection, English frontmatter merged into localized SKILL.md,
+        // subdirectories skipped), and a planner that computes it differently
+        // from the installer reports every skill as changed on every upgrade.
+        // (XSPEC-382 R1)
+        const resolved = resolveSkillFiles(skillName, skillsLocale);
         state.skills.set(`skill:${agent}:${level}:${skillName}`, {
           relativePath: relativeBase,
-          hash: null,  // Skill hashes are directory-level, tracked separately
+          hash: resolved.error ? null : computeSkillContentHash(resolved.files),
           size: null,
           category: 'skill',
           sourcePath: null,

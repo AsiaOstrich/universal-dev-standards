@@ -87,9 +87,9 @@ describe('formatPlan — unconditional reinstall collapse (XSPEC-382 R3)', () =>
     expect(out).toMatch(/~ Update \(2\)/);
   });
 
-  it('says "directory" not "directories" for a single collapsed row', () => {
+  it('says "item" not "items" for a single collapsed row', () => {
     const out = formatPlan(planWith(1, [realUpdate('.standards/a.ai.yaml', 'content changed')]));
-    expect(out).toMatch(/1 UDS-managed skill\/command directory reinstalled/);
+    expect(out).toMatch(/1 UDS-managed item reinstalled/);
   });
 
   it('the Summary alone answers "how many actually changed" (R4)', () => {

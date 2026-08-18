@@ -123,7 +123,14 @@ vi.mock('../../../src/config/ai-agent-paths.js', () => ({
 }));
 
 // Mock skills-installer
-vi.mock('../../../src/utils/skills-installer.js', () => ({
+// Partial mock: only the two name lookups are stubbed. `resolveSkillFiles` and
+// `computeSkillContentHash` are the real ones, because this suite's subject is
+// WHICH skills the calculator derives, not what it hashes — and a stub that
+// returns a fixed hash would let a broken content comparison pass here.
+// (XSPEC-382 R1 added those two; a whole-module mock made every consumer of the
+// module a place this test could break from a distance.)
+vi.mock('../../../src/utils/skills-installer.js', async (importOriginal) => ({
+  ...(await importOriginal()),
   getAvailableSkillNames: vi.fn(() => ['commit-standards', 'testing-guide']),
   getAvailableCommandNames: vi.fn(() => ['commit', 'review-pr'])
 }));
