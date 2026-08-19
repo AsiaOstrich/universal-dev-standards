@@ -3,6 +3,19 @@
  *
  * Reduces cognitive load by guiding users to common workflow paths.
  *
+ * ⚠️ Every `cmd` that starts with `uds ` MUST be a command this CLI actually
+ * registers, with flags it actually accepts. This is the one place whose entire
+ * job is "find the right commands quickly", so a wrong entry here does the exact
+ * opposite of what the command exists for.
+ *
+ * 2026-08-19: four entries pointed at things that do not exist — `uds lint`
+ * (twice), `uds sync` (twice, one of them the sole content of a whole
+ * workflow), `uds check --spec-size`, and `uds spec create --boost`. Verify with
+ * `uds <cmd> --definitely-not-a-real-flag` and look for "unknown command";
+ * `uds <cmd> --help` is NOT a valid check — commander prints the general help
+ * for an unknown command instead of erroring, so --help reports every name as
+ * valid.
+ *
  * @module commands/quickstart
  */
 
@@ -24,11 +37,10 @@ export const WORKFLOWS = [
     name: 'Full SDD Spec Flow (Boost)',
     description: 'Complete spec-driven development for complex features',
     steps: [
-      { cmd: 'uds spec create "your feature" --boost', desc: 'Create full SDD spec with design sections' },
-      { cmd: 'uds lint', desc: 'Validate spec quality and cross-references' },
+      { cmd: '# Use the /sdd skill', desc: 'Full spec lifecycle with review (see `uds spec --help`)' },
+      { cmd: 'uds spec create "your feature" --scope fullstack', desc: 'Create the spec, scoped' },
       { cmd: 'uds spec confirm SPEC-XXX', desc: 'Confirm after review' },
       { cmd: '# Implement with /derive → /tdd', desc: 'Use forward derivation and TDD' },
-      { cmd: 'uds sync', desc: 'Export context for session resume' },
     ],
   },
   {
@@ -46,17 +58,8 @@ export const WORKFLOWS = [
     description: 'Audit standards compliance and spec quality',
     steps: [
       { cmd: 'uds check', desc: 'Check standards file integrity' },
-      { cmd: 'uds check --spec-size', desc: 'Check spec sizes against limits' },
-      { cmd: 'uds lint', desc: 'Lint specs for AC coverage and dependency validity' },
+      { cmd: 'uds check --i18n', desc: 'Run i18n lint rules across canonical + locale variants' },
       { cmd: 'uds audit', desc: 'Deep health diagnosis' },
-    ],
-  },
-  {
-    name: 'Resume Previous Work',
-    description: 'Restore context from a previous session',
-    steps: [
-      { cmd: 'uds sync', desc: 'Generate context.md from git diff + workflow state' },
-      { cmd: 'cat .workflow-state/context.md', desc: 'Read context in new session' },
     ],
   },
 ];

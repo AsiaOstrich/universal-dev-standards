@@ -1,8 +1,8 @@
 ---
 source: ../../../core/ai-instruction-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-05-28
+source_version: 1.1.1
+translation_version: 1.1.1
+last_synced: 2026-08-19
 status: current
 ---
 
@@ -215,7 +215,7 @@ translation_version: {本翻譯的版本}
 |------|------|--------|
 | **Canonical 擁有者** | `core/{name}.md`、`core/{name}.ai.yaml`、`skills/{name}/SKILL.md` | 維持 L1/L2/L3/L4 為英文；每次 breaking change 時 bump `source_version` |
 | **Locale 維護者** | `locales/{lang}/...` 檔 | `translation_version` 對齊 `source_version`；翻譯 L1（必）、L2（選）、L3（必）、L4（建議）|
-| **採用者（下游專案）** | 自己的 `.claude/skills/`、`CLAUDE.md` 等 | 用 `uds install --locale {lang}` 安裝；**絕不**手動修改 canonical 檔（要客製化請用 locale 變體或 overlay）|
+| **採用者（下游專案）** | 自己的 `.claude/skills/`、`CLAUDE.md` 等 | 用 `uds init --locale {lang}`（首次）或 `uds update --locale {lang}`（重新同步）安裝；**絕不**手動修改 canonical 檔（要客製化請用 locale 變體或 overlay）|
 
 ### Chimera 防範
 
@@ -237,7 +237,8 @@ Pre-commit / CI lint 強制 error 級規則；warn 級規則只在 dashboard 揭
 採用者透過 UDS CLI 安裝指令檔：
 
 ```bash
-uds install --locale zh-TW   # 以繁體中文安裝 skills 與 standards
+uds init --locale zh-tw     # 首次以繁體中文安裝 skills 與 standards
+uds update --locale zh-tw   # 對既有採用重新同步
 ```
 
 **Locale 解析優先順序**：
@@ -258,7 +259,7 @@ uds install --locale zh-TW   # 以繁體中文安裝 skills 與 standards
 若採用者已手動修改過專案中的 canonical 檔（例：在 `.claude/skills/` 翻譯了描述）：
 
 1. **辨識 chimera**：比對採用者檔案與 UDS canonical / canonical 的 locale 變體。
-2. **安裝正確變體**：執行 `uds install --locale {lang}` 替換 chimera 為 locale 變體。
+2. **安裝正確變體**：執行 `uds update --locale {lang}` 替換 chimera 為 locale 變體。
 3. **保留專案級客製**：若 chimera 含合理的專案級客製（非翻譯），抽出為 overlay 或記錄到客製化日誌（例：`UDS-CUSTOMIZATION.md`）。
 4. **丟棄純翻譯**：chimera 中純翻譯部分直接丟棄——locale 變體會取代它。
 
@@ -270,8 +271,9 @@ uds install --locale zh-TW   # 以繁體中文安裝 skills 與 standards
 | 更新 canonical | 改進英文 source | Bump `source_version`；通知 locale 維護者 |
 | 翻譯 / 同步 locale | 新增或更新 locale 內容 | Bump `translation_version`；參照當前 `source_version` |
 | 檢查覆蓋率 | 定期 review | 看自動產生的 `locales/COVERAGE.md` |
-| 帶 locale 安裝 | 採用者初設或重新同步 | `uds install --locale {lang}` |
-| 跑 i18n lint | Commit 前 / CI | `uds lint --i18n` |
+| 帶 locale 安裝 | 採用者初設 | `uds init --locale {lang}` |
+| 帶 locale 重新同步 | 既有採用 | `uds update --locale {lang}` |
+| 跑 i18n lint | Commit 前 / CI | `uds check --i18n` |
 
 ---
 

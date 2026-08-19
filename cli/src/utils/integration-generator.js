@@ -3181,8 +3181,8 @@ export function parseStandardsIndexCount(content) {
 export function wrapWithMarkers(content, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   const warning = format === 'plaintext'
-    ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify.'
-    : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify. -->';
+    ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds init\' or \'npx uds update\' to modify.'
+    : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds init\' or \'npx uds update\' to modify. -->';
   // 冪等：warning 位於 markers **內部**，而 extractMarkedContent 取出的內容也含它，
   // 於是重新包裝會疊出第二份（dev-platform CLAUDE.md 實測 178/179 兩行完全相同）。
   // 這裡先剝掉內容開頭既有的 warning，不論上游哪條路徑造成都能修掉。

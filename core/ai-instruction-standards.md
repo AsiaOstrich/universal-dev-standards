@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-instruction-standards.md) | [简体中文](../locales/zh-CN/core/ai-instruction-standards.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-05-28
+**Version**: 1.1.1
+**Last Updated**: 2026-08-19
 **Applicability**: All projects using AI coding assistants
 **Scope**: partial
 **Industry Standards**: None (Emerging AI tool practice)
@@ -209,7 +209,7 @@ When canonical is updated (bumping `source_version`), locale maintainers should 
 |------|------|---------|
 | **Canonical owner** | `core/{name}.md`, `core/{name}.ai.yaml`, `skills/{name}/SKILL.md` | Keep L1/L2/L3/L4 in English; bump `source_version` on every breaking change |
 | **Locale maintainer** | `locales/{lang}/...` files | Keep `translation_version` aligned with `source_version`; translate L1 (required) / L2 (optional) / L3 (required) / L4 (recommended) |
-| **Adopter (downstream project)** | Their own `.claude/skills/`, `CLAUDE.md`, etc. | Install via `uds install --locale {lang}`; **never** manually modify canonical files (always edit locale variants or use overlays) |
+| **Adopter (downstream project)** | Their own `.claude/skills/`, `CLAUDE.md`, etc. | Install via `uds init --locale {lang}` (first time) or `uds update --locale {lang}` (re-sync); **never** manually modify canonical files (always edit locale variants or use overlays) |
 
 ### Chimera Prevention
 
@@ -231,7 +231,8 @@ Pre-commit / CI lint should enforce error-level rules; warn-level rules surface 
 Adopters install instruction files via the UDS CLI:
 
 ```bash
-uds install --locale zh-TW   # install skills + standards in Traditional Chinese
+uds init --locale zh-tw     # first-time install of skills + standards in Traditional Chinese
+uds update --locale zh-tw   # re-sync an existing adoption
 ```
 
 **Locale resolution order**:
@@ -252,7 +253,7 @@ This keeps installation usable for adopters even when locale coverage is incompl
 If an adopter has already manually modified canonical files in their project (e.g. translated descriptions in `.claude/skills/`):
 
 1. **Identify the chimera**: compare adopter files against UDS canonical and canonical's locale variants.
-2. **Install proper variants**: run `uds install --locale {lang}` to replace chimera files with locale variants.
+2. **Install proper variants**: run `uds update --locale {lang}` to replace chimera files with locale variants.
 3. **Preserve project-specific customization**: if the chimera contained legitimate project-specific customization (not just translation), extract it into an overlay or document it in the adopter's customization log (e.g. `UDS-CUSTOMIZATION.md`).
 4. **Discard pure translations**: chimera changes that were only translations should be discarded — the proper locale variant supersedes them.
 
@@ -264,8 +265,9 @@ If an adopter has already manually modified canonical files in their project (e.
 | Update canonical | Improving English source | Bump `source_version`; notify locale maintainers |
 | Translate / sync locale | Adding or updating locale content | Bump `translation_version`; reference current `source_version` |
 | Check coverage | Periodic review | View auto-generated `locales/COVERAGE.md` |
-| Install with locale | Adopter setup or re-sync | `uds install --locale {lang}` |
-| Lint i18n rules | Before commit / in CI | `uds lint --i18n` |
+| Install with locale | Adopter setup | `uds init --locale {lang}` |
+| Re-sync with locale | Existing adoption | `uds update --locale {lang}` |
+| Lint i18n rules | Before commit / in CI | `uds check --i18n` |
 
 ---
 

@@ -1,8 +1,8 @@
 ---
 source: ../../../core/ai-instruction-standards.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-05-28
+source_version: 1.1.1
+translation_version: 1.1.1
+last_synced: 2026-08-19
 status: current
 ---
 
@@ -213,7 +213,7 @@ translation_version: {本翻译的版本}
 |------|------|--------|
 | **Canonical 拥有者** | `core/{name}.md` 等 | 维持 L1/L2/L3/L4 为英文；breaking change 时 bump `source_version` |
 | **Locale 维护者** | `locales/{lang}/...` | `translation_version` 对齐 `source_version`；翻译 L1（必）、L2（选）、L3（必）、L4（建议）|
-| **采用者** | 自己的 `.claude/skills/`、`CLAUDE.md` | 用 `uds install --locale {lang}` 安装；**绝不**手动修改 canonical |
+| **采用者** | 自己的 `.claude/skills/`、`CLAUDE.md` | 用 `uds init --locale {lang}`（首次）或 `uds update --locale {lang}`（重新同步）安装；**绝不**手动修改 canonical |
 
 ### Chimera 防范
 
@@ -229,7 +229,8 @@ translation_version: {本翻译的版本}
 ### 采用者安装
 
 ```bash
-uds install --locale zh-CN   # 以简体中文安装 skills 与 standards
+uds init --locale zh-cn     # 首次以简体中文安装 skills 与 standards
+uds update --locale zh-cn   # 对既有采用重新同步
 ```
 
 **Locale 解析优先顺序**：`--locale` flag > `.uds/install.yaml` > `UDS_LOCALE` env > fallback `en`
@@ -239,7 +240,7 @@ Locale 不存在时 fallback 到 canonical + WARN，**不**阻断安装。
 ### 迁移：已有 chimera 的采用者
 
 1. **辨识 chimera**：比对采用者档案与 UDS canonical / locale 变体
-2. **安装正确变体**：`uds install --locale {lang}`
+2. **安装正确变体**：`uds update --locale {lang}`
 3. **保留专案级客制**：抽出为 overlay
 4. **丢弃纯翻译**：locale 变体取代之
 
@@ -251,8 +252,9 @@ Locale 不存在时 fallback 到 canonical + WARN，**不**阻断安装。
 | 更新 canonical | 改进英文 source | Bump `source_version` |
 | 翻译 / 同步 locale | 新增或更新 locale 内容 | Bump `translation_version` |
 | 检查覆盖率 | 定期 review | `locales/COVERAGE.md` |
-| 带 locale 安装 | 采用者初设 | `uds install --locale {lang}` |
-| 跑 i18n lint | Commit 前 / CI | `uds lint --i18n` |
+| 带 locale 安装 | 采用者初设 | `uds init --locale {lang}` |
+| 带 locale 重新同步 | 既有采用 | `uds update --locale {lang}` |
+| 跑 i18n lint | Commit 前 / CI | `uds check --i18n` |
 
 ---
 
