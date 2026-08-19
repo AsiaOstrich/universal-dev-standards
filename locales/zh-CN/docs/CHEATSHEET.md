@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-08-17
+> Quick reference for all UDS features | Last updated: 2026-08-19
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
@@ -12,12 +12,27 @@
 |---------|-------------|
 | `uds list` | List available standards |
 | `uds init` | Initialize standards in current project |
-| `uds configure` | Modify options for initialized project |
-| `uds check` | Check adoption status of current project |
+| `uds config` | Manage UDS configuration and project settings |
+| `uds hitl` | Human-in-the-Loop controls |
+| `uds configure` | Alias for "uds config" — Modify project settings |
+| `uds check` | Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit" |
+| `uds lint` | Check spec dependency validity and size against installed specs (specs/*.md) |
+| `uds simulate` | Simulate a standard check with input (Predictive Validation) |
+| `uds fix` | Auto-fix standard violations (Self-Healing) |
 | `uds update` | Update standards to latest version |
 | `uds skills` | List installed Claude Code skills |
-| `uds agent` | Manage UDS agents (list, install, info) |
-| `uds ai-context` | Manage AI context configuration (init, validate, graph) |
+| `uds audit` | Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check" |
+| `uds deps` | Compare the versions you test against the versions your declared ranges resolve to |
+| `uds uninstall` | Remove UDS standards, integrations, skills, and hooks |
+| `uds compile` | Compile enforcement standards into hook configurations |
+| `uds report` | Analyze hook telemetry and show adoption report |
+| `uds release` | Manage release process (promote, deploy, manifest, verify) |
+| `uds spec` | Manage lightweight micro-specs for vibe coding. For full spec lifecycle with review, use "/sdd" |
+| `uds quickstart` | Interactive workflow guide — find the right commands quickly |
+| `uds agent` | Manage UDS agents for AI tools |
+| `uds ai-context` | Manage .ai-context.yaml configuration for AI-friendly architecture |
+| `uds mcp` | MCP server commands for AI tool integration |
+| `uds run` | Run a project command by intent (test/lint/build/security) via uds.project.yaml |
 
 ## 💬 斜线命令
 

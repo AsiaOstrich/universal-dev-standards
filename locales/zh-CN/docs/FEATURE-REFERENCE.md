@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-08-17
+> Auto-generated | Last updated: 2026-08-19
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -9,7 +9,7 @@
 
 ## 目录
 
-1. [CLI 指令](#cli-commands) (9)
+1. [CLI 指令](#cli-commands) (23)
 2. [斜线命令](#slash-commands) (51)
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
@@ -17,7 +17,7 @@
 6. [核心规范](#core-standards) (150)
 7. [脚本](#scripts) (54)
 
-**Total Features: 329**
+**Total Features: 343**
 
 ---
 
@@ -58,9 +58,22 @@
 | `-E, --experimental` | Enable experimental features (methodology) |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 
+### `uds config`
+
+**说明**: Manage UDS configuration and project settings
+
+### `uds hitl`
+
+**说明**: Human-in-the-Loop controls
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--op` | Operation description |
+
 ### `uds configure`
 
-**说明**: Modify options for initialized project
+**说明**: Alias for "uds config" — Modify project settings
 
 **选项**:
 | Option | 说明 |
@@ -73,7 +86,7 @@
 
 ### `uds check`
 
-**说明**: Check adoption status of current project
+**说明**: Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit"
 
 **选项**:
 | Option | 说明 |
@@ -90,6 +103,36 @@
 | `--offline` | Skip npm registry check for CLI updates |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 | `--i18n` | Run i18n lint rules (XSPEC-239) across canonical + locale variants |
+
+### `uds lint`
+
+**说明**: Check spec dependency validity and size against installed specs (specs/*.md)
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--json` | Output result in JSON format |
+
+### `uds simulate`
+
+**说明**: Simulate a standard check with input (Predictive Validation)
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `-s, --standard` | Standard to simulate against |
+| `-i, --input` | Input string to test |
+| `--json` | Output result in JSON format |
+
+### `uds fix`
+
+**说明**: Auto-fix standard violations (Self-Healing)
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `-s, --standard` | Standard to fix |
+| `--json` | Output result in JSON format |
 
 ### `uds update`
 
@@ -117,9 +160,100 @@
 
 **说明**: List installed Claude Code skills
 
+### `uds audit`
+
+**说明**: Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check"
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--health` | Health check only |
+| `--patterns` | Pattern detection only |
+| `--friction` | Friction detection only |
+| `--report` | Interactive feedback submission |
+| `--yes` | Submit all findings without interactive selection (CI / non-TTY) |
+| `--dry-run` | Preview report without submitting |
+| `--gh` | Force gh CLI for submission |
+| `--format` | Output format (json) |
+| `--quiet` | Summary only |
+| `--score` | Run multi-dimensional health score analysis |
+| `--self` | Self mode: analyze UDS repo itself (use with --score) |
+| `--save` | Save score snapshot for trend tracking (use with --score) |
+| `--trend` | Show historical score trend (use with --score) |
+| `--ci` | CI mode: output score only, exit 1 if below threshold (use with --score) |
+| `--threshold` | Score threshold for CI mode (default: 75) |
+
+### `uds deps`
+
+**说明**: Compare the versions you test against the versions your declared ranges resolve to
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--path` | Directory containing package.json (default: cwd) |
+| `--json` | Output raw JSON |
+| `--concurrency` | Parallel registry lookups (default: 8) |
+
+### `uds uninstall`
+
+**说明**: Remove UDS standards, integrations, skills, and hooks
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--all` | Remove everything including user-level installations |
+| `--standards-only` | Remove only .standards/ directory |
+| `--skills-only` | Remove only skills and commands |
+| `--integrations-only` | Remove only UDS blocks from integration files |
+| `--dry-run` | Preview mode, no files modified |
+| `-y, --yes` | Skip confirmation prompts |
+
+### `uds compile`
+
+**说明**: Compile enforcement standards into hook configurations
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `--target` | Target platform (claude-code) |
+| `--dry-run` | Preview output without writing files |
+
+### `uds report`
+
+**说明**: Analyze hook telemetry and show adoption report
+
+### `uds release`
+
+**说明**: Manage release process (promote, deploy, manifest, verify)
+
+### `uds spec`
+
+**说明**: Manage lightweight micro-specs for vibe coding. For full spec lifecycle with review, use "/sdd"
+
+**选项**:
+| Option | 说明 |
+|--------|-------------|
+| `-s, --scope` | Scope (frontend, backend, fullstack) |
+| `-o, --output` | Output directory (default: specs/) |
+| `-y, --yes` | Auto-confirm without prompting |
+| `--status` | Filter by status (draft, confirmed, archived) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-y, --yes` | Skip confirmation |
+| `-o, --output` | Specs directory (default: specs/) |
+| `--archived` | Search only archived specs |
+| `-o, --output` | Specs directory |
+| `-o, --output` | Specs directory |
+
+### `uds quickstart`
+
+**说明**: Interactive workflow guide — find the right commands quickly
+
 ### `uds agent`
 
-**说明**: Manage UDS agents (list, install, info)
+**说明**: Manage UDS agents for AI tools
 
 **选项**:
 | Option | 说明 |
@@ -131,7 +265,15 @@
 
 ### `uds ai-context`
 
-**说明**: Manage AI context configuration (init, validate, graph)
+**说明**: Manage .ai-context.yaml configuration for AI-friendly architecture
+
+### `uds mcp`
+
+**说明**: MCP server commands for AI tool integration
+
+### `uds run`
+
+**说明**: Run a project command by intent (test/lint/build/security) via uds.project.yaml
 
 ---
 
@@ -294,7 +436,7 @@
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
-| `ai-instruction-standards` | 1.1.0 | This standard defines best practices for creating and maintaining AI instruction |
+| `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
 | `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |

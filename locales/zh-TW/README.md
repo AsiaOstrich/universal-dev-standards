@@ -79,7 +79,7 @@ npx universal-dev-standards init
 | **核心標準** | 150 | 通用開發準則 |
 | **AI Skills** | 55 | 互動式技能 |
 | **斜線命令** | 51 | 快速操作 |
-| **CLI 指令** | 22 | 專案設定與維護 |
+| **CLI 指令** | 23 | 專案設定與維護 |
 <!-- UDS_STATS_TABLE_END -->
 
 > **5.0 新功能？** 請參閱[預發布說明](../../docs/PRE-RELEASE.md)了解新功能詳情。

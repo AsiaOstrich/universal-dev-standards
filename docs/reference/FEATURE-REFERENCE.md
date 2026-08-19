@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-17
+> Auto-generated | Last updated: 2026-08-19
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -9,7 +9,7 @@
 
 ## Table of Contents
 
-1. [CLI Commands](#cli-commands) (9)
+1. [CLI Commands](#cli-commands) (23)
 2. [Slash Commands](#slash-commands) (51)
 3. [Skills](#skills) (55)
 4. [Agents](#agents) (5)
@@ -17,7 +17,7 @@
 6. [Core Standards](#core-standards) (150)
 7. [Scripts](#scripts) (54)
 
-**Total Features: 329**
+**Total Features: 343**
 
 ---
 
@@ -58,9 +58,22 @@
 | `-E, --experimental` | Enable experimental features (methodology) |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 
+### `uds config`
+
+**Description**: Manage UDS configuration and project settings
+
+### `uds hitl`
+
+**Description**: Human-in-the-Loop controls
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--op` | Operation description |
+
 ### `uds configure`
 
-**Description**: Modify options for initialized project
+**Description**: Alias for "uds config" — Modify project settings
 
 **Options**:
 | Option | Description |
@@ -73,7 +86,7 @@
 
 ### `uds check`
 
-**Description**: Check adoption status of current project
+**Description**: Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit"
 
 **Options**:
 | Option | Description |
@@ -90,6 +103,36 @@
 | `--offline` | Skip npm registry check for CLI updates |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 | `--i18n` | Run i18n lint rules (XSPEC-239) across canonical + locale variants |
+
+### `uds lint`
+
+**Description**: Check spec dependency validity and size against installed specs (specs/*.md)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--json` | Output result in JSON format |
+
+### `uds simulate`
+
+**Description**: Simulate a standard check with input (Predictive Validation)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --standard` | Standard to simulate against |
+| `-i, --input` | Input string to test |
+| `--json` | Output result in JSON format |
+
+### `uds fix`
+
+**Description**: Auto-fix standard violations (Self-Healing)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --standard` | Standard to fix |
+| `--json` | Output result in JSON format |
 
 ### `uds update`
 
@@ -117,9 +160,100 @@
 
 **Description**: List installed Claude Code skills
 
+### `uds audit`
+
+**Description**: Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check"
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--health` | Health check only |
+| `--patterns` | Pattern detection only |
+| `--friction` | Friction detection only |
+| `--report` | Interactive feedback submission |
+| `--yes` | Submit all findings without interactive selection (CI / non-TTY) |
+| `--dry-run` | Preview report without submitting |
+| `--gh` | Force gh CLI for submission |
+| `--format` | Output format (json) |
+| `--quiet` | Summary only |
+| `--score` | Run multi-dimensional health score analysis |
+| `--self` | Self mode: analyze UDS repo itself (use with --score) |
+| `--save` | Save score snapshot for trend tracking (use with --score) |
+| `--trend` | Show historical score trend (use with --score) |
+| `--ci` | CI mode: output score only, exit 1 if below threshold (use with --score) |
+| `--threshold` | Score threshold for CI mode (default: 75) |
+
+### `uds deps`
+
+**Description**: Compare the versions you test against the versions your declared ranges resolve to
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--path` | Directory containing package.json (default: cwd) |
+| `--json` | Output raw JSON |
+| `--concurrency` | Parallel registry lookups (default: 8) |
+
+### `uds uninstall`
+
+**Description**: Remove UDS standards, integrations, skills, and hooks
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--all` | Remove everything including user-level installations |
+| `--standards-only` | Remove only .standards/ directory |
+| `--skills-only` | Remove only skills and commands |
+| `--integrations-only` | Remove only UDS blocks from integration files |
+| `--dry-run` | Preview mode, no files modified |
+| `-y, --yes` | Skip confirmation prompts |
+
+### `uds compile`
+
+**Description**: Compile enforcement standards into hook configurations
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--target` | Target platform (claude-code) |
+| `--dry-run` | Preview output without writing files |
+
+### `uds report`
+
+**Description**: Analyze hook telemetry and show adoption report
+
+### `uds release`
+
+**Description**: Manage release process (promote, deploy, manifest, verify)
+
+### `uds spec`
+
+**Description**: Manage lightweight micro-specs for vibe coding. For full spec lifecycle with review, use "/sdd"
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --scope` | Scope (frontend, backend, fullstack) |
+| `-o, --output` | Output directory (default: specs/) |
+| `-y, --yes` | Auto-confirm without prompting |
+| `--status` | Filter by status (draft, confirmed, archived) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-y, --yes` | Skip confirmation |
+| `-o, --output` | Specs directory (default: specs/) |
+| `--archived` | Search only archived specs |
+| `-o, --output` | Specs directory |
+| `-o, --output` | Specs directory |
+
+### `uds quickstart`
+
+**Description**: Interactive workflow guide — find the right commands quickly
+
 ### `uds agent`
 
-**Description**: Manage UDS agents (list, install, info)
+**Description**: Manage UDS agents for AI tools
 
 **Options**:
 | Option | Description |
@@ -131,7 +265,15 @@
 
 ### `uds ai-context`
 
-**Description**: Manage AI context configuration (init, validate, graph)
+**Description**: Manage .ai-context.yaml configuration for AI-friendly architecture
+
+### `uds mcp`
+
+**Description**: MCP server commands for AI tool integration
+
+### `uds run`
+
+**Description**: Run a project command by intent (test/lint/build/security) via uds.project.yaml
 
 ---
 
@@ -294,7 +436,7 @@
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
-| `ai-instruction-standards` | 1.1.0 | This standard defines best practices for creating and maintaining AI instruction |
+| `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
 | `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |

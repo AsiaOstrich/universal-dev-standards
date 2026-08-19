@@ -3,7 +3,7 @@
 
 id: ai-instruction-standards
 meta:
-  version: "2.1.0"
+  version: "2.1.1"
   updated: "2026-08-12"
   source: core/ai-instruction-standards.md
   description: Best practices for creating AI instruction files (root and skill level) with universal/project-specific separation, i18n strategy, and a detailed cross-tool support matrix
@@ -309,7 +309,7 @@ rules:
 
   - id: i18n-no-manual-canonical-edits-by-adopters
     trigger: adopter wants to customize an installed instruction file
-    instruction: Use uds install --locale or overlays; do not modify canonical files in-place
+    instruction: Use uds init --locale (first install) or uds update --locale (re-sync), or overlays; do not modify canonical files in-place
     priority: required
 
 maintenance_checklist:
@@ -434,7 +434,7 @@ i18n:
       owns:
         - their own .claude/skills/, CLAUDE.md
       duties:
-        - Install via uds install --locale {lang}
+        - Install via uds init --locale {lang}; re-sync with uds update --locale {lang}
         - Never manually modify canonical files
         - Use overlays or locale variants for customization
 
@@ -459,14 +459,14 @@ i18n:
       - id: adopter-must-match-installed-locale
         trigger: adopter file in .claude/skills/ differs from both canonical and any locale variant
         severity: warn
-        instruction: Use uds install --locale or overlays instead of manual canonical edits
+        instruction: Use uds init --locale / uds update --locale or overlays instead of manual canonical edits
       - id: translation-drift-warn
         trigger: translation_version lag > 2 minor versions behind source_version
         severity: warn
         instruction: Re-sync translation from current canonical version
 
   installation_model:
-    cli: uds install --locale {lang}
+    cli: uds init --locale {lang}
     locale_resolution_priority:
       - --locale CLI flag
       - .uds/install.yaml locale field
@@ -483,7 +483,7 @@ i18n:
       - id: identify
         description: Compare adopter files against UDS canonical and locale variants
       - id: install_proper_variants
-        description: Run uds install --locale {lang} to replace chimera
+        description: Run uds update --locale {lang} to replace chimera
       - id: preserve_legitimate_customization
         description: Extract project-specific (non-translation) customization into overlay or UDS-CUSTOMIZATION.md
       - id: discard_pure_translations

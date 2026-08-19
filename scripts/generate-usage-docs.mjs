@@ -17,6 +17,7 @@
  *   node scripts/generate-usage-docs.mjs --check      # Check if update needed
  */
 
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -318,18 +319,40 @@ async function scanCliCommands() {
     const udsPath = path.join(ROOT_DIR, 'cli/bin/uds.js');
     const content = fs.readFileSync(udsPath, 'utf-8');
 
-    // Define main commands structure (based on uds.js analysis)
-    const mainCommands = [
-      { name: 'list', desc: 'List available standards' },
-      { name: 'init', desc: 'Initialize standards in current project' },
-      { name: 'configure', desc: 'Modify options for initialized project', alias: 'config' },
-      { name: 'check', desc: 'Check adoption status of current project' },
-      { name: 'update', desc: 'Update standards to latest version' },
-      { name: 'skills', desc: 'List installed Claude Code skills' },
-      { name: 'agent', desc: 'Manage UDS agents (list, install, info)' },
-      { name: 'workflow', desc: 'Manage UDS workflows (list, install, info, execute, status)' },
-      { name: 'ai-context', desc: 'Manage AI context configuration (init, validate, graph)' },
-    ];
+    // 🔴 這裡原本是一份**手寫清單**，註解寫著「based on uds.js analysis」——
+    // 某一次人工讀取的快照。它讀進了 uds.js 卻不使用它。
+    //
+    // 後果（2026-08-19 由 check-command-existence 閘門抓到）：`uds workflow` 在
+    // v6.0.0 就被移除，而清單還留著它，於是**每一次重新產生文件都把那個不存在的
+    // 指令寫回去**；同日才有人手動從產出的文件裡清掉，下一次 regenerate 又長回來。
+    // 它同時也沒有當天新增的 `uds lint`——手寫清單不會自己長。
+    //
+    // **改為問 CLI 自己，而不是解析它的原始碼。** 中間試過兩版靜態解析都不完整：
+    //   ① 只認 `program\n  .command()` → 漏掉 spec／agent／ai-context 這類
+    //      指派給變數的容器型指令（19 vs 24）
+    //   ② 補上 `const x = program\n  .command()` → 仍漏掉 `mcp`，
+    //      因為它是由 `mcpCommand(program)` 在**另一個模組**裡註冊的，
+    //      單檔解析永遠看不到。
+    // `--help` 是 CLI 對「我有哪些指令」的權威回答，任何註冊寫法都涵蓋得到。
+    const mainCommands = [];
+    const helpOut = execFileSync(process.execPath, [path.join(ROOT_DIR, 'cli/bin/uds.js'), '--help'], {
+      encoding: 'utf-8',
+    });
+    const cmdSection = helpOut.split(/Available subcommands:|Commands:/).pop() || '';
+    for (const line of cmdSection.split('\n')) {
+      // commander 的格式：兩個空格 + 指令名（可能帶參數）+ 空白 + 說明
+      const m = line.match(/^\s{2}([a-z][a-z0-9-]*)(?:\|[a-z-]+)?(?:\s+\[[^\]]*\]|\s+<[^>]*>|\s+\[options\])*\s{2,}(.+?)\s*$/);
+      if (!m) continue;
+      if (m[1] === 'help') continue; // commander 內建，不是 UDS 的指令
+      mainCommands.push({ name: m[1], desc: m[2].trim() });
+    }
+    if (mainCommands.length === 0) {
+      // 空清單與「CLI 真的沒有指令」無從分辨，而後者不可能。
+      throw new Error(
+        'scanCliCommands: 從 `uds --help` 解析到 0 個指令 —— 輸出格式可能改了。' +
+          '這不是「沒有指令」，是解析器壞了。'
+      );
+    }
 
     for (const cmd of mainCommands) {
       if (!seenCommands.has(cmd.name)) {
