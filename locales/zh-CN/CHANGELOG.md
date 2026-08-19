@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.7.5
-translation_version: 6.7.5
-last_synced: 2026-08-18
+source_version: 6.8.0
+translation_version: 6.8.0
+last_synced: 2026-08-19
 status: current
 ---
 
@@ -16,6 +16,24 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.8.0] - 2026-08-20
+
+### 新增
+
+- **一道去问「这条 `uds <cmd>` 指示真的跑得动吗」的闸门（XSPEC-383 R4）。** 2026-08-19 查到三个顶层命令（`uds install`、`uds lint`、`uds sync`）与两个旗标（`uds check --spec-size`、`uds spec create --boost`）出现在出货的指引里而**它们都不存在**——落点包括 `quickstart.js`（它的整个工作就是「快速找到对的命令」）与 `integration-generator.js`（它把命令**写进每一个采用者的 `CLAUDE.md`／`AGENTS.md`**）。两处早已修掉（`465335e4`），而**没有任何东西在确认那个修正会维持**。`check-command-existence.mjs` 走访 `core/`、`locales/`、`ai/standards/`、`cli/src/`、`skills/`、`docs/` 与 repo 根目录的 `*.md`，抽出每一个 `uds <cmd>` 样式，用 `uds <path> --definitely-not-a-real-flag` 对本次 commit 自己的 CLI 探测——**不是 `--help`**：commander 对**未知**命令会回答通用命令表而不是报错，而那正是 `uds lint`／`uds sync` 在第一轮检查中存活的原因。
+- **同一支探针对现况再跑一次，翻出第一次事故的修正从未碰到的漂移。** `uds workflow`（v6.0.0 移除）在 `docs/user/CHEATSHEET.md`、`docs/reference/FEATURE-REFERENCE.md`、`skills/workflows/README.md`（及 zh-TW／zh-CN 镜像）**被当成现行命令展示了五个月**，而 `docs/MIGRATION-v6.md` 自己就给了能抓到它的那条 grep。`uds config --lang`／`--mode` 从未存在（root `README.md`、两份 locale、`docs/reference/INTEGRATION-VERIFICATION.md`）。`uds agent install --all` 把位置参数写成旗标。`uds reverse-tdd` 是为了一段 GitHub Actions 范例**虚构出来的 CLI**。`uds check --interactive` 不存在，因为交互模式本来就是默认。**29 个发现，29 个修好，0 个残留。**
+- **一道去问「有没有人到得了这段代码」的闸门（XSPEC-383 R3）。** 单元测试证明函数是对的，对「有没有使用者叫得到」一个字都没说。2026-04-07 有一次 commit 加了 `spec-linter.js`（172 行、14 个测试全过）与 `sync.js`（133 行）——**两者都从未被注册**，而同一天有下游产品把自己接上 `npx uds lint --json`，一个因此永远不会存在的命令。四个半月，两边全绿，中间没有一条通的路。`check-module-reachability.mjs` 从 package.json 的 `bin` 与 `main` 出发做 BFS，**手查找到 2 个，走访找到 24 个**，含整个九模块的 `src/flow/` 子系统。
+- **`uds lint`（XSPEC-383 R5）。** 注册那个 linter 自 2026-04-07 起就在等的命令，带着两项禁得起真实 spec 考验的检查：依赖有效性与篇幅。
+
+### 变更
+
+- **哈希前先规范化行尾（#155）。** `uds check` 比对的是磁盘上的原始 bytes，于是 Windows 在 `core.autocrlf=true` 下的 checkout 把每个 LF 换成 CRLF，**每一个哈希都不再吻合**——而「N 个文件已修改」这句话，无论是有人改了 N 个文件还是平台改写了每一个换行，读起来完全一样。走访另外找到两套从不经过 `hasher.js` 的哈希实现，四处全修。新增 21 个测试，含负向对照：真实内容差异与尾随空白差异，在 CRLF checkout 上仍须检测得到。`uds check --force` 的输出前后逐字节相同，既有 manifest 不需要重新盖章。
+- **使用说明生成器改为问 CLI，而不是背诵一份清单。** `scanCliCommands` 把 `cli/bin/uds.js` 读进一个变量然后忽略它，改用一份注记着「based on uds.js analysis」的手写数组。于是**每一次重新生成都把已移除的 `uds workflow` 写回文档**，也从来不会加入 `uds lint`。现在它解析 `uds --help`——CLI 对自己有哪些命令的权威回答，涵盖任何单文件解析看不到的注册写法（`mcp` 完全由另一个模块注册）。涵盖率从 19/24 变成 **23/23**。
+
+### 移除
+
+- **`uds sync` 与 AC 覆盖检查（XSPEC-383 R5，选项 E）。** `sync.js` 零消费者。AC 覆盖检查对 93 份真实 spec 测量，报告 98 条验收条件中 0 条被覆盖——**不是因为它们没有测试**，而是因为它用**位置**生成 AC 标识符（`AC-1`、`AC-2`）而不是读规格声明的那些，再用写死的 `@` 前缀去找。一个写 `AC-045-001` 并且标注不带 `@` 的项目，无论追溯做得多完整都会得到零覆盖。**它报的不是「这个项目没有追溯」，而是「我用我自己的惯例去找，找不到」，而这两句话打印出来一模一样。** 它是移除而不是留着不接：它是一个正确实现了一个唯一已知消费者并不使用的惯例的东西，躺在树上等着被人重新接上。跨 repo 的 AC 标识符惯例调解是协商，不是补丁，另案处理。
 
 ## [6.7.5] - 2026-08-18
 
