@@ -1,12 +1,16 @@
 // [Source: specs/superspec-borrowing-phase1-2-spec.md]
 // [Generated] TDD tests for spec-linter — AC-11, AC-12, AC-13
+//
+// XSPEC-383 R5 (Option E): the `checkACCoverage` test block was removed along
+// with the function itself. See spec-linter.js's module docstring for why —
+// short version: it always reported 0% coverage against real specs, for two
+// independent reasons unrelated to whether coverage actually existed.
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import {
-  checkACCoverage,
   checkDependencies,
   checkSpecSize,
   lintAll,
@@ -43,16 +47,6 @@ function writeSpec(dir, id, { acCount = 2, dependsOn = [], lines = 100 } = {}) {
   writeFileSync(join(dir, 'specs', `${id}.md`), content);
 }
 
-/**
- * Helper: write a test file with @AC-N tags
- */
-function writeTestFile(dir, filename, specId, coveredACs = []) {
-  const lines = coveredACs.map(ac => `// @${specId} @AC-${ac}`);
-  lines.push('describe("test", () => { it("works", () => {}) });');
-  mkdirSync(join(dir, 'tests'), { recursive: true });
-  writeFileSync(join(dir, 'tests', filename), lines.join('\n'));
-}
-
 describe('XSPEC-005 AC-11~13: Spec Linter', () => {
   let tempDir;
 
@@ -63,50 +57,6 @@ describe('XSPEC-005 AC-11~13: Spec Linter', () => {
 
   afterEach(() => {
     rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  // ─── AC-11: checkACCoverage ───
-
-  describe('AC-11: checkACCoverage', () => {
-    it('should return full coverage when all ACs have matching test tags', () => {
-      // Arrange
-      writeSpec(tempDir, 'SPEC-001', { acCount: 3 });
-      writeTestFile(tempDir, 'spec001.test.js', 'SPEC-001', [1, 2, 3]);
-
-      // Act
-      const result = checkACCoverage('SPEC-001', ['AC-1', 'AC-2', 'AC-3'], tempDir);
-
-      // Assert
-      expect(result.covered).toEqual(['AC-1', 'AC-2', 'AC-3']);
-      expect(result.orphans).toEqual([]);
-      expect(result.coverage).toBe(1.0);
-    });
-
-    it('should detect orphan ACs without test coverage', () => {
-      // Arrange
-      writeSpec(tempDir, 'SPEC-002', { acCount: 3 });
-      writeTestFile(tempDir, 'spec002.test.js', 'SPEC-002', [1]); // only AC-1 covered
-
-      // Act
-      const result = checkACCoverage('SPEC-002', ['AC-1', 'AC-2', 'AC-3'], tempDir);
-
-      // Assert
-      expect(result.covered).toEqual(['AC-1']);
-      expect(result.orphans).toEqual(['AC-2', 'AC-3']);
-      expect(result.coverage).toBeCloseTo(1 / 3);
-    });
-
-    it('should return zero coverage when no tests exist', () => {
-      // Arrange — no test files
-
-      // Act
-      const result = checkACCoverage('SPEC-003', ['AC-1', 'AC-2'], tempDir);
-
-      // Assert
-      expect(result.covered).toEqual([]);
-      expect(result.orphans).toEqual(['AC-1', 'AC-2']);
-      expect(result.coverage).toBe(0);
-    });
   });
 
   // ─── AC-11: checkDependencies ───
@@ -182,7 +132,6 @@ describe('XSPEC-005 AC-11~13: Spec Linter', () => {
       // Arrange
       writeSpec(tempDir, 'SPEC-001', { acCount: 2, dependsOn: [], lines: 100 });
       writeSpec(tempDir, 'SPEC-002', { acCount: 3, dependsOn: ['SPEC-001'], lines: 350 });
-      writeTestFile(tempDir, 'spec001.test.js', 'SPEC-001', [1, 2]);
 
       // Act
       const result = lintAll(tempDir);
@@ -192,12 +141,12 @@ describe('XSPEC-005 AC-11~13: Spec Linter', () => {
       expect(result.summary).toHaveProperty('pass');
       expect(result.summary).toHaveProperty('warn');
       expect(result.summary).toHaveProperty('fail');
+      expect(result.specsDirExists).toBe(true);
     });
 
-    it('should include acCoverage, deps, and size per spec', () => {
+    it('should include spec id, status, deps, and size per spec', () => {
       // Arrange
       writeSpec(tempDir, 'SPEC-001', { acCount: 2, dependsOn: [], lines: 100 });
-      writeTestFile(tempDir, 'spec001.test.js', 'SPEC-001', [1, 2]);
 
       // Act
       const result = lintAll(tempDir);
@@ -205,14 +154,26 @@ describe('XSPEC-005 AC-11~13: Spec Linter', () => {
 
       // Assert
       expect(specResult).toHaveProperty('spec');
-      expect(specResult).toHaveProperty('acCoverage');
+      expect(specResult).toHaveProperty('status');
       expect(specResult).toHaveProperty('deps');
       expect(specResult).toHaveProperty('size');
-      expect(specResult.acCoverage).toHaveProperty('coverage');
       expect(specResult.deps).toHaveProperty('valid');
       expect(specResult.deps).toHaveProperty('broken');
       expect(specResult.size).toHaveProperty('effectiveLines');
       expect(specResult.size).toHaveProperty('status');
+    });
+
+    it('should report specsDirExists: false and not silently return an empty pass when specs/ is missing', () => {
+      // Arrange — remove the specs/ dir the beforeEach created
+      rmSync(join(tempDir, 'specs'), { recursive: true, force: true });
+
+      // Act
+      const result = lintAll(tempDir);
+
+      // Assert
+      expect(result.specsDirExists).toBe(false);
+      expect(result.results).toHaveLength(0);
+      expect(result.summary).toEqual({ pass: 0, warn: 0, fail: 0 });
     });
   });
 
@@ -263,7 +224,6 @@ describe('XSPEC-005 AC-11~13: Spec Linter', () => {
     it('should have zero failures for a healthy spec', () => {
       // Arrange
       writeSpec(tempDir, 'SPEC-001', { acCount: 2, dependsOn: [], lines: 100 });
-      writeTestFile(tempDir, 'spec001.test.js', 'SPEC-001', [1, 2]);
 
       // Act
       const result = lintAll(tempDir);

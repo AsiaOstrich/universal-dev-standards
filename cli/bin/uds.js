@@ -5,6 +5,7 @@ import { program } from 'commander';
 import { listCommand } from '../src/commands/list.js';
 import { initCommand } from '../src/commands/init.js';
 import { checkCommand } from '../src/commands/check.js';
+import { lintCommand } from '../src/commands/lint.js';
 import { simulateCommand } from '../src/commands/simulate.js';
 import { fixCommand } from '../src/commands/fix.js';
 import { updateCommand } from '../src/commands/update.js';
@@ -185,6 +186,12 @@ program
   .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
   .option('--i18n', 'Run i18n lint rules (XSPEC-239) across canonical + locale variants')
   .action(checkCommand);
+
+program
+  .command('lint')
+  .description('Check spec dependency validity and size against installed specs (specs/*.md)')
+  .option('--json', 'Output result in JSON format')
+  .action(lintCommand);
 
 program
   .command('simulate')
