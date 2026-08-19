@@ -1,22 +1,75 @@
 import { createHash } from 'crypto';
-import { readFileSync, statSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, relative } from 'path';
 import { UDS_MARKERS } from '../core/constants.js';
 import { resolveIntegrationFile } from '../core/constants.js';
 
+// GitHub issue #155. `git config core.autocrlf true` (the common
+// Windows default) rewrites LF to CRLF on checkout. The manifest's stored
+// hashes are computed from the LF bytes git carries in the blob (that is what
+// every non-Windows install reads), so a Windows working tree — content
+// byte-for-byte what `git status` calls clean — hashed to something else
+// entirely. Every `.standards/*` file, every skill/command file, and every
+// CLAUDE.md/AGENTS.md UDS block came back "modified" although nothing had
+// changed. Normalizing line endings before hashing (both when the manifest is
+// written and when it is compared) makes the hash line-ending agnostic, so
+// LF and CRLF checkouts of the same content agree.
+//
+// This intentionally makes "someone converted this file's line endings, text
+// otherwise identical" invisible to `uds check`/`uds update`. That is the
+// point, not a gap: line-ending convention is a checkout artifact, not
+// content a standards library should track as a modification — it is the
+// same normalization `git diff`/`git status` already apply before deciding a
+// tracked file is dirty.
+
 /**
- * Compute SHA-256 hash for a file
+ * Heuristic binary-content detector, matching the approach git itself uses:
+ * a NUL byte anywhere in the first 8000 bytes marks the buffer as binary.
+ * Binary content must never be line-ending-normalized — flipping `\r\n` bytes
+ * inside an image or font would silently corrupt the hash rather than make it
+ * platform-agnostic, and could hide (or manufacture) a real difference.
+ * Every file `uds` currently manages under `.standards/`, skills, and
+ * commands is text (`.md`/`.yaml`/`.json`), but this function is the general
+ * per-file entry point (also used for arbitrary skill directory contents),
+ * so the check stays in place for whatever gets added later.
+ * @param {Buffer} buffer
+ * @returns {boolean} True if the buffer looks binary
+ */
+export function isBinaryContent(buffer) {
+  const sampleSize = Math.min(buffer.length, 8000);
+  for (let i = 0; i < sampleSize; i++) {
+    if (buffer[i] === 0) return true;
+  }
+  return false;
+}
+
+/**
+ * Normalize CRLF and lone-CR line endings to LF.
+ * @param {string} text
+ * @returns {string} Normalized text
+ */
+export function normalizeLineEndings(text) {
+  return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+/**
+ * Compute SHA-256 hash for a file, normalizing line endings first (unless the
+ * file is binary — see `isBinaryContent`). `size` is the byte length of the
+ * normalized content, not the raw on-disk size, so the two stay consistent
+ * with each other for the quick-reject check in `compareFileHash`.
  * @param {string} filePath - Absolute file path
  * @returns {Object|null} { hash, size } or null if file doesn't exist
  */
 export function computeFileHash(filePath) {
   try {
-    const content = readFileSync(filePath);
+    const raw = readFileSync(filePath);
+    const content = isBinaryContent(raw)
+      ? raw
+      : Buffer.from(normalizeLineEndings(raw.toString('utf-8')), 'utf-8');
     const hash = createHash('sha256').update(content).digest('hex');
-    const stats = statSync(filePath);
     return {
       hash: `sha256:${hash}`,
-      size: stats.size
+      size: content.length
     };
   } catch {
     return null;
@@ -276,7 +329,10 @@ function extractBlockContent(content, format) {
  */
 export function computeIntegrationBlockHash(filePath) {
   try {
-    const content = readFileSync(filePath, 'utf-8');
+    // CLAUDE.md / AGENTS.md are always text — no binary check needed here,
+    // unlike `computeFileHash`.
+    const rawContent = readFileSync(filePath, 'utf-8');
+    const content = normalizeLineEndings(rawContent);
     const format = detectFormat(filePath);
     const { blockContent } = extractBlockContent(content, format);
 
@@ -287,13 +343,12 @@ export function computeIntegrationBlockHash(filePath) {
 
     const blockHash = createHash('sha256').update(blockContent).digest('hex');
     const fullHash = createHash('sha256').update(content).digest('hex');
-    const stats = statSync(filePath);
 
     return {
       blockHash: `sha256:${blockHash}`,
       blockSize: Buffer.byteLength(blockContent, 'utf-8'),
       fullHash: `sha256:${fullHash}`,
-      fullSize: stats.size
+      fullSize: Buffer.byteLength(content, 'utf-8')
     };
   } catch {
     return null;

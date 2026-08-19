@@ -24,7 +24,11 @@ vi.mock('../../../src/utils/hasher.js', () => ({
       return { blockHash: 'sha256:block123', blockSize: 50, fullHash: 'sha256:full123', fullSize: 200 };
     }
     return null;
-  })
+  }),
+  // GitHub issue #155 (CRLF normalization). `hashInstalledSkillDir` and the
+  // inline command hash in actual-state-scanner.js import this for real; the
+  // mock must provide it too or the import comes back undefined.
+  normalizeLineEndings: vi.fn((text) => text.replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
 }));
 
 // Mock constants
@@ -196,6 +200,81 @@ describe('ActualStateScanner', () => {
 
       expect(state.commands.size).toBe(1);
       expect(state.commands.has('command:claude-code:project:commit')).toBe(true);
+    });
+
+    // GitHub issue #155. `hashInstalledSkillDir` / the inline command hash
+    // read installed files that a Windows `core.autocrlf=true` checkout may
+    // have rewritten to CRLF. Both must hash the same content identically
+    // regardless of line ending, or every skill/command reports as changed
+    // on every Windows `uds update`.
+    describe('CRLF normalization', () => {
+      it('hashes a UDS-managed skill file the same whether installed as LF or CRLF', () => {
+        const skillsDir = join(TEST_DIR, '.claude', 'skills');
+        mkdirSync(join(skillsDir, 'known-skill'), { recursive: true });
+        writeFileSync(join(skillsDir, 'known-skill', 'SKILL.md'), '# Title\nline one\nline two\n');
+
+        const manifest = {
+          standards: [], integrations: [],
+          skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
+          commands: { installations: [] }
+        };
+        const lfHash = scanActualState(TEST_DIR, manifest)
+          .skills.get('skill:claude-code:project:known-skill').hash;
+
+        writeFileSync(
+          join(skillsDir, 'known-skill', 'SKILL.md'),
+          Buffer.from('# Title\r\nline one\r\nline two\r\n', 'utf-8')
+        );
+        const crlfHash = scanActualState(TEST_DIR, manifest)
+          .skills.get('skill:claude-code:project:known-skill').hash;
+
+        expect(lfHash).not.toBeNull();
+        expect(lfHash).toBe(crlfHash);
+      });
+
+      // Negative control: genuinely different content (still CRLF) must still
+      // produce a different hash.
+      it('still distinguishes genuinely different content on a CRLF checkout', () => {
+        const skillsDir = join(TEST_DIR, '.claude', 'skills');
+        mkdirSync(join(skillsDir, 'known-skill'), { recursive: true });
+
+        const manifest = {
+          standards: [], integrations: [],
+          skills: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] },
+          commands: { installations: [] }
+        };
+
+        writeFileSync(join(skillsDir, 'known-skill', 'SKILL.md'), Buffer.from('# Title\r\nline one\r\n', 'utf-8'));
+        const hashA = scanActualState(TEST_DIR, manifest)
+          .skills.get('skill:claude-code:project:known-skill').hash;
+
+        writeFileSync(join(skillsDir, 'known-skill', 'SKILL.md'), Buffer.from('# Title\r\nline TWO\r\n', 'utf-8'));
+        const hashB = scanActualState(TEST_DIR, manifest)
+          .skills.get('skill:claude-code:project:known-skill').hash;
+
+        expect(hashA).not.toBe(hashB);
+      });
+
+      it('hashes a UDS-managed command file the same whether installed as LF or CRLF', () => {
+        const cmdsDir = join(TEST_DIR, '.claude', 'commands');
+        mkdirSync(cmdsDir, { recursive: true });
+        writeFileSync(join(cmdsDir, 'commit.md'), '# Commit\nstep one\nstep two\n');
+
+        const manifest = {
+          standards: [], integrations: [],
+          skills: { installations: [] },
+          commands: { installed: true, installations: [{ agent: 'claude-code', level: 'project' }] }
+        };
+        const lfHash = scanActualState(TEST_DIR, manifest)
+          .commands.get('command:claude-code:project:commit').hash;
+
+        writeFileSync(join(cmdsDir, 'commit.md'), Buffer.from('# Commit\r\nstep one\r\nstep two\r\n', 'utf-8'));
+        const crlfHash = scanActualState(TEST_DIR, manifest)
+          .commands.get('command:claude-code:project:commit').hash;
+
+        expect(lfHash).not.toBeNull();
+        expect(lfHash).toBe(crlfHash);
+      });
     });
 
     // XSPEC-343 R2. Gemini CLI installs commands as `.toml`; the scanner stripped

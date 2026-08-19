@@ -66,7 +66,12 @@ vi.mock('../../../src/utils/hasher.js', () => ({
     hash: 'sha256:abc123',
     size: 100
   })),
-  computeIntegrationBlockHash: vi.fn()
+  computeIntegrationBlockHash: vi.fn(),
+  // GitHub issue #155 (CRLF normalization). `skills-installer.js` (real,
+  // unmocked here) imports this for `computeSkillContentHash` /
+  // `computeCommandContentHash` — without it in the mock, the import comes
+  // back undefined.
+  normalizeLineEndings: vi.fn((text) => text.replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
 }));
 
 // Mock constants

@@ -19,7 +19,7 @@ import {
   getCommandsSupportedAgents,
   getCommandFileExtension
 } from '../config/ai-agent-paths.js';
-import { computeDirectoryHashes, computeFileHash } from './hasher.js';
+import { computeDirectoryHashes, computeFileHash, normalizeLineEndings } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
 
@@ -504,6 +504,16 @@ export function resolveSkillFiles(skillName, locale = 'en') {
  * are different installs, and a hash over contents alone would call a rename
  * "unchanged".
  *
+ * Content is line-ending normalized before hashing (GitHub issue #155): the
+ * counterpart on the actual-state side, `hashInstalledSkillDir` in
+ * `reconciler/actual-state-scanner.js`, hashes files that were checked out
+ * into the adopter's own repo and so may have been rewritten to CRLF by
+ * `core.autocrlf=true` on Windows. Both sides must apply the same
+ * normalization or every skill would report as changed on Windows, same as
+ * the `.standards/*` hashes this issue was filed about — the two functions
+ * only stay comparable by construction if they agree on this too, which is
+ * why the paired tests in `skill-content-hash.test.js` exist.
+ *
  * @param {Array<{name: string, content: string}>} files
  * @returns {string|null} `sha256:<hex>`, or null for an empty resolution
  */
@@ -513,7 +523,7 @@ export function computeSkillContentHash(files) {
   for (const f of files) {
     h.update(f.name);
     h.update('\0');
-    h.update(f.content);
+    h.update(normalizeLineEndings(f.content));
     h.update('\0');
   }
   return `sha256:${h.digest('hex')}`;
@@ -779,13 +789,17 @@ export function resolveCommandContent(cmdName, agent, locale = 'en') {
  *
  * Same `sha256:` shape as `computeSkillContentHash` so the two sides of the
  * diff can be compared without caring which category an entry came from.
+ * Line-ending normalized before hashing for the same reason as
+ * `computeSkillContentHash` (GitHub issue #155) — its actual-state
+ * counterpart in `reconciler/actual-state-scanner.js` hashes an installed
+ * command file that may have been checked out as CRLF on Windows.
  *
  * @param {string|null} content
  * @returns {string|null}
  */
 export function computeCommandContentHash(content) {
   if (content === null || content === undefined) return null;
-  return `sha256:${createHash('sha256').update(content).digest('hex')}`;
+  return `sha256:${createHash('sha256').update(normalizeLineEndings(content)).digest('hex')}`;
 }
 
 function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {

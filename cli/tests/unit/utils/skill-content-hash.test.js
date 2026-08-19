@@ -20,7 +20,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { resolveSkillFiles, computeSkillContentHash } from '../../../src/utils/skills-installer.js';
+import { resolveSkillFiles, computeSkillContentHash, computeCommandContentHash } from '../../../src/utils/skills-installer.js';
 
 describe('resolveSkillFiles (XSPEC-382 R1)', () => {
   it('resolves a real skill and reproduces installed content, not source content', () => {
@@ -100,5 +100,45 @@ describe('computeSkillContentHash (XSPEC-382 R1)', () => {
   it('returns null for an empty resolution', () => {
     expect(computeSkillContentHash([])).toBeNull();
     expect(computeSkillContentHash(null)).toBeNull();
+  });
+
+  // GitHub issue #155. The actual-state counterpart, `hashInstalledSkillDir`
+  // in `reconciler/actual-state-scanner.js`, hashes files installed into the
+  // adopter's own repo — which `core.autocrlf=true` on Windows may have
+  // rewritten to CRLF, even though this desired side (reading UDS's own
+  // package source) never sees a `\r`. Both sides normalize before hashing so
+  // they still agree.
+  it('hashes CRLF content identically to the same content as LF', () => {
+    const lf = computeSkillContentHash([{ name: 'SKILL.md', content: 'line one\nline two\n' }]);
+    const crlf = computeSkillContentHash([{ name: 'SKILL.md', content: 'line one\r\nline two\r\n' }]);
+    expect(lf).toBe(crlf);
+  });
+
+  // Negative control: genuinely different content must still differ after
+  // normalization, even when both variants use CRLF.
+  it('still distinguishes genuinely different CRLF content', () => {
+    const a = computeSkillContentHash([{ name: 'SKILL.md', content: 'line one\r\nline two\r\n' }]);
+    const b = computeSkillContentHash([{ name: 'SKILL.md', content: 'line one\r\nline THREE\r\n' }]);
+    expect(a).not.toBe(b);
+  });
+});
+
+describe('computeCommandContentHash (GitHub issue #155)', () => {
+  it('hashes CRLF content identically to the same content as LF', () => {
+    const lf = computeCommandContentHash('do the thing\nwith two lines\n');
+    const crlf = computeCommandContentHash('do the thing\r\nwith two lines\r\n');
+    expect(lf).toBe(crlf);
+  });
+
+  // Negative control.
+  it('still distinguishes genuinely different CRLF content', () => {
+    const a = computeCommandContentHash('do the thing\r\n');
+    const b = computeCommandContentHash('do a DIFFERENT thing\r\n');
+    expect(a).not.toBe(b);
+  });
+
+  it('returns null for null/undefined content', () => {
+    expect(computeCommandContentHash(null)).toBeNull();
+    expect(computeCommandContentHash(undefined)).toBeNull();
   });
 });

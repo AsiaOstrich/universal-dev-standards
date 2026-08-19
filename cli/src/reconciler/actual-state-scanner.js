@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { createHash } from 'crypto';
 import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
-import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
+import { computeFileHash, computeIntegrationBlockHash, normalizeLineEndings } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
 import { getSkillsDirForAgent, getCommandsDirForAgent, getCommandFileExtension } from '../config/ai-agent-paths.js';
 import { getSkillsSourceEntryNames, getAvailableCommandNames } from '../utils/skills-installer.js';
@@ -322,6 +322,13 @@ function shippedCommandNames() {
  * materialising a second array first. The format is the contract; if it changes
  * in one place and not the other every skill reports as changed, which the
  * paired tests in `skill-content-hash.test.js` exist to catch.
+ *
+ * Content is line-ending normalized before hashing (GitHub issue #155): these
+ * are files installed into the adopter's own project, which `git checkout`
+ * may have rewritten to CRLF under `core.autocrlf=true` on Windows even
+ * though the desired side (`computeSkillContentHash`, reading UDS's own
+ * package source) never sees a `\r`. Without matching normalization here,
+ * every skill would report as changed on every Windows `uds update`.
  */
 function hashInstalledSkillDir(dirPath) {
   let entries;
@@ -346,7 +353,7 @@ function hashInstalledSkillDir(dirPath) {
     }
     h.update(name);
     h.update('\0');
-    h.update(content);
+    h.update(normalizeLineEndings(content));
     h.update('\0');
   }
   return `sha256:${h.digest('hex')}`;
@@ -437,12 +444,16 @@ function scanCommands(state, projectPath, manifest) {
       // Content hash of the installed file, for UDS-managed commands only —
       // same reasoning as skills: an adopter's own command has no desired
       // counterpart to compare against. (XSPEC-382 R7)
+      //
+      // Line-ending normalized before hashing (GitHub issue #155), matching
+      // `computeCommandContentHash` on the desired side — the same CRLF
+      // checkout risk `hashInstalledSkillDir` above documents applies here.
       const cmdUdsManaged = shippedCommandNames().has(cmdName);
       let cmdHash = null;
       if (cmdUdsManaged) {
         try {
           cmdHash = `sha256:${createHash('sha256')
-            .update(readFileSync(join(cmdsDir, entry.name), 'utf-8'))
+            .update(normalizeLineEndings(readFileSync(join(cmdsDir, entry.name), 'utf-8')))
             .digest('hex')}`;
         } catch {
           // Unreadable → no hash. A partial answer would claim a match that
