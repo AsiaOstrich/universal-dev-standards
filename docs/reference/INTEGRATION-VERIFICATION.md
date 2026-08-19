@@ -285,8 +285,8 @@ which is the exact failure the contract exists to prevent.
 
 ### P5 — Configured option is honoured `[conditional]`
 
-**Requires**: the scratch project configured `uds config --lang zh-TW` or the bilingual commit
-option. Skip otherwise.
+**Requires**: the scratch project configured `uds config set output_language traditional-chinese`
+or the bilingual commit option. Skip otherwise.
 
 **Prompt**:
 > Commit this change.

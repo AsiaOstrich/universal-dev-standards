@@ -57,7 +57,8 @@
     "test:upgrade": "node scripts/test-upgrade-path.mjs",
     "check:bundle-parity": "node scripts/check-bundle-parity.mjs",
     "prepack": "node scripts/prepack.mjs",
-    "check:reachability": "node scripts/check-module-reachability.mjs"
+    "check:reachability": "node scripts/check-module-reachability.mjs",
+    "check:command-existence": "node scripts/check-command-existence.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.4.2",

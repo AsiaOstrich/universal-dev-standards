@@ -605,9 +605,19 @@ test.each([
 
 ## CI/CD 整合
 
-### GitHub Actions 範例
+### GitHub Actions —— 目前無法腳本化
+
+`uds reverse-tdd` 這個 CLI 指令不存在。覆蓋率缺口分析是以 **`reverse-tdd`
+AI agent**（`uds agent install reverse-tdd`）提供——由你的 AI 工具互動式執行，
+不是會吐出 `coverage.json` 的確定性腳本。本文件先前版本示範了一個呼叫不存在
+CLI 指令的 GitHub Actions 步驟（XSPEC-383 R4，2026-08-19）。
+
+下方僅為**示意**——展示若未來真的做出可腳本化的分析器，CI 整合可能長什麼樣，
+不是現在就能貼進 workflow 使用的東西：
 
 ```yaml
+# 示意用途——目前沒有可腳本化的等價物。
+# 現況：改用 reverse-tdd agent 從你的 AI 工具互動式執行。
 name: BDD Coverage Check
 
 on: [pull_request]
@@ -618,29 +628,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run BDD Coverage Analysis
+      - name: Run BDD Coverage Analysis (尚未實作)
         run: |
-          uds reverse-tdd features/ --output coverage.json
-
-      - name: Check Coverage Threshold
-        run: |
-          COVERAGE=$(jq '.summary.effectiveCoverage' coverage.json)
-          if (( $(echo "$COVERAGE < 0.80" | bc -l) )); then
-            echo "Coverage $COVERAGE below 80% threshold"
-            exit 1
-          fi
-
-      - name: Comment on PR
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const coverage = require('./coverage.json');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## BDD 覆蓋率報告\n\n覆蓋率: ${(coverage.summary.effectiveCoverage * 100).toFixed(1)}%`
-            });
+          echo "目前沒有 CLI 等價物——互動式用法請見 reverse-tdd agent"
 ```
 
 ---

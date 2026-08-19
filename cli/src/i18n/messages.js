@@ -757,7 +757,7 @@ export const messages = {
         actionsAvailable: 'Actions available:',
         restoreOption: '• Run `uds check --restore` to restore all modified/missing files',
         diffOption: '• Run `uds check --diff` to view changes',
-        interactiveOption: '• Run `uds check --interactive` for file-by-file decisions',
+        interactiveOption: '• Run `uds check` for file-by-file decisions (interactive by default)',
         // Interactive mode
         interactiveMode: 'Interactive Mode:',
         filesNeedAttention: '{count} file(s) need attention.',
@@ -1991,7 +1991,7 @@ export const messages = {
         actionsAvailable: '可用操作：',
         restoreOption: '• 執行 `uds check --restore` 還原所有已修改/遺失的檔案',
         diffOption: '• 執行 `uds check --diff` 檢視變更',
-        interactiveOption: '• 執行 `uds check --interactive` 逐一處理檔案',
+        interactiveOption: '• 執行 `uds check` 逐一處理檔案（預設為互動模式）',
         // Interactive mode
         interactiveMode: '互動模式：',
         filesNeedAttention: '{count} 個檔案需要注意。',
@@ -3240,7 +3240,7 @@ export const messages = {
         actionsAvailable: '可用操作：',
         restoreOption: '• 执行 `uds check --restore` 恢复所有已修改/缺失文件',
         diffOption: '• 执行 `uds check --diff` 查看更改',
-        interactiveOption: '• 执行 `uds check --interactive` 逐文件决策',
+        interactiveOption: '• 执行 `uds check` 逐文件决策（默认为交互模式）',
         // Interactive mode
         interactiveMode: '交互模式：',
         filesNeedAttention: '{count} 个文件需要关注。',

@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       cli: ${{ steps.filter.outputs.cli }}
+      # XSPEC-383 R4 — command-existence's source surface is NOT cli/** alone.
+      # It walks core/, locales/, ai/standards/, cli/src/, skills/, docs/, and
+      # repo-root *.md — every place a `uds <cmd>` instruction can live. Reusing
+      # the narrower `cli` filter would make the gate go silent on exactly the
+      # kind of change that caused the incident this gate exists for (a stale
+      # doc, untouched cli/): docs/user/CHEATSHEET.md and skills/workflows/README.md
+      # both shipped a removed command (`uds workflow`) for months without any
+      # CI job re-checking them, because nothing gated on those paths.
+      command-existence: ${{ steps.filter.outputs.command-existence }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -28,6 +37,14 @@ jobs:
           filters: |
             cli:
               - 'cli/**'
+            command-existence:
+              - 'core/**'
+              - 'locales/**'
+              - 'ai/standards/**'
+              - 'cli/**'
+              - 'skills/**'
+              - 'docs/**'
+              - '*.md'
 
   # XSPEC-355 R3a — the check-*.sh ratchet.
   #
@@ -148,6 +165,50 @@ jobs:
 
       - name: Check module reachability
         run: npm run check:reachability
+
+  # XSPEC-383 R4 — 指令存在性閘門。
+  #
+  # 2026-08-19 實測：UDS 出貨的指引裡有指令是根本不存在的（`uds install`、
+  # `uds lint`、`uds sync`，外加 `uds check --spec-size`、`uds spec create --boost`），
+  # 落點含兩處會把壞指令送到使用者面前的活程式碼（quickstart.js、
+  # integration-generator.js，已於 465335e4 修掉）。同一輪也在
+  # docs/user/CHEATSHEET.md、skills/workflows/README.md 等處挖出 v6.0.0 已移除的
+  # `uds workflow` 被當現行指令展示了數個月——「我們叫別人跑的指令是否真的存在」
+  # 這個面，在此之前零個檢查。
+  #
+  # 來源範圍見 check-command-existence.mjs 的 SOURCES：不只 cli/**，還含
+  # core/、locales/、ai/standards/、skills/、docs/、repo-root *.md——因此本 job
+  # 掛在 `changes` job 新增的 command-existence filter 下，不是既有的 cli filter
+  # （見上方 changes job 的註解）。
+  #
+  # 三臂已實測：對照組（探針對已知不存在/存在的指令名正確回報）／分母臂（走訪
+  # 1594 檔跨 7 個來源）／綠臂（現況乾淨）／紅臂（塞一個 `uds definitelynotacommand`
+  # 到真實掃描路徑下的檔案，證明完整流程真的會紅，測完自動刪除）。
+  command-existence:
+    name: Command Existence
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.command-existence == 'true'
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      - name: Prove the check can fail before trusting that it passed
+        run: node scripts/check-command-existence.mjs --self-test
+
+      - name: Check command existence
+        run: npm run check:command-existence
 
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})

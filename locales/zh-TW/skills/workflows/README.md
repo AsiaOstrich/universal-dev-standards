@@ -164,18 +164,9 @@ steps:
 
 ## 用法
 
-### CLI 安裝
+### 取得 Workflows
 
-```bash
-# List available workflows
-uds workflow list
-
-# Install specific workflow
-uds workflow install integrated-flow
-
-# Install all workflows
-uds workflow install --all
-```
+`uds workflow` 已於 v6.0.0 移除（流程編排職責移至採用層——DEC-049；見 [MIGRATION-v6.md §3](../../../../docs/MIGRATION-v6.md#3-removed-4-deprecated-cli-commands)）。沒有 CLI 安裝步驟：workflow 定義直接存放在本 repo 的 `skills/workflows/*.workflow.yaml`（見上方表格），請直接引用路徑或複製到專案的 `.claude/workflows/`。
 
 ### 執行
 

@@ -2,8 +2,8 @@
 source: ../../README.md
 source_version: 6.0.0
 translation_version: 6.0.0
-last_synced: 2026-07-08
-source_hash: add024721b5a
+last_synced: 2026-08-19
+source_hash: d978c5775a25
 status: current
 ---
 
@@ -198,9 +198,9 @@ uds uninstall   # 從專案移除標準
 
 | 參數 | 指令 | 說明 |
 | :--- | :--- | :--- |
-| **提交語言** | `uds config --lang zh-TW` | 設定 AI 提交訊息的偏好語言 |
+| **提交語言** | `uds config set output_language traditional-chinese` | 設定 AI 提交訊息的偏好語言 |
 | **標準** | `uds init` | 安裝所有可用標準 |
-| **工具模式** | `uds config --mode skills` | 在 Skills、Standards 或兩者之間切換 |
+| **工具模式** | `uds config --type content_mode` | 在 Skills、Standards 或兩者之間切換 |
 
 ---
 

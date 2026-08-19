@@ -192,9 +192,9 @@ Use `uds config` to manage your preferences:
 
 | Parameter | Command | Description |
 | :--- | :--- | :--- |
-| **Commit Language** | `uds config --lang zh-TW` | Set preferred language for AI commits |
+| **Commit Language** | `uds config set output_language traditional-chinese` | Set preferred language for AI commits |
 | **Standards** | `uds init` | Install all available standards |
-| **Tool Mode** | `uds config --mode skills` | Choose between Skills, Standards, or Both |
+| **Tool Mode** | `uds config --type content_mode` | Choose between Skills, Standards, or Both |
 
 ---
 

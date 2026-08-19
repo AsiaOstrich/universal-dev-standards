@@ -157,18 +157,9 @@ steps:
 
 ## Usage
 
-### CLI Installation
+### Getting Workflows
 
-```bash
-# List available workflows
-uds workflow list
-
-# Install specific workflow
-uds workflow install integrated-flow
-
-# Install all workflows
-uds workflow install --all
-```
+`uds workflow` was removed in v6.0.0 (process orchestration moved to the adoption layer — DEC-049; see [MIGRATION-v6.md §3](../../docs/MIGRATION-v6.md#3-removed-4-deprecated-cli-commands)). There is no CLI install step: workflow definitions live directly under `skills/workflows/*.workflow.yaml` in this repo (see the table above), so reference them by path or copy them into your project's `.claude/workflows/`.
 
 ### Execution
 

@@ -597,9 +597,22 @@ Mark both scenarios as [Inferred] with shared test reference
 
 ## CI/CD Integration
 
-### GitHub Actions Example
+### GitHub Actions — not currently scriptable
+
+There is no `uds reverse-tdd` CLI command. Coverage-gap analysis is delivered
+as the **`reverse-tdd`** AI agent (`uds agent install reverse-tdd`) — an
+interactive, LLM-driven analysis run from your AI tool, not a deterministic
+script that emits a `coverage.json` file. A prior version of this doc showed
+a GitHub Actions step invoking a CLI command that never existed (XSPEC-383
+R4, 2026-08-19).
+
+The sketch below is **illustrative only** — it shows the shape a scriptable
+CI integration would need if one is built, not something you can paste into
+a workflow today:
 
 ```yaml
+# ASPIRATIONAL — no scriptable equivalent exists yet.
+# Today: run the reverse-tdd agent interactively from your AI tool instead.
 name: BDD Coverage Check
 
 on: [pull_request]
@@ -610,29 +623,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run BDD Coverage Analysis
+      - name: Run BDD Coverage Analysis (not yet implemented)
         run: |
-          uds reverse-tdd features/ --output coverage.json
-
-      - name: Check Coverage Threshold
-        run: |
-          COVERAGE=$(jq '.summary.effectiveCoverage' coverage.json)
-          if (( $(echo "$COVERAGE < 0.80" | bc -l) )); then
-            echo "Coverage $COVERAGE below 80% threshold"
-            exit 1
-          fi
-
-      - name: Comment on PR
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const coverage = require('./coverage.json');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## BDD Coverage Report\n\nCoverage: ${(coverage.summary.effectiveCoverage * 100).toFixed(1)}%`
-            });
+          echo "No CLI equivalent yet — see reverse-tdd agent for interactive use"
 ```
 
 ---

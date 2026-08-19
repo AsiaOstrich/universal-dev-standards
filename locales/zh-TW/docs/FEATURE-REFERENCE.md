@@ -129,10 +129,6 @@
 | `-g, --global` | Install to user level instead of project level |
 | `-y, --yes` | Skip confirmation prompts |
 
-### `uds workflow`
-
-**說明**: Manage UDS workflows (list, install, info, execute, status)
-
 ### `uds ai-context`
 
 **說明**: Manage AI context configuration (init, validate, graph)

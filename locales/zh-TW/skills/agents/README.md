@@ -153,7 +153,7 @@ uds agent list
 uds agent install code-architect
 
 # 安裝所有代理
-uds agent install --all
+uds agent install all
 
 # 安裝到使用者目錄（全域）
 uds agent install code-architect --global
