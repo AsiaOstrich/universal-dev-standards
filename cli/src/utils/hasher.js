@@ -3,6 +3,7 @@ import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, relative } from 'path';
 import { UDS_MARKERS } from '../core/constants.js';
 import { resolveIntegrationFile } from '../core/constants.js';
+import { isProvenanceEstablished } from '../core/manifest.js';
 
 // GitHub issue #155. `git config core.autocrlf true` (the common
 // Windows default) rewrites LF to CRLF on checkout. The manifest's stored
@@ -240,6 +241,15 @@ function scanDirectory(dirPath, basePath) {
 
 /**
  * Scan for untracked files in .standards/ and integration locations
+ *
+ * ⚠ "Untracked" here means only "absent from `manifest.fileHashes`". It is NOT
+ * an ownership predicate, and must not be used to decide what may be deleted —
+ * that is what it was used for, and it is why a user's hand-written file was
+ * removed without warning (issue #168). Use `planStandardsRemovals` /
+ * `classifyFileOwnership`, which separate "did UDS write this" from "is this
+ * still shipped". This function survives for reporting callers that genuinely
+ * want the hash-table question. (XSPEC-384 R1)
+ *
  * @param {string} projectPath - Project root path
  * @param {Object} manifest - Manifest object
  * @returns {string[]} Array of relative paths to untracked files
@@ -282,6 +292,161 @@ export function scanForUntrackedFiles(projectPath, manifest) {
   }
 
   return untracked;
+}
+
+/**
+ * The three states a file under `.standards/` can be in. (XSPEC-384 R1)
+ *
+ * `scanForUntrackedFiles` answers a two-state question — in `fileHashes` or
+ * not — and the caller then treated "not" as "not ours, delete it". The world
+ * has a third state: files UDS did write whose manifest record was lost. The
+ * old predicate folded that into the same branch as a user's own file, and the
+ * branch deletes.
+ */
+export const FILE_OWNERSHIP = {
+  /** UDS wrote this file; we may remove it when it stops being shipped. */
+  UDS: 'uds-owned',
+  /** Provenance is complete and does not name this file: it is not ours. */
+  FOREIGN: 'foreign',
+  /** No provenance yet — we cannot tell, so we must not act destructively. */
+  UNKNOWN: 'unknown'
+};
+
+/** Paths that are never candidates for anything, with the reason. */
+const STRUCTURAL_EXCLUSIONS = new Map([
+  ['.standards/manifest.json', 'the manifest itself']
+]);
+
+/**
+ * Decide who owns one file under `.standards/`.
+ *
+ * @param {string} relPath - Path relative to project root (forward slashes)
+ * @param {Object} manifest - Manifest object
+ * @returns {string} One of FILE_OWNERSHIP
+ */
+export function classifyFileOwnership(relPath, manifest) {
+  const normalized = (relPath || '').replace(/\\/g, '/');
+  const provenanceFiles = manifest?.provenance?.files;
+  if (provenanceFiles && Object.prototype.hasOwnProperty.call(provenanceFiles, normalized)) {
+    return FILE_OWNERSHIP.UDS;
+  }
+  // Pre-provenance evidence. A path in `fileHashes` got there because UDS put
+  // it there, so it is still proof of authorship — just weaker proof, since it
+  // is also the table that loses entries. Reading it here (rather than only
+  // reading provenance) is what keeps the first upgrade from disowning every
+  // file installed before provenance existed.
+  if (manifest?.fileHashes && Object.prototype.hasOwnProperty.call(manifest.fileHashes, normalized)) {
+    return FILE_OWNERSHIP.UDS;
+  }
+  // No record either way. Whether that means "not ours" depends entirely on
+  // whether our records are complete yet.
+  return isProvenanceEstablished(manifest) ? FILE_OWNERSHIP.FOREIGN : FILE_OWNERSHIP.UNKNOWN;
+}
+
+/**
+ * Walk `.standards/` and classify everything in it.
+ *
+ * A walk, not a list of expected names: `.standards/` is an open set — UDS's
+ * own docs invite teams to add project-specific files to it — so any
+ * enumeration of "files we know about" is stale the moment someone adds one,
+ * and being absent from that enumeration is precisely what used to get a file
+ * deleted. (XSPEC-384 R1)
+ *
+ * @param {string} projectPath - Project root path
+ * @param {Object} manifest - Manifest object
+ * @returns {{scanned:number, excluded:Array, udsOwned:string[], foreign:string[], unknown:string[]}}
+ */
+export function classifyStandardsFiles(projectPath, manifest) {
+  const result = { scanned: 0, excluded: [], udsOwned: [], foreign: [], unknown: [] };
+
+  const standardsDir = join(projectPath, '.standards');
+  if (!existsSync(standardsDir)) return result;
+
+  for (const relPath of scanDirectory(standardsDir, projectPath)) {
+    const normalized = relPath.replace(/\\/g, '/');
+    result.scanned++;
+
+    const exclusionReason = STRUCTURAL_EXCLUSIONS.get(normalized);
+    if (exclusionReason) {
+      result.excluded.push({ path: normalized, reason: exclusionReason });
+      continue;
+    }
+
+    switch (classifyFileOwnership(normalized, manifest)) {
+      case FILE_OWNERSHIP.UDS:
+        result.udsOwned.push(normalized);
+        break;
+      case FILE_OWNERSHIP.FOREIGN:
+        result.foreign.push(normalized);
+        break;
+      default:
+        result.unknown.push(normalized);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Decide which files under `.standards/` `uds update` may delete.
+ *
+ * Deletion now needs two independent facts to line up, one per axis:
+ *
+ *   1. UDS wrote the file  (ownership — provenance, or a legacy `fileHashes`
+ *      entry as weaker evidence of the same thing)
+ *   2. UDS no longer ships it  (currency — absence from `desiredFiles`, which
+ *      the caller derives from the registry it just resolved)
+ *
+ * Every other combination is kept, and says why it was kept. The old rule
+ * collapsed both axes onto `fileHashes` membership, so it deleted files it had
+ * never written (#168) while retaining files it no longer shipped (#165).
+ *
+ * Nothing is removed when `desiredFiles` is null: a caller that cannot say what
+ * should exist has not established fact 2, and "I don't know" must not resolve
+ * to the destructive branch — that was the original defect.
+ *
+ * @param {string} projectPath - Project root path
+ * @param {Object} manifest - Manifest object
+ * @param {Set<string>|null} desiredFiles - Files the current registry says should exist
+ * @returns {{scanned:number, excluded:Array, remove:Array, keep:Array, census:Object}}
+ */
+export function planStandardsRemovals(projectPath, manifest, desiredFiles = null) {
+  const census = classifyStandardsFiles(projectPath, manifest);
+  const remove = [];
+  const keep = [];
+
+  const desiredKnown = desiredFiles instanceof Set;
+
+  for (const path of census.udsOwned) {
+    if (!desiredKnown) {
+      keep.push({ path, reason: 'UDS-owned, but this run could not determine what is still shipped' });
+    } else if (desiredFiles.has(path)) {
+      keep.push({ path, reason: 'UDS-owned and still shipped' });
+    } else {
+      remove.push({ path, reason: 'UDS-owned and no longer shipped by the registry' });
+    }
+  }
+
+  for (const path of census.foreign) {
+    keep.push({ path, reason: 'not written by UDS' });
+  }
+
+  for (const path of census.unknown) {
+    keep.push({ path, reason: 'ownership unknown (manifest predates provenance)' });
+  }
+
+  return {
+    scanned: census.scanned,
+    excluded: census.excluded,
+    remove,
+    keep,
+    census: {
+      udsOwned: census.udsOwned.length,
+      foreign: census.foreign.length,
+      unknown: census.unknown.length,
+      desired: desiredKnown ? desiredFiles.size : null
+    }
+  };
 }
 
 /**

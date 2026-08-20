@@ -3,10 +3,10 @@ import ora from 'ora';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import { existsSync, readFileSync, unlinkSync } from 'fs';
-import { join, basename } from 'path';
+import { join, basename, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
-import { computeFileHash, scanForUntrackedFiles, refreshIntegrationBlockHashes } from '../utils/hasher.js';
+import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
   getToolFilePath,
@@ -56,7 +56,110 @@ import {
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile } from '../core/constants.js';
-import { mergeInstalledNames } from '../core/manifest.js';
+import {
+  mergeInstalledNames,
+  recordFileProvenance,
+  forgetFileProvenance,
+  establishProvenance,
+  isProvenanceEstablished
+} from '../core/manifest.js';
+
+/**
+ * How aggressive `uds update` is about deleting standards it no longer ships.
+ *
+ * XSPEC-384 §4 leaves the staging strategy for R2 undecided, so this is the
+ * most conservative of the three options on the table and it lives in one named
+ * place rather than being spread through the deletion path. Changing this
+ * constant is the whole change of default; the alternatives are:
+ *
+ *   'report-only'  list what would go, delete nothing without --prune  (current)
+ *   'ask'          list, and prompt in interactive sessions only
+ *   'auto'         delete as part of a normal update
+ *
+ * It starts at 'report-only' because the change is adopter-visible in the
+ * dangerous direction: files that survive today start disappearing. A default
+ * that deletes must not arrive in a patch release, and must not arrive at all
+ * before someone decides it should.
+ */
+export const PRUNE_POLICY = 'report-only';
+
+/**
+ * Decide whether this run is allowed to delete.
+ *
+ * `--prune` is deliberately its own flag rather than a use of `--yes`. `--yes`
+ * means "don't ask me about the thing I already asked for"; it is set in CI and
+ * in scripts, and letting it also authorise deletion would enable the
+ * destructive path silently in exactly the unattended environments that cannot
+ * notice it. Non-interactive runs therefore never delete unless --prune is
+ * explicit. (XSPEC-384 R3)
+ *
+ * @param {Object} plan - Result of planStandardsRemovals
+ * @param {Object} options - Command options
+ * @returns {boolean}
+ */
+export function shouldPrune(plan, options = {}) {
+  if (plan.remove.length === 0) return false;
+  if (options.prune) return true;
+  return PRUNE_POLICY === 'auto';
+}
+
+/**
+ * Print the removal plan, including its denominator. (XSPEC-384 R3)
+ *
+ * The counts are not decoration. A report that lists only the files it intends
+ * to touch is bit-for-bit identical to a report from a scan that only *saw*
+ * those files — which is the failure the previous code shipped for months,
+ * silently, because nothing ever printed how many files it had considered.
+ *
+ * @param {Object} plan - Result of planStandardsRemovals
+ * @param {boolean} provenanceWasEstablished - Whether ownership was already known
+ * @param {boolean} willDelete - Whether this run is going to act on the plan
+ */
+export function reportRemovalPlan(plan, provenanceWasEstablished, willDelete = false) {
+  if (plan.scanned === 0) return;
+
+  console.log();
+  console.log(chalk.gray(
+    `  .standards/ examined: ${plan.scanned} file(s) — ` +
+    `${plan.census.udsOwned} written by UDS, ` +
+    `${plan.census.foreign} not ours, ` +
+    `${plan.census.unknown} ownership unknown, ` +
+    `${plan.excluded.length} excluded`
+  ));
+  for (const { path: p, reason } of plan.excluded) {
+    console.log(chalk.gray(`    excluded ${p} (${reason})`));
+  }
+
+  if (!provenanceWasEstablished) {
+    console.log(chalk.gray(
+      '    first run with ownership tracking: files installed before this ' +
+      'release cannot be attributed yet, so none will be removed.'
+    ));
+  }
+
+  if (plan.remove.length === 0) {
+    if (plan.census.foreign > 0 || plan.census.unknown > 0) {
+      console.log(chalk.gray(
+        `    kept ${plan.census.foreign + plan.census.unknown} file(s) UDS did not write`
+      ));
+    }
+    return;
+  }
+
+  console.log();
+  console.log(chalk.yellow(
+    `  ${plan.remove.length} file(s) are no longer shipped by UDS` +
+    (willDelete ? ' and will be removed:' : ':')
+  ));
+  for (const { path: p, reason } of plan.remove) {
+    console.log(chalk.yellow(`    - ${p}  (${reason})`));
+  }
+  console.log(chalk.gray(
+    willDelete
+      ? '    Removing now (--prune). Files UDS did not write are never touched.'
+      : '    Not deleted. Re-run with --prune to remove them.'
+  ));
+}
 
 /**
  * Determine the correct target directory for a standard file.
@@ -546,6 +649,21 @@ export async function updateCommand(options) {
     errors: []
   };
 
+  // Paths UDS actually wrote this run, taken from the copy result rather than
+  // recomputed from the source name. Recomputing is how `fileHashes` ended up
+  // with five `.standards/options/<name>.ai.yaml` entries for files that live
+  // at `.standards/options/<category>/<name>.ai.yaml`; a provenance record
+  // built the same way would claim files that do not exist and disown ones
+  // that do. (XSPEC-384 R1)
+  const writtenPaths = [];
+  const recordWritten = (result) => {
+    if (!result?.success || !result.data) return;
+    const abs = typeof result.data === 'string' ? result.data : null;
+    if (!abs) return;
+    const rel = relative(projectPath, abs).replace(/\\/g, '/');
+    if (rel && !rel.startsWith('..')) writtenPaths.push(rel);
+  };
+
   // Update standards
   const updateFormat = manifest.format || 'ai';
   const allStdsUpdate = getAllStandards();
@@ -561,6 +679,7 @@ export async function updateCommand(options) {
     const result = await copyStandard(sourcePath, getStandardTargetDir(sourcePath), projectPath);
     if (result.success) {
       results.updated.push(std);
+      recordWritten(result);
     } else {
       results.errors.push(`${std}: ${result.error}`);
     }
@@ -572,6 +691,7 @@ export async function updateCommand(options) {
     const result = await copyStandard(ext, '.standards', projectPath);
     if (result.success) {
       results.updated.push(ext);
+      recordWritten(result);
     } else {
       results.errors.push(`${ext}: ${result.error}`);
     }
@@ -601,6 +721,7 @@ export async function updateCommand(options) {
         if (result.success) {
           manifest.standards.push(ns.source);
           results.updated.push(ns.source);
+          recordWritten(result);
           newCount++;
         } else {
           results.errors.push(`${ns.source}: ${result.error}`);
@@ -751,6 +872,20 @@ export async function updateCommand(options) {
     manifest.fileHashes = {};
   }
 
+  // The set of `.standards/` files the *current* registry says should exist.
+  //
+  // Built by accumulating inside the loops that already resolve each entry,
+  // rather than by a second function that re-derives the same paths. A second
+  // derivation is a second copy, and the two would answer "where does this
+  // standard live" differently the moment either is edited — which is the
+  // failure mode XSPEC-384 is about, not a shape to reproduce. (XSPEC-384 R2)
+  const desiredStandardsFiles = new Set();
+
+  // Standards whose ID no longer resolves against the registry. Collected here
+  // instead of being silently `continue`d, because "skipped" and "deleted
+  // upstream" were previously indistinguishable — issue #165. (XSPEC-384 R2)
+  const unresolvedStandardIds = [];
+
   // Update hashes for standards (handles both ID format and legacy path format)
   const hashFormat = manifest.format || 'ai';
   const allStdsHash = getAllStandards();
@@ -759,7 +894,13 @@ export async function updateCommand(options) {
     let resolvedPath = std;
     if (!std.includes('/') && !std.includes('.')) {
       const entry = allStdsHash.find(r => r.id === std);
-      if (!entry) continue; // Skip unrecognized IDs (e.g. stale AI tool names)
+      if (!entry) {
+        // Unrecognized ID: either a standard removed from the registry, or a
+        // stale AI tool name an old CLI wrote into `standards`. Either way it
+        // is no longer a thing we ship, so it must not enter the desired set.
+        unresolvedStandardIds.push(std);
+        continue;
+      }
       const src = getStandardSource(entry, hashFormat);
       if (src) resolvedPath = src;
     }
@@ -767,6 +908,10 @@ export async function updateCommand(options) {
     const relativePath = (resolvedPath.includes('options/')
       ? join('.standards', 'options', fileName)
       : join('.standards', fileName)).replace(/\\/g, '/');
+    // Added before the hash check: a file that exists but failed to hash is
+    // still wanted. Nominating it for deletion because hashing failed would
+    // turn a transient read error into data loss.
+    desiredStandardsFiles.add(relativePath);
     const fullPath = join(projectPath, relativePath);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
@@ -779,6 +924,7 @@ export async function updateCommand(options) {
     if (typeof ext !== 'string') continue;
     const fileName = basename(ext);
     const relativePath = join('.standards', fileName).replace(/\\/g, '/');
+    desiredStandardsFiles.add(relativePath);
     const fullPath = join(projectPath, relativePath);
     const hashInfo = computeFileHash(fullPath);
     if (hashInfo) {
@@ -795,19 +941,61 @@ export async function updateCommand(options) {
     }
   }
 
-  // Clean up orphan files in .standards/ that are no longer tracked
-  // This handles files renamed or removed between versions
-  const orphanFiles = scanForUntrackedFiles(projectPath, manifest);
-  const standardsOrphans = orphanFiles.filter(f => f.startsWith('.standards/'));
-  if (standardsOrphans.length > 0) {
-    for (const orphan of standardsOrphans) {
+  // Record what UDS wrote this run, then decide what (if anything) may go.
+  // (XSPEC-384 R1/R2/R3)
+  const provenanceWasEstablished = isProvenanceEstablished(manifest);
+  let provenanceCarrier = manifest;
+  for (const written of [...writtenPaths, ...results.integrations]) {
+    provenanceCarrier = recordFileProvenance(provenanceCarrier, written, 'update');
+  }
+  manifest.provenance = provenanceCarrier.provenance;
+
+  // Drop `standards` entries the registry no longer knows about. Previously
+  // these were `continue`d in three separate loops and left in the manifest
+  // forever, so `upstream.version` advanced to "latest" while the manifest
+  // still listed standards that had not existed for releases. (issue #165)
+  if (unresolvedStandardIds.length > 0) {
+    manifest.standards = manifest.standards.filter(s => !unresolvedStandardIds.includes(s));
+    console.log();
+    console.log(chalk.yellow(
+      `⚠ ${unresolvedStandardIds.length} manifest entr${unresolvedStandardIds.length === 1 ? 'y is' : 'ies are'} no longer in the registry and ${unresolvedStandardIds.length === 1 ? 'was' : 'were'} dropped:`
+    ));
+    for (const id of unresolvedStandardIds) {
+      console.log(chalk.gray(`    - ${id}`));
+    }
+  }
+
+  const removalPlan = planStandardsRemovals(projectPath, manifest, desiredStandardsFiles);
+  // Decide before reporting, so the report states what this run will actually
+  // do. Reporting first meant printing "Not deleted. Re-run with --prune" on a
+  // run that was about to delete — a message contradicting the very action it
+  // preceded, which is worse than no message.
+  const mayPrune = shouldPrune(removalPlan, options);
+  reportRemovalPlan(removalPlan, provenanceWasEstablished, mayPrune);
+
+  if (mayPrune && removalPlan.remove.length > 0) {
+    for (const { path: orphan } of removalPlan.remove) {
       try {
         unlinkSync(join(projectPath, orphan));
         results.updated.push(`removed: ${orphan}`);
+        delete manifest.fileHashes[orphan];
+        // Deleting the file is how we give up the claim on that path, so a
+        // file the user later creates under the same name is not inherited.
+        manifest.provenance = forgetFileProvenance(manifest, orphan).provenance;
       } catch {
         // Ignore removal errors
       }
     }
+  }
+
+  // Provenance is only a complete account of what we own once a run has
+  // written the whole installed set. Until then every unrecorded file is
+  // `unknown` rather than `foreign`, and nothing gets deleted on the strength
+  // of an absent record. Establishing it here — after the writes, not before —
+  // is what makes the first upgrade conservative by construction rather than
+  // by a flag someone has to remember. (XSPEC-384 §4)
+  if (results.errors.length === 0) {
+    manifest.provenance = establishProvenance(manifest).provenance;
   }
 
   // Migrate display_language: if manifest options is missing display_language,

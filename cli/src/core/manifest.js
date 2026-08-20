@@ -68,6 +68,121 @@ const MANIFEST_SCHEMA = {
 };
 
 /**
+ * Provenance — the record of which files UDS itself wrote. (XSPEC-384 R1)
+ *
+ * Ownership is a question about *origin*, and origin is something you record at
+ * the moment you write, not something you infer afterwards from another table.
+ * `fileHashes` was doing the inferring: absence from it was read as "not ours",
+ * although a manifest loses entries through version migrations, hand edits,
+ * merge conflicts, and older CLI bugs. The tool then picked the destructive
+ * branch for the case it could not actually distinguish.
+ *
+ * Two properties matter and neither is shared with `fileHashes`:
+ *
+ *  - It is append-only. `fileHashes` is current state and gets rewritten every
+ *    run; provenance is history. If both were written and pruned together,
+ *    provenance would add nothing — it would just be a second copy that fails
+ *    the same way at the same moment.
+ *  - It is keyed by the path actually written, taken from the copy result,
+ *    not by re-deriving the path from the source name. The re-derivation is
+ *    wrong for nested option files (`options/<category>/<name>.ai.yaml` is
+ *    flattened to `options/<name>.ai.yaml`), so a path-math-based record would
+ *    claim ownership of files that do not exist while disowning ones that do.
+ *
+ * An entry is removed only when UDS deliberately deletes the file — deleting it
+ * is how we relinquish the claim, so that a file a user later creates under the
+ * same name is not silently inherited.
+ */
+export const PROVENANCE_SCHEMA_VERSION = 1;
+
+/**
+ * Valid writers, used so a typo becomes an error rather than an unrecognised
+ * provenance record that reads as "not ours".
+ */
+export const PROVENANCE_WRITERS = ['init', 'update', 'config', 'sync'];
+
+/**
+ * Record that UDS wrote a file.
+ * @param {Object} manifest - Manifest (not mutated)
+ * @param {string} relPath - Path relative to project root
+ * @param {string} writer - One of PROVENANCE_WRITERS
+ * @returns {Object} Updated manifest
+ */
+export function recordFileProvenance(manifest, relPath, writer) {
+  if (!relPath) return manifest;
+  const normalized = relPath.replace(/\\/g, '/');
+  const at = new Date().toISOString();
+  const existing = manifest?.provenance?.files?.[normalized];
+  return {
+    ...manifest,
+    provenance: {
+      schema: PROVENANCE_SCHEMA_VERSION,
+      ...(manifest?.provenance || {}),
+      files: {
+        ...(manifest?.provenance?.files || {}),
+        [normalized]: {
+          firstWrittenBy: existing?.firstWrittenBy || writer,
+          firstWrittenAt: existing?.firstWrittenAt || at,
+          lastWrittenBy: writer,
+          lastWrittenAt: at
+        }
+      }
+    }
+  };
+}
+
+/**
+ * Drop a provenance record, relinquishing UDS's claim on a path.
+ * @param {Object} manifest - Manifest (not mutated)
+ * @param {string} relPath - Path relative to project root
+ * @returns {Object} Updated manifest
+ */
+export function forgetFileProvenance(manifest, relPath) {
+  const normalized = (relPath || '').replace(/\\/g, '/');
+  const files = { ...(manifest?.provenance?.files || {}) };
+  delete files[normalized];
+  return {
+    ...manifest,
+    provenance: {
+      schema: PROVENANCE_SCHEMA_VERSION,
+      ...(manifest?.provenance || {}),
+      files
+    }
+  };
+}
+
+/**
+ * Mark provenance as a complete account of what UDS owns.
+ *
+ * Called at the end of a run that wrote the full installed set. Until this has
+ * happened at least once, a file with no provenance record is `unknown` rather
+ * than `foreign`, because the absence of a record proves nothing yet.
+ *
+ * @param {Object} manifest - Manifest (not mutated)
+ * @returns {Object} Updated manifest
+ */
+export function establishProvenance(manifest) {
+  return {
+    ...manifest,
+    provenance: {
+      schema: PROVENANCE_SCHEMA_VERSION,
+      files: {},
+      ...(manifest?.provenance || {}),
+      establishedAt: manifest?.provenance?.establishedAt || new Date().toISOString()
+    }
+  };
+}
+
+/**
+ * Whether provenance can be trusted as a complete list of UDS-owned files.
+ * @param {Object} manifest - Manifest
+ * @returns {boolean}
+ */
+export function isProvenanceEstablished(manifest) {
+  return !!manifest?.provenance?.establishedAt;
+}
+
+/**
  * Get manifest file path for a project
  * @param {string} projectPath - Project root path
  * @returns {string} Absolute path to manifest.json
@@ -507,6 +622,14 @@ function ensureRequiredFields(manifest) {
     skillHashes: manifest.skillHashes || {},
     commandHashes: manifest.commandHashes || {},
     integrationBlockHashes: manifest.integrationBlockHashes || {},
+    // Present but deliberately NOT established. Filling in `establishedAt`
+    // here would declare "these records are complete" about a manifest that
+    // has never had a provenance-aware run, which is the one claim that turns
+    // every pre-existing file into `foreign` — and `foreign` is the state the
+    // deletion path acts on. Only a completed run may establish it.
+    // A fresh object per call: a shared default would be one mutable record
+    // handed to every manifest in the process. (XSPEC-384 R1)
+    provenance: manifest.provenance || { schema: PROVENANCE_SCHEMA_VERSION, files: {} },
   };
 }
 

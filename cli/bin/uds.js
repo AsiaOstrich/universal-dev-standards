@@ -223,6 +223,7 @@ program
   .option('--plan', 'Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing')
   .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope')
   .option('--force', 'Force update all files, ignoring hash comparison')
+  .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
   .option('--rollback', 'Rollback to the most recent backup')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
   .action(updateCommand);

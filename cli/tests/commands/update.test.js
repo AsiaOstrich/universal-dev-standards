@@ -40,6 +40,17 @@ vi.mock('fs', async (importOriginal) => {
 vi.mock('../../src/utils/hasher.js', () => ({
   computeFileHash: vi.fn(() => ({ hash: 'abc123', algorithm: 'sha256' })),
   scanForUntrackedFiles: vi.fn(() => []),
+  // XSPEC-384. An empty plan, i.e. "nothing to remove" — these tests mock
+  // `fs.existsSync` to true for every path, so a real scan here would classify
+  // the entire imaginary filesystem. The removal rule itself is covered
+  // against a real temp directory in tests/unit/utils/file-ownership.test.js.
+  planStandardsRemovals: vi.fn(() => ({
+    scanned: 0,
+    excluded: [],
+    remove: [],
+    keep: [],
+    census: { udsOwned: 0, foreign: 0, unknown: 0, desired: 0 }
+  })),
   refreshIntegrationBlockHashes: vi.fn()
 }));
 
