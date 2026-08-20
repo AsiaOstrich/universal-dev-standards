@@ -39,7 +39,9 @@
     "check:bump-roundtrip": "node scripts/check-bump-sync-roundtrip.mjs",
     "check:bump-roundtrip:self-test": "node scripts/check-bump-sync-roundtrip.mjs --self-test",
     "check:adopter-files": "tsx scripts/check-adopter-instruction-files.ts",
-    "check:adopter-files:self-test": "tsx scripts/check-adopter-instruction-files.ts --self-test"
+    "check:adopter-files:self-test": "tsx scripts/check-adopter-instruction-files.ts --self-test",
+    "check:trigger-surface": "tsx scripts/check-skill-trigger-surface.ts",
+    "check:trigger-surface:self-test": "tsx scripts/check-skill-trigger-surface.ts --self-test"
   },
   "type": "module",
   "dependencies": {

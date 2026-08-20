@@ -292,6 +292,50 @@ jobs:
       - name: Check adopter instruction files
         run: npm run check:adopter-files -- --verbose
 
+  # ── Skill 觸發面（XSPEC-378 R4）────────────────────────────────────
+  # 每份 SKILL.md 的 description 必須同時有 `Use when:`（觸發條件）與
+  # `Not for:`（排除條件）。只有觸發沒有排除會換來過度觸發，而過度觸發的
+  # skill 會被使用者關掉——那比不觸發更糟，它會連帶拖走還能用的那些。
+  #
+  # 接上時**不會當場燒紅**：落地當日實測三個 root 全數 165/165 通過。
+  # 這正是接閘門的時機——在乾淨的時候接，而不是等它再壞一次。
+  # R1/R2 修好了語料，在此之前沒有任何東西阻止它重新壞掉。
+  #
+  # 分母是走訪出來的不是列舉的：root 由磁碟探索（skills/ 加上每個
+  # locales/<locale>/skills/），新增語系會自動納入。涵蓋 locales 是必要的——
+  # 翻譯副本才是 zh-TW 採用者的 agent 實際讀到的那一份，只看英文來源的閘門
+  # 會窄於它要執行的規則。
+  #
+  # 三臂已實測（2026-08-20）：綠（181 個目錄走訪 → 165 skill、16 個因無
+  # SKILL.md 被排除且逐一具名，0 發現，rc=0）／紅（在語料副本上刪掉
+  # skills/push 的 `Not for:` → 1 個發現，指名 push/SKILL.md 與 not-for，
+  # rc=1）／量不了（--root 指向不存在的目錄 rc=2；未知旗標 rc=2）。
+  # 另有 --self-test：7/7 臂如預期觸發。
+  # 探針校準：同一套抽取跑在 b12e3633^ 得到 Use when: 27/55、Not for: 0/55，
+  # 與 XSPEC-378 記載的病灶數字逐位元相同——能重現原始病灶的探針不是太寬的探針。
+  skill-trigger-surface:
+    name: Skill Trigger Surface
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root dependencies (tsx)
+        run: npm ci
+
+      - name: Prove the check can fail before trusting that it passed
+        run: npm run check:trigger-surface:self-test
+
+      - name: Check skill trigger surface
+        run: npm run check:trigger-surface
+
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
