@@ -336,6 +336,46 @@ jobs:
       - name: Check skill trigger surface
         run: npm run check:trigger-surface
 
+  # ── llms.txt 漂移閘門（XSPEC-385）────────────────────────────────────
+  # PR #179 提議加一份**手寫的** llms.txt,2026-08-20 婉拒。理由就是
+  # XSPEC-385 立的那條規則:手寫的 llms.txt 是專案自我描述的第二份複本,
+  # 既沒有檢查也沒有到期日——合併當天是對的,之後安靜地變錯,而中間不會有
+  # 任何東西亮紅燈。
+  #
+  # 所以內容改為從「本來就必須正確」的來源生成(uds-manifest.json、core/、
+  # skills/、integrations/REGISTRY.json、cli/package.json),而這道檢查就是
+  # 它的時鐘:重新算一次,與已提交的檔案有一個位元組不同就失敗。
+  #
+  # ⚠️ 版本號寫在檔案裡,而 bump-version.mjs 不會重新生成任何東西,
+  # 所以**版本 bump 之後第一次 check 一定會紅**——那是時鐘在工作,不是壞掉。
+  # 修法是一道指令 `npm run docs:llms-txt`,失敗訊息本身會這樣說。
+  #
+  # 三臂已實測(2026-08-20,皆為 process 層級而非 in-process):
+  # 綠(生成後立即 check,rc=0)／紅(把 `## Skills (55)` 手改成 (999) →
+  # 指名第 176 行並列出兩種寫法,rc=1;刪掉 llms.txt → 明講檔案不存在而非略過,
+  # rc=1)／量不了(搬走 uds-manifest.json rc=2;未知旗標 rc=2)。
+  # 另有 --self-test:6/6 臂如預期觸發,其中一臂專門確認 PR #179 那個
+  # 「Repository 與 Homepage 兩個條目指向同一個 URL」的缺陷會被去重掉。
+  llms-txt:
+    name: llms.txt Drift Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Prove the gate can fail before trusting that it passed
+        run: npm run check:llms-txt:self-test
+
+      - name: Check llms.txt against its sources
+        run: npm run check:llms-txt
+
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
