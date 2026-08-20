@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-08-19
+> Quick reference for all UDS features | Last updated: 2026-08-20
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
@@ -337,6 +337,7 @@
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse  |
+| `check-bump-sync-roundtrip.mjs` | check-bump-sync-roundtrip — 測「跑完 bump 之後 check 必須通 |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |

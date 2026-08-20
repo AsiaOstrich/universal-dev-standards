@@ -56,6 +56,59 @@ export const DEFAULT_MANIFEST = {
 };
 
 /**
+ * Content modes an adopter may choose.
+ *
+ * `full` was retired in favour of `index` (XSPEC-357 R7). It was never a third
+ * behaviour: the only place the mode is read is a single `=== 'minimal'` test
+ * in `generateComplianceInstructions`, so `full` and `index` took the same
+ * branch and produced byte-identical files — 24 of 24 tool × language
+ * combinations, against a control confirming the comparison does detect a real
+ * difference (`full` vs `minimal` differed in all 24). Meanwhile the manifest
+ * schema accepted it, `--content-mode` offered it, the init prompt listed it as
+ * a distinct trade-off ("highest compliance, uses more context"), and every
+ * `partial`-tier tool was assigned it automatically. Adopters were choosing
+ * between two labels for one behaviour, and the label promised a difference
+ * that did not exist.
+ */
+export const SUPPORTED_CONTENT_MODES = ['minimal', 'index'];
+
+/**
+ * Retired content modes and what they now resolve to.
+ *
+ * The rewrite changes no adopter's output, because the two modes already
+ * generated the same bytes — which is what makes this breaking change cheap
+ * enough to do at all. Kept as a map rather than special-cased at each call
+ * site so the next retirement has somewhere to go.
+ */
+export const RETIRED_CONTENT_MODES = { full: 'index' };
+
+/**
+ * Resolve a content mode, migrating retired ones and rejecting unknown ones.
+ *
+ * Unknown values throw rather than falling back to a default. A silent fallback
+ * would turn `--content-mode indx` into a normal run whose output is not what
+ * was asked for, and there would be nothing anywhere to say so.
+ *
+ * @param {string|undefined} mode - Requested mode
+ * @param {string} fallback - Mode to use when nothing was requested
+ * @returns {{mode: string, migratedFrom: string|null}}
+ */
+export function normalizeContentMode(mode, fallback = 'index') {
+  if (mode === undefined || mode === null || mode === '') {
+    return { mode: fallback, migratedFrom: null };
+  }
+  if (SUPPORTED_CONTENT_MODES.includes(mode)) {
+    return { mode, migratedFrom: null };
+  }
+  if (Object.prototype.hasOwnProperty.call(RETIRED_CONTENT_MODES, mode)) {
+    return { mode: RETIRED_CONTENT_MODES[mode], migratedFrom: mode };
+  }
+  throw new Error(
+    `Unknown content mode '${mode}'. Supported: ${SUPPORTED_CONTENT_MODES.join(', ')}.`
+  );
+}
+
+/**
  * Validation schema for manifest
  */
 const MANIFEST_SCHEMA = {
@@ -63,7 +116,7 @@ const MANIFEST_SCHEMA = {
   properties: {
     version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+$' },
     format: { type: 'string', enum: ['ai', 'human', 'both'] },
-    contentMode: { type: 'string', enum: ['minimal', 'index', 'full'] }
+    contentMode: { type: 'string', enum: SUPPORTED_CONTENT_MODES }
   }
 };
 
@@ -469,8 +522,23 @@ function migrateToV320(manifest) {
   return {
     ...manifest,
     version: '3.2.0',
-    contentMode: manifest.contentMode || 'index'
+    contentMode: migrateRetiredContentMode(manifest.contentMode)
   };
+}
+
+/**
+ * Rewrite a retired content mode to its replacement, leaving anything else
+ * alone. Unlike `normalizeContentMode` this never throws: it runs while reading
+ * a manifest, and refusing to load a project because of one stale string would
+ * be a worse outcome than loading it and letting `validateManifest` report.
+ * @param {string|undefined} mode
+ * @returns {string}
+ */
+function migrateRetiredContentMode(mode) {
+  if (mode && Object.prototype.hasOwnProperty.call(RETIRED_CONTENT_MODES, mode)) {
+    return RETIRED_CONTENT_MODES[mode];
+  }
+  return mode || 'index';
 }
 
 /**
@@ -617,7 +685,11 @@ function ensureRequiredFields(manifest) {
     ...manifest,
     options,
     standards,
-    contentMode: manifest.contentMode || 'index',
+    // Rewrites a stored `full` to `index`. This is the migration path for
+    // existing adopters and it runs on every read, so a manifest written by an
+    // older CLI is corrected the first time a newer one touches it — without
+    // changing a single byte of what that project's AI tool files receive.
+    contentMode: migrateRetiredContentMode(manifest.contentMode),
     fileHashes: normalizedHashes,
     skillHashes: manifest.skillHashes || {},
     commandHashes: manifest.commandHashes || {},

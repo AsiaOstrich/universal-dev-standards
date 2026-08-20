@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-19
+> Auto-generated | Last updated: 2026-08-20
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (150)
-7. [Scripts](#scripts) (54)
+7. [Scripts](#scripts) (55)
 
-**Total Features: 343**
+**Total Features: 344**
 
 ---
 
@@ -49,7 +49,7 @@
 | `--framework` | Framework extension (fat-free) |
 | `--locale` | Locale extension (zh-tw) |
 | `--skills-location` | Skills location (marketplace, user, project, none) [default: marketplace] |
-| `--content-mode` | Content mode for integration files (minimal, index, full) [default: index] |
+| `--content-mode` | Content mode for integration files (minimal, index) [default: index]; full is retired and resolves to index |
 | `--agents-md` | Generate AGENTS.md universal summary |
 | `--no-agents-md` | Skip AGENTS.md generation |
 | `--with-hooks` | Install enforcement hooks (commit-msg, security, logging) |
@@ -153,6 +153,7 @@
 | `--plan` | Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing |
 | `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope |
 | `--force` | Force update all files, ignoring hash comparison |
+| `--prune` | Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write) |
 | `--rollback` | Rollback to the most recent backup |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
 
@@ -493,7 +494,7 @@
 | `full-coverage-testing` | - |  |
 | `git-workflow` | 1.4.0 | This standard defines Git branching strategies and workflows to ensure consisten |
 | `git-worktree` | 1.1.0 | Define a lifecycle for using Git worktrees to isolate development work, ensuring |
-| `governance-layer` | 1.0.0 | A governance layer provides a shared anchor for all agents and roles in a projec |
+| `governance-layer` | 1.1.0 | A governance layer provides a shared anchor for all agents and roles in a projec |
 | `health-check-standards` | - |  |
 | `iac-design-principles` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `immutability-first` | - |  |
@@ -534,7 +535,7 @@
 | `resource-cost-boundary` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `retrospective-standards` | 1.0.0 | Retrospectives are structured team reflections that identify what worked well, w |
 | `retry-standards` | - |  |
-| `reverse-engineering-standards` | 1.2.0 | This standard defines the principles, workflows, and best practices for reverse  |
+| `reverse-engineering-standards` | 1.3.0 | This standard defines the principles, workflows, and best practices for reverse  |
 | `rollback-standards` | - |  |
 | `runbook-standards` | 1.0.0 |  |
 | `runbook` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -558,7 +559,7 @@
 | `supply-chain-attestation` | - |  |
 | `supply-chain-security-standards` | 1.1.0 |  |
 | `systematic-debugging` | 1.0.0 | Define a structured, four-phase debugging workflow that prevents the common anti |
-| `tech-debt-standards` | 1.0.0 |  |
+| `tech-debt-standards` | 1.1.0 |  |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-data-standards` | 1.0.0 |  |
 | `test-driven-development` | 1.2.0 |  |
@@ -590,6 +591,7 @@
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse into what it says. |
+| `check-bump-sync-roundtrip.mjs` | check-bump-sync-roundtrip — 測「跑完 bump 之後 check 必須通過」這個不變量。 |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |

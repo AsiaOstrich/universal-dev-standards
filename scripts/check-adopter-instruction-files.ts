@@ -65,16 +65,24 @@
  *   2 — could not measure: `uds init` failed, no manifest, temp dir unusable.
  *       NOT "no findings".
  *
- * Measured arms, 2026-08-20:
- *   green      — 5 scenarios, 33 adopter files, 0 findings                → exit 0
+ * Measured arms:
+ *   green      — 4 scenarios, 25 adopter files, 0 findings   (2026-08-20) → exit 0
  *   red        — disclosure emission disabled in the generator; 35 findings
- *                across 4 of the 5 scenarios (minimal 11 = 8 disclosure +
- *                3 open-instruction, index 8, full 8, zh-tw 8), each naming its
- *                file and assertion, while the untouched universal-AGENTS.md
- *                scenario stayed at 0 — which is what a two-producer split
- *                looks like from the outside                          → exit 1
- *   unmeasured — `cli/bin/uds.js` moved aside                          → exit 2
- *   --self-test — 5/5 arms fired (1 green, 3 red, 1 unmeasurable)       → exit 0
+ *                across 4 of the then-5 scenarios (minimal 11 = 8 disclosure
+ *                + 3 open-instruction, index 8, full 8, zh-tw 8), each naming
+ *                its file and assertion, while the untouched
+ *                universal-AGENTS.md scenario stayed at 0 — which is what a
+ *                two-producer split looks like from the outside
+ *                                                            (2026-08-18) → exit 1
+ *   unmeasured — `cli/bin/uds.js` moved aside                (2026-08-18) → exit 2
+ *   --self-test — 5/5 arms fired (1 green, 3 red, 1 unmeasurable)
+ *                                                            (2026-08-20) → exit 0
+ *
+ * The red figure is dated because it was taken while a `content-mode=full`
+ * scenario still existed (its 8 findings are in that 35). It has not been
+ * re-measured since the scenario was removed, and is left labelled rather than
+ * silently adjusted by arithmetic — a count nobody re-ran should not be
+ * presented as a count somebody did.
  *
  * One limit on the exit-2 state, found while proving it: with TMPDIR pointing
  * at a nonexistent path, `tsx` dies in its own IPC setup before this file is
@@ -464,7 +472,13 @@ async function main(): Promise<number> {
   const scenarios: Array<{ name: string; args: string[]; seed: boolean }> = [
     { name: 'content-mode=minimal', args: ['--content-mode', 'minimal'], seed: true },
     { name: 'content-mode=index', args: ['--content-mode', 'index'], seed: true },
-    { name: 'content-mode=full', args: ['--content-mode', 'full'], seed: true },
+    // A `content-mode=full` scenario used to sit here, and the run below
+    // compared it against index because "the names promise a difference".
+    // It reported "byte-identical across all 8 files" every time, and that
+    // finding is why `full` was retired (XSPEC-357 R7). Keeping the scenario
+    // now would compare index against index and report identity forever — a
+    // green check measuring nothing, which is the shape this script exists to
+    // catch.
     // No markers seeded: no tool is detected, so init writes the universal
     // AGENTS.md summary instead. Different function, different output — and for
     // AGENTS.md the two are mutually exclusive, so checking one never covers
@@ -475,13 +489,11 @@ async function main(): Promise<number> {
 
   const reports: ScenarioReport[] = [];
   const dirs: string[] = [];
-  const byScenarioDir = new Map<string, string>();
 
   try {
     for (const s of scenarios) {
       const dir = makeProjectDir();
       dirs.push(dir);
-      byScenarioDir.set(s.name, dir);
       await generateProject(dir, s.args, s.seed);
       reports.push(assessProject(dir, s.name, s.args));
     }
@@ -500,24 +512,6 @@ async function main(): Promise<number> {
       return 2;
     }
     throw e;
-  }
-
-  // Index vs full — reported because the names promise a difference.
-  let indexVsFull = 'not compared';
-  const idx = byScenarioDir.get('content-mode=index');
-  const full = byScenarioDir.get('content-mode=full');
-  if (idx && full) {
-    const r = reports.find((x) => x.name === 'content-mode=index')!;
-    const differing = r.integrations.filter((rel) => {
-      const a = join(idx, rel);
-      const b = join(full, rel);
-      if (!existsSync(a) || !existsSync(b)) return true;
-      return readFileSync(a, 'utf8') !== readFileSync(b, 'utf8');
-    });
-    indexVsFull =
-      differing.length === 0
-        ? `byte-identical across all ${r.integrations.length} files`
-        : `${differing.length}/${r.integrations.length} files differ: ${differing.join(', ')}`;
   }
 
   const allFindings = reports.flatMap((r) => r.findings);
@@ -544,7 +538,6 @@ async function main(): Promise<number> {
             agentBehaviour: 'whether an agent opens the files is XSPEC-357 P7, not built',
             npmTarball: 'the working tree is exercised, not the published package',
           },
-          indexVsFull,
           toolsNotExercised: notExercised.map(([t, f]) => ({ tool: t, file: f })),
         },
         null,
@@ -619,7 +612,6 @@ async function main(): Promise<number> {
     `  ${YELLOW}The published package — not exercised.${NC}\n` +
       `    This runs the working tree. \`npm pack\` output is checked elsewhere.`
   );
-  console.log(`  ${YELLOW}index vs full:${NC} ${indexVsFull}`);
   if (notExercised.length > 0) {
     console.log(
       `  ${YELLOW}Tools known but not exercised (${notExercised.length}/${known.size}):${NC} ` +

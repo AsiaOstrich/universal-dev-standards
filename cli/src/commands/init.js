@@ -4,7 +4,8 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, join } from 'path';
 import {
-  manifestExists as isInitialized
+  manifestExists as isInitialized,
+  normalizeContentMode
 } from '../core/manifest.js';
 import { t, detectLanguage } from '../i18n/messages.js';
 import { detectAll } from '../utils/detector.js';
@@ -441,7 +442,31 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     skillsLocationFlag = (hasSkillsCompatibleTool && onlySkillsCompatibleTools) ? 'marketplace' : 'none';
   }
 
-  const contentModeFlag = options.contentMode || 'auto';
+  // `auto` is resolved later per tool by resolveContentModeForTool, so it is
+  // not a content mode and must not go through the normalizer.
+  let contentModeFlag = options.contentMode || 'auto';
+  if (contentModeFlag !== 'auto') {
+    // Rejects an unrecognised value instead of quietly substituting a
+    // default: a typo that still produces a normal-looking run is how
+    // `--content-mode` would lie about what it generated. (XSPEC-357 R7)
+    let normalized;
+    try {
+      normalized = normalizeContentMode(contentModeFlag);
+    } catch (err) {
+      console.log();
+      console.log(chalk.red(`✗ ${err.message}`));
+      console.log(chalk.gray('  Nothing has been written.'));
+      console.log();
+      process.exit(1);
+    }
+    if (normalized.migratedFrom) {
+      console.log(chalk.yellow(
+        `⚠ --content-mode ${normalized.migratedFrom} is retired; using '${normalized.mode}'. ` +
+        'The two produced identical files, so nothing about your output changes.'
+      ));
+    }
+    contentModeFlag = normalized.mode;
+  }
   let skillsConfig = {};
 
   if (skillsLocationFlag === 'marketplace') {
@@ -639,7 +664,7 @@ function displaySummary(config, msg, common) {
   }
 
   // 9. Content Mode (STEP 11)
-  const contentModeLabels = t().contentMode?.labels || { index: 'Standard', full: 'Full', minimal: 'Minimal' };
+  const contentModeLabels = t().contentMode?.labels || { index: 'Standard', minimal: 'Minimal' };
   console.log(chalk.gray(`  ${msg.contentModeLabel}: ${contentModeLabels[config.contentMode] || config.contentMode}`));
 
   // 10. Methodology (STEP 12, experimental)

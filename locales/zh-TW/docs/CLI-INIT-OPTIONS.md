@@ -626,21 +626,26 @@ uds init
 ```
 ? Select content level:
 ❯ Standard (推薦) - Summary + links to full docs
-  Full Embed - All rules in one file (larger)
   Minimal - Core rules only (smallest)
 ```
 
 ### 說明
 
-決定 AI 工具整合檔案中嵌入多少標準內容。這是影響 AI 合規程度的關鍵設定。
+決定 AI 工具整合檔案中嵌入多少標準內容。
+
+> **第三個模式 `full`（Full Embed）已於 UDS 6.9.0 移除。**
+> 它從來沒有產生過與 `index` 不同的檔案——產生器只在 `minimal` 上分支，
+> 因此兩者在實測的 24 組（工具 × 語言）組合中輸出逐位元相同。
+> `--content-mode full` 仍然接受，並解析為 `index`；manifest 中記錄的 `full`
+> 會在下一次執行時改寫為 `index`。**任何專案拿到的檔案都不會改變**，
+> 因為兩個模式本來就產生相同的位元組。詳見 XSPEC-357 R7。
 
 ### 選項
 
-| 模式 | 檔案大小 | AI 可見性 | 適用情境 |
-|------|----------|-----------|----------|
-| **Standard** (推薦) | 中等 | 高 | 大多數專案 |
-| **Full Embed** | 最大 | 最高 | 企業級合規 |
-| **Minimal** | 最小 | 低 | 舊專案遷移 |
+| 模式 | 內容 | 適用情境 |
+|------|------|----------|
+| **Standard**（`index`，推薦） | 標準索引 + MUST/SHOULD 任務對照表 | 大多數專案 |
+| **Minimal**（`minimal`） | 僅檔案參考 | 由 Skills 提供任務指引的專案 |
 
 ### 詳細說明
 
@@ -714,47 +719,17 @@ uds init
 - ✅ 希望 AI 遵守規範但不想檔案太大
 - ✅ AI 工具會讀取專案檔案
 
-#### Full Embed 模式
+#### Full Embed 模式（已移除）
 
-**生成內容**：完整嵌入所有規則
+這一節原本描述一個把完整規則內文嵌進整合檔案的模式，宣稱能「**保證**」AI
+看到所有標準，並產生「比 Index 大 3-5 倍」的檔案。
 
-```markdown
-## Anti-Hallucination Protocol
-Reference: .standards/anti-hallucination.md
+**這些從來都沒有被實作。** `full` 與 `index` 走同一條程式路徑、寫出相同的位元組。
+它也不可能照描述運作：`.standards/` 約 248k token，遠超過任何整合檔案裝得下的量。
+該模式已於 UDS 6.9.0 移除（XSPEC-357 R7），現在解析為 `index`。
 
-### Core Principle
-You are an AI assistant that prioritizes accuracy over confidence...
-
-### Evidence-Based Analysis
-1. **File Reading Requirement**
-   - You MUST read files before analyzing them
-   - Do not guess APIs, class names, or library versions
-...
-
----
-
-## Commit Message Standards
-Reference: .standards/commit-message.ai.yaml
-
-### Format Structure
-<type>(<scope>): <subject>
-
-### Commit Types
-| Type | Description | Example |
-| feat | New feature | feat(auth): add OAuth2 login |
-...
-```
-
-**特點**：
-- 所有核心規則直接嵌入
-- AI **保證**看到所有標準
-- 檔案大小可能是 Index 的 3-5 倍
-
-**適用情境**：
-- ✅ 企業級合規要求
-- ✅ AI 可能不讀取外部檔案
-- ✅ 不能容許 AI 遺漏任何規則
-- ✅ 新團隊導入，確保完全了解規範
+若你當初是為了合規理由選擇它，你拿到的一直都是 `index` 的輸出，
+因此產生的檔案不會有任何改變。
 
 ### 決策流程
 
@@ -763,7 +738,8 @@ Reference: .standards/commit-message.ai.yaml
         │
         ▼
   ┌─────────────────────────────┐
-  │ AI 是否會主動讀取專案檔案？  │
+  │ 是否已安裝 Skills 並由它     │
+  │ 提供任務指引？               │
   └─────────────────────────────┘
         │
     ┌───┴───┐
@@ -771,22 +747,7 @@ Reference: .standards/commit-message.ai.yaml
    是       否
     │       │
     ▼       ▼
-Index    Full
-    │
-    ▼
-  ┌─────────────────────────────┐
-  │ 是否有嚴格合規要求？         │
-  └─────────────────────────────┘
-        │
-    ┌───┴───┐
-    │       │
-   是       否
-    │       │
-    ▼       ▼
- Full    Index
-
-
-舊專案遷移 / 想要最小改動？ → Minimal
+Minimal  Index
 ```
 
 ### 使用案例
@@ -794,11 +755,11 @@ Index    Full
 | 案例 | 推薦模式 | 理由 |
 |------|----------|------|
 | 新創團隊的 SaaS 專案 | **Index** | 平衡效率與規範 |
-| 銀行核心系統 | **Full** | 法規要求，不能遺漏 |
+| 銀行核心系統 | **Index** | 索引會列出每一條適用標準與適用時機 |
 | 個人 side project | **Minimal** | 輕量就好 |
 | 開源專案 | **Index** | 讓貢獻者 AI 知道規範 |
 | 從舊設定遷移 | **Minimal** | 保留現有設定 |
-| 新導入 AI 的傳統企業 | **Full** | 確保 AI 完全遵循 |
+| 新導入 AI 的傳統企業 | **Index** | 與已移除的 `full` 模式產出相同 |
 
 ---
 
@@ -895,8 +856,8 @@ uds init -y \
   --test-levels unit,integration \
   --content-mode index
 
-# 企業級完整設定
-uds init -y --content-mode full
+# 最小化整合檔案（由 Skills 提供任務指引）
+uds init -y --content-mode minimal
 
 # 生成 AGENTS.md 通用摘要（--yes 模式預設生成）
 uds init -y --agents-md

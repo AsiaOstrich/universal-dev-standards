@@ -141,10 +141,13 @@ export const FILE_EXTENSIONS = {
 /**
  * Content modes for integration files
  */
+// `FULL: 'full'` was removed here (XSPEC-357 R7). It never produced different
+// output from INDEX — the generator's only test on the mode is `=== 'minimal'`
+// — so it was a second name for one behaviour, offered to adopters as a
+// distinct choice. See SUPPORTED_CONTENT_MODES in core/manifest.js.
 export const CONTENT_MODES = {
   MINIMAL: 'minimal',    // Reference-only content
-  INDEX: 'index',        // Standard index with descriptions
-  FULL: 'full'          // Full standard content embedded
+  INDEX: 'index'         // Standard index with descriptions + compliance instructions
 };
 
 /**

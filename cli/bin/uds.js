@@ -130,7 +130,10 @@ program
   .option('--framework <framework>', 'Framework extension (fat-free)')
   .option('--locale <locale>', 'Locale extension (zh-tw)')
   .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
-  .option('--content-mode <mode>', 'Content mode for integration files (minimal, index, full) [default: index]')
+  // No double quotes in this description: generate-usage-docs.mjs parses the
+  // option table out of this file and truncates at the first one, which turned
+  // the retirement note into a dangling semicolon in three locales.
+  .option('--content-mode <mode>', 'Content mode for integration files (minimal, index) [default: index]; full is retired and resolves to index')
   .option('--agents-md', 'Generate AGENTS.md universal summary')
   .option('--no-agents-md', 'Skip AGENTS.md generation')
   .option('--with-hooks', 'Install enforcement hooks (commit-msg, security, logging)')

@@ -226,7 +226,6 @@ Use AskUserQuestion for integration file content:
 | Option | Description |
 |--------|-------------|
 | **Standard (Recommended)** | Summary + task mapping, AI knows when to read which standard |
-| **Full Embed** | Embed all rules, AI can use immediately but larger file |
 | **Minimal** | File references only, best with Skills |
 
 ### Step 13: Confirm and Execute | 步驟 13：確認並執行
@@ -312,7 +311,7 @@ See `uds init --help` for all options.
 9. **語言擴展** — 偵測到語言時詢問
 10. **框架擴展** — 偵測到框架時詢問
 11. **地區設定** — English / Traditional Chinese
-12. **內容模式** — Standard / Full Embed / Minimal
+12. **內容模式** — Standard / Minimal
 13. **確認並執行** — 展示摘要，確認後一次執行所有安裝
 
 **IMPORTANT**: AskUserQuestion 最多 4 個選項。3+ 工具時必須使用 Smart Grouping 兩階段策略。

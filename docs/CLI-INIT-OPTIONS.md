@@ -618,21 +618,27 @@ Generate three files with same rules
 ```
 ? Select content level:
 ❯ Standard (推薦) - Summary + links to full docs
-  Full Embed - All rules in one file (larger)
   Minimal - Core rules only (smallest)
 ```
 
 ### Description
 
-Determines how much standards content to embed in AI tool integration files. This is a key setting affecting AI compliance level.
+Determines how much standards content to embed in AI tool integration files.
+
+> **A third mode, `full` ("Full Embed"), was removed in UDS 6.9.0.**
+> It never generated different files from `index` — the generator branches on
+> `minimal` only, so the two produced byte-identical output in all 24 tool ×
+> language combinations measured. `--content-mode full` is still accepted and
+> resolves to `index`, and a manifest recording `full` is rewritten to `index`
+> on the next run. **No project's generated files change**, because the two
+> modes were already producing the same bytes. See XSPEC-357 R7.
 
 ### Options
 
-| Mode | File Size | AI Visibility | Use Case |
-|------|-----------|---------------|----------|
-| **Standard** (Recommended) | Medium | High | Most projects |
-| **Full Embed** | Largest | Highest | Enterprise compliance |
-| **Minimal** | Smallest | Low | Legacy project migration |
+| Mode | Content | Use Case |
+|------|---------|----------|
+| **Standard** (`index`, recommended) | Standards index + MUST/SHOULD task mapping | Most projects |
+| **Minimal** (`minimal`) | File references only | Projects relying on Skills for guidance |
 
 ### Detailed Explanation
 
@@ -706,47 +712,19 @@ All standards are located in `.standards/`:
 - ✅ Want AI to follow standards but don't want large files
 - ✅ AI tools will read project files
 
-#### Full Embed Mode
+#### Full Embed Mode (removed)
 
-**Generated Content**: Complete embedded rules
+This section used to document a mode that embedded complete rule bodies into
+the integration file, "guaranteeing" the AI saw every standard and producing a
+file "3-5x larger than Index mode".
 
-```markdown
-## Anti-Hallucination Protocol
-Reference: .standards/anti-hallucination.md
+**None of that was implemented.** `full` shared the `index` code path and wrote
+identical bytes. It could not have worked as described: `.standards/` is roughly
+248k tokens, far past what any integration file can carry. The mode was removed
+in UDS 6.9.0 (XSPEC-357 R7) and now resolves to `index`.
 
-### Core Principle
-You are an AI assistant that prioritizes accuracy over confidence...
-
-### Evidence-Based Analysis
-1. **File Reading Requirement**
-   - You MUST read files before analyzing them
-   - Do not guess APIs, class names, or library versions
-...
-
----
-
-## Commit Message Standards
-Reference: .standards/commit-message.ai.yaml
-
-### Format Structure
-<type>(<scope>): <subject>
-
-### Commit Types
-| Type | Description | Example |
-| feat | New feature | feat(auth): add OAuth2 login |
-...
-```
-
-**Characteristics**:
-- All core rules directly embedded
-- AI **guaranteed** to see all standards
-- File size may be 3-5x larger than Index mode
-
-**Use Cases**:
-- ✅ Enterprise-level compliance requirements
-- ✅ AI may not read external files
-- ✅ Cannot allow AI to miss any rules
-- ✅ New team onboarding, ensure complete understanding
+If you selected it for compliance reasons, you were already receiving `index`
+output, and nothing about your generated files changes.
 
 ### Decision Flow
 
@@ -755,8 +733,8 @@ Start choosing content mode
         │
         ▼
   ┌─────────────────────────────┐
-  │ Will AI proactively read    │
-  │ project files?              │
+  │ Are Skills installed and    │
+  │ providing task guidance?    │
   └─────────────────────────────┘
         │
     ┌───┴───┐
@@ -764,23 +742,7 @@ Start choosing content mode
    Yes      No
     │       │
     ▼       ▼
- Index    Full
-    │
-    ▼
-  ┌─────────────────────────────┐
-  │ Strict compliance           │
-  │ requirements?               │
-  └─────────────────────────────┘
-        │
-    ┌───┴───┐
-    │       │
-   Yes      No
-    │       │
-    ▼       ▼
- Full    Index
-
-
-Legacy migration / Want minimal changes? → Minimal
+ Minimal  Index
 ```
 
 ### Use Case Examples
@@ -788,11 +750,11 @@ Legacy migration / Want minimal changes? → Minimal
 | Scenario | Recommended Mode | Reason |
 |----------|------------------|--------|
 | Startup team's SaaS project | **Index** | Balance efficiency and standards |
-| Bank core system | **Full** | Regulatory requirements, can't miss anything |
+| Bank core system | **Index** | The index names every applicable standard and when it applies |
 | Personal side project | **Minimal** | Lightweight is fine |
 | Open source project | **Index** | Let contributor AIs know the standards |
 | Migration from old setup | **Minimal** | Preserve existing settings |
-| Traditional enterprise adopting AI | **Full** | Ensure AI completely follows standards |
+| Traditional enterprise adopting AI | **Index** | Same output the retired `full` mode produced |
 
 ---
 
@@ -891,8 +853,8 @@ uds init -y \
   --test-levels unit,integration \
   --content-mode index
 
-# Enterprise full setup
-uds init -y --content-mode full
+# Minimal integration files (rely on Skills for task guidance)
+uds init -y --content-mode minimal
 
 # Generate AGENTS.md universal summary (default in --yes mode)
 uds init -y --agents-md

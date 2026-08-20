@@ -50,7 +50,6 @@ This document compares the effectiveness of three usage modes after installing U
 
 **Configuration**:
 - Select `standardsScope: full` + Skills installation
-- Or use `contentMode: full` for complete standards
 
 **Includes**:
 - 16 Claude Code Skills
@@ -204,7 +203,7 @@ uds init -y --skills-location marketplace --content-mode index
 
 **Configuration**:
 ```bash
-uds init -y --skills-location none --content-mode full
+uds init -y --skills-location none --content-mode index
 ```
 
 ### Scenario 4: Learning UDS Standards System

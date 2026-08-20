@@ -159,17 +159,26 @@ describe('E2E: uds init', () => {
       });
     });
 
-    it('should respect --content-mode=full', async () => {
+    // XSPEC-357 R7. `--content-mode=full` used to select a distinct mode; it
+    // now resolves to `index`, which is what it already generated. Scripts
+    // passing the old value keep working and are told what happened, rather
+    // than failing on an argument that was valid in the previous release.
+    it('should accept the retired --content-mode=full and resolve it to index', async () => {
       await setupTestDir(testDir, {});
 
       const options = { contentMode: 'full' };
       const result = await runNonInteractive(options, testDir);
 
-      expect(result.stdout).toContain(expectedMessages.summary.mode_full);
+      expect(result.stdout).toContain('retired');
+      // The summary prints `contentMode.labels[mode]`, so 'Standard' — not
+      // the `mode_index` fixture, which belongs to a different (unused)
+      // message key and would pass for the wrong reason if it matched at all.
+      expect(result.stdout).toContain(`${expectedMessages.summary.content_mode} Standard`);
+      expect(result.stdout).not.toContain('Full Embed');
 
-      recordScenarioResult('Non-Interactive Content Mode Full', {
+      recordScenarioResult('Non-Interactive Content Mode Full (retired)', {
         steps: [
-          { step: 1, name: 'Full embed', matched: result.stdout.includes('Full Embed') }
+          { step: 1, name: 'Resolved to index', matched: result.stdout.includes('retired') }
         ],
         output: result.stdout,
         files: result.files,
@@ -401,7 +410,7 @@ describe('E2E: uds init', () => {
     it('should record content mode in manifest', async () => {
       await setupTestDir(testDir, {});
 
-      const result = await runNonInteractive({ contentMode: 'full' }, testDir);
+      const result = await runNonInteractive({ contentMode: 'minimal' }, testDir);
 
       // Verify initialization succeeded
       expect(result.stdout).toContain('Standards initialized successfully');
@@ -410,7 +419,20 @@ describe('E2E: uds init', () => {
       expect(await fileExists(manifestPath)).toBe(true);
 
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      expect(manifest.contentMode).toBe('full');
+      expect(manifest.contentMode).toBe('minimal');
+    });
+
+    // The migration a `full` adopter actually goes through: the retired value
+    // never reaches the manifest, and no file the project receives changes,
+    // because the two modes generated identical bytes. (XSPEC-357 R7)
+    it('should never write the retired "full" mode into the manifest', async () => {
+      await setupTestDir(testDir, {});
+
+      await runNonInteractive({ contentMode: 'full' }, testDir);
+
+      const manifestPath = join(testDir, '.standards/manifest.json');
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      expect(manifest.contentMode).toBe('index');
     });
 
     it('should save standard options to manifest in non-interactive mode', async () => {

@@ -1053,10 +1053,14 @@ export async function promptConfirm(message) {
  *            Best with Skills (which provide real-time guidance).
  * - index:   Summary + MUST/SHOULD task mapping. AI knows when to read which file.
  *            Best balance of context usage and compliance.
- * - full:    All rules embedded. AI has everything in context immediately.
- *            Highest compliance but uses more context space.
  *
- * @returns {Promise<string>} 'full', 'index', or 'minimal'
+ * A third choice, `full` ("all rules embedded, highest compliance, uses more
+ * context"), was removed in XSPEC-357 R7. None of that was true: it shared the
+ * `index` branch in the generator and produced identical bytes. Offering it
+ * asked adopters to trade context budget for compliance in a menu where both
+ * options were the same file. (XSPEC-357 R7)
+ *
+ * @returns {Promise<string>} 'index' or 'minimal'
  */
 export async function promptContentMode() {
   const msg = t().contentMode;
@@ -1074,10 +1078,6 @@ export async function promptContentMode() {
         {
           name: `${chalk.green(msg.labels.index)} ${chalk.gray(`(${t().recommended})`)} - ${msg.choices.index}`,
           value: 'index'
-        },
-        {
-          name: `${chalk.blue(msg.labels.full)} - ${msg.choices.full}`,
-          value: 'full'
         },
         {
           name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
@@ -1287,15 +1287,15 @@ export async function promptContentModeChange(currentMode) {
           value: 'index'
         },
         {
-          name: `${chalk.blue(msg.labels.full)} - ${msg.choices.full}`,
-          value: 'full'
-        },
-        {
           name: `${chalk.gray(msg.labels.minimal)} - ${msg.choices.minimal}`,
           value: 'minimal'
         }
       ],
-      default: currentMode === 'full' ? 1 : currentMode === 'minimal' ? 2 : 0
+      // A stored `full` lands on `index`, which is the mode it was already
+      // getting. Indices shifted when the middle choice went, so this is
+      // recomputed rather than adjusted — an off-by-one here silently
+      // preselects the wrong mode.
+      default: currentMode === 'minimal' ? 1 : 0
   });
 
   if (mode !== currentMode) {

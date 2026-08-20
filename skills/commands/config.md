@@ -170,7 +170,6 @@ Supported tools for Commands:
 | Mode | Description | 說明 |
 |------|-------------|------|
 | `standard` | Summary + task mapping, AI knows when to read which standard (Recommended) | 摘要 + 任務映射（推薦）|
-| `full` | Embed all standards in integration files | 完整內嵌所有標準 |
 | `minimal` | Only core rules embedded | 僅內嵌核心規則 |
 
 ## Effects of Configuration Changes | 設定變更的影響

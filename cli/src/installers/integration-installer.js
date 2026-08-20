@@ -56,7 +56,7 @@ export const INTEGRATION_MAPPINGS = {
  * @param {Array<string>} config.integrations - List of AI tool names (e.g., ['cursor', 'windsurf'])
  * @param {Object} config.integrationConfigs - Tool-specific configurations
  * @param {Array<string>} config.installedStandards - List of installed standard file names
- * @param {string} config.contentMode - Content mode ('minimal', 'index', 'full')
+ * @param {string} config.contentMode - Content mode ('minimal', 'index'; 'full' retired — XSPEC-357 R7)
  * @param {number} config.level - Adoption level (1-3)
  * @param {string} config.commonLanguage - Language setting ('en', 'zh-tw', 'zh-cn', 'bilingual')
  * @param {string} config.outputLanguage - Output language preference
@@ -191,7 +191,7 @@ export async function installIntegrations(config, projectPath) {
  * @param {Object} config - Claude Code configuration
  * @param {Array<string>} config.aiTools - List of selected AI tools
  * @param {Array<string>} config.installedStandards - List of installed standard file names
- * @param {string} config.contentMode - Content mode ('minimal', 'index', 'full')
+ * @param {string} config.contentMode - Content mode ('minimal', 'index'; 'full' retired — XSPEC-357 R7)
  * @param {number} config.level - Adoption level (1-3)
  * @param {string} config.commonLanguage - Language setting ('en', 'zh-tw', 'zh-cn', 'bilingual')
  * @param {string} config.outputLanguage - Output language preference

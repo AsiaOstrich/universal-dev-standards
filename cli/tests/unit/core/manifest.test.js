@@ -7,6 +7,8 @@ import {
   SUPPORTED_SCHEMA_VERSIONS,
   CURRENT_SCHEMA_VERSION,
   DEFAULT_MANIFEST,
+  SUPPORTED_CONTENT_MODES,
+  normalizeContentMode,
   getManifestPath,
   manifestExists,
   readManifest,
@@ -272,8 +274,45 @@ describe('Manifest Validation', () => {
     it('should accept all valid content modes', () => {
       expect(validateManifest(createValidManifest({ contentMode: 'minimal' }))).toBe(true);
       expect(validateManifest(createValidManifest({ contentMode: 'index' }))).toBe(true);
-      expect(validateManifest(createValidManifest({ contentMode: 'full' }))).toBe(true);
     });
+
+    // XSPEC-357 R7. `full` is retired; the schema no longer accepts it, and
+    // `readManifest` rewrites a stored one to `index` before validation.
+    it('should no longer accept the retired "full" content mode', () => {
+      expect(validateManifest(createValidManifest({ contentMode: 'full' }))).toBe(false);
+    });
+  });
+});
+
+describe('Retired content mode "full" (XSPEC-357 R7)', () => {
+  it('lists only the modes that actually behave differently', () => {
+    expect(SUPPORTED_CONTENT_MODES).toEqual(['minimal', 'index']);
+  });
+
+  it('resolves a retired mode to its replacement and says where it came from', () => {
+    expect(normalizeContentMode('full')).toEqual({ mode: 'index', migratedFrom: 'full' });
+  });
+
+  it('passes supported modes through untouched', () => {
+    expect(normalizeContentMode('index')).toEqual({ mode: 'index', migratedFrom: null });
+    expect(normalizeContentMode('minimal')).toEqual({ mode: 'minimal', migratedFrom: null });
+  });
+
+  // An unknown mode must not fall back to a default. A silent fallback turns
+  // `--content-mode indx` into a run that generates something other than what
+  // was asked for, with nothing anywhere reporting the substitution.
+  it('rejects an unknown mode instead of substituting a default', () => {
+    expect(() => normalizeContentMode('indx')).toThrow(/Unknown content mode/);
+  });
+
+  it('rewrites a stored "full" when an old manifest is migrated', () => {
+    const migrated = migrateManifest({
+      version: '3.2.0',
+      upstream: { repo: 'x', version: '1.0.0' },
+      format: 'ai',
+      contentMode: 'full'
+    });
+    expect(migrated.contentMode).toBe('index');
   });
 });
 
@@ -289,10 +328,10 @@ describe('Manifest Creation and Merging', () => {
     });
 
     it('should allow overriding fields', () => {
-      const manifest = createManifest({ format: 'human', contentMode: 'full' });
+      const manifest = createManifest({ format: 'human', contentMode: 'minimal' });
 
       expect(manifest.format).toBe('human');
-      expect(manifest.contentMode).toBe('full');
+      expect(manifest.contentMode).toBe('minimal');
     });
 
     it('should merge nested objects', () => {
@@ -317,9 +356,9 @@ describe('Manifest Creation and Merging', () => {
 
     it('should merge updates into base manifest', () => {
       const base = createValidManifest({ contentMode: 'index' });
-      const merged = mergeManifest(base, { contentMode: 'full' });
+      const merged = mergeManifest(base, { contentMode: 'minimal' });
 
-      expect(merged.contentMode).toBe('full');
+      expect(merged.contentMode).toBe('minimal');
     });
 
     it('should merge nested objects correctly', () => {

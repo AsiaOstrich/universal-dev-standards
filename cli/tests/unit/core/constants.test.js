@@ -143,7 +143,17 @@ describe('Core Constants', () => {
     it('should have all content modes', () => {
       expect(CONTENT_MODES.MINIMAL).toBe('minimal');
       expect(CONTENT_MODES.INDEX).toBe('index');
-      expect(CONTENT_MODES.FULL).toBe('full');
+    });
+
+    // XSPEC-357 R7. `full` was a second name for `index`: the generator's only
+    // test on the mode is `=== 'minimal'`, so the two took the same branch and
+    // wrote identical bytes, while the prompt sold `full` as trading context
+    // budget for compliance. Asserting its absence keeps it from drifting back
+    // in as a "missing" mode — STANDARDS_SCOPES.FULL below is a different axis
+    // and legitimately still has one.
+    it('should not offer a retired "full" content mode', () => {
+      expect(CONTENT_MODES.FULL).toBeUndefined();
+      expect(Object.values(CONTENT_MODES)).not.toContain('full');
     });
   });
 

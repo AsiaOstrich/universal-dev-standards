@@ -32,7 +32,10 @@ export function resolveContentModeForTool(tool, userContentMode) {
         ? { contentMode: 'minimal', level: 3 }
         : { contentMode: 'index', level: 2 };
     case 'partial':
-      return { contentMode: 'full', level: 1 };
+      // Was 'full'. Every partial-tier tool was being auto-assigned a mode
+      // that generated exactly the same bytes as 'index', so this is a rename
+      // of what these tools already got, not a change to it. (XSPEC-357 R7)
+      return { contentMode: 'index', level: 1 };
     case 'preview':
       return { contentMode: 'index', level: 2 };
     case 'minimal':

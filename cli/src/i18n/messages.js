@@ -100,12 +100,10 @@ export const messages = {
       question: 'Select content mode:',
       labels: {
         index: 'Standard',
-        full: 'Full Embed',
         minimal: 'Minimal'
       },
       choices: {
         index: 'Summary + task mapping, AI knows when to read which standard',
-        full: 'Embed all rules, AI can use immediately but larger file',
         minimal: 'File references only, best with Skills'
       },
       explanations: {
@@ -113,11 +111,6 @@ export const messages = {
           '  → Includes rule summaries + MUST/SHOULD task mapping',
           '  → AI can determine "which standard to read for which task"',
           '  → Balance between context usage and compliance'
-        ],
-        full: [
-          '  → All rules embedded in config file (~10-15 KB)',
-          '  → AI needs no extra file reads, highest compliance',
-          '  → Best for short tasks or strict compliance projects'
         ],
         minimal: [
           '  → Only contains .standards/ file list',
@@ -328,7 +321,6 @@ export const messages = {
       warning: 'Changing Content Mode will regenerate all AI tool config files',
       explanations: {
         index: '  → AI will determine when to read standards based on task mapping',
-        full: '  → All rules embedded directly, highest AI compliance',
         minimal: '  → AI must actively read standards, recommend using with Skills'
       }
     },
@@ -934,7 +926,6 @@ export const messages = {
         standardsScopeLean: 'Lean (Skills handle the rest)',
         standardsScopeComplete: 'Complete',
         contentModeLabel: 'Content Mode',
-        contentModeFull: 'Full Embed',
         contentModeIndex: 'Standard (recommended)',
         contentModeMinimal: 'Minimal (core only)',
         displayLanguageLabel: 'Display Language',
@@ -1334,12 +1325,10 @@ export const messages = {
       question: '選擇內容模式：',
       labels: {
         index: '標準',
-        full: '完整嵌入',
         minimal: '最小化'
       },
       choices: {
         index: '摘要 + 任務對照表，AI 知道何時讀哪個規範',
-        full: '完整嵌入所有規則，AI 立即可用但檔案較大',
         minimal: '僅檔案參考，適合搭配 Skills 使用'
       },
       explanations: {
@@ -1347,11 +1336,6 @@ export const messages = {
           '  → 包含規則摘要 + MUST/SHOULD 任務對照表',
           '  → AI 能判斷「做什麼任務時要讀哪個規範」',
           '  → 平衡 Context 使用量和合規程度'
-        ],
-        full: [
-          '  → 所有規則直接嵌入設定檔（檔案約 10-15 KB）',
-          '  → AI 無需額外讀檔，合規率最高',
-          '  → 適合短期任務或需要嚴格遵循的專案'
         ],
         minimal: [
           '  → 僅包含 .standards/ 檔案清單',
@@ -1562,7 +1546,6 @@ export const messages = {
       warning: '變更 Content Mode 將重新生成所有 AI 工具設定檔',
       explanations: {
         index: '  → AI 會根據任務對照表判斷何時讀取規範',
-        full: '  → 所有規則直接嵌入，AI 合規率最高',
         minimal: '  → AI 需主動讀取規範，建議搭配 Skills'
       }
     },
@@ -2168,7 +2151,6 @@ export const messages = {
         standardsScopeLean: '精簡（Skills 處理其餘）',
         standardsScopeComplete: '完整',
         contentModeLabel: '內容模式',
-        contentModeFull: '完整嵌入',
         contentModeIndex: '標準（推薦）',
         contentModeMinimal: '最小（僅核心）',
         displayLanguageLabel: '顯示語言',
@@ -2567,12 +2549,10 @@ export const messages = {
       question: '选择内容模式：',
       labels: {
         index: '标准',
-        full: '完整嵌入',
         minimal: '最小化'
       },
       choices: {
         index: '摘要 + 任务对照表，AI 知道何时读哪个规范',
-        full: '完整嵌入所有规则，AI 立即可用但文件较大',
         minimal: '仅文件参考，适合搭配 Skills 使用'
       },
       explanations: {
@@ -2580,11 +2560,6 @@ export const messages = {
           '  → 包含规则摘要 + MUST/SHOULD 任务对照表',
           '  → AI 能判断"做什么任务时要读哪个规范"',
           '  → 平衡 Context 使用量和合规程度'
-        ],
-        full: [
-          '  → 所有规则直接嵌入配置文件（文件约 10-15 KB）',
-          '  → AI 无需额外读档，合规率最高',
-          '  → 适合短期任务或需要严格遵循的项目'
         ],
         minimal: [
           '  → 仅包含 .standards/ 文件清单',
@@ -2795,7 +2770,6 @@ export const messages = {
       warning: '变更 Content Mode 将重新生成所有 AI 工具配置文件',
       explanations: {
         index: '  → AI 会根据任务对照表判断何时读取规范',
-        full: '  → 所有规则直接嵌入，AI 合规率最高',
         minimal: '  → AI 需主动读取规范，建议搭配 Skills'
       }
     },
@@ -3144,7 +3118,6 @@ export const messages = {
         standardsScopeLean: '精简（Skills 处理其余）',
         standardsScopeComplete: '完整',
         contentModeLabel: '内容模式',
-        contentModeFull: '完整嵌入',
         contentModeIndex: '标准（推荐）',
         contentModeMinimal: '最小（仅核心）',
         displayLanguageLabel: '显示语言',

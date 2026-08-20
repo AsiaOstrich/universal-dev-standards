@@ -58,7 +58,6 @@ status: current
 
 **配置方式**：
 - 安裝时选择 `standardsScope: full` + Skills 安裝
-- 或透過 `contentMode: full` 獲得完整规范
 
 **包含内容**：
 - 16 个 Claude Code Skills
@@ -212,7 +211,7 @@ uds init -y --skills-location marketplace --content-mode index
 
 **配置方式**：
 ```bash
-uds init -y --skills-location none --content-mode full
+uds init -y --skills-location none --content-mode index
 ```
 
 ### 場景 4：学习 UDS 标准体系
