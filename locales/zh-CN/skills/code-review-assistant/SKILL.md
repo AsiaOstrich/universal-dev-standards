@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  使用标准化检查清单执行系统性代码审查。
-  使用时机：审查代码、PR 审查、代码品质检查。
-  关键字：review, code review, PR, checklist, 审查, 代码, 品质。
+  [UDS] 系统性代码审查的参考资料：八大审查类别，以及 BLOCKING/IMPORTANT/SUGGESTION 评论前缀。
+  Use when: 审查 pull request 或 diff、决定审查意见的措辞与优先级、与团队议定审查范围。
+  Not for: 执行有关卡的审查流程——该部分已移至采用层（XSPEC-095）；提交前的关卡验证——请用 /checkin。
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 代码审查, 审查类别, 评论前缀, 审查清单.
 ---
 
 # 代码审查助手

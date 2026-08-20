@@ -2,11 +2,15 @@
 name: ai-instruction-standards
 source: ../../../../skills/ai-instruction-standards/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-04-28
+translation_version: 2.1.0
+last_synced: 2026-08-17
 status: current
 scope: partial
-description: "[UDS] 建立和維護 AI 指令檔案（CLAUDE.md、AGENTS.md、.cursor/rules/ 等）並採用適當結構"
+description: |
+  建立並維護 AI 指令檔（CLAUDE.md、AGENTS.md、.cursor/rules/ 等），並採用適當結構。
+  Use when: 建立 AI 指令檔、區分通用規則與專案特定規則、設定 AI 工具。
+  Not for: 調整程式碼庫結構讓 AI 好導覽——請用 /ai-friendly-architecture；要求以證據為基礎的回答——請用 /ai-collaboration-standards。
+  Keywords: CLAUDE.md, AGENTS.md, cursorrules, windsurfrules, clinerules, AI instructions, system prompt, 指令檔, AI 設定, 系統提示詞.
 ---
 
 # AI 指令檔案標準指南

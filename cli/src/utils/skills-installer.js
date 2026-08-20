@@ -9,15 +9,17 @@
 
 import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync, rmSync, unlinkSync } from 'fs';
 import { dirname, join, basename } from 'path';
+import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
 import {
   getAgentConfig,
   getSkillsDirForAgent,
   getCommandsDirForAgent,
   getSkillsSupportedAgents,
-  getCommandsSupportedAgents
+  getCommandsSupportedAgents,
+  getCommandFileExtension
 } from '../config/ai-agent-paths.js';
-import { computeDirectoryHashes, computeFileHash } from './hasher.js';
+import { computeDirectoryHashes, computeFileHash, normalizeLineEndings } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
 
@@ -114,6 +116,37 @@ export function getAvailableSkillNames() {
       });
   } catch {
     return [];
+  }
+}
+
+/**
+ * Every directory name in the skills source tree, including the ones that are not
+ * skills (`_shared`, `agents`, `ai`, `commands`, `tools`, `workflows`).
+ *
+ * Used as a provenance test: if a directory in an adopter's skills folder has a
+ * counterpart here, UDS put it there. If it does not, UDS did not — it is either
+ * an adopter's own skill or an artefact of a UDS version too old to reason about,
+ * and deleting it is not this tool's call to make.
+ *
+ * The distinction matters because an older CLI copied the non-skill siblings in
+ * by mistake, so a strict "is it a skill we ship" test would leave those behind
+ * while a naive "is it in the skills folder" test deletes hand-written skills.
+ * dev-platform has fourteen of those. (XSPEC-343 R2)
+ *
+ * @returns {Set<string>} Directory names present in the skills source tree
+ */
+export function getSkillsSourceEntryNames() {
+  if (!existsSync(SKILLS_LOCAL_DIR)) {
+    return new Set();
+  }
+  try {
+    return new Set(
+      readdirSync(SKILLS_LOCAL_DIR, { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name)
+    );
+  } catch {
+    return new Set();
   }
 }
 
@@ -367,33 +400,171 @@ function mergeSkillFrontmatter(enSourceDir, targetDir) {
  * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {{success: boolean, skillName: string, path?: string, error?: string, fallbackToEn?: boolean}} Result
  */
-function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
+/**
+ * Resolve what installing a skill would put on disk, without writing anything.
+ *
+ * This is THE definition of a skill's installed content, and it exists as one
+ * function because both the installer and the reconciler need that answer.
+ * XSPEC-382 R1 originally proposed hashing the source directory on both sides
+ * and letting the existing comparison work. Measurement killed that: installing
+ * is not a verbatim copy. Three things sit in between, any one of them fatal to
+ * a source-directory hash —
+ *
+ *   1. a localized SKILL.md gets English frontmatter fields merged in, so the
+ *      installed file matches no source file (measured: brainstorm-assistant is
+ *      23,866 bytes installed against a 23,753-byte zh-TW source);
+ *   2. the source directory is chosen at runtime by locale with fallback to
+ *      English per skill, so there is no single path to hash;
+ *   3. subdirectories are skipped, making the install a strict subset.
+ *
+ * The alternative was a second copy of this logic inside the planner. That is
+ * the arrangement this file has already been bitten by twice; two copies answer
+ * differently the first time one changes, and a planner that disagrees with the
+ * installer reports every skill as changed on every upgrade — worse than the
+ * no-signal it replaced, because a false signal is indistinguishable from a
+ * real one.
+ *
+ * All 514 installable files are UTF-8 text (508 .md, 5 .yaml, 1 .json), checked
+ * by decoding every one of them, so reading content as a string is lossless.
+ *
+ * @param {string} skillName
+ * @param {string} locale
+ * @returns {{files: Array<{name: string, content: string}>, fallbackToEn: boolean, error: string|null}}
+ */
+export function resolveSkillFiles(skillName, locale = 'en') {
   const enSourceDir = join(SKILLS_LOCAL_DIR, skillName);
-  const targetDir = join(targetBaseDir, skillName);
 
-  // Determine the actual source directory based on locale
   let sourceDir = enSourceDir;
   let needsFrontmatterMerge = false;
   let fallbackToEn = false;
 
   if (isLocalizedLocale(locale)) {
-    const localizedDir = getLocalizedSkillsSourceDir(locale);
-    const localizedSkillDir = join(localizedDir, skillName);
+    const localizedSkillDir = join(getLocalizedSkillsSourceDir(locale), skillName);
     if (existsSync(localizedSkillDir)) {
       sourceDir = localizedSkillDir;
       needsFrontmatterMerge = true;
     } else {
-      // Locale requested but missing for this skill — fall back to English source.
-      // Flag the result so the caller can aggregate a WARN.
       fallbackToEn = true;
     }
   }
 
   if (!existsSync(sourceDir)) {
+    return { files: [], fallbackToEn, error: `Skill not found: ${skillName}` };
+  }
+
+  // Per-FILE fallback to English, not per-skill.
+  //
+  // A locale pack that has SKILL.md but not its companion files used to install
+  // just the SKILL.md, leaving the companions uninstalled entirely. Measured:
+  // 4 of 59 localized skills in zh-TW and 5 of 59 in zh-CN are short of the
+  // English source, and two of those gaps are REFERENCED — the zh-TW
+  // `dev-workflow-guide/SKILL.md` points at `workflow-phases.md` three times
+  // and `testing-guide/SKILL.md` at `test-skeleton-templates.md` three times,
+  // neither of which the locale pack ships. Those installs shipped a document
+  // pointing at files that were never going to be there.
+  //
+  // Taking the union — locale file where it exists, English where it does not —
+  // is also what makes the content comparison usable: without it those skills
+  // would report as changed on every upgrade forever. (XSPEC-382 R7)
+  const names = new Map(); // fileName -> absolute source path
+  const collect = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const fileName of readdirSync(dir)) {
+      const sourcePath = join(dir, fileName);
+      // Subdirectories are skipped — matching what the installer has always done.
+      if (statSync(sourcePath).isDirectory()) continue;
+      if (!names.has(fileName)) names.set(fileName, sourcePath);
+    }
+  };
+  collect(sourceDir);            // locale first, so it wins
+  if (sourceDir !== enSourceDir) collect(enSourceDir);
+
+  const files = [];
+  for (const [name, sourcePath] of names) {
+    files.push({ name, content: readFileSync(sourcePath, 'utf-8') });
+  }
+
+  if (needsFrontmatterMerge) {
+    const skill = files.find((f) => f.name === 'SKILL.md');
+    if (skill) {
+      const merged = mergeFrontmatterContent(enSourceDir, skill.content);
+      if (merged !== null) skill.content = merged;
+    }
+  }
+
+  // Sorted so a hash over this list depends on content, not on directory order.
+  files.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  return { files, fallbackToEn, error: null };
+}
+
+/**
+ * Content hash of a resolved skill, over names and contents.
+ *
+ * Names are included: two skills with the same bodies under different filenames
+ * are different installs, and a hash over contents alone would call a rename
+ * "unchanged".
+ *
+ * Content is line-ending normalized before hashing (GitHub issue #155): the
+ * counterpart on the actual-state side, `hashInstalledSkillDir` in
+ * `reconciler/actual-state-scanner.js`, hashes files that were checked out
+ * into the adopter's own repo and so may have been rewritten to CRLF by
+ * `core.autocrlf=true` on Windows. Both sides must apply the same
+ * normalization or every skill would report as changed on Windows, same as
+ * the `.standards/*` hashes this issue was filed about — the two functions
+ * only stay comparable by construction if they agree on this too, which is
+ * why the paired tests in `skill-content-hash.test.js` exist.
+ *
+ * @param {Array<{name: string, content: string}>} files
+ * @returns {string|null} `sha256:<hex>`, or null for an empty resolution
+ */
+export function computeSkillContentHash(files) {
+  if (!files?.length) return null;
+  const h = createHash('sha256');
+  for (const f of files) {
+    h.update(f.name);
+    h.update('\0');
+    h.update(normalizeLineEndings(f.content));
+    h.update('\0');
+  }
+  return `sha256:${h.digest('hex')}`;
+}
+
+/**
+ * The in-memory half of `mergeSkillFrontmatter`, so resolution and installation
+ * agree by construction rather than by both being kept up to date.
+ *
+ * @returns {string|null} merged content, or null when there is nothing to merge
+ */
+function mergeFrontmatterContent(enSourceDir, targetContent) {
+  const enSkillPath = join(enSourceDir, 'SKILL.md');
+  if (!existsSync(enSkillPath)) return null;
+
+  const enParsed = parseFrontmatter(readFileSync(enSkillPath, 'utf-8'));
+  if (!enParsed) return null;
+
+  const REQUIRED_FIELDS = ['name', 'allowed-tools', 'scope', 'argument-hint', 'disable-model-invocation'];
+  const fieldsToMerge = {};
+  for (const field of REQUIRED_FIELDS) {
+    if (enParsed.frontmatter[field] !== undefined) {
+      fieldsToMerge[field] = enParsed.frontmatter[field];
+    }
+  }
+  if (Object.keys(fieldsToMerge).length === 0) return null;
+
+  return rebuildWithFrontmatter(targetContent, fieldsToMerge);
+}
+
+function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
+  const targetDir = join(targetBaseDir, skillName);
+
+  const resolved = resolveSkillFiles(skillName, locale);
+  const { fallbackToEn } = resolved;
+
+  if (resolved.error) {
     return {
       success: false,
       skillName,
-      error: `Skill not found: ${skillName}`
+      error: resolved.error
     };
   }
 
@@ -403,23 +574,39 @@ function installSingleSkill(skillName, targetBaseDir, locale = 'en') {
   }
 
   try {
-    const files = readdirSync(sourceDir);
-    for (const fileName of files) {
-      const sourcePath = join(sourceDir, fileName);
-      const targetPath = join(targetDir, fileName);
-
-      // Skip directories for now (could be extended to handle subdirs)
-      if (statSync(sourcePath).isDirectory()) continue;
-
-      copyFileSync(sourcePath, targetPath);
+    // Write what `resolveSkillFiles` says this install is. The planner asks the
+    // same function what it WOULD be, so the two cannot disagree — which is the
+    // whole point of routing installation through it. (XSPEC-382 R1)
+    for (const file of resolved.files) {
+      writeFileSync(join(targetDir, file.name), file.content, 'utf-8');
     }
 
-    // Merge required frontmatter fields from English source into localized SKILL.md
-    if (needsFrontmatterMerge) {
-      mergeSkillFrontmatter(enSourceDir, targetDir);
+    // Remove top-level files UDS does not ship for this skill.
+    //
+    // Without this, a file UDS once shipped (or that arrived some other way)
+    // stays forever, and the content comparison reports the skill as changed on
+    // every upgrade with no way to make it stop — the same permanently-true
+    // false positive that made `uds check` useless before R6. Found in vibeops:
+    // `deploy-assistant/guide.md`, which is in no UDS skills tree and never was.
+    //
+    // Scoped to files directly inside a directory whose name UDS itself ships,
+    // which is the same provenance test that keeps an adopter's OWN skill
+    // directories out of every code path here. Subdirectories are left alone —
+    // the installer has never written them, so it has no claim on them.
+    // (XSPEC-382 R7)
+    const shipped = new Set(resolved.files.map((f) => f.name));
+    const pruned = [];
+    for (const entry of readdirSync(targetDir, { withFileTypes: true })) {
+      if (!entry.isFile() || shipped.has(entry.name)) continue;
+      try {
+        unlinkSync(join(targetDir, entry.name));
+        pruned.push(entry.name);
+      } catch {
+        // Leave it; a stale file is a smaller problem than a failed install.
+      }
     }
 
-    return { success: true, skillName, path: targetDir, fallbackToEn };
+    return { success: true, skillName, path: targetDir, fallbackToEn, pruned };
   } catch (error) {
     return {
       success: false,
@@ -542,19 +729,10 @@ export async function installCommandsForAgent(agent, level = 'project', commandN
   return results;
 }
 
-/**
- * Get the appropriate file extension for commands based on agent
- * @param {string} agent - Agent identifier
- * @returns {string} File extension (including the dot)
- */
-function getCommandFileExtension(agent) {
-  // Gemini CLI uses TOML format
-  if (agent === 'gemini-cli') {
-    return '.toml';
-  }
-  // Most agents use markdown
-  return '.md';
-}
+// getCommandFileExtension moved to config/ai-agent-paths.js — the reconciler's
+// scanner needs the same mapping, and a second private copy is how the writer
+// and the reader drift apart. It now reads `commandFormat` from the agent config
+// instead of hard-coding one agent id. (XSPEC-343 R2)
 
 /**
  * Install a single command to target directory
@@ -564,44 +742,81 @@ function getCommandFileExtension(agent) {
  * @param {string} locale - Locale for command content (default: 'en')
  * @returns {Object} Result
  */
-function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {
+/**
+ * Resolve what installing a command would put on disk, without writing anything.
+ *
+ * The command-side twin of `resolveSkillFiles`, and for the same reason: what
+ * gets installed is not what is in the source tree. The source is chosen at
+ * runtime by locale with fallback to English, and `transformCommandForAgent`
+ * rewrites the content per agent. Hashing the source file would report every
+ * command as changed on every upgrade for any agent that transforms.
+ *
+ * XSPEC-382 R1 covered skills and left commands on `hash: null`, which kept the
+ * unconditional-reinstall branch alive for them. R7 closes it the same way —
+ * one function the installer writes from and the planner hashes, rather than a
+ * second copy of the resolution in the planner.
+ *
+ * @param {string} cmdName
+ * @param {string} agent
+ * @param {string} locale
+ * @returns {{content: string|null, error: string|null}}
+ */
+export function resolveCommandContent(cmdName, agent, locale = 'en') {
   let sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
 
-  // Check for localized command file
   if (isLocalizedLocale(locale)) {
-    const localizedDir = getLocalizedCommandsSourceDir(locale);
-    const localizedPath = join(localizedDir, `${cmdName}.md`);
-    if (existsSync(localizedPath)) {
-      sourcePath = localizedPath;
-    }
+    const localizedPath = join(getLocalizedCommandsSourceDir(locale), `${cmdName}.md`);
+    if (existsSync(localizedPath)) sourcePath = localizedPath;
     // else: fall back to English source
   }
 
-  const targetExt = getCommandFileExtension(agent);
-  const targetPath = join(targetDir, `${cmdName}${targetExt}`);
-
   if (!existsSync(sourcePath)) {
-    return {
-      success: false,
-      command: cmdName,
-      error: `Command not found: ${cmdName}`
-    };
+    return { content: null, error: `Command not found: ${cmdName}` };
   }
 
   try {
-    let content = readFileSync(sourcePath, 'utf-8');
+    return {
+      content: transformCommandForAgent(readFileSync(sourcePath, 'utf-8'), cmdName, agent),
+      error: null
+    };
+  } catch (error) {
+    return { content: null, error: error.message };
+  }
+}
 
-    // Transform content if needed for specific agents
-    content = transformCommandForAgent(content, cmdName, agent);
+/**
+ * Content hash of a resolved command.
+ *
+ * Same `sha256:` shape as `computeSkillContentHash` so the two sides of the
+ * diff can be compared without caring which category an entry came from.
+ * Line-ending normalized before hashing for the same reason as
+ * `computeSkillContentHash` (GitHub issue #155) — its actual-state
+ * counterpart in `reconciler/actual-state-scanner.js` hashes an installed
+ * command file that may have been checked out as CRLF on Windows.
+ *
+ * @param {string|null} content
+ * @returns {string|null}
+ */
+export function computeCommandContentHash(content) {
+  if (content === null || content === undefined) return null;
+  return `sha256:${createHash('sha256').update(normalizeLineEndings(content)).digest('hex')}`;
+}
 
-    writeFileSync(targetPath, content);
+function installSingleCommand(cmdName, targetDir, agent, locale = 'en') {
+  const targetPath = join(targetDir, `${cmdName}${getCommandFileExtension(agent)}`);
+
+  // Write what `resolveCommandContent` says this install is; the planner asks
+  // the same function what it WOULD be. (XSPEC-382 R7)
+  const resolved = resolveCommandContent(cmdName, agent, locale);
+  if (resolved.error) {
+    return { success: false, command: cmdName, error: resolved.error };
+  }
+
+  try {
+    writeFileSync(targetPath, resolved.content);
     return { success: true, command: cmdName, path: targetPath };
   } catch (error) {
-    return {
-      success: false,
-      command: cmdName,
-      error: error.message
-    };
+    return { success: false, command: cmdName, error: error.message };
   }
 }
 

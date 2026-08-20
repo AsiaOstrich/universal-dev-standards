@@ -1,6 +1,6 @@
 {
   "name": "universal-dev-standards",
-  "version": "6.1.1",
+  "version": "6.8.0",
   "description": "CLI tool for adopting Universal Development Standards",
   "keywords": [
     "documentation",
@@ -56,22 +56,22 @@
     "prepare": "node ../scripts/setup-husky.mjs",
     "test:upgrade": "node scripts/test-upgrade-path.mjs",
     "check:bundle-parity": "node scripts/check-bundle-parity.mjs",
-    "prepack": "node scripts/prepack.mjs"
+    "prepack": "node scripts/prepack.mjs",
+    "check:reachability": "node scripts/check-module-reachability.mjs",
+    "check:command-existence": "node scripts/check-command-existence.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.4.2",
-    "chalk": "^5.3.0",
+    "chalk": "^6.0.0",
     "commander": "^15.0.0",
     "js-yaml": "^5.2.1",
-    "ora": "^9.4.0"
+    "ora": "^9.4.0",
+    "semver": "^7.8.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.1.5",
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1",
-    "eslint": "10.7.0",
-    "glob": "^13.0.1",
+    "eslint": "10.8.0",
     "globals": "17.7.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.3",

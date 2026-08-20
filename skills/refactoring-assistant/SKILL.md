@@ -1,7 +1,11 @@
 ---
 name: refactor
 scope: universal
-description: "[UDS] Guide refactoring decisions and strategy selection"
+description: |
+  [UDS] Guide refactoring decisions and strategy selection, including the refactor-versus-rewrite call.
+  Use when: code has become hard to change, choosing between tactical and architectural refactoring, working safely inside legacy code.
+  Not for: moving to a different framework or major version — use /migrate; clearing debug artifacts and dead code — use /sweep.
+  Keywords: refactor, rewrite, strangler, legacy code, technical debt, code smell, 重構, 重寫, 技術債.
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[file or module | 檔案或模組]"
 ---

@@ -367,6 +367,32 @@ describe('Skills Installer', () => {
   });
 
   describe('deduplicateInstallations', () => {
+    // XSPEC-343 R2. The manifest writers appended with
+    // `[...existing, ...new]`, so re-selecting an already-installed agent
+    // accumulated a duplicate entry. dev-platform's manifest read
+    // `['claude-code', 'claude-code']`. Those four sites now route through here.
+    it('should collapse an identical entry appended to the existing list', () => {
+      const existing = [{ agent: 'claude-code', level: 'project' }];
+      const appended = [...existing, { agent: 'claude-code', level: 'project' }];
+
+      expect(deduplicateInstallations(appended))
+        .toEqual([{ agent: 'claude-code', level: 'project' }]);
+    });
+
+    it('should collapse repeated appends without dropping other agents', () => {
+      const accumulated = [
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'gemini-cli', level: 'project' },
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'claude-code', level: 'project' }
+      ];
+
+      expect(deduplicateInstallations(accumulated)).toEqual([
+        { agent: 'claude-code', level: 'project' },
+        { agent: 'gemini-cli', level: 'project' }
+      ]);
+    });
+
     it('should keep single installation unchanged', () => {
       const input = [{ agent: 'claude-code', level: 'project' }];
       const result = deduplicateInstallations(input);

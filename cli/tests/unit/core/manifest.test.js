@@ -23,7 +23,9 @@ import {
   getAITools,
   getStandards,
   areSkillsInstalled,
-  areCommandsInstalled
+  areCommandsInstalled,
+  mergeInstalledNames,
+  MARKETPLACE_NAMES_SENTINEL
 } from '../../../src/core/manifest.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -672,6 +674,45 @@ describe('Manifest Query Helpers', () => {
     it('should return false if commands not installed', () => {
       const manifest = createValidManifest();
       expect(areCommandsInstalled(manifest)).toBe(false);
+    });
+  });
+
+  // XSPEC-343 R2. `names` was written by `init` and by nothing else, so it froze
+  // on the day a project was set up while the shipped set kept growing. Every
+  // install path now merges through this helper.
+  describe('mergeInstalledNames', () => {
+    const resultWith = (...perAgent) => ({
+      installations: perAgent.map(installed => ({ installed }))
+    });
+
+    it('should add names installed this run to the existing list', () => {
+      expect(mergeInstalledNames(['tdd-assistant'], resultWith(['bdd-assistant'])))
+        .toEqual(['bdd-assistant', 'tdd-assistant']);
+    });
+
+    it('should union across agents without duplicating', () => {
+      const merged = mergeInstalledNames(
+        ['tdd-assistant'],
+        resultWith(['tdd-assistant', 'push'], ['push', 'sweep'])
+      );
+      expect(merged).toEqual(['push', 'sweep', 'tdd-assistant']);
+    });
+
+    it('should never drop a name that is already recorded', () => {
+      expect(mergeInstalledNames(['legacy-skill'], resultWith(['push'])))
+        .toEqual(['legacy-skill', 'push']);
+    });
+
+    it('should leave the marketplace sentinel untouched', () => {
+      expect(mergeInstalledNames([MARKETPLACE_NAMES_SENTINEL], resultWith(['push'])))
+        .toEqual([MARKETPLACE_NAMES_SENTINEL]);
+    });
+
+    it('should tolerate a missing list and a malformed result', () => {
+      expect(mergeInstalledNames(undefined, resultWith(['push']))).toEqual(['push']);
+      expect(mergeInstalledNames(['push'], undefined)).toEqual(['push']);
+      expect(mergeInstalledNames(['push'], {})).toEqual(['push']);
+      expect(mergeInstalledNames(['push'], { installations: [null, {}] })).toEqual(['push']);
     });
   });
 });

@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/incident-response-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导事故回应、根因分析和事后复盘文档撰写。
-  使用时机：生产事故、故障响应、事后复盘撰写、根因分析。
-  关键字：incident, outage, post-mortem, RCA, root cause, 事故, 故障, 根因分析。
+  引导事故响应、根因分析与事后复盘文档撰写。
+  Use when: 生产环境事故、服务中断响应、撰写事后复盘、根因分析（RCA）。
+  Not for: 在故障发生前设计重试与检查点——请用 /durable；设置告警阈值与 Error Budget 策略——请用 /slo。
+  Keywords: incident, outage, post-mortem, RCA, root cause, 事故, 服务中断, 事后复盘, 根因分析.
 ---
 
 # 事故回应助手

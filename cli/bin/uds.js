@@ -5,6 +5,7 @@ import { program } from 'commander';
 import { listCommand } from '../src/commands/list.js';
 import { initCommand } from '../src/commands/init.js';
 import { checkCommand } from '../src/commands/check.js';
+import { lintCommand } from '../src/commands/lint.js';
 import { simulateCommand } from '../src/commands/simulate.js';
 import { fixCommand } from '../src/commands/fix.js';
 import { updateCommand } from '../src/commands/update.js';
@@ -15,6 +16,7 @@ import { skillsCommand } from '../src/commands/skills.js';
 import { agentListCommand, agentInstallCommand, agentInfoCommand } from '../src/commands/agent.js';
 import { aiContextInitCommand, aiContextValidateCommand, aiContextGraphCommand } from '../src/commands/ai-context.js';
 import { auditCommand } from '../src/commands/audit.js';
+import { depsCommand } from '../src/commands/deps.js';
 import { uninstallCommand } from '../src/commands/uninstall.js';
 import { specCreateCommand, specListCommand, specShowCommand, specConfirmCommand, specArchiveCommand, specDeleteCommand, specSearchCommand } from '../src/commands/spec.js';
 import { quickstartCommand } from '../src/commands/quickstart.js';
@@ -186,6 +188,12 @@ program
   .action(checkCommand);
 
 program
+  .command('lint')
+  .description('Check spec dependency validity and size against installed specs (specs/*.md)')
+  .option('--json', 'Output result in JSON format')
+  .action(lintCommand);
+
+program
   .command('simulate')
   .description('Simulate a standard check with input (Predictive Validation)')
   .option('-s, --standard <id>', 'Standard to simulate against')
@@ -212,7 +220,8 @@ program
   .option('--skills', 'Install/update Skills for configured AI tools')
   .option('--commands', 'Install/update slash commands for configured AI tools')
   .option('--debug', 'Show debug output for Skills/Commands detection')
-  .option('--plan', 'Show reconciliation plan without executing (like terraform plan)')
+  .option('--plan', 'Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing')
+  .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope')
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--rollback', 'Rollback to the most recent backup')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
@@ -242,6 +251,14 @@ program
   .option('--ci', 'CI mode: output score only, exit 1 if below threshold (use with --score)')
   .option('--threshold <n>', 'Score threshold for CI mode (default: 75)', '75')
   .action(auditCommand);
+
+program
+  .command('deps')
+  .description('Compare the versions you test against the versions your declared ranges resolve to')
+  .option('--path <dir>', 'Directory containing package.json (default: cwd)')
+  .option('--json', 'Output raw JSON')
+  .option('--concurrency <n>', 'Parallel registry lookups (default: 8)')
+  .action(depsCommand);
 
 program
   .command('uninstall')

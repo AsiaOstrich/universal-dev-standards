@@ -13,8 +13,8 @@ standard:
     - "Use pre-release identifiers (alpha, beta, rc)"
 
   meta:
-    version: "2.1.0"
-    updated: "2026-06-24"
+    version: "2.2.0"
+    updated: "2026-07-01"
     source: core/versioning.md
     description: Semantic Versioning (SemVer) for software releases
 
@@ -121,6 +121,7 @@ standard:
         check_items:
           - Service running normally
           - API returns correct version
+          - "Build-identity endpoint (/version or /health) returns commit sha matching the deployed artifact (not just version)"
           - No fatal errors in logs
           - Functionality verification passed
 
@@ -148,6 +149,27 @@ standard:
     - id: dry-run-test
       trigger: deploying upgrade
       instruction: Must not skip dry-run test
+      priority: required
+    - id: git-height-versioning-polyglot
+      trigger: choosing version automation for a polyglot / .NET / JVM project
+      instruction: >
+        Use git-height-derived versioning (MinVer / Nerdbank.GitVersioning / GitVersion)
+        so the version is derived from git tag + commit height and collisions are
+        structurally impossible; reserve semantic-release / standard-version for Node/npm
+        projects
+      priority: recommended
+    - id: build-identity-must-expose-sha
+      trigger: deploying a service
+      instruction: >
+        Deployed services MUST expose build identity (version + commit sha + build time)
+        via a queryable endpoint (/version or embedded in /health); the sha MUST be
+        verifiable against the deployed artifact, not self-reported
+      priority: required
+    - id: verify-sha-post-release
+      trigger: post-release verification
+      instruction: >
+        Assert the build-identity endpoint returns a commit sha matching the deployed
+        artifact, not merely the correct version number
       priority: required
 
 physical_spec:

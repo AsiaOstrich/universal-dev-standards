@@ -241,7 +241,7 @@ uds agent list
 uds agent install code-architect
 
 # Install all agents
-uds agent install --all
+uds agent install all
 
 # Install to user directory (global)
 uds agent install code-architect --global

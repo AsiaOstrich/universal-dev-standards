@@ -10,6 +10,7 @@ import {
 import { copyStandard } from '../utils/copier.js';
 import { t } from '../i18n/messages.js';
 import { computeFileHash } from '../utils/hasher.js';
+import { MANIFEST_OPTION_BINDINGS } from '../core/constants.js';
 
 // Extension file mappings
 export const EXTENSION_MAPPINGS = {
@@ -89,28 +90,17 @@ export async function installStandards(config, projectPath) {
       }
     }
 
-    // Copy selected options for this standard
+    // Copy selected options for this standard.
+    // The manifest-key → (standard, category) mapping lives in MANIFEST_OPTION_BINDINGS
+    // so the reconciler computes the same desired set this loop installs. It used to
+    // be spelled out inline here and guessed at incorrectly there. (XSPEC-343 R2)
     if (std.options) {
       for (const targetFormat of formatsToUse) {
-        // Git workflow options
-        if (std.id === 'git-workflow') {
-          if (config.standardOptions.workflow) {
-            const copied = await copyOptionFiles(std, 'workflow', config.standardOptions.workflow, targetFormat);
-            results.standards.push(...copied);
-          }
-          if (config.standardOptions.merge_strategy) {
-            const copied = await copyOptionFiles(std, 'merge_strategy', config.standardOptions.merge_strategy, targetFormat);
-            results.standards.push(...copied);
-          }
-        }
-        // Commit message options
-        if (std.id === 'commit-message' && (config.standardOptions.output_language || config.standardOptions.commit_language)) {
-          const copied = await copyOptionFiles(std, 'output_language', config.standardOptions.output_language || config.standardOptions.commit_language, targetFormat);
-          results.standards.push(...copied);
-        }
-        // Testing options
-        if (std.id === 'testing' && config.standardOptions.test_levels) {
-          const copied = await copyOptionFiles(std, 'test_level', config.standardOptions.test_levels, targetFormat);
+        for (const binding of MANIFEST_OPTION_BINDINGS) {
+          if (binding.standardId !== std.id) continue;
+          const key = binding.manifestKeys.find(k => config.standardOptions?.[k] != null);
+          if (!key) continue;
+          const copied = await copyOptionFiles(std, binding.categoryKey, config.standardOptions[key], targetFormat);
           results.standards.push(...copied);
         }
       }

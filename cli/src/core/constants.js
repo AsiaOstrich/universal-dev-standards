@@ -555,3 +555,32 @@ export function resolveIntegrationFile(entry) {
   const key = resolveToolKey(entry);
   return key ? SUPPORTED_AI_TOOLS[key].file : null;
 }
+
+/**
+ * How the flat keys in `manifest.options` bind to registry option categories.
+ *
+ * The manifest stores selections flat — `{ workflow: 'github-flow',
+ * test_levels: [...] }` — while the registry nests them under a standard id and
+ * a category key, and the two names are not always the same word (`test_levels`
+ * vs `test_level`). The installer knew this mapping inline; the reconciler's
+ * desired-state calculator instead iterated `manifest.options` as if it were
+ * keyed by *standard id*, looked up a standard called `workflow`, found nothing,
+ * and skipped. It produced an empty desired option set for every adopter repo,
+ * so every installed option file diffed as "no longer in desired state" —
+ * including the ones the manifest explicitly selected. (XSPEC-343 R2)
+ *
+ * Keys with no entry here (`display_language`, `release_mode`, `coverage_model`)
+ * are behaviour settings that install no file.
+ */
+export const MANIFEST_OPTION_BINDINGS = [
+  { manifestKeys: ['workflow'], standardId: 'git-workflow', categoryKey: 'workflow' },
+  { manifestKeys: ['merge_strategy'], standardId: 'git-workflow', categoryKey: 'merge_strategy' },
+  { manifestKeys: ['output_language', 'commit_language'], standardId: 'commit-message', categoryKey: 'output_language' },
+  { manifestKeys: ['test_levels'], standardId: 'testing', categoryKey: 'test_level' }
+];
+
+/**
+ * Option files are installed flat, not nested by standard/category.
+ * (`installers/standards-installer.js` copies into `.standards/options`.)
+ */
+export const OPTIONS_INSTALL_DIR = '.standards/options';

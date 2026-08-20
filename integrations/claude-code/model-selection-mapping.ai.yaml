@@ -1,0 +1,483 @@
+# Claude Code Host Mapping — Model Tier × Effort - AI Optimized
+# Source: integrations/claude-code/model-selection-mapping.md
+# Implements: core/model-selection.md 2.1.0 (XSPEC-362 R5)
+#
+# This is a HOST-LAYER mapping, not a standard. It is the designated home for concrete
+# vendor model identifiers, which core/model-selection.md forbids by rule (R4).
+# Evidence: code.claude.com/docs/en/sub-agents.md and .../model-config.md, fetched 2026-08-12.
+
+host_mapping:
+  id: claude-code-model-selection
+  name: Claude Code Host Mapping — Model Tier × Effort
+  description: UDS tier × effort 到 Claude Code model/effort 參數的具體映射與硬邊界登記表
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-08-12"
+    source: integrations/claude-code/model-selection-mapping.md
+    implements: core/model-selection.md
+    implements_version: "2.1.0"
+    spec: XSPEC-362 R5
+    host: claude-code
+    evidence:
+      - url: "https://code.claude.com/docs/en/sub-agents.md"
+        fetched: "2026-08-12"
+      - url: "https://code.claude.com/docs/en/model-config.md"
+        fetched: "2026-08-12"
+
+  responsibility_boundary:
+    description: "本檔只實作 model-selection 的一半；另一半屬於 agent-dispatch，本檔引用而不重寫"
+    implements:
+      standard: model-selection
+      question: "派給誰、想多深（which model, how deep）"
+    references_only:
+      standard: agent-dispatch
+      question: "怎麼派（並行安全、獨立域、狀態協定、prompt 設計）"
+      consumed_artifacts:
+        - "status_protocol 四態：DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED"
+        - "core_principle.independent_domain_criterion：無共享可變狀態才可並行"
+        - "prompt_design_principles：聚焦、自足、明確輸出"
+      rule: >
+        並行安全規則不在本檔重寫。兩份同義規則會各自漂移，
+        而漂移的副本與現行的副本在檔案上無從分辨。
+
+  effort_label_mapping:
+    description: "UDS vendor-neutral 級距 → Claude Code effort 參數"
+    renamed_levels_exist: true
+    levels:
+      - uds: low
+        claude_code: low
+        identical: true
+      - uds: medium
+        claude_code: medium
+        identical: true
+      - uds: high
+        claude_code: high
+        identical: true
+      - uds: very-high
+        claude_code: xhigh
+        identical: false
+        note: "唯一名稱不同的一級。effort 欄位不接受 very-high 這個值。"
+      - uds: max
+        claude_code: max
+        identical: true
+    frontmatter_allowed_values: [low, medium, high, xhigh, max]
+    not_an_effort_level:
+      value: ultracode
+      why: >
+        依 model-config.md，ultracode 是 Claude Code 的 session 設定而非模型 effort 級距：
+        它送 xhigh 給模型並額外讓 Claude 編排 dynamic workflow。
+        它不在 effort frontmatter 的選項中，且無 UDS 對應級距。
+
+  tier_to_model:
+    description: "tier id 不可變（XSPEC-362 OQ1）。映射由 tiers[].signals 與宿主自述比對得出。"
+    mappings:
+      - tier: fast
+        model: haiku
+        host_description: "the fast and efficient Haiku model for simple tasks"
+        matched_signals:
+          - "步驟已寫出，無需尋路"
+          - "字面遵循正是想要的行為"
+        effort_supported: false
+      - tier: standard
+        model: sonnet
+        host_description: "the latest Sonnet model for daily coding tasks"
+        matched_signals:
+          - "部分成分需要推理，但沒有一項是「想更久也想不出來」"
+          - "需要理解模組間關係"
+        effort_supported: true
+      - tier: capable
+        model: opus
+        variant: default
+        host_description: "the latest Opus model for complex reasoning tasks"
+        matched_signals:
+          - "存在單靠更多思考時間解決不了的成分"
+        effort_supported: true
+      - tier: capable
+        model: fable
+        variant: long-horizon
+        host_description: >
+          most capable model in Claude Code, suited to tasks larger than a single sitting;
+          sustains long autonomous sessions, investigates before acting;
+          hand it ambiguous problems — root-cause investigations, outage debugging,
+          architecture decisions
+        matched_signals:
+          - "路徑未知；答案要找出來，不是套用"
+          - "需要導航模糊性而非遵循文字"
+        effort_supported: true
+    within_tier_sub_criterion:
+      applies_to: capable
+      why_not_a_fourth_tier: >
+        opus 與 fable 都通過判準 1（推理天花板）且都被描述為導航模糊性——
+        兩個模型軸判準分不開它們。分開它們的是「自主時程」（無人看管跑多久），
+        那是派工的屬性不是模型軸的屬性，因此在 capable 層「之內」以宿主層子判準選擇，
+        tier id 維持 OQ1 所定。新增第四層等於把宿主專屬的區分放進 vendor-neutral 的 id 空間。
+      rules:
+        - condition: "單次坐定可完成；結果會先被人讀過再進下一步"
+          choose: opus
+        - condition: "大於一次坐定；代理需自行調查、驗證並在無人看管下維持脈絡"
+          choose: fable
+    excluded_model_values:
+      values: ["best", "default", "opusplan", "sonnet[1m]", "opus[1m]"]
+      reason: >
+        這些在 model-config.md 中登記為 session model 設定的別名；
+        sub-agents.md 的 frontmatter 參考只列出 sonnet / opus / haiku / fable、
+        完整 model ID、或 inherit。是否能用於 subagent frontmatter 未文件化。
+      certainty: UNKNOWN
+
+  grid:
+    description: "tier × effort 的解析結果——回答 core/model-selection.md 表格中的 ? 格"
+    provider_assumed: anthropic-api
+    alias_resolution_note: "本表假設 haiku/sonnet/opus 解析為 Haiku/Sonnet 5/Opus 5；其他 provider 見 hard_boundaries"
+    cells:
+      - tier: fast
+        model: haiku
+        low: HARD_BOUNDARY
+        medium: HARD_BOUNDARY
+        high: HARD_BOUNDARY
+        very_high: HARD_BOUNDARY
+        max: HARD_BOUNDARY
+      - tier: standard
+        model: sonnet
+        low: low
+        medium: medium
+        high: high
+        very_high: xhigh
+        max: max
+      - tier: capable
+        model: opus
+        low: low
+        medium: medium
+        high: high
+        very_high: xhigh
+        max: max
+      - tier: capable
+        model: fable
+        low: low
+        medium: medium
+        high: high
+        very_high: xhigh
+        max: max
+    consequence_for_standard_rules:
+      - rule_id: MS-005
+        consequence: >
+          MS-005（產出淺但推理健全 → 在同一模型上提高 effort）在本宿主的 fast 層無法執行，
+          因為 haiku 不接受任何 effort 級距——那一層沒有 effort 軸可移動。
+        available_remedy: MS-001
+        not_a_violation_of_ordering_rule: >
+          排序規則要求「升級模型層之前先用盡 effort」。fast 層的 effort 集合從一開始就是空的，
+          因此直接套用 MS-001 並未跳過任何未嘗試的級距。
+
+  recommended_defaults:
+    description: "參考 agent 定義採用的預設值"
+    omitting_effort_means: "繼承 session 級距"
+    why_state_it_explicitly: >
+      省略 effort 會讓派工不可重現：同一份 agent 定義在不同人啟動的 session 下以不同深度執行。
+    defaults:
+      - tier: fast
+        model: haiku
+        effort: OMIT
+        reason: "不支援；寫上去會記錄一個從未被執行的決定"
+      - tier: standard
+        model: sonnet
+        effort: medium
+        reason: "UDS medium＝一般斟酌、預設值，對應多數已定義的實作工作"
+      - tier: capable
+        model: opus
+        effort: xhigh
+        reason: "UDS very-high＝探索並淘汰候選方法，對應設計、審查、非顯而易見的除錯"
+      - tier: capable
+        model: fable
+        effort: xhigh
+        reason: "同上；max 保留給重新派工"
+    why_no_agent_defaults_to_max:
+      uds_definition: "max＝升級模型軸前的最後一次嘗試"
+      consequence: >
+        以 max 為常設預設的 agent 沒有退路：它第一次失敗時就已在 effort 軸頂端，
+        深度不足與天花板不足（MS-005 / MS-006）自此無法分辨。max 屬於「重新派工」，不屬於「定義」。
+      host_agrees: "max may show diminishing returns and is prone to overthinking; test before adopting broadly"
+
+  hard_boundaries:
+    description: "R3a 要求：與能力分數分開登記，且在成本比較之前排除"
+    effort_parameter_support:
+      id: effort_parameter_support
+      source_statement: "The available effort levels depend on the model. Models not listed here do not support effort."
+      models:
+        - model: "Fable 5"
+          levels: [low, medium, high, xhigh, max]
+        - model: "Opus 5"
+          levels: [low, medium, high, xhigh, max]
+        - model: "Sonnet 5"
+          levels: [low, medium, high, xhigh, max]
+        - model: "Opus 4.8"
+          levels: [low, medium, high, xhigh, max]
+        - model: "Opus 4.7"
+          levels: [low, medium, high, xhigh, max]
+        - model: "Opus 4.6"
+          levels: [low, medium, high, max]
+          missing: [xhigh]
+        - model: "Sonnet 4.6"
+          levels: [low, medium, high, max]
+          missing: [xhigh]
+        - model: "Haiku"
+          levels: []
+          note: "未列於宿主文件的表格中 → 完全不支援 effort"
+        - model: "Sonnet 4.5"
+          levels: []
+          note: "未列於宿主文件的表格中 → 完全不支援 effort"
+      violation_is_silent: true
+      violation_behaviour: >
+        設定了模型不支援的級距時，Claude Code 會退回到「不高於所設值的最高支援級距」。
+        例如 xhigh 在 Opus 4.6 上以 high 執行。檔案上寫 xhigh，實際跑 high，而檔案不會說。
+      matches_standard_clause: "R3a effort_parameter_support：請求被拒，或靜默以模型固定深度執行"
+      observable_check:
+        what_to_read: "session header 顯示於模型名稱旁的 effort（例：with low effort）；footer 於啟動與變更時亦顯示"
+        what_not_to_read: "frontmatter — 那是宣告值，不是執行值"
+    provider_alias_resolution:
+      id: provider_alias_resolution
+      description: "同一個別名在不同 provider 解析到不同模型，因而有不同的 effort 支援"
+      invisible_in_agent_file: true
+      table:
+        - provider: "Anthropic API"
+          sonnet_resolves_to: "Sonnet 5"
+          sonnet_effort: [low, medium, high, xhigh, max]
+          opus_resolves_to: "Opus 5"
+          opus_effort: [low, medium, high, xhigh, max]
+        - provider: "Claude Platform on AWS"
+          sonnet_resolves_to: "Sonnet 4.6"
+          sonnet_effort: [low, medium, high, max]
+          opus_resolves_to: "Opus 5"
+          opus_effort: [low, medium, high, xhigh, max]
+        - provider: "Amazon Bedrock"
+          sonnet_resolves_to: "Sonnet 4.5"
+          sonnet_effort: []
+          opus_resolves_to: "Opus 5"
+          opus_effort: [low, medium, high, xhigh, max]
+        - provider: "Google Cloud Agent Platform"
+          sonnet_resolves_to: "Sonnet 4.5"
+          sonnet_effort: []
+          opus_resolves_to: "Opus 5"
+          opus_effort: [low, medium, high, xhigh, max]
+        - provider: "Microsoft Foundry"
+          sonnet_resolves_to: "Sonnet 4.5"
+          sonnet_effort: []
+          opus_resolves_to: "Opus 4.6"
+          opus_effort: [low, medium, high, max]
+      portability_consequence: >
+        一份寫著 model sonnet / effort xhigh 的 standard 層 agent：
+        在 Anthropic API 是合法派工，在 Claude Platform on AWS 是被靜默降級的派工，
+        在 Bedrock 則根本沒有 effort 軸。
+      pinning_remedy: "改用完整 model ID（例 claude-sonnet-5），或設 ANTHROPIC_DEFAULT_SONNET_MODEL"
+    context_capacity:
+      id: context_capacity
+      facts:
+        - statement: "sonnet[1m] / opus[1m] 選用 1M token context window；Sonnet 5 原生即為該視窗"
+          certainty: CONFIRMED
+        - statement: "subagent 的 context window 由「它自己的模型」決定，不是父對話的模型"
+          certainty: CONFIRMED
+          quote: "Delegating to a model with a smaller window gives that subagent the smaller window"
+        - statement: "[1m] 別名是否可用於 subagent frontmatter 的 model 欄位"
+          certainty: UNKNOWN
+      operative_consequence: >
+        把大輸入派給 fast 層可能造成截斷，而截斷正是 R3a 的 context 違反
+        （「模型從未看過任務的一部分」）。選層前先比對輸入大小，不要先比成本。
+    background_tool_narrowing:
+      id: background_tool_narrowing
+      not_a_model_boundary: true
+      why_listed_here: "形狀相同——能力是「不存在」而非「較差」，且不存在時不報錯"
+      facts:
+        - "subagent 自 v2.1.198 起預設在背景執行"
+        - "背景 subagent 保留全部 MCP 工具，但內建工具只保留下列清單"
+        - "移除不會報錯，除非它讓 tools 清單解析為空"
+      background_safe_builtin_tools:
+        - Read
+        - Grep
+        - Glob
+        - Bash
+        - PowerShell
+        - Edit
+        - Write
+        - NotebookEdit
+        - WebFetch
+        - WebSearch
+        - TodoWrite
+        - Skill
+        - ToolSearch
+        - EnterWorktree
+        - ExitWorktree
+        - Monitor
+        - TaskStop
+        - SendMessage
+        - Artifact
+      design_rule: "本目錄的每一份參考 agent，其 tools 必須落在上述集合內"
+      no_foreground_override: >
+        沒有任何已文件化的 frontmatter 欄位可強制前景執行——background true 強制背景，
+        未設時由 Claude 決定。因此應以窄集合為設計前提，不是當成邊角情況。
+    modality:
+      id: modality
+      certainty: UNKNOWN
+      statement: "兩份宿主文件皆未載明 subagent 的分模型影像／語音輸入支援"
+      recording_rule: "依標準規則，未量測的邊界記為 UNKNOWN，不得記為 false，也不得記為分數"
+      how_to_settle: "查 provider 文件後填入，於派工 modality 相關工作之前"
+
+  reverse_risks_observed:
+    description: "R3b 在本宿主不是理論——兩項風險都出現在廠商自己的文件裡"
+    safety_classifier_refusal:
+      maps_to: "R3b #1"
+      host_statement: >
+        Requests that its safety classifiers flag, most often in cybersecurity and biology
+        domains, trigger automatic model fallback.
+      applies_to: "Fable 5（本宿主最高能力模型）"
+      reading: >
+        最高層正是會拒絕規格敏感工作的那一層，而宿主自動採取的補救
+        （改用別的模型）與 R3b 開的處方相同：改派，不要以更高 effort 重試同一請求。
+      what_it_does_not_remove: >
+        MS-008 仍要求呼叫端檢查拒絕標記。自動 fallback 意味著回答可能來自
+        「與 agent 檔案所指名者不同的模型」——除非有東西回讀，否則那是靜默替換。
+    over_specified_prompt:
+      maps_to: "R3b #2 / MS-009"
+      host_statement: >
+        Describe the outcome, not the steps: hand it the result you want and let it plan the path.
+        Skip the verification reminders: it verifies its own work with less prompting.
+      reading: >
+        完整寫出的步驟清單對字面遵循層是正確 prompt，對高天花板層是錯誤 prompt。
+        operational 形式：若唯一可用的 prompt 是完整步驟清單，那是「送 fast 層」的證據，
+        不是「升到 capable」的理由。
+
+  capability_registry:
+    description: >
+      本檔的硬邊界以 model-selection 的 capability_registry 格式登記（DEC-031 D1 + XSPEC-362 R7b）。
+      這是「採用者自己的 registry」——標準要求採用者維護的那一份，不是標準的 examples。
+      effort 參數支援以 declared 布林表達，因為那正是 R3a 所說的「能力有無」而非程度差。
+    scope_note: >
+      declared 值取自宿主文件的 effort 支援表（連線成本趨近零的事實）。
+      measured 一律缺失＝UNKNOWN：本檔未執行任何 benchmark，
+      而依規則，量不到不得以任何分數（含 0）填補。
+    entries:
+      - model_id: "claude-code/haiku"
+        version_pinned: "alias haiku — Anthropic API 解析結果的完整 model ID 未載於宿主文件"
+        pin_date: "2026-08-12"
+        uds_tier: fast
+        capabilities:
+          "dispatch.effort_parameter":
+            declared: false
+            note: "未列於宿主 effort 支援表 → 硬邊界，排除於 effort 軸之外，且不需校準"
+      - model_id: "claude-code/sonnet"
+        version_pinned: "claude-sonnet-5"
+        pin_date: "2026-08-12"
+        uds_tier: standard
+        capabilities:
+          "dispatch.effort_parameter":
+            declared: true
+            levels: [low, medium, high, xhigh, max]
+          "dispatch.effort_xhigh":
+            declared: true
+            provider_dependent: true
+            note: "僅在別名解析為 Sonnet 5 時成立；Sonnet 4.6 無 xhigh，Sonnet 4.5 完全無 effort"
+      - model_id: "claude-code/opus"
+        version_pinned: "claude-opus-5"
+        pin_date: "2026-08-12"
+        uds_tier: capable
+        capabilities:
+          "dispatch.effort_parameter":
+            declared: true
+            levels: [low, medium, high, xhigh, max]
+          "dispatch.effort_xhigh":
+            declared: true
+            provider_dependent: true
+            note: "Microsoft Foundry 上別名解析為 Opus 4.6，該模型無 xhigh"
+      - model_id: "claude-code/fable"
+        version_pinned: "alias fable — Fable 5；完整 model ID 未載於宿主文件"
+        pin_date: "2026-08-12"
+        uds_tier: capable
+        capabilities:
+          "dispatch.effort_parameter":
+            declared: true
+            levels: [low, medium, high, xhigh, max]
+    unknowns_are_recorded_not_filled: >
+      每一筆的 measured 皆缺失。依 R7b，declared true 且 measured 缺失＝UNKNOWN
+      （做得到，但不知道做得多好），應排入校準佇列，不得靜默排除，也不得以分數 0 表達。
+
+  freshness:
+    pin_date: "2026-08-12"
+    threshold_days: 90
+    consistent_with: "model-selection MS-010"
+    reverify_commands:
+      - "curl -fsSL https://code.claude.com/docs/en/sub-agents.md | grep -A20 'Supported frontmatter fields'"
+      - "curl -fsSL https://code.claude.com/docs/en/model-config.md | grep -A12 'The available effort levels depend on the model'"
+    automated_check:
+      script: scripts/check-model-pin-freshness.ts
+      stale_predicate_applies: true
+      vendor_predicate_applies: false
+      why_vendor_predicate_is_suppressed: >
+        VENDOR 判準的用途是把具體模型 ID 擋在「標準」之外，因為它們在那裡會無聲腐壞。
+        本目錄正是那些 ID 的指定歸屬地，所以 integrations/** 下抑制該判準，
+        而 STALE 判準照常適用——這裡出現具體 ID 是正確的，出現 91 天前的具體 ID 不是。
+
+  reference_agents:
+    location: integrations/claude-code/.claude/agents/
+    agents:
+      - file: uds-mechanical-edit.md
+        tier: fast
+        model: haiku
+        effort: null
+      - file: uds-feature-implementer.md
+        tier: standard
+        model: sonnet
+        effort: medium
+      - file: uds-architecture-reviewer.md
+        tier: capable
+        model: opus
+        effort: xhigh
+      - file: uds-deep-investigator.md
+        tier: capable
+        model: fable
+        effort: xhigh
+
+  unverified:
+    description: "記錄而非猜測。資訊缺口不是結論。"
+    items:
+      - item: "tools 中的工具名稱是否大小寫敏感"
+        certainty: UNKNOWN
+        evidence_seen: "所有文件範例皆使用精確的 PascalCase，沒有任何一例測試其他大小寫"
+        how_to_settle: "定義一個 tools 為 read 的 agent，觀察它能否啟動或回報 zero tools 錯誤"
+      - item: "tools 逗號後是否必須有空格"
+        certainty: UNKNOWN
+        evidence_seen: "所有文件範例皆有空格"
+        how_to_settle: "同上，改用 Read,Grep"
+      - item: "session 專用別名是否可用於 subagent 的 model 欄位"
+        certainty: UNKNOWN
+        how_to_settle: "定義 model 為 sonnet[1m] 的 agent，讀啟動 header"
+      - item: "各 frontmatter 欄位的最低 Claude Code 版本"
+        certainty: PARTIAL
+        confirmed_floors:
+          - "effort ultracode 值 >= v2.1.203"
+          - "permissionMode manual 別名 >= v2.1.200"
+          - "含冒號的 name 被拒 >= v2.1.218"
+          - "背景執行為預設 >= v2.1.198"
+          - "Opus 5 >= v2.1.219"
+          - "Sonnet 5 >= v2.1.197"
+          - "Fable 5 >= v2.1.170"
+        gap: "effort 欄位本身沒有載明版本下限"
+        how_to_settle: "查 release notes；不要從相鄰欄位的下限推論"
+      - item: "在完全不支援任何 effort 級距的模型上設定 effort 會發生什麼"
+        certainty: INFERRED
+        basis: "已文件化的退回規則是「不高於所設值的最高支援級距」"
+        inference: "支援集合為空時，推斷該值被忽略、模型以固定深度執行"
+        not_stated_for_this_case: true
+        how_to_settle: "在 haiku agent 上設 effort low，讀 session header"
+
+physical_spec:
+  type: mapping
+  validator:
+    type: ai_review
+    rule: "檢查 agent 定義的 model/effort 是否落在本映射表內，且未觸犯任何已登記的硬邊界"
+  checks:
+    - "agent 的 model 值是否為 sonnet / opus / haiku / fable / 完整 model ID / inherit 之一"
+    - "agent 的 effort 值是否為 low / medium / high / xhigh / max 之一（不是 very-high，也不是 ultracode）"
+    - "fast 層的 agent 是否「未」設定 effort"
+    - "agent 的 tools 是否全部落在 background_safe_builtin_tools 集合內"
+    - "所選 tier 與 effort 的組合是否未落在 grid 的 HARD_BOUNDARY 格"
+    - "目標 provider 的別名解析是否已確認支援所宣告的 effort 級距"
+    - "agent 定義是否引用 agent-dispatch 的狀態協定，而非自創回報格式"
+    - "pin_date 是否在 90 天內"

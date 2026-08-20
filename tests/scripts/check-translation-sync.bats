@@ -68,7 +68,10 @@ _write_trans() {
 
 @test "(a) matching source_hash -> CURRENT, no drift" {
   _write_trans "$GOOD_HASH"
-  run bash "$SCRIPT" zz-test
+  # --verbose: the per-file [CURRENT] line this case asserts on is a routine
+  # pass line, and those are quiet by default. Without the flag the assertion
+  # tests output the script never emits.
+  run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
   [[ "$doc_line" == *"[CURRENT]"* ]]
@@ -99,7 +102,9 @@ _write_trans() {
 
 @test "(c) missing source_hash -> advisory NO HASH, not a failure" {
   _write_trans ""
-  run bash "$SCRIPT" zz-test
+  # --verbose: see (a). The "no source_hash" advisory rides on the per-file
+  # [CURRENT] line, which is quiet by default.
+  run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
   [[ "$output" == *"no source_hash"* ]]
   [[ "$output" == *"No source_hash:"*"1"* ]]
@@ -148,7 +153,8 @@ _write_trans() {
     echo "---"
     echo '```'
   } > "$TRANS"
-  run bash "$SCRIPT" zz-test
+  # --verbose: see (a).
+  run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
   [[ "$doc_line" == *"[CURRENT]"* ]]

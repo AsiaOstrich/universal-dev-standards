@@ -614,3 +614,47 @@ export function areSkillsInstalled(manifest) {
 export function areCommandsInstalled(manifest) {
   return manifest.commands?.installed || false;
 }
+
+/**
+ * Placeholder stored in `skills.names` when skills come from the Claude Code
+ * plugin marketplace rather than being copied into the project.
+ */
+export const MARKETPLACE_NAMES_SENTINEL = 'all-via-plugin';
+
+/**
+ * Merge the names actually installed by a run into a manifest name list.
+ *
+ * `skills.names` / `commands.names` used to be written by `init` and by no other
+ * code path, so they froze on the day a project was set up: machine-setup's said
+ * 32 skills across five UDS upgrades while the shipped set grew to 55. Nothing
+ * errored — a name list that is merely *incomplete* reads exactly like a complete
+ * one, and the reconciler read the gap as "these 40 are no longer wanted".
+ * (XSPEC-343 R1/R2)
+ *
+ * Every code path that installs skills or commands must call this. It lives here
+ * rather than in a command module because there are 18 such call sites across
+ * update.js and config.js, and a private copy per module is how the writers drift
+ * apart again.
+ *
+ * It only ever adds. A name recorded by an older UDS version that no longer ships
+ * (machine-setup still lists `methodology-system`, plus five non-skill directories
+ * an old deny-list bug misfiled as skills) stays in the list. Pruning would need
+ * to know the name is absent for *every* agent, and over-reporting is harmless
+ * now that the reconciler derives desired state from the shipped set instead.
+ *
+ * @param {string[]} existing - Current manifest list
+ * @param {Object} installResult - Result from installSkills/CommandsToMultipleAgents
+ * @returns {string[]} Sorted union of existing and newly installed names
+ */
+export function mergeInstalledNames(existing, installResult) {
+  const merged = new Set(existing || []);
+  // Marketplace installs record a sentinel instead of real names; leave it alone.
+  if (merged.has(MARKETPLACE_NAMES_SENTINEL)) return [...merged];
+
+  for (const agentResult of installResult?.installations || []) {
+    for (const name of agentResult?.installed || []) {
+      merged.add(name);
+    }
+  }
+  return [...merged].sort();
+}

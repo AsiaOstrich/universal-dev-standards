@@ -1,11 +1,21 @@
 ---
 name: code-review
 scope: universal
-description: "[UDS] Perform systematic code review with checklist"
+description: |
+  [UDS] Reference for systematic code review: eight review categories and BLOCKING/IMPORTANT/SUGGESTION comment prefixes.
+  Use when: reviewing a pull request or diff, deciding how to phrase and prioritise review comments, agreeing review scope with a team.
+  Not for: executing a gated review workflow — that moved to the adoption layer (XSPEC-095); pre-commit gate verification — use /checkin.
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
-disable-model-invocation: true
 status: reference
+# 2026-08-17: `disable-model-invocation: true` removed. It was applied by d415937e
+# alongside the description rewrite, and followed no stateable rule — of the six
+# skills carrying `status: reference`, four (tdd, bdd, atdd, pr-automation) were
+# never disabled despite the identical XSPEC-095 relocation. Same category,
+# opposite treatment. The rule is now stateable: a reference is model-invocable.
+# pr-automation-assistant routes "the substance of the review itself" to
+# /code-review, and that referral was unreachable while this flag was set.
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer

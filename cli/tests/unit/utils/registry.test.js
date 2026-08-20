@@ -10,6 +10,7 @@ import {
   getSkillStandards,
   getReferenceStandards,
   getSkillFiles,
+  resolveStandardFilename,
   getAllSkillNames
 } from '../../../src/utils/registry.js';
 
@@ -138,6 +139,49 @@ describe('Registry Utils', () => {
       expect(names).toBeInstanceOf(Array);
       expect(names).toContain('ai-collaboration-standards');
       expect(names).toContain('commit-standards');
+    });
+  });
+
+  describe('resolveStandardFilename — a manifest entry is not always a filename', () => {
+    // A manifest's `standards` array is mixed by design: core standards became
+    // registry IDs in v3.4.0, option files stay as their upstream source path
+    // because they have no ID. Callers that ran basename() over both got the
+    // right answer for options and the ID back for everything else, and an ID
+    // is not a filename. That shipped: an adopter's AGENTS.md listed
+    // `.standards/error-code-standards`, a file installed as
+    // `error-codes.ai.yaml`, under a heading telling the agent to read it.
+
+    it('resolves an ID whose filename does not match it', () => {
+      expect(resolveStandardFilename('error-code-standards', 'ai')).toBe('error-codes.ai.yaml');
+      expect(resolveStandardFilename('logging-standards', 'ai')).toBe('logging.ai.yaml');
+    });
+
+    it('resolves an ID that differs only by a -standards suffix', () => {
+      expect(resolveStandardFilename('ai-agreement', 'ai')).toBe('ai-agreement-standards.ai.yaml');
+    });
+
+    it('resolves an ID whose filename does match it', () => {
+      // The majority case, and the reason the bug survived: most IDs happen to
+      // equal their basename, so basename() looked correct nearly everywhere.
+      expect(resolveStandardFilename('governance-layer', 'ai')).toBe('governance-layer.ai.yaml');
+    });
+
+    it('honours the content format', () => {
+      expect(resolveStandardFilename('governance-layer', 'human')).toBe('governance-layer.md');
+    });
+
+    it('passes an option path through by basename', () => {
+      expect(resolveStandardFilename('ai/options/testing/unit-testing.ai.yaml', 'ai'))
+        .toBe('unit-testing.ai.yaml');
+    });
+
+    it('returns null rather than echoing an entry it cannot resolve', () => {
+      // Null, not the input. A caller that falls back to printing the raw
+      // entry recreates the original bug, which is why this does not do it for
+      // them.
+      expect(resolveStandardFilename('no-such-standard', 'ai')).toBeNull();
+      expect(resolveStandardFilename('', 'ai')).toBeNull();
+      expect(resolveStandardFilename(undefined, 'ai')).toBeNull();
     });
   });
 });

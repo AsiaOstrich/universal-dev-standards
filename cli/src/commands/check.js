@@ -7,8 +7,7 @@ import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
   getAllStandards,
-  getRepositoryInfo
-} from '../utils/registry.js';
+  getRepositoryInfo, resolveStandardFilename, resolveStandardSourcePath } from '../utils/registry.js';
 import {
   computeFileHash,
   compareFileHash,
@@ -30,7 +29,7 @@ import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
-import { extractMarkedContent, getToolFilePath } from '../utils/integration-generator.js';
+import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount } from '../utils/integration-generator.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { writeUpdateCache } from '../utils/update-checker.js';
@@ -750,11 +749,20 @@ function removeFromManifest(manifest, relativePath) {
  */
 export function getSourcePathFromRelative(manifest, relativePath) {
   const fileName = basename(relativePath);
+  const format = manifest.format || 'ai';
 
-  // Check standards
+  // Check standards.
+  //
+  // Compare the RESOLVED filename, not the raw entry. Manifests have stored IDs
+  // (`commit-message`) rather than paths since 3.4.0, and `'commit-message'
+  // .endsWith('commit-message.ai.yaml')` is false for every one of them —
+  // so this returned null for 64 of 72 tracked standards and `uds check
+  // --restore` reported "Could not determine source" for all of them. The eight
+  // that worked were the `options/` entries, still stored as paths, which is
+  // why the failure never looked total. (XSPEC-382 R6)
   for (const std of manifest.standards) {
-    if (std.endsWith(fileName)) {
-      return std;
+    if (resolveStandardFilename(std, format) === fileName) {
+      return resolveStandardSourcePath(std, format);
     }
   }
 
@@ -1154,6 +1162,27 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
     // Report status - use all installed standards as the total
     const totalTrackable = standardsFiles.length;
 
+    // Index-mode blocks deliberately do NOT enumerate standards (XSPEC-358 R1);
+    // grepping for each name reports a false failure and points at `uds update`,
+    // which regenerates the identical block. Assert the declared count instead.
+    const declaredCount = parseStandardsIndexCount(content);
+    if (declaredCount !== null) {
+      if (declaredCount === totalTrackable) {
+        console.log(chalk.green(`  ✓ ${toolFile}:`));
+        console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
+        console.log(chalk.gray(`    ${msg.standardsIndexCount
+          ? msg.standardsIndexCount.replace('{count}', declaredCount)
+          : `Index declares ${declaredCount} standards (matches manifest)`}`));
+      } else {
+        console.log(chalk.yellow(`  ⚠ ${toolFile}:`));
+        console.log(chalk.yellow(`    ${msg.standardsIndexCountMismatch
+          ? msg.standardsIndexCountMismatch.replace('{declared}', declaredCount).replace('{actual}', totalTrackable)
+          : `Index declares ${declaredCount} standards but the manifest has ${totalTrackable}`}`));
+        hasIssues = true;
+      }
+      continue;
+    }
+
     if (hasStandardsIndex && missingStandards.length === 0) {
       console.log(chalk.green(`  ✓ ${toolFile}:`));
       console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
@@ -1223,7 +1252,42 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   }
 
   const content = readFileSync(agentsMdPath, 'utf-8');
-  const installedStandards = (manifest.standards || []).map(s => basename(s));
+  // Resolved through the registry, not basename()d.
+  //
+  // This check reported "standards synced (7/7)" for a project with seventy
+  // standards in its manifest. basename() leaves a registry ID unchanged, the
+  // `.ai.yaml` filter below then drops every ID, and only the seven option
+  // entries — which are stored as paths — survived to become the denominator.
+  // Seven of seven were present, so it ticked, both before the AGENTS.md block
+  // listed the other sixty-three and after, when seven of its paths pointed at
+  // nothing. A drift check blind to ninety percent of the content.
+  //
+  // The AI-tool integration check ~170 lines above already builds this exact
+  // mapping and its comment names the exact case (`error-code-standards` ->
+  // `error-codes.ai.yaml`). The knowledge was in the file; it had not reached
+  // its sibling.
+  const installedStandards = (manifest.standards || [])
+    .map(entry => resolveStandardFilename(entry, manifest.format || 'ai'))
+    .filter(Boolean);
+
+  // Same as the AI-tool integration check above: an index-mode block declares a
+  // count instead of listing names, so the name grep below cannot apply to it.
+  const declaredCount = parseStandardsIndexCount(content);
+  if (declaredCount !== null) {
+    const actual = installedStandards.length;
+    if (declaredCount === actual) {
+      console.log(chalk.green(`  ✓ AGENTS.md ${msg.standardsSynced || 'standards synced'} (${declaredCount})`));
+    } else {
+      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${declaredCount} != ${actual})`));
+      console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
+    }
+    const idxLineCount = content.split('\n').length;
+    if (idxLineCount > 150) {
+      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${idxLineCount} lines)`));
+    }
+    console.log();
+    return;
+  }
 
   // Check standards listed in AGENTS.md vs manifest
   const aiYamlStandards = installedStandards.filter(s => s.endsWith('.ai.yaml'));

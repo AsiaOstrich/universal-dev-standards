@@ -2,11 +2,15 @@
 name: contract-test-assistant
 source: ../../../../skills/contract-test-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: c8b082114d48
-translation_version: 1.0.0
-last_synced: 2026-07-30
+source_hash: f67623eb913a
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 API 和微服務的合約測試策略"
+description: |
+  [UDS] 引導 API 與微服務的合約測試策略。
+  Use when: API 合約、微服務、消費者驅動測試、提供者驗證。
+  Not for: 一開始的 API 介面設計——請用 /api-design；經由 UI 的使用者可見流程——請用 /e2e。
+  Keywords: contract test, Pact, OpenAPI, consumer-driven, provider, 合約測試, 消費者驅動, 提供者驗證.
 ---
 
 # 合約測試助手

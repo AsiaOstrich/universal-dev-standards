@@ -2,8 +2,8 @@
 source: ../../../core/data-migration-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-28
-source_hash: 990309b5e8b1
+last_synced: 2026-07-23
+source_hash: bda91214a3b7
 status: current
 ---
 

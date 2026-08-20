@@ -2,10 +2,14 @@
 name: pr-automation-assistant
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 Pull Request 建立、審查自動化和合併策略"
+description: |
+  引導 pull request 建立、審查自動化與合併策略。
+  Use when: 建立 PR、自動化審查流程、設定合併政策。
+  Not for: 審查本身的內容實質——請用 /code-review；分支命名與合併策略——請用 /git-workflow-guide。
+  Keywords: pull request, PR, merge, review, GitHub, GitLab, 合併請求, 審查自動化, 合併策略.
 ---
 
 # PR 自動化助手

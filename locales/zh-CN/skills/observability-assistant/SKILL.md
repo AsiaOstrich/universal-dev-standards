@@ -1,10 +1,14 @@
 ---
 source: ../../../../skills/observability-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引导可观测性设置、指标设计和告警配置"
+description: |
+  引导可观测性建设、指标设计与告警配置。
+  Use when: 新服务的埋点、SLO 定义、告警设计、成熟度评估。
+  Not for: 设置数值目标与 Error Budget 策略——请用 /slo；日志格式与级别——请用 /logging-guide。
+  Keywords: observability, metrics, traces, golden signals, alerting, SLO, 可观测性, 指标, 追踪, 告警.
 ---
 
 # 可观测性助手

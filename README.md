@@ -6,7 +6,7 @@
 
 > **Language**: English | [繁體中文](locales/zh-TW/README.md) | [简体中文](locales/zh-CN/README.md)
 
-**Version**: 6.1.1 | **Released**: 2026-07-18 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
+**Version**: 6.8.0 | **Released**: 2026-08-20 | **License**: [Dual License](LICENSE) (CC BY 4.0 + MIT)
 
 Language-agnostic, framework-agnostic development standards for software projects. Ensure consistency, quality, and maintainability across diverse technology stacks with AI-native workflows.
 
@@ -67,10 +67,10 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Core Standards** | 149 | Universal development guidelines |
+| **Core Standards** | 150 | Universal development guidelines |
 | **AI Skills** | 55 | Interactive skills |
 | **Slash Commands** | 51 | Quick actions |
-| **CLI Commands** | 21 | Project setup & maintenance |
+| **CLI Commands** | 23 | Project setup & maintenance |
 <!-- UDS_STATS_TABLE_END -->
 
 > **What's New in 5.0?** See [Pre-release Notes](docs/PRE-RELEASE.md) for details on new features.
@@ -192,9 +192,9 @@ Use `uds config` to manage your preferences:
 
 | Parameter | Command | Description |
 | :--- | :--- | :--- |
-| **Commit Language** | `uds config --lang zh-TW` | Set preferred language for AI commits |
+| **Commit Language** | `uds config set output_language traditional-chinese` | Set preferred language for AI commits |
 | **Standards** | `uds init` | Install all available standards |
-| **Tool Mode** | `uds config --mode skills` | Choose between Skills, Standards, or Both |
+| **Tool Mode** | `uds config --type content_mode` | Choose between Skills, Standards, or Both |
 
 ---
 

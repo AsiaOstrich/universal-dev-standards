@@ -2,13 +2,14 @@
 name: ai-collaboration-standards
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-05-28
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  [UDS] 防止 AI 幻覺、確保分析程式碼或提建議時以證據為基礎的回應。
-  Use when: analyzing code, making recommendations, providing options, or when user asks about confidence/certainty.
-  Keywords: certainty, assumption, inference, evidence, source, 證據, 假設, 推論.
+  防止 AI 幻覺，確保分析程式碼或提出建議時給出以證據為基礎的回應。
+  Use when: 分析程式碼、提出建議、提供選項，或使用者詢問把握度／確定性時。
+  Not for: 撰寫 AI 指令檔本身——請用 /ai-instruction-standards；審查具體的 diff——請用 /code-review。
+  Keywords: certainty, assumption, inference, evidence, source, 證據, 假設, 推論, 確定性, 反幻覺.
 ---
 
 # AI 協作標準

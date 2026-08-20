@@ -61,7 +61,7 @@ workflow:
       commands:
         - "# 进行小而聚焦的变更"
         - git add .
-        - git commit -m "feat: {描述}"
+        - 'git commit -m "feat: {描述}"'
 
     - step: 推送到 trunk
       commands:
@@ -79,7 +79,7 @@ workflow:
       commands:
         - "# 进行变更..."
         - git add .
-        - git commit -m "feat: {描述}"
+        - 'git commit -m "feat: {描述}"'
 
     - step: 快速合併
       commands:

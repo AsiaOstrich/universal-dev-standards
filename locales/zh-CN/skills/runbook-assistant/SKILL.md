@@ -1,10 +1,14 @@
 ---
 source: ../../../../skills/runbook-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引导 Runbook 撰写、维护、演练和覆盖率报告"
+description: |
+  引导 Runbook 的撰写、维护与演练。
+  Use when: 撰写 Runbook、规划演练、审计 Runbook 覆盖范围、事故后更新 Runbook。
+  Not for: 处理正在进行中的事故——请用 /incident；部署流程本身——请用 /deploy。
+  Keywords: runbook, operations, drill, on-call, procedure, 运维手册, 演练, 值班, 标准流程.
 ---
 
 # Runbook 助手

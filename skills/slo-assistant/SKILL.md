@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide SLI selection, SLO setting, and Error Budget management.
   Use when: defining service quality targets, setting up SLO-based alerting, Error Budget policy.
+  Not for: instrumentation and metric collection — use /observability; responding to an active breach of the target — use /incident.
   Keywords: SLI, SLO, SLA, Error Budget, burn rate, service level.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[create|review|budget] [service name | 服務名稱]"

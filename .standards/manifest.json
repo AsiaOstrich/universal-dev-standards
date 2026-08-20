@@ -58,6 +58,7 @@
     "ai/standards/database-standards.ai.yaml",
     "ai/standards/systematic-debugging.ai.yaml",
     "ai/standards/model-selection.ai.yaml",
+    "ai/standards/agent-dispatch.ai.yaml",
     "ai/standards/git-worktree.ai.yaml",
     "ai/standards/verification-evidence.ai.yaml",
     "ai/standards/ai-command-behavior.ai.yaml",

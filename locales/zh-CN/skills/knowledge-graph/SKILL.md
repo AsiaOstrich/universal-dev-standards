@@ -2,12 +2,15 @@
 name: knowledge-graph
 source: ../../../../skills/knowledge-graph/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-07-09
-source_hash: 2a10faf2dd4c
+translation_version: 1.1.0
+last_synced: 2026-08-17
+source_hash: 3059eb465844
 status: current
 description: |
-  [UDS] 通过知识图追踪规格／决策／代码的影响链（引擎或 Markdown 后备）
+  [UDS] 通过知识图谱追踪规格、决策与代码之间的影响链；没有引擎时以 Markdown 后备方案运作。
+  Use when: 想知道某份规格或决策会影响到什么、找出哪些代码实现了某个产物、追踪规格、ADR 与模块之间的依赖关系。
+  Not for: 没有规格或决策锚点的纯文本搜索——请用 Grep；撰写规格本身——请用 /sdd。
+  Keywords: knowledge graph, impact chain, traceability, spec impact, decision graph, 知识图谱, 影响链, 规格追踪, 依赖关系.
 ---
 
 # 知识图

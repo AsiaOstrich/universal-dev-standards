@@ -3,7 +3,7 @@
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "opencc-js": "^1.4.1",
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.12"
   },
   "scripts": {
     "commitlint": "commitlint --edit",
@@ -17,12 +17,13 @@
     "docs:check-index": "tsx scripts/check-skill-index.ts",
     "docs:locale-coverage": "node scripts/generate-locale-coverage.mjs",
     "docs:refresh-translation-hash": "tsx scripts/refresh-translation-hash.ts",
-    "test:scripts": "tests/bats/bin/bats tests/scripts/",
+    "test:scripts": "tests/bats/bin/bats --print-output-on-failure tests/scripts/",
     "check:ai-behavior": "tsx scripts/check-ai-behavior-sync.ts",
     "check:commit-spec": "tsx scripts/check-commit-spec-reference.ts",
     "check:flow-gate": "tsx scripts/check-flow-gate-report.ts",
     "check:integration-commands": "tsx scripts/check-integration-commands-sync.ts",
     "check:registry": "tsx scripts/check-registry-completeness.ts",
+    "check:drift-override-clean": "tsx scripts/check-drift-override-clean.ts",
     "check:release-signoff": "tsx scripts/check-release-readiness-signoff.ts",
     "check:workflow-compliance": "tsx scripts/check-workflow-compliance.ts",
     "check:skill-integrity": "tsx scripts/check-skill-structural-integrity.ts",
@@ -31,7 +32,14 @@
     "split-bilingual": "tsx scripts/split-bilingual.ts",
     "check:naming-refs": "tsx scripts/check-naming-and-refs.ts",
     "check:liveness": "tsx scripts/check-integration-liveness.ts",
-    "sync:standard": "tsx scripts/sync-standard.ts"
+    "sync:standard": "tsx scripts/sync-standard.ts",
+    "check:ai-yaml": "node scripts/check-ai-yaml-parses.mjs",
+    "check:model-pins": "tsx scripts/check-model-pin-freshness.ts",
+    "check:model-pins:self-test": "tsx scripts/check-model-pin-freshness.ts --self-test",
+    "check:bump-roundtrip": "node scripts/check-bump-sync-roundtrip.mjs",
+    "check:bump-roundtrip:self-test": "node scripts/check-bump-sync-roundtrip.mjs --self-test",
+    "check:adopter-files": "tsx scripts/check-adopter-instruction-files.ts",
+    "check:adopter-files:self-test": "tsx scripts/check-adopter-instruction-files.ts --self-test"
   },
   "type": "module",
   "dependencies": {

@@ -6,6 +6,23 @@
 # Get repository root
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
+# Every .ai.yaml must parse (XSPEC-367 R1).
+#
+# Unconditional on purpose. Four invalid files reached npm in 6.3.4 because no
+# check read the whole set, and a glob narrow enough to skip this one is the
+# same mistake in a different place. It costs well under a second for 423 files
+# across three locations. Exit 2 means the check could not run — that is not a
+# pass, and it is reported separately.
+echo "[Pre-commit] Checking .ai.yaml parses..."
+if ! node "$REPO_ROOT/scripts/check-ai-yaml-parses.mjs"; then
+    echo ""
+    echo "An agent reading an unparseable standard gets an exception, not empty content."
+    echo "If a downstream catches it, the silence is indistinguishable from"
+    echo "\"this standard has no rules\"."
+    echo ""
+    exit 1
+fi
+
 # Check if any core/ or ai/standards/ files are staged
 STAGED_CORE=$(git diff --cached --name-only | grep -E "^core/.*\.md$" || true)
 STAGED_AI=$(git diff --cached --name-only | grep -E "^ai/standards/.*\.ai\.yaml$" || true)

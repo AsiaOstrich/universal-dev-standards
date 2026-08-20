@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "6.1.1",
+  "version": "6.8.0",
   "lastUpdated": "2026-05-13",
   "description": "Standards registry for universal-dev-standards with integrated skills and AI-optimized formats",
   "formats": {
@@ -58,14 +58,14 @@
     "standards": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
-      "version": "6.1.1"
+      "version": "6.8.0"
     },
     "skills": {
       "name": "universal-dev-standards",
       "url": "https://github.com/AsiaOstrich/universal-dev-standards",
       "localPath": "skills",
       "rawUrl": "https://raw.githubusercontent.com/AsiaOstrich/universal-dev-standards/main/skills",
-      "version": "6.1.1",
+      "version": "6.8.0",
       "note": "Skills are now included in the main repository under skills/"
     }
   },
@@ -1728,7 +1728,19 @@
       },
       "category": "skill",
       "skillName": null,
-      "description": "Three-tier model selection strategy (fast/standard/capable) with cost-effective escalation"
+      "description": "Two-axis model selection: model tier (reasoning ceiling × specification definiteness) × effort (reasoning depth), plus reverse-exclusion hard boundaries and four-state capability routing"
+    },
+    {
+      "id": "agent-dispatch",
+      "name": "Agent Dispatch & Parallel Coordination",
+      "nameZh": "代理派遣與並行協調",
+      "source": {
+        "human": "core/agent-dispatch.md",
+        "ai": "ai/standards/agent-dispatch.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Parallel sub-agent dispatch: independent-domain criterion (no shared mutable state), four-state status protocol, conflict detection, prompt design principles"
     },
     {
       "id": "git-worktree",
@@ -1741,6 +1753,18 @@
       "category": "reference",
       "skillName": null,
       "description": "Git worktree lifecycle management: setup → baseline → execute → merge → cleanup"
+    },
+    {
+      "id": "class-level-fix",
+      "name": "Class-Level Fix Standard",
+      "nameZh": "類別層修正標準",
+      "source": {
+        "human": "core/class-level-fix.md",
+        "ai": "ai/standards/class-level-fix.ai.yaml"
+      },
+      "category": "skill",
+      "skillName": null,
+      "description": "Aim a fix at the set, not the member. Walk the set from the source the system reads, never from a typed list; print the denominator and what was excluded; prove the check non-vacuous per sub-set"
     },
     {
       "id": "verification-evidence",
@@ -2236,7 +2260,7 @@
       "id": "license-compliance",
       "name": "License Compliance Standards",
       "nameZh": "授權合規標準",
-      "version": "6.1.1",
+      "version": "6.8.0",
       "source": {
         "human": "core/license-compliance.md",
         "ai": "ai/standards/license-compliance.ai.yaml"
@@ -2248,7 +2272,7 @@
       "id": "verification-oracle",
       "name": "Verification Oracle Standards",
       "nameZh": "驗證 Oracle 標準",
-      "version": "6.1.1",
+      "version": "6.8.0",
       "source": {
         "human": "core/verification-oracle.md",
         "ai": "ai/standards/verification-oracle.ai.yaml"
@@ -2260,7 +2284,7 @@
       "id": "model-provenance",
       "name": "Model Provenance Policy Standards",
       "nameZh": "模型來源政策標準",
-      "version": "6.1.1",
+      "version": "6.8.0",
       "source": {
         "human": "core/model-provenance.md",
         "ai": "ai/standards/model-provenance.ai.yaml"
@@ -2272,7 +2296,7 @@
       "id": "resource-cost-boundary",
       "name": "Resource / Cost Boundary Declaration Standards",
       "nameZh": "資源／成本邊界宣告標準",
-      "version": "6.1.1",
+      "version": "6.8.0",
       "source": {
         "human": "core/resource-cost-boundary.md",
         "ai": "ai/standards/resource-cost-boundary.ai.yaml"

@@ -1,8 +1,39 @@
 # XSPEC-005 Acceptance Tests — SuperSpec Borrowing Phase 1-2
 
-**Specification**: superspec-borrowing-phase1-2-spec.mdï¼å·²å°å­ï¼
+**Specification**: superspec-borrowing-phase1-2-spec.md（已封存）
 **Generated**: 2026-04-07
-**Status**: Pending Review
+**Status**: Not Actively Reviewed — see 2026-08-19 disposition note below
+
+> **2026-08-19 update (XSPEC-383 R5 / Option E)**: this file sat at "Pending
+> Review", 0/122 boxes checked, for four and a half months — nobody was
+> coming to review it, which is a different fact from "still pending."
+> Rather than continue to claim a review is imminent, the rows this
+> decision actually touched are dispositioned below with real evidence; the
+> ones it did not touch are marked as such rather than left to imply they
+> were.
+>
+> - **AT-016 / AT-017 (`uds sync`)** — Won't Do. The command was deleted
+>   (zero consumers — `check-module-reachability.mjs` confirmed it was never
+>   registered in four and a half months of existing).
+> - **AT-011–AT-013's AC-coverage steps** — Won't Do. `checkACCoverage` was
+>   deleted along with `uds lint`'s AC-coverage output (see
+>   `cli/src/utils/spec-linter.js`'s module docstring): it reported 0%
+>   coverage on every one of VibeOps's 93 real specs, for two independent,
+>   convention-mismatch reasons that had nothing to do with whether coverage
+>   existed. Redoing this needs a new identifier/convention design, not a
+>   patch, and is out of scope here.
+> - **AT-011–AT-013's dependency-validity and size steps, and AT-012's JSON
+>   shape** — actually run against this repo and against VibeOps's 93
+>   specs; see per-row evidence below. AT-012 step 3's expectation ("each
+>   result contains `coverage`, `deps`, `size` fields") is stale and
+>   superseded: the shipped `--json` shape is `{specId, status, message}`,
+>   chosen to match what VibeOps's `lint-executor.ts` has been parsing
+>   since 2026-04-07 without ever getting a response, not invented fresh.
+> - **AT-001–AT-010, AT-014, AT-015, AT-018** (spec size checks unrelated
+>   to `uds lint`, `uds spec deps add/list/remove`, `uds spec create
+>   --boost`, `computeSpecScore`, YAML section formatting) are **outside
+>   this decision's scope** and were not examined. They remain exactly as
+>   generated on 2026-04-07 — unverified, not passing, not failing.
 
 ---
 
@@ -202,16 +233,22 @@
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 1 | 準備 specs 和對應測試檔案（含 @AC-N 標記） | 檔案就緒 | [ ] |
-| 2 | 執行 `uds lint` | 每個 spec 顯示 AC coverage 狀態 | [ ] |
-| 3 | 檢查輸出 | 每個 spec 顯示 dependency validity 狀態 | [ ] |
-| 4 | 檢查輸出 | 每個 spec 顯示 size 狀態 | [ ] |
+| 1 | 準備 specs 和對應測試檔案（含 @AC-N 標記） | 檔案就緒 | Won't Do |
+| 2 | 執行 `uds lint` | 每個 spec 顯示 AC coverage 狀態 | Won't Do |
+| 3 | 檢查輸出 | 每個 spec 顯示 dependency validity 狀態 | [x] |
+| 4 | 檢查輸出 | 每個 spec 顯示 size 狀態 | [x] |
 
 **Prerequisites**: specs/ 和測試檔案存在
-**Tester**: _______________
-**Date**: _______________
-**Result**: [ ] Pass / [ ] Fail
-**Notes**: _______________
+**Tester**: Claude (dispatch-uds agent)
+**Date**: 2026-08-19
+**Result**: Partial — steps 3–4 Pass, steps 1–2 Won't Do
+**Notes**: Steps 1–2 (AC coverage) Won't Do — `checkACCoverage` deleted, see
+header note. Steps 3–4 verified by running `node cli/bin/uds.js lint`
+against this repo (`specs/`, 1 spec, deps clean, size pass) and against
+VibeOps (`node <uds>/cli/bin/uds.js lint` in
+`/Users/alberthsu/Documents/GitHub/AsiaOstrich/vibeops`, 93 specs, 0 broken
+dependencies, size 87 pass / 5 warn / 1 fail) — both dependency validity and
+size are printed per spec in the human-readable output.
 
 ---
 
@@ -221,15 +258,24 @@
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 1 | 執行 `uds lint --json` | stdout 輸出 JSON | [ ] |
-| 2 | 解析 JSON | 結構包含 results 陣列和 summary 物件 | [ ] |
-| 3 | 檢查每筆 result | 包含 coverage, deps, size 欄位 | [ ] |
+| 1 | 執行 `uds lint --json` | stdout 輸出 JSON | [x] |
+| 2 | 解析 JSON | 結構包含 results 陣列和 summary 物件 | [x] |
+| 3 | 檢查每筆 result | 包含 coverage, deps, size 欄位 | Won't Do (superseded) |
 
 **Prerequisites**: uds lint 命令可用
-**Tester**: _______________
-**Date**: _______________
-**Result**: [ ] Pass / [ ] Fail
-**Notes**: _______________
+**Tester**: Claude (dispatch-uds agent)
+**Date**: 2026-08-19
+**Result**: Partial — steps 1–2 Pass (with a changed contract), step 3 superseded
+**Notes**: `node cli/bin/uds.js lint --json` in this repo and in VibeOps both
+produced valid, parseable JSON with `summary: {pass, warn, fail}` and a
+`results` array. Step 3 as originally written expects raw `coverage`/`deps`/
+`size` sub-objects per result; the shipped shape is instead
+`{specId, status, message}` — chosen deliberately to match the shape
+VibeOps's `src/runner/uds/lint-executor.ts` has been parsing since
+2026-04-07 (`result.summary?.fail`, `result.results[].specId/.status/.message`),
+not invented independently of any consumer. VibeOps run:
+`{"pass":87,"warn":5,"fail":1}` across 93 specs, e.g.
+`{"specId":"SPEC-046-dytopo-manager-early-stop","status":"fail","message":"594 effective lines (fail)"}`.
 
 ---
 
@@ -239,15 +285,23 @@
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 1 | 建立包含 broken depends_on 的 spec | 檔案建立成功 | [ ] |
-| 2 | 執行 `uds lint --ci` | 輸出含 fail 項 | [ ] |
-| 3 | 檢查 exit code | `echo $?` 回傳 1 | [ ] |
+| 1 | 建立包含 broken depends_on 的 spec | 檔案建立成功 | [x] |
+| 2 | 執行 `uds lint --ci` | 輸出含 fail 項 | [x] (see Notes — no `--ci` flag) |
+| 3 | 檢查 exit code | `echo $?` 回傳 1 | [x] |
 
 **Prerequisites**: uds lint 支援 --ci flag
-**Tester**: _______________
-**Date**: _______________
-**Result**: [ ] Pass / [ ] Fail
-**Notes**: _______________
+**Tester**: Claude (dispatch-uds agent)
+**Date**: 2026-08-19
+**Result**: Pass (design changed — no `--ci` flag needed)
+**Notes**: `uds lint` never implements a `--ci` opt-in flag — unlike
+`uds check`, it treats any `fail` as exit-worthy unconditionally, so there is
+nothing to opt into. Verified: `node cli/bin/uds.js lint --ci` on this repo
+correctly errors `unknown option '--ci'` (no such flag exists — the row's
+literal command as written does not run). The underlying requirement (exit 1
+on failure) was verified without the flag: VibeOps has a real broken-size
+spec (`SPEC-046-dytopo-manager-early-stop`, 594 effective lines, fail);
+`node <uds>/cli/bin/uds.js lint --json` in the VibeOps repo exits 1
+(`echo $?` → `1`). A clean repo (this one) exits 0.
 
 ---
 
@@ -295,17 +349,21 @@
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 1 | 在含 git 歷史和 workflow state 的專案中執行 `uds sync` | 成功訊息 | [ ] |
-| 2 | 確認 `.workflow-state/context.md` 存在 | 檔案存在 | [ ] |
-| 3 | 確認包含 Git Status section | 含 Branch、Base、Recent Commits | [ ] |
-| 4 | 確認包含 Workflow State section | 含 Spec、Phase、Next Steps | [ ] |
-| 5 | 計算行數 | ≤ 500 行 | [ ] |
+| 1 | 在含 git 歷史和 workflow state 的專案中執行 `uds sync` | 成功訊息 | Won't Do |
+| 2 | 確認 `.workflow-state/context.md` 存在 | 檔案存在 | Won't Do |
+| 3 | 確認包含 Git Status section | 含 Branch、Base、Recent Commits | Won't Do |
+| 4 | 確認包含 Workflow State section | 含 Spec、Phase、Next Steps | Won't Do |
+| 5 | 計算行數 | ≤ 500 行 | Won't Do |
 
 **Prerequisites**: git repo 已初始化，有 workflow state
-**Tester**: _______________
-**Date**: _______________
-**Result**: [ ] Pass / [ ] Fail
-**Notes**: _______________
+**Tester**: Claude (dispatch-uds agent)
+**Date**: 2026-08-19
+**Result**: Won't Do
+**Notes**: `cli/src/commands/sync.js` (`generateContext`) had zero
+consumers — never registered as a CLI command in the four and a half months
+since it was written (`check-module-reachability.mjs` confirmed it, and the
+same script confirms it is no longer in the reachability baseline because it
+no longer exists). Deleted along with `cli/tests/unit/commands/sync.test.js`.
 
 ---
 
@@ -315,16 +373,16 @@
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 1 | 在有 git 但無 .workflow-state/ 的專案中執行 `uds sync` | 成功訊息 | [ ] |
-| 2 | 確認 `.workflow-state/context.md` 存在 | 檔案存在 | [ ] |
-| 3 | 確認包含 Git Status section | 含 git 資訊 | [ ] |
-| 4 | 確認不包含 Workflow State section | 無 workflow 區塊（或標示 "N/A"） | [ ] |
+| 1 | 在有 git 但無 .workflow-state/ 的專案中執行 `uds sync` | 成功訊息 | Won't Do |
+| 2 | 確認 `.workflow-state/context.md` 存在 | 檔案存在 | Won't Do |
+| 3 | 確認包含 Git Status section | 含 git 資訊 | Won't Do |
+| 4 | 確認不包含 Workflow State section | 無 workflow 區塊（或標示 "N/A"） | Won't Do |
 
 **Prerequisites**: git repo 已初始化，無 .workflow-state/
-**Tester**: _______________
-**Date**: _______________
-**Result**: [ ] Pass / [ ] Fail
-**Notes**: _______________
+**Tester**: Claude (dispatch-uds agent)
+**Date**: 2026-08-19
+**Result**: Won't Do
+**Notes**: Same disposition as AT-016 — `uds sync` deleted, zero consumers.
 
 ---
 
@@ -360,15 +418,19 @@
 | 1C | AT-008 | AC-8 | [ ] |
 | 1C | AT-009 | AC-9 | [ ] |
 | 1C | AT-010 | AC-10 | [ ] |
-| 2A | AT-011 | AC-11 | [ ] |
-| 2A | AT-012 | AC-12 | [ ] |
-| 2A | AT-013 | AC-13 | [ ] |
-| 2B | AT-014 | AC-14 | [ ] |
-| 2B | AT-015 | AC-15 | [ ] |
-| 2C | AT-016 | AC-16 | [ ] |
-| 2C | AT-017 | AC-17 | [ ] |
-| 2C | AT-018 | AC-18 | [ ] |
+| 2A | AT-011 | AC-11 | Partial (deps+size Pass, AC-coverage Won't Do) |
+| 2A | AT-012 | AC-12 | Partial (JSON shape Pass, changed contract) |
+| 2A | AT-013 | AC-13 | Pass (no `--ci` flag — see Notes) |
+| 2B | AT-014 | AC-14 | [ ] (out of R5 scope, unexamined) |
+| 2B | AT-015 | AC-15 | [ ] (out of R5 scope, unexamined) |
+| 2C | AT-016 | AC-16 | Won't Do |
+| 2C | AT-017 | AC-17 | Won't Do |
+| 2C | AT-018 | AC-18 | [ ] (out of R5 scope, unexamined) |
 
-**Overall Result**: [ ] Pass / [ ] Fail
-**Sign-off**: _______________
-**Date**: _______________
+**Overall Result**: Not a single Pass/Fail — see 2026-08-19 disposition note
+at the top of this file. Rows this decision touched (AT-011–AT-013,
+AT-016–AT-017) are resolved (Pass, Partial, or Won't Do, each with evidence).
+Rows outside its scope (AT-001–AT-010, AT-014, AT-015, AT-018) remain exactly
+as generated on 2026-04-07.
+**Sign-off**: Claude (dispatch-uds agent) — for the rows in scope only
+**Date**: 2026-08-19

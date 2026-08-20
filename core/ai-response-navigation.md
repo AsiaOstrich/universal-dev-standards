@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-response-navigation.md) | [简体中文](../locales/zh-CN/core/ai-response-navigation.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-06-10
+**Version**: 1.3.0
+**Last Updated**: 2026-08-17
 **Applicability**: All projects using AI-assisted development
 **Scope**: universal
 **Industry Standards**: None (Emerging AI tool practice)
@@ -18,6 +18,13 @@ This standard defines navigation behavior for AI responses: every substantive AI
 **Problem**: Users don't know what to do next after receiving an AI response. With 30+ slash commands available, the cognitive load is high and workflow continuity is broken.
 
 **Solution**: A standard "Navigation Footer" appended to every substantive AI response, with contextual templates, recommendation marking, and adaptive option quantities.
+
+**Scope note (v1.2.0, extended in 1.3.0)**: Rules 1–6 govern what comes *after* the answer.
+Rules 7–11 — **all optional** — govern the answer itself: lead with the finding (R7), restate state
+across turns (R8), no preamble (R9), plain language as the subject (R10), and a trade-off on every
+option rather than only the recommended one (R11). They exist because a response can satisfy every
+one of Rules 1–6 while burying its conclusion, stating it in vocabulary only its author holds, or
+listing options the reader still has to compare themselves.
 
 ---
 
@@ -94,6 +101,118 @@ Tier names are **vendor-neutral**. Each tool or platform maps these tiers to its
 > - Run `/checkin` for quality gate verification ⭐ **Recommended** `〔model: Standard〕` — inter-module judgment required
 > - Run `/sdd` for integrated architecture design `〔model: Capable〕` — cross-system impact analysis
 ```
+
+---
+
+## The Answer Before the Navigation (Rules 7–11, Optional)
+
+> **R7–R9 borrowed from**: [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd) (MIT), 3 of its 10 rules.
+> **R10–R11 added in 1.3.0** from a different source — a user telling the author, twice in one session,
+> that a correct and complete answer was unreadable. R7–R9 had already shipped and were being followed.
+> The other 7 were dropped: 2 are already covered by Rules 1–2 above, and 5 either conflict with
+> this standard (its "no recap / no closers" contradicts Rule 1's Navigation Footer; its
+> "cap lists at 5" would truncate evidence tables and traversal denominators) or duplicate
+> [estimation-standards](estimation-standards.md).
+
+**Why this section exists**: Rules 1–6 govern what follows the answer. Nothing governed the answer
+itself — a response could bury its conclusion under a wall of evidence and still satisfy every rule
+in this standard by appending a correct Navigation Footer. A reader who cannot find the answer is
+not helped by being told what to do next.
+
+**These five rules are optional**, in the same sense as Rule 6: adopting projects are not required
+to enable them, and existing skills need no retroactive update. A project MAY promote any of them to
+required in its own configuration. What is *not* optional is that they have precise triggers — a rule
+phrased so loosely that it never fires is indistinguishable from not having the rule.
+
+### Rule 7: Lead With the Finding, Not the Process （Optional）
+
+**Trigger**: a response that answers a question, reports an investigation result, or presents a decision.
+
+The first line states **what was found or what to do**. Not the method, not a restatement of the
+request, not a plan for answering.
+
+Evidence — file:line references, command output, tables, measurements — is **support**, and belongs
+after the claim it supports. Leading with evidence forces the reader to reconstruct the conclusion
+themselves, which is the work they asked to have done.
+
+| Instead of | Write |
+|-----------|-------|
+| "I checked 44 days of data across 63 domains and found that…" | "Delete those three queries. 46% of what they return is download pages." |
+| "Let me look at how this is configured." | "It is configured in `x.yaml:12`; the value is wrong because…" |
+
+**This does not license omitting the evidence.** It orders it.
+
+### Rule 8: Restate State in Multi-Turn Work （Optional）
+
+**Trigger**: work spanning 3 or more exchanges, or a task with 3 or more steps.
+
+Each response restates where the work stands, in one line. The reader cannot be assumed to hold
+"we are on step 3 of 5" across messages, and the cost of restating it is one sentence.
+
+This composes with Template 4 (*In Progress*) below: Rule 8 governs the **opening**, Template 4
+governs the **footer**.
+
+### Rule 9: No Preamble （Optional）
+
+**Trigger**: any substantive response.
+
+Start with the answer. Do not open with a summary of what you are about to do, an acknowledgement
+of the request, or an assessment of the question.
+
+This generalizes one existing prohibition: [anti-sycophancy-prompting](anti-sycophancy-prompting.md)
+already forbids *"Opening critique with positive affirmation"* — but only for critiques. Rule 9
+extends the same prohibition to every substantive response, for a different reason: not flattery,
+but the delay it puts between the reader and the answer.
+
+**Rule 9 does not apply to closers.** Rule 1 requires a Navigation Footer, and that requirement
+stands — the end of a response is where this standard puts the reader's next move.
+
+### Rule 10: Plain Language Is the Subject; Identifiers Are Support （Optional）
+
+**Trigger**: any response explaining a situation, a defect, or a system's behaviour to a human.
+
+Explain what happened in the words the reader would use. File paths, symbol names, line
+references, command output and version strings are **support** — they belong after the sentence
+they support, not as the sentence itself.
+
+| Instead of | Write |
+|-----------|-------|
+| "`load_topics()` at `intel-scout.py:883` reads `intel-topics.yaml`, while `load_feeds()` at `:1033` reads `intel-feeds.yaml`." | "It gathers material two ways: by searching keywords, and by subscribing to a fixed set of blogs." *(then cite both call sites)* |
+| "`manifest.skillHashes` has 137 entries keyed by `claude-code/project/<n>/SKILL.md` while the lookup uses `.claude/skills/<n>`." | "The hashes are stored under one naming scheme and looked up under another, so none are ever found." *(then show both keys)* |
+
+This is **not** a licence to omit the identifiers — a reader who wants to verify must be able to.
+It governs which of the two is the subject of the sentence.
+
+**Why it is separate from R7**: R7 orders *finding before evidence*. R10 governs *register* — a
+response can lead with its finding and still state that finding in vocabulary only its author
+holds. Both failures leave the reader unable to act; they are different failures.
+
+### Rule 11: Every Option Carries Its Own Trade-off （Optional）
+
+**Trigger**: a response that asks the reader to choose between two or more courses of action.
+
+Rule 2 requires marking the recommended option and giving *its* reason. Rule 11 extends that to
+the rest: **each** option states what it buys and what it costs, in its own terms.
+
+A list of options where only the recommended one is argued hands the comparison back to the
+reader — which is the work they asked to have done. And an option presented without its downside
+reads as having none, which is rarely true and never verifiable from the list alone.
+
+```markdown
+> **Please choose:**
+> | Option | Buys you | Costs you |
+> |---|---|---|
+> | **(A) …** ⭐ **Recommended** — [why this one] | … | … |
+> | **(B) …** | … | … |
+```
+
+**A trade-off is not a hedge.** "This may be slightly harder" is not a cost; "this rewrites 110
+files and needs a human to check the translations" is. If an option genuinely has no downside
+worth stating, say so explicitly rather than leaving the column empty — an empty cell reads as
+"not analysed", and the reader cannot tell those apart.
+
+**Composes with Rule 4**: the option count stays bounded (1–5). Trade-offs make each option
+costlier to read, so this rule makes Rule 4's cap matter more, not less.
 
 ---
 
@@ -284,6 +403,11 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 | R4 | 1–5 options, adapt to context |
 | R5 | Use `/command` format when applicable |
 | R6 | *(Optional)* Append `〔model: Fast\|Standard\|Capable〕` when tier is clear |
+| R7 | *(Optional)* Lead with the finding; evidence follows the claim it supports |
+| R8 | *(Optional)* 3+ turns or 3+ steps → restate state in one line |
+| R9 | *(Optional)* No preamble. Closers still required — see R1 |
+| R10 | *(Optional)* Plain language is the subject; identifiers support it, after the claim |
+| R11 | *(Optional)* Every option states what it buys and costs — not only the recommended one |
 
 | Exempt | Not Exempt |
 |--------|------------|
@@ -307,6 +431,8 @@ Each tool's integration layer is responsible for rendering the Navigation Footer
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-08-17 | Add optional R10–R11. R10 governs register: plain language is the subject of the sentence and identifiers support it — distinct from R7, which orders finding before evidence, because a response can lead with its finding and still state it in vocabulary only its author holds. R11 extends Rule 2 from the recommended option to all of them: a list where only the recommendation is argued hands the comparison back to the reader, and an option shown without its cost reads as having none |
+| 1.2.0 | 2026-08-17 | Add optional R7–R9 governing the answer itself (lead with the finding, restate state, no preamble). Borrowed from `ayghri/i-have-adhd` (MIT), 3 of its 10 rules; the other 7 were dropped as duplicated by R1–R2, in conflict with R1, or covered by estimation-standards. Rules 1–6 could all be satisfied by a response that buries its conclusion — R7–R9 close that |
 | 1.1.0 | 2026-06-10 | Add R6 optional model tier annotation (`〔model: Fast\|Standard\|Capable〕`); vendor-neutral; no forced changes to existing skills |
 | 1.0.0 | 2026-03-25 | Initial release |
 

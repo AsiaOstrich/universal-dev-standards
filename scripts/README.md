@@ -13,12 +13,18 @@ Maintenance, sync-check and release-automation scripts for the UDS repository.
 
 ## Cross-platform release scripts / 跨平台發版腳本
 
-The following Node.js ESM scripts are the **recommended** way to run release operations
-on any platform (macOS, Linux, Windows). The `.sh` originals are kept for legacy
-compatibility but carry a DEPRECATED notice.
+The following Node.js ESM scripts are the **only copy of the logic** and the
+**recommended** way to run release operations on any platform (macOS, Linux,
+Windows). Their `.sh` counterparts are now thin wrappers that `exec` straight
+into the `.mjs` — kept only because a few other files (tests, CLAUDE.md,
+`detect-self-adoption.js`) still name the `.sh` filename directly, not because
+they carry any logic or deprecation notice of their own.
 
-以下 Node.js ESM 腳本是在任何平台（macOS、Linux、Windows）執行發版操作的**推薦方式**。
-`.sh` 原檔保留供舊環境相容，但已標記為棄用。
+以下 Node.js ESM 腳本是**唯一一份邏輯**，也是在任何平台（macOS、Linux、
+Windows）執行發版操作的**推薦方式**。對應的 `.sh` 現在是直接 `exec` 進
+`.mjs` 的極薄 wrapper——保留只是因為還有少數地方（測試、CLAUDE.md、
+`detect-self-adoption.js`）直接指名 `.sh` 這個檔名，不是因為它們自己帶有
+邏輯或棄用標記。
 
 ### `bump-version.mjs` — Version bump / 版本升版
 
@@ -32,6 +38,7 @@ node scripts/bump-version.mjs 5.7.0
 
 Updates all version files atomically:
 - `cli/package.json`
+- `cli/package-lock.json` (`"version"` + `packages[""].version`)
 - `cli/standards-registry.json` (all `version` fields)
 - `uds-manifest.json` (`version` + `last_updated`)
 - `README.md`, `locales/zh-TW/README.md`, `locales/zh-CN/README.md`
@@ -41,7 +48,7 @@ Updates all version files atomically:
 Then verifies consistency via `check-version-sync.sh` and runs `check-translation-sync.sh`
 as an advisory check.
 
-Legacy equivalent: `./scripts/bump-version.sh <version>` (macOS/Linux only)
+POSIX wrapper (macOS/Linux only, same logic): `./scripts/bump-version.sh <version>`
 
 ### `install-hooks.mjs` — Git hooks installer / Git Hooks 安裝程式
 
@@ -90,15 +97,15 @@ The following quality-check scripts are implemented in TypeScript and run via
 以下品質檢查腳本以 TypeScript 實作，透過 `tsx` 執行。它們取代了原 bash 版本以
 達成跨平台一致性（XSPEC-179 Phase 2）。
 
-| Script | npm script | Replaces |
+| Script | npm script | Former `.sh` |
 |--------|------------|----------|
-| `check-ai-behavior-sync.ts` | `npm run check:ai-behavior` | `check-ai-behavior-sync.sh` |
-| `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` |
-| `check-flow-gate-report.ts` | `npm run check:flow-gate` | `check-flow-gate-report.sh` |
-| `check-integration-commands-sync.ts` | `npm run check:integration-commands` | `check-integration-commands-sync.sh` |
-| `check-registry-completeness.ts` | `npm run check:registry` | `check-registry-completeness.sh` |
-| `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | `check-release-readiness-signoff.sh` |
-| `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` |
+| `check-ai-behavior-sync.ts` | `npm run check:ai-behavior` | removed (XSPEC-376 R4/R7) |
+| `check-commit-spec-reference.ts` | `npm run check:commit-spec` | `check-commit-spec-reference.sh` (kept — real git hook, see below) |
+| `check-flow-gate-report.ts` | `npm run check:flow-gate` | removed (XSPEC-376 R4/R7) |
+| `check-integration-commands-sync.ts` | `npm run check:integration-commands` | removed (XSPEC-376 R4/R7) |
+| `check-registry-completeness.ts` | `npm run check:registry` | removed (XSPEC-376 R4/R7) |
+| `check-release-readiness-signoff.ts` | `npm run check:release-signoff` | removed (XSPEC-376 R4/R7) |
+| `check-workflow-compliance.ts` | `npm run check:workflow-compliance` | `check-workflow-compliance.sh` (kept — real git hook, see below) |
 
 ### Strategy: single TypeScript source / 策略：單一 TypeScript 來源
 
@@ -109,10 +116,37 @@ pattern. A single `.ts` file runs unchanged on macOS / Linux / Windows via
 本批次刻意避開先前 bash + PowerShell 雙軌模式。單一 `.ts` 檔透過 `tsx` 在
 macOS / Linux / Windows 上執行結果一致，消除「只能在 Windows 驗證」的反饋落差。
 
-The original `.sh` files are kept with `DEPRECATED` notices for legacy
-Linux/macOS compatibility but should not be added to.
+XSPEC-376 R1/R2 first converged every `.sh` counterpart into a thin
+`exec $TSX ....ts` wrapper (closing a drift risk: several `.sh` headers had
+said `DEPRECATED` for a while, yet the `.sh` — not the `.ts` — was what
+`pre-release-check.sh` and the git hooks actually ran). R4/R7 then walked
+every address point of each wrapper and deleted the ones where every
+consumer could be repointed at the `.ts` directly: `check-ai-behavior-sync.sh`,
+`check-flow-gate-report.sh`, `check-integration-commands-sync.sh`,
+`check-registry-completeness.sh`, `check-release-readiness-signoff.sh`.
 
-原 `.sh` 檔保留並加 `DEPRECATED` 警告供 legacy Linux/macOS 相容，但不應再新增。
+XSPEC-376 R1/R2 先把每一份 `.sh` 收斂成極薄的 `exec $TSX ....ts` wrapper
+（關掉一個漂移風險：好幾份 `.sh` 檔頭早已寫著 `DEPRECATED`，但
+`pre-release-check.sh` 與 git hooks 實際執行的仍是 `.sh` 而不是 `.ts`）。
+R4/R7 接著逐一走訪每個 wrapper 的全部定址點，把所有定址點都能改指向 `.ts`
+的那些直接刪除：`check-ai-behavior-sync.sh`、`check-flow-gate-report.sh`、
+`check-integration-commands-sync.sh`、`check-registry-completeness.sh`、
+`check-release-readiness-signoff.sh`。
+
+Two wrappers are kept — not because their address points couldn't be found,
+but because they're real, active git hooks with a "never exit non-zero"
+contract: `check-commit-spec-reference.sh` (`cli/.husky/commit-msg`) and
+`check-workflow-compliance.sh` (`cli/.husky/pre-commit`), both invoked via a
+hardcoded `[ -f scripts/<name>.sh ]` probe. Both `.sh` files fall back to a
+silent `exit 0` when `tsx` cannot be resolved, matching that contract; do not
+add logic to either — add it to the `.ts` file.
+
+有兩個 wrapper 予以保留——不是因為找不到定址點，而是因為它們是真正、生效中
+的 git hook，且契約是「絕不非零結束」：`check-commit-spec-reference.sh`
+（`cli/.husky/commit-msg`）與 `check-workflow-compliance.sh`
+（`cli/.husky/pre-commit`），兩者都是被硬編碼的 `[ -f scripts/<name>.sh ]`
+探測後呼叫。兩份 `.sh` 在解析不到 `tsx` 時都會退回靜默 `exit 0`，符合這個
+契約；不要在其中任一個檔案加邏輯——邏輯一律加在 `.ts` 檔。
 
 ## Testing convention / 測試慣例
 

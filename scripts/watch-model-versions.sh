@@ -61,6 +61,30 @@ for spec in "codex-cli:codex:codex --version" "antigravity-cli:agy:agy --version
 done
 
 # The model behind the CLI matters more than the CLI itself, and it changes independently.
+#
+# Antigravity: `agy models` lists the models it OFFERS, not the one currently selected —
+# a distinction worth stating rather than blurring. For this watch it is the right signal
+# anyway: what has to be caught is Antigravity swapping the Gemini generation behind the
+# CLI, and that shows up as the offered list changing. It is hashed rather than stored
+# whole because the list is a dozen lines and a diff of it would drown the report.
+#
+# Until now only codex had a model probe, and the gap was recorded in XSPEC-357 AC-6.2 as
+# "查 `agy` 有無等價的模型自報輸出（未查證，不要假設有）". Verified 2026-08-18: it does.
+# The consequence of the gap was concrete — §4.9 measured the two sides moving in OPPOSITE
+# directions (Codex 0/5 → 4/4, Antigravity 0/5 → 0/5), so a Gemini change with no CLI
+# release would have moved the delta with nothing watching.
+if command -v agy > /dev/null 2>&1; then
+    agy_models=$(agy models 2>/dev/null | sed '/^[[:space:]]*$/d' | sort)
+    if [ -n "$agy_models" ]; then
+        agy_hash=$(printf '%s' "$agy_models" | shasum -a 256 2>/dev/null | cut -c1-12)
+        agy_count=$(printf '%s\n' "$agy_models" | wc -l | tr -d ' ')
+        current="${current}antigravity-models=${agy_count}:${agy_hash}"$'\n'
+    else
+        current="${current}antigravity-models=<not-reported>"$'\n'
+        failed=1
+    fi
+fi
+
 if command -v codex > /dev/null 2>&1; then
     model=$(codex exec --skip-git-repo-check --ephemeral "reply OK" < /dev/null 2>&1 \
             | grep -m1 '^model:' | sed 's/^model: *//')

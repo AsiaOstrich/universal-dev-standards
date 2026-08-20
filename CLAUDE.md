@@ -593,7 +593,7 @@ Body MUST be bilingual: English first → blank line → Chinese second. NEVER m
 | Add/modify core standard | Update registry, translations, Related Standards sections |
 | Add/modify skill | Update skillFiles mapping, skill count tests |
 | Add/modify AI tool integration | Update ai-agent-paths.js, CLAUDE.md integrations list |
-| Prepare release | Run bump-version.sh, update CHANGELOG, verify sync scripts |
+| Prepare release | Run bump-version.mjs, update CHANGELOG, verify sync scripts |
 | Any multi-file change | Run check-standards-sync.sh + check-translation-sync.sh |
 | Add/modify installation commands | Cross-Platform Command Sync (below) |
 
@@ -613,7 +613,7 @@ After ANY modification, run:
 ./scripts/check-scope-sync.sh       # Scope universality check
 ./scripts/check-docs-integrity.sh   # Documentation integrity
 ./scripts/check-orphan-specs.sh     # Orphan spec detection
-./scripts/check-ai-behavior-sync.sh # AI Agent Behavior coverage
+npx tsx scripts/check-ai-behavior-sync.ts # AI Agent Behavior coverage
 cd cli && npm test && npm run lint
 ```
 
@@ -816,27 +816,31 @@ When user asks to prepare a release:
 
 1. **Ask for release type**: beta, alpha, rc, or stable
 2. **Run pre-release checks**: Tests, linting, git status
-3. **Run `bump-version.sh`** — updates ALL version files atomically (see UDS-specific section below)
+3. **Run `bump-version.mjs`** — updates ALL version files atomically (see UDS-specific section below)
 4. **Update CHANGELOG.md** (EN + zh-TW + zh-CN): Follow the format in release-workflow.md
 5. **Commit, tag, push**: `git add -A && git commit && git tag vX.Y.Z && git push origin main vX.Y.Z`
 6. **Create GitHub Release**: Use `gh release create` command
 
-> ⚠️ **Never manually update individual version files**. Always use `scripts/bump-version.sh` to avoid missing files.
+> ⚠️ **Never manually update individual version files**. Always use `node scripts/bump-version.mjs` (or its macOS/Linux wrapper `scripts/bump-version.sh`) to avoid missing files.
 
 ### UDS Project-Specific Release Steps
 
 > ⚠️ **IMPORTANT**: This section contains UDS-specific requirements that MUST be followed in addition to the standard release workflow.
 
-#### Step 0: Run bump-version.sh (MANDATORY)
+#### Step 0: Run bump-version.mjs (MANDATORY)
 
 **Always use the version bump script** — it updates all files atomically and runs verification:
 
 ```bash
-# macOS / Linux
-./scripts/bump-version.sh 5.2.0-beta.1   # Pre-release
-./scripts/bump-version.sh 5.2.0          # Stable
+# Cross-platform (macOS / Linux / Windows) — the only copy of the bump logic
+node scripts/bump-version.mjs 5.2.0-beta.1   # Pre-release
+node scripts/bump-version.mjs 5.2.0          # Stable
 
-# After bump-version.sh:
+# macOS / Linux convenience wrapper (thin exec into the .mjs above):
+./scripts/bump-version.sh 5.2.0-beta.1
+./scripts/bump-version.sh 5.2.0
+
+# After bump-version.mjs:
 # → Update CHANGELOG.md (EN + zh-TW + zh-CN) manually
 # → git add -A && git commit -m "chore(release): X.Y.Z"
 # → git tag vX.Y.Z && git push origin main vX.Y.Z
@@ -847,6 +851,7 @@ The script handles these files automatically:
 | File | Field | Alpha/Beta/RC | Stable |
 |------|-------|---------------|--------|
 | `cli/package.json` | `"version"` | ✅ Auto | ✅ Auto |
+| `cli/package-lock.json` | `"version"` + `packages[""].version` | ✅ Auto | ✅ Auto |
 | `cli/standards-registry.json` | `"version"` (3 places) | ✅ Auto | ✅ Auto |
 | `uds-manifest.json` | `"version"` + `"last_updated"` | ✅ Auto | ✅ Auto |
 | `README.md` | `**Version**:` | ✅ Auto | ✅ Auto |
@@ -879,7 +884,7 @@ This runs 19 checks including:
 13. Skill next steps sync (`check-skill-next-steps-sync.sh`)
 14. Linting
 15. Orphan spec detection (`check-orphan-specs.sh`)
-16. AI Agent Behavior coverage (`check-ai-behavior-sync.sh`)
+16. AI Agent Behavior coverage (`check-ai-behavior-sync.ts`)
 17. Workflow compliance
 18. Unit Tests
 19. E2E Tests (Bug Regression)

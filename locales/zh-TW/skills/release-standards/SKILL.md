@@ -2,10 +2,14 @@
 name: release-standards
 source: ../../../../skills/release-standards/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-02-10
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導遵循語義化版本和變更日誌最佳實踐的發布流程"
+description: |
+  [UDS] 引導發布流程——語意化版本、發布模式，以及 start/finish/promote/deploy 的順序。
+  Use when: 切一個發布版本、決定語意化版本要升哪一位、把 release candidate 晉級為穩定版、記錄一次部署。
+  Not for: 撰寫變更日誌條目本身——請用 /changelog；部署的實作機制——請用 /deploy。
+  Keywords: release, semantic versioning, version bump, release candidate, promote, 發布, 語意化版本, 發版流程, 版本晉級.
 ---
 
 # 發布助手

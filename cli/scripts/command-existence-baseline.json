@@ -1,0 +1,7 @@
+{
+  "recorded": "2026-08-19",
+  "expires": "2026-11-19",
+  "why": "XSPEC-383 R4 落地時的基線。目前是空的——本次找到的殘留壞指令（uds workflow / uds memory 等）已在同一個 commit 修掉，沒有選擇先不處理的項目。機制保留供未來若出現需要人工判斷的邊界案例時使用。",
+  "howToShrink": "找到的項目要嘛修掉指令本身、要嘛加進 FILE_EXCLUSIONS／NEGATION_YAML_KEY（規則不是檔名），修掉一個就從本清單移除一個。",
+  "entries": []
+}

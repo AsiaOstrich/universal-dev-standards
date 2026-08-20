@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
-translation_version: 2.1.0
-last_synced: 2026-03-17
+translation_version: 2.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引導文件结构、内容需求和项目文件最佳实踐。
-  使用时机：建立 README、文件、docs 目录、项目设置、技術文件。
-  关鍵字：README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文件, 说明文件, 技術文件.
+  引导文档结构、内容需求与项目文档的最佳实践。
+  Use when: 创建 README、撰写文档、规划 docs 目录、项目初始设置、技术文档。
+  Not for: 从源代码机械式生成文档——请用 /docgen；变更日志条目——请用 /changelog。
+  Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文档, 说明文档, 技术文档.
 ---
 
 # 文件指南

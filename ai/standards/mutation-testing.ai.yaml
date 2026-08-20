@@ -3,12 +3,19 @@
 
 id: mutation-testing
 meta:
-  version: "1.0.0"
-  updated: "2026-05-04"
+  version: "1.1.0"
+  updated: "2026-08-14"
   source: core/mutation-testing.md
   description: >
     Mutation testing methodology to evaluate test suite effectiveness.
     Answers "do my tests actually catch bugs?" beyond line coverage.
+  changelog:
+    - version: "1.1.0"
+      date: "2026-08-14"
+      change: >
+        Added attribution scope (kill is credited to the first failing test,
+        not to any one level), one-sided-invariant pairing requirement, and
+        equivalent-mutant classification requirement.
 
 # ─────────────────────────────────────────────────────────
 # Core Concepts
@@ -39,6 +46,67 @@ core_concepts:
       examples: ["Remove return statement", "Remove function call"]
     - category: Boolean literal
       examples: ["true → false", "false → true"]
+
+# ─────────────────────────────────────────────────────────
+# Attribution: kill is credited to the first failing test
+# ─────────────────────────────────────────────────────────
+attribution:
+  description: >
+    "Killed" means some test in the run failed against the mutant — most
+    tools do not record which test killed it, and none records which test
+    level. A 7/7 kill score therefore verifies the whole suite that ran
+    against the mutant, not any single test, and not any single test level
+    (unit vs. integration vs. property).
+  consequence: >
+    "The property suite verifies X" is not a claim an aggregate mutation run
+    supports. To support it, re-run mutation testing with only the property
+    suite active. If the isolated run kills fewer mutants than the aggregate
+    run, the gap is exactly what unit/integration tests were quietly covering.
+  isolated_rerun_example: "npx stryker run --mutate 'src/module/**' -- --project=property"
+  rule: >
+    High-risk modules (the same set the 80% threshold applies to —
+    auth/license/payment/security) must re-run mutants against the property
+    suite in isolation before any claim of "property-verified" is made.
+
+# ─────────────────────────────────────────────────────────
+# One-sided invariants miss fail-closed defects
+# ─────────────────────────────────────────────────────────
+one_sided_invariants:
+  description: >
+    A property like "output never exceeds the limit" is one-sided: it cannot
+    detect a mutant that makes the code fail closed (reject everything,
+    including valid input), because a fail-closed mutant never produces an
+    over-limit output. The mutation score looks unaffected while an entire
+    class of defect (denial of service, wrongly rejected requests) is
+    invisible to the suite.
+  fix: >
+    Pair every one-sided invariant with its opposite boundary — "never
+    exceeds the limit" needs a companion property such as "accepts everything
+    at or below the limit" — so both over-permissive and over-restrictive
+    mutants have a path to detection.
+
+# ─────────────────────────────────────────────────────────
+# Equivalent mutants are not survivors to chase
+# ─────────────────────────────────────────────────────────
+equivalent_mutants:
+  description: >
+    A surviving mutant is not automatically a test gap. Some mutants are
+    semantically equivalent to the original — no input can distinguish their
+    behavior — and no test can kill them, regardless of how it's written.
+    Forcing a kill with an assertion that exists only to move the score
+    (e.g. toBeDefined() on an incidental value) produces a hollow test
+    without closing any real gap.
+  required_classification:
+    - outcome: genuine_gap
+      action: Write a test that exercises the distinguishing behavior.
+    - outcome: equivalent
+      action: >
+        Record as "equivalent, because <reason>", stating the input(s)
+        checked to reach that conclusion.
+  note: >
+    An unclassified survivor is not the same as a classified-equivalent one.
+    Only a classified-equivalent mutant may be excluded from the score's
+    denominator.
 
 # ─────────────────────────────────────────────────────────
 # Tools
@@ -175,12 +243,44 @@ rules:
     priority: required
     note: Reserve for pre-release gate and on-demand runs
 
+  - id: mutation-property-isolation-required
+    trigger: claiming a property-based test suite verifies specific behavior, based on an aggregate mutation run
+    instruction: >
+      Re-run mutation testing with only the property suite active before making
+      the claim. An aggregate kill score (property + unit + integration
+      together) verifies the whole suite, not the property suite alone.
+      Required for high-risk modules (auth/license/payment/security) before
+      any "property-verified" claim.
+    priority: required
+
+  - id: mutation-one-sided-invariant-pairing
+    trigger: writing or reviewing a property/invariant used as a mutation-testing target
+    instruction: >
+      A one-sided invariant (e.g. "never exceeds the limit") cannot detect a
+      fail-closed mutant. Pair it with an opposite-boundary property (e.g.
+      "accepts everything at or below the limit") so both over-permissive and
+      over-restrictive mutants have a path to detection.
+    priority: required
+
+  - id: mutation-equivalent-classification-required
+    trigger: reviewing a surviving mutant
+    instruction: >
+      Classify every reviewed survivor as either a genuine gap (write a test
+      exercising the distinguishing behavior) or "equivalent, because
+      <reason>" (record the input(s) checked). Do not force a kill with an
+      assertion that exists only to move the score. Only a
+      classified-equivalent mutant may be excluded from the denominator.
+    priority: required
+
 anti_patterns:
   - Treating 100% line coverage as sufficient (lines covered ≠ mutations killed)
   - Adding mutation testing to pre-commit hooks (makes commits 10-60 minutes long)
   - Accepting AI-generated tests without mutation score validation
   - Killing mutations by adding trivial assertions (expect(x).toBeDefined())
   - Targeting only happy paths in mutation testing (branches and boundaries are key)
+  - Claiming "the property suite verifies X" from an aggregate (not isolated) mutation run
+  - Using only a one-sided invariant for a property that has a fail-closed failure mode
+  - Forcing a kill on a semantically equivalent mutant instead of classifying it "equivalent, because <reason>"
 
 quick_reference:
   mutation_testing_checklist: |
@@ -190,3 +290,6 @@ quick_reference:
     □ Pre-release: run full mutation suite before tagging version
     □ AI-generated tests: validate with mutation score before accepting
     □ NOT in commit hooks (too slow)
+    □ High-risk modules: property suite re-run in isolation before "property-verified" claims
+    □ One-sided invariants paired with their opposite boundary
+    □ Every reviewed survivor classified: genuine gap, or "equivalent, because <reason>"

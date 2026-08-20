@@ -2,14 +2,15 @@
 name: push
 source: ../../../../skills/push/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-06-02
+translation_version: 2.1.0
+last_synced: 2026-08-17
 source_hash: b7812535483c
 scope: universal
 description: |
-  [UDS] AI 輔助 git push 安全層：品質閘門 + 協作護欄。
-  Use when: pushing commits, force pushing, pushing to protected branches, pushing feature branches.
-  Keywords: git push, force push, protected branch, quality gate, push receipt, PR automation, 推送, 保護分支, 品質閘門.
+  AI 輔助的 git push 安全層，提供品質關卡與協作護欄。
+  Use when: 推送 commit、強制推送、推送到受保護分支、推送 feature 分支。
+  Not for: 撰寫 commit 內容——請用 /commit；分支與合併策略的決策——請用 /git-workflow-guide。
+  Keywords: git push, force push, protected branch, quality gate, push receipt, PR automation, 推送, 保護分支, 品質閘門, 強制推送.
 allowed-tools: Read, Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(yarn:*), Bash(bun:*)
 argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 ---

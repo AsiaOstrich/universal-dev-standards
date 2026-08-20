@@ -3,10 +3,14 @@ name: reverse-engineer
 source: ../../../../skills/reverse-engineer/SKILL.md
 source_version: 1.2.0
 source_hash: d543b24b2422
-translation_version: 1.2.0
-last_synced: 2026-06-01
+translation_version: 1.3.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 系統考古——跨邏輯、資料、執行環境三維度反向工程程式碼"
+description: |
+  [UDS] 系統考古——從邏輯、資料、執行環境三個維度對既有系統做反向工程。
+  Use when: 為沒有文件的系統補上文件、從既有程式碼回推規格、繪製未知的資料模型或執行環境拓樸。
+  Not for: 動工前評估健康度與風險——請用 /discover；從已核准的規格正向推導測試——請用 /spec-derive。
+  Keywords: reverse engineering, system archeology, legacy code, spec extraction, data model, runtime, 反向工程, 系統考古, 規格提取, 資料模型.
 ---
 
 # 反向工程助手

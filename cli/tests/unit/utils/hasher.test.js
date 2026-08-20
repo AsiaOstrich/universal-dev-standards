@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
+import { createHash } from 'crypto';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -9,7 +10,11 @@ import {
   computeFileHashes,
   hasFileHashes,
   getFileStatusSummary,
-  scanForUntrackedFiles
+  scanForUntrackedFiles,
+  computeDirectoryHashes,
+  computeIntegrationBlockHash,
+  normalizeLineEndings,
+  isBinaryContent
 } from '../../../src/utils/hasher.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -354,6 +359,203 @@ describe('Hasher Utils', () => {
       const untracked = scanForUntrackedFiles(TEST_DIR, manifest);
 
       expect(untracked).toHaveLength(0);
+    });
+  });
+
+  // XSPEC-343 R2. `scanDirectory` derived relative paths with
+  // `fullPath.slice(basePath.length + 1)`, which silently assumed basePath had no
+  // trailing separator. Three agent skill paths do carry one
+  // (`.claude/skills/`, `.opencode/skill/`, `.cursor/skills/`), so every entry
+  // lost its first character and the rebuilt absolute path pointed at nothing —
+  // 115 files scanned, 2 hashed. `manifest.skillHashes` was therefore never
+  // populated and every `uds update` re-installed all 55 skill directories.
+  describe('computeDirectoryHashes — trailing separator in basePath', () => {
+    const DIR = join(TEST_DIR, 'skills-root');
+
+    beforeEach(() => {
+      mkdirSync(join(DIR, 'ac-coverage'), { recursive: true });
+      mkdirSync(join(DIR, 'adr-assistant'), { recursive: true });
+      writeFileSync(join(DIR, 'ac-coverage', 'SKILL.md'), 'a');
+      writeFileSync(join(DIR, 'adr-assistant', 'SKILL.md'), 'b');
+      writeFileSync(join(DIR, '.manifest.json'), '{}');
+    });
+
+    it('produces identical results with and without a trailing separator', () => {
+      const withSep = computeDirectoryHashes(`${DIR}/`, 'claude-code/project');
+      const without = computeDirectoryHashes(DIR, 'claude-code/project');
+
+      expect(Object.keys(withSep).sort()).toEqual(Object.keys(without).sort());
+      expect(Object.keys(withSep)).toHaveLength(3);
+    });
+
+    it('keeps the first character of every name', () => {
+      const hashes = computeDirectoryHashes(`${DIR}/`, 'claude-code/project');
+
+      expect(hashes['claude-code/project/ac-coverage/SKILL.md']).toBeDefined();
+      expect(hashes['claude-code/project/adr-assistant/SKILL.md']).toBeDefined();
+      expect(hashes['claude-code/project/.manifest.json']).toBeDefined();
+      // The mangled forms the old arithmetic produced.
+      expect(hashes['claude-code/project/c-coverage/SKILL.md']).toBeUndefined();
+      expect(hashes['claude-code/project/manifest.json']).toBeUndefined();
+    });
+  });
+
+  // GitHub issue #155. `core.autocrlf=true` (the common Windows git default)
+  // rewrites LF to CRLF on checkout. `.standards/*` files are stored as LF
+  // blobs (confirmed in the issue with `file` on a checked-out repo), so a
+  // Windows working tree — content `git status` calls clean — hashed to a
+  // different value than the manifest's LF-computed hash, and every file
+  // reported "modified".
+  describe('CRLF normalization (GitHub issue #155)', () => {
+    describe('normalizeLineEndings', () => {
+      it('converts CRLF to LF', () => {
+        expect(normalizeLineEndings('line1\r\nline2\r\n')).toBe('line1\nline2\n');
+      });
+
+      it('converts a lone CR to LF', () => {
+        expect(normalizeLineEndings('line1\rline2')).toBe('line1\nline2');
+      });
+
+      it('leaves LF-only content unchanged', () => {
+        expect(normalizeLineEndings('line1\nline2\n')).toBe('line1\nline2\n');
+      });
+    });
+
+    describe('isBinaryContent', () => {
+      it('treats a buffer with a NUL byte as binary', () => {
+        expect(isBinaryContent(Buffer.from([0x89, 0x50, 0x4e, 0x00, 0x47]))).toBe(true);
+      });
+
+      it('treats plain text as non-binary', () => {
+        expect(isBinaryContent(Buffer.from('Hello, World!\r\n', 'utf-8'))).toBe(false);
+      });
+    });
+
+    describe('computeFileHash', () => {
+      // Positive: same logical content, LF vs CRLF, must hash identically —
+      // this is the false-positive the issue reports.
+      it('hashes LF and CRLF versions of the same content identically', () => {
+        const lfPath = join(TEST_DIR, 'lf.md');
+        const crlfPath = join(TEST_DIR, 'crlf.md');
+        const lfContent = '# Title\nline one\nline two\n';
+        writeFileSync(lfPath, lfContent);
+        writeFileSync(crlfPath, Buffer.from(lfContent.replace(/\n/g, '\r\n'), 'utf-8'));
+
+        const lfHash = computeFileHash(lfPath);
+        const crlfHash = computeFileHash(crlfPath);
+
+        expect(lfHash.hash).toBe(crlfHash.hash);
+        expect(lfHash.size).toBe(crlfHash.size);
+      });
+
+      // Negative control: content that is genuinely different must still hash
+      // differently after normalization. Without this, an implementation that
+      // always returns the same hash (e.g. hashing an empty normalized string)
+      // would pass the positive test above for the wrong reason.
+      it('still hashes genuinely different content differently after normalization', () => {
+        const pathA = join(TEST_DIR, 'a.md');
+        const pathB = join(TEST_DIR, 'b.md');
+        writeFileSync(pathA, Buffer.from('line one\r\nline two\r\n', 'utf-8'));
+        writeFileSync(pathB, Buffer.from('line one\r\nline THREE\r\n', 'utf-8'));
+
+        const hashA = computeFileHash(pathA);
+        const hashB = computeFileHash(pathB);
+
+        expect(hashA.hash).not.toBe(hashB.hash);
+      });
+
+      // A real line-ending-only change is, by design, invisible to this hash
+      // (see the module-level comment in hasher.js for why that is the
+      // intended behavior, not a gap).
+      it('does not distinguish an LF file from the same file re-saved as CRLF', () => {
+        const filePath = join(TEST_DIR, 'converted.md');
+        writeFileSync(filePath, 'unchanged text\nsecond line\n');
+        const before = computeFileHash(filePath);
+
+        // Simulate "someone ran dos2unix in reverse" — same text, CRLF now.
+        writeFileSync(filePath, Buffer.from('unchanged text\r\nsecond line\r\n', 'utf-8'));
+        const after = computeFileHash(filePath);
+
+        expect(after.hash).toBe(before.hash);
+      });
+
+      // Binary content must never be normalized — a NUL-containing buffer's
+      // \r\n bytes are data, not line endings.
+      it('does not normalize binary content', () => {
+        const filePath = join(TEST_DIR, 'binary.bin');
+        const binaryContent = Buffer.from([0x00, 0x0d, 0x0a, 0x01, 0x0d, 0x0a]);
+        writeFileSync(filePath, binaryContent);
+
+        const result = computeFileHash(filePath);
+
+        expect(result.size).toBe(binaryContent.length);
+        expect(result.hash).toBe(`sha256:${createHash('sha256').update(binaryContent).digest('hex')}`);
+      });
+    });
+
+    describe('compareFileHash', () => {
+      it('reports unchanged when a manifest hash (from LF content) is compared against a CRLF checkout', () => {
+        const filePath = join(TEST_DIR, 'standard.md');
+        const lfContent = '# Standard\n\nSome rule.\n';
+
+        // Simulate manifest generation on Linux/macOS: hash computed from LF.
+        writeFileSync(filePath, lfContent);
+        const storedInfo = computeFileHash(filePath);
+
+        // Simulate the same file after a Windows `core.autocrlf=true` checkout.
+        writeFileSync(filePath, Buffer.from(lfContent.replace(/\n/g, '\r\n'), 'utf-8'));
+
+        expect(compareFileHash(filePath, storedInfo)).toBe('unchanged');
+      });
+
+      // Negative control: a real content change on a CRLF checkout must still
+      // be reported as modified.
+      it('still reports modified for a real content change on a CRLF checkout', () => {
+        const filePath = join(TEST_DIR, 'standard2.md');
+        const lfContent = '# Standard\n\nOriginal rule.\n';
+        writeFileSync(filePath, lfContent);
+        const storedInfo = computeFileHash(filePath);
+
+        writeFileSync(filePath, Buffer.from('# Standard\r\n\r\nActually different rule.\r\n', 'utf-8'));
+
+        expect(compareFileHash(filePath, storedInfo)).toBe('modified');
+      });
+    });
+
+    describe('computeIntegrationBlockHash', () => {
+      const START = '<!-- UDS:STANDARDS:START -->';
+      const END = '<!-- UDS:STANDARDS:END -->';
+
+      it('hashes the UDS block identically whether the file is LF or CRLF', () => {
+        const lfPath = join(TEST_DIR, 'CLAUDE.md');
+        const crlfPath = join(TEST_DIR, 'CLAUDE-crlf.md');
+        const lfContent = `# Project\n\n${START}\nRule one.\nRule two.\n${END}\n\nCustom section.\n`;
+        writeFileSync(lfPath, lfContent);
+        writeFileSync(crlfPath, Buffer.from(lfContent.replace(/\n/g, '\r\n'), 'utf-8'));
+
+        const lfResult = computeIntegrationBlockHash(lfPath);
+        const crlfResult = computeIntegrationBlockHash(crlfPath);
+
+        expect(lfResult).not.toBeNull();
+        expect(lfResult.blockHash).toBe(crlfResult.blockHash);
+        expect(lfResult.blockSize).toBe(crlfResult.blockSize);
+        expect(lfResult.fullHash).toBe(crlfResult.fullHash);
+        expect(lfResult.fullSize).toBe(crlfResult.fullSize);
+      });
+
+      // Negative control: a real change inside the block must still change
+      // the block hash after normalization.
+      it('still detects a real change inside the UDS block', () => {
+        const pathA = join(TEST_DIR, 'CLAUDE-a.md');
+        const pathB = join(TEST_DIR, 'CLAUDE-b.md');
+        writeFileSync(pathA, Buffer.from(`${START}\r\nRule one.\r\n${END}\r\n`, 'utf-8'));
+        writeFileSync(pathB, Buffer.from(`${START}\r\nRule ONE CHANGED.\r\n${END}\r\n`, 'utf-8'));
+
+        const resultA = computeIntegrationBlockHash(pathA);
+        const resultB = computeIntegrationBlockHash(pathB);
+
+        expect(resultA.blockHash).not.toBe(resultB.blockHash);
+      });
     });
   });
 });

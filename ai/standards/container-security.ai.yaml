@@ -93,7 +93,7 @@ categories:
     required_settings:
       - readOnlyRootFilesystem: true
       - allowPrivilegeEscalation: false
-      - drop: [ALL] capabilities
+      - drop: "[ALL] capabilities"
     seccomp:
       profile: RuntimeDefault (or custom restricted profile)
       audit_mode: allowed for profiling only; not for production

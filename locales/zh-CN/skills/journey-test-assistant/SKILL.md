@@ -2,13 +2,16 @@
 name: journey-test-assistant
 source: ../../../../skills/journey-test-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-07-09
-source_hash: 9230eb251afd
+translation_version: 1.1.0
+last_synced: 2026-08-17
+source_hash: 62c9c1574b9f
 status: current
 scope: partial
 description: |
-  [UDS] 从项目描述生成连贯的用户旅程测试计划（TESTPLAN）与 E2E 骨架。
+  [UDS] 从项目描述生成连贯的用户旅程测试计划（TESTPLAN）与旅程 E2E 骨架。
+  Use when: 新项目从第一天就需要一条测试旅程、测试跨多个故事延续的状态、建立以用户画像驱动的旅程计划。
+  Not for: 单一 AC 的独立 E2E 骨架——请用 /e2e；测量实际达成的代码覆盖率——请用 /coverage。
+  Keywords: user journey, TESTPLAN, journey test, persona, cross-story state, 用户旅程, 旅程测试, 测试计划, 用户画像.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[项目描述 | --analyze | --archetype A1|A2|A3]"
 ---

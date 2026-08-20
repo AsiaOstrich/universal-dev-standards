@@ -17,6 +17,8 @@ import {
   existsSync,
   mkdirSync,
   copyFileSync,
+  cpSync,
+  statSync,
   readFileSync,
   writeFileSync,
   readdirSync,
@@ -64,7 +66,37 @@ export function createBackup(projectPath, plan) {
     };
   }
 
-  // Backup each file
+  // Make the backup invisible to git, from inside itself.
+  //
+  // WHY THIS IS NOT A LINE IN THE ADOPTER'S .gitignore. We create this directory
+  // in someone else's repository; making it disappear is our job, but editing
+  // their .gitignore to do it is not — that file is theirs, it may be generated,
+  // and a tool appending to it on every update is a worse trade than the problem.
+  // A `*` here ignores everything in this directory (this file included, which is
+  // fine: git reads .gitignore whether or not it is tracked), so `git status` and
+  // `git add -A` never see the backup at all, and nothing outside is touched.
+  //
+  // WHY IT EXISTS. Nothing ignored these directories, so `git add -A` in two
+  // sibling repos committed them: EngramGraph's 0.8.0 release commit took in 5
+  // backups — 360 files, 73,992 lines — and dev-platform took one. Both were
+  // public. The adopter is not the right place to put this responsibility: they
+  // did not create the directory and have no reason to expect it.
+  try {
+    writeFileSync(join(backupDir, '.gitignore'), '*\n', 'utf8');
+  } catch (err) {
+    // A backup that git can see still beats no backup — record and carry on.
+    errors.push(`Failed to write backup .gitignore: ${err.message}`);
+  }
+
+  // Backup each entry.
+  //
+  // Skills are DIRECTORIES (`.claude/skills/<name>`), and `copyFileSync` on a
+  // directory throws — ENOTSUP on macOS, EISDIR on Linux. Every skill in every
+  // plan failed here, and the failures went nowhere (see the partial-failure
+  // note below). Measured on a real repo before the fix: a vibeops backup
+  // recorded 74 files for a plan of 129 actions, with **0 of the 55 skill
+  // directories** among them — a rollback point that did not cover the largest
+  // part of what was about to be overwritten. (XSPEC-382 R6)
   for (const relativePath of filesToBackup) {
     const sourcePath = join(projectPath, relativePath);
     if (!existsSync(sourcePath)) continue;
@@ -72,7 +104,11 @@ export function createBackup(projectPath, plan) {
     const targetPath = join(backupDir, relativePath);
     try {
       mkdirSync(dirname(targetPath), { recursive: true });
-      copyFileSync(sourcePath, targetPath);
+      if (statSync(sourcePath).isDirectory()) {
+        cpSync(sourcePath, targetPath, { recursive: true });
+      } else {
+        copyFileSync(sourcePath, targetPath);
+      }
       backedUp.push(relativePath);
     } catch (err) {
       errors.push(`Failed to backup ${relativePath}: ${err.message}`);
@@ -94,6 +130,19 @@ export function createBackup(projectPath, plan) {
       }))
     },
     backedUpFiles: backedUp,
+    // What could NOT be backed up, and the resulting gap.
+    //
+    // The manifest previously recorded only successes, with no errors field at
+    // all — so a backup covering 74 of 129 planned paths was indistinguishable
+    // on disk from one covering all of them. Anyone reaching for this directory
+    // is reaching for it because something went wrong; it has to say what it
+    // does not contain. (XSPEC-382 R6)
+    failedToBackUp: errors.slice(),
+    coverage: {
+      planned: filesToBackup.length,
+      backedUp: backedUp.length,
+      failed: filesToBackup.length - backedUp.length
+    },
     projectPath
   };
 

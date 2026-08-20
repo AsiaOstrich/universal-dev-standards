@@ -49,8 +49,8 @@ workflow:
 
   - step: 進行提交
     commands:
-      - git commit -m "feat: implement feature part 1"
-      - git commit -m "feat: implement feature part 2"
+      - 'git commit -m "feat: implement feature part 1"'
+      - 'git commit -m "feat: implement feature part 2"'
 
   - step: 變基到最新 main
     commands:

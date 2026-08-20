@@ -4,6 +4,7 @@ scope: universal
 description: |
   Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns.
   Use when: before committing, during PR review, or periodic codebase cleanup.
+  Not for: structural code improvement — use /refactor; security-specific scanning — use /scan.
   Keywords: sweep, debug cleanup, console.log, debugger, TODO, ts-any, code quality.
 allowed-tools: Read, Grep, Glob, Bash(find:*), Edit, Write
 argument-hint: "[--fix] [--report] [--path <dir>] [--exclude <pattern>]"

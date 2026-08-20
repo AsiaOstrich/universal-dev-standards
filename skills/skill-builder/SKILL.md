@@ -1,7 +1,11 @@
 ---
 name: skill-builder
 scope: universal
-description: "[UDS] Identify repeated processes and build Skills with the right development depth"
+description: |
+  [UDS] Turn a repeated manual process into a properly scoped Skill, with the right amount of process along the way.
+  Use when: the same multi-step sequence has been done manually three or more times, formalising an ad-hoc Skill, deciding where a Skill belongs.
+  Not for: recording historical facts or project state — that belongs in memory, not a Skill; one-off tasks that will not recur.
+  Keywords: skill, skill builder, process knowledge, repeated process, automation, 技能建立, 流程知識, 自動化.
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash
 argument-hint: "[process description | 流程描述]"
 ---

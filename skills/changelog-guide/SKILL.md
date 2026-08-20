@@ -1,9 +1,36 @@
 ---
 name: changelog
 scope: partial
-description: "[UDS] Generate and maintain CHANGELOG.md entries"
+description: |
+  [UDS] Generate and maintain CHANGELOG.md entries in Keep a Changelog format.
+  Use when: writing changelog entries from commit history, filling the Unreleased section, categorising changes as Added/Changed/Fixed.
+  Not for: choosing the next version number or running the release — use /release; writing the commit messages themselves — use /commit.
+  Keywords: changelog, CHANGELOG.md, Keep a Changelog, release notes, unreleased, 變更日誌, 發布說明, 版本紀錄.
 allowed-tools: Read, Write, Grep, Bash(git log:*)
-disable-model-invocation: true
+status: stable
+# 2026-08-18: `disable-model-invocation: true` removed, and a status recorded.
+#
+# The flag was applied by d415937e alongside the description rewrite and, like
+# the two lifted on 2026-08-17, followed no stateable rule. These eight were
+# left alone that day for a reason that was correct at the time: the rule
+# settled on was "a reference is model-invocable", and none of them carried a
+# `status` at all, so lifting them would have replaced one unruled state with
+# one unruled action.
+#
+# Measured 2026-08-18, which is what closed it: all eight carry a full
+# `Use when:` trigger and a `Not for:` exclusion, all eight describe an action
+# rather than reference material, and all eight already have a slash command —
+# which is exactly the shape of `code-review-assistant`, whose paired `/code-review`
+# was ruled not to justify the flag. `journey-test-assistant` is the standing
+# precedent: same "Generate X" shape, `status: stable`, never disabled.
+#
+# `stable` rather than a new value: `skills/` uses reference, stable and
+# experimental, and inventing a fourth would be the same unruled-action mistake
+# in different clothing.
+#
+# The cost of being wrong is asymmetric and observable in only one direction.
+# Over-triggering shows up and is undone by deleting a line; a skill that is
+# structurally unable to fire produces no signal at all. (XSPEC-378 R5)
 ---
 
 # Changelog Assistant | 變更日誌助手

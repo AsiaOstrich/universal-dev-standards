@@ -3,14 +3,17 @@
 
 id: mock-boundary
 meta:
-  version: "1.1.0"
-  updated: "2026-05-13"
+  version: "1.2.0"
+  updated: "2026-07-01"
   source: core/mock-boundary.md
   description: >
     Rules defining what can and cannot be mocked to prevent hollow tests —
     tests that pass while the real system is broken.
     v1.1.0: Added Level 1/Level 2 mock layer distinction and external
     dependency testability matrix template (XSPEC-204).
+    v1.2.0: Added injectable background execution as a seam (parallel to clock
+    injection) — allowed background-runner seam, no-poll/sleep rule, and the
+    poll/sleep-for-background-result anti-pattern (issue #143).
 
 # ─────────────────────────────────────────────────────────
 # Mock Levels (v1.1.0)
@@ -150,6 +153,31 @@ allowed:
       // 1. The DB layer has its own integration tests
       // 2. The service test focuses on service logic (not DB behavior)
 
+  - category: In-Process Background Execution (via injectable runner)
+    description: >
+      Fire-and-forget dispatch — Task.Run, unawaited promises, setTimeout,
+      goroutines, thread-pool/executor submission, asyncio.create_task
+    reason: >
+      Background dispatch is a seam, exactly like the system clock. Inject a
+      runner so the test can drive the work to deterministic, awaited completion
+      and assert on success/exception/retry — instead of polling or sleeping.
+    implementation: >
+      Abstract dispatch behind a small interface (e.g. IBackgroundTaskRunner /
+      BackgroundDispatcher). Production keeps true fire-and-forget semantics;
+      the test double runs the work inline and tracks the Task/promise, exposing
+      a handle the test can await before asserting.
+    example: |
+      // Production: real fire-and-forget — returns immediately, work runs detached
+      class FireAndForgetDispatcher implements BackgroundDispatcher {
+        dispatch(work: () => Promise<void>): void { void work() }
+      }
+      // Test: inline + tracked so the test can await deterministic completion
+      class DeterministicDispatcher implements BackgroundDispatcher {
+        private tasks: Promise<void>[] = []
+        dispatch(work: () => Promise<void>): void { this.tasks.push(work()) }
+        async settle(): Promise<void> { await Promise.all(this.tasks) }
+      }
+
 # ─────────────────────────────────────────────────────────
 # Forbidden Mocks
 # ─────────────────────────────────────────────────────────
@@ -253,6 +281,15 @@ anti_patterns:
     description: DB mock returns hardcoded data, hiding query logic errors
     problem: Schema migrations, wrong predicates, missing joins — all invisible
 
+  - name: Poll/Sleep for Background Result
+    description: >
+      Sleeping or polling to wait for in-process fire-and-forget work
+      (Task.Run, unawaited promise, setTimeout, goroutine) to finish
+    problem: >
+      The race is still there — the timeout only hides it most of the time while
+      slowing the whole suite; on a shared runner it leaks flakiness into other
+      MRs' CI. Same class of anti-pattern as depending on wall-clock time.
+
 # ─────────────────────────────────────────────────────────
 # Rules
 # ─────────────────────────────────────────────────────────
@@ -295,6 +332,15 @@ rules:
     instruction: >
       AI-generated tests frequently over-mock. Apply all detection_patterns checks.
       If any hollow test indicator triggers, rewrite the mocking strategy.
+    priority: required
+
+  - id: no-poll-sleep-for-background-work
+    trigger: test asserts a fire-and-forget side effect (Task.Run, unawaited promise, setTimeout, goroutine, executor)
+    instruction: >
+      Never poll or sleep to wait for in-process background work. Inject a
+      deterministic runner (e.g. IBackgroundTaskRunner / BackgroundDispatcher)
+      whose test double runs the work inline and tracks the Task/promise; await
+      the tracked task, then assert on success, exception, or retry.
     priority: required
 
   - id: level-2-stub-server-rules

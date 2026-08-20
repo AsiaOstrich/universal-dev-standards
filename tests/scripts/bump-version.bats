@@ -48,19 +48,35 @@ teardown() {
 }
 
 # ── Release-gate wiring (XSPEC-072 Phase 4.2 + RELEASE-FLOW-TODOS.md TODO-001) ──
-# Structural assertions: both bump scripts must invoke the parity gate and the
-# docs-index regeneration. Guards against silent removal / drift between the two.
+# Structural assertions: the bump must invoke the parity gate and the docs-index
+# regeneration. These originally grepped BOTH scripts, because there were two
+# implementations that could drift apart. Since XSPEC-376 R2 there is only one:
+# bump-version.sh execs bump-version.mjs. So each assertion now checks both
+# halves of the single path — that the .sh still delegates, and that the marker
+# is present in the .mjs it delegates to. Removing either half would let the
+# release gate lose a step silently, which is what these tests exist to prevent.
 
-@test "bump-version.sh runs the bundle-parity gate (XSPEC-072 Phase 4.2)" {
-  grep -q "check:bundle-parity" "$SCRIPT"
+@test "bump-version.sh reaches the bundle-parity gate via bump-version.mjs (XSPEC-072 Phase 4.2)" {
+  grep -q "bump-version.mjs" "$SCRIPT"
+  grep -q "check:bundle-parity" "$MJS_SCRIPT"
 }
 
-@test "bump-version.sh regenerates the docs index (TODO-001)" {
-  grep -q "docs:generate-index" "$SCRIPT"
+@test "bump-version.sh reaches the docs-index regeneration via bump-version.mjs (TODO-001)" {
+  grep -q "bump-version.mjs" "$SCRIPT"
+  grep -q "docs:generate-index" "$MJS_SCRIPT"
 }
 
-@test "bump-version.sh honours SKIP_BUNDLE_PARITY override" {
-  grep -q "SKIP_BUNDLE_PARITY" "$SCRIPT"
+@test "bump-version.sh reaches the SKIP_BUNDLE_PARITY override via bump-version.mjs" {
+  grep -q "bump-version.mjs" "$SCRIPT"
+  grep -q "SKIP_BUNDLE_PARITY" "$MJS_SCRIPT"
+}
+
+@test "bump-version.sh keeps no second copy of the bump logic (XSPEC-376 R2)" {
+  # The defect this convergence fixed was a step present in one copy and absent
+  # from the other. Assert the wrapper never grows version-file mutation logic
+  # of its own again.
+  ! grep -q "sed_inplace" "$SCRIPT"
+  ! grep -q "uds-manifest.json" "$SCRIPT"
 }
 
 @test "bump-version.mjs exists" {

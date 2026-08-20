@@ -2,15 +2,16 @@
 name: methodology
 source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-07-09
-source_hash: e7e6aae82545
+translation_version: 1.1.0
+last_synced: 2026-08-17
+source_hash: bc54ca1f49d5
 status: current
 scope: partial
 description: |
-  [UDS] /methodology: 选择并追踪开发方法论（SDD/BDD/TDD）。
-  Use when: 选择方法论、切换开发模式、查询当前方法论状态。
-  若要查询各阶段对应命令请用 /dev-workflow。
+  [UDS] 为项目选择并追踪当前采用的开发方法论（SDD、BDD、TDD）。
+  Use when: 决定项目该遵循哪一套方法论、切换方法论、查询目前方法论处于哪个阶段。
+  Not for: 查询某个开发阶段该执行哪个命令——请用 /dev-workflow；执行方法论本身——请用 /sdd、/bdd 或 /tdd。
+  Keywords: methodology, SDD, BDD, TDD, phase tracking, methodology selection, 方法论, 开发方法选择, 阶段追踪.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[动作] [参数]"
 ---

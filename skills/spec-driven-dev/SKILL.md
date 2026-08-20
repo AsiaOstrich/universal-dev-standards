@@ -1,7 +1,11 @@
 ---
 name: sdd
 scope: universal
-description: "[UDS] Create or review specification documents for Spec-Driven Development"
+description: |
+  [UDS] Create and review specification documents before writing code — spec format, states, and delta operations.
+  Use when: a change needs a written spec first, reviewing a spec for completeness, amending an existing spec with delta sections.
+  Not for: executing a gated SDD lifecycle — that moved to the adoption layer (XSPEC-095); lightweight micro-specs for rapid iteration — use the uds spec command.
+  Keywords: SDD, spec, specification, design document, delta operation, spec review, 規格驅動開發, 規格文件, 變更操作.
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*)
 argument-hint: "[spec name or feature | 規格名稱或功能]"
 ---

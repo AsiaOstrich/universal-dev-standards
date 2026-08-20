@@ -3,6 +3,14 @@ name: Publish to npm
 on:
   release:
     types: [published]
+  # Lets the two gate jobs below be exercised without cutting a release.
+  # 6.3.0's tag and GitHub Release went public and its publish job was then
+  # skipped, because a gate ahead of it was executing for the first time
+  # against a real release. A gate that has never run is not a gate; it is an
+  # untested step that happens to sit on the critical path. `publish` is
+  # guarded by `if: github.event_name == 'release'`, so a manual dispatch runs
+  # the checks and cannot publish.
+  workflow_dispatch:
 
 jobs:
   clean-room-install:
@@ -45,9 +53,127 @@ jobs:
       - name: Verify uds init command exists (--help)
         run: uds init --help > /dev/null
 
+  # XSPEC-366 R3. Everything above this line tests the versions
+  # `package-lock.json` pins. A published package does not ship its lockfile,
+  # so nobody who installs UDS gets those versions — they get whatever the
+  # ranges in `dependencies` resolve to at their install time. This job is the
+  # only place in the pipeline where the tests run against that second set.
+  #
+  # It does not fail on drift. Drift is reported, and then the suite runs
+  # against the drifted versions; a failure here means the code is broken for
+  # consumers, not that a dependency moved.
+  consumer-resolution:
+    name: Test against consumer resolution (no lockfile)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Record what the lockfile pins, then remove it
+        run: |
+          set -e
+          node -e "
+            const lock = require('./package-lock.json');
+            const pkg = require('./package.json');
+            const declared = { ...pkg.dependencies, ...pkg.optionalDependencies };
+            const rows = Object.keys(declared).map((name) => ({
+              name,
+              range: declared[name],
+              locked: (lock.packages['node_modules/' + name] || {}).version || null,
+            }));
+            require('fs').writeFileSync('locked-versions.json', JSON.stringify(rows, null, 2));
+            console.log('Recorded ' + rows.length + ' runtime dependencies from the lockfile.');
+          "
+          rm package-lock.json
+
+      # Resolves every range fresh, exactly as a consumer's install does.
+      #
+      # `node_modules` is removed as well, and that is not belt-and-braces.
+      # `npm install` leaves an already-installed package alone when it still
+      # satisfies the range — and then writes the version it kept into a
+      # freshly generated lockfile. Simulating this job locally with a
+      # populated `node_modules` therefore reports "0 drifts", regenerates a
+      # lockfile pinning the stale versions, and makes the *next* attempt
+      # honour it. Both runs then agree, and both are wrong. A fresh runner
+      # has neither file, so this line changes nothing here; it exists so the
+      # job still measures the right thing if a dependency cache is ever added.
+      - name: Remove node_modules so ranges resolve, not stay
+        run: rm -rf node_modules
+
+      - name: Install as a consumer would
+        run: npm install
+        env:
+          HUSKY: '0'
+
+      - name: Report which dependencies resolved differently from what is pinned
+        run: |
+          set -e
+          # Printed whether or not anything differs. A silent job leaves "the
+          # suite passed against identical versions" and "the suite passed
+          # against six untested ones" looking the same in the log, and only
+          # one of those is worth knowing about later.
+          #
+          # Versions are read straight off disk, NOT through require(). A
+          # package may block '/package.json' in its `exports` map, and
+          # require() then throws for a package that is installed and fine.
+          # The EngramGraph version of this step did exactly that and reported
+          # three drifts where there were two, one of them fabricated. A drift
+          # report that invents drifts is worse than none: it trains the
+          # reader to ignore it.
+          node -e "
+            const { readFileSync, existsSync } = require('node:fs');
+            const rows = require('./locked-versions.json');
+            let drifted = 0;
+            let unreadable = 0;
+            for (const row of rows) {
+              const manifest = 'node_modules/' + row.name + '/package.json';
+              if (!existsSync(manifest)) {
+                unreadable++;
+                console.log('  ' + row.name + '  ' + row.range + '  pinned=' + row.locked + '  NOT INSTALLED');
+                continue;
+              }
+              const actual = JSON.parse(readFileSync(manifest, 'utf8')).version;
+              if (actual !== row.locked) {
+                drifted++;
+                console.log('  ' + row.name + '  ' + row.range + '  pinned=' + row.locked + '  resolved=' + actual);
+              }
+            }
+            if (unreadable > 0) {
+              console.log('');
+              console.error(unreadable + ' declared dependencies are not installed — this check cannot speak for them.');
+              process.exitCode = 1;
+            }
+            console.log('');
+            console.log(drifted + ' of ' + rows.length + ' runtime dependencies resolved to a version this repo does not pin.');
+            console.log(drifted === 0
+              ? 'Consumers install exactly what the lockfile tests.'
+              : 'The suite below runs against THOSE versions — the ones users actually get.');
+          "
+
+      - name: Lint against consumer-resolved dependencies
+        run: npm run lint
+
+      - name: Test against consumer-resolved dependencies
+        run: npm run test:unit
+
+      - name: Verify CLI against consumer-resolved dependencies
+        run: node bin/uds.js --version
+
   publish:
     name: Publish to npm
-    needs: [clean-room-install]
+    needs: [clean-room-install, consumer-resolution]
+    # A manual dispatch exercises the gates only. Publishing happens on a
+    # published release and nowhere else.
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -88,6 +214,15 @@ jobs:
       - name: Run standards sync check
         working-directory: .
         run: ./scripts/check-standards-sync.sh
+
+      # XSPEC-367 R1 — every .ai.yaml must parse. 6.3.4 shipped four that did
+      # not; the sync check above compares versions and registry entries, which
+      # an unparseable file passes without complaint. Exit 2 from this script
+      # means it could not run, and that fails the release too — "could not
+      # look" must not be released as "nothing wrong".
+      - name: Check every .ai.yaml parses (XSPEC-367 R1)
+        working-directory: .
+        run: node scripts/check-ai-yaml-parses.mjs
 
       - name: Run linting
         run: npm run lint

@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide documentation structure, content requirements, and project documentation best practices.
   Use when: creating README, documentation, docs folder, project setup, technical docs.
+  Not for: generating docs mechanically from source — use /docgen; changelog entries — use /changelog.
   Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs.
 ---
 

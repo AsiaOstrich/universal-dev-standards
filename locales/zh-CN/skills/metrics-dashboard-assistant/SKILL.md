@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  追踪开发指标、代码品质指示器与专案健康状态。
-  使用时机：评估专案健康、追踪技术债、监控品质趋势。
-  关键字：metrics, dashboard, quality, coverage, complexity, debt, 指标, 品质, 技术债。
+  [UDS] 长期追踪开发指标、代码质量指标与技术债。
+  Use when: 评估项目的持续健康状态、分类技术债并观察其趋势、向团队汇报代码质量。
+  Not for: 初次评估一个不熟悉的代码库——请用 /discover；单看测试覆盖率——请用 /coverage 或 /ac-coverage。
+  Keywords: metrics, code quality, technical debt, project health, debt trend, 开发指标, 技术债, 项目健康度, 质量趋势.
 ---
 
 # 开发指标助手

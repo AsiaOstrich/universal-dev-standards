@@ -137,7 +137,7 @@ get_core_for_skill() {
 echo -e "${CYAN}Checking utility skills (no Core Standard required)...${NC}"
 for skill in $UTILITY_SKILLS; do
     if check_skill "$skill"; then
-        echo -e "  ${GREEN}✓${NC} $skill ${YELLOW}(utility, no core standard required)${NC}"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}✓${NC} $skill ${YELLOW}(utility, no core standard required)${NC}"
         WARNINGS=$((WARNINGS + 1))
     else
         if [ "$VERBOSE" = true ]; then
@@ -151,7 +151,7 @@ echo ""
 echo -e "${CYAN}Checking reference-only standards (no Skill required)...${NC}"
 for std in $REFERENCE_ONLY_STANDARDS; do
     if check_core "$std"; then
-        echo -e "  ${GREEN}✓${NC} core/$std ${YELLOW}(reference-only, no skill required)${NC}"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}✓${NC} core/$std ${YELLOW}(reference-only, no skill required)${NC}"
     else
         if [ "$VERBOSE" = true ]; then
             echo -e "  ${YELLOW}⚠${NC} core/$std (reference-only standard not found)"
@@ -184,7 +184,7 @@ echo "$SKILL_CORE_MAPPINGS" | while IFS='|' read -r skill core_file; do
     fi
 
     if [ "$skill_exists" = true ] && [ "$core_exists" = true ]; then
-        echo -e "  ${GREEN}✓${NC} $skill ↔ core/$core_file"
+        [ "$VERBOSE" = true ] && echo -e "  ${GREEN}✓${NC} $skill ↔ core/$core_file"
     elif [ "$skill_exists" = true ] && [ "$core_exists" = false ]; then
         echo -e "  ${RED}✗${NC} $skill → core/$core_file ${RED}(core standard missing)${NC}"
     elif [ "$skill_exists" = false ] && [ "$core_exists" = true ]; then

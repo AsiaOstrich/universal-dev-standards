@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'fs';
+import { execSync } from 'child_process';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -47,6 +48,37 @@ describe('BackupManager', () => {
       expect(result.backupId).toMatch(/^\.uds-backup-/);
       expect(existsSync(result.backupDir)).toBe(true);
       expect(result.backedUp).toContain('.standards/test.yaml');
+    });
+
+    // The contract is "git never sees the backup", so assert that against real
+    // git rather than asserting the mechanism. Nothing ignored these directories
+    // before, and `git add -A` committed them into two public repos — EngramGraph's
+    // 0.8.0 release commit took 360 files, dev-platform took 3. A test that only
+    // checked for a `.gitignore` file would have passed against a rule that does
+    // not actually hide anything.
+    it('should be invisible to git', () => {
+      execSync('git init -q', { cwd: TEST_DIR });
+      mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.standards', 'test.yaml'), 'content');
+
+      const plan = {
+        actions: [
+          { type: 'update', category: 'standard', path: '.standards/test.yaml', reason: 'test' }
+        ],
+        summary: { create: 0, update: 1, delete: 0, unchanged: 0, migrate_block: 0 }
+      };
+
+      const result = createBackup(TEST_DIR, plan);
+      expect(existsSync(result.backupDir)).toBe(true);
+
+      const status = execSync('git status --porcelain', { cwd: TEST_DIR }).toString();
+      // The backup exists on disk and holds a real copy…
+      expect(existsSync(join(result.backupDir, '.standards', 'test.yaml'))).toBe(true);
+      // …and git reports nothing about it.
+      expect(status).not.toContain('uds-backup');
+      // Guard against the assertion passing because git reported nothing at all:
+      // the file the backup was made from must still show up as untracked.
+      expect(status).toContain('.standards/');
     });
 
     it('should only backup files that will be updated or deleted', () => {

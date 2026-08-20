@@ -210,6 +210,35 @@ updateFile(
   `**版本**: ${VERSION_LABEL} `
 );
 
+// 6b. SECURITY.md ×3 — supported-versions table
+//
+// 🔴 這三個檔案原本不在本腳本的清單裡，而 scripts/check-version-sync.sh **有檢查它們**。
+// 兩份手寫清單各自列舉「哪些檔案帶版本號」，於是它們會漂開：2026-08-20 發 6.8.0 時
+// bump 跑完後 check 立刻紅了三行，而那三行是 bump 自己該做卻沒做的。
+// **一個寫入者與一個檢查者各持一份清單，就是等著不一致。**
+// 這裡先讓兩份對齊；根本修法是讓兩者消費同一份宣告（未做，見 commit body）。
+for (const [label, rel, re] of [
+  ['SECURITY.md', ['SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
+  ['locales/zh-TW/SECURITY.md', ['locales', 'zh-TW', 'SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
+  ['locales/zh-CN/SECURITY.md', ['locales', 'zh-CN', 'SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
+]) {
+  const file = join(ROOT_DIR, ...rel);
+  if (!existsSync(file)) {
+    console.error(`  ✗ ${label} 不存在 —— 這不是「不需要更新」，是找不到要更新的東西`);
+    process.exitCode = 1;
+    continue;
+  }
+  const before = readFileSync(file, 'utf8');
+  const after = before.replace(re, (m) => m.replace(/\d+\.\d+\.\d+/, NEW_VERSION));
+  if (after === before) {
+    console.error(`  ✗ ${label} 沒有匹配到版本列 —— 表格格式可能改了，不是「已經是最新」`);
+    process.exitCode = 1;
+    continue;
+  }
+  writeFileSync(file, after, 'utf8');
+  console.log(`  ✓ ${label}`);
+}
+
 // 7. CHANGELOG frontmatter (zh-TW + zh-CN) — update source_version, translation_version, last_synced
 for (const locale of ['zh-TW', 'zh-CN']) {
   const file = join(ROOT_DIR, 'locales', locale, 'CHANGELOG.md');

@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/test-coverage-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-02-10
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
 description: |
-  多维度分析测试覆盖率并提供可执行的建议。
-  使用时机：分析覆盖率、识别测试缺口、制定测试策略。
-  关键字：coverage, test, analysis, dimension, 覆盖率, 测试, 分析, 维度。
+  [UDS] 以八维度框架分析代码层级的测试覆盖率，并建议该优先补上哪些缺口。
+  Use when: 覆盖率数字看起来很健康但缺陷照样流出、要在行覆盖率之外判断测试完整性、设定覆盖率目标。
+  Not for: 需求层级的 AC 与测试追踪——请用 /ac-coverage；补写缺少的测试——请用 /tdd 或 /spec-derive。
+  Keywords: test coverage, eight dimensions, line coverage, branch coverage, test quality, 测试覆盖率, 八维度, 测试完整性, 覆盖缺口.
 ---
 
 # 测试覆盖率助手

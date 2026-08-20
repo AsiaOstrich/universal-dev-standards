@@ -1,0 +1,30 @@
+{
+  "recorded": "2026-08-19",
+  "expires": "2026-11-19",
+  "why": "XSPEC-383 R3 落地時已存在的不可達模組。基線的作用是讓閘門對「新增的孤兒」有效，不是讓這 24 個變成合格。",
+  "howToShrink": "接上入口／刪除／若刻意保留為未來程式碼，改為在腳本的 EXCLUSIONS 加規則（不是加檔名）。修掉一個就從本清單移除一個。",
+  "modules": [
+    "src/core/agent-communication-protocol.js",
+    "src/flow/condition-evaluator.js",
+    "src/flow/flow-bundler.js",
+    "src/flow/flow-commands.js",
+    "src/flow/flow-engine.js",
+    "src/flow/flow-inheritance.js",
+    "src/flow/flow-parser.js",
+    "src/flow/flow-validator.js",
+    "src/flow/gate-checker.js",
+    "src/flow/gate-loader.js",
+    "src/missions/MissionManager.js",
+    "src/utils/context-chunker.js",
+    "src/utils/conversion-rules.js",
+    "src/utils/e2e-analyzer.js",
+    "src/utils/e2e-detector.js",
+    "src/utils/hook-stats.js",
+    "src/utils/md-parser.js",
+    "src/utils/telemetry-uploader.js",
+    "src/utils/workflow-executor.js",
+    "src/utils/workflows-installer.js",
+    "src/utils/yaml-generator.js",
+    "src/vibe/auto-sweep.js"
+  ]
+}

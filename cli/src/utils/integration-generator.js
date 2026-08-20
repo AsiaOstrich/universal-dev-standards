@@ -3,6 +3,7 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
+import { resolveSelectedOptionSources, resolveStandardFilename } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
 
 /**
@@ -100,8 +101,14 @@ const STANDARD_TASK_MAPPING = {
   'test-completeness-dimensions.md': { task: 'Test coverage', when: 'When evaluating tests', priority: 'SHOULD' },
   'git-workflow.ai.yaml': { task: 'Git workflow', when: 'Branch/merge decisions', priority: 'SHOULD' },
   'developer-memory.ai.yaml': { task: 'Developer memory', when: 'Always (protocol)', priority: 'SHOULD' },
-  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' },
-  'workflow-enforcement.ai.yaml': { task: 'Workflow gates', when: 'Before any workflow phase', priority: 'MUST' }
+  'project-context-memory.ai.yaml': { task: 'Project context', when: 'Planning & Coding', priority: 'MUST' }
+  // 'workflow-enforcement.ai.yaml' was removed in 6.0.0 (MIGRATION-v6 §2) along
+  // with seven other machine-readable standards whose runtime moved to the
+  // adoption layer. Its entry here pointed a task mapping at
+  // `.standards/workflow-enforcement.ai.yaml`, a file that has not shipped
+  // since. The human-readable core/workflow-enforcement.md was deliberately
+  // kept upstream, but adopters receive .standards/, not core/, so it is not a
+  // substitute path.
 };
 
 /**
@@ -2392,24 +2399,91 @@ All responses should be in **Traditional Chinese (繁體中文)**, with technica
 };
 
 /**
+ * Generate the index disclosure that opens every UDS-managed block.
+ *
+ * XSPEC-357 R7 — the block an adopter receives is an index. In no content mode
+ * does it carry rule bodies, and inlining them is not an option: 143 `.ai.yaml`
+ * files come to roughly 248k tokens. What can be fixed is the block pretending
+ * otherwise. A file that lists 72 standard paths under a heading reading
+ * "Standards Compliance Instructions" reads, to an agent, like the compliance
+ * instructions — and Codex was measured on 2026-07-23 doing exactly that:
+ * it enumerated the standards and opened none of them.
+ *
+ * This wording was added to the universal `AGENTS.md` summary on 2026-08-18
+ * (`generateAgentsMdSummary`). That fixed one of the two producers. The other
+ * one is this — and the split is worse than it sounds, because the two are
+ * mutually exclusive for the same filename: selecting codex or opencode turns
+ * the universal summary OFF and routes `AGENTS.md` through here instead. The
+ * disclosure written for Codex was therefore in the only file a Codex adopter
+ * never receives. Measured 2026-08-20 before this change: 8 distinct adopter
+ * files across 3 content modes, 0 carrying the disclosure.
+ *
+ * @param {string} format - Output format: 'markdown' or 'plaintext'
+ * @param {string} language - Language: 'en', 'zh-tw', 'zh-cn' or 'bilingual'
+ * @returns {string} Disclosure paragraph, already format-adjusted
+ */
+export function generateIndexDisclosure(format, language = 'en') {
+  const lines = language === 'en'
+    ? [
+      '**This block is an index, not the standards.** The rules are NOT reproduced here.',
+      'Before acting on anything below, open the relevant file under `.standards/` and',
+      'follow its contents. Working from this block alone means working without the',
+      'standards.'
+    ]
+    : [
+      '**這個區塊是索引，不是標準本文。** 規則並未複製於此。',
+      '在依照下方任何一項行動之前，請打開 `.standards/` 底下對應的檔案並遵守其內容。',
+      '只憑這個區塊工作，等同於沒有採用標準。'
+    ];
+
+  if (format === 'markdown') {
+    return lines.map((l) => `> ${l}`).join('\n');
+  }
+  // Plaintext targets (.cursorrules / .clinerules / .windsurfrules) render
+  // neither blockquotes nor backticks, so both are stripped rather than shown.
+  return lines.map((l) => l.replace(/\*\*/g, '').replace(/`/g, '')).join('\n');
+}
+
+/**
  * Generate minimal standards reference for minimal content mode
  * @param {string[]} installedStandards - List of installed standard file paths
  * @param {string} format - Output format: 'markdown' or 'plaintext'
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated minimal reference
  */
-export function generateMinimalStandardsReference(installedStandards, format, language = 'zh-tw') {
+export function generateMinimalStandardsReference(
+  installedStandards,
+  format,
+  language = 'zh-tw',
+  standardsFormat = 'ai',
+) {
   if (!installedStandards || installedStandards.length === 0) {
     return '';
   }
 
   const coreStandards = [];
   const optionStandards = [];
+  const unresolved = [];
 
-  // Separate core standards from options
+  // Separate core standards from options.
+  //
+  // `basename(entry)` used to serve for both, and it is only right for one:
+  // option entries are paths, core entries are registry IDs, and an ID is not
+  // a filename. That produced `.standards/error-code-standards` for a file
+  // installed as `error-codes.ai.yaml` — seven dead paths out of seventy in a
+  // real adopter's AGENTS.md, directly under a line telling the agent it must
+  // read them.
   for (const standardPath of installedStandards) {
-    const filename = basename(standardPath);
     const isOption = standardPath.includes('/options/') || standardPath.includes('\\options\\');
+    const filename = resolveStandardFilename(standardPath, standardsFormat);
+
+    // An entry we cannot resolve is not written out as if it were a path. A
+    // listed path that does not exist is worse than an omission: the reader
+    // cannot tell it apart from the ones that do, so it discredits the list.
+    if (!filename) {
+      unresolved.push(standardPath);
+      continue;
+    }
 
     if (isOption) {
       optionStandards.push({ filename, path: standardPath });
@@ -2445,6 +2519,15 @@ export function generateMinimalStandardsReference(installedStandards, format, la
       }
       sections.push('');
     }
+
+    // Said out loud rather than dropped quietly. A shorter list and a complete
+    // one read the same, and only the manifest knows which this is.
+    if (unresolved.length > 0) {
+      sections.push(language === 'en'
+        ? `> ${unresolved.length} manifest entr${unresolved.length === 1 ? 'y' : 'ies'} could not be matched to an installed file and ${unresolved.length === 1 ? 'is' : 'are'} not listed above: ${unresolved.join(', ')}. Run \`uds update\` — if that does not clear it, the manifest and the registry disagree.`
+        : `> 有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列於上方：${unresolved.join('、')}。請執行 \`uds update\`；若仍未消失，代表 manifest 與 registry 不一致。`);
+      sections.push('');
+    }
   } else {
     // Plaintext format
     sections.push(language === 'en'
@@ -2466,6 +2549,13 @@ export function generateMinimalStandardsReference(installedStandards, format, la
       for (const std of optionStandards) {
         sections.push(`- .standards/options/${std.filename}`);
       }
+    }
+
+    if (unresolved.length > 0) {
+      sections.push('');
+      sections.push(language === 'en'
+        ? `NOTE: ${unresolved.length} manifest entries could not be matched to an installed file and are not listed: ${unresolved.join(', ')}`
+        : `注意：有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列出：${unresolved.join('、')}`);
     }
     sections.push('');
   }
@@ -2561,7 +2651,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
     sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+
   } else if (language === 'zh-cn') {
     sections.push('## 工作流程强制闸门');
     sections.push('');
@@ -2584,7 +2674,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` 文件存在 | → FORMULATION |');
     sections.push('| Commit | feat/fix | 检查活跃 spec | → 建议 `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('参考: `.standards/workflow-enforcement.ai.yaml`');
+
   } else {
     sections.push('## Workflow Enforcement Gates');
     sections.push('');
@@ -2607,7 +2697,7 @@ function generateWorkflowGateContent(language) {
     sections.push('| BDD | AUTOMATION | `.feature` file exists | → FORMULATION |');
     sections.push('| Commit | feat/fix | Check active specs | → Suggest `Refs: SPEC-XXX` |');
     sections.push('');
-    sections.push('Reference: `.standards/workflow-enforcement.ai.yaml`');
+
   }
 
   return sections.join('\n');
@@ -2630,6 +2720,10 @@ export function generateIntegrationContent(config) {
     // New fields for enhanced standards compliance
     installedStandards = [],
     contentMode = 'minimal',
+    // Content format of the installed standards ('ai' -> *.ai.yaml,
+    // 'human' -> *.md). Needed to turn a manifest's registry IDs into the
+    // filenames actually on disk; without it the block prints IDs as paths.
+    standardsFormat = 'ai',
     // Output language option for dynamic commit standards generation
     outputLanguage = 'english'
   } = config;
@@ -2685,12 +2779,17 @@ export function generateIntegrationContent(config) {
     }
 
     if (installedStandards.length > 0) {
+      // XSPEC-357 R7 — every mode, every tool. Placed first because it is a
+      // precondition for reading the rest, not a footnote to it.
+      standardsContent = generateIndexDisclosure(format, language) + '\n\n' + standardsContent;
+
       if (contentMode === 'minimal') {
         // Minimal mode: simple reference list
         standardsContent += generateMinimalStandardsReference(
           installedStandards,
           format,
-          language
+          language,
+          standardsFormat
         );
       } else {
         // Index/Full mode: detailed compliance instructions + index
@@ -2698,13 +2797,15 @@ export function generateIntegrationContent(config) {
           installedStandards,
           contentMode,
           format,
-          language
+          language,
+          standardsFormat
         );
 
         const standardsIndex = generateStandardsIndex(
           installedStandards,
           format,
-          language
+          language,
+          standardsFormat
         );
 
         standardsContent += complianceInstructions + '\n\n' + standardsIndex;
@@ -2717,8 +2818,20 @@ export function generateIntegrationContent(config) {
     sections.push('\n---\n');
   }
 
-  // Add workflow enforcement gates if workflow-enforcement standard is installed
-  if (installedStandards.some(s => basename(s) === 'workflow-enforcement.ai.yaml')) {
+  // Add workflow enforcement gates if the project still declares the standard.
+  //
+  // Matched against both forms because a manifest can hold either: the legacy
+  // path (pre-3.4.0) or the ID. vibeops and dev-platform both still carry
+  // `workflow-enforcement` as an ID today, two majors after 6.0.0 removed the
+  // file — checking only the filename silently stopped honouring their
+  // declaration. The section's content is self-contained; what it no longer
+  // does is point at `.standards/workflow-enforcement.ai.yaml`, which has not
+  // existed since 6.0.0 and was being written into adopters' instruction
+  // files regardless (asiaostrich-telemetry-client/CLAUDE.md:145).
+  if (installedStandards.some(s => {
+    const name = basename(s);
+    return name === 'workflow-enforcement.ai.yaml' || name === 'workflow-enforcement';
+  })) {
     const workflowGateContent = generateWorkflowGateContent(language);
     sections.push(workflowGateContent);
     sections.push('\n---\n');
@@ -2867,7 +2980,13 @@ export function integrationFileExists(tool, projectPath) {
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated compliance instructions
  */
-export function generateComplianceInstructions(installedStandards, mode, format, language = 'zh-tw') {
+export function generateComplianceInstructions(
+  installedStandards,
+  mode,
+  format,
+  language = 'zh-tw',
+  standardsFormat = 'ai',
+) {
   if (mode === 'minimal' || !installedStandards || installedStandards.length === 0) {
     return '';
   }
@@ -2875,9 +2994,16 @@ export function generateComplianceInstructions(installedStandards, mode, format,
   const mustFollow = [];
   const shouldFollow = [];
 
-  // Categorize standards by priority
+  // Categorize standards by priority.
+  //
+  // Keyed by installed filename, so a registry ID has to be resolved first —
+  // `basename()` on an ID returns the ID, which matches nothing in the table,
+  // and the standard silently gets no task mapping. No error, no shorter
+  // output anyone would notice: just a standard the agent is never told when
+  // to apply.
   for (const standardPath of installedStandards) {
-    const filename = basename(standardPath);
+    const filename = resolveStandardFilename(standardPath, standardsFormat);
+    if (!filename) continue;
     const mapping = STANDARD_TASK_MAPPING[filename];
     if (mapping) {
       const entry = {
@@ -2967,13 +3093,27 @@ export function generateComplianceInstructions(installedStandards, mode, format,
  * @param {string} language - Language: 'en', 'zh-tw', or 'bilingual'
  * @returns {string} Generated standards index
  */
-export function generateStandardsIndex(installedStandards, format, language = 'zh-tw') {
+export function generateStandardsIndex(installedStandards, format, language = 'zh-tw', standardsFormat = 'ai') {
   if (!installedStandards || installedStandards.length === 0) {
     return '';
   }
 
-  const total = installedStandards.length;
-  const optionCount = installedStandards.filter(
+  // Counted after resolution, so the number matches the files that exist.
+  //
+  // It used to be `installedStandards.length` straight off the manifest, which
+  // includes entries with nothing behind them — the eight standards
+  // MIGRATION-v6 §2 removed in 6.0.0 are still declared in manifests two
+  // majors later. On dev-platform that made the block announce 78 while 70
+  // resolve, and it announced it directly above "the authoritative list is the
+  // `standards` field of `.standards/manifest.json`", pointing the reader at
+  // the source of the discrepancy as if it settled it. The sync check counts
+  // resolvable entries, so the two disagreed by exactly those eight.
+  //
+  // Saying 70 and naming the 8 is the honest version of both numbers.
+  const resolvable = installedStandards.filter((e) => resolveStandardFilename(e, standardsFormat));
+  const unresolved = installedStandards.filter((e) => !resolveStandardFilename(e, standardsFormat));
+  const total = resolvable.length;
+  const optionCount = resolvable.filter(
     (p) => p.includes('/options/') || p.includes('\\options\\')
   ).length;
   const coreCount = total - optionCount;
@@ -2984,16 +3124,102 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
     ? [
       `This project has adopted **${total}** UDS standards (${coreCount} core, ${optionCount} options), installed in \`.standards/\`.`,
       '',
-      'The authoritative list is the `standards` field of `.standards/manifest.json`. Read a standard\'s own file to see what it requires — and check its first line, which is where a deprecated standard says so.'
+      'The authoritative list is the `standards` field of `.standards/manifest.json`. Read a standard\'s own file to see what it requires — and check its first line, which is where a deprecated standard says so.',
+      ...(unresolved.length > 0
+        ? ['', `${unresolved.length} further manifest entr${unresolved.length === 1 ? 'y has' : 'ies have'} no installed file and ${unresolved.length === 1 ? 'is' : 'are'} not counted above: ${unresolved.join(', ')}. Standards removed upstream stay in a manifest until someone drops them; \`uds update\` does not prune them.`]
+        : [])
     ]
     : [
       `本專案採用 UDS 標準共 **${total}** 條（core ${coreCount}、options ${optionCount}），安裝於 \`.standards/\`。`,
       '',
-      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。'
+      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。',
+      ...(unresolved.length > 0
+        ? ['', `另有 ${unresolved.length} 筆 manifest 項目沒有已安裝的檔案，未計入上方數字：${unresolved.join('、')}。上游移除的標準會留在 manifest 裡直到有人拿掉它；\`uds update\` 不會修剪它們。`]
+        : [])
     ];
 
   const plainBody = body.map((l) => l.replace(/`/g, ''));
   return [heading, '', ...(md ? body : plainBody), ''].join('\n');
+}
+
+/**
+ * Build the generation config for one AI tool from the manifest.
+ *
+ * Both the normal `uds update` path and the reconciler regenerate integration
+ * blocks, and they used to derive this config independently. The reconciler's
+ * copy omitted `categories` entirely, defaulted `outputLanguage` to English, and
+ * looked up `manifest.integrationConfigs` by **tool key** while the manifest
+ * stores it by **file name** — so the lookup always missed. The result was a
+ * strictly poorer block: reconciling machine-setup silently dropped its
+ * "提交訊息語言" and "Standards Compliance Instructions" sections, which the
+ * normal update path had always written. Two generators, one contract, one of
+ * them quietly lossy. (XSPEC-343 R2)
+ *
+ * `integrationConfigs` is deliberately NOT merged in: its `installedStandards`
+ * is a snapshot frozen at install time, and honouring it would reintroduce
+ * exactly the staleness this whole XSPEC is about.
+ *
+ * @param {Object} manifest - Project manifest
+ * @param {string} tool - Tool key (e.g. 'claude-code')
+ * @returns {Object} Config for generateIntegrationContent / writeIntegrationFile
+ */
+function withSelectedOptions(manifest) {
+  const standards = manifest.standards || [];
+  const seen = new Set(standards.map((p) => basename(p)));
+  const extra = resolveSelectedOptionSources(manifest.options, manifest.format || 'ai')
+    .filter((p) => !seen.has(basename(p)));
+  return [...standards, ...extra];
+}
+
+export function buildToolIntegrationConfig(manifest, tool) {
+  const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
+  const language = selected === 'bilingual'
+    ? 'bilingual'
+    : selected === 'traditional-chinese' ? 'zh-tw' : 'en';
+  const resolved = resolveContentModeForTool(tool, manifest.contentMode || 'auto');
+
+  return {
+    tool,
+    categories: ['anti-hallucination', 'commit-standards', 'code-review'],
+    language,
+    // Pass manifest entries UNCHANGED. Every consumer here documents this
+    // parameter as "standard file paths" and basenames it for display, while
+    // classifying options by `path.includes('/options/')`. Reducing to basenames
+    // first destroys that signal: options silently count as core, so the index
+    // block reported "(70 core, 0 options)" and the minimal block listed option
+    // files under the wrong heading with a path that does not exist on disk.
+    installedStandards: withSelectedOptions(manifest),
+    contentMode: resolved.contentMode,
+    level: resolved.level,
+    outputLanguage: selected,
+    methodology: manifest.methodology
+  };
+}
+
+/**
+ * Heading of the index-mode standards block. Not localised — both the English and
+ * the Chinese body sit under this exact string, so it is a stable marker.
+ */
+export const STANDARDS_INDEX_HEADING = '## Installed Standards Index';
+
+/**
+ * Read the standards count declared by an index-mode block.
+ *
+ * XSPEC-358 R1 replaced the enumerated list with a count plus a pointer to the
+ * manifest. Two checks in `uds check` still asserted the old contract by grepping
+ * the integration file for every standard name, so after the change they reported
+ * `5/70` and `0/7` and told the user to run `uds update` — which regenerates the
+ * same non-enumerating block. An unsatisfiable loop. Checks must assert what the
+ * block claims now, not what it used to list. (XSPEC-343 R2 / XSPEC-358 R1)
+ *
+ * @param {string} content - Full integration file content
+ * @returns {number|null} Declared count, or null if this is not an index block
+ */
+export function parseStandardsIndexCount(content) {
+  const at = content.indexOf(STANDARDS_INDEX_HEADING);
+  if (at === -1) return null;
+  const match = content.slice(at).match(/\*\*(\d+)\*\*/);
+  return match ? Number(match[1]) : null;
 }
 
 /**
@@ -3005,8 +3231,8 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
 export function wrapWithMarkers(content, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
   const warning = format === 'plaintext'
-    ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify.'
-    : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds install\' or \'npx uds update\' to modify. -->';
+    ? '# WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds init\' or \'npx uds update\' to modify.'
+    : '<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use \'npx uds init\' or \'npx uds update\' to modify. -->';
   // 冪等：warning 位於 markers **內部**，而 extractMarkedContent 取出的內容也含它，
   // 於是重新包裝會疊出第二份（dev-platform CLAUDE.md 實測 178/179 兩行完全相同）。
   // 這裡先剝掉內容開頭既有的 warning，不論上游哪條路徑造成都能修掉。
@@ -3072,7 +3298,6 @@ export function updateMarkedSection(existingContent, newMarkedContent, format) {
 export function getToolFilePath(tool) {
   return getToolFileName(tool) || null;
 }
-
 
 
 /**
@@ -3187,7 +3412,25 @@ export function generateAgentsMdSummary(config = {}) {
   lines.push('# AGENTS.md');
   lines.push('');
   lines.push('> Auto-generated by [Universal Dev Standards (UDS)](https://github.com/AsiaOstrich/universal-dev-standards).');
-  lines.push('> Full standards available in the `.standards/` directory.');
+  lines.push('>');
+  // Say it as an instruction, and say what this file is NOT.
+  //
+  // The previous line — "Full standards available in the `.standards/` directory" — was a
+  // description, and a description asks for nothing. Measured 2026-07-23: Codex read this
+  // file, listed the 65 standards it indexes, and opened none of them, so the rules had the
+  // same effect as not installing UDS at all. Measured again 2026-08-18 on a fresh
+  // `uds init -y`: the generated file is 5,667 bytes containing 69 filename references and
+  // **zero rule statements**. That is not a bug in the generator — 143 `.ai.yaml` files come
+  // to roughly 248k tokens, so inlining them is not possible — which is exactly why the file
+  // has to be explicit that it is an index and that the rules are elsewhere.
+  //
+  // This does not prove the rules get read; only XSPEC-357's P7 probe can measure that, and
+  // it is not built yet. It removes the one thing that was certainly wrong: a file that read
+  // as though it carried the standards when it carried their filenames. (XSPEC-357 R7)
+  lines.push('> **This file is an index, not the standards.** The rules are NOT reproduced here.');
+  lines.push('> Before acting on anything below, open the relevant file under `.standards/`');
+  lines.push('> and follow its contents. Working from this summary alone means working');
+  lines.push('> without the standards.');
   lines.push('');
 
   // Build & Test Commands (auto-detect project type)
@@ -3246,15 +3489,18 @@ export function generateAgentsMdSummary(config = {}) {
     lines.push('All standards are in `.standards/`. Installed standards:');
     lines.push('');
 
-    const keyStandards = installedStandards
-      .filter(s => {
-        const name = basename(s);
-        return name.endsWith('.ai.yaml');
-      });
+    // Resolved before filtering, not after. The filter asks for an `.ai.yaml`
+    // suffix and a manifest's core entries are registry IDs, which carry no
+    // suffix — so every core standard failed the test and the block listed
+    // only the option files. On one adopter that meant seven lines standing in
+    // for seventy, under a heading reading "Installed Standards", with nothing
+    // anywhere reporting the sixty-three that had been dropped.
+    const resolved = installedStandards
+      .map((s) => resolveStandardFilename(s, 'ai'))
+      .filter((name) => name?.endsWith('.ai.yaml'));
 
-    for (const std of keyStandards) {
-      const name = basename(std).replace('.ai.yaml', '');
-      lines.push(`- \`.standards/${basename(std)}\` — ${name}`);
+    for (const filename of resolved) {
+      lines.push(`- \`.standards/${filename}\` — ${filename.replace('.ai.yaml', '')}`);
     }
   } else {
     lines.push('No standards installed yet. Run `npx uds init` to install.');

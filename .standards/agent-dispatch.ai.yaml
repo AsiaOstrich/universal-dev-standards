@@ -1,0 +1,162 @@
+# Agent Dispatch & Parallel Coordination - AI Optimized
+# Source: core/agent-dispatch.md
+# Inspired by Superpowers dispatching-parallel-agents / subagent-driven-development (MIT)
+#
+# Reinstated by XSPEC-362 R5a. This file was removed in 6.0.0 as part of the
+# XSPEC-086 Phase 2 / DEC-049 migration, which moved the machine-readable copy to
+# dev-autopilot as canonical owner. That owner entered maintenance mode on 2026-04-28,
+# so the machine-readable form has had no maintained home since — while
+# core/agent-dispatch.md continued to ship in the npm bundle. Adopters installing with
+# `--format ai` therefore received the prose nowhere and the rules not at all.
+
+standard:
+  id: agent-dispatch
+  name: Agent Dispatch & Parallel Coordination
+  description: AI 子代理的並行派遣、工作協調與狀態回報標準
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-03-20"
+    source: core/agent-dispatch.md
+    description: "並行派遣、獨立域判準、狀態回報協定、prompt 設計原則"
+    inspired_by: superpowers/dispatching-parallel-agents
+    reinstated:
+      in_version: "unreleased"   # 由 bump-version 於發版時決定，此處不預先宣稱版本號
+      reason: >
+        XSPEC-362 R5a。6.0.0（XSPEC-086 Phase 2 / DEC-049）將機器可讀版遷至 dev-autopilot 作為
+        canonical 位置後移除本檔；該 canonical owner 於 2026-04-28 進入維護模式，
+        機器可讀版自此無人維護，而散文版仍隨 bundle 出貨。此為出貨缺口，非刻意的能力刪減。
+
+  scope:
+    covers: "怎麼派 — 並行安全、獨立域判準、狀態回報協定、prompt 設計"
+    does_not_cover: "派給誰、想多深 — 見 model-selection 標準（模型軸 × effort 軸）"
+    boundary_rule: >
+      並行安全規則屬於本標準。model-selection 及其衍生的 agent 定義必須「引用」本標準，
+      不得重寫一份——兩份並行安全規則會各自漂移，而漂移的樣子與正常的樣子無從分辨。
+
+  guidelines:
+    - "派遣前必須識別獨立域 — 無共享可變狀態才可並行"
+    - "每個子代理的 prompt 必須聚焦、自足、輸出格式明確"
+    - "子代理完成時必須回報四態之一"
+    - "並行代理返回後，先檢查檔案衝突再跑完整測試"
+
+  core_principle:
+    id: independence_before_parallelism
+    statement: "在並行派遣代理之前，先驗證其任務域彼此獨立（無共享可變狀態）"
+    independent_domain_criterion: "無共享可變狀態（no shared mutable state）"
+
+  prompt_design_principles:
+    - id: focused
+      name_zh: "聚焦"
+      rule: "每個代理只處理單一問題域，不混合無關任務"
+    - id: self_contained
+      name_zh: "自足"
+      rule: "prompt 包含執行所需的完整上下文；代理不需額外提問或搜尋"
+      note: >
+        子代理載入的是「主 session 工作目錄」的專案指示與技能清單，不是它實際要操作的那個 repo 的。
+        同 repo 派工時規則會自行到位；跨 repo 派工時，目標 repo 的規則完全不在 context 中——
+        commit 格式、測試指令、授權邊界若未寫進 prompt，就等於不存在。
+      note_correction:
+        corrected_on: "2026-08-12"
+        previous_claim: "子代理不會自動載入目標專案的專案指示，也無法呼叫目標專案的技能"
+        why_it_was_wrong: >
+          該陳述在宿主文件與實測下都不成立：子代理會載入 CLAUDE.md 階層，也能經 Skill 工具呼叫技能。
+          真正的限制是「載入的是哪一份」——主 session 工作目錄的那一份。
+        why_the_distinction_matters: >
+          只寫「不會載入」的話，下一個讀宿主文件的人會判定本規則已過時而移除它，
+          而跨 repo 的缺口仍然存在。差別在「哪一份」，不在「有沒有」。
+        measurement: >
+          2026-08-12：自工作目錄為 repo A 的 session 派出一個被禁用所有工具的子代理，
+          要它僅憑啟動時的 context 說出看得到哪些 CLAUDE.md，答完後才准跑 pwd。
+          結果：context 內只有使用者層 ~/.claude/CLAUDE.md 與 repo A 的 CLAUDE.md；
+          目標 repo B 的不在其中；pwd 回傳 repo A。
+        host_documentation_agrees: >
+          宿主文件的措辭是「every level of the CLAUDE.md hierarchy the main conversation loads」——
+          載重的是 the main conversation 這幾個字。
+        host_layer_artifact: integrations/claude-code/dispatch-template.md
+    - id: specific_output
+      name_zh: "明確輸出"
+      rule: "明確定義期望的回報格式"
+
+  status_protocol:
+    description: "子代理完成時必須回報四態之一"
+    states:
+      - id: DONE
+        description: "任務成功完成"
+        orchestrator_action: "繼續下一個任務"
+      - id: DONE_WITH_CONCERNS
+        description: "完成，但有需要記錄的疑慮"
+        orchestrator_action: "記錄疑慮，繼續"
+      - id: NEEDS_CONTEXT
+        description: "需要更多上下文才能完成"
+        orchestrator_action: "注入上下文後重新派遣（不是重試）"
+      - id: BLOCKED
+        description: "無法完成，需要升級"
+        orchestrator_action: "升級模型層級或拆分任務（層級選擇見 model-selection）"
+    decision_flow: |
+      代理完成工作
+        ├── 全部驗收標準達成？        → DONE
+        ├── 標準達成但有疑慮？        → DONE_WITH_CONCERNS
+        ├── 缺少資訊無法繼續？        → NEEDS_CONTEXT
+        └── 根本上無法完成？          → BLOCKED
+
+  conflict_detection:
+    description: "並行代理返回時，orchestrator 必須執行的檢查"
+    steps:
+      - "檢查檔案衝突 — 是否有多個代理修改了同一個檔案"
+      - "執行完整測試套件 — 合併所有變更後驗證整合"
+      - "解決衝突 — 自動處理或標記交由人工審查"
+
+  rules:
+    - id: AD-001
+      trigger: "多個代理編輯同一個檔案"
+      action: "標記衝突，要求合併解決"
+      priority: critical
+    - id: AD-002
+      trigger: "代理回報 BLOCKED"
+      action: "升級模型層級並重試一次（層級選擇判準見 model-selection）"
+      priority: high
+    - id: AD-003
+      trigger: "所有並行代理完成"
+      action: "執行完整測試套件以驗證整合"
+      priority: high
+
+  examples:
+    good_parallel_independent:
+      description: "兩個代理處理獨立模組 — 無共享檔案，可安全並行"
+      agents:
+        - task: "為 /api/users 端點加上 rate limiting"
+          files: ["src/api/users.ts", "src/api/users.test.ts"]
+        - task: "為 /api/products 端點加上快取"
+          files: ["src/api/products.ts", "src/api/products.test.ts"]
+    bad_parallel_dependent:
+      description: "兩個代理修改共享狀態 — 同一檔案，會衝突"
+      agents:
+        - task: "重構資料庫連線池"
+          files: ["src/db.ts"]
+        - task: "加上連線重試邏輯"
+          files: ["src/db.ts"]
+
+  related_standards:
+    - id: model-selection
+      relationship: >
+        model-selection 管「派給誰、想多深」（模型軸 × effort 軸），本標準管「怎麼派」。
+        兩者互補；AD-002 的「升級模型層級」其判準定義在 model-selection，不在這裡。
+    - id: git-worktree
+      relationship: "並行代理若必須在同一 repo 工作，以 worktree 隔離取代共享工作區"
+    - id: agent-communication-protocol
+      relationship: "代理之間的訊息格式；本標準只規範對 orchestrator 的狀態回報"
+
+physical_spec:
+  type: checklist
+  validator:
+    type: ai_review
+    rule: "檢查並行派遣前是否驗證過任務域獨立性，且每個代理都回報了四態之一"
+  checks:
+    - "並行派遣前是否確認任務域無共享可變狀態"
+    - "每個子代理的 prompt 是否聚焦於單一問題域"
+    - "prompt 是否自足（含目標專案的關鍵規則，不倚賴代理自行載入）"
+    - "prompt 是否明確定義回報格式"
+    - "子代理是否回報 DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED 之一"
+    - "並行代理返回後是否檢查檔案衝突"
+    - "合併所有變更後是否執行完整測試套件"

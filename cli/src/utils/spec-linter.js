@@ -2,41 +2,28 @@
  * Spec Linter — Stateless analysis functions for spec quality checks
  * @module utils/spec-linter
  * @see specs/superspec-borrowing-phase1-2-spec.md (AC-11, AC-12, AC-13)
+ *
+ * XSPEC-383 R5 (Option E): `checkACCoverage` / `collectTestFiles` / `scanDir`
+ * were removed here. They shipped 2026-04-07, had passing unit tests, and were
+ * never wired to any CLI command — `uds lint` did not exist. 2026-08-19,
+ * registering `uds lint` and running it against VibeOps's 93 real specs
+ * surfaced that the removed check would have reported 0/98 ACs covered on
+ * every one of them, for two independent reasons: it derived AC identifiers
+ * positionally (`AC-1`, `AC-2`, …) instead of reading the ones a spec
+ * declares, and it hardcoded the `@AC-N` tag convention from this repo's own
+ * `skills/ac-coverage`, while VibeOps's tests tag coverage as `AC-045-001`
+ * without an `@` prefix. Neither project is "wrong" — they never agreed on a
+ * convention — but a linter that always reports zero regardless of actual
+ * coverage is worse than no linter: it looks like a working gate. Redoing AC
+ * coverage requires deciding how identifiers are read and how conventions are
+ * negotiated across adopters; that is a new design, not a patch, and is out
+ * of scope for R5.
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, basename } from 'path';
 import { StandardValidator } from './standard-validator.js';
 import { MicroSpec } from '../vibe/micro-spec.js';
-
-/**
- * Check if a spec's ACs are referenced in test files
- * @param {string} specId - e.g. "SPEC-001"
- * @param {string[]} acIds - e.g. ["AC-1", "AC-2", "AC-3"]
- * @param {string} projectPath - Project root directory
- * @returns {{ covered: string[], orphans: string[], coverage: number }}
- */
-export function checkACCoverage(specId, acIds, projectPath) {
-  const covered = [];
-  const orphans = [];
-
-  // Collect all test file contents
-  const testContent = collectTestFiles(projectPath);
-
-  for (const acId of acIds) {
-    // Search for @AC-N pattern in test files
-    const pattern = new RegExp(`@${acId}\\b`);
-    if (testContent.some(content => pattern.test(content))) {
-      covered.push(acId);
-    } else {
-      orphans.push(acId);
-    }
-  }
-
-  const coverage = acIds.length > 0 ? covered.length / acIds.length : 0;
-
-  return { covered, orphans, coverage };
-}
 
 /**
  * Validate depends_on references exist
@@ -75,14 +62,22 @@ export function checkSpecSize(specFilePath, options = {}) {
 }
 
 /**
- * Run all lint checks on specs in a project
+ * Run all lint checks (dependency validity + size) on specs in a project.
+ *
+ * `specsDirExists` is a three-state signal, not decoration: "no specs
+ * directory" and "specs directory with zero problems" must not collapse into
+ * the same `{ pass: 0, warn: 0, fail: 0 }` shape, or a caller cannot tell
+ * "nothing was checked" from "everything is fine" (XSPEC-383 R4/R5's own
+ * standing rule for this repo's gates — see check-module-reachability.mjs and
+ * check-command-existence.mjs).
+ *
  * @param {string} projectPath - Project root directory
- * @returns {{ results: Object[], summary: { pass: number, warn: number, fail: number } }}
+ * @returns {{ results: Object[], summary: { pass: number, warn: number, fail: number }, specsDir: string, specsDirExists: boolean }}
  */
 export function lintAll(projectPath) {
   const specsDir = join(projectPath, 'specs');
   if (!existsSync(specsDir)) {
-    return { results: [], summary: { pass: 0, warn: 0, fail: 0 } };
+    return { results: [], summary: { pass: 0, warn: 0, fail: 0 }, specsDir: 'specs', specsDirExists: false };
   }
 
   // Load all specs
@@ -102,10 +97,6 @@ export function lintAll(projectPath) {
   const summary = { pass: 0, warn: 0, fail: 0 };
 
   for (const spec of allSpecs) {
-    // AC coverage
-    const acIds = (spec.acceptance || []).map((_, i) => `AC-${i + 1}`);
-    const acCoverage = checkACCoverage(spec.id, acIds, projectPath);
-
     // Dependencies for this spec
     const specBroken = depResults.broken.filter(b => b.spec === spec.id);
     const specValid = depResults.valid.filter(v => v.spec === spec.id);
@@ -116,22 +107,18 @@ export function lintAll(projectPath) {
     const size = checkSpecSize(specPath);
 
     // Determine worst status
-    let worstStatus = 'pass';
-    if (specBroken.length > 0 || size.status === 'fail' || acCoverage.coverage === 0 && acIds.length > 0) {
-      worstStatus = 'fail';
-    } else if (size.status === 'warn' || acCoverage.coverage < 1) {
-      worstStatus = 'warn';
+    let status = 'pass';
+    if (specBroken.length > 0 || size.status === 'fail') {
+      status = 'fail';
+    } else if (size.status === 'warn') {
+      status = 'warn';
     }
 
-    summary[worstStatus]++;
+    summary[status]++;
 
     results.push({
       spec: spec.id,
-      acCoverage: {
-        covered: acCoverage.covered,
-        orphans: acCoverage.orphans,
-        coverage: acCoverage.coverage,
-      },
+      status,
       deps,
       size: {
         effectiveLines: size.effectiveLines,
@@ -140,33 +127,5 @@ export function lintAll(projectPath) {
     });
   }
 
-  return { results, summary };
-}
-
-// ─── Internal helpers ───
-
-function collectTestFiles(projectPath) {
-  const contents = [];
-  const testDirs = ['tests', 'test', '__tests__', 'cli/tests'];
-
-  for (const dir of testDirs) {
-    const fullDir = join(projectPath, dir);
-    if (existsSync(fullDir)) {
-      scanDir(fullDir, contents);
-    }
-  }
-
-  return contents;
-}
-
-function scanDir(dir, contents) {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      scanDir(fullPath, contents);
-    } else if (entry.name.match(/\.(test|spec)\.(js|ts|mjs|cjs)$/)) {
-      contents.push(readFileSync(fullPath, 'utf-8'));
-    }
-  }
+  return { results, summary, specsDir: 'specs', specsDirExists: true };
 }

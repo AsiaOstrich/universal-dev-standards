@@ -1,13 +1,14 @@
 ---
 source: ../../../../skills/bdd-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 description: |
-  引导行为驱动开发（BDD）流程，使用 Given-When-Then 格式撰写场景。
-  使用时机：定义行为场景、撰写 Gherkin、三剑客会议、BDD 流程。
-  关键字：bdd, gherkin, given-when-then, scenario, feature, 行为驱动, 场景, 验收。
+  [UDS] 行为驱动开发（BDD）的参考资料：Gherkin 的 Given-When-Then 格式与 Three Amigos 结构。
+  Use when: 编写或审查 .feature 场景、选定通用语言、针对行为进行探索式对话。
+  Not for: 执行 BDD 生命周期或 RED/GREEN 自动化——该部分已移至采用层（XSPEC-095）；把 .feature 文件转成 E2E 骨架——请用 /e2e。
+  Keywords: BDD, Gherkin, Given When Then, feature file, scenario, Three Amigos, 行为驱动开发, 场景, 特性文件, 通用语言.
 ---
 
 # BDD 助手

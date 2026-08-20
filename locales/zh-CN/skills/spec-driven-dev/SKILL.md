@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/spec-driven-dev/SKILL.md
 source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-07-16
-source_hash: 488aea3f5120
+translation_version: 1.3.0
+last_synced: 2026-08-17
+source_hash: 989b50cd2147
 status: current
 description: |
-  在编写代码前，建立、审查和管理规格文件。
-  使用时机：建立规格、审查设计、规格驱动开发流程。
-  关键字：spec, specification, SDD, design, review, 规格, 设计, 审查, 验证。
+  [UDS] 在写代码之前建立并审查规格文档——规格格式、状态与差异操作。
+  Use when: 某项变更需要先有书面规格、审查规格的完整性、用 delta 区段修订既有规格。
+  Not for: 执行带关卡的 SDD 生命周期——该部分已移至采用层（XSPEC-095）；快速迭代用的轻量微规格——请用 uds spec 命令。
+  Keywords: SDD, spec, specification, design document, delta operation, spec review, 规格驱动开发, 规格文档, 变更操作, 规格审查.
 ---
 <!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
   SDD 生命周期编排（7 阶段状态机、阶段转换、闸门检查）已迁移至

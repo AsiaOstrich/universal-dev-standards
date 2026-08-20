@@ -1,7 +1,11 @@
 ---
 name: journey-test-assistant
 scope: partial
-description: "[UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description."
+description: |
+  [UDS] Generate coherent user-journey test plans (TESTPLAN) and journey E2E skeletons from a project description.
+  Use when: a new project needs a test journey from day one, testing state carried across multiple stories, building persona-driven journey plans.
+  Not for: isolated per-AC E2E skeletons — use /e2e; measuring achieved code coverage — use /coverage.
+  Keywords: user journey, TESTPLAN, journey test, persona, cross-story state, 使用者旅程, 旅程測試, 測試計畫.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[project description | --analyze | --archetype A1|A2|A3]"
 status: stable

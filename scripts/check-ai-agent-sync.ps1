@@ -8,6 +8,18 @@
 # 此腳本檢查 AI Agent 整合檔案是否維持一致的核心規則
 # （反幻覺、SDD 優先級、提交格式）。
 #
+# SCOPE - THIS CHECKS THIS REPOSITORY'S TEMPLATES, NOT WHAT ADOPTERS RECEIVE.
+# 範圍——本腳本檢查的是本 repo 的樣板，不是採用者實際拿到的檔案。
+#
+# Get-AgentFile below maps every agent to a file inside this repo. Adopters
+# never receive those; they receive whatever `uds init` writes, produced by
+# different code (cli/src/utils/integration-generator.js). Measured 2026-08-20
+# with these same rule patterns: templates score 6-7 of 7, an adopter's files
+# score 0-2 of 7. A pass here says nothing about any adopter's project.
+#
+# The adopter side is checked by:
+#   tsx scripts/check-adopter-instruction-files.ts   (npm run check:adopter-files)
+#
 # Usage: .\scripts\check-ai-agent-sync.ps1 [-Verbose] [-Json]
 #
 # Parameters:
@@ -198,6 +210,13 @@ if (-not $Json) {
     Write-Host "  AI Agent 同步檢查器"
     Write-Host "=========================================="
     Write-Host ""
+    Write-Host "Scope: this repository's integrations/ templates." -ForegroundColor Yellow
+    Write-Host "範圍：本 repo 的 integrations/ 樣板。" -ForegroundColor Yellow
+    Write-Host "  Adopters do not receive these files. They receive what ``uds init``"
+    Write-Host "  writes, which these rule patterns score 0-2 of 7 against (templates"
+    Write-Host "  score 6-7). A pass here says nothing about any adopter's project."
+    Write-Host "  For that: npm run check:adopter-files"
+    Write-Host ""
     Write-Host "Checking AI Agent rule compliance..." -ForegroundColor Blue
     Write-Host ""
 }
@@ -217,6 +236,7 @@ if ($Json) {
 
     $output = @{
         status = $status
+        scope = "integrations/ templates in this repository, NOT the files uds init writes for adopters. See scripts/check-adopter-instruction-files.ts."
         summary = @{
             passed = $script:Passed
             errors = $script:Errors
@@ -267,7 +287,10 @@ else {
         exit 0
     }
     else {
-        Write-Host "✓ All agents are in sync!" -ForegroundColor Green
+        Write-Host "✓ All agent templates in integrations/ are in sync!" -ForegroundColor Green
+        Write-Host "  This says nothing about what ``uds init`` writes into an adopter's" -ForegroundColor Yellow
+        Write-Host "  project — a different document from different code. Check that with:" -ForegroundColor Yellow
+        Write-Host "    npm run check:adopter-files" -ForegroundColor Yellow
         Write-Host ""
         exit 0
     }

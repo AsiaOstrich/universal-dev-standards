@@ -3,8 +3,8 @@
 
 id: translation-lifecycle-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-04-20"
+  version: "1.0.1"
+  updated: "2026-08-12"
   status: trial
   since: "2026-04-20"
   expires: "2026-10-20"
@@ -69,7 +69,7 @@ automation:
     file: .githooks/pre-commit
     trigger: core/*.md files staged
     behavior: warn on OUTDATED, never block commit
-    setup: ./scripts/install-hooks.sh
+    setup: node scripts/install-hooks.mjs
   release_gate:
     command: bash scripts/check-translation-sync.sh
     exit_1_conditions: [MISSING, MAJOR]
@@ -139,7 +139,7 @@ integration_points:
     role: primary automation; enforces severity levels
   - system: .githooks/pre-commit
     role: commit-time reminder when core/ files staged
-  - system: bump-version.sh
+  - system: bump-version.mjs
     role: release-time advisory snapshot
   - system: pre-release-check.sh
     role: final gate before npm publish (calls check-translation-sync.sh)

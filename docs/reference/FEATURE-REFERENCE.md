@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-07-22
+> Auto-generated | Last updated: 2026-08-19
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -9,15 +9,15 @@
 
 ## Table of Contents
 
-1. [CLI Commands](#cli-commands) (9)
+1. [CLI Commands](#cli-commands) (23)
 2. [Slash Commands](#slash-commands) (51)
 3. [Skills](#skills) (55)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
-6. [Core Standards](#core-standards) (149)
-7. [Scripts](#scripts) (57)
+6. [Core Standards](#core-standards) (150)
+7. [Scripts](#scripts) (54)
 
-**Total Features: 331**
+**Total Features: 343**
 
 ---
 
@@ -58,9 +58,22 @@
 | `-E, --experimental` | Enable experimental features (methodology) |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 
+### `uds config`
+
+**Description**: Manage UDS configuration and project settings
+
+### `uds hitl`
+
+**Description**: Human-in-the-Loop controls
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--op` | Operation description |
+
 ### `uds configure`
 
-**Description**: Modify options for initialized project
+**Description**: Alias for "uds config" — Modify project settings
 
 **Options**:
 | Option | Description |
@@ -73,7 +86,7 @@
 
 ### `uds check`
 
-**Description**: Check adoption status of current project
+**Description**: Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit"
 
 **Options**:
 | Option | Description |
@@ -91,6 +104,36 @@
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 | `--i18n` | Run i18n lint rules (XSPEC-239) across canonical + locale variants |
 
+### `uds lint`
+
+**Description**: Check spec dependency validity and size against installed specs (specs/*.md)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--json` | Output result in JSON format |
+
+### `uds simulate`
+
+**Description**: Simulate a standard check with input (Predictive Validation)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --standard` | Standard to simulate against |
+| `-i, --input` | Input string to test |
+| `--json` | Output result in JSON format |
+
+### `uds fix`
+
+**Description**: Auto-fix standard violations (Self-Healing)
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --standard` | Standard to fix |
+| `--json` | Output result in JSON format |
+
 ### `uds update`
 
 **Description**: Update standards to latest version
@@ -107,7 +150,8 @@
 | `--skills` | Install/update Skills for configured AI tools |
 | `--commands` | Install/update slash commands for configured AI tools |
 | `--debug` | Show debug output for Skills/Commands detection |
-| `--plan` | Show reconciliation plan without executing (like terraform plan) |
+| `--plan` | Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing |
+| `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--rollback` | Rollback to the most recent backup |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
@@ -116,9 +160,100 @@
 
 **Description**: List installed Claude Code skills
 
+### `uds audit`
+
+**Description**: Deep health diagnosis with pattern detection and feedback (strategic). For quick file check, use "uds check"
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--health` | Health check only |
+| `--patterns` | Pattern detection only |
+| `--friction` | Friction detection only |
+| `--report` | Interactive feedback submission |
+| `--yes` | Submit all findings without interactive selection (CI / non-TTY) |
+| `--dry-run` | Preview report without submitting |
+| `--gh` | Force gh CLI for submission |
+| `--format` | Output format (json) |
+| `--quiet` | Summary only |
+| `--score` | Run multi-dimensional health score analysis |
+| `--self` | Self mode: analyze UDS repo itself (use with --score) |
+| `--save` | Save score snapshot for trend tracking (use with --score) |
+| `--trend` | Show historical score trend (use with --score) |
+| `--ci` | CI mode: output score only, exit 1 if below threshold (use with --score) |
+| `--threshold` | Score threshold for CI mode (default: 75) |
+
+### `uds deps`
+
+**Description**: Compare the versions you test against the versions your declared ranges resolve to
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--path` | Directory containing package.json (default: cwd) |
+| `--json` | Output raw JSON |
+| `--concurrency` | Parallel registry lookups (default: 8) |
+
+### `uds uninstall`
+
+**Description**: Remove UDS standards, integrations, skills, and hooks
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--all` | Remove everything including user-level installations |
+| `--standards-only` | Remove only .standards/ directory |
+| `--skills-only` | Remove only skills and commands |
+| `--integrations-only` | Remove only UDS blocks from integration files |
+| `--dry-run` | Preview mode, no files modified |
+| `-y, --yes` | Skip confirmation prompts |
+
+### `uds compile`
+
+**Description**: Compile enforcement standards into hook configurations
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `--target` | Target platform (claude-code) |
+| `--dry-run` | Preview output without writing files |
+
+### `uds report`
+
+**Description**: Analyze hook telemetry and show adoption report
+
+### `uds release`
+
+**Description**: Manage release process (promote, deploy, manifest, verify)
+
+### `uds spec`
+
+**Description**: Manage lightweight micro-specs for vibe coding. For full spec lifecycle with review, use "/sdd"
+
+**Options**:
+| Option | Description |
+|--------|-------------|
+| `-s, --scope` | Scope (frontend, backend, fullstack) |
+| `-o, --output` | Output directory (default: specs/) |
+| `-y, --yes` | Auto-confirm without prompting |
+| `--status` | Filter by status (draft, confirmed, archived) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-o, --output` | Specs directory (default: specs/) |
+| `-y, --yes` | Skip confirmation |
+| `-o, --output` | Specs directory (default: specs/) |
+| `--archived` | Search only archived specs |
+| `-o, --output` | Specs directory |
+| `-o, --output` | Specs directory |
+
+### `uds quickstart`
+
+**Description**: Interactive workflow guide — find the right commands quickly
+
 ### `uds agent`
 
-**Description**: Manage UDS agents (list, install, info)
+**Description**: Manage UDS agents for AI tools
 
 **Options**:
 | Option | Description |
@@ -128,13 +263,17 @@
 | `-g, --global` | Install to user level instead of project level |
 | `-y, --yes` | Skip confirmation prompts |
 
-### `uds workflow`
-
-**Description**: Manage UDS workflows (list, install, info, execute, status)
-
 ### `uds ai-context`
 
-**Description**: Manage AI context configuration (init, validate, graph)
+**Description**: Manage .ai-context.yaml configuration for AI-friendly architecture
+
+### `uds mcp`
+
+**Description**: MCP server commands for AI tool integration
+
+### `uds run`
+
+**Description**: Run a project command by intent (test/lint/build/security) via uds.project.yaml
 
 ---
 
@@ -200,60 +339,60 @@
 
 | Skill | Description |
 |-------|-------------|
-| `ac-coverage` | "[UDS] Analyze AC-to-test traceability and coverage" |
+| `ac-coverage` | [UDS] Analyze AC-to-test traceability and generate requirement-level coverage reports. |
 | `adr-assistant` | [UDS] Create, manage, and track Architecture Decision Records (ADR). |
 | `ai-collaboration-standards` | Prevent AI hallucination and ensure evidence-based responses when analyzing code or making suggestions. |
 | `ai-friendly-architecture` | Design AI-friendly architecture with explicit patterns, layered documentation, and semantic boundaries. |
 | `ai-instruction-standards` | Create and maintain AI instruction files (CLAUDE.md, AGENTS.md, .cursor/rules/, etc.) with proper structure. |
 | `api-design-assistant` | Guide API design following REST, GraphQL, and gRPC best practices. |
-| `atdd-assistant` | "[UDS] Guide through Acceptance Test-Driven Development workflow" |
-| `audit-assistant` | "[UDS] UDS Health & Feedback System" |
-| `bdd-assistant` | "[UDS] Guide through Behavior-Driven Development workflow" |
-| `brainstorm-assistant` | "[UDS] Structured AI-assisted brainstorming before spec creation" |
-| `changelog-guide` | "[UDS] Generate and maintain CHANGELOG.md entries" |
-| `checkin-assistant` | "[UDS] Pre-commit quality gates verification" |
+| `atdd-assistant` | [UDS] Reference for Acceptance Test-Driven Development: INVEST criteria, Gherkin AC format, and Three Amigos structure. |
+| `audit-assistant` | [UDS] Diagnose UDS installation health and submit structured feedback upstream. |
+| `bdd-assistant` | [UDS] Reference for Behavior-Driven Development: Gherkin Given-When-Then format and Three Amigos structure. |
+| `brainstorm-assistant` | [UDS] Structured multi-persona brainstorming with a scored quality gate, run before a spec exists. |
+| `changelog-guide` | [UDS] Generate and maintain CHANGELOG.md entries in Keep a Changelog format. |
+| `checkin-assistant` | [UDS] Reference for pre-commit quality gates: gate definitions, checklist items, and never-commit rules. |
 | `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization. |
-| `code-review-assistant` | "[UDS] Perform systematic code review with checklist" |
-| `commit-standards` | "[UDS] Generate commit messages following Conventional Commits standard" |
+| `code-review-assistant` | [UDS] Reference for systematic code review: eight review categories and BLOCKING/IMPORTANT/SUGGESTION comment prefixes. |
+| `commit-standards` | [UDS] Generate commit messages that follow Conventional Commits, including the bilingual format. |
 | `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microservices. |
 | `database-assistant` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub Actions / GitLab CI). |
-| `dev-methodology` | "[UDS] Manage development methodology workflow" |
-| `dev-workflow-guide` | "[UDS] Guide for mapping software development phases to UDS commands and features" |
-| `docs-generator` | "[UDS] Generate usage documentation from project sources" |
+| `dev-methodology` | [UDS] Select and track the active development methodology (SDD, BDD, TDD) for a project. |
+| `dev-workflow-guide` | [UDS] Map the current software development phase to the right UDS commands and skills. |
+| `docs-generator` | [UDS] Generate usage documentation (cheatsheets, references, guides) from project sources. |
 | `documentation-guide` | Guide documentation structure, content requirements, and project documentation best practices. |
-| `durable-execution-assistant` | "[UDS] Guide workflow failure recovery with checkpoints, retries, and rollback" |
-| `e2e-assistant` | "[UDS] Generate E2E test skeletons from BDD scenarios" |
+| `durable-execution-assistant` | [UDS] Guide fault-tolerant workflow design with checkpoints, retry policies, and rollback plans. |
+| `e2e-assistant` | [UDS] Generate E2E test skeletons from BDD .feature scenarios, with framework detection and coverage gap analysis. |
 | `error-code-guide` | Design consistent error codes following the PREFIX_CATEGORY_NUMBER format. |
 | `git-workflow-guide` | Guide Git branching strategies, branch naming, and merge operations. |
 | `incident-response-assistant` | Guide incident response, root cause analysis, and post-mortem documentation. |
-| `journey-test-assistant` | "[UDS] Generate coherent user journey test plans (TESTPLAN) and E2E skeletons from project description." |
-| `knowledge-graph` | "[UDS] Trace spec/decision/code impact chains via a knowledge graph (engine or Markdown fallback)" |
+| `journey-test-assistant` | [UDS] Generate coherent user-journey test plans (TESTPLAN) and journey E2E skeletons from a project description. |
+| `knowledge-graph` | [UDS] Trace impact chains across specs, decisions, and code via a knowledge graph, with a Markdown fallback when no engine is present. |
 | `logging-guide` | Implement structured logging with proper log levels and sensitive data handling. |
-| `metrics-dashboard-assistant` | "[UDS] Track development metrics, code quality indicators, and project health" |
-| `migration-assistant` | "[UDS] Guide code migration, framework upgrades, and technology modernization" |
+| `metrics-dashboard-assistant` | [UDS] Track development metrics, code quality indicators, and technical debt over time. |
+| `migration-assistant` | [UDS] Guide systematic code migration, framework upgrades, and technology modernization. |
 | `observability-assistant` | Guide observability setup, metrics design, and alerting configuration. |
 | `orchestrate` | Orchestrate multi-task execution plans using Claude's native Agent tool (DAG-based, no external engine). |
 | `plan` | Generate plan.json from Spec documents, OpenSpec changes, or free-text requirements. |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge strategies. |
-| `project-discovery` | "[UDS] Assess project health, architecture, and risks before adding features" |
+| `project-discovery` | [UDS] Assess project health, architecture, and risks before adding features to an existing codebase. |
 | `project-structure-guide` | Guide for organizing project directories following language-specific best practices. |
 | `push` | AI-assisted safety layer for git push operations with quality gates and collaboration guardrails. |
-| `refactoring-assistant` | "[UDS] Guide refactoring decisions and strategy selection" |
-| `release-standards` | "[UDS] Guide release process and changelogs" |
-| `requirement-assistant` | "[UDS] Write user stories and requirements following INVEST criteria" |
+| `refactoring-assistant` | [UDS] Guide refactoring decisions and strategy selection, including the refactor-versus-rewrite call. |
+| `release-standards` | [UDS] Guide the release process — semantic versioning, release modes, and the start/finish/promote/deploy sequence. |
+| `requirement-assistant` | [UDS] Write user stories and requirements that satisfy the INVEST criteria. |
 | `retrospective-assistant` | [UDS] Guide structured team retrospectives for Sprint and Release cycles. |
-| `reverse-engineer` | "[UDS] System archeology - reverse engineer code across Logic, Data, and Runtime dimensions" |
+| `reverse-engineer` | [UDS] System archeology — reverse engineer an existing system across the Logic, Data, and Runtime dimensions. |
 | `runbook-assistant` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-assistant` | Guide security review and vulnerability assessment following OWASP standards. |
 | `security-scan-assistant` | Guide automated security scanning, dependency auditing, and secret detection. |
-| `skill-builder` | "[UDS] Identify repeated processes and build Skills with the right development depth" |
+| `skill-builder` | [UDS] Turn a repeated manual process into a properly scoped Skill, with the right amount of process along the way. |
 | `slo-assistant` | Guide SLI selection, SLO setting, and Error Budget management. |
-| `spec-derivation` | "[UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications" |
-| `spec-driven-dev` | "[UDS] Create or review specification documents for Spec-Driven Development" |
+| `spec-derivation` | [UDS] Derive BDD scenarios, TDD skeletons, integration and E2E tests, and ATDD tables from an approved specification. |
+| `spec-driven-dev` | [UDS] Create and review specification documents before writing code — spec format, states, and delta operations. |
 | `sweep` | Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns. |
-| `tdd-assistant` | "[UDS] Guide through Test-Driven Development workflow" |
-| `test-coverage-assistant` | "[UDS] Analyze test coverage and provide recommendations" |
+| `tdd-assistant` | [UDS] Reference for Test-Driven Development: the Red-Green-Refactor cycle, FIRST principles, and Arrange-Act-Assert structure. |
+| `test-coverage-assistant` | [UDS] Analyze code-level test coverage across the eight-dimension framework and recommend which gaps to close. |
 | `testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
 ---
@@ -297,8 +436,8 @@
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
-| `ai-instruction-standards` | 1.1.0 | This standard defines best practices for creating and maintaining AI instruction |
-| `ai-response-navigation` | 1.1.0 | This standard defines navigation behavior for AI responses: every substantive AI |
+| `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
+| `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
@@ -316,6 +455,7 @@
 | `chaos-injection-tests` | - |  |
 | `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
+| `class-level-fix` | 1.1.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
 | `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
@@ -365,9 +505,9 @@
 | `logging-standards` | 1.4.0 |  |
 | `mock-boundary` | 1.1.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
 | `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `model-selection` | 1.0.1 | Define a cost-effective strategy for selecting AI model tiers based on task comp |
+| `model-selection` | 2.1.0 | Define how to choose **which model** and **how deeply it should think** — two in |
 | `multi-environment-e2e-testing` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
-| `mutation-testing` | 1.0.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
+| `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
@@ -411,25 +551,25 @@
 | `slo-sli` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `slo-standards` | 1.0.0 |  |
 | `smoke-test` | - |  |
-| `spec-driven-development` | 2.3.0 |  |
+| `spec-driven-development` | 2.4.0 |  |
 | `standard-admission-criteria` | - |  |
 | `standard-lifecycle-management` | - |  |
 | `structured-task-definition` | 1.0.0 |  |
 | `supply-chain-attestation` | - |  |
-| `supply-chain-security-standards` | 1.0.0 |  |
+| `supply-chain-security-standards` | 1.1.0 |  |
 | `systematic-debugging` | 1.0.0 | Define a structured, four-phase debugging workflow that prevents the common anti |
 | `tech-debt-standards` | 1.0.0 |  |
 | `test-completeness-dimensions` | 1.1.0 | This document defines a systematic framework for evaluating test completeness. I |
 | `test-data-standards` | 1.0.0 |  |
 | `test-driven-development` | 1.2.0 |  |
-| `test-governance` | 1.1.0 |  |
+| `test-governance` | 1.2.0 |  |
 | `testing-standards` | 3.2.0 | This standard defines actionable testing rules and conventions for AI agents and |
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
-| `translation-lifecycle-standards` | 1.0.0 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
+| `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `verification-evidence` | 1.2.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
+| `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `versioning` | 1.5.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |
@@ -446,26 +586,22 @@
 | `aggregate-effectiveness.mjs` | Aggregate Standards Effectiveness Reports |
 | `analyze-hook-stats.mjs` | Hook Statistics Analyzer (SPEC-SELFDIAG-001 REQ-7, AC-11) |
 | `bump-version.mjs` | Build a platform-aware shell command for a .sh script. |
-| `bump-version.sh` | DEPRECATED: Use 'node scripts/bump-version.mjs <version>' instead (cross-platform). |
+| `bump-version.sh` | Thin wrapper — scripts/bump-version.mjs is the only copy of the bump logic. |
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
-| `check-ai-behavior-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-ai-behavior-sync.ts' instead (cross-platform). |
+| `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse into what it says. |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |
 | `check-commands-sync.ps1` | Check Commands Sync |
 | `check-commands-sync.sh` | Commands Sync Checker |
-| `check-commit-spec-reference.sh` | DEPRECATED: Use 'npx tsx scripts/check-commit-spec-reference.ts' instead (cross-platform). |
+| `check-commit-spec-reference.sh` | Thin wrapper — scripts/check-commit-spec-reference.ts is the only copy of |
 | `check-docs-integrity.ps1` | Check Docs Integrity |
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
-| `check-flow-gate-report.sh` | DEPRECATED: Use 'npx tsx scripts/check-flow-gate-report.ts' instead (cross-platform). |
-| `check-integration-commands-sync.sh` | DEPRECATED: Use 'npx tsx scripts/check-integration-commands-sync.ts' instead (cross-platform). |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
-| `check-registry-completeness.sh` | DEPRECATED: Use 'npx tsx scripts/check-registry-completeness.ts' instead (cross-platform). |
-| `check-release-readiness-signoff.sh` | DEPRECATED: Use 'npx tsx scripts/check-release-readiness-signoff.ts' instead (cross-platform). |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
@@ -482,16 +618,16 @@
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
-| `check-workflow-compliance.sh` | DEPRECATED: Use 'npx tsx scripts/check-workflow-compliance.ts' instead (cross-platform). |
+| `check-workflow-compliance.sh` | Thin wrapper — scripts/check-workflow-compliance.ts is the only copy of the |
 | `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint rules enforcing the |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
-| `generate-docs.mjs` | Sync the "AI Tool Support" table's Skills/Slash Commands numeric columns |
+| `generate-docs.mjs` | Look up the release date for `version` from CHANGELOG.md's own |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
-| `install-hooks.sh` | DEPRECATED: Use 'node scripts/install-hooks.mjs' instead (cross-platform). |
+| `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the only copy of the installer |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh script. |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
@@ -499,6 +635,7 @@
 | `pre-release.sh` | Pre-Release Preparation Script |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Extract top-level Commander command names registered directly on the |
+| `watch-model-versions.sh` | Model / tool version watch — XSPEC-357 AC-6.2 |
 
 ---
 

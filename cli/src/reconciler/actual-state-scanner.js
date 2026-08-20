@@ -8,11 +8,21 @@
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { createHash } from 'crypto';
 import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
-import { computeFileHash, computeIntegrationBlockHash } from '../utils/hasher.js';
+import { computeFileHash, computeIntegrationBlockHash, normalizeLineEndings } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
-import { getSkillsDirForAgent, getCommandsDirForAgent } from '../config/ai-agent-paths.js';
+import { getSkillsDirForAgent, getCommandsDirForAgent, getCommandFileExtension } from '../config/ai-agent-paths.js';
+import { getSkillsSourceEntryNames, getAvailableCommandNames } from '../utils/skills-installer.js';
+
+/**
+ * Files UDS writes into a skills/commands directory for its own bookkeeping.
+ * They are not skills or commands and must never be diffed as such — the
+ * scanner used to report `.manifest.json` as a stray command, which made the
+ * reconciler propose deleting its own installation record. (XSPEC-343 R2)
+ */
+const INSTALLER_BOOKKEEPING_FILES = new Set(['.manifest.json']);
 
 /**
  * Scan the actual state of UDS artifacts on disk.
@@ -242,6 +252,118 @@ function scanIntegrations(state, projectPath) {
 }
 
 /**
+ * Read a directory, tolerating the read itself failing (race, permissions).
+ *
+ * Deliberately narrow: only `readdirSync` is wrapped. The scan loops used to sit
+ * inside the same `catch {}`, so any programming error in the loop body became
+ * "this agent has no skills/commands" — an empty actual state indistinguishable
+ * from a genuinely empty directory, which downstream reads as "nothing to delete,
+ * install everything".
+ */
+function readDirEntries(dirPath) {
+  try {
+    return readdirSync(dirPath, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+}
+
+let _sourceEntries = null;
+let _shippedCommands = null;
+
+/** Directory names UDS ships under `skills/`, cached per process. */
+function sourceEntryNames() {
+  if (_sourceEntries === null) _sourceEntries = getSkillsSourceEntryNames();
+  return _sourceEntries;
+}
+
+/** Command names UDS ships, cached per process. */
+function shippedCommandNames() {
+  if (_shippedCommands === null) _shippedCommands = new Set(getAvailableCommandNames());
+  return _shippedCommands;
+}
+
+/**
+ * Did UDS put this skill directory here?
+ *
+ * Two positive signals, either is enough:
+ *   1. a directory of the same name exists in UDS's own `skills/` tree — this
+ *      also covers the non-skill siblings (`_shared`, `agents`, …) that an older
+ *      CLI copied in by mistake, so they stay cleanable;
+ *   2. `manifest.skillHashes` records a file under it — authoritative when
+ *      present, though in practice it is sparse (dev-platform: 2 entries for 78
+ *      installed skills), which is exactly why signal 1 has to carry the weight.
+ *
+ * Anything else is the adopter's own, and is warned about rather than deleted.
+ */
+// A directory whose name exists in UDS's own `skills/` tree was put there by UDS.
+// That is the only positive signal, and everything else is the adopter's.
+//
+// `manifest.skillHashes` USED TO BE a second signal here ("authoritative whenever
+// present"). That was only ever safe because the hasher was broken: a trailing
+// separator in three skill paths made it record 2 entries for 78 installed skills,
+// so the clause almost never fired. Fixing the hasher (6.2.2) populated the same
+// map with every file under the skills folder — including the adopter's own — and
+// each one of those became a deletion candidate, re-opening the exact defect this
+// function was written to close. The lesson is not about hashes: a broken tool's
+// sparse output was used as evidence that reading it was safe.
+//
+// The cost of the narrow signal is unchanged and still deliberate: skills UDS used
+// to ship and has since removed are warned about rather than deleted, because
+// nothing on disk distinguishes them from the adopter's own work. Leaving a few
+// stale directories with a warning is a better way to fail than deleting files
+// somebody hand-wrote.
+/**
+ * Hash an installed skill directory the way the desired side hashes a resolved
+ * one: top-level files only, sorted by name, name and content both fed in.
+ *
+ * Written against `computeSkillContentHash`'s format rather than calling it,
+ * because the input here is paths on disk and there is nothing gained by
+ * materialising a second array first. The format is the contract; if it changes
+ * in one place and not the other every skill reports as changed, which the
+ * paired tests in `skill-content-hash.test.js` exist to catch.
+ *
+ * Content is line-ending normalized before hashing (GitHub issue #155): these
+ * are files installed into the adopter's own project, which `git checkout`
+ * may have rewritten to CRLF under `core.autocrlf=true` on Windows even
+ * though the desired side (`computeSkillContentHash`, reading UDS's own
+ * package source) never sees a `\r`. Without matching normalization here,
+ * every skill would report as changed on every Windows `uds update`.
+ */
+function hashInstalledSkillDir(dirPath) {
+  let entries;
+  try {
+    entries = readdirSync(dirPath, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+
+  const names = entries.filter((e) => e.isFile()).map((e) => e.name).sort();
+  if (names.length === 0) return null;
+
+  const h = createHash('sha256');
+  for (const name of names) {
+    let content;
+    try {
+      content = readFileSync(join(dirPath, name), 'utf-8');
+    } catch {
+      // Unreadable file → no trustworthy hash. Returning a partial one would
+      // claim the directory matches upstream when part of it was never read.
+      return null;
+    }
+    h.update(name);
+    h.update('\0');
+    h.update(normalizeLineEndings(content));
+    h.update('\0');
+  }
+  return `sha256:${h.digest('hex')}`;
+}
+
+function isUdsProvenance(skillName) {
+  return sourceEntryNames().has(skillName);
+}
+
+/**
  * Scan skill installations.
  */
 function scanSkills(state, projectPath, manifest) {
@@ -252,27 +374,41 @@ function scanSkills(state, projectPath, manifest) {
     const skillsDir = getSkillsDirForAgent(agent, level, projectPath);
     if (!skillsDir || !existsSync(skillsDir)) continue;
 
-    try {
-      const entries = readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-        const skillName = entry.name;
-        const key = `skill:${agent}:${level}:${skillName}`;
-        const relPath = level === 'project'
-          ? getRelativePath(projectPath, join(skillsDir, skillName))
-          : join(skillsDir, skillName);
+    for (const entry of readDirEntries(skillsDir)) {
+      if (!entry.isDirectory()) continue;
+      const skillName = entry.name;
+      const key = `skill:${agent}:${level}:${skillName}`;
+      const relPath = level === 'project'
+        ? getRelativePath(projectPath, join(skillsDir, skillName))
+        : join(skillsDir, skillName);
 
-        state.skills.set(key, {
-          relativePath: relPath,
-          hash: null,  // Directory-level hashes tracked in manifest.skillHashes
-          size: null,
-          category: 'skill',
-          sourcePath: null,
-          metadata: { agent, level, skillName, scanned: true }
-        });
-      }
-    } catch {
-      // Ignore read errors
+      // Content hash of what is actually installed, over the same file set and
+      // the same algorithm the desired side uses (XSPEC-382 R1).
+      //
+      // Computed ONLY for UDS-managed skills. An adopter's own skill has no
+      // desired counterpart, so a hash for it could only ever feed a comparison
+      // against nothing — and this scanner has already been the site of a
+      // defect that proposed deleting fourteen of dev-platform's hand-written
+      // skills. It does not get a second chance to reason about them.
+      const udsManaged = isUdsProvenance(skillName);
+      state.skills.set(key, {
+        relativePath: relPath,
+        hash: udsManaged ? hashInstalledSkillDir(join(skillsDir, skillName)) : null,
+        size: null,
+        category: 'skill',
+        sourcePath: null,
+        metadata: {
+          agent,
+          level,
+          skillName,
+          scanned: true,
+          // Whether UDS is the thing that put this directory here. Everything in
+          // the skills folder used to be assumed UDS-managed, so a plan for a repo
+          // with hand-written skills proposed deleting them: dev-platform's would
+          // have removed fourteen. (XSPEC-343 R2)
+          udsManaged
+        }
+      });
     }
   }
 }
@@ -288,27 +424,58 @@ function scanCommands(state, projectPath, manifest) {
     const cmdsDir = getCommandsDirForAgent(agent, level, projectPath);
     if (!cmdsDir || !existsSync(cmdsDir)) continue;
 
-    try {
-      const entries = readdirSync(cmdsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        // Commands can be files (.md) or directories
-        const cmdName = entry.name.replace(/\.md$/, '');
-        const key = `command:${agent}:${level}:${cmdName}`;
-        const relPath = level === 'project'
-          ? getRelativePath(projectPath, join(cmdsDir, entry.name))
-          : join(cmdsDir, entry.name);
+    const ext = getCommandFileExtension(agent);
 
-        state.commands.set(key, {
-          relativePath: relPath,
-          hash: null,
-          size: null,
-          category: 'command',
-          sourcePath: null,
-          metadata: { agent, level, commandName: cmdName, scanned: true }
-        });
+    for (const entry of readDirEntries(cmdsDir)) {
+      if (INSTALLER_BOOKKEEPING_FILES.has(entry.name)) continue;
+
+      // Commands are files named `<name><ext>` (or, for some agents, directories).
+      // Stripping a hard-coded `.md` left every Gemini command as `commit.toml`,
+      // which never matches the desired key `commit`, so all of them were
+      // proposed for deletion.
+      const cmdName = entry.name.endsWith(ext)
+        ? entry.name.slice(0, -ext.length)
+        : entry.name;
+      const key = `command:${agent}:${level}:${cmdName}`;
+      const relPath = level === 'project'
+        ? getRelativePath(projectPath, join(cmdsDir, entry.name))
+        : join(cmdsDir, entry.name);
+
+      // Content hash of the installed file, for UDS-managed commands only —
+      // same reasoning as skills: an adopter's own command has no desired
+      // counterpart to compare against. (XSPEC-382 R7)
+      //
+      // Line-ending normalized before hashing (GitHub issue #155), matching
+      // `computeCommandContentHash` on the desired side — the same CRLF
+      // checkout risk `hashInstalledSkillDir` above documents applies here.
+      const cmdUdsManaged = shippedCommandNames().has(cmdName);
+      let cmdHash = null;
+      if (cmdUdsManaged) {
+        try {
+          cmdHash = `sha256:${createHash('sha256')
+            .update(normalizeLineEndings(readFileSync(join(cmdsDir, entry.name), 'utf-8')))
+            .digest('hex')}`;
+        } catch {
+          // Unreadable → no hash. A partial answer would claim a match that
+          // was never checked.
+          cmdHash = null;
+        }
       }
-    } catch {
-      // Ignore read errors
+
+      state.commands.set(key, {
+        relativePath: relPath,
+        hash: cmdHash,
+        size: null,
+        category: 'command',
+        sourcePath: null,
+        metadata: {
+          agent,
+          level,
+          commandName: cmdName,
+          scanned: true,
+          udsManaged: cmdUdsManaged
+        }
+      });
     }
   }
 }

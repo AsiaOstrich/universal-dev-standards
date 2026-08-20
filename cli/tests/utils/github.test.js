@@ -453,9 +453,19 @@ describe('GitHub Utils', () => {
         return res;
       })
     };
-    // Schedule data and end events
+    // Schedule data and end events.
+    //
+    // `body` may be a string (one chunk, for convenience) or an array of Buffers
+    // (to control chunk boundaries). Strings are emitted as a Buffer because that
+    // is what a real response gives you when setEncoding was never called —
+    // emitting strings here made the mock unable to reproduce the boundary bug it
+    // should have caught.
     process.nextTick(() => {
-      if (listeners.data && body) listeners.data(body);
+      if (listeners.data && body && body.length) {
+        for (const chunk of Array.isArray(body) ? body : [Buffer.from(body, 'utf8')]) {
+          listeners.data(chunk);
+        }
+      }
       if (listeners.end) listeners.end();
     });
     return res;
@@ -478,6 +488,32 @@ describe('GitHub Utils', () => {
   }
 
   describe('downloadFromGitHub', () => {
+    // The response was accumulated with `data += chunk`, which decodes each chunk
+    // on its own. A character whose bytes straddle a chunk boundary then becomes
+    // U+FFFD on both sides. One-byte Latin text never noticed; three-byte Chinese
+    // did. `uds update --force` on one project downloaded four standards and wrote
+    // 30 replacement characters into them — `日期` → `日�期` — while reporting
+    // every action as succeeded, because the transfer had completed and the file
+    // had been written. The corruption was only visible by reading the Chinese.
+    it('should not corrupt a character split across chunk boundaries', async () => {
+      const body = Buffer.from('建立日期與最後更新日期正確', 'utf8');
+      // Split inside the third character's three bytes.
+      const cut = 7;
+      mockHttpsGet.mockImplementation((_url, callback) => {
+        const res = createMockResponse(200, [body.subarray(0, cut), body.subarray(cut)]);
+        callback(res);
+        return { on: vi.fn() };
+      });
+
+      const result = await downloadFromGitHub('core/test.md');
+
+      expect(result).toBe('建立日期與最後更新日期正確');
+      expect(result).not.toContain('�');
+      // Guard: prove the split was actually mid-character, so this test would
+      // still fail if someone "fixed" it by moving the cut to a safe offset.
+      expect(body.subarray(0, cut).toString('utf8')).toContain('�');
+    });
+
     it('should download content on 200', async () => {
       mockHttpsGet.mockImplementation((_url, callback) => {
         const res = createMockResponse(200, 'file content');

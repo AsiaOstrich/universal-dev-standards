@@ -39,9 +39,39 @@ function generateStatsTable(manifest, lang = 'en') {
 | **${t.cli}** | ${manifest.stats.cli_commands} | ${t.cliDesc} |`.trim();
 }
 
+/**
+ * Look up the release date for `version` from CHANGELOG.md's own
+ * "## [X.Y.Z] - YYYY-MM-DD" heading (Keep a Changelog format).
+ *
+ * This is the authoritative source — CHANGELOG.md is hand-dated by a human
+ * at release time (release-workflow.md Step 3, BEFORE Step 4 which runs
+ * pre-release-check.sh → docs:sync), and that date does not change on
+ * re-runs. `new Date()` does change on every run, which silently rewrote
+ * the README "Released" date to whatever day `docs:sync` happened to be
+ * invoked on — including days that were not a release at all.
+ *
+ * Returns null if no dated entry exists yet for this version (e.g.
+ * docs:sync run before CHANGELOG.md was updated for the current bump).
+ */
+function getReleaseDateFromChangelog(version) {
+  const changelogPath = path.join(ROOT_DIR, 'CHANGELOG.md');
+  if (!fs.existsSync(changelogPath)) return null;
+  const content = fs.readFileSync(changelogPath, 'utf8');
+  const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`^## \\[${escaped}\\]\\s*-\\s*(\\d{4}-\\d{2}-\\d{2})`, 'm');
+  const match = content.match(regex);
+  return match ? match[1] : null;
+}
+
 function syncReadmeVersions(version) {
   console.log('📦 Syncing README versions...');
-  const today = new Date().toISOString().slice(0, 10);
+  const releaseDate = getReleaseDateFromChangelog(version);
+
+  if (!releaseDate) {
+    console.warn(`⚠️  CHANGELOG.md has no dated entry for ${version} yet — skipping README version/date sync.`);
+    console.warn('   Add the "## [' + version + '] - YYYY-MM-DD" CHANGELOG entry first, then re-run docs:sync.');
+    return;
+  }
 
   // Determine pre-release label
   let preReleaseLabel = '';
@@ -53,9 +83,9 @@ function syncReadmeVersions(version) {
   // Pattern: **版本**: X.Y.Z ... | **發布日期**: ... | ...
   // Pattern: **版本**: X.Y.Z ... | **发布日期**: ... | ...
   const patterns = [
-    { regex: /(\*\*Version\*\*:\s*)[^\|]+(\|\s*\*\*Released\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${today} ` },
-    { regex: /(\*\*版本\*\*:\s*)[^\|]+(\|\s*\*\*發布日期\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${today} ` },
-    { regex: /(\*\*版本\*\*:\s*)[^\|]+(\|\s*\*\*发布日期\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${today} ` }
+    { regex: /(\*\*Version\*\*:\s*)[^\|]+(\|\s*\*\*Released\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${releaseDate} ` },
+    { regex: /(\*\*版本\*\*:\s*)[^\|]+(\|\s*\*\*發布日期\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${releaseDate} ` },
+    { regex: /(\*\*版本\*\*:\s*)[^\|]+(\|\s*\*\*发布日期\*\*:\s*)[^\|]+/, replacement: `$1${version}${preReleaseLabel} $2${releaseDate} ` }
   ];
 
   readmeFiles.forEach(filePath => {

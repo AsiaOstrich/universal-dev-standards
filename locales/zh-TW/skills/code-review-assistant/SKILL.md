@@ -2,10 +2,14 @@
 name: code-review-assistant
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 使用標準化檢查清單執行系統性程式碼審查"
+description: |
+  [UDS] 系統性程式碼審查的參考資料：八大審查類別，以及 BLOCKING/IMPORTANT/SUGGESTION 評論前綴。
+  Use when: 審查 pull request 或 diff、決定審查意見的措辭與優先序、與團隊議定審查範圍。
+  Not for: 執行有關卡的審查流程——該部分已移至採用層（XSPEC-095）；提交前的關卡驗證——請用 /checkin。
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴, 審查清單.
 ---
 
 # 程式碼審查助手

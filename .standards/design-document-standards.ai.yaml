@@ -1,5 +1,133 @@
 id: design-document-standards
 meta:
   version: "1.0.0"
-  updated: "2026-04-01"
+  updated: "2026-08-07"
   source: core/design-document-standards.md
+  # Extracted by hand (XSPEC-367 R2). convert-md-to-yaml.mjs was rejected: its
+  # output does not parse, truncates long values mid-sentence, and turns bold
+  # fragments into instructions.
+
+rules:
+  - id: hld-has-all-six-sections
+    trigger: writing a High-Level Design
+    instruction: >-
+      Include all six sections — overview, architecture, data flow, API surface,
+      non-functional requirements, milestones. A missing section is a decision
+      nobody recorded, not a section nobody needed.
+    priority: required
+
+  - id: lld-has-all-five-sections
+    trigger: writing a Low-Level Design
+    instruction: >-
+      Include all five sections — component design, data model, algorithm
+      details, error handling, testing strategy.
+    priority: required
+
+  - id: start-diagrams-at-l1
+    trigger: adding an architecture diagram
+    instruction: >-
+      Begin with a C4 Context diagram before going deeper. L1 and L2 suit most
+      projects; reach for L3 and L4 only when complexity warrants it.
+    priority: required
+
+  - id: diagrams-follow-the-code
+    trigger: architecture changes
+    instruction: >-
+      Update the diagrams in the same change. A diagram describing the previous
+      architecture is worse than none — it is read as current.
+    priority: required
+
+  - id: record-significant-decisions
+    trigger: making a significant design decision
+    instruction: >-
+      Record it, with the options considered and why the others were rejected.
+      A decision without its alternatives cannot be revisited, only re-argued.
+    priority: required
+
+  - id: state-transitions-are-explicit
+    trigger: moving a design document between lifecycle states
+    instruction: >-
+      Each transition has an entry condition and an owner (see lifecycle).
+      Abandoning a document requires a documented reason.
+    priority: required
+
+hld_sections:
+  - section: overview
+    purpose: define the problem, goals, and success criteria
+    covers: [problem and business context, in-scope and out-of-scope boundaries, success metrics, target audience]
+  - section: architecture
+    purpose: architecture decisions and component relationships
+    covers: [architecture style, key components and responsibilities, technology choices with rationale, C4 diagrams]
+  - section: data_flow
+    purpose: how data moves through the system
+  - section: api_surface
+    purpose: the interfaces the system exposes
+  - section: non_functional_requirements
+    purpose: performance, availability, security, scalability targets
+  - section: milestones
+    purpose: delivery sequence and checkpoints
+
+lld_sections:
+  - component_design
+  - data_model
+  - algorithm_details
+  - error_handling
+  - testing_strategy
+
+lifecycle:
+  flow: Draft → In Review → Approved → Implemented → Archived
+  states:
+    draft:
+      definition: initial creation and iteration
+      entry: author starts writing
+      exit: author submits for review
+      owner: author
+    in_review:
+      definition: under peer review and feedback
+      entry: submitted for review
+      exit: all reviewers approve or reject
+      owner: reviewers
+    approved:
+      definition: accepted for implementation
+      entry: review approved
+      exit: implementation begins
+      owner: tech lead / architect
+    implemented:
+      definition: design realised in code
+      entry: code matches design
+      exit: system is stable in production
+      owner: development team
+    archived:
+      definition: no longer active, kept for reference
+      entry: system decommissioned or design superseded
+      owner: author / tech lead
+  transitions:
+    - from_draft_to_in_review: author confirms the document is complete enough for meaningful review
+    - from_in_review_to_draft: reviewers request significant changes
+    - from_in_review_to_approved: all required reviewers approve, no blocking issues remain
+    - from_approved_to_implemented: implementation matches the approved design
+    - from_implemented_to_archived: system decommissioned, or a new design supersedes this one
+    - from_any_state_to_archived: document abandoned — the reason must be recorded
+
+c4_model:
+  l1_context:
+    scope: system and external actors
+    use_for: stakeholder communication, project kickoff
+    must_show: [system boundary, users, external systems, relationships]
+  l2_container:
+    scope: applications and data stores
+    use_for: technical overview, deployment planning
+    must_show: [applications, databases, message queues, protocols]
+  l3_component:
+    scope: internal components
+    use_for: developer onboarding, detailed design
+    must_show: [classes and modules, interfaces, dependencies]
+  l4_code:
+    scope: class and module level detail
+    use_for: documenting a complex algorithm
+    must_show: [UML class diagrams, sequence diagrams]
+
+related_standards:
+  - architecture-decision-records
+  - requirements-engineering
+  - spec-driven-development

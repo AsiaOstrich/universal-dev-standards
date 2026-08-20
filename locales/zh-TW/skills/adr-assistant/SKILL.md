@@ -2,11 +2,15 @@
 name: adr-assistant
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 900a9a7b5b04
-translation_version: 1.0.0
-last_synced: 2026-07-30
+source_hash: 7d8bf5944cf4
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 建立、管理和追蹤架構決策記錄（ADR）"
+description: |
+  [UDS] 建立、管理並追蹤架構決策記錄（ADR）。
+  Use when: 架構決策、技術選型、設計取捨、模式選擇。
+  Not for: 不改變架構的決策——記在規格或 commit 裡即可；想法還沒成形到足以下決定——請用 /brainstorm。
+  Keywords: ADR, architecture decision, decision record, trade-off, 架構決策, 決策記錄, 設計取捨.
 ---
 
 # 架構決策記錄助手

@@ -2,8 +2,8 @@
 source: ../../README.md
 source_version: 6.0.0
 translation_version: 6.0.0
-last_synced: 2026-07-08
-source_hash: add024721b5a
+last_synced: 2026-08-19
+source_hash: d978c5775a25
 status: current
 ---
 
@@ -15,7 +15,7 @@ status: current
 
 > **语言**: [English](../../README.md) | [繁體中文](../zh-TW/README.md) | 简体中文
 
-**版本**: 6.1.1 | **发布日期**: 2026-07-18 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
+**版本**: 6.8.0 | **发布日期**: 2026-08-20 | **授权**: [双重授权](../../LICENSE) (CC BY 4.0 + MIT)
 
 语言无关、框架无关的软件项目文档标准。通过 AI 原生工作流，确保不同技术栈之间的一致性、质量和可维护性。
 
@@ -76,10 +76,10 @@ npx universal-dev-standards init
 <!-- UDS_STATS_TABLE_START -->
 | 类别 | 数量 | 说明 |
 |----------|-------|-------------|
-| **核心标准** | 149 | 通用开发准则 |
+| **核心标准** | 150 | 通用开发准则 |
 | **AI Skills** | 55 | 互动式技能 |
 | **斜线命令** | 51 | 快速操作 |
-| **CLI 命令** | 21 | 项目设置与维护 |
+| **CLI 命令** | 23 | 项目设置与维护 |
 <!-- UDS_STATS_TABLE_END -->
 
 > **5.0 新功能？** 请参阅[预发布说明](../../docs/PRE-RELEASE.md)了解新功能详情。
@@ -198,9 +198,9 @@ uds uninstall   # 从项目移除标准
 
 | 参数 | 命令 | 说明 |
 | :--- | :--- | :--- |
-| **提交语言** | `uds config --lang zh-CN` | 设置 AI 提交消息的偏好语言 |
+| **提交语言** | `uds config set output_language simplified-chinese` | 设置 AI 提交消息的偏好语言 |
 | **标准** | `uds init` | 安装所有可用标准 |
-| **工具模式** | `uds config --mode skills` | 在 Skills、Standards 或两者之间切换 |
+| **工具模式** | `uds config --type content_mode` | 在 Skills、Standards 或两者之间切换 |
 
 ---
 

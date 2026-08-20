@@ -2,12 +2,13 @@
 name: errors
 description: |
   设计一致的错误码，遵循 PREFIX_CATEGORY_NUMBER 格式。
-  使用时机：定義错误码、建立错误处理、设计 API。
-  关鍵字：error code, error handling, error format, API errors, 错误码, 错误处理。
+  Use when: 定义错误码、建立错误处理机制、设计 API。
+  Not for: 日志格式与级别——请用 /logging-guide；处理已经到达生产环境的错误——请用 /incident。
+  Keywords: error code, error handling, error format, API errors, 错误码, 错误处理, 错误格式.
 source: ../../../../skills/error-code-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 ---
 

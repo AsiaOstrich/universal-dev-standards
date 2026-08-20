@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/git-workflow-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 name: git-flow
 description: |
-  指導 Git 分支策略、分支命名与合併操作。
-  使用时机：建立分支、合併、Pull Request、Git 工作流程問題。
-  关鍵字：branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合併, 工作流程。
+  引导 Git 分支策略、分支命名与合并操作。
+  Use when: 创建分支、合并、pull request、Git 工作流程相关问题。
+  Not for: 撰写 commit message——请用 /commit；推送前的安全检查——请用 /push。
+  Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合并, 工作流程, 分支命名.
 ---
 
 # Git 工作流程指南

@@ -13,7 +13,8 @@ import {
   writeAgentsMdSummary,
   resolveContentModeForTool,
   generateIntegrationContent,
-  extractMarkedContent
+  extractMarkedContent,
+  buildToolIntegrationConfig
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
@@ -26,6 +27,7 @@ import { config } from '../utils/config-manager.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
+  deduplicateInstallations,
   getInstalledSkillsInfoForAgent,
   getInstalledCommandsForAgent,
   cleanupDuplicateSkills,
@@ -54,6 +56,7 @@ import {
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile } from '../core/constants.js';
+import { mergeInstalledNames } from '../core/manifest.js';
 
 /**
  * Determine the correct target directory for a standard file.
@@ -331,9 +334,13 @@ export async function updateCommand(options) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
-  // Handle --sync-refs option
+  // Handle --sync-refs option.
+  // `--plan` is honoured here too. This branch is above the mode dispatch
+  // because sync-refs is its own operation rather than a scope of the
+  // reconciler — but "above the dispatch" is exactly how --plan got dropped by
+  // three other branches, so it passes the flag down instead of assuming.
   if (options.syncRefs) {
-    await syncIntegrationReferences(projectPath, manifest);
+    await syncIntegrationReferences(projectPath, manifest, { plan: !!options.plan });
     return;
   }
 
@@ -347,33 +354,68 @@ export async function updateCommand(options) {
     return;
   }
 
-  // Handle --skills option
-  if (options.skills) {
-    await updateSkillsOnly(projectPath, manifest, options);
-    return;
-  }
+  // ── Flags come in two axes, and they must not eat each other ──────────
+  // // implements XSPEC-372 R1/R2
+  //
+  //   mode  : --plan / --apply / --force / --rollback   (what to do)
+  //   scope : --skills / --commands / --integrations-only / --standards-only
+  //
+  // These used to sit in one first-match-wins if/return chain with the scope
+  // flags first. `--plan --skills` therefore *installed* Skills — the flag
+  // documented as "without executing" was dropped with nothing said — and
+  // `--apply --skills` upgraded Skills while silently leaving the standards
+  // behind, reporting success either way. Both measured 2026-08-10 while
+  // upgrading four repos to 6.3.9.
+  //
+  // Mode is now decided first, and scope narrows it instead of replacing it.
+  const scopedToSkills = !!options.skills;
+  const scopedToCommands = !!options.commands;
 
-  // Handle --commands option
-  if (options.commands) {
-    await updateCommandsOnly(projectPath, manifest, options);
-    return;
-  }
-
-  // Handle --rollback option (DSR)
+  // Handle --rollback option (DSR). It restores a whole backup, so a scope
+  // flag cannot narrow it — say so rather than appearing to honour it.
   if (options.rollback) {
+    if (scopedToSkills || scopedToCommands) {
+      console.log(chalk.yellow('  ! --rollback restores a complete backup; --skills/--commands cannot narrow it and are ignored.'));
+      console.log();
+    }
     await handleRollback(projectPath);
     return;
   }
 
-  // Handle --plan option (DSR dry-run)
+  // Handle --plan option (DSR dry-run). Nothing below this line writes.
   if (options.plan) {
-    await handlePlan(projectPath, options);
+    if (!scopedToSkills && !scopedToCommands) {
+      await handlePlan(projectPath, options);
+    }
+    if (scopedToSkills) await planSkills(projectPath, manifest, options);
+    if (scopedToCommands) await planCommands(projectPath, manifest, options);
     return;
   }
 
-  // Handle --force option (DSR force reconciliation)
-  if (options.force) {
-    await handleForceReconcile(projectPath, options);
+  // Handle --apply / --force (DSR reconciliation), composing with scope.
+  // A scope flag alone still means "only that scope"; combined with a mode it
+  // means "that mode, and also that scope" — the reconciler tracks Skills
+  // files only when the manifest records them, so `--skills` is not redundant.
+  if (options.apply || options.force) {
+    if (!scopedToSkills && !scopedToCommands) {
+      await handleReconcile(projectPath, options, { force: !!options.force });
+      return;
+    }
+    await handleReconcile(projectPath, options, { force: !!options.force });
+    // These exit the process on completion, so run Skills last.
+    if (scopedToCommands) await updateCommandsOnly(projectPath, manifest, options);
+    if (scopedToSkills) await updateSkillsOnly(projectPath, manifest, options);
+    return;
+  }
+
+  // Scope without a mode: the original shortcuts.
+  if (scopedToSkills) {
+    await updateSkillsOnly(projectPath, manifest, options);
+    return;
+  }
+
+  if (scopedToCommands) {
+    await updateCommandsOnly(projectPath, manifest, options);
     return;
   }
 
@@ -485,11 +527,8 @@ export async function updateCommand(options) {
   console.log();
 
   // Confirm
-  if (!options.yes) {
-    const confirmed = await inquirerConfirm({
-      message: msg.confirmUpdate,
-      default: true
-    });
+  {
+    const confirmed = await confirmOrFail({ message: msg.confirmUpdate, options });
 
     if (!confirmed) {
       console.log(chalk.yellow(msg.updateCancelled));
@@ -549,10 +588,7 @@ export async function updateCommand(options) {
       shouldInstallNew = true;
     } else {
       // Interactive mode: ask user
-      const installNew = await inquirerConfirm({
-        message: msg.installNewStandards,
-        default: true
-      });
+      const installNew = await confirmOrFail({ message: msg.installNewStandards, options });
       shouldInstallNew = installNew;
     }
 
@@ -580,7 +616,10 @@ export async function updateCommand(options) {
     const intSpinner = ora(msg.syncingIntegrations).start();
 
     // Build installed standards list
-    const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
+    // Raw, not basename()d. Resolution needs the registry (an ID is not a
+    // filename) and the `/options/` segment (it is what classifies an entry).
+    // basename() removes both. See resolveStandardFilename.
+    const installedStandardsList = manifest.standards || [];
 
     // Determine language setting
     let commonLanguage = 'en';
@@ -608,6 +647,7 @@ export async function updateCommand(options) {
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
         language: commonLanguage,
         installedStandards: installedStandardsList,
+        standardsFormat: manifest.format || 'ai',
         contentMode: resolved.contentMode,
         level: resolved.level,
         // Pass output_language for dynamic commit standards generation
@@ -636,6 +676,7 @@ export async function updateCommand(options) {
     if (manifest.generateAgentsMd && !generatedFiles.has('AGENTS.md')) {
       const summaryConfig = {
         installedStandards: installedStandardsList,
+        standardsFormat: manifest.format || 'ai',
         language: manifest.options?.display_language || 'en',
         outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
         standardOptions: manifest.options || {}
@@ -872,9 +913,9 @@ export async function updateCommand(options) {
     if (options.yes) {
       shouldRestore = true;
     } else {
-      const restoreMissing = await inquirerConfirm({
+      const restoreMissing = await confirmOrFail({
         message: (msg.restoreMissingPrompt || 'Restore {count} missing file(s)?').replace('{count}', missingFiles.length),
-        default: true
+        options
       });
       shouldRestore = restoreMissing;
     }
@@ -955,10 +996,17 @@ export async function updateCommand(options) {
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
-          manifest.skills.installations = [
+          manifest.skills.locale = skillsLocale;
+          // Deduplicate: the append form accumulated a duplicate entry every time
+          // an already-installed agent was re-selected. dev-platform's manifest read
+          // `['claude-code', 'claude-code']`. Harmless to the installer, which
+          // dedupes at install time, but every consumer that iterates installations
+          // saw the agent twice. (XSPEC-343 R2)
+          manifest.skills.installations = deduplicateInstallations([
             ...(manifest.skills.installations || []),
             ...installSkills
-          ];
+          ]);
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, skillResult);
 
           // Derive location from installations if not set
           if (!manifest.skills.location) {
@@ -995,6 +1043,8 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = updateLocale;
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, updateResult);
 
           // Derive location from installations if not set
           if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
@@ -1032,10 +1082,11 @@ export async function updateCommand(options) {
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
           manifest.commands.version = repoInfo.skills.version;  // Track version
-          manifest.commands.installations = [
+          manifest.commands.installations = deduplicateInstallations([
             ...(manifest.commands.installations || []),
             ...installCommands
-          ];
+          ]);
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, cmdResult);
 
           // Update command hashes for integrity tracking
           if (cmdResult.allFileHashes) {
@@ -1061,6 +1112,7 @@ export async function updateCommand(options) {
           // Update manifest version
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.version = repoInfo.skills.version;
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, updateCmdResult);
 
           // Update command hashes for integrity tracking
           if (updateCmdResult.allFileHashes) {
@@ -1134,7 +1186,9 @@ export async function updateCommand(options) {
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.installed = true;
           manifest.skills.version = repoInfo.skills.version;
-          manifest.skills.installations = [...(manifest.skills.installations || []), ...missingSkills];
+          manifest.skills.locale = skillsLocale;
+          manifest.skills.installations = deduplicateInstallations([...(manifest.skills.installations || []), ...missingSkills]);
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (result.allFileHashes) {
             if (!manifest.skillHashes) manifest.skillHashes = {};
             Object.assign(manifest.skillHashes, result.allFileHashes);
@@ -1152,6 +1206,8 @@ export async function updateCommand(options) {
           const result = await installSkillsToMultipleAgents(outdatedSkills, null, projectPath, skillsLocale);
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
+          manifest.skills.locale = skillsLocale;
+          manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (!manifest.skills.location && manifest.skills.installations?.length > 0) {
             const levels = manifest.skills.installations.map(s => s.level).filter(Boolean);
             const uniqueLevels = [...new Set(levels)];
@@ -1175,7 +1231,8 @@ export async function updateCommand(options) {
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
           manifest.commands.version = repoInfo.skills.version;
-          manifest.commands.installations = [...(manifest.commands.installations || []), ...missingCommands];
+          manifest.commands.installations = deduplicateInstallations([...(manifest.commands.installations || []), ...missingCommands]);
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
           if (result.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
             replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
@@ -1193,6 +1250,7 @@ export async function updateCommand(options) {
           const result = await installCommandsToMultipleAgents(outdatedCommands, null, projectPath, skillsLocale);
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.version = repoInfo.skills.version;
+          manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
           if (result.allFileHashes) {
             if (!manifest.commandHashes) manifest.commandHashes = {};
             replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
@@ -1327,17 +1385,6 @@ export function regenerateIntegrations(projectPath, manifest) {
     return { success: true, updated: [], errors: [] };
   }
 
-  // Build installed standards list
-  const installedStandardsList = manifest.standards?.map(s => basename(s)) || [];
-
-  // Determine language setting
-  let commonLanguage = 'en';
-  if ((manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual') {
-    commonLanguage = 'bilingual';
-  } else if ((manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese') {
-    commonLanguage = 'zh-tw';
-  }
-
   const results = {
     updated: [],
     errors: []
@@ -1353,19 +1400,8 @@ export function regenerateIntegrations(projectPath, manifest) {
       continue; // Skip if already generated (AGENTS.md sharing)
     }
 
-    // Resolve contentMode per tool based on tier
-    const savedMode = manifest.contentMode || 'auto';
-    const resolvedMode = resolveContentModeForTool(tool, savedMode);
-    const toolConfig = {
-      tool,
-      categories: ['anti-hallucination', 'commit-standards', 'code-review'],
-      language: commonLanguage,
-      installedStandards: installedStandardsList,
-      contentMode: resolvedMode.contentMode,
-      level: resolvedMode.level,
-      // Pass output_language for dynamic commit standards generation
-      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
-    };
+    // Shared with the reconciler so both paths emit the identical block.
+    const toolConfig = buildToolIntegrationConfig(manifest, tool);
 
     const result = writeIntegrationFile(tool, toolConfig, projectPath);
     if (result.success) {
@@ -1400,7 +1436,8 @@ export function regenerateIntegrations(projectPath, manifest) {
   // Regenerate universal AGENTS.md if enabled and not already covered
   if (manifest.generateAgentsMd && !generatedFiles.has('AGENTS.md')) {
     const summaryConfig = {
-      installedStandards: installedStandardsList,
+      // Raw — writeAgentsMdSummary resolves via the registry now.
+      installedStandards: manifest.standards || [],
       language: manifest.options?.display_language || 'en',
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
       standardOptions: manifest.options || {}
@@ -1430,6 +1467,40 @@ export function regenerateIntegrations(projectPath, manifest) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  */
+/**
+ * Ask for confirmation, or fail loudly when there is nobody to ask.
+ * // implements XSPEC-372 R3
+ *
+ * `@inquirer/prompts` throws `ExitPromptError` when stdin is not a TTY. That
+ * exception was never caught, and the process still ended with **exit code 0**
+ * — so in CI a run that wrote nothing was indistinguishable from a successful
+ * update. Measured 2026-08-10 on `uds update --apply` and reproduced with
+ * `--force --apply`: zero files written, `echo $?` printed 0.
+ *
+ * Not auto-confirming: that would give an unattended environment broader
+ * permission than an interactive one. Exit 2 rather than 1 keeps "could not
+ * run" distinct from "ran and found a problem".
+ */
+async function confirmOrFail({ message, defaultValue = true, options }) {
+  if (options?.yes) return true;
+  try {
+    return await inquirerConfirm({ message, default: defaultValue });
+  } catch (err) {
+    // Detect by what the prompt does, not by probing `process.stdin.isTTY`.
+    // isTTY is a proxy for "somebody can answer", and it is wrong in both
+    // directions — a mocked or wrapped stdin answers fine with isTTY unset.
+    // The prompt failing IS the condition; anything else is a guess about it.
+    const closed = err?.name === 'ExitPromptError' || /force closed the prompt/i.test(err?.message || '');
+    if (!closed) throw err;
+    console.log();
+    console.log(chalk.red('Cannot ask for confirmation: there is nothing attached to answer the prompt (non-interactive shell, CI, or a pipe).'));
+    console.log(chalk.gray(`  Pending question: ${message}`));
+    console.log(chalk.gray('  Re-run with --yes to confirm up front. Nothing has been written.'));
+    console.log();
+    process.exit(2);
+  }
+}
+
 async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
   const msg = t().commands.update;
 
@@ -1465,7 +1536,14 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
           ? 'bilingual'
           : (manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese'
             ? 'zh-tw' : 'en',
-        installedStandards: manifest.standards?.map((x) => basename(x)) || [],
+        // Passed raw. `basename()` here destroyed the two things the
+        // generator needs: a registry ID cannot be turned back into a
+        // filename once it has been through basename() (it comes out
+        // unchanged, and an ID is not a filename), and an option entry loses
+        // the `/options/` segment that classifies it. Resolution belongs
+        // where the registry is consulted, not at the call site.
+        installedStandards: manifest.standards || [],
+        standardsFormat: manifest.format || 'ai',
         contentMode: resolvedMode.contentMode,
         level: resolvedMode.level,
         outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
@@ -1531,7 +1609,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
  */
-async function syncIntegrationReferences(projectPath, manifest) {
+async function syncIntegrationReferences(projectPath, manifest, { plan = false } = {}) {
   const msg = t().commands.update;
 
   console.log(chalk.cyan(msg.syncingRefs));
@@ -1598,6 +1676,12 @@ async function syncIntegrationReferences(projectPath, manifest) {
       outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || config.outputLanguage || config.commitLanguage || 'english'
     };
 
+    if (plan) {
+      console.log(chalk.yellow(`  ~ ${integrationPath}: categories would change to ${expectedCategories.join(', ') || '(none)'} (dry run — nothing is written)`));
+      updatedCount++;
+      continue;
+    }
+
     const result = writeIntegrationFile(toolName, newConfig, projectPath);
 
     if (result.success) {
@@ -1640,7 +1724,11 @@ async function syncIntegrationReferences(projectPath, manifest) {
   if (updatedCount > 0) {
     manifest.version = '3.3.0';
     refreshIntegrationBlockHashes(manifest, projectPath);
-    writeManifest(manifest, projectPath);
+    if (plan) {
+      console.log(chalk.gray('  (dry run — the manifest was not written)'));
+    } else {
+      writeManifest(manifest, projectPath);
+    }
   }
 
   // Summary
@@ -1663,6 +1751,83 @@ async function syncIntegrationReferences(projectPath, manifest) {
  * @param {Object} manifest - Manifest object
  * @param {Object} [options] - CLI options (forwarded for locale resolution)
  */
+/**
+ * `--plan --skills`: say what a Skills update would do, and write nothing.
+ * // implements XSPEC-372 R1
+ *
+ * Deliberately does not call installSkillsToMultipleAgents and roll back.
+ * "Write then restore" leaves a broken tree if it dies halfway, which is worse
+ * than having no dry run at all — the same reasoning as the integrations plan.
+ */
+async function planSkills(projectPath, manifest, options) {
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+  const installations = (manifest.skills?.installations || []).filter(i => i.level !== 'marketplace');
+
+  console.log(chalk.bold('=== Skills Plan (dry run — nothing is written) ==='));
+
+  if (installations.length === 0) {
+    // Not "up to date". The manifest records no installation, so a Skills
+    // update has nothing to act on — which is a different answer, and the one
+    // that explains why `--skills` appears to do nothing here.
+    console.log(chalk.yellow('  No Skills installations recorded in the manifest — nothing for --skills to update.'));
+    if (manifest.skills?.installed) {
+      console.log(chalk.gray('  (manifest.skills.installed is true but installations[] is empty; run `uds skills` to re-register)'));
+    }
+    console.log();
+    return;
+  }
+
+  let changed = 0;
+  for (const inst of installations) {
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const current = info?.version || 'unknown';
+    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+    if (current === latestVersion) {
+      console.log(chalk.gray(`  = ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} — unchanged`));
+    } else {
+      changed++;
+      console.log(chalk.yellow(`  ~ ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} → v${latestVersion}  ${dir}`));
+    }
+  }
+
+  console.log();
+  console.log(`Summary: ${changed} installation(s) would be updated, ${installations.length - changed} unchanged.`);
+  console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
+  console.log(chalk.gray('  Run `uds update --apply --yes --skills` to apply.'));
+  console.log();
+}
+
+/**
+ * `--plan --commands`: same contract as planSkills.
+ * // implements XSPEC-372 R1
+ */
+async function planCommands(projectPath, manifest, options) {
+  const installations = manifest.commands?.installations || [];
+
+  console.log(chalk.bold('=== Commands Plan (dry run — nothing is written) ==='));
+
+  if (installations.length === 0) {
+    console.log(chalk.yellow('  No slash-command installations recorded in the manifest — nothing for --commands to update.'));
+    console.log();
+    return;
+  }
+
+  for (const inst of installations) {
+    const agent = typeof inst === 'string' ? inst : inst.agent;
+    const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
+    const info = getInstalledCommandsForAgent(agent, level, projectPath);
+    const dir = getCommandsDirForAgent(agent, level, projectPath);
+    console.log(chalk.yellow(`  ~ ${getAgentDisplayName(agent)} (${level}): ${info?.count || 0} command(s) would be reinstalled  ${dir}`));
+  }
+
+  console.log();
+  console.log(`Summary: ${installations.length} installation(s) would be reinstalled.`);
+  console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
+  console.log(chalk.gray('  Run `uds update --apply --yes --commands` to apply.'));
+  console.log();
+}
+
 async function updateSkillsOnly(projectPath, manifest, options) {
   const msg = t().commands.update;
   const repoInfo = getRepositoryInfo();
@@ -1758,7 +1923,9 @@ async function updateSkillsOnly(projectPath, manifest, options) {
 
   // Update manifest
   manifest.skills.version = latestVersion;
+  manifest.skills.locale = skillsLocaleForUpdate;
   manifest.skills.installations = skillsInstallations;
+  manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
 
   // Update skill hashes for integrity tracking
   if (result.allFileHashes) {
@@ -1766,7 +1933,26 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     Object.assign(manifest.skillHashes, result.allFileHashes);
   }
 
-  writeManifest(manifest, projectPath);
+  // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
+  // command, BEFORE the reconciler ran; the reconciler writes its own copy to
+  // disk — including the advanced `upstream.version` — and writing this stale
+  // object back silently reverts it.
+  //
+  // Measured 2026-08-18 with probes inside plan-executor: results=57 failing=0,
+  // registry version "6.7.1", "about to write upstream = {version:'6.7.1'}" —
+  // and the value on disk afterwards was still the old one. The reconciler did
+  // everything right and this write undid it. Both runs exited 0 and printed
+  // "57 succeeded", so a repo could be fully upgraded while its own manifest
+  // said otherwise, and the weekly staleness scout — which reads exactly
+  // `upstream.version` — kept reporting it as behind. (XSPEC-382 R5)
+  //
+  // Only the fields this function owns are carried over: copying the whole
+  // object back would reintroduce the same overwrite for any field a later
+  // step adds.
+  const freshForSkills = readManifest(projectPath) || manifest;
+  freshForSkills.skills = manifest.skills;
+  freshForSkills.skillHashes = manifest.skillHashes;
+  writeManifest(freshForSkills, projectPath);
 
   console.log();
   process.exit(0);
@@ -1865,6 +2051,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     }
     return inst;
   });
+  manifest.commands.names = mergeInstalledNames(manifest.commands.names, result);
 
   // Update command hashes for integrity tracking
   if (result.allFileHashes) {
@@ -1872,7 +2059,28 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
   }
 
-  writeManifest(manifest, projectPath);
+  // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
+  // command, BEFORE the reconciler ran; the reconciler writes its own copy to
+  // disk — including the advanced `upstream.version` — and writing this stale
+  // object back silently reverts it.
+  //
+  // Measured 2026-08-18 with probes inside plan-executor: results=57 failing=0,
+  // registry version "6.7.1", "about to write upstream = {version:'6.7.1'}" —
+  // and the value on disk afterwards was still the old one. The reconciler did
+  // everything right and this write undid it. Both runs exited 0 and printed
+  // "57 succeeded", so a repo could be fully upgraded while its own manifest
+  // said otherwise, and the weekly staleness scout — which reads exactly
+  // `upstream.version` — kept reporting it as behind. (XSPEC-382 R5)
+  //
+  // Only the fields this function owns are carried over: copying the whole
+  // object back would reintroduce the same overwrite for any field a later
+  // step adds.
+  // Found by traversal, not by hitting it: the same shape existed here, and
+  // fixing only the instance I ran into would have left the class open.
+  const freshForCommands = readManifest(projectPath) || manifest;
+  freshForCommands.commands = manifest.commands;
+  freshForCommands.commandHashes = manifest.commandHashes;
+  writeManifest(freshForCommands, projectPath);
 
   console.log();
   process.exit(0);
@@ -2317,21 +2525,40 @@ async function handlePlan(projectPath, options) {
   console.log();
 
   if (result.plan.actions.length > 0) {
-    console.log(chalk.gray('Run `uds update` to apply these changes.'));
-    console.log(chalk.gray('Run `uds update --force` to force update all files.'));
+    // NOT `uds update`. That runs the legacy path, which never executes this
+    // plan — it refreshes existing standards and reports success for having done
+    // so, which reads exactly like the plan was applied. Upgrading one project it
+    // printed "✓ 69 standards updated" while all 8 deletions and 2 creations in
+    // the plan above were silently skipped; the files were still on disk
+    // afterwards. Nor is `--force` the answer for "apply what I just read": it
+    // recomputes with force:true, a larger plan that rewrites every managed file.
+    console.log(chalk.gray('Run `uds update --apply` to apply exactly these changes.'));
+    console.log(chalk.gray('Run `uds update --force` to rewrite every managed file (a larger plan than the one above).'));
     console.log();
   }
 }
 
 /**
- * Handle --force: run the full reconciler with force mode.
+ * Run the reconciler and apply its plan.
+ *
+ * `force` selects WHICH plan: force mode rewrites every managed file regardless
+ * of hash, so it is a different and larger plan than the one `--plan` prints.
+ * That difference is why `--apply` exists — see handlePlan.
+ *
+ * @param {string} projectPath
+ * @param {Object} options - Command options (uses `yes`)
+ * @param {{ force: boolean }} mode
  */
-async function handleForceReconcile(projectPath, options) {
-  console.log(chalk.cyan('Running declarative state reconciliation (force mode)...'));
+async function handleReconcile(projectPath, options, { force }) {
+  console.log(chalk.cyan(
+    force
+      ? 'Running declarative state reconciliation (force mode)...'
+      : 'Running declarative state reconciliation...'
+  ));
   console.log();
 
   // First show the plan
-  const planResult = await reconcilerPlan(projectPath, { force: true });
+  const planResult = await reconcilerPlan(projectPath, { force });
 
   if (planResult.plan.actions.length === 0) {
     console.log(chalk.green('Everything is up to date. No changes needed.'));
@@ -2343,10 +2570,10 @@ async function handleForceReconcile(projectPath, options) {
   console.log();
 
   // Confirm unless --yes
-  if (!options.yes) {
-    const confirmed = await inquirerConfirm({
+  {
+    const confirmed = await confirmOrFail({
       message: `Apply ${planResult.plan.actions.length} changes?`,
-      default: true
+      options
     });
 
     if (!confirmed) {
@@ -2359,7 +2586,7 @@ async function handleForceReconcile(projectPath, options) {
   const spinner = ora('Applying reconciliation plan...').start();
 
   const result = await reconcile(projectPath, {
-    force: true,
+    force,
     backup: true,
     onAction: (action, index, total) => {
       spinner.text = `[${index + 1}/${total}] ${action.type} ${action.path || action.category}`;

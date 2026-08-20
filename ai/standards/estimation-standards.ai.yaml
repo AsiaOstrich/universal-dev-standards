@@ -1,5 +1,127 @@
 id: estimation-standards
 meta:
   version: "1.0.0"
-  updated: "2026-04-01"
+  updated: "2026-08-07"
   source: core/estimation-standards.md
+  # Extracted by hand (XSPEC-367 R2). convert-md-to-yaml.mjs was tried and
+  # rejected: its output for this very standard did not parse, truncated every
+  # long value mid-sentence, and produced `instruction: "McConnell, S"` — half
+  # an author name from the references section, presented as a rule.
+
+rules:
+  - id: estimate-carries-a-confidence-level
+    trigger: giving any estimate
+    instruction: >-
+      State the confidence level with the number. A point estimate without one
+      hides the range it came from.
+    priority: required
+
+  - id: never-hide-low-confidence
+    trigger: the estimate is low confidence
+    instruction: >-
+      Say so explicitly. Never present a low-confidence estimate as if it were
+      a firm one; suggest a spike instead.
+    priority: required
+
+  - id: estimate-is-not-commitment
+    trigger: an estimate is about to become a date
+    instruction: >-
+      Do not let an estimate be silently converted into a commitment. The
+      conversion is a negotiation — buffers, scope, and trade-offs — and the
+      commitment is recorded separately from the estimate it came from.
+    priority: required
+
+  - id: language-distinguishes-the-two
+    trigger: communicating an estimate or a commitment
+    instruction: >-
+      Estimates use "we estimate" / "our assessment is" and are ranges.
+      Commitments use "we commit to" / "we will deliver by" and are targets.
+    priority: required
+
+  - id: re-estimate-on-trigger
+    trigger: a re-estimation trigger fires (see re_estimation.triggers)
+    instruction: >-
+      Re-estimate the affected items, update the confidence level, tell
+      stakeholders, and record why plus the delta from the original.
+    priority: required
+
+  - id: calibrate-against-actuals
+    trigger: work completes
+    instruction: >-
+      Compare actual against estimate. The ratio is the feedback signal — above
+      1.0 means underestimated, below means overestimated.
+    priority: recommended
+
+confidence_levels:
+  - level: high
+    variance: "±20%"
+    describes: well-understood work with clear requirements and prior experience
+    typical: repeat tasks, well-defined stories, familiar technology
+    phrasing: "We estimate 5 days (4–6 days range)"
+  - level: medium
+    variance: "±50%"
+    describes: partially understood work with some unknowns
+    typical: new features in a known domain, moderate technical uncertainty
+    phrasing: "We estimate 5 days (2.5–7.5 days range)"
+  - level: low
+    variance: "±100%"
+    describes: highly uncertain work with significant unknowns
+    typical: new technology, unclear requirements, research spikes
+    phrasing: "We estimate 5 days (0–10 days range) — consider a spike first"
+
+methods:
+  planning_poker:
+    what: consensus estimation with independent cards, then discussion
+    use_when: sprint planning, story-level estimation
+  t_shirt_sizing:
+    what: relative sizing with abstract labels (XS, S, M, L, XL)
+    use_when: roadmap planning, epic-level estimation
+  three_point:
+    what: optimistic, most likely, pessimistic
+    formula: "E = (O + 4M + P) / 6 ; SD = (P - O) / 6"
+    use_when: critical path items, high-uncertainty tasks, project-level planning
+    trade_off: quantifies uncertainty, but needs three numbers per item
+
+re_estimation:
+  triggers:
+    - trigger: requirements change
+      when: functional or non-functional requirements added, removed, or modified
+      action: re-estimate affected items; update confidence levels
+    - trigger: technical discovery
+      when: new constraints, dependencies, or complexity uncovered
+      action: re-estimate with the new knowledge; document the discovery
+    - trigger: external dependency change
+      when: third-party APIs, libraries, or services change availability or behaviour
+      action: re-estimate integration work; assess timeline impact
+    - trigger: time threshold exceeded
+      when: elapsed time passes a significant share (e.g. >50%) of the estimate without proportional progress
+      action: checkpoint review; re-estimate the remaining work
+  process:
+    - identify that a trigger fired
+    - assess the impact on current estimates
+    - re-estimate affected items with an appropriate method
+    - communicate revised estimates and confidence levels
+    - document the reason and the delta from the original
+
+# Named so they can be recognised in progress, not only in a post-mortem.
+anti_patterns:
+  - name: anchoring bias
+    shape: the first number mentioned pulls every later estimate toward it
+    tell: estimates cluster around the first value shared; dissent goes quiet
+  - name: planning fallacy
+    shape: systematically underestimating time, cost, and risk while overestimating benefit
+    tell: projects consistently overrun; post-mortems keep citing "unforeseen" events
+  - name: scope creep blindness
+    shape: scope grows during the work and the estimate is never revisited
+    tell: original estimates go stale while nobody re-estimates
+  - name: student syndrome
+    shape: work starts as late as the buffer allows, consuming it
+    tell: work starts late despite available time; deadline pressure drives everything
+  - name: Parkinson's law
+    shape: work expands to fill the time allowed, regardless of real complexity
+    tell: tasks take exactly as long as estimated, whatever their difficulty
+
+related_standards:
+  - requirements-engineering
+  - user-story-mapping
+  - technical-debt-management

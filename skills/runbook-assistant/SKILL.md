@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide runbook creation, maintenance, and drill exercises.
   Use when: writing runbooks, planning drills, auditing runbook coverage, post-incident runbook updates.
+  Not for: responding to an incident already in progress — use /incident; the deployment procedure itself — use /deploy.
   Keywords: runbook, operations, drill, on-call, procedure.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[create|drill|coverage] [alert name or type | 告警名稱或類型]"

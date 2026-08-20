@@ -3,7 +3,7 @@
 
 id: documentation-writing-standards
 meta:
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-03-17"
   source: core/documentation-writing-standards.md
   description: Documentation requirements based on project types (enhanced ADR, LLM writing, quality metrics, translation-friendly)

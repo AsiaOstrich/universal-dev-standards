@@ -1,12 +1,12 @@
 {
   "project": "Universal Development Standards",
-  "version": "6.1.1",
-  "last_updated": "2026-07-18",
+  "version": "6.8.0",
+  "last_updated": "2026-08-19",
   "stats": {
-    "core_standards": 149,
+    "core_standards": 150,
     "skills": 55,
     "slash_commands": 51,
-    "cli_commands": 21
+    "cli_commands": 23
   },
   "standards": [
     {
@@ -751,6 +751,11 @@
     },
     {
       "id": "push-standards",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "class-level-fix",
       "category": "uncategorized",
       "level": 3
     }

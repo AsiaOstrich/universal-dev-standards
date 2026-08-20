@@ -4,6 +4,7 @@ scope: universal
 description: |
   Design consistent error codes following the PREFIX_CATEGORY_NUMBER format.
   Use when: defining error codes, creating error handling, designing APIs.
+  Not for: log format and levels — use /logging-guide; handling errors that already reached production — use /incident.
   Keywords: error code, error handling, error format, API errors.
 ---
 

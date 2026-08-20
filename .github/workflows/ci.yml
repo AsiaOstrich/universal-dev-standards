@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       cli: ${{ steps.filter.outputs.cli }}
+      # XSPEC-383 R4 — command-existence's source surface is NOT cli/** alone.
+      # It walks core/, locales/, ai/standards/, cli/src/, skills/, docs/, and
+      # repo-root *.md — every place a `uds <cmd>` instruction can live. Reusing
+      # the narrower `cli` filter would make the gate go silent on exactly the
+      # kind of change that caused the incident this gate exists for (a stale
+      # doc, untouched cli/): docs/user/CHEATSHEET.md and skills/workflows/README.md
+      # both shipped a removed command (`uds workflow`) for months without any
+      # CI job re-checking them, because nothing gated on those paths.
+      command-existence: ${{ steps.filter.outputs.command-existence }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -28,6 +37,14 @@ jobs:
           filters: |
             cli:
               - 'cli/**'
+            command-existence:
+              - 'core/**'
+              - 'locales/**'
+              - 'ai/standards/**'
+              - 'cli/**'
+              - 'skills/**'
+              - 'docs/**'
+              - '*.md'
 
   # XSPEC-355 R3a — the check-*.sh ratchet.
   #
@@ -107,6 +124,173 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+  # XSPEC-383 R3 — 可達性閘門。
+  #
+  # 2026-04-07 建了 spec-linter.js 與 sync.js，兩者有測試、測試都過，
+  # 而**沒有任何使用者到得了它們**；同一天 VibeOps 接上了 `npx uds lint --json`，
+  # 一個永遠不存在的指令。四個半月兩邊全綠。單元測試證明函式對，
+  # 對「有沒有人叫得到」一個字都沒說——這個 job 就是在問那個問題。
+  #
+  # 接上時**不會當場燒紅**（沿用上方 script-ratchet 那條「measured before
+  # widening」的規矩）：落地當下實測 121 個模組、96 可達、24 不可達，
+  # 那 24 個寫進 cli/scripts/reachability-baseline.json，閘門只對**新增的**孤兒失敗。
+  # 基線帶 2026-11-19 到期日——**沒有時鐘的例外清單只是有禮貌的刪除鍵**，
+  # 過期後這支一律回 1，逼人重做一次「先不處理」的判斷。
+  #
+  # 三臂已實測：綠（現況 rc=0）／新增孤兒紅（放一個沒人 import 的模組 rc=1）／
+  # 基線過期紅（rc=1）。一支從未紅過的檢查與一支永遠回綠的檢查無從分辨。
+  reachability:
+    name: Module Reachability
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.cli == 'true'
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      # 🔴 2026-08-20 補：這一步原本不在，而它的缺席讓本 job 在 main 上連紅四次
+      # 沒有人看（5b0f99c3、aeafab51＝6.8.0 發版那次、30174e1d，以及更早一次）。
+      # 探針 spawn 的是 cli/bin/uds.js；沒有 node_modules 它會因 ERR_MODULE_NOT_FOUND
+      # 立刻死掉，而 check-command-existence.mjs 的存在性判定是「輸出裡沒有
+      # unknown command 就算存在」——崩潰的 CLI 永遠不會印那句話，於是**每個指令
+      # 都判成存在**，掃描回報 0 個問題。腳本端已加 verifyProbeIsWorking() 讓這種
+      # 狀態結束於 2（量不了）而非 0，這一步則是讓它根本不要發生。
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prove the check can fail before trusting that it passed
+        run: node scripts/check-module-reachability.mjs --self-test
+
+      - name: Check module reachability
+        run: npm run check:reachability
+
+  # XSPEC-383 R4 — 指令存在性閘門。
+  #
+  # 2026-08-19 實測：UDS 出貨的指引裡有指令是根本不存在的（`uds install`、
+  # `uds lint`、`uds sync`，外加 `uds check --spec-size`、`uds spec create --boost`），
+  # 落點含兩處會把壞指令送到使用者面前的活程式碼（quickstart.js、
+  # integration-generator.js，已於 465335e4 修掉）。同一輪也在
+  # docs/user/CHEATSHEET.md、skills/workflows/README.md 等處挖出 v6.0.0 已移除的
+  # `uds workflow` 被當現行指令展示了數個月——「我們叫別人跑的指令是否真的存在」
+  # 這個面，在此之前零個檢查。
+  #
+  # 來源範圍見 check-command-existence.mjs 的 SOURCES：不只 cli/**，還含
+  # core/、locales/、ai/standards/、skills/、docs/、repo-root *.md——因此本 job
+  # 掛在 `changes` job 新增的 command-existence filter 下，不是既有的 cli filter
+  # （見上方 changes job 的註解）。
+  #
+  # 三臂已實測：對照組（探針對已知不存在/存在的指令名正確回報）／分母臂（走訪
+  # 1594 檔跨 7 個來源）／綠臂（現況乾淨）／紅臂（塞一個 `uds definitelynotacommand`
+  # 到真實掃描路徑下的檔案，證明完整流程真的會紅，測完自動刪除）。
+  command-existence:
+    name: Command Existence
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.command-existence == 'true'
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      # 🔴 2026-08-20 補：這一步原本不在，而它的缺席讓本 job 在 main 上連紅四次
+      # 沒有人看（5b0f99c3、aeafab51＝6.8.0 發版那次、30174e1d，以及更早一次）。
+      # 探針 spawn 的是 cli/bin/uds.js；沒有 node_modules 它會因 ERR_MODULE_NOT_FOUND
+      # 立刻死掉，而 check-command-existence.mjs 的存在性判定是「輸出裡沒有
+      # unknown command 就算存在」——崩潰的 CLI 永遠不會印那句話，於是**每個指令
+      # 都判成存在**，掃描回報 0 個問題。腳本端已加 verifyProbeIsWorking() 讓這種
+      # 狀態結束於 2（量不了）而非 0，這一步則是讓它根本不要發生。
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prove the check can fail before trusting that it passed
+        run: node scripts/check-command-existence.mjs --self-test
+
+      - name: Check command existence
+        run: npm run check:command-existence
+
+  # XSPEC-357 R7 ② — 採用者指令檔閘門。
+  #
+  # `scripts/check-ai-agent-sync.sh` 檢查的是本 repo 的 integrations/ 樣板，
+  # 採用者拿到的則是 `uds init` 寫出來的另一份檔案、由另一段程式產生。
+  # 2026-08-20 用同一組規則樣式實測：樣板 6–7/7，採用者檔案 0–2/7。
+  # 規格原文：「a rule can be present for the checker and absent for every
+  # user, with nothing going red.」這個 job 就是那個 red。
+  #
+  # 它**不**斷言規則本文出現在採用者檔案裡，也永遠不會——`.standards/` 143 份
+  # .ai.yaml 約 248k tokens，塞不進去。它斷言的是那份檔案有沒有**說出**自己
+  # 只是索引、並指示去打開 `.standards/` 底下的檔案。未斷言的部分（規則本文
+  # 覆蓋率、npm tarball、agent 實際行為）每次執行都印出數字，不讓它變成沉默的洞。
+  #
+  # 三態結束碼：0 乾淨／1 有發現／2 量不了（量不了不是綠燈）。
+  #
+  # ── 為什麼沒有路徑過濾 ──────────────────────────────────────────────
+  # 被檢查的產物由一條橫跨 cli/src/（generator、installer、detector、
+  # constants）、cli/standards-registry.json、以及 core//ai//locales/ 標準樹的
+  # 管線產生。要寫過濾器就得把這條管線列舉出來——而**列舉**正是
+  # `codex -> integrations/codex/AGENTS.md` 這個錯誤的成因。上方 changes job
+  # 的註解記著同一個教訓：窄過濾器會在正好該說話的那次改動上靜音。
+  # 安裝完之後這支檢查本體約 1.2 秒（實測），沒有省它的理由。
+  #
+  # ── 為什麼不掛進 script-ratchet ────────────────────────────────────
+  # 那個 job 只在 repo 根目錄跑 `npm ci`，而 `uds init` 需要 cli/node_modules。
+  # 掛進去會讓它以 exit 2（量不了）收場——正確的訊號，但每次都亮，等於沒有訊號。
+  # 所以獨立成 job，兩處都裝。
+  #
+  # 三臂已實測（2026-08-20）：綠（5 情境 33 檔 0 發現，rc=0）／
+  # 紅（關掉 generator 的揭露句輸出 → 5 情境中 4 個共 35 個發現，逐一指名檔案與
+  # 斷言；未被動到的通用 AGENTS.md 情境維持 0，rc=1）／
+  # 量不了（移走 cli/bin/uds.js → rc=2）。另有 --self-test：在真實產物上做四種
+  # 破壞，5/5 臂都如預期觸發。一支從未紅過的檢查與一支永遠回綠的檢查無從分辨。
+  adopter-instruction-files:
+    name: Adopter Instruction Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root dependencies (tsx)
+        run: npm ci
+
+      # `uds init` runs out of cli/, so its runtime deps have to be present or
+      # the check exits 2 rather than saying anything about adopters.
+      - name: Install CLI dependencies
+        run: npm ci
+        working-directory: cli
+
+      - name: Prove the check can fail before trusting that it passed
+        run: npm run check:adopter-files:self-test
+
+      - name: Check adopter instruction files
+        run: npm run check:adopter-files -- --verbose
 
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
@@ -241,3 +425,51 @@ jobs:
         run: |
           chmod +x ./scripts/check-cli-docs-sync.sh
           ./scripts/check-cli-docs-sync.sh
+
+  # bump ↔ check 往返不變量。
+  #
+  # bump-version.mjs 寫版本號、check-version-sync.sh 檢查版本號，而**兩者各自持有
+  # 一份手工維護的「哪些檔案帶版本號」清單**。2026-08-20 發 6.8.0 時它們漂開了：
+  # bump 動了 package.json、registry、manifest 與三份 README，卻不含三份 SECURITY.md
+  # ——而 check 有檢查那三份。
+  #
+  # **這個不變量原本就有東西在守**：bump-version.mjs:301 跑完會呼叫
+  # check-version-sync.sh，失敗就 exit 1。所以本 job 不是「補上一個不存在的檢查」，
+  # 而是把它**提前**——原本只在有人真的發版時才會炸，也就是在最貴的那一刻炸；
+  # 6.8.0 那天正是如此，發版流程中途停下來手改三個檔案。這裡讓它在每次 CI 就說話。
+  #
+  # 不設路徑過濾：漂移的形狀是「**某個新檔案開始帶版本號，而只有其中一支腳本知道它**」，
+  # 那個新檔案可以出現在 repo 任何地方。窄過濾器會在正好該說話的那次改動上靜音
+  # ——與 command-existence 那條註解記的是同一個病。實測整支 23 秒，無條件跑得起。
+  #
+  # 三臂已實測（2026-08-20）：綠（現況 rc=0，14 個檔案改完全數還原、樹乾淨）／
+  # 紅（把 bump 的 SECURITY.md 段拿掉 → rc=1，且指名那三個檔案）／
+  # 拒跑（工作區髒 → rc=2，**不是綠燈**）。一支從未紅過的檢查與一支永遠回綠的
+  # 檢查無從分辨，所以紅臂是在拋棄式 clone 外加真 repo 的暫存分支上各跑過一次。
+  #
+  # ⚠ 本檢查會真的跑一次 bump 並就地改檔，再用 git checkout 還原。它拒絕在髒工作區
+  # 執行（rc=2），CI 的 checkout 一定是乾淨的所以無妨；本機跑之前請先 commit。
+  bump-sync-roundtrip:
+    name: Bump/Sync Roundtrip
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 刻意**不**叫「Prove the check can fail」——這一步證明不了那件事，
+      # 它只確認前置條件齊備。紅臂用變異驗過，記錄在腳本 docblock。
+      - name: Verify preconditions (not a red-arm proof)
+        run: npm run check:bump-roundtrip:self-test
+
+      - name: Check bump/sync roundtrip
+        run: npm run check:bump-roundtrip

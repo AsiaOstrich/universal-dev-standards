@@ -1,14 +1,15 @@
 ---
 source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-07-09
-source_hash: bb3068d840d8
+translation_version: 1.1.0
+last_synced: 2026-08-17
+source_hash: f90f1fe1f6f2
 status: current
 description: |
-  将软件开发阶段对应到 UDS 命令与技能。
-  使用时机：查找适用的 UDS 命令、规划开发流程、新手入门。
-  关键字：workflow, development-phases, commands, 工作流程, 开发阶段。
+  [UDS] 把目前的软件开发阶段对应到正确的 UDS 命令与 Skill。
+  Use when: 不确定手上的任务该用哪个 UDS 命令、初次上手 UDS、带着一个功能从规划走到发布。
+  Not for: 选择或切换方法论——请用 /methodology；实际执行某阶段的工作——请用该阶段自己的 Skill。
+  Keywords: workflow, development phase, command routing, which command, UDS guide, 开发阶段, 命令对照, 流程指南.
 ---
 
 # 开发工作流程指南

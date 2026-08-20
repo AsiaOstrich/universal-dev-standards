@@ -2,14 +2,22 @@
 name: spec-derive
 source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-05-28
+translation_version: 1.1.0
+last_synced: 2026-08-17
 scope: partial
-description: "[UDS] 從規格衍生 BDD 場景、TDD 骨架或 ATDD 表格"
+description: |
+  [UDS] 從已核准的規格推導出 BDD 場景、TDD 骨架、整合與 E2E 測試，以及 ATDD 表格。
+  Use when: 規格已核准且需要產出測試產物、從驗收條件產生帶標籤的測試骨架、從規格產生合約樁。
+  Not for: 從既有程式碼回推規格——請用 /reverse；撰寫或審查規格本身——請用 /sdd。
+  Keywords: forward derivation, spec to test, BDD scenario, TDD skeleton, ATDD table, 正向推演, 規格衍生, 測試生成, 合約樁.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file>"
 prerequisites: ["spec-approved"]
-disable-model-invocation: true
+# 2026-08-18: `disable-model-invocation: true` 已移除,與英文來源同步。
+# 這一份是唯一在 locale 包裡自帶該旗標的 skill。
+# 英文來源移除它並不會讓這裡消失——frontmatter 合併只併入「英文有的欄位」,
+# 所以一個英文已經沒有的欄位,在 locale 檔裡會原封不動地留下來並照樣出貨。
+# (XSPEC-378 R5)
 ---
 
 # 正向推演

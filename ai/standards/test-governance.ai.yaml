@@ -8,8 +8,16 @@ standard:
   description: Test policy, completion criteria, and environment management standards
 
   meta:
-    version: "1.0.0"
-    updated: "2026-03-11"
+    version: "1.2.0"
+    updated: "2026-08-14"
+    changelog:
+      - version: "1.2.0"
+        date: "2026-08-14"
+        change: >
+          Added fail-closed-threshold-gate rule: coverage/lint/mutation/any
+          bounded-metric check must exit non-zero when below threshold, using
+          the tool's own enforcement flag rather than a wrapper that only
+          prints the number and always exits 0.
     references:
       - "ISO/IEC/IEEE 29119-2 (Test Processes)"
       - "ISO/IEC/IEEE 29119-3 (Test Documentation)"
@@ -57,6 +65,36 @@ standard:
         - "ruff check . (Python)"
         - "eslint . (TypeScript/JavaScript)"
         - "mypy . (Python type checking)"
+
+    threshold_gates:
+      description: >
+        A measurement layer that prints a percentage but exits 0 regardless of
+        whether it cleared the threshold is a report, not a gate. It stays
+        green while the number it prints drifts downward across commits, and
+        nothing stops the next merge.
+      requirement: >
+        Every check with a pass/fail threshold (coverage, lint, mutation
+        score, or any other bounded metric) must translate "below threshold"
+        into a non-zero exit code via the tool's own enforcement flag — not a
+        wrapper script that re-parses printed output after the fact.
+      fail_closed_flags:
+        - tool: pytest-cov
+          flag: "--cov-fail-under=<N>"
+        - tool: coverage.py
+          flag: "coverage report --fail-under=<N>"
+        - tool: diff-cover
+          flag: "diff-cover coverage.xml --fail-under=<N>"
+        - tool: "nyc / Istanbul"
+          flag: "--check-coverage --lines <N>"
+        - tool: Stryker Mutator
+          flag: "thresholds.break in stryker.config.json"
+        - tool: ESLint
+          flag: "--max-warnings 0"
+      note: >
+        A wrapper that computes the number, prints it, and always exit 0
+        satisfies neither this rule nor verification-evidence's Evidence
+        Validity rule 1 — the tool's exit code no longer carries any
+        information about the artefact it measured.
 
   completion_criteria:
     description: >
@@ -158,6 +196,15 @@ standard:
       evidence: >
         BUG-A08 post-mortem (2026-04-20): 22 tests existed in UDS but were never
         executed by any CI gate, passing silently and masking real failures.
+
+    - id: fail-closed-threshold-gate
+      trigger: configuring or reviewing any coverage/lint/mutation/other threshold check
+      instruction: >
+        The check must use the tool's fail-under (or equivalent) enforcement
+        flag so it exits non-zero when the threshold is not met. A script that
+        only prints the number and always exits 0 is a report, not a gate, and
+        does not satisfy this rule.
+      priority: required
 
     - id: gate-wiring-required
       trigger: adding any quality detection script to the repository

@@ -3,10 +3,14 @@ name: retrospective-assistant
 source: ../../../../skills/retrospective-assistant/SKILL.md
 source_version: 1.0.0
 source_hash: 9c883f05ad7b
-translation_version: 1.0.0
-last_synced: 2026-06-01
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 Sprint 與 Release 週期的結構化團隊回顧"
+description: |
+  [UDS] 引導 Sprint 與 Release 週期的結構化團隊回顧。
+  Use when: Sprint 結束、發布後檢討、迭代審視、流程改善。
+  Not for: 正式環境事故的事後檢討——請用 /incident；追蹤兩次回顧之間的指標趨勢——請用 /metrics。
+  Keywords: retrospective, retro, sprint review, lessons learned, action items, 回顧, 復盤, 迭代審視, 流程改善.
 ---
 
 # 回顧助手

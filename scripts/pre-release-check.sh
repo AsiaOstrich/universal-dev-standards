@@ -76,6 +76,22 @@ FAILED=0
 SKIPPED=0
 TOTAL=24
 
+# `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
+# Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
+# indistinguishable from the check actually finding something. Resolve it once,
+# loudly, and fail the run if it cannot be found at all.
+if command -v tsx >/dev/null 2>&1; then
+    TSX="tsx"
+elif [ -x "$ROOT_DIR/node_modules/.bin/tsx" ]; then
+    TSX="$ROOT_DIR/node_modules/.bin/tsx"
+elif npx --no-install tsx --version >/dev/null 2>&1; then
+    TSX="npx --no-install tsx"
+else
+    echo -e "${RED}✗ tsx not found — three checks below cannot run.${NC}"
+    echo "  Install it (npm i) or add it to PATH; do not read their result as a pass or a fail."
+    exit 1
+fi
+
 if [ "$SKIP_TESTS" = true ]; then
     TOTAL=20
 fi
@@ -95,6 +111,22 @@ run_check() {
     if [ $exit_code -eq 0 ]; then
         echo -e "      ${GREEN}✓ Passed${NC}"
         PASSED=$((PASSED + 1))
+        # exit 0 means "did not block the release", not "found nothing to say".
+        # A check can pass while still carrying non-blocking warnings, and this
+        # repo's checks spell "warning" at least 7 different ways (WARN/[WARN]/
+        # WARN:/⚠️/⚠/ADVISORY/警告— none of them a closed set). Matching against
+        # a hand-typed list of marker strings is the same "gate enumerates the
+        # set" mistake as check-naming-and-refs.ts's fixed directory list — the
+        # 8th spelling would go unprinted and nothing would say so. So: don't
+        # sniff for a marker at all — print any output the check produced,
+        # whether or not it exited 0. Silence stays silent; anything the check
+        # had to say is shown.
+        trimmed=$(echo "$output" | tr -d '[:space:]')
+        if [ -n "$trimmed" ]; then
+            echo ""
+            echo "$output" | sed 's/^/      /'
+            echo ""
+        fi
         return 0
     else
         echo -e "      ${RED}✗ Failed${NC}"
@@ -197,7 +229,15 @@ run_check "6" "Running documentation sync check" "$SCRIPT_DIR/check-docs-sync.sh
 run_check "7" "Running AI Agent sync check" "$SCRIPT_DIR/check-ai-agent-sync.sh"
 
 # Step 7.5: Integration commands sync (SPEC-INTSYNC-001)
-run_check "7.5" "Running integration commands sync check" "$SCRIPT_DIR/check-integration-commands-sync.sh"
+# check-integration-commands-sync.sh (the old bash implementation, and later
+# a thin wrapper around this .ts) was removed under XSPEC-376 R4/R7 — its
+# per-command match piped `echo "$file_content" | grep -qE ...`, and grep -q's
+# early exit on match could SIGPIPE the echo, leaking intermittent bash
+# "write error: Broken pipe" lines into this step's captured output (0-9
+# stray lines across 3 consecutive runs in local testing). The .ts matches
+# in-memory (RegExp.test), no subprocess or pipe involved, and is now the
+# only entry point — reuses the $TSX already resolved above.
+run_check "7.5" "Running integration commands sync check" "$TSX $SCRIPT_DIR/check-integration-commands-sync.ts"
 
 # Step 8: Usage docs sync
 run_check "8" "Running usage docs sync check" "$SCRIPT_DIR/check-usage-docs-sync.sh"
@@ -246,12 +286,24 @@ else
 fi
 
 # Step 16: AI Agent Behavior coverage
-run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$SCRIPT_DIR/check-ai-behavior-sync.sh"
+# check-ai-behavior-sync.sh (the old bash implementation, and later a thin
+# wrapper around this .ts) was removed under XSPEC-376 R4/R7 — it was a full
+# second implementation whose deprecation header was never enforced, since
+# this gate used to call the .sh filename directly. The .ts is now the only
+# entry point — reuses the $TSX already resolved above.
+run_check "16" "Running AI Agent Behavior coverage check | AI Agent Behavior 覆蓋率檢查" "$TSX $SCRIPT_DIR/check-ai-behavior-sync.ts"
 
 # Step 17: Workflow Compliance (warning only)
+# Calls the .ts directly (not check-workflow-compliance.sh): the .sh was a
+# full second implementation whose deprecation header was never enforced —
+# both this gate and cli/.husky/pre-commit still called the .sh filename
+# directly. check-workflow-compliance.sh is now a thin wrapper around this
+# same .ts file, so this call and a direct call to the .sh are equivalent —
+# calling the .ts directly here just skips the wrapper's own tsx-resolution
+# step, reusing the $TSX already resolved above.
 echo -e "${CYAN}[17/$TOTAL]${NC} Running workflow compliance check | 工作流程合規檢查..."
-if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
-    wf_output=$("$SCRIPT_DIR/check-workflow-compliance.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-workflow-compliance.ts" ]; then
+    wf_output=$($TSX "$SCRIPT_DIR/check-workflow-compliance.ts" 2>&1)
     wf_warnings=$(echo "$wf_output" | grep -c "⚠️" 2>/dev/null || echo "0")
     if [ "$wf_warnings" -gt 0 ]; then
         echo -e "      ${YELLOW}⚠ $wf_warnings workflow warning(s) (advisory only)${NC}"
@@ -261,25 +313,85 @@ if [ -f "$SCRIPT_DIR/check-workflow-compliance.sh" ]; then
     fi
     PASSED=$((PASSED + 1))
 else
-    echo -e "      ${YELLOW}⏭ check-workflow-compliance.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-workflow-compliance.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
 # Step 18: Registry Completeness
-run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$SCRIPT_DIR/check-registry-completeness.sh"
+# check-registry-completeness.sh (the old bash implementation, and later a
+# thin wrapper around this .ts) was removed under XSPEC-376 R4/R7 — its
+# Check 3 only ever tested file existence, never content, so a .standards/
+# copy that had drifted out of sync with its ai/standards/ source read as
+# [OK] here at release-gate time even though the .ts version's sha256
+# comparison (added to catch exactly that drift) would have flagged it. The
+# .ts is now the only entry point — reuses the $TSX already resolved above.
+run_check "18" "Running registry completeness check | 註冊表完整性檢查" "$TSX $SCRIPT_DIR/check-registry-completeness.ts"
 
 # Step 18.5: Skill Structural Integrity (XSPEC-223)
-run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "tsx $SCRIPT_DIR/check-skill-structural-integrity.ts"
+run_check "18.5" "Running skill structural integrity check | Skill 結構完整性檢查" "$TSX $SCRIPT_DIR/check-skill-structural-integrity.ts"
 
 # Step 18.6: Skill↔Standard content-coverage audit (XSPEC-070 Phase 2, advisory)
 # Runs without --strict: prints version-skew / mandatory-keyword / size-ratio
 # drift but never blocks. Promote to --strict here once drift stays at zero.
-run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | Skill↔Standard 內容覆蓋稽核（建議性）" "tsx $SCRIPT_DIR/check-skill-content-coverage.ts"
+run_check "18.6" "Running skill↔standard content-coverage audit (advisory) | Skill↔Standard 內容覆蓋稽核（建議性）" "$TSX $SCRIPT_DIR/check-skill-content-coverage.ts"
 
 # Step 18.7: Integration liveness + cross-registry consistency (XSPEC-355 OQ5/OQ6)
 # A discontinued tool must not ship still labelled as supported, and the same field
 # must not carry different values in three registries.
-run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "tsx $SCRIPT_DIR/check-integration-liveness.ts"
+run_check "18.7" "Running integration liveness check | 整合存活性與註冊表一致性檢查" "$TSX $SCRIPT_DIR/check-integration-liveness.ts"
+
+# Step 18.8: capability_registry rot (XSPEC-362 R4) — advisory, never blocks.
+# DEC-031 D1 required pin_date to be recorded; nothing ever required it to be read.
+# It expired 120 days over threshold and looked identical to a current entry.
+# Warnings are printed here rather than via run_check, because run_check hides the
+# output of anything that exits 0 — and this check exits 0 by design.
+echo -e "${CYAN}[18.8/$TOTAL]${NC} Running capability_registry freshness check | 模型鎖定新鮮度檢查..."
+if [ -f "$SCRIPT_DIR/check-model-pin-freshness.ts" ]; then
+    # Self-test first: a clean scan means nothing unless the predicates fire.
+    if ! $TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" --self-test > /dev/null; then
+        echo -e "      ${RED}✗ Predicate self-test failed — a clean scan from this build proves nothing${NC}"
+        $TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" --self-test | sed 's/^/      /'
+        FAILED=$((FAILED + 1))
+    else
+        pin_output=$($TSX "$SCRIPT_DIR/check-model-pin-freshness.ts" 2>&1)
+        pin_exit=$?
+        if [ $pin_exit -ne 0 ]; then
+            echo -e "      ${RED}✗ Check did not complete (exit $pin_exit) — this is not 'no findings'${NC}"
+            echo "$pin_output" | sed 's/^/      /'
+            FAILED=$((FAILED + 1))
+        elif echo "$pin_output" | grep -q "\[WARN\]"; then
+            echo -e "      ${YELLOW}⚠ capability_registry warnings (advisory only)${NC}"
+            echo "$pin_output" | grep -E "\[WARN\]|^  [A-Za-z_.-]+/|^    " | sed 's/^/      /'
+            PASSED=$((PASSED + 1))
+        else
+            echo -e "      ${GREEN}✓ No stale pins, no concrete vendor model IDs${NC}"
+            PASSED=$((PASSED + 1))
+        fi
+    fi
+else
+    echo -e "      ${YELLOW}⏭ check-model-pin-freshness.ts not found${NC}"
+    SKIPPED=$((SKIPPED + 1))
+fi
+
+# Step 18.9: Drift-override anti-permanence (XSPEC-376 R3b) — blocking.
+# check-registry-completeness.ts step 18's .standards/ drift gate has a
+# one-shot escape hatch (UDS_STANDARDS_DRIFT_OVERRIDE). This step makes sure
+# that variable's name was never checked into a tracked file — which would
+# turn "block, with a manual one-time exception" into "never actually
+# blocks". Unlike step 18.8, this is a real gate: a hit here is not advisory.
+run_check "18.9" "Running drift-override anti-permanence check | 漂移逃生門防永久化檢查" "$TSX $SCRIPT_DIR/check-drift-override-clean.ts"
+
+# Step 18.10: Adopter instruction files (XSPEC-357 R7) — blocking.
+#
+# Step 18.7 and check-ai-agent-sync.sh both look at integrations/ — this repo's
+# own templates. Nothing before this step ever looked at the files `uds init`
+# writes into an adopter's project, which is the artefact a release actually
+# ships the behaviour of. Runs `uds init` and reads what comes out.
+#
+# Exits 2 when it cannot measure (e.g. cli/node_modules missing), which run_check
+# reports as a failure rather than a pass — deliberately, per the tsx guard above:
+# "do not read their result as a pass or a fail" is the failure mode this avoids.
+run_check "18.10" "Checking adopter instruction files | 採用者指令檔檢查" "$TSX $SCRIPT_DIR/check-adopter-instruction-files.ts"
 
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
@@ -300,9 +412,15 @@ else
 fi
 
 # Step 21: Release Readiness Sign-off (warning-only until next minor release)
+# check-release-readiness-signoff.sh (the old bash implementation, and later
+# a thin wrapper around this .ts) was removed under XSPEC-376 R4/R7 — its
+# `grep -c ... || echo "0"` counters produced a malformed "0\n0" value (and
+# spurious "integer expression expected" stderr) on the common case of a
+# clean sign-off, because `grep -c` exits 1 (not 0) on zero matches. The .ts
+# is now the only entry point — reuses the $TSX already resolved above.
 echo -e "${CYAN}[21/$TOTAL]${NC} Checking release readiness sign-off | 釋出準備簽核檢查..."
-if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
-    signoff_output=$("$SCRIPT_DIR/check-release-readiness-signoff.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.ts" ]; then
+    signoff_output=$($TSX "$SCRIPT_DIR/check-release-readiness-signoff.ts" 2>&1)
     signoff_exit=$?
     if [ $signoff_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ Release readiness sign-off incomplete (advisory) | 釋出準備簽核不完整（僅警告）${NC}"
@@ -313,14 +431,20 @@ if [ -f "$SCRIPT_DIR/check-release-readiness-signoff.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-release-readiness-signoff.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
 # Step 22: Flow Gate Report (warning-only until next minor release)
+# check-flow-gate-report.sh (the old bash implementation, and later a thin
+# wrapper around this .ts) was removed under XSPEC-376 R4/R7 — its jq path,
+# under `set -euo pipefail`, aborted on malformed JSON with jq's own raw parse
+# error (exit 5) instead of the script's own "malformed or missing
+# summary.status field" message (exit 1). The .ts is now the only entry
+# point — reuses the $TSX already resolved above.
 echo -e "${CYAN}[22/$TOTAL]${NC} Checking flow gate report | 流程閘門報告檢查..."
-if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
-    flowgate_output=$("$SCRIPT_DIR/check-flow-gate-report.sh" 2>&1)
+if [ -f "$SCRIPT_DIR/check-flow-gate-report.ts" ]; then
+    flowgate_output=$($TSX "$SCRIPT_DIR/check-flow-gate-report.ts" 2>&1)
     flowgate_exit=$?
     if [ $flowgate_exit -ne 0 ]; then
         echo -e "      ${YELLOW}⚠ flow_gate_report.json missing or incomplete (advisory) | flow_gate_report.json 缺失或不完整（僅警告）${NC}"
@@ -331,7 +455,7 @@ if [ -f "$SCRIPT_DIR/check-flow-gate-report.sh" ]; then
         PASSED=$((PASSED + 1))
     fi
 else
-    echo -e "      ${YELLOW}⏭ check-flow-gate-report.sh not found${NC}"
+    echo -e "      ${YELLOW}⏭ check-flow-gate-report.ts not found${NC}"
     SKIPPED=$((SKIPPED + 1))
 fi
 
@@ -415,7 +539,12 @@ fi
 
 # Step 23: Dogfooding Gate — new CLI build must pass uds check on itself (XSPEC-222)
 echo -e "${CYAN}[23/$TOTAL]${NC} Dogfooding gate — UDS check on itself | 自我採用驗證..."
-dogfood_output=$(node "$CLI_DIR/bin/uds.js" check 2>&1)
+# `--force` is required: DEC-044's self-adoption guard (added 2026-04-18) refuses
+# `uds check` inside the UDS source repo, and this gate was added a month later
+# (2026-05-19). It has therefore failed on every release since — 5.15.1, 5.17.0,
+# 6.0.0, 6.1.0, 6.1.1 — which trained everyone to read its red as noise. With
+# --force the check runs and exits 0, so the gate measures something again.
+dogfood_output=$(node "$CLI_DIR/bin/uds.js" check --force 2>&1)
 dogfood_exit=$?
 if [ $dogfood_exit -eq 0 ]; then
     echo -e "      ${GREEN}✓ Dogfooding gate passed — UDS validates itself${NC}"

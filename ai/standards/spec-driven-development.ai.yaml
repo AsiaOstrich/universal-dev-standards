@@ -3,8 +3,8 @@
 
 id: spec-driven-development
 meta:
-  version: "1.2.0"
-  updated: "2025-12-30"
+  version: "1.4.0"
+  updated: "2026-08-12"
   source: methodologies/guides/sdd-guide.md
   description: Spec-Driven Development workflow where documentation precedes implementation
 
@@ -52,6 +52,63 @@ principles:
     exceptions:
       - Critical hotfixes (restore service immediately, document later)
       - Trivial changes (typos, comments, formatting)
+
+spec_types:
+  description: SDD supports multiple granularity levels via spec-type field
+  default: feature
+  values:
+    - type: feature
+      description: Describes a single functional change (default, backward compatible)
+      granularity: function/feature level
+      template: standard SDD spec template
+
+    - type: agent
+      description: Describes an Agent role definition spanning multiple features
+      granularity: role level
+      template: agent_spec_template
+      required_sections:
+        - role_definition
+        - capability_scope
+        - interface_contract
+        - agent_interactions
+        - related_feature_specs
+
+    - type: infrastructure
+      description: Describes cross-cutting concerns or infrastructure changes
+      granularity: system level
+      template: standard SDD spec template with infrastructure focus
+
+  agent_spec_template:
+    sections:
+      - name: Role Definition
+        fields: [role_name, role_responsibility, autonomy_level]
+        autonomy_levels: "L1-L5 (per DEC-065)"
+
+      - name: Capability Scope
+        fields: [capabilities_list, out_of_scope]
+
+      - name: Interface Contract
+        subsections:
+          - name: Input
+            fields: [accepted_message_types, required_fields, optional_fields]
+          - name: Output
+            fields: [artifact_types, success_exit_condition, failure_exit_condition]
+
+      - name: Agent Interactions
+        fields: [upstream_agents, downstream_agents, parallel_agents]
+
+      - name: Related Feature SPECs
+        description: List of feature SPECs this agent participates in
+        format: "- [SPEC-NNN] description of this agent's role in that spec"
+
+  traceability:
+    feature_to_agent:
+      field: agent-id
+      description: Optional field in feature SPEC header referencing the owning Agent SPEC
+      example: "agent-id: SPEC-090"
+    agent_to_features:
+      section: Related Feature SPECs
+      description: Agent SPEC lists all feature SPECs it participates in
 
 spec_template:
   sections:
@@ -140,6 +197,33 @@ rules:
     trigger: spec implementation verified
     instruction: Archive spec with links to commits/PRs
     priority: required
+
+  - id: SDD-AC-VERIFIED
+    name: An AC with no verification item is not an AC
+    name_zh: 沒有驗證項的 AC 不是 AC
+    severity: high
+    rule: >
+      Every acceptance criterion MUST have a verification item pointing at it —
+      a test, a check, a gate, or an explicitly recorded manual step. An AC that
+      no verification item references MUST be demoted to a design intent rather
+      than carried as an AC.
+    rule_zh: >
+      每一條 AC 必須有指向它的驗證項（測試／檢查／閘門／明確記錄的手動步驟）。
+      沒有任何驗證項引用的 AC 必須降級為設計意圖，不得繼續掛在 AC 欄。
+    rationale: >
+      An unverified AC does not fail loudly — it stops being true while the spec
+      continues to assert it. Measured instance (XSPEC-380): a spec's AC-7 required
+      a component be "fully preserved, no regression"; its Test Plan had seven items
+      and none pointed at AC-7. The component stopped running on the day the AC was
+      written and was found three months later by accident.
+    rationale_zh: >
+      未經驗證的 AC 不會大聲失敗——它安靜地停止成立，而規格繼續宣稱它為真。
+      實測案例：某規格的 AC-7 要求「完整保留、無回歸」，Test Plan 七項無一指向它；
+      它保護的東西死在該 AC 被寫下的同一天，三個月後偶然才被發現。
+    anti_pattern: >
+      Treating "the reviewer will notice" as a verification item. A reviewer reads
+      the spec, and the spec says the AC holds. An AC is a claim about the world;
+      only something that touches the world can falsify it.
 
 best_practices:
   do:

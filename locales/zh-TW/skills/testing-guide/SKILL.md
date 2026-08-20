@@ -1,12 +1,17 @@
 ---
 source: ../../../../skills/testing-guide/SKILL.md
 source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-06-02
+translation_version: 1.3.0
+last_synced: 2026-08-17
 source_hash: 49b6f9e0c6a4
 status: current
 name: testing
-description: "[UDS] 測試金字塔與 UT/IT/ST/E2E 測試撰寫標準"
+description: |
+  測試金字塔，以及 UT/IT/ST/E2E 的測試撰寫標準。
+  支援 ISTQB 與業界通行金字塔兩種框架。
+  Use when: 撰寫測試、討論測試覆蓋率、測試策略或測試命名時。
+  Not for: 驅動紅-綠-重構循環——請用 /tdd；量測實際達成的覆蓋率——請用 /coverage。
+  Keywords: test, unit, integration, e2e, coverage, mock, ISTQB, SIT, 測試, 單元測試, 整合測試, 端對端.
 ---
 
 # 測試指南

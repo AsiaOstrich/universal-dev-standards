@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide database design, migration, and query optimization.
   Use when: schema design, migration planning, query optimization, index strategy.
+  Not for: application code migration or framework upgrades — use /migrate; the API contract over the data — use /api-design.
   Keywords: database, schema, migration, SQL, index, query.
 allowed-tools: Read, Grep, Glob
 argument-hint: "[schema or migration to review | 要審查的 schema 或遷移]"

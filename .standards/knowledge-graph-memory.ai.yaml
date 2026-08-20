@@ -54,7 +54,7 @@ standard:
     - rule: "Spec impacted_by:[DEC]   => IMPACTS (Decision -> Spec)"
     - rule: "Decision supersedes:[DEC] => SUPERSEDES (Decision -> Decision)"
     - rule: "[[XSPEC-NNN]] link in a Decision body => IMPACTS (Decision -> Spec)"
-    idempotent: "Declaring a relationship from both ends yields one edge, not two"
+    - idempotent: "Declaring a relationship from both ends yields one edge, not two"
 
   modes:
     degraded:

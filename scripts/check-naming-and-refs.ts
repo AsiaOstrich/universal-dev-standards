@@ -8,9 +8,38 @@
  * Surfaces three classes of issue found in the dev-platform UDS Stage 2 review
  * (XSPEC-292):
  *   1. T15 Dangling references (ERROR) — relative markdown links to *.md that
- *      do not resolve, in core/*.md, skills/**\/SKILL.md and their locale copies.
+ *      do not resolve, across this repo's content roots (core/, skills/,
+ *      locales/, integrations/) and their locale copies.
  *      Illustrative example filenames (ADR-NNN, docs/getting-started.md, …) are
  *      excluded so only real broken links fail.
+ *
+ *      Content roots (core/class-level-fix.md: walk, don't enumerate) are read
+ *      from `git ls-files` — every top-level directory this repo's own git
+ *      index says holds tracked content — not from any hand-typed or
+ *      half-hand-typed list. An earlier version of this fix used
+ *      cli/src/core/constants.js's DIRECTORIES registry as the root list; that
+ *      IS the same defect one level up: DIRECTORIES has 8 members, this repo
+ *      has 26 tracked top-level directories, and the 18 DIRECTORIES doesn't
+ *      know about include `options/` — 7 of this repo's own shipped standards
+ *      live there, carrying 188 relative links with zero prior coverage.
+ *      Printing "8 roots, all scanned" as the denominator was a *more*
+ *      convincing false green than the original bug: it looked complete.
+ *      `integrations/` was invisible to this checker until 2026-08-12
+ *      (XSPEC-362 R5 shipped its whole content into a directory no include-list
+ *      here had heard of, DIRECTORIES-derived or not). Self-install/copy
+ *      targets — `.standards/` and every AI agent's project skill/command/
+ *      agent/workflow path from ai-agent-paths.js's AI_AGENT_PATHS
+ *      (`.claude/`, `.gemini/`, …), plus anything `.gitignore` covers — are
+ *      excluded, each with a printed, named reason: they are WRITTEN BY the
+ *      CLI as installed copies, so their relative links resolve against an
+ *      install root, not this repo tree, and checking them here always
+ *      false-positives (same category as `cli/bundled/`, just not gitignored).
+ *      Every surviving root is walked completely via `git ls-files` — no
+ *      per-root filename cherry-picking (the old code's `skills/` did,
+ *      catching only `SKILL.md` and missing sibling reference docs shipped in
+ *      the same folder) — and the scan prints the TRUE denominator (tracked
+ *      top-level dirs), what was excluded and why, and what was actually
+ *      scanned, per class-level-fix's non-vacuity requirement.
  *   2. T5 Acceptance-criteria annotation consistency (ADVISORY) — flags genuine
  *      violations of the canonical contract defined in
  *      acceptance-criteria-traceability.md, NOT mere coexistence of forms:
@@ -29,9 +58,12 @@
  * Exit: 1 if any real dangling reference (ERROR); 0 otherwise (advisories never block).
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { DIRECTORIES } from '../cli/src/core/constants.js';
+import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = dirname(dirname(__filename));
@@ -40,40 +72,116 @@ const RED = '\x1b[0;31m';
 const GREEN = '\x1b[0;32m';
 const YELLOW = '\x1b[1;33m';
 const BLUE = '\x1b[0;34m';
+const DIM = '\x1b[2m';
 const NC = '\x1b[0m';
 
-// Markdown files to scan: core standards, skill cards, and their locale copies.
-function walk(dir: string, acc: string[]): string[] {
-  if (!existsSync(dir)) return acc;
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) {
-      if (entry === 'node_modules' || entry === '.git') continue;
-      walk(full, acc);
-    } else if (entry.endsWith('.md')) {
-      acc.push(full);
-    }
+/**
+ * Every top-level directory git's own index says holds at least one tracked
+ * file — the TRUE denominator (core/class-level-fix.md). Not `readdirSync`
+ * on the filesystem (would include gitignored/untracked cruft) and not a
+ * registry lookup — a registry is still an enumeration, it only moves who
+ * typed it. A prior version of this fix used cli/src/core/constants.js's
+ * DIRECTORIES (8 members) as the root list; this repo has 26 tracked
+ * top-level directories, and the 18 DIRECTORIES doesn't know about include
+ * `options/` — 7 shipped standards, 188 relative links, zero prior coverage.
+ */
+function listTrackedTopDirs(): string[] {
+  const out = execFileSync('git', ['ls-files'], { cwd: ROOT_DIR }).toString();
+  const dirs = new Set<string>();
+  for (const line of out.split('\n')) {
+    if (!line || !line.includes('/')) continue;
+    dirs.add(line.split('/')[0]);
   }
-  return acc;
+  return [...dirs].sort();
 }
 
-function collectFiles(): string[] {
-  const files: string[] = [];
-  walk(join(ROOT_DIR, 'core'), files);
-  // skill cards (canonical + locale)
-  const skillRoots = [join(ROOT_DIR, 'skills')];
-  for (const loc of ['zh-TW', 'zh-CN']) {
-    skillRoots.push(join(ROOT_DIR, 'locales', loc, 'skills'));
-    files.push(...walk(join(ROOT_DIR, 'locales', loc, 'core'), []));
+/**
+ * Every tracked `*.md` file, as absolute paths — sourced from the same git
+ * index as the denominator above, so the scanned file set can never
+ * silently diverge from what was counted.
+ */
+function listTrackedMarkdownFiles(): string[] {
+  const out = execFileSync('git', ['ls-files', '--', '*.md'], { cwd: ROOT_DIR }).toString();
+  return out
+    .split('\n')
+    .filter(Boolean)
+    .map((rel) => join(ROOT_DIR, rel));
+}
+
+/** True when `.gitignore` (read by git itself, not re-parsed by hand) covers this path. */
+function isGitIgnored(relPath: string): boolean {
+  try {
+    execFileSync('git', ['check-ignore', '-q', relPath], { cwd: ROOT_DIR });
+    return true; // exit 0 = ignored
+  } catch (err) {
+    const status = (err as { status?: number }).status;
+    if (status === 1) return false; // exit 1 = not ignored (git's own contract)
+    // Any other exit (128 = not a git repo / bad path, etc.) is "git could not
+    // answer" — the reason a naive `2>/dev/null` around a query is banned:
+    // that silences exactly this case and makes it indistinguishable from
+    // "not ignored". Surface it instead of guessing.
+    throw new Error(`git check-ignore failed unexpectedly on "${relPath}" (exit ${status}): ${String(err)}`);
   }
-  for (const root of skillRoots) {
-    if (!existsSync(root)) continue;
-    for (const f of walk(root, [])) {
-      if (f.endsWith('SKILL.md')) files.push(f);
+}
+
+const ALL_TRACKED_TOP_DIRS = listTrackedTopDirs();
+
+// ── Exclusions: named, printed, sourced from config — never the root list itself ──
+function buildExcludedRoots(): Map<string, string> {
+  const excluded = new Map<string, string>();
+  // `.standards/` is the CLI's own install target for adopters (and for this
+  // repo's own self-adoption copy) — a written COPY, not source.
+  if (ALL_TRACKED_TOP_DIRS.includes(DIRECTORIES.STANDARDS)) {
+    excluded.set(
+      DIRECTORIES.STANDARDS,
+      'self-install target (uds init/update writes an adopted copy here; relative links resolve against the install root, not this repo)',
+    );
+  }
+  // Every AI agent's project-level skill/command/agent/workflow install path
+  // (`.claude/`, `.gemini/`, `.opencode/`, …) — read from ai-agent-paths.js's
+  // own AI_AGENT_PATHS rather than re-typed, so a newly supported agent's
+  // install directory is excluded automatically too.
+  for (const config of Object.values(AI_AGENT_PATHS) as Array<Record<string, unknown>>) {
+    for (const kind of ['skills', 'commands', 'agents', 'workflows']) {
+      const projectPath = (config[kind] as { project?: string } | null)?.project;
+      if (!projectPath) continue;
+      const top = projectPath.split('/')[0];
+      if (ALL_TRACKED_TOP_DIRS.includes(top) && !excluded.has(top)) {
+        excluded.set(top, `AI agent install target (${config.name as string}) — installed copy, not source`);
+      }
     }
   }
-  return [...new Set(files)];
+  // Anything `.gitignore` covers. Redundant in the common case (a fully
+  // gitignored directory has no tracked files, so it never even reaches
+  // ALL_TRACKED_TOP_DIRS) but kept as an explicit, printed check rather than
+  // an unstated assumption.
+  for (const d of ALL_TRACKED_TOP_DIRS) {
+    if (!excluded.has(d) && isGitIgnored(d)) {
+      excluded.set(d, 'gitignored (untracked local/runtime data, per .gitignore)');
+    }
+  }
+  return excluded;
+}
+
+const EXCLUDED_ROOTS = buildExcludedRoots();
+const CONTENT_ROOTS = ALL_TRACKED_TOP_DIRS.filter((d) => !EXCLUDED_ROOTS.has(d));
+
+interface CollectResult {
+  files: string[];
+  allTopDirs: string[];
+  roots: string[];
+  excludedRoots: Array<{ dir: string; reason: string }>;
+}
+
+function collectFiles(): CollectResult {
+  const contentRootSet = new Set(CONTENT_ROOTS);
+  const files = listTrackedMarkdownFiles().filter((abs) => {
+    const rel = relative(ROOT_DIR, abs);
+    const top = rel.includes('/') ? rel.split('/')[0] : null;
+    return top !== null && contentRootSet.has(top);
+  });
+  const excludedRoots = [...EXCLUDED_ROOTS.entries()].map(([dir, reason]) => ({ dir, reason }));
+  return { files: [...new Set(files)], allTopDirs: ALL_TRACKED_TOP_DIRS, roots: CONTENT_ROOTS, excludedRoots };
 }
 
 // Illustrative example targets that are NOT real repo files (skip these).
@@ -82,10 +190,61 @@ const EXAMPLE_RE =
 const EXAMPLE_DIR_RE =
   /(^|\/)(src|tests?|docs|config|\.github|\.uds|\.claude|\.windsurf|\.opencode|\.cursor|artifacts|errors|alerts|emergency|specs|flows|redis-caching|test-plans|en|ja|zh-tw|decisions|node_modules|dist|build)\//i;
 
-function checkDangling(files: string[]): string[] {
+interface DanglingResult {
+  dangling: string[];
+  linksChecked: number; // every relative *.md link inspected, resolved or not
+}
+
+// Blank out fenced code block bodies (```/~~~, any length, CommonMark nesting
+// rule: a fence only closes on a same-char run >= the opening run's length).
+// Line count is preserved (blanked, not removed) so this stays a pure filter.
+//
+// Why this exists: docs/skills that TEACH markdown structure embed literal
+// example links inside fenced blocks — e.g. documentation-structure.md's
+// `docs/index.md` template shows `[Getting Started](getting-started.md)` as
+// sample content, never meant to resolve against this repo. Without this,
+// every such example is indistinguishable from a real dangling link; 48 of
+// the 59 T15 findings measured in the dev-platform XSPEC-362 governance
+// batch were exactly this shape, spread across 6 files (core/skills copies
+// of documentation-structure.md in 3 locales, plus one testing-guide.md
+// sample report link). EXAMPLE_RE/EXAMPLE_DIR_RE could not have caught these
+// by filename — bare names like `getting-started.md` carry no "example"-ish
+// marker — because the signal isn't in the filename, it's in the fact that
+// the surrounding prose is a code sample, not live content.
+function stripFencedCode(text: string): string {
+  const lines = text.split('\n');
+  let inFence = false;
+  let fenceChar = '';
+  let fenceLen = 0;
+  return lines
+    .map((line) => {
+      const trimmed = line.trimStart();
+      if (!inFence) {
+        const open = trimmed.match(/^(`{3,}|~{3,})/);
+        if (open) {
+          fenceChar = open[1][0];
+          fenceLen = open[1].length;
+          inFence = true;
+          return '';
+        }
+        return line;
+      }
+      // Inside a fence: only a run of the same char, >= opening length,
+      // filling the rest of the trimmed line, closes it (CommonMark).
+      const closeRe = new RegExp(`^${fenceChar}{${fenceLen},}\\s*$`);
+      if (closeRe.test(trimmed)) {
+        inFence = false;
+      }
+      return '';
+    })
+    .join('\n');
+}
+
+function checkDangling(files: string[]): DanglingResult {
   const dangling: string[] = [];
+  let linksChecked = 0;
   for (const file of files) {
-    const txt = readFileSync(file, 'utf8');
+    const txt = stripFencedCode(readFileSync(file, 'utf8'));
     const baseDir = dirname(file);
     const rel = relative(ROOT_DIR, file);
     for (const m of txt.matchAll(/\]\(([^)]+\.md)\)/g)) {
@@ -94,13 +253,14 @@ function checkDangling(files: string[]): string[] {
       const target = raw.split('#')[0];
       if (target.length === 0) continue;
       if (EXAMPLE_RE.test(target) || EXAMPLE_DIR_RE.test(target)) continue;
+      linksChecked += 1;
       const abs = resolve(baseDir, target);
       if (!existsSync(abs) && !existsSync(resolve(ROOT_DIR, target))) {
         dangling.push(`${rel} -> ${target}`);
       }
     }
   }
-  return [...new Set(dangling)];
+  return { dangling: [...new Set(dangling)], linksChecked };
 }
 
 // A line made up solely of @tag tokens — how Gherkin scenario tags appear.
@@ -160,12 +320,25 @@ function main(): void {
   process.stdout.write('  命名與交叉引用一致性檢查器\n');
   process.stdout.write('==========================================\n\n');
 
-  const files = collectFiles();
-  process.stdout.write(`Scanned ${files.length} markdown files (core + skills + locales)\n\n`);
+  const collected = collectFiles();
+  const files = collected.files;
+  process.stdout.write(
+    `Tracked top-level directories (true denominator, via \`git ls-files\`): ${collected.allTopDirs.length}\n`,
+  );
+  process.stdout.write(`  [${collected.allTopDirs.join(', ')}]\n\n`);
+  process.stdout.write(`Excluded ${collected.excludedRoots.length} (named reason each):\n`);
+  for (const e of collected.excludedRoots) {
+    process.stdout.write(`  ${DIM}- ${e.dir}/ — ${e.reason}${NC}\n`);
+  }
+  process.stdout.write(
+    `\nScanned ${collected.roots.length} content root(s): ${collected.roots.join(', ')}\n`,
+  );
+  process.stdout.write(`  → ${files.length} markdown files\n\n`);
 
   // 1. Dangling (ERROR)
   process.stdout.write(`${BLUE}[1/3] Dangling cross-references (T15)${NC}\n`);
-  const dangling = checkDangling(files);
+  const { dangling, linksChecked } = checkDangling(files);
+  process.stdout.write(`  Relative *.md links checked: ${linksChecked}\n`);
   if (dangling.length === 0) {
     process.stdout.write(`  ${GREEN}[OK]${NC} no real dangling references\n\n`);
   } else {

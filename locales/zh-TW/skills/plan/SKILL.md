@@ -2,14 +2,15 @@
 name: plan
 source: ../../../../skills/plan/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-06-02
+translation_version: 2.1.0
+last_synced: 2026-08-17
 source_hash: 6fbb1a1b8040
 scope: universal
 description: |
-  [UDS] 從 Spec 文件、OpenSpec 變更或自由文字需求生成 plan.json。
-  Use when: converting specifications into executable task plans for /orchestrate.
-  Keywords: plan, spec, task plan, 計畫, 規格, 任務, plan.json, DAG.
+  從 Spec 文件、OpenSpec 變更或自由文字需求生成 plan.json。
+  Use when: 把規格轉換成可供 /orchestrate 執行的任務計畫。
+  Not for: 執行產出的計畫——請用 /orchestrate；判斷這個想法值不值得做——請用 /brainstorm。
+  Keywords: plan, spec, task plan, plan.json, DAG, 計畫, 規格, 任務, 任務計畫.
 argument-hint: "[spec-file.md | openspec-dir/ | \"需求描述文字\" | (互動模式)]"
 ---
 

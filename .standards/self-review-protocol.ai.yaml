@@ -3,10 +3,10 @@
 
 id: self-review-protocol
 meta:
-  version: "1.0.0"
-  updated: "2026-05-26"
+  version: "1.1.0"
+  updated: "2026-07-09"
   source: core/self-review-protocol.md
-  description: Mandatory self-review pass on large markdown edits before commit; catches 6 categories of internal cross-reference inconsistencies that internal reasoning routinely misses
+  description: Mandatory self-review pass on large markdown edits before commit; catches 7 categories of internal cross-reference inconsistencies that internal reasoning routinely misses
 
 trigger_conditions:
   mandatory:
@@ -44,7 +44,7 @@ inconsistency_categories:
   - id: 3
     name: count_drift
     description: Explicit number in text out of sync with actual count
-    example: "self-audit has 4 questions" but list has 7
+    example: '"self-audit has 4 questions" but list has 7'
     check: grep for "N questions", "N rows", "N items" and verify
   - id: 4
     name: stale_template
@@ -61,6 +61,11 @@ inconsistency_categories:
     description: Example contradicts current rule or latest case experience
     example: example shows D1/D2/D3 but rule says D3 not mandatory
     check: every concrete value in examples consistent with current rules
+  - id: 7
+    name: language_consistency
+    description: Non-target-language contamination, same-paragraph language mixing, or inconsistent project terminology within one document
+    example: a zh-TW paragraph contains Japanese kana or Korean hangul characters; or "XSPEC"/"gate"/"pipeline" spelled inconsistently across the same file
+    check: scan for out-of-place scripts (Japanese kana U+3040-U+30FF, Korean hangul U+AC00-U+D7A3) outside expected sections, same-paragraph language mixing, and inconsistent spelling of established project terms
 
 procedure:
   step_1:
@@ -69,7 +74,7 @@ procedure:
     when: after editing, before committing
   step_2:
     name: walk_categories
-    description: Apply 6 categories above against the file
+    description: Apply 7 categories above against the file
   step_3:
     name: fix_in_same_commit
     description: If issues found, edit in place and include fixes in same commit
@@ -84,13 +89,13 @@ recording_formats:
     format: '> **v{X.Y.(Z+1)} Self-review pass {YYYY-MM-DD}**: {N} issues found, {M} fixed in same commit'
   adr_dec:
     location: '## Follow-up Tracking table'
-    format: '| Self-review pass | This DEC | ✅ YYYY-MM-DD (6 categories, no issues) |'
+    format: '| Self-review pass | This DEC | ✅ YYYY-MM-DD (7 categories, no issues) |'
   xspec_sdd_delta:
     location: after non-modification list section (e.g. §N.6)
-    format: '> Self-review pass: YYYY-MM-DD (6 categories, no issues)'
+    format: '> Self-review pass: YYYY-MM-DD (7 categories, no issues)'
   commit_message_body:
     location: last line of commit body
-    format: 'Self-review (protocol v1.0.0): N issues found, M applied in same commit / 0 found.'
+    format: 'Self-review (protocol v1.1.0): N issues found, M applied in same commit / 0 found.'
 
 distinction_from_other_practices:
   code_review:
@@ -139,6 +144,6 @@ examples_in_the_wild:
     note: first SKILL.md edit to pass self-review pre-commit; preceded by 2 patch cycles (v1.1.0->v1.1.1 with 3 issues, v1.2.0->v1.2.1 with 6 issues) that motivated this standard
 
 self_review:
-  date: "2026-05-26"
+  date: "2026-07-09"
   issues_found: 0
-  notes: First draft self-review pass; no internal inconsistencies detected
+  notes: Added category 7 (language_consistency) per XSPEC-324; re-read whole file, no internal inconsistencies detected

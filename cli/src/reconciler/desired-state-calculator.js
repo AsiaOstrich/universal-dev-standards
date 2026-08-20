@@ -9,13 +9,28 @@
 
 import { join, basename } from 'path';
 import { getAllStandards, getStandardSource, findOption, getOptionSource } from '../utils/registry.js';
-import { resolveToolKey, SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import {
+  resolveToolKey,
+  SUPPORTED_AI_TOOLS,
+  MANIFEST_OPTION_BINDINGS,
+  OPTIONS_INSTALL_DIR
+} from '../core/constants.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
   getSkillsDirForAgent,
-  getCommandsDirForAgent
+  getCommandsDirForAgent,
+  getCommandFileExtension
 } from '../config/ai-agent-paths.js';
+import {
+  getAvailableSkillNames,
+  getAvailableCommandNames,
+  resolveSkillFiles,
+  computeSkillContentHash,
+  resolveCommandContent,
+  computeCommandContentHash
+} from '../utils/skills-installer.js';
+import { MARKETPLACE_NAMES_SENTINEL } from '../core/manifest.js';
 
 /**
  * @typedef {Object} FileEntry
@@ -61,6 +76,9 @@ export function calculateDesiredState(projectPath, manifest) {
 
   // 2. Option files
   calculateOptions(state, manifest);
+
+  // 2b. Extension files (locale/language/framework add-ons)
+  calculateExtensions(state, manifest);
 
   // 3. Integration files (CLAUDE.md, .cursorrules, etc.)
   calculateIntegrations(state, manifest);
@@ -137,6 +155,19 @@ function calculateStandards(state, manifest) {
 
 /**
  * Calculate expected option files.
+ *
+ * `manifest.options` is flat — `{ workflow: 'github-flow', test_levels: [...] }` —
+ * and the registry nests options under a standard id and a category key whose
+ * name is not always the same word (`test_levels` vs `test_level`). This function
+ * used to iterate the manifest as if its keys were *standard ids*, look up a
+ * standard named `workflow`, find none, and `continue`. It therefore produced an
+ * **empty** desired option set for every adopter repo, and every installed option
+ * file diffed as "no longer in desired state" — including files the manifest had
+ * explicitly selected. EngramGraph's plan proposed deleting all seven of the
+ * options its own manifest names. (XSPEC-343 R2)
+ *
+ * The desired path is flat too: the installer copies into `.standards/options`,
+ * not into a `<standardId>/<categoryKey>/` tree.
  */
 function calculateOptions(state, manifest) {
   const format = manifest.format || 'ai';
@@ -144,47 +175,89 @@ function calculateOptions(state, manifest) {
 
   if (!manifest.options) return;
 
-  for (const [standardId, optionConfig] of Object.entries(manifest.options)) {
-    if (!optionConfig) continue;
+  for (const binding of MANIFEST_OPTION_BINDINGS) {
+    const key = binding.manifestKeys.find(k => manifest.options[k] != null);
+    if (!key) continue;
 
-    const registryEntry = allStandards.find(s => s.id === standardId);
+    const registryEntry = allStandards.find(s => s.id === binding.standardId);
     if (!registryEntry) continue;
 
-    for (const [categoryKey, selection] of Object.entries(optionConfig)) {
-      const selections = Array.isArray(selection) ? selection : [selection];
-      for (const optionId of selections) {
-        if (typeof optionId !== 'string') continue;
+    const selection = manifest.options[key];
+    const selections = Array.isArray(selection) ? selection : [selection];
 
-        const option = findOption(registryEntry, categoryKey, optionId);
-        if (!option) continue;
+    for (const optionId of selections) {
+      if (typeof optionId !== 'string') continue;
 
-        const source = getOptionSource(option, format);
-        if (!source) continue;
+      const option = findOption(registryEntry, binding.categoryKey, optionId);
+      if (!option) continue;
 
-        const fileName = basename(source);
-        const relativePath = `.standards/options/${standardId}/${categoryKey}/${fileName}`;
-        const absSource = PathResolver.getStandardSource(source);
+      const source = getOptionSource(option, format);
+      if (!source) continue;
 
-        let hash = null;
-        let size = null;
-        if (absSource) {
-          const hashInfo = computeFileHash(absSource);
-          if (hashInfo) {
-            hash = hashInfo.hash;
-            size = hashInfo.size;
-          }
+      const relativePath = `${OPTIONS_INSTALL_DIR}/${basename(source)}`;
+      const absSource = PathResolver.getStandardSource(source);
+
+      let hash = null;
+      let size = null;
+      if (absSource) {
+        const hashInfo = computeFileHash(absSource);
+        if (hashInfo) {
+          hash = hashInfo.hash;
+          size = hashInfo.size;
         }
+      }
 
-        state.options.set(relativePath, {
-          relativePath,
-          hash,
-          size,
-          category: 'option',
-          sourcePath: absSource,
-          metadata: { standardId, categoryKey, optionId, format }
-        });
+      state.options.set(relativePath, {
+        relativePath,
+        hash,
+        size,
+        category: 'option',
+        sourcePath: absSource,
+        metadata: { standardId: binding.standardId, categoryKey: binding.categoryKey, optionId, format }
+      });
+    }
+  }
+}
+
+/**
+ * Calculate expected extension files.
+ *
+ * `manifest.extensions` records add-ons installed alongside the standards —
+ * locale packs (`extensions/locales/zh-tw.md`), language style guides, framework
+ * patterns — copied flat into `.standards/` by the installer.
+ *
+ * The calculator had no branch for them at all: the word "extensions" appeared
+ * exactly once in the whole reconciler, in the scanner's empty initialiser. So
+ * every installed extension fell outside the desired state and was proposed for
+ * deletion, while `manifest.extensions` went on listing it. Three repos lost
+ * their 717-line Traditional Chinese locale pack to this before it was noticed —
+ * including one where the removal was applied and committed. (XSPEC-343 R2)
+ */
+function calculateExtensions(state, manifest) {
+  for (const source of (manifest.extensions || [])) {
+    if (typeof source !== 'string' || !source) continue;
+
+    const relativePath = `.standards/${basename(source)}`;
+    const absSource = PathResolver.getStandardSource(source);
+
+    let hash = null;
+    let size = null;
+    if (absSource) {
+      const hashInfo = computeFileHash(absSource);
+      if (hashInfo) {
+        hash = hashInfo.hash;
+        size = hashInfo.size;
       }
     }
+
+    state.standards.set(relativePath, {
+      relativePath,
+      hash,
+      size,
+      category: 'standard',
+      sourcePath: absSource,
+      metadata: { extensionSource: source }
+    });
   }
 }
 
@@ -228,15 +301,40 @@ function calculateIntegrations(state, manifest) {
 
 /**
  * Calculate expected skill files.
+ *
+ * The desired set is **what this UDS version ships**, not `manifest.skills.names`.
+ * That field is written once by `init` and by no other code path — across five UDS
+ * upgrades it stayed frozen at its original 32 entries while the shipped set grew
+ * to 55, so every skill installed after init counted as "not desired" and was
+ * proposed for deletion. `uds update` always installs the full set (every call site
+ * passes `skillNames = null`), so the shipped list *is* the desired list.
+ * (XSPEC-343 R1/R2 — 40 of machine-setup's 86 proposed deletions.)
  */
 function calculateSkills(state, projectPath, manifest) {
   const skills = manifest.skills;
   if (!skills || !skills.installed) return;
 
-  const skillNames = skills.names || [];
-  if (skillNames.length === 0) return;
+  // Marketplace installs live inside the plugin, not the project. There is no
+  // project-level desired state to compute, and computing one would mark every
+  // on-disk skill for deletion.
+  if (skills.location === 'marketplace' || (skills.names || []).includes(MARKETPLACE_NAMES_SENTINEL)) return;
+
+  const skillNames = getAvailableSkillNames();
+  if (skillNames.length === 0) {
+    // An empty shipped list means the source tree is unreadable, not that the
+    // project should hold no skills. Returning here would leave `desired` empty
+    // and every installed skill would diff as a deletion — the failure mode this
+    // whole function exists to prevent. Fail loudly instead.
+    throw new Error(
+      'Cannot compute desired skill state: the UDS skills source directory is empty or unreadable. ' +
+      'Refusing to plan (an empty desired state would propose deleting every installed skill).'
+    );
+  }
 
   const installations = skills.installations || [];
+  // The locale the project installed with; skills fall back to English per skill
+  // when a locale variant is missing, which `resolveSkillFiles` handles.
+  const skillsLocale = skills.locale || 'en';
 
   for (const installation of installations) {
     const { agent, level } = installation;
@@ -250,9 +348,19 @@ function calculateSkills(state, projectPath, manifest) {
         : null;
 
       if (relativeBase) {
+        // Content hash of what installing this skill WOULD produce.
+        //
+        // Asked of `resolveSkillFiles` — the same function the installer writes
+        // from — so the two answers cannot drift. Hashing the source directory
+        // instead does not work: installing is not a verbatim copy (locale
+        // selection, English frontmatter merged into localized SKILL.md,
+        // subdirectories skipped), and a planner that computes it differently
+        // from the installer reports every skill as changed on every upgrade.
+        // (XSPEC-382 R1)
+        const resolved = resolveSkillFiles(skillName, skillsLocale);
         state.skills.set(`skill:${agent}:${level}:${skillName}`, {
           relativePath: relativeBase,
-          hash: null,  // Skill hashes are directory-level, tracked separately
+          hash: resolved.error ? null : computeSkillContentHash(resolved.files),
           size: null,
           category: 'skill',
           sourcePath: null,
@@ -265,13 +373,25 @@ function calculateSkills(state, projectPath, manifest) {
 
 /**
  * Calculate expected command files.
+ *
+ * Same reasoning as calculateSkills: derive from what UDS ships, not from the
+ * frozen `manifest.commands.names`. machine-setup's list said 31 while UDS
+ * shipped 51. (XSPEC-343 R1/R2)
  */
 function calculateCommands(state, projectPath, manifest) {
   const commands = manifest.commands;
   if (!commands || !commands.installed) return;
+  // Commands are installed alongside skills and share their locale; fall back
+  // to the skills locale, then English.
+  const commandsLocale = commands.locale || manifest.skills?.locale || 'en';
 
-  const commandNames = commands.names || [];
-  if (commandNames.length === 0) return;
+  const commandNames = getAvailableCommandNames();
+  if (commandNames.length === 0) {
+    throw new Error(
+      'Cannot compute desired command state: the UDS commands source directory is empty or unreadable. ' +
+      'Refusing to plan (an empty desired state would propose deleting every installed command).'
+    );
+  }
 
   const installations = commands.installations || [];
 
@@ -280,15 +400,21 @@ function calculateCommands(state, projectPath, manifest) {
     const commandsDir = getCommandsDirForAgent(agent, level, projectPath);
     if (!commandsDir) continue;
 
+    // The installed file carries the agent's extension; the key does not.
+    const ext = getCommandFileExtension(agent);
+
     for (const commandName of commandNames) {
       const relativeBase = level === 'project'
-        ? getRelativePath(projectPath, join(commandsDir, commandName))
+        ? getRelativePath(projectPath, join(commandsDir, `${commandName}${ext}`))
         : null;
 
       if (relativeBase) {
+        // Content hash of what installing this command WOULD produce, from the
+        // same function the installer writes from. (XSPEC-382 R7)
+        const resolvedCmd = resolveCommandContent(commandName, agent, commandsLocale);
         state.commands.set(`command:${agent}:${level}:${commandName}`, {
           relativePath: relativeBase,
-          hash: null,
+          hash: resolvedCmd.error ? null : computeCommandContentHash(resolvedCmd.content),
           size: null,
           category: 'command',
           sourcePath: null,

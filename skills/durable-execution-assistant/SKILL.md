@@ -1,7 +1,11 @@
 ---
 name: durable
 scope: partial
-description: "[UDS] Guide workflow failure recovery with checkpoints, retries, and rollback"
+description: |
+  [UDS] Guide fault-tolerant workflow design with checkpoints, retry policies, and rollback plans.
+  Use when: a long-running workflow keeps failing partway, designing checkpoint granularity, choosing a retry or backoff strategy.
+  Not for: responding to a production incident already in progress — use /incident; deployment rollback mechanics — use /deploy.
+  Keywords: durable execution, checkpoint, retry, backoff, idempotency, rollback, 持久執行, 檢查點, 重試策略.
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[workflow name or failure context | 工作流名稱或失敗情境]"
 ---

@@ -4,6 +4,7 @@ scope: universal
 description: |
   Guide for organizing project directories following language-specific best practices.
   Use when: creating projects, reorganizing structure, adding modules, setting up builds, deciding file placement.
+  Not for: structuring specifically for AI navigation — use /ai-friendly-architecture; restructuring existing code in place — use /refactor.
   Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, where to put.
 ---
 

@@ -2,14 +2,15 @@
 name: orchestrate
 source: ../../../../skills/orchestrate/SKILL.md
 source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-07-16
-source_hash: e66c388ce04a
+translation_version: 2.1.0
+last_synced: 2026-08-17
+source_hash: 357586a2f4d0
 scope: universal
 description: |
-  [UDS] 以 Claude 原生 Agent tool 编排多任务执行计划（DAG-based，无外部引擎）。
-  Use when: executing a plan.json file with parallel/sequential task dependencies.
-  Keywords: orchestrate, plan, execute, DAG, task plan, 编排, 执行计划, 并行.
+  以 Claude 原生 Agent tool 编排多任务执行计划（以 DAG 为基础，不需外部引擎）。
+  Use when: 执行带有并行／顺序任务依赖关系的 plan.json 文件。
+  Not for: 一开始生成计划——请用 /plan；彼此之间没有依赖关系的单一任务。
+  Keywords: orchestrate, plan, execute, DAG, task plan, 编排, 执行计划, 并行, 任务依赖.
 argument-hint: "<plan.json> [--dry-run]"
 ---
 

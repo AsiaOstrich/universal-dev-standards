@@ -14,12 +14,13 @@
 import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { copyStandard } from '../utils/copier.js';
-import { writeIntegrationFile } from '../utils/integration-generator.js';
+import { writeIntegrationFile, buildToolIntegrationConfig } from '../utils/integration-generator.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents
 } from '../utils/skills-installer.js';
 import { writeManifest } from '../core/manifest.js';
+import { getRepositoryInfo } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { createBackup, cleanupBackups } from './backup-manager.js';
@@ -70,8 +71,19 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   // Create backup
   if (backup && !dryRun) {
     const backupResult = createBackup(projectPath, plan);
-    if (backupResult.errors.length > 0 && backupResult.backedUp.length === 0) {
-      // Backup completely failed — abort
+    // Abort if ANY planned path could not be backed up — not only if every one
+    // failed.
+    //
+    // The old condition required `backedUp.length === 0`, so a run that backed
+    // up 74 paths and failed on 55 proceeded silently and overwrote all 55 with
+    // no rollback point. One success was enough to hide any number of failures:
+    // the same aggregate-masks-partial-failure shape this repo keeps finding.
+    // Those 55 were the skill directories, which failed on every platform
+    // because the backup called `copyFileSync` on a directory. With that fixed
+    // this branch should be rare — and when it does fire, refusing to overwrite
+    // a file we could not copy first is the whole point of taking a backup.
+    // (XSPEC-382 R6)
+    if (backupResult.errors.length > 0) {
       return {
         success: false,
         backupId: null,
@@ -146,6 +158,24 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
     }
   }
 
+  // Record the version we just reconciled to — but only on a clean run, mirroring
+  // `uds update`'s rule (a partial failure must stay retryable).
+  //
+  // Without this the reconciler applied everything and advanced nothing: the repo
+  // still recorded 6.1.0, `uds check` still said "behind the latest release", and
+  // the weekly staleness scout — which reads exactly `upstream.version` — kept
+  // reporting the repo as stale after a fully successful reconcile. (XSPEC-343 R2)
+  if (!dryRun && results.every(r => r.success)) {
+    const version = getRepositoryInfo()?.standards?.version;
+    if (version) {
+      updatedManifest.upstream = {
+        ...(updatedManifest.upstream || {}),
+        version,
+        installed: new Date().toISOString().split('T')[0]
+      };
+    }
+  }
+
   // Write updated manifest
   if (!dryRun) {
     try {
@@ -202,32 +232,49 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
   if (action.category === 'standard' || action.category === 'option') {
     const sourcePath = action.details?.sourcePath;
     if (!sourcePath) {
-      // Use copyStandard which handles bundled/repo/download fallback
+      // No absolute path was resolved, so fall back to copyStandard, which walks
+      // bundled → repo → download. Two kinds of entry arrive here.
       const metadata = action.details?.metadata;
-      if (metadata?.registryEntry) {
+      let sourceStr = null;
+      let targetDir = '.standards';
+
+      if (metadata?.extensionSource) {
+        // An entry from `manifest.extensions`. PathResolver cannot resolve these
+        // from an npm install: the published package's `files` list is bin, src,
+        // bundled, standards-registry.json and README.md — no `extensions/`. So
+        // `sourcePath` is null for every adopter who did not install from a
+        // source checkout, and this function answered "No source path available"
+        // for a file it was perfectly able to fetch.
+        //
+        // The legacy update path never had the bug because it calls copyStandard
+        // directly (`update.js`, "Update extensions"). The same upgrade therefore
+        // refreshed `.standards/zh-tw.md` under `uds update` and failed under the
+        // reconciler — the two paths disagreed about whether the file was
+        // reachable, and only one of them was right. (XSPEC-343)
+        sourceStr = metadata.extensionSource;
+      } else if (metadata?.registryEntry) {
         const source = metadata.registryEntry.source;
-        const sourceStr = typeof source === 'string'
+        sourceStr = typeof source === 'string'
           ? source
           : (source?.[metadata.format] || source?.ai || source?.human);
-        if (sourceStr) {
-          const targetDir = action.category === 'option'
-            ? dirname(action.path)
-            : '.standards';
-          const result = await copyStandard(sourceStr, targetDir, projectPath);
-          if (result.success) {
-            // Update hash in manifest
-            const hashInfo = computeFileHash(join(projectPath, action.path));
-            if (hashInfo) {
-              const normalizedPath = action.path.replace(/\\/g, '/');
-              manifest.fileHashes[normalizedPath] = {
-                ...hashInfo,
-                installedAt: new Date().toISOString()
-              };
-            }
-            return { action, success: true };
+        targetDir = action.category === 'option' ? dirname(action.path) : '.standards';
+      }
+
+      if (sourceStr) {
+        const result = await copyStandard(sourceStr, targetDir, projectPath);
+        if (result.success) {
+          // Update hash in manifest
+          const hashInfo = computeFileHash(join(projectPath, action.path));
+          if (hashInfo) {
+            const normalizedPath = action.path.replace(/\\/g, '/');
+            manifest.fileHashes[normalizedPath] = {
+              ...hashInfo,
+              installedAt: new Date().toISOString()
+            };
           }
-          return { action, success: false, error: result.error };
+          return { action, success: true };
         }
+        return { action, success: false, error: result.error };
       }
       return { action, success: false, error: 'No source path available' };
     }
@@ -304,6 +351,21 @@ function executeMigrateBlock(projectPath, action, manifest) {
     if (result.blockHashInfo) {
       manifest.integrationBlockHashes[result.path] = result.blockHashInfo;
     }
+    // `init` also records integration files in the whole-file `fileHashes`, which
+    // is what `uds check`'s File Integrity compares. Rewriting the block without
+    // refreshing that entry left the file permanently reported as "modified" —
+    // a successful reconcile that reads, afterwards, as a damaged install.
+    // (XSPEC-343 R2)
+    const tracked = manifest.fileHashes?.[result.path];
+    if (tracked) {
+      const info = computeFileHash(join(projectPath, result.path));
+      if (info) {
+        manifest.fileHashes[result.path] = {
+          ...info,
+          installedAt: tracked.installedAt || new Date().toISOString()
+        };
+      }
+    }
     return { action, success: true };
   }
 
@@ -341,10 +403,19 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
 
     if (skillNames.length > 0) {
       try {
+        // The locale argument was omitted here while the command path below
+        // passes it, so a reconcile silently reinstalled every skill in English.
+        // telemetry-server lost 59 zh-TW skill files to this before it was caught,
+        // and its manifest went on recording `skills.locale: zh-TW` throughout.
+        // Prefer the recorded skills locale; fall back to the display language,
+        // which is what `uds update` uses. (XSPEC-343 R2)
+        const skillLocale = manifest.skills?.locale
+          || displayLanguageToLocale(manifest?.options?.display_language);
         const installResult = await installSkillsToMultipleAgents(
           manifest.skills.installations,
           skillNames,
-          projectPath
+          projectPath,
+          skillLocale
         );
 
         if (installResult.allFileHashes) {
@@ -434,20 +505,16 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
 
 /**
  * Build integration generation config from manifest.
+ *
+ * Delegates to the shared builder so the reconciler and `uds update` generate the
+ * same block. The private copy that used to live here omitted `categories`,
+ * defaulted the output language to English, and read `integrationConfigs` by tool
+ * key when the manifest stores it by file name — so reconciling a repo silently
+ * dropped sections the normal update path always wrote. (XSPEC-343 R2)
  */
 function buildIntegrationConfig(manifest, toolName) {
   return {
-    tool: toolName,
-    installedStandards: (manifest.standards || []).map(s =>
-      s.startsWith('.standards/') ? s : `.standards/${s}`
-    ),
-    format: manifest.format || 'ai',
-    contentMode: manifest.contentMode || 'index',
-    language: manifest.integrationConfigs?.[toolName]?.language || 'en',
-    outputLanguage: manifest.integrationConfigs?.[toolName]?.outputLanguage || manifest.integrationConfigs?.[toolName]?.commitLanguage || 'english',
-    installedSkills: manifest.skills?.names || [],
-    installedCommands: manifest.commands?.names || [],
-    methodology: manifest.methodology,
-    ...(manifest.integrationConfigs?.[toolName] || {})
+    ...buildToolIntegrationConfig(manifest, toolName),
+    format: manifest.format || 'ai'
   };
 }
