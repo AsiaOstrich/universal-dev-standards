@@ -4,7 +4,7 @@ source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
 last_synced: 2026-08-17
-source_hash: 5bf83f0db544
+source_hash: f90f1fe1f6f2
 status: current
 description: |
   [UDS] 把目前的軟體開發階段對應到正確的 UDS 指令與 Skill。

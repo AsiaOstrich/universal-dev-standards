@@ -2,7 +2,7 @@
 name: adr-assistant
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 7d8bf5944cf4
+source_hash: a5c79c6a04fe
 translation_version: 1.1.0
 last_synced: 2026-08-17
 status: current

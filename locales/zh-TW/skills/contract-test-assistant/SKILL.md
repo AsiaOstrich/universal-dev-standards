@@ -2,7 +2,7 @@
 name: contract-test-assistant
 source: ../../../../skills/contract-test-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: f67623eb913a
+source_hash: 35b654f0b277
 translation_version: 1.1.0
 last_synced: 2026-08-17
 status: current

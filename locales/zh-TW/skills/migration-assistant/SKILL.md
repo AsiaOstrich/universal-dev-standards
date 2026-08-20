@@ -2,7 +2,7 @@
 name: migration-assistant
 source: ../../../../skills/migration-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 67b6f33f825e
+source_hash: 317e388b2b82
 translation_version: 1.1.0
 last_synced: 2026-08-17
 status: current
