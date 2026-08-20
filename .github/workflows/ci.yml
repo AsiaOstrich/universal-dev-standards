@@ -160,6 +160,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: cli/package-lock.json
 
+      # 🔴 2026-08-20 補：這一步原本不在，而它的缺席讓本 job 在 main 上連紅四次
+      # 沒有人看（5b0f99c3、aeafab51＝6.8.0 發版那次、30174e1d，以及更早一次）。
+      # 探針 spawn 的是 cli/bin/uds.js；沒有 node_modules 它會因 ERR_MODULE_NOT_FOUND
+      # 立刻死掉，而 check-command-existence.mjs 的存在性判定是「輸出裡沒有
+      # unknown command 就算存在」——崩潰的 CLI 永遠不會印那句話，於是**每個指令
+      # 都判成存在**，掃描回報 0 個問題。腳本端已加 verifyProbeIsWorking() 讓這種
+      # 狀態結束於 2（量不了）而非 0，這一步則是讓它根本不要發生。
+      - name: Install dependencies
+        run: npm ci
+
       - name: Prove the check can fail before trusting that it passed
         run: node scripts/check-module-reachability.mjs --self-test
 
@@ -203,6 +213,16 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: cli/package-lock.json
+
+      # 🔴 2026-08-20 補：這一步原本不在，而它的缺席讓本 job 在 main 上連紅四次
+      # 沒有人看（5b0f99c3、aeafab51＝6.8.0 發版那次、30174e1d，以及更早一次）。
+      # 探針 spawn 的是 cli/bin/uds.js；沒有 node_modules 它會因 ERR_MODULE_NOT_FOUND
+      # 立刻死掉，而 check-command-existence.mjs 的存在性判定是「輸出裡沒有
+      # unknown command 就算存在」——崩潰的 CLI 永遠不會印那句話，於是**每個指令
+      # 都判成存在**，掃描回報 0 個問題。腳本端已加 verifyProbeIsWorking() 讓這種
+      # 狀態結束於 2（量不了）而非 0，這一步則是讓它根本不要發生。
+      - name: Install dependencies
+        run: npm ci
 
       - name: Prove the check can fail before trusting that it passed
         run: node scripts/check-command-existence.mjs --self-test

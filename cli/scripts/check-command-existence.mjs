@@ -397,7 +397,76 @@ function loadBaseline() {
   }
 }
 
+/**
+ * 探針自我驗證。**在掃描開始之前跑，主路徑與自測路徑共用同一支。**
+ *
+ * 🔴 為什麼這段必須在 `analyse()` 裡而不是只在 `selfTest()` 裡：
+ *
+ * `probeCommand()` 判定「指令存在」的方式是 `exists: !m`，`m` 比對輸出裡的
+ * `unknown command '...'`。**一個載不起來的 CLI 永遠不會印出那句話**，
+ * 於是每一個指令都被判定為存在，掃描找到 0 個壞指令，回報綠燈——
+ * 一支探不到任何東西的閘門，與一支確認一切正常的閘門，輸出逐字相同。
+ *
+ * 這不是假想。2026-08-19～08-20 這支在 UDS main 上**連續紅了四次沒有人看**
+ * （`5b0f99c3`、`aeafab51`＝6.8.0 發版那一次、`30174e1d`，以及更早一次），
+ * 成因是 CI 的 `command-existence` job 沒有 `npm ci`，CLI 因缺 `node_modules`
+ * 而崩潰。當時**唯一**攔下它的就是 `--self-test` 裡的這兩行對照組；
+ * 主路徑沒有它們，所以 `npm run check:command-existence` 會回報
+ * 「掃了 1591 個檔、0 個壞指令」而其實一個指令都沒真的探到。
+ *
+ * `runUds()` 的既有守衛只擋 `r.error`，那是 **spawn 失敗**；
+ * 「起得來然後立刻死掉」是 exit 1 + stderr，`r.error` 是 `undefined`，穿過去了。
+ *
+ * 判準是使用者的長期規則：**「查無」之前，先確認查詢工具在運作。**
+ *
+ * ⚠️ **兩個對照臂不是等價的，第二個單獨看是 fail-open。**
+ * 2026-08-20 實測（把 `cli/bin/uds.js` 換成一個 import 不存在套件的檔）：
+ * 「已知不存在的指令回報不存在」→ ✗ 正確地紅；
+ * 「已知存在的指令（`check`）回報存在」→ **✓ 照樣綠**——因為 `exists` 是 `!m`，
+ * 而崩潰輸出裡當然沒有 `unknown command`，於是「存在」這一側對任何故障都免疫。
+ * **只有負向那一臂抓得到探針壞掉。** 正向那臂留著是為了抓相反的病
+ * （探針過度敏感、把真指令判成不存在），兩者不可互相替代，也不可只留一個。
+ *
+ * @returns {{ok: boolean, lines: string[]}} ok=false 時呼叫端必須 exit 2，不得回報綠燈
+ */
+function verifyProbeIsWorking() {
+  const lines = [];
+  let ok = true;
+
+  const control = probeCommand(['definitelynotacommand']);
+  const controlOk = control.exists === false && control.brokenSegment === 'definitelynotacommand';
+  lines.push(
+    `  ${controlOk ? '✓' : '✗'} 對照組：探針對已知不存在的指令名回報「不存在」` +
+      (controlOk ? '' : `\n      實際輸出：${control.raw || '(空)'}`),
+  );
+  ok &&= controlOk;
+
+  const known = probeCommand(['check']);
+  const knownOk = known.exists === true;
+  lines.push(
+    `  ${knownOk ? '✓' : '✗'} 對照組：探針對已知存在的指令名（check）回報「存在」` +
+      (knownOk ? '' : `\n      實際輸出：${known.raw || '(空)'}`),
+  );
+  ok &&= knownOk;
+
+  return { ok, lines };
+}
+
 function analyse() {
+  // 🔴 先證明探針在工作，再相信它掃出來的任何結果。理由見上方 docblock。
+  const probeCheck = verifyProbeIsWorking();
+  if (!probeCheck.ok) {
+    console.error('[cmd-existence] FATAL: 探針機制本身不可信，拒絕回報掃描結果。');
+    for (const l of probeCheck.lines) console.error(l);
+    console.error(
+      '\n  最常見原因：CLI 載不起來（缺 node_modules、相依版本不合、入口被移走）。\n' +
+        '  在這個狀態下掃描會把「每一個指令」都判成存在，然後回報 0 個問題——\n' +
+        '  **那個綠燈與真的乾淨無從分辨**，所以這裡結束於 2（量不了），不是 0。\n' +
+        '  修法：在 cli/ 下跑 `npm ci`，或確認 cli/bin/uds.js 起得來。',
+    );
+    process.exit(2);
+  }
+
   const sourceStats = [];
   const allFindings = []; // { source, file, lineNo, lineText, kind: 'command'|'flag', target, brokenSegment }
   let undecidableTotal = 0;
@@ -632,16 +701,12 @@ function report(r) {
 function selfTest() {
   let pass = true;
 
-  // 對照組：探針機制本身有沒有在工作
-  const control = probeCommand(['definitelynotacommand']);
-  const controlOk = control.exists === false && control.brokenSegment === 'definitelynotacommand';
-  console.log(`  ${controlOk ? '✓' : '✗'} 對照組：探針對已知不存在的指令名回報「不存在」`);
-  pass &&= controlOk;
-
-  const controlKnownGood = probeCommand(['check']);
-  const controlGoodOk = controlKnownGood.exists === true;
-  console.log(`  ${controlGoodOk ? '✓' : '✗'} 對照組：探針對已知存在的指令名（check）回報「存在」`);
-  pass &&= controlGoodOk;
+  // 對照組：探針機制本身有沒有在工作。
+  // **與主路徑共用同一支 `verifyProbeIsWorking()`** —— 兩份各自維護的對照組會各自腐壞，
+  // 而其中一份腐壞時，另一份看起來仍然正常。
+  const probeCheck = verifyProbeIsWorking();
+  for (const l of probeCheck.lines) console.log(l);
+  pass &&= probeCheck.ok;
 
   // 分母臂
   const before = analyse();
