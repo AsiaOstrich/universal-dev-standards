@@ -15,10 +15,20 @@
  * can measure that, and it is not built. It pins the one thing that was
  * certainly wrong, so a later edit cannot quietly restore it.
  *
- * The checker gap is separate and still open: `check-ai-agent-sync.sh` maps
- * codex to `integrations/codex/AGENTS.md` — the repo's own template, a
- * different document with 2 filename references against the generated file's
- * 69 — so it has never looked at what an adopter receives.
+ * The checker gap this note used to record as open was closed on 2026-08-20.
+ * `check-ai-agent-sync.sh` still maps codex to `integrations/codex/AGENTS.md`
+ * — the repo's own template, a different document — and now says so in its
+ * header and its output. What an adopter receives is checked separately by
+ * `scripts/check-adopter-instruction-files.ts`, which runs `uds init` and reads
+ * the result.
+ *
+ * That work also found that this file covers only one of two producers. The
+ * summary pinned here is written by `generateAgentsMdSummary()` and is emitted
+ * ONLY when neither codex nor opencode is selected (init.js:501-505) — select
+ * either and `AGENTS.md` comes from `generateIntegrationContent()` instead. The
+ * disclosure added here for Codex was therefore in the one file a Codex adopter
+ * never gets. The second producer is covered by
+ * `integration-block-index-disclosure.test.js`.
  */
 
 import { describe, it, expect } from 'vitest';

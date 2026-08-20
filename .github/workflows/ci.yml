@@ -210,6 +210,68 @@ jobs:
       - name: Check command existence
         run: npm run check:command-existence
 
+  # XSPEC-357 R7 ② — 採用者指令檔閘門。
+  #
+  # `scripts/check-ai-agent-sync.sh` 檢查的是本 repo 的 integrations/ 樣板，
+  # 採用者拿到的則是 `uds init` 寫出來的另一份檔案、由另一段程式產生。
+  # 2026-08-20 用同一組規則樣式實測：樣板 6–7/7，採用者檔案 0–2/7。
+  # 規格原文：「a rule can be present for the checker and absent for every
+  # user, with nothing going red.」這個 job 就是那個 red。
+  #
+  # 它**不**斷言規則本文出現在採用者檔案裡，也永遠不會——`.standards/` 143 份
+  # .ai.yaml 約 248k tokens，塞不進去。它斷言的是那份檔案有沒有**說出**自己
+  # 只是索引、並指示去打開 `.standards/` 底下的檔案。未斷言的部分（規則本文
+  # 覆蓋率、npm tarball、agent 實際行為）每次執行都印出數字，不讓它變成沉默的洞。
+  #
+  # 三態結束碼：0 乾淨／1 有發現／2 量不了（量不了不是綠燈）。
+  #
+  # ── 為什麼沒有路徑過濾 ──────────────────────────────────────────────
+  # 被檢查的產物由一條橫跨 cli/src/（generator、installer、detector、
+  # constants）、cli/standards-registry.json、以及 core//ai//locales/ 標準樹的
+  # 管線產生。要寫過濾器就得把這條管線列舉出來——而**列舉**正是
+  # `codex -> integrations/codex/AGENTS.md` 這個錯誤的成因。上方 changes job
+  # 的註解記著同一個教訓：窄過濾器會在正好該說話的那次改動上靜音。
+  # 安裝完之後這支檢查本體約 1.2 秒（實測），沒有省它的理由。
+  #
+  # ── 為什麼不掛進 script-ratchet ────────────────────────────────────
+  # 那個 job 只在 repo 根目錄跑 `npm ci`，而 `uds init` 需要 cli/node_modules。
+  # 掛進去會讓它以 exit 2（量不了）收場——正確的訊號，但每次都亮，等於沒有訊號。
+  # 所以獨立成 job，兩處都裝。
+  #
+  # 三臂已實測（2026-08-20）：綠（5 情境 33 檔 0 發現，rc=0）／
+  # 紅（關掉 generator 的揭露句輸出 → 5 情境中 4 個共 35 個發現，逐一指名檔案與
+  # 斷言；未被動到的通用 AGENTS.md 情境維持 0，rc=1）／
+  # 量不了（移走 cli/bin/uds.js → rc=2）。另有 --self-test：在真實產物上做四種
+  # 破壞，5/5 臂都如預期觸發。一支從未紅過的檢查與一支永遠回綠的檢查無從分辨。
+  adopter-instruction-files:
+    name: Adopter Instruction Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root dependencies (tsx)
+        run: npm ci
+
+      # `uds init` runs out of cli/, so its runtime deps have to be present or
+      # the check exits 2 rather than saying anything about adopters.
+      - name: Install CLI dependencies
+        run: npm ci
+        working-directory: cli
+
+      - name: Prove the check can fail before trusting that it passed
+        run: npm run check:adopter-files:self-test
+
+      - name: Check adopter instruction files
+        run: npm run check:adopter-files -- --verbose
+
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}

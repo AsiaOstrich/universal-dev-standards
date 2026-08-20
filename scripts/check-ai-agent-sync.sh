@@ -9,6 +9,28 @@
 # 此腳本檢查 AI Agent 整合檔案是否維持一致的核心規則
 # （反幻覺、SDD 優先級、提交格式）。
 #
+# ⚠️ SCOPE — THIS CHECKS THIS REPOSITORY'S TEMPLATES, NOT WHAT ADOPTERS RECEIVE.
+# ⚠️ 範圍——本腳本檢查的是本 repo 的樣板，不是採用者實際拿到的檔案。
+#
+# `get_agent_file()` below maps every agent to a file inside this repo:
+# `codex` -> `integrations/codex/AGENTS.md`, and so on. Adopters never receive
+# those. They receive whatever `uds init` writes, which is a different document
+# produced by different code (cli/src/utils/integration-generator.js).
+#
+# Measured 2026-08-18 (XSPEC-357 R7): the generated AGENTS.md was 5,667 bytes
+# with 69 filename references and zero rule statements, against a 6,457-byte
+# template with 2. Measured again 2026-08-20 with the same rule patterns this
+# script uses: the templates score 6-7 of 7, an adopter's files score 0-2 of 7.
+# The spec's phrasing: "a rule can be present for the checker and absent for
+# every user, with nothing going red."
+#
+# That is not a defect in the generated files — `.standards/` is ~248k tokens
+# and cannot be inlined into an instruction file. It is a defect in reading a
+# green run here as a statement about adopters. It is not one.
+#
+# The adopter side is checked by:
+#   tsx scripts/check-adopter-instruction-files.ts     (npm run check:adopter-files)
+#
 # Usage: ./scripts/check-ai-agent-sync.sh [options]
 #
 # Options:
@@ -124,6 +146,13 @@ if [ "$JSON_OUTPUT" = false ]; then
     echo "  AI Agent Sync Checker"
     echo "  AI Agent 同步檢查器"
     echo "=========================================="
+    echo ""
+    echo -e "${YELLOW}Scope: this repository's integrations/ templates.${NC}"
+    echo -e "${YELLOW}範圍：本 repo 的 integrations/ 樣板。${NC}"
+    echo "  Adopters do not receive these files. They receive what \`uds init\`"
+    echo "  writes, which these rule patterns score 0-2 of 7 against (templates"
+    echo "  score 6-7). A pass here says nothing about any adopter's project."
+    echo "  For that: npm run check:adopter-files"
     echo ""
 fi
 
@@ -361,6 +390,7 @@ if [ "$JSON_OUTPUT" = true ]; then
     cat << EOF
 {
   "status": "$([ $ERRORS -eq 0 ] && echo "pass" || echo "fail")",
+  "scope": "integrations/ templates in this repository, NOT the files uds init writes for adopters. See scripts/check-adopter-instruction-files.ts.",
   "summary": {
     "passed": $PASSED,
     "errors": $ERRORS,
@@ -406,7 +436,10 @@ else
         echo ""
         exit 0
     else
-        echo -e "${GREEN}${BOLD}✓ All agents are in sync!${NC}"
+        echo -e "${GREEN}${BOLD}✓ All agent templates in integrations/ are in sync!${NC}"
+        echo -e "${YELLOW}  This says nothing about what \`uds init\` writes into an adopter's${NC}"
+        echo -e "${YELLOW}  project — a different document from different code. Check that with:${NC}"
+        echo -e "${YELLOW}    npm run check:adopter-files${NC}"
         echo ""
         exit 0
     fi

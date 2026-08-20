@@ -381,6 +381,18 @@ fi
 # blocks". Unlike step 18.8, this is a real gate: a hit here is not advisory.
 run_check "18.9" "Running drift-override anti-permanence check | 漂移逃生門防永久化檢查" "$TSX $SCRIPT_DIR/check-drift-override-clean.ts"
 
+# Step 18.10: Adopter instruction files (XSPEC-357 R7) — blocking.
+#
+# Step 18.7 and check-ai-agent-sync.sh both look at integrations/ — this repo's
+# own templates. Nothing before this step ever looked at the files `uds init`
+# writes into an adopter's project, which is the artefact a release actually
+# ships the behaviour of. Runs `uds init` and reads what comes out.
+#
+# Exits 2 when it cannot measure (e.g. cli/node_modules missing), which run_check
+# reports as a failure rather than a pass — deliberately, per the tsx guard above:
+# "do not read their result as a pass or a fail" is the failure mode this avoids.
+run_check "18.10" "Checking adopter instruction files | 採用者指令檔檢查" "$TSX $SCRIPT_DIR/check-adopter-instruction-files.ts"
+
 # Step 19: Unit Tests
 if [ "$SKIP_TESTS" = true ]; then
     echo -e "${CYAN}[19/$TOTAL]${NC} Running unit tests..."

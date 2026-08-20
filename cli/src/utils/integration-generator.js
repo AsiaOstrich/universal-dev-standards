@@ -2399,6 +2399,52 @@ All responses should be in **Traditional Chinese (繁體中文)**, with technica
 };
 
 /**
+ * Generate the index disclosure that opens every UDS-managed block.
+ *
+ * XSPEC-357 R7 — the block an adopter receives is an index. In no content mode
+ * does it carry rule bodies, and inlining them is not an option: 143 `.ai.yaml`
+ * files come to roughly 248k tokens. What can be fixed is the block pretending
+ * otherwise. A file that lists 72 standard paths under a heading reading
+ * "Standards Compliance Instructions" reads, to an agent, like the compliance
+ * instructions — and Codex was measured on 2026-07-23 doing exactly that:
+ * it enumerated the standards and opened none of them.
+ *
+ * This wording was added to the universal `AGENTS.md` summary on 2026-08-18
+ * (`generateAgentsMdSummary`). That fixed one of the two producers. The other
+ * one is this — and the split is worse than it sounds, because the two are
+ * mutually exclusive for the same filename: selecting codex or opencode turns
+ * the universal summary OFF and routes `AGENTS.md` through here instead. The
+ * disclosure written for Codex was therefore in the only file a Codex adopter
+ * never receives. Measured 2026-08-20 before this change: 8 distinct adopter
+ * files across 3 content modes, 0 carrying the disclosure.
+ *
+ * @param {string} format - Output format: 'markdown' or 'plaintext'
+ * @param {string} language - Language: 'en', 'zh-tw', 'zh-cn' or 'bilingual'
+ * @returns {string} Disclosure paragraph, already format-adjusted
+ */
+export function generateIndexDisclosure(format, language = 'en') {
+  const lines = language === 'en'
+    ? [
+      '**This block is an index, not the standards.** The rules are NOT reproduced here.',
+      'Before acting on anything below, open the relevant file under `.standards/` and',
+      'follow its contents. Working from this block alone means working without the',
+      'standards.'
+    ]
+    : [
+      '**這個區塊是索引，不是標準本文。** 規則並未複製於此。',
+      '在依照下方任何一項行動之前，請打開 `.standards/` 底下對應的檔案並遵守其內容。',
+      '只憑這個區塊工作，等同於沒有採用標準。'
+    ];
+
+  if (format === 'markdown') {
+    return lines.map((l) => `> ${l}`).join('\n');
+  }
+  // Plaintext targets (.cursorrules / .clinerules / .windsurfrules) render
+  // neither blockquotes nor backticks, so both are stripped rather than shown.
+  return lines.map((l) => l.replace(/\*\*/g, '').replace(/`/g, '')).join('\n');
+}
+
+/**
  * Generate minimal standards reference for minimal content mode
  * @param {string[]} installedStandards - List of installed standard file paths
  * @param {string} format - Output format: 'markdown' or 'plaintext'
@@ -2733,6 +2779,10 @@ export function generateIntegrationContent(config) {
     }
 
     if (installedStandards.length > 0) {
+      // XSPEC-357 R7 — every mode, every tool. Placed first because it is a
+      // precondition for reading the rest, not a footnote to it.
+      standardsContent = generateIndexDisclosure(format, language) + '\n\n' + standardsContent;
+
       if (contentMode === 'minimal') {
         // Minimal mode: simple reference list
         standardsContent += generateMinimalStandardsReference(

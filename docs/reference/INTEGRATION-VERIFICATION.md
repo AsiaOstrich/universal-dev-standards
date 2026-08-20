@@ -17,8 +17,18 @@ This procedure fills that gap and nothing else:
 | Question | Answered by |
 |---|---|
 | Is the integration we wrote complete? | `tier` in `integrations/REGISTRY.json` |
+| Does an adopter's installed project say what it is? | `scripts/check-adopter-instruction-files.ts` |
 | **Does the tool actually behave accordingly?** | **This procedure** |
 | Is the tool still alive? | `deprecated` in the registry |
+
+The second row is a different question from the first, and the gap between them
+is measurable: on 2026-08-20, the rule patterns `check-ai-agent-sync.sh` uses
+scored **6–7 of 7 against our own templates and 0–2 of 7 against the files
+`uds init` writes**. That is not a defect to fix — `.standards/` is ~248k tokens
+and cannot be inlined into an instruction file — so what the adopter-side check
+asserts is that the installed file *states* it is an index and tells the reader
+to open the standards, rather than presenting a list of paths and letting an
+agent conclude it has read them.
 
 ---
 
