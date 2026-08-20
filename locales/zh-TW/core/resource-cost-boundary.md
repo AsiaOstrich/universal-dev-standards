@@ -2,8 +2,8 @@
 source: ../../../core/resource-cost-boundary.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: a9be6a420041
+last_synced: 2026-07-30
+source_hash: 9c3d4359e7a0
 status: current
 ---
 

@@ -2,8 +2,8 @@
 source: ../../../core/schema-evolution.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: 0e8f6242bf38
+last_synced: 2026-07-30
+source_hash: ccb8d5139586
 status: current
 ---
 

@@ -2,8 +2,8 @@
 source: ../../../core/user-story-mapping.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-06-17
-source_hash: d161a742d704
+last_synced: 2026-07-30
+source_hash: f2ae062874ca
 status: current
 ---
 
