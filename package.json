@@ -35,7 +35,9 @@
     "sync:standard": "tsx scripts/sync-standard.ts",
     "check:ai-yaml": "node scripts/check-ai-yaml-parses.mjs",
     "check:model-pins": "tsx scripts/check-model-pin-freshness.ts",
-    "check:model-pins:self-test": "tsx scripts/check-model-pin-freshness.ts --self-test"
+    "check:model-pins:self-test": "tsx scripts/check-model-pin-freshness.ts --self-test",
+    "check:bump-roundtrip": "node scripts/check-bump-sync-roundtrip.mjs",
+    "check:bump-roundtrip:self-test": "node scripts/check-bump-sync-roundtrip.mjs --self-test"
   },
   "type": "module",
   "dependencies": {

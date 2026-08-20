@@ -343,3 +343,51 @@ jobs:
         run: |
           chmod +x ./scripts/check-cli-docs-sync.sh
           ./scripts/check-cli-docs-sync.sh
+
+  # bump ↔ check 往返不變量。
+  #
+  # bump-version.mjs 寫版本號、check-version-sync.sh 檢查版本號，而**兩者各自持有
+  # 一份手工維護的「哪些檔案帶版本號」清單**。2026-08-20 發 6.8.0 時它們漂開了：
+  # bump 動了 package.json、registry、manifest 與三份 README，卻不含三份 SECURITY.md
+  # ——而 check 有檢查那三份。
+  #
+  # **這個不變量原本就有東西在守**：bump-version.mjs:301 跑完會呼叫
+  # check-version-sync.sh，失敗就 exit 1。所以本 job 不是「補上一個不存在的檢查」，
+  # 而是把它**提前**——原本只在有人真的發版時才會炸，也就是在最貴的那一刻炸；
+  # 6.8.0 那天正是如此，發版流程中途停下來手改三個檔案。這裡讓它在每次 CI 就說話。
+  #
+  # 不設路徑過濾：漂移的形狀是「**某個新檔案開始帶版本號，而只有其中一支腳本知道它**」，
+  # 那個新檔案可以出現在 repo 任何地方。窄過濾器會在正好該說話的那次改動上靜音
+  # ——與 command-existence 那條註解記的是同一個病。實測整支 23 秒，無條件跑得起。
+  #
+  # 三臂已實測（2026-08-20）：綠（現況 rc=0，14 個檔案改完全數還原、樹乾淨）／
+  # 紅（把 bump 的 SECURITY.md 段拿掉 → rc=1，且指名那三個檔案）／
+  # 拒跑（工作區髒 → rc=2，**不是綠燈**）。一支從未紅過的檢查與一支永遠回綠的
+  # 檢查無從分辨，所以紅臂是在拋棄式 clone 外加真 repo 的暫存分支上各跑過一次。
+  #
+  # ⚠ 本檢查會真的跑一次 bump 並就地改檔，再用 git checkout 還原。它拒絕在髒工作區
+  # 執行（rc=2），CI 的 checkout 一定是乾淨的所以無妨；本機跑之前請先 commit。
+  bump-sync-roundtrip:
+    name: Bump/Sync Roundtrip
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 刻意**不**叫「Prove the check can fail」——這一步證明不了那件事，
+      # 它只確認前置條件齊備。紅臂用變異驗過，記錄在腳本 docblock。
+      - name: Verify preconditions (not a red-arm proof)
+        run: npm run check:bump-roundtrip:self-test
+
+      - name: Check bump/sync roundtrip
+        run: npm run check:bump-roundtrip
