@@ -231,7 +231,9 @@ governance/
 
 ## Enforcement Reality
 
-> **This standard ships no checker for the rules in Pending Decisions, Aggregate Reporting, or Freshness Metrics — and that is a known cost, stated here rather than left to be discovered.**
+> **This standard ships no checker for any of its rules — not the ones added in 1.1.0, and not the fail-closed Risk Acceptance requirement that has been in it since 1.0.0. That is a known cost, stated here rather than left to be discovered.**
+>
+> Measured 2026-08-20: `review_by`, `risks_accepted`, and `gates_bypassed` appear in **no** program — not in the UDS CLI, not in any consumer. The clause that says a pipeline "must refuse to start" has never caused a pipeline to refuse to start, in the three and a half months it has been written down. Saying that plainly is not a caveat bolted onto this section; it is the section's own rule applied to the section itself, and an earlier draft of this text listed only the new rules as unenforced — which would have implied the older one was enforced.
 >
 > UDS defines these requirements; it does not provide a program that enforces them. Adopters who want them enforced must write the enumerator, the three-count reporter, and the reconciliation-date recorder themselves — and most will not. That is the same failure this standard describes, now applying to this standard.
 >

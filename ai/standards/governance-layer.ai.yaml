@@ -188,6 +188,9 @@ freshness_metrics:
 enforcement_reality:
   ships_a_checker: false
   note: >
+    Applies to every rule in this standard, including the fail-closed Risk Acceptance
+    requirement present since 1.0.0 — measured 2026-08-20, `review_by` / `risks_accepted` /
+    `gates_bypassed` appear in no program at all, so that clause has never stopped a pipeline.
     UDS defines these requirements but ships no program that enforces them. Adopters must
     write the enumerator, the three-count reporter, and the reconciliation-date recorder
     themselves, and most will not — the same failure this standard describes. The minimum bar
