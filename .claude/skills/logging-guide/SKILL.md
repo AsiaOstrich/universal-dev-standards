@@ -1,10 +1,15 @@
 ---
-name: logging
-description: "[UDS] 實作結構化日誌，包含正確的日誌層級和敏感資料處理"
+name: logging-guide
+description: |
+  實作結構化日誌，包含適當的日誌層級與敏感資料處理。
+  Use when: 加入日誌、除錯、建立可觀測性。
+  Not for: 指標、追蹤與告警設計——請用 /observability；錯誤碼分類體系——請用 /error-code-guide。
+  Keywords: logging, log level, structured logging, observability, 日誌, 結構化日誌, 日誌層級, 敏感資料.
 source: ../../../../skills/logging-guide/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+source_version: 1.4.0
+translation_version: 1.5.0
+last_synced: 2026-08-17
+source_hash: ca969fdf7847
 status: current
 scope: universal
 ---
@@ -13,8 +18,8 @@ scope: universal
 
 > **語言**: [English](../../../../skills/logging-guide/SKILL.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-30
+**版本**: 1.4.0
+**最後更新**: 2026-06-19
 **適用範圍**: Claude Code Skills
 
 ---
@@ -56,6 +61,28 @@ scope: universal
 | **WARN** | 已棄用 API、重試嘗試、資源接近上限 |
 | **ERROR** | 失敗的操作、捕獲的例外、整合失敗 |
 | **FATAL** | 無法恢復的錯誤、啟動失敗、失去關鍵資源 |
+
+## 強制事件
+
+把每則日誌格式化得再完美，但**在真正關鍵的時刻卻從不觸發**，比什麼都沒有還糟——它會在事故當下給人虛假的安心感。核心標準定義了**9 個必須產生日誌記錄的標準事件**。若日誌設定遵守層級／欄位規則卻遺漏這些事件，就是「規範上合格、實質上沉默」。務必全部實作這 9 項：
+
+| 事件 id | 時機 | 層級 | 核心必要欄位 | 不可記錄 |
+|----------|------|-------|----------------------|--------------|
+| `application_startup` | 開機後、**接受請求前** | INFO | app_name, version, git_sha, environment, hostname, pid, listening_endpoints | secrets、完整連線字串 |
+| `request_received` | Middleware 首次看到請求時 | INFO / DEBUG | method, path, source_ip, request_id | request body、auth headers |
+| `validation_failure` | schema / ModelState / DTO 驗證拒絕時 | WARN | request_id, path, missing_fields[], payload_shape（僅 keys） | 欄位**值**、PII |
+| `authentication_failure` | 登入 / token 驗證失敗時 | WARN | uid（嘗試值）, source_ip, failure_reason | password、token 值 |
+| `outbound_call_start` | 發起對外 HTTP/RPC 呼叫時 | INFO | target_url（host+path）, 傳遞的 request_id, timeout_ms | credentials、bearer tokens |
+| `outbound_call_complete` | 外部呼叫返回或失敗時 | INFO / WARN / ERROR | status_code **或** failure_phase（dns/tcp/tls/http）, elapsed_ms, retries | 含 PII 的 response body |
+| `business_event` | 具狀態改變的業務操作完成時 | INFO | operation_name, actor, target ids, outcome | 完整 record payload、PII |
+| `heartbeat` | 長期執行的背景服務，≥ 1 次 / 60 秒 | INFO | service_name, queue_depth, items_processed_since_last_heartbeat | — |
+| `shutdown` | 行程結束時（正常或致命錯誤） | INFO / ERROR | app_name, signal/reason, uptime_seconds, pending_work_count | — |
+
+**為何是這些事件**——每一項都補上一個真實的事故盲區：靜默的 `validation_failure` 會隱藏未記錄的 payload；`authentication_failure` 若缺 `uid`／`source_ip` 就無法調查；缺少 `heartbeat` 代表 0-byte 的日誌檔不會被察覺；沒有 `outbound_call_*` 會讓「送出失敗」變成一場找不到任何呼叫痕跡、耗時 2 天的追查。
+
+> 背景服務若在 60 秒內未寫入任何 INFO/WARN/ERROR，**必須**發出一則 `heartbeat`；若連續 ≥ 2 倍間隔（≥ 120 秒）都沒有出現，沉默偵測器**必須**告警。
+
+完整目錄（每個事件的 `when`／`must_log`／`must_NOT_log`／`rationale` 及合規範例），請參閱核心[日誌標準](../../core/logging-standards.md#強制事件-mandatory-events)的**強制事件**章節。
 
 ## 結構化日誌
 
@@ -206,6 +233,21 @@ logger.error('處理訂單失敗', {
 - 聚合指標而非個別日誌
 - 使用獨立的日誌串流
 
+## 日誌檔案輪替
+
+基於檔案的 log sink **必須**同時設定兩種輪替觸發器——時間輪替**與**大小輪替。常見函式庫的預設大小上限（Serilog 1 GB、log4j/Winston/Python `RotatingFileHandler` 無上限）在正式環境中會造成靜默資料遺失。
+
+```
+✓ rollingInterval: Day                    # 時間輪替
+✓ fileSizeLimitBytes: 104857600 (100 MB)  # 大小輪替
+✓ rollOnFileSizeLimit: true               # 輪替，不要丟棄
+✓ retainedFileCountLimit: ≥ N*7           # N = 每日最大輪替次數
+```
+
+當日誌檔案在預期的每日結束時達到 **`fileSizeLimitBytes` 的 ≥ 90%**，**調查噪音根因**（嘈雜的重試迴圈 / 不受限制的 debug 日誌 / stack trace 洪流），不要只提高上限。
+
+> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](../../core/logging-standards.md#日誌檔案輪替政策)。
+
 ## 檢查清單
 
 ### 必要欄位
@@ -223,6 +265,13 @@ logger.error('處理訂單失敗', {
 - [ ] PII 已遮罩或雜湊
 - [ ] 信用卡從不記錄
 - [ ] 保留政策已設定
+
+### 輪替
+
+- [ ] 已設定時間輪替（`rollingInterval: Day` 或等效設定）
+- [ ] 已設定大小輪替（`fileSizeLimitBytes` + `rollOnFileSizeLimit: true`）
+- [ ] `retainedFileCountLimit` ≥ N×7（N = 每日最大輪替次數）
+- [ ] 已定義 90% 大小 SOP（調查噪音，勿只提高上限）
 
 ---
 
@@ -272,6 +321,8 @@ logger.error('處理訂單失敗', {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.4.0 | 2026-06-19 | 新增：強制事件章節（9 個標準事件），消弭技能與核心標準之間的內容漂移；版號與核心日誌標準 v1.4.0 對齊（XSPEC-070 Phase 2） |
+| 1.1.0 | 2026-05-26 | 新增：日誌檔案輪替章節及指向核心標準輪替政策的交叉連結；輪替清單（XSPEC-232） |
 | 1.0.0 | 2025-12-30 | 初始發布 |
 
 ---
@@ -281,3 +332,14 @@ logger.error('處理訂單失敗', {
 此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/logging` completes, the AI assistant should suggest:
+
+> **日誌標準已掌握。建議下一步 / Logging standards understood. Suggested next steps:**
+> - 根據日誌指南在程式碼中實作結構化日誌 ⭐ **Recommended / 推薦** — 立即將日誌標準應用到專案 / Apply logging standards to the project immediately
+> - 執行 `/errors` 設計錯誤碼以配合日誌系統 — 讓錯誤追蹤更有效率 / Make error tracking more efficient
+> - 執行 `/sdd` 將可觀測性需求納入規格 — 確保日誌需求在規格中有定義 / Ensure logging requirements are defined in specs
+

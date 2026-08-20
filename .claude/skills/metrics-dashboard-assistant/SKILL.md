@@ -1,11 +1,15 @@
 ---
+name: metrics
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 追蹤開發指標、程式碼品質指示器與專案健康狀態"
-name: metrics
+description: |
+  [UDS] 長期追蹤開發指標、程式碼品質指標與技術債。
+  Use when: 評估專案的持續健康狀態、分類技術債並觀察其趨勢、向團隊回報程式碼品質。
+  Not for: 初次評估一個不熟悉的程式碼庫——請用 /discover；單看測試覆蓋率——請用 /coverage 或 /ac-coverage。
+  Keywords: metrics, code quality, technical debt, project health, debt trend, 開發指標, 技術債, 專案健康度, 品質趨勢.
 allowed-tools: Read, Grep, Glob, Bash(npm:*, git:log)
 scope: universal
 argument-hint: "[metric type or module | 指標類型或模組]"

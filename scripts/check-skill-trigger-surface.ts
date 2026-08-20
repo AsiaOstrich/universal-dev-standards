@@ -45,31 +45,38 @@
  * missing SKILL.md. This checker prints every excluded directory by name on
  * every run so the drop-out is visible rather than inferred from a count.
  *
- * ── The self-adoption copies: reported, ratcheted, not gated ───────────────
- * `.claude/skills/` (48) and `.gemini/skills/` (40) are self-adoption copies
- * installed on an old CLI version. **All 88 have zero trigger surface** — the
- * exact defect XSPEC-378 is about, sitting in the copies that Claude Code and
- * Gemini actually load when working inside THIS repo. The shipped paths are
- * unaffected, so adopters get the good ones.
+ * ── The self-adoption copies: reported and ratcheted here, gated elsewhere ──
+ * `.claude/skills/` and `.gemini/skills/` are the copies that an agent working
+ * inside THIS repo loads. On 2026-08-20 this header said all 88 of them had
+ * zero trigger surface and that they "cannot be fixed from here", because the
+ * only writer was the CLI installer and DEC-044 refuses it in this repo.
  *
- * They are not gated, and the reason is not that they matter less. They cannot
- * be fixed from here: the only thing that writes those directories is the CLI
- * skills installer, reachable only through `uds init` / `uds update`, and both
- * are refused by the DEC-044 self-adoption guard — verified, not assumed, by
- * running `uds update --skills` in this repo and getting exit 1 with
- * "Detected UDS source repo". No script under `scripts/` writes them either
- * (0 hits, against 33 files there mentioning skills, so the search worked),
- * and `uds skills` is a read-only lister. The only bypass is `--force`, which
- * is the action that caused DEC-044 in the first place.
+ * **That reasoning was overturned the same day, and this paragraph is the
+ * correction.** The premise held only while nobody wrote a second writer.
+ * `scripts/generate-adoption-skills.mjs` is that writer: it derives the copies
+ * from `skills/` and `locales/<locale>/skills/`, reads nothing from
+ * `cli/bundled/` and writes nothing under any source directory, so it is not in
+ * DEC-044's path at all — DEC-044 is about a bundle overwriting source, the
+ * opposite direction. It is precisely option (1) that the baseline file's own
+ * `howToShrink` asked for.
  *
- * So it is recorded with a clock instead of quietly skipped, following the
- * shape `cli/scripts/reachability-baseline.json` already uses here:
- * `scripts/self-adoption-skills-baseline.json` carries the counts, why it was
- * deferred, how to shrink it, and an expiry. The check stays green while the
- * numbers do not get worse and the date has not passed; it turns blocking if a
- * copy regresses or the deferral expires, so the decision gets made rather
- * than deferred a second time. An exception with no clock is only a polite
- * delete key.
+ * Current state, measured 2026-08-20 after that generator ran:
+ *   `.claude/skills/`  55 skills, 55 with a trigger surface — generated, and
+ *                      gated by `npm run check:adoption-skills`, not here.
+ *   `.gemini/skills/`  40 skills, 0 with a trigger surface — and that is the
+ *                      intended outcome, not a backlog item. Gemini CLI was
+ *                      discontinued 2026-06-18; `.gemini/DEPRECATED.md` freezes
+ *                      the tree and says the drift "is expected — do not 'fix'
+ *                      it". The generator excludes it by reading `deprecated`
+ *                      from `integrations/REGISTRY.json`, never by name.
+ *
+ * So `scripts/self-adoption-skills-baseline.json` is no longer a deferral
+ * ledger; it is a two-entry ratchet whose entries are in different states, each
+ * carrying its own reason. The 0 for `.claude/skills/` is a FLOOR — a copy that
+ * loses its trigger surface turns this blocking immediately, without waiting for
+ * an expiry. The remaining clock belongs to `.gemini/` alone, and it exists
+ * because the argument for freezing rather than deleting rests on a claim that
+ * decays with time. An exception with no clock is only a polite delete key.
  *
  * The roots are discovered by walking top-level dot-directories for a
  * `skills/` holding at least one SKILL.md, so a future `.cursor/skills/`
@@ -786,10 +793,11 @@ function main(): number {
           (expired ? ` ${RED}⏰ EXPIRED${NC}` : '')
       );
       console.log(
-        `  ${DIM}Not fixed because it cannot be fixed from here: the only writer is the CLI${NC}\n` +
-          `  ${DIM}installer, reachable only via \`uds init\`/\`uds update\`, both refused by the${NC}\n` +
-          `  ${DIM}DEC-044 self-adoption guard. Bypassing it needs --force, which is the action${NC}\n` +
-          `  ${DIM}that caused DEC-044. See scripts/self-adoption-skills-baseline.json.${NC}`
+        `  ${DIM}Each root carries its own reason in scripts/self-adoption-skills-baseline.json:${NC}\n` +
+          `  ${DIM}a "generated-and-gated" root is derived by scripts/generate-adoption-skills.mjs${NC}\n` +
+          `  ${DIM}and gated by \`npm run check:adoption-skills\`, so its number here is a floor.${NC}\n` +
+          `  ${DIM}A "frozen-by-decision" root is deliberately not regenerated — see its${NC}\n` +
+          `  ${DIM}\`decision\` field. Only the frozen one still has a clock.${NC}`
       );
       if (expired) {
         console.log(

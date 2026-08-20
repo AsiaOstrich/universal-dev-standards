@@ -1,10 +1,14 @@
 ---
-name: errors
-description: "[UDS] 設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式"
+name: error-code-guide
+description: |
+  設計一致的錯誤碼，遵循 PREFIX_CATEGORY_NUMBER 格式。
+  Use when: 定義錯誤碼、建立錯誤處理機制、設計 API。
+  Not for: 日誌格式與層級——請用 /logging-guide；處理已經到達正式環境的錯誤——請用 /incident。
+  Keywords: error code, error handling, error format, API errors, 錯誤碼, 錯誤處理, 錯誤格式.
 source: ../../../../skills/error-code-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-01-08
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
 scope: universal
 ---
@@ -265,3 +269,36 @@ export const ErrorCodes = {
 此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/errors` completes, the AI assistant should suggest:
+
+> **錯誤碼設計已完成。建議下一步 / Error code design completed. Suggested next steps:**
+> - 執行 `/sdd` 將錯誤碼設計納入正式規格 ⭐ **Recommended / 推薦** — 確保錯誤碼在規格中有完整定義 / Ensure error codes are fully defined in specs
+> - 執行 `/logging` 設定結構化日誌以配合錯誤碼 — 讓錯誤碼與日誌系統整合 / Integrate error codes with logging system
+> - 執行 `/tdd` 為錯誤處理邏輯撰寫測試 — 確保每個錯誤碼都有對應的測試 / Ensure each error code has corresponding tests
+
+---
+
+## Related Standards
+
+- [Error Code Standards](../../core/error-code-standards.md)
+- [Logging Standards](../../core/logging-standards.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-30 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

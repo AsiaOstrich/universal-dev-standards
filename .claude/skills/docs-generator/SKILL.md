@@ -1,15 +1,18 @@
 ---
+name: docgen
 source: ../../../../skills/docs-generator/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）"
-name: docgen
+description: |
+  [UDS] 從專案原始檔產生使用文件（速查表、參考手冊、使用指南）。
+  Use when: 從 CLI 與 Skill 定義產出速查表或功能參考手冊、指令變更後重新產生文件、確認產生的文件是否為最新。
+  Not for: 決定專案需要哪些文件或手寫敘述性內容——請用 /documentation-guide；變更日誌條目——請用 /changelog。
+  Keywords: docgen, usage docs, cheatsheet, feature reference, generated documentation, 使用文件, 速查表, 文件產生, 參考手冊.
 allowed-tools: Read, Write, Grep, Glob, Bash(*)
-scope: uds-specific
+scope: universal
 argument-hint: "[config file | 設定檔]"
-disable-model-invocation: true
 ---
 
 # 文件產生器

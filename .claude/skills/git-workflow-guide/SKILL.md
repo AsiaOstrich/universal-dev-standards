@@ -1,11 +1,15 @@
 ---
 source: ../../../../skills/git-workflow-guide/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-name: git-flow
-description: "[UDS] 指導 Git 分支策略、分支命名與合併操作"
+name: git-workflow-guide
+description: |
+  引導 Git 分支策略、分支命名與合併操作。
+  Use when: 建立分支、合併、pull request、Git 工作流程相關問題。
+  Not for: 撰寫 commit message——請用 /commit；推送前的安全檢查——請用 /push。
+  Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合併, 工作流程, 分支命名.
 scope: universal
 ---
 
@@ -214,3 +218,37 @@ git push origin feature/my-feature
 本技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/git-flow` completes, the AI assistant should suggest:
+
+> **Git 工作流程已設定。建議下一步 / Git workflow configured. Suggested next steps:**
+> - 執行 `git checkout -b feature/<描述>` 建立功能分支開始開發 ⭐ **Recommended / 推薦** — 立即套用所選的分支策略 / Apply the chosen branching strategy immediately
+> - 執行 `/commit` 學習提交訊息規範 — 確保提交訊息格式一致 / Ensure consistent commit message format
+> - 執行 `/checkin` 了解簽入品質門檻 — 在提交前確保程式碼品質 / Ensure code quality before commits
+
+---
+
+## Related Standards
+
+- [Git Workflow](../../core/git-workflow.md) - Core Git workflow standard
+- [Commit Message Guide](../../core/commit-message-guide.md) - Commit message conventions
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

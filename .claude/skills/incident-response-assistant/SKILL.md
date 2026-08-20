@@ -1,11 +1,15 @@
 ---
+name: incident
 source: ../../../../skills/incident-response-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-26
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導事故回應、根因分析和事後檢討文件撰寫"
-name: incident
+description: |
+  引導事故回應、根因分析與事後檢討文件撰寫。
+  Use when: 正式環境事故、服務中斷回應、撰寫事後檢討、根因分析（RCA）。
+  Not for: 在故障發生前設計重試與檢查點——請用 /durable；設定告警門檻與 Error Budget 政策——請用 /slo。
+  Keywords: incident, outage, post-mortem, RCA, root cause, 事故, 服務中斷, 事後檢討, 根因分析.
 allowed-tools: Read, Write, Grep, Glob
 scope: universal
 argument-hint: "[incident description or severity | 事故描述或嚴重程度]"
@@ -151,4 +155,4 @@ docs/incidents/
 ## 參考
 
 - 核心規範：[deployment-standards.md](../../../../core/deployment-standards.md)
-- 核心規範：[logging.md](../../../../core/logging.md)
+- 核心規範：[logging.md](../../../../core/logging-standards.md)

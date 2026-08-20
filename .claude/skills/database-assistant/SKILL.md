@@ -1,11 +1,15 @@
 ---
+name: database
 source: ../../../../skills/database-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導資料庫設計、遷移規劃和查詢最佳化"
-name: database
+description: |
+  引導資料庫設計、遷移與查詢最佳化。
+  Use when: schema 設計、遷移規劃、查詢最佳化、索引策略。
+  Not for: 應用程式碼遷移或框架升級——請用 /migrate；資料之上的 API 合約——請用 /api-design。
+  Keywords: database, schema, migration, SQL, index, query, 資料庫, 遷移, 查詢, 索引策略.
 allowed-tools: Read, Grep, Glob
 scope: universal
 argument-hint: "[schema or migration to review | 要審查的 schema 或遷移]"

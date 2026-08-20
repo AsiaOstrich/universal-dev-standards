@@ -1,11 +1,15 @@
 ---
+name: pr
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導 Pull Request 建立、審查自動化和合併策略"
-name: pr
+description: |
+  引導 pull request 建立、審查自動化與合併策略。
+  Use when: 建立 PR、自動化審查流程、設定合併政策。
+  Not for: 審查本身的內容實質——請用 /code-review；分支命名與合併策略——請用 /git-workflow-guide。
+  Keywords: pull request, PR, merge, review, GitHub, GitLab, 合併請求, 審查自動化, 合併策略.
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
 scope: universal
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
@@ -14,6 +18,8 @@ argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 # PR 自動化助手
 
 > **語言**: [English](../../../../skills/pr-automation-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — PR 生命週期協調（5 步驟 CREATE→REVIEW→APPROVE→MERGE→CLEANUP、>400 行 size gate、CI gate、squash/merge 策略、gh CLI 整合）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 PR 描述模板、合併策略決策矩陣、auto-review 觸發規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
 簡化從建立到合併的 Pull Request 生命週期。
 

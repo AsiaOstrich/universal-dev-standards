@@ -1,10 +1,15 @@
 ---
+name: documentation-guide
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
-translation_version: 2.1.0
-last_synced: 2026-03-17
+translation_version: 2.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導文件結構、內容需求和專案文件最佳實踐"
+description: |
+  引導文件結構、內容需求與專案文件的最佳實踐。
+  Use when: 建立 README、撰寫文件、規劃 docs 目錄、專案初始設定、技術文件。
+  Not for: 從原始碼機械式產生文件——請用 /docgen；變更日誌條目——請用 /changelog。
+  Keywords: README, docs, documentation, CONTRIBUTING, CHANGELOG, ARCHITECTURE, API docs, 文件, 說明文件, 技術文件.
 scope: universal
 ---
 
@@ -417,3 +422,40 @@ MIT
 本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/docs-guide` completes, the AI assistant should suggest:
+
+> **文件結構與需求已釐清。建議下一步 / Documentation structure and requirements clarified. Suggested next steps:**
+> - 執行 `/docs` 根據指南直接產生專案文件 ⭐ **Recommended / 推薦** — 立即將文件指南化為行動 / Turn documentation guidelines into action immediately
+> - 執行 `/changelog` 建立或更新 CHANGELOG.md — 確保變更歷史完整 / Ensure change history is complete
+> - 執行 `/sdd` 將文件需求納入規格驅動開發 — 確保文件與功能同步 / Ensure docs stay in sync with features
+
+---
+
+## Related Standards
+
+- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Content requirements
+- [Documentation Structure](../../core/documentation-structure.md) - File organization
+- [Changelog Standards](../../core/changelog-standards.md) - CHANGELOG format
+- [Changelog Guide Skill](../changelog-guide/SKILL.md) - CHANGELOG skill
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.1.0 | 2026-03-17 | Added: Diátaxis classification, LLM discovery, quality metrics, enhanced ADR template, translation-friendly writing |
+| 2.0.0 | 2026-01-12 | Added: Project type matrix, document templates, documentation pyramid |
+| 1.0.0 | 2025-12-24 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

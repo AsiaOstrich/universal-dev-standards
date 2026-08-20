@@ -1,9 +1,15 @@
 ---
+name: project-structure-guide
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-03-04
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
+description: |
+  依各語言的最佳實踐組織專案目錄結構的指南。
+  Use when: 建立專案、重整結構、新增模組、設定建置流程、決定檔案該放哪裡。
+  Not for: 專門為 AI 導覽而設計的結構——請用 /ai-friendly-architecture；原地重整既有程式碼——請用 /refactor。
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, 專案結構, 目錄配置, 檔案擺放.
 scope: universal
 ---
 
@@ -150,3 +156,22 @@ project/
 - [核心：文件結構](../../core/documentation-structure.md)
 - [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
 - [AI：專案結構選項](../../../../options/project-structure/)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/project-structure` completes, the AI assistant should suggest:
+
+> **專案結構已建立或審查完成。建議下一步 / Project structure created or reviewed. Suggested next steps:**
+> - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **Recommended / 推薦** — 確保結構決策有規格追蹤 / Ensures structure decisions are tracked in specs
+> - 執行 `/docs` 產生專案文件（README、ARCHITECTURE.md 等） — 讓結構決策有文件記錄 / Document structure decisions
+> - 執行 `/ai-friendly-architecture` 設定 AI 上下文配置 — 讓 AI 助手更好地理解專案結構 / Help AI assistants understand the project structure
+
+---
+
+## Related Standards
+
+- [Core: Project Structure](../../core/project-structure.md)
+- [Core: Documentation Structure](../../core/documentation-structure.md)
+- [Guide: File Placement Decision Guide](../../core/guides/file-placement-guide.md)
+- [AI: Project Structure Options](../../ai/options/project-structure/)

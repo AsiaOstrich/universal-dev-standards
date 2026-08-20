@@ -1,20 +1,25 @@
 ---
+name: code-review
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 使用標準化檢查清單執行系統性程式碼審查"
-name: code-review
+description: |
+  [UDS] 系統性程式碼審查的參考資料：八大審查類別，以及 BLOCKING/IMPORTANT/SUGGESTION 評論前綴。
+  Use when: 審查 pull request 或 diff、決定審查意見的措辭與優先序、與團隊議定審查範圍。
+  Not for: 執行有關卡的審查流程——該部分已移至採用層（XSPEC-095）；提交前的關卡驗證——請用 /checkin。
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴, 審查清單.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
 scope: universal
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
-disable-model-invocation: true
 ---
 
 # 程式碼審查助手
 
 > **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
 使用標準化的檢查清單和評論前綴，執行系統性的程式碼審查。
 

@@ -1,19 +1,24 @@
 ---
+name: checkin
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 在提交程式碼前驗證品質關卡，確保程式碼庫穩定性"
-name: checkin
+description: |
+  [UDS] 提交前品質關卡的參考資料：關卡定義、檢查清單項目，以及絕不可提交的規則。
+  Use when: 決定 commit 前必須通過哪些檢查、稽核專案實際強制了哪些品質關卡、確認是否已可簽入。
+  Not for: 執行關卡流程或中止 commit——該部分已移至採用層（XSPEC-095）；找出並清除除錯殘留——請用 /sweep。
+  Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 簽入, 提交前檢查, 品質關卡, 檢查清單.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 scope: partial
-disable-model-invocation: true
 ---
 
 # 簽入助手
 
 > **語言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — 簽入流程協調（關卡執行序列、abort 邏輯）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留品質關卡定義、檢查清單項、never-commit 規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 

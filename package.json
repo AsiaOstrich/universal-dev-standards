@@ -44,7 +44,10 @@
     "check:trigger-surface:self-test": "tsx scripts/check-skill-trigger-surface.ts --self-test",
     "docs:llms-txt": "node scripts/generate-llms-txt.mjs",
     "check:llms-txt": "node scripts/generate-llms-txt.mjs --check",
-    "check:llms-txt:self-test": "node scripts/generate-llms-txt.mjs --self-test"
+    "check:llms-txt:self-test": "node scripts/generate-llms-txt.mjs --self-test",
+    "docs:adoption-skills": "node scripts/generate-adoption-skills.mjs",
+    "check:adoption-skills": "node scripts/generate-adoption-skills.mjs --check",
+    "check:adoption-skills:self-test": "node scripts/generate-adoption-skills.mjs --self-test"
   },
   "type": "module",
   "dependencies": {

@@ -198,11 +198,10 @@ Scenario: 使用有效憑證成功登入
 ```gherkin
 # 在 feature 檔案中引用規格
 # @spec SPEC-001
-@SPEC-001
 Feature: 用戶認證
   實作 SPEC-001 用戶認證需求。
 
-  @AC-1
+  @SPEC-001 @AC-1
   Scenario: 成功登入
     # SPEC-001 的驗收標準 1
     ...

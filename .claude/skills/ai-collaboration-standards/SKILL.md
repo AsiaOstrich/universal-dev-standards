@@ -1,9 +1,15 @@
 ---
+name: ai-collaboration-standards
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-01-25
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
+description: |
+  防止 AI 幻覺，確保分析程式碼或提出建議時給出以證據為基礎的回應。
+  Use when: 分析程式碼、提出建議、提供選項，或使用者詢問把握度／確定性時。
+  Not for: 撰寫 AI 指令檔本身——請用 /ai-instruction-standards；審查具體的 diff——請用 /code-review。
+  Keywords: certainty, assumption, inference, evidence, source, 證據, 假設, 推論, 確定性, 反幻覺.
 scope: universal
 ---
 
@@ -174,3 +180,38 @@ This project uses **English** certainty tags.
 此技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/ai-collaboration` completes, the AI assistant should suggest:
+
+> **AI 協作行為規範已掌握。建議下一步 / AI collaboration behavior standards understood. Suggested next steps:**
+> - 執行 `/ai-instruction-standards` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **Recommended / 推薦** — 將協作標準寫入專案配置 / Write collaboration standards into project configuration
+> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作 / Optimize AI collaboration at the architecture level
+> - 執行 `/code-review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析 / Practice evidence-based analysis
+
+---
+
+## Related Standards
+
+- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Testing Standards](../../core/testing-standards.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tag categories |
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

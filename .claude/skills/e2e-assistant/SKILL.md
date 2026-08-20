@@ -1,11 +1,15 @@
 ---
+name: e2e
 source: ../../../../skills/e2e-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 從 BDD 場景生成 E2E 測試骨架，支援框架偵測與覆蓋差距分析"
-name: e2e
+description: |
+  [UDS] 從 BDD 的 .feature 場景產生 E2E 測試骨架，並支援框架偵測與覆蓋缺口分析。
+  Use when: 把已完成的 .feature 場景轉成可執行的 E2E 骨架、偵測專案使用的 E2E 框架、找出沒有 E2E 覆蓋的 AC。
+  Not for: 跨多個故事且帶有共用狀態的旅程——請用 journey-test Skill；撰寫 .feature 場景本身——請用 /bdd。
+  Keywords: E2E, end-to-end test, feature file, test skeleton, framework detection, 端對端測試, 測試骨架, 場景轉測試, 覆蓋缺口.
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*)
 scope: partial
 argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
@@ -85,4 +89,4 @@ argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/e2e`](../../commands/e2e.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/e2e`](../../../../skills/commands/e2e.md#ai-agent-behavior--ai-代理行為)

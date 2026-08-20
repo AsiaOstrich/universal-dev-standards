@@ -1,11 +1,15 @@
 ---
+name: observability
 source: ../../../../skills/observability-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導可觀測性設定、指標設計和告警配置"
-name: observability
+description: |
+  引導可觀測性建置、指標設計與告警設定。
+  Use when: 新服務的埋點、SLO 定義、告警設計、成熟度評估。
+  Not for: 設定數值目標與 Error Budget 政策——請用 /slo；日誌格式與層級——請用 /logging-guide。
+  Keywords: observability, metrics, traces, golden signals, alerting, SLO, 可觀測性, 指標, 追蹤, 告警.
 allowed-tools: Read, Write, Grep, Glob
 scope: universal
 argument-hint: "[service name or observability topic | 服務名稱或可觀測性主題]"

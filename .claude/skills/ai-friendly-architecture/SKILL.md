@@ -1,11 +1,16 @@
 ---
+name: ai-friendly-architecture
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-scope: uds-specific
-description: "[UDS] 設計 AI 友善架構，包含明確模式、分層文件和語義邊界"
+scope: universal
+description: |
+  設計 AI 友善架構，包含明確的模式、分層文件與語意邊界。
+  Use when: 為 AI 協作規劃專案結構、最佳化程式碼庫以利 AI 分析、建立 AI 上下文。
+  Not for: 撰寫指令檔本身——請用 /ai-instruction-standards；依語言慣例安排目錄配置——請用 /project-structure-guide。
+  Keywords: architecture, AI-friendly, context, modules, documentation layers, .ai-context.yaml, 架構, AI 友善, 上下文, 語意邊界.
 ---
 
 # AI 友善架構指南
@@ -216,3 +221,38 @@ documentation:
 本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+
+## Next Steps Guidance | 下一步引導
+
+After `/ai-friendly-architecture` completes, the AI assistant should suggest:
+
+> **AI 友善架構指南已掌握。建議下一步 / AI-friendly architecture guide understood. Suggested next steps:**
+> - 執行 `/sdd` 將 AI 友善架構設計納入正式規格 ⭐ **Recommended / 推薦** — 確保架構決策有規格追蹤 / Ensure architecture decisions are tracked in specs
+> - 建立 `.ai-context.yaml` 和 `QUICK-REF.md` — 立即實作 AI 友善結構 / Implement AI-friendly structure immediately
+> - 執行 `/ai-instruction-standards` 更新 CLAUDE.md 以反映架構配置 — 讓 AI 指令檔案與架構保持同步 / Keep AI instruction files in sync with architecture
+
+---
+
+## Related Standards
+
+- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) - Core architecture standard
+- [Project Structure](../../core/project-structure.md) - Directory organization
+- [Documentation Structure](../../core/documentation-structure.md) - Documentation layering
+- [Anti-Hallucination](../../core/anti-hallucination.md) - AI accuracy standards
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2026-01-25 | Initial release |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

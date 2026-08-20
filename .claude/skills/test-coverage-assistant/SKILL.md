@@ -1,11 +1,15 @@
 ---
+name: coverage
 source: ../../../../skills/test-coverage-assistant/SKILL.md
 source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-02-10
+translation_version: 1.2.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 多維度分析測試覆蓋率並提供可執行的建議"
-name: coverage
+description: |
+  [UDS] 以八維度框架分析程式碼層級的測試覆蓋率，並建議該優先補上哪些缺口。
+  Use when: 覆蓋率數字看起來很健康但缺陷照樣流出、要在行覆蓋率之外判斷測試完整性、設定覆蓋率目標。
+  Not for: 需求層級的 AC 與測試追蹤——請用 /ac-coverage；補寫缺少的測試——請用 /tdd 或 /spec-derive。
+  Keywords: test coverage, eight dimensions, line coverage, branch coverage, test quality, 測試覆蓋率, 八維度, 測試完整性, 覆蓋缺口.
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
 scope: partial
 argument-hint: "[file or module | 檔案或模組]"

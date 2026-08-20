@@ -1,11 +1,16 @@
 ---
+name: adr
 source: ../../../../skills/adr-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-26
+source_hash: a5c79c6a04fe
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 建立、管理和追蹤架構決策記錄（ADR）"
-name: adr
+description: |
+  [UDS] 建立、管理並追蹤架構決策記錄（ADR）。
+  Use when: 架構決策、技術選型、設計取捨、模式選擇。
+  Not for: 不改變架構的決策——記在規格或 commit 裡即可；想法還沒成形到足以下決定——請用 /brainstorm。
+  Keywords: ADR, architecture decision, decision record, trade-off, 架構決策, 決策記錄, 設計取捨.
 allowed-tools: Read, Write, Glob, Grep
 scope: universal
 argument-hint: "[create | list | supersede ADR-NNN | 決策主題]"
@@ -150,6 +155,27 @@ docs/adr/
 > - 執行 `/commit` 提交 ADR 檔案
 > - 更新相關規格以引用此 ADR
 > - 若狀態為 `Proposed`，分享給團隊審查
+
+## AI 代理行為
+
+當使用者呼叫 `/adr` 時，AI 助手必須：
+
+1. **檢查現有 ADR** — 搜尋 `docs/adr/` 以確定下一個 ADR 編號
+2. **互動式引導** — 逐步詢問背景、驅動因素和選項
+3. **產生檔案** — 將 ADR 寫入 `docs/adr/ADR-NNN-title.md`
+4. **建議連結** — 識別相關規格或 ADR 以建立交叉引用
+5. **提供下一步** — 顯示上方的下一步引導
+
+當使用者呼叫 `/adr list` 時：
+1. 掃描 `docs/adr/` 目錄
+2. 解析每個 ADR 檔案的狀態
+3. 以表格顯示：編號、標題、狀態、日期
+
+當使用者呼叫 `/adr supersede [ADR-NNN]` 時：
+1. 讀取現有 ADR
+2. 引導建立新 ADR
+3. 將舊 ADR 狀態更新為 `Superseded by ADR-NNN`
+4. 在新 ADR 中加入 `Supersedes ADR-NNN`
 
 ## 參考
 

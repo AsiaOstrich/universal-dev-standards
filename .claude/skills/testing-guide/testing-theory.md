@@ -1,19 +1,26 @@
+---
+source: skills/testing-guide/testing-theory.md
+source_version: 1.0.0
+translation_version: 1.0.0
+status: current
+---
+
 # Testing Theory Knowledge Base
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/testing-guide/testing-theory.md)
+> **語言**: [English](../../../../skills/testing-guide/testing-theory.md) | 繁體中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-29
-**Applicability**: Educational reference for testers and developers
-**Scope**: universal
+**版本**: 1.0.0
+**最後更新**: 2026-01-29
+**適用性**: 供測試人員與開發者參考的教學資料
+**範圍**: universal
 
 ---
 
 ## Purpose
 
-This document provides the theoretical foundations, educational content, and detailed examples for software testing. It serves as a comprehensive knowledge base to support the actionable rules defined in [Testing Standards](../../core/testing-standards.md).
+本文件提供軟體測試的理論基礎、教學內容與詳細範例。它作為一份完整的知識庫，用以支援 [Testing Standards](../../core/testing-standards.md) 中所定義的可執行規則。
 
-**Reference Standards**:
+**參考標準**:
 - [ISTQB CTFL v4.0](https://istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0/)
 - [ISO/IEC/IEEE 29119](https://www.iso.org/standard/81291.html)
 - [SWEBOK v4.0](https://www.computer.org/education/bodies-of-knowledge/software-engineering) - IEEE Computer Society
@@ -22,25 +29,25 @@ This document provides the theoretical foundations, educational content, and det
 
 ## Table of Contents
 
-1. [Testing Fundamentals](#testing-fundamentals)
-2. [Static Testing](#static-testing)
-3. [Test Design Techniques](#test-design-techniques)
-4. [Experience-Based Testing](#experience-based-testing)
-5. [Risk-Based Testing](#risk-based-testing)
-6. [Specialized Testing](#specialized-testing)
-7. [Test-Related Measures](#test-related-measures)
-8. [Defect Management](#defect-management)
-9. [Test Process Management](#test-process-management)
-10. [Code Examples by Test Level](#code-examples-by-test-level)
-11. [Quick Reference Card](#quick-reference-card)
+1. [測試基礎概念](#testing-fundamentals)
+2. [靜態測試](#static-testing)
+3. [測試設計技術](#test-design-techniques)
+4. [經驗導向測試](#experience-based-testing)
+5. [風險導向測試](#risk-based-testing)
+6. [特殊化測試](#specialized-testing)
+7. [測試相關度量](#test-related-measures)
+8. [缺陷管理](#defect-management)
+9. [測試流程管理](#test-process-management)
+10. [各測試層級的程式碼範例](#code-examples-by-test-level)
+11. [快速參考卡](#quick-reference-card)
 
 ---
 
 ## Testing Fundamentals
 
-Understanding the theoretical foundations of software testing is essential for effective test design and execution.
+理解軟體測試的理論基礎，對於有效的測試設計與執行至關重要。
 
-**Reference**: SWEBOK v4.0 Chapter 5
+**參考**: SWEBOK v4.0 第 5 章
 
 ### Faults vs Failures
 
@@ -72,7 +79,7 @@ Understanding the theoretical foundations of software testing is essential for e
 
 ### The Oracle Problem
 
-An **oracle** is any mechanism that determines whether observed program behavior is correct. The oracle problem addresses the challenge of knowing expected outcomes.
+**oracle（判定機制）** 是任何用以判斷所觀察到的程式行為是否正確的機制。oracle problem 探討的是「如何得知預期結果」這項挑戰。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -89,7 +96,7 @@ An **oracle** is any mechanism that determines whether observed program behavior
 │  └── Compare against known-correct implementation            │
 │                                                              │
 │  Metamorphic Oracle                                          │
-│  └── Verify relationships between outputs                    │
+│  └── Verify relationships between outputs                   │
 │      (e.g., sort(sort(x)) == sort(x))                       │
 │                                                              │
 │  Statistical Oracle                                          │
@@ -103,7 +110,7 @@ An **oracle** is any mechanism that determines whether observed program behavior
 
 ### Theoretical Limitations of Testing
 
-> "Program testing can be used to show the presence of bugs, but never to show their absence." — Edsger W. Dijkstra
+> 「程式測試可以用來證明 bug 的存在，但永遠無法證明其不存在。」 — Edsger W. Dijkstra
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -133,20 +140,20 @@ An **oracle** is any mechanism that determines whether observed program behavior
 
 ### Testability
 
-Testability measures how easily software can be tested effectively.
+Testability（可測試性）衡量軟體能多容易地被有效測試。
 
-| Factor | Description | How to Improve |
+| Factor | 說明 | 如何改善 |
 |--------|-------------|----------------|
-| **Controllability** | Ability to set system state for testing | Provide test hooks, dependency injection |
-| **Observability** | Ability to observe test results | Add logging, expose internal state |
-| **Isolability** | Ability to test components independently | Modular design, clear interfaces |
-| **Understandability** | Clarity of expected behavior | Good documentation, clear specifications |
-| **Stability** | Low rate of change | Freeze features before testing phase |
-| **Simplicity** | Low complexity | Reduce cyclomatic complexity |
+| **Controllability** | 為測試設定系統狀態的能力 | 提供測試掛鉤、依賴注入 |
+| **Observability** | 觀察測試結果的能力 | 加入日誌、暴露內部狀態 |
+| **Isolability** | 獨立測試各元件的能力 | 模組化設計、清楚的介面 |
+| **Understandability** | 預期行為的清晰程度 | 良好的文件、清楚的規格 |
+| **Stability** | 變動頻率低 | 在測試階段前凍結功能 |
+| **Simplicity** | 複雜度低 | 降低 cyclomatic complexity |
 
 ### Test Adequacy Criteria
 
-Test adequacy criteria answer: "Have we tested enough?"
+測試充分性準則回答的是：「我們測得夠不夠？」
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -181,9 +188,9 @@ Test adequacy criteria answer: "Have we tested enough?"
 
 ## Static Testing
 
-Static testing examines work products (code, documents, requirements) without executing the software. It complements dynamic testing by finding defects earlier in the SDLC.
+靜態測試在不執行軟體的情況下檢查工作產物（程式碼、文件、需求）。它在 SDLC 較早階段找出缺陷，從而補足動態測試。
 
-**Reference**: ISTQB CTFL v4.0 Chapter 3, ISO/IEC/IEEE 29119-4
+**參考**: ISTQB CTFL v4.0 第 3 章, ISO/IEC/IEEE 29119-4
 
 ### Types of Static Testing
 
@@ -207,17 +214,17 @@ Static testing examines work products (code, documents, requirements) without ex
 
 ### Review Process (ISTQB)
 
-| Phase | Activities |
+| 階段 | 活動 |
 |-------|------------|
-| Planning | Define scope, entry criteria, roles |
-| Initiate Review | Distribute work products |
-| Individual Review | Each reviewer examines independently |
-| Issue Communication | Discuss findings in meeting |
-| Fixing & Reporting | Author fixes, metrics collected |
+| Planning | 定義範圍、進入準則、角色 |
+| Initiate Review | 分發工作產物 |
+| Individual Review | 每位審查者獨立檢視 |
+| Issue Communication | 於會議中討論發現 |
+| Fixing & Reporting | 作者修正、收集度量 |
 
 ### Static Analysis Tools by Language
 
-| Language | Linting | Security | Complexity |
+| 語言 | Linting | Security | Complexity |
 |----------|---------|----------|------------|
 | JavaScript/TypeScript | ESLint, Biome | npm audit, Snyk | ESLint complexity rules |
 | Python | Pylint, Ruff, Flake8 | Bandit, Safety | Radon |
@@ -227,13 +234,13 @@ Static testing examines work products (code, documents, requirements) without ex
 
 ### When to Use Static Testing
 
-| Work Product | Review Type | Tools |
+| 工作產物 | Review Type | 工具 |
 |--------------|-------------|-------|
 | Requirements | Inspection, Walkthrough | - |
-| Design Documents | Technical Review | Architecture tools |
+| Design Documents | Technical Review | 架構工具 |
 | Code | Technical Review, Tool Analysis | Linters, SAST |
 | Test Plans | Walkthrough | - |
-| User Documentation | Walkthrough | Spell/grammar checkers |
+| User Documentation | Walkthrough | 拼字／文法檢查器 |
 
 ### Code Review Checklist
 
@@ -281,9 +288,9 @@ static-analysis:
 
 ## Test Design Techniques
 
-Test design techniques are methods for deriving and selecting test cases. ISTQB and ISO/IEC/IEEE 29119 categorize them into three main approaches.
+測試設計技術是用以推導與選擇測試案例的方法。ISTQB 與 ISO/IEC/IEEE 29119 將其分類為三大主要途徑。
 
-**Reference**: ISTQB CTFL v4.0 Chapter 4, ISO/IEC/IEEE 29119-4
+**參考**: ISTQB CTFL v4.0 第 4 章, ISO/IEC/IEEE 29119-4
 
 ### Technique Categories
 
@@ -306,7 +313,7 @@ Test design techniques are methods for deriving and selecting test cases. ISTQB 
 
 #### 1. Equivalence Partitioning (EP)
 
-Divides input data into partitions where all values should be treated the same by the system.
+將輸入資料劃分為多個分區，同一分區內的所有值應被系統以相同方式處理。
 
 ```
 Input: Age (valid range: 18-65)
@@ -339,7 +346,7 @@ def test_age_validation():
 
 #### 2. Boundary Value Analysis (BVA)
 
-Tests at the boundaries of equivalence partitions where defects are most likely.
+在 equivalence partitions 的邊界處測試，因為缺陷最可能出現在此。
 
 ```
 Input: Quantity (valid range: 1-100)
@@ -388,7 +395,7 @@ describe('Quantity Validation', () => {
 
 #### 3. Decision Table Testing
 
-Captures complex business rules with multiple conditions.
+以多個條件來捕捉複雜的商業規則。
 
 ```
 Discount Rules:
@@ -450,7 +457,7 @@ public class DiscountCalculatorTests
 
 #### 4. State Transition Testing
 
-Tests behavior changes based on system states and transitions.
+依系統狀態與狀態轉移來測試行為變化。
 
 ```
 Order State Machine:
@@ -508,7 +515,7 @@ class TestOrderStateMachine:
 
 #### 5. Use Case Testing
 
-Tests complete user scenarios from start to finish.
+測試從頭到尾的完整使用者情境。
 
 ```
 Use Case: User Login
@@ -535,9 +542,9 @@ Test Cases:
 
 #### 6. Pairwise Testing (Combinatorial Testing)
 
-Tests all possible pairs of input parameter values, reducing test cases while maintaining good coverage.
+測試所有可能的輸入參數值兩兩配對，在維持良好覆蓋率的同時減少測試案例數。
 
-**Reference**: SWEBOK v4.0 - Input Domain-Based Techniques
+**參考**: SWEBOK v4.0 - Input Domain-Based Techniques
 
 ```
 Example: Login Form with 3 parameters, each with 3 values
@@ -565,7 +572,7 @@ Pairwise Coverage: 9 test cases (covers all pairs)
 └──────┴──────────┴─────────┴──────────┘
 ```
 
-**Tools**: PICT (Microsoft), AllPairs, Jenny
+**工具**: PICT (Microsoft), AllPairs, Jenny
 
 ```bash
 # Using PICT (Pairwise Independent Combinatorial Testing)
@@ -579,9 +586,9 @@ pict params.txt > test_cases.txt
 
 #### 7. Data Flow Testing
 
-Tests the flow of data through a program by tracking variable definitions and uses.
+藉由追蹤變數的定義（definition）與使用（use），測試資料在程式中的流動。
 
-**Reference**: SWEBOK v4.0 - Code-Based Techniques
+**參考**: SWEBOK v4.0 - Code-Based Techniques
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -605,13 +612,13 @@ Tests the flow of data through a program by tracking variable definitions and us
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Coverage Criteria**:
+**覆蓋準則**:
 
-| Criterion | Requirement | Strength |
+| 準則 | 要求 | 強度 |
 |-----------|-------------|----------|
-| All-Defs | Every def reaches at least one use | Weak |
-| All-Uses | Every def-use pair is exercised | Medium |
-| All-DU-Paths | All def-clear paths from def to use | Strong |
+| All-Defs | 每個 def 至少抵達一個 use | 弱 |
+| All-Uses | 每個 def-use pair 都被執行到 | 中 |
+| All-DU-Paths | 從 def 到 use 的所有 def-clear path | 強 |
 
 ```python
 # Python Example: Data Flow Testing
@@ -643,7 +650,7 @@ def calculate_discount(price, quantity, is_member):
 
 #### 1. Statement Coverage
 
-Ensure every statement is executed at least once.
+確保每一條敘述至少被執行一次。
 
 ```
 Code:
@@ -667,7 +674,7 @@ Code:
 
 #### 2. Branch Coverage
 
-Ensure every branch (decision outcome) is executed.
+確保每一個分支（決策結果）都被執行到。
 
 ```
 Code:
@@ -686,7 +693,7 @@ Branches:
 
 #### 3. Condition Coverage
 
-Ensure each condition in a decision is evaluated to both true and false.
+確保決策中的每個條件都被評估為 true 與 false。
 
 ```
 Code:
@@ -703,7 +710,7 @@ Note: Does not guarantee branch coverage!
 
 #### 4. MC/DC (Modified Condition/Decision Coverage)
 
-Each condition independently affects the decision outcome. Required for safety-critical systems.
+每個條件都能獨立影響決策結果。安全關鍵系統會要求此覆蓋。
 
 ```
 Code:
@@ -721,32 +728,32 @@ Test Cases:
 
 ### Technique Selection Guide
 
-| Technique | Best For | Test Level |
+| 技術 | 最適合 | 測試層級 |
 |-----------|----------|------------|
-| Equivalence Partitioning | Input validation, ranges | UT, IT |
-| Boundary Value Analysis | Numeric limits, dates | UT, IT |
-| Decision Table | Complex business rules | UT, IT, ST |
-| State Transition | Workflows, status changes | IT, ST |
-| Use Case Testing | User scenarios | ST, E2E |
-| Pairwise Testing | Multi-parameter combinations | IT, ST |
-| Data Flow Testing | Variable lifecycle verification | UT |
-| Statement Coverage | Basic code coverage | UT |
-| Branch Coverage | Decision logic | UT |
-| MC/DC | Safety-critical systems | UT |
+| Equivalence Partitioning | 輸入驗證、範圍 | UT, IT |
+| Boundary Value Analysis | 數值上下限、日期 | UT, IT |
+| Decision Table | 複雜商業規則 | UT, IT, ST |
+| State Transition | 工作流程、狀態變化 | IT, ST |
+| Use Case Testing | 使用者情境 | ST, E2E |
+| Pairwise Testing | 多參數組合 | IT, ST |
+| Data Flow Testing | 變數生命週期驗證 | UT |
+| Statement Coverage | 基本程式碼覆蓋 | UT |
+| Branch Coverage | 決策邏輯 | UT |
+| MC/DC | 安全關鍵系統 | UT |
 
 ---
 
 ## Experience-Based Testing
 
-Experience-based testing leverages the tester's knowledge, skills, and intuition to design and execute tests. It complements systematic techniques.
+經驗導向測試運用測試人員的知識、技能與直覺來設計與執行測試。它補足了系統化技術。
 
-**Reference**: ISTQB CTFL v4.0 Section 4.4
+**參考**: ISTQB CTFL v4.0 第 4.4 節
 
 ### Types of Experience-Based Testing
 
 #### 1. Exploratory Testing
 
-Simultaneous test design, execution, and learning. The tester explores the system without predefined scripts.
+同時進行測試設計、執行與學習。測試人員在沒有預先腳本的情況下探索系統。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -770,16 +777,16 @@ Simultaneous test design, execution, and learning. The tester explores the syste
 
 **Session-Based Test Management (SBTM)**:
 
-| Element | Description |
+| 要素 | 說明 |
 |---------|-------------|
-| Charter | Mission statement for the session |
-| Time-box | Fixed duration (typically 60-90 min) |
-| Session Notes | Observations, questions, bugs found |
-| Debrief | Review findings with team |
+| Charter | 該 session 的任務宣言 |
+| Time-box | 固定時段（通常 60-90 分鐘） |
+| Session Notes | 觀察、疑問、找到的 bug |
+| Debrief | 與團隊一同檢視發現 |
 
 #### 2. Error Guessing
 
-Anticipate defects based on experience with similar systems or common mistakes.
+依據對類似系統或常見錯誤的經驗來預期缺陷。
 
 ```
 Common Error Categories to Guess:
@@ -814,7 +821,7 @@ Common Error Categories to Guess:
 
 #### 3. Checklist-Based Testing
 
-Use predefined checklists based on experience and standards.
+使用依經驗與標準建立的預先檢查清單。
 
 ```markdown
 # API Endpoint Testing Checklist
@@ -845,14 +852,14 @@ Use predefined checklists based on experience and standards.
 
 ### When to Use Experience-Based Testing
 
-| Scenario | Recommended Technique |
+| 情境 | 建議技術 |
 |----------|----------------------|
-| New feature exploration | Exploratory Testing |
-| Legacy system with no documentation | Exploratory Testing |
-| Known problematic areas | Error Guessing |
-| Regression testing | Checklist-Based |
-| Time pressure / quick validation | Error Guessing |
-| Compliance verification | Checklist-Based |
+| 新功能探索 | Exploratory Testing |
+| 無文件的舊系統 | Exploratory Testing |
+| 已知的問題區域 | Error Guessing |
+| 回歸測試 | Checklist-Based |
+| 時間壓力／快速驗證 | Error Guessing |
+| 合規性驗證 | Checklist-Based |
 
 ### Combining with Systematic Techniques
 
@@ -882,9 +889,9 @@ Use predefined checklists based on experience and standards.
 
 ## Risk-Based Testing
 
-Risk-based testing prioritizes testing efforts based on the likelihood and impact of potential failures.
+風險導向測試依據潛在失敗的可能性與影響，來排定測試工作的優先順序。
 
-**Reference**: ISTQB CTFL v4.0 Section 5.2
+**參考**: ISTQB CTFL v4.0 第 5.2 節
 
 ### Risk Assessment
 
@@ -907,21 +914,21 @@ Risk Level = Likelihood × Impact
 
 #### Risk Factors
 
-**Likelihood Factors** (Technical Risk):
-- Complexity of the feature
-- New/unfamiliar technology
-- Code quality metrics
-- Developer experience
-- Frequency of changes
-- Integration complexity
+**Likelihood Factors（技術風險）**:
+- 功能的複雜度
+- 新／不熟悉的技術
+- 程式碼品質度量
+- 開發者經驗
+- 變更頻率
+- 整合複雜度
 
-**Impact Factors** (Business Risk):
-- Revenue impact
-- User base affected
-- Regulatory compliance
-- Brand reputation
-- Data security/privacy
-- Operational criticality
+**Impact Factors（商業風險）**:
+- 營收影響
+- 受影響的使用者規模
+- 法規合規
+- 品牌聲譽
+- 資料安全／隱私
+- 維運關鍵性
 
 ### Risk-Based Test Prioritization
 
@@ -996,11 +1003,11 @@ Document accepted risks for low-priority features.
 
 ## Specialized Testing
 
-Modern software development requires specialized testing types beyond traditional categories.
+現代軟體開發需要超越傳統分類的特殊化測試類型。
 
 ### Contract Testing
 
-Verifies that services communicate correctly according to agreed contracts. Essential for microservices architectures.
+驗證各服務是否依照約定的合約正確通訊。對微服務架構而言至關重要。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1025,7 +1032,7 @@ Verifies that services communicate correctly according to agreed contracts. Esse
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Tools**: Pact, Spring Cloud Contract, Postman
+**工具**: Pact, Spring Cloud Contract, Postman
 
 ```typescript
 // Consumer Test (Pact.js Example)
@@ -1056,7 +1063,7 @@ describe('User API Contract', () => {
 
 ### Mutation Testing
 
-Evaluates test suite quality by introducing small changes (mutants) to the code and checking if tests detect them.
+藉由對程式碼引入微小變更（mutants），並檢查測試是否能偵測到，以評估測試套件的品質。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1079,7 +1086,7 @@ Evaluates test suite quality by introducing small changes (mutants) to the code 
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Tools**: Stryker (JS/TS), PITest (Java), mutmut (Python)
+**工具**: Stryker (JS/TS), PITest (Java), mutmut (Python)
 
 ```bash
 # Run mutation testing with Stryker
@@ -1092,7 +1099,7 @@ npx stryker run
 
 ### Chaos Engineering
 
-Proactively tests system resilience by injecting failures in production or staging environments.
+藉由在生產或預備環境中注入故障，主動測試系統的韌性。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1112,7 +1119,7 @@ Proactively tests system resilience by injecting failures in production or stagi
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Tools**: Chaos Monkey, Gremlin, Litmus, Chaos Toolkit
+**工具**: Chaos Monkey, Gremlin, Litmus, Chaos Toolkit
 
 ```yaml
 # Chaos Toolkit Experiment Example
@@ -1150,7 +1157,7 @@ rollbacks:
 
 ### Property-Based Testing
 
-Generates random test inputs based on properties the code should satisfy.
+根據程式碼應滿足的性質，產生隨機的測試輸入。
 
 ```python
 # Python Example with Hypothesis
@@ -1176,11 +1183,11 @@ def test_json_roundtrip(d):
     assert json.loads(json.dumps(d)) == d
 ```
 
-**Tools**: Hypothesis (Python), fast-check (JS/TS), QuickCheck (Haskell), FsCheck (C#)
+**工具**: Hypothesis (Python), fast-check (JS/TS), QuickCheck (Haskell), FsCheck (C#)
 
 ### Visual Regression Testing
 
-Detects unintended visual changes in UI components.
+偵測 UI 元件中非預期的視覺變化。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1200,7 +1207,7 @@ Detects unintended visual changes in UI components.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Tools**: Percy, Chromatic, BackstopJS, Playwright visual comparisons
+**工具**: Percy, Chromatic, BackstopJS, Playwright visual comparisons
 
 ```typescript
 // Playwright Visual Regression Example
@@ -1220,7 +1227,7 @@ test('button component visual regression', async ({ page }) => {
 
 ### Accessibility Testing (a11y)
 
-Ensures applications are usable by people with disabilities.
+確保應用程式可供身心障礙者使用。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1245,7 +1252,7 @@ Ensures applications are usable by people with disabilities.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Tools**: axe-core, Pa11y, WAVE, Lighthouse
+**工具**: axe-core, Pa11y, WAVE, Lighthouse
 
 ```typescript
 // Playwright + axe-core Example
@@ -1264,11 +1271,11 @@ test('homepage accessibility', async ({ page }) => {
 
 ### Additional Specialized Testing Types (SWEBOK)
 
-The following test types are defined in SWEBOK v4.0 as test objectives:
+以下測試類型在 SWEBOK v4.0 中被定義為測試目標：
 
 #### Installation Testing
 
-Verifies that the software installs correctly in the target environment.
+驗證軟體能在目標環境中正確安裝。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1297,15 +1304,15 @@ Verifies that the software installs correctly in the target environment.
 
 #### Alpha and Beta Testing
 
-| Phase | Participants | Environment | Purpose |
+| 階段 | 參與者 | 環境 | 目的 |
 |-------|--------------|-------------|---------|
-| **Alpha** | Internal users, developers | Development site | Early validation, major issues |
-| **Beta** | External users, customers | Customer site | Real-world validation, feedback |
-| **Open Beta** | General public | Various | Wide exposure, stress testing |
+| **Alpha** | 內部使用者、開發者 | 開發場域 | 早期驗證、重大問題 |
+| **Beta** | 外部使用者、客戶 | 客戶場域 | 真實世界驗證、回饋 |
+| **Open Beta** | 一般大眾 | 各種環境 | 廣泛曝光、壓力測試 |
 
 #### Recovery Testing
 
-Tests the system's ability to recover from failures.
+測試系統從故障中復原的能力。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1336,7 +1343,7 @@ Tests the system's ability to recover from failures.
 
 #### Configuration Testing
 
-Tests the system under different configurations.
+在不同配置下測試系統。
 
 ```
 Configuration Matrix Example:
@@ -1355,7 +1362,7 @@ Test each supported configuration combination.
 
 #### Back-to-Back Testing
 
-Compares outputs of multiple implementations with identical inputs.
+以相同輸入比較多個實作的輸出。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1381,7 +1388,7 @@ Compares outputs of multiple implementations with identical inputs.
 
 #### Usability Testing
 
-Evaluates how easily users can learn and use the system.
+評估使用者學習與使用系統的容易程度。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1414,28 +1421,28 @@ Evaluates how easily users can learn and use the system.
 
 ### Specialized Testing Summary
 
-| Type | Purpose | When to Use |
+| 類型 | 目的 | 使用時機 |
 |------|---------|-------------|
-| Contract Testing | API compatibility | Microservices |
-| Mutation Testing | Test quality assessment | Critical code paths |
-| Chaos Engineering | Resilience validation | Production systems |
-| Property-Based | Edge case discovery | Algorithms, parsers |
-| Visual Regression | UI consistency | Frontend changes |
-| Accessibility | Inclusive design | All user-facing apps |
-| Installation | Deployment verification | Release candidates |
-| Alpha/Beta | Early user validation | Pre-release phases |
-| Recovery | Failure recovery | Business-critical systems |
-| Configuration | Multi-config support | Cross-platform apps |
-| Back-to-Back | Version comparison | Migrations, refactoring |
-| Usability | User experience | User-facing applications |
+| Contract Testing | API 相容性 | 微服務 |
+| Mutation Testing | 測試品質評估 | 關鍵程式碼路徑 |
+| Chaos Engineering | 韌性驗證 | 生產系統 |
+| Property-Based | 邊界案例發掘 | 演算法、parser |
+| Visual Regression | UI 一致性 | 前端變更 |
+| Accessibility | 無障礙設計 | 所有面向使用者的應用 |
+| Installation | 部署驗證 | 候選發行版本 |
+| Alpha/Beta | 早期使用者驗證 | 發行前階段 |
+| Recovery | 故障復原 | 業務關鍵系統 |
+| Configuration | 多配置支援 | 跨平台應用 |
+| Back-to-Back | 版本比較 | 遷移、重構 |
+| Usability | 使用者體驗 | 面向使用者的應用 |
 
 ---
 
 ## Test-Related Measures
 
-Quantitative measures for evaluating both the software under test and the quality of testing itself.
+用以評估受測軟體本身以及測試本身品質的量化度量。
 
-**Reference**: SWEBOK v4.0 Section 5.4
+**參考**: SWEBOK v4.0 第 5.4 節
 
 ### Program Evaluation Measures
 
@@ -1462,7 +1469,7 @@ Industry Benchmarks:
 
 #### Reliability Growth Models
 
-Track defect discovery rate over time to predict remaining defects.
+追蹤缺陷隨時間的發現率，以預測剩餘缺陷。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1496,7 +1503,7 @@ Track defect discovery rate over time to predict remaining defects.
 
 #### Fault Seeding
 
-Insert known faults to measure test effectiveness.
+植入已知的缺陷以衡量測試效能。
 
 ```
 Fault Detection Effectiveness = Seeded Faults Found / Total Seeded Faults
@@ -1514,14 +1521,14 @@ Example:
 
 #### Coverage Metrics Summary
 
-| Metric | Formula | Target |
+| Metric | 公式 | 目標 |
 |--------|---------|--------|
-| Statement Coverage | Executed statements / Total statements | ≥ 70% |
-| Branch Coverage | Executed branches / Total branches | ≥ 60% |
-| Condition Coverage | Conditions evaluated T & F / Total conditions | ≥ 80% |
-| MC/DC | Conditions independently affecting decision | 100% (safety-critical) |
-| Requirements Coverage | Tested requirements / Total requirements | 100% |
-| Mutation Score | Killed mutants / Total mutants | ≥ 80% |
+| Statement Coverage | 已執行敘述 / 總敘述 | ≥ 70% |
+| Branch Coverage | 已執行分支 / 總分支 | ≥ 60% |
+| Condition Coverage | 評估為 T 與 F 的條件 / 總條件 | ≥ 80% |
+| MC/DC | 能獨立影響決策的條件 | 100%（安全關鍵） |
+| Requirements Coverage | 已測試需求 / 總需求 | 100% |
+| Mutation Score | 被殺死的 mutants / 總 mutants | ≥ 80% |
 
 ### Testing Process Metrics
 
@@ -1552,9 +1559,9 @@ Example:
 
 ## Defect Management
 
-Systematic tracking and management of defects throughout the testing lifecycle.
+在整個測試生命週期中對缺陷進行系統化的追蹤與管理。
 
-**Reference**: ISTQB CTFL v4.0 Section 5.5, ISO/IEC/IEEE 29119-3
+**參考**: ISTQB CTFL v4.0 第 5.5 節, ISO/IEC/IEEE 29119-3
 
 ### Defect Lifecycle
 
@@ -1632,19 +1639,19 @@ Generic error: "Something went wrong."
 
 ### Severity vs Priority
 
-| Severity | Description | Examples |
+| Severity | 說明 | 範例 |
 |----------|-------------|----------|
-| Critical | System crash, data loss, security breach | App won't start, data corruption |
-| High | Major feature broken, no workaround | Cannot complete checkout |
-| Medium | Feature impaired but has workaround | Export fails, manual copy works |
-| Low | Minor issue, cosmetic | Typo, alignment issue |
+| Critical | 系統當機、資料遺失、安全漏洞 | App 無法啟動、資料毀損 |
+| High | 主要功能損壞、無替代方案 | 無法完成結帳 |
+| Medium | 功能受損但有替代方案 | 匯出失敗，可手動複製 |
+| Low | 小問題、外觀瑕疵 | 錯字、對齊問題 |
 
-| Priority | Description | Response Time |
+| Priority | 說明 | 回應時間 |
 |----------|-------------|---------------|
-| P1 | Fix immediately | Same day |
-| P2 | Fix before release | Within sprint |
-| P3 | Fix when possible | Next sprint |
-| P4 | Nice to fix | Backlog |
+| P1 | 立即修正 | 當天 |
+| P2 | 發行前修正 | 本 sprint 內 |
+| P3 | 有空時修正 | 下個 sprint |
+| P4 | 修了更好 | Backlog |
 
 ### Defect Metrics
 
@@ -1705,9 +1712,9 @@ Generic error: "Something went wrong."
 
 ## Test Process Management
 
-Structured approach to planning, monitoring, and controlling testing activities.
+針對測試活動進行規劃、監控與控制的結構化途徑。
 
-**Reference**: ISTQB CTFL v4.0 Chapter 5, ISO/IEC/IEEE 29119-2
+**參考**: ISTQB CTFL v4.0 第 5 章, ISO/IEC/IEEE 29119-2
 
 ### Test Planning
 
@@ -1754,10 +1761,10 @@ Structured approach to planning, monitoring, and controlling testing activities.
 
 #### Entry and Exit Criteria
 
-| Criteria Type | Examples |
+| 準則類型 | 範例 |
 |---------------|----------|
-| **Entry Criteria** (start testing) | Requirements approved, code complete, environment ready, test data available |
-| **Exit Criteria** (stop testing) | All P1/P2 tests passed, coverage target met, no critical defects open |
+| **Entry Criteria**（開始測試） | 需求已核准、程式碼完成、環境就緒、測試資料齊備 |
+| **Exit Criteria**（停止測試） | 所有 P1/P2 測試通過、達成覆蓋目標、無未解的嚴重缺陷 |
 
 ```markdown
 ## Entry Criteria for System Testing
@@ -2268,24 +2275,24 @@ services:
 
 ## Related Standards
 
-- [Testing Standards](../../core/testing-standards.md) - Actionable rules for AI agents
-- [Testing Pyramid](./testing-pyramid.md) - Detailed pyramid ratios
-- [Test-Driven Development](../../core/test-driven-development.md) - TDD/BDD/ATDD methodology
-- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8-dimension test coverage
+- [Testing Standards](../../core/testing-standards.md) - 給 AI agent 的可執行規則
+- [Testing Pyramid](./testing-pyramid.md) - 詳細的金字塔比例
+- [Test-Driven Development](../../core/test-driven-development.md) - TDD/BDD/ATDD 方法論
+- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8 維度測試覆蓋
 - [Code Review Checklist](../../core/code-review-checklist.md)
 
 ---
 
 ## Version History
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
-| 1.0.0 | 2026-01-29 | Initial creation: Extracted educational content from core/testing-standards.md including Testing Fundamentals, Static Testing, Test Design Techniques, Experience-Based Testing, Risk-Based Testing, Specialized Testing, Test-Related Measures, Defect Management, Test Process Management, Code Examples, and Quick Reference Card. |
+| 1.0.0 | 2026-01-29 | 初版建立：從 core/testing-standards.md 抽取教學內容，包含 Testing Fundamentals、Static Testing、Test Design Techniques、Experience-Based Testing、Risk-Based Testing、Specialized Testing、Test-Related Measures、Defect Management、Test Process Management、Code Examples 及 Quick Reference Card。 |
 
 ---
 
 ## License
 
-This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
 
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

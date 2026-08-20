@@ -376,6 +376,63 @@ jobs:
       - name: Check llms.txt against its sources
         run: npm run check:llms-txt
 
+  # ── 自採用 skill 副本漂移閘門（XSPEC-385）──────────────────────────────
+  # `.claude/skills/` 是 UDS 自己吃自己的狗糧：在這個 repo 裡工作的 agent
+  # 實際載入的那一批 skill。它裝過一次就沒人再管，2026-08-20 實測：
+  # source 55 份全數帶 `Use when:` 與 `Not for:`，副本 48 份**一份都沒有**，
+  # 少 11 個 skill，另有 4 個目錄還停在 commit a1664ee0（2026-04-29，
+  # XSPEC-100）改名前的舊名字。**出貨路徑不受影響，壞的是自己用的那一份。**
+  #
+  # 手修一次會在合併當天是對的、之後安靜地變錯，中間不會有任何東西亮紅燈——
+  # 那正是 XSPEC-385 立的那條規則。所以內容改為從「本來就必須正確」的來源
+  # 生成（skills/、locales/<locale>/skills/、integrations/REGISTRY.json、
+  # cli/src/config/ai-agent-paths.js），而這道檢查就是它的時鐘。
+  #
+  # ⚠️ `.manifest.json` 寫著 CLI 版本，而 bump-version.mjs 不會重新生成任何
+  # 東西，所以**版本 bump 之後第一次 check 一定會紅**——那是時鐘在工作。
+  # 修法是一道指令 `npm run docs:adoption-skills`，失敗訊息本身會這樣說。
+  #
+  # `.gemini/skills/` **刻意不生成**：Gemini CLI 已於 2026-06-18 停止服務，
+  # `.gemini/DEPRECATED.md` 明文寫「Not updated when skills/ changes … do not
+  # 'fix' it」。排除是讀 integrations/REGISTRY.json 的 `deprecated` 旗標得到的，
+  # 不是在腳本裡寫死 `.gemini` 這個名字。
+  #
+  # 已實測（2026-08-20，皆為 process 層級）：
+  #   前置紅 — 接閘門前先對「已提交的舊副本」跑 --check：80 項漂移
+  #            （54 DIFFERS／22 MISSING／4 STALE），rc=1。
+  #            **這道閘門的第一次真跑就是在真實內容上紅的**，這是唯一算數的校準。
+  #   綠     — 生成後立即 --check，rc=0
+  #   紅     — 手改 commit-standards/SKILL.md 一行 → **只報 1 項**，
+  #            指名該檔第 11 行並列出兩種寫法，rc=1（會定位，不只是會察覺）
+  #   紅     — 刪掉 .claude/skills/push/ → 報 MISSING 並具名，rc=1
+  #   紅     — 把改名前的 process-automation/ 放回去 → 報 STALE 並引用
+  #            那份 `source:` 指標當證據，rc=1
+  #   量不了 — 樹裡有 locales/ 但沒有 skills/，rc=2
+  #   量不了 — 樹裡有 skills/ 但沒有對應語系包，而 target 宣告 zh-TW：
+  #            拒絕執行而非把 55 份翻譯覆寫成英文，rc=2
+  #   量不了 — 移除 .manifest.json，rc=2；未知旗標 rc=2
+  #   --self-test — 9/9 臂如預期觸發，其中一臂專門確認「沒有 source: 戳記的
+  #            手寫 SKILL.md 不會被刪掉」——會刪東西的產生器，危險的不是漏刪。
+  adoption-skills:
+    name: Self-Adoption Skill Drift Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Prove the gate can fail before trusting that it passed
+        run: npm run check:adoption-skills:self-test
+
+      - name: Check the self-adoption skill copies against their sources
+        run: npm run check:adoption-skills
+
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}

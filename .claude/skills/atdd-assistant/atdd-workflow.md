@@ -241,13 +241,12 @@ status: current
 # 檔案: features/password-reset.feature
 # 故事: US-123 - 密碼重設
 
-@US-123
 Feature: 密碼重設
   身為註冊使用者
   我想要透過電子郵件重設密碼
   以便我忘記密碼時能重新存取
 
-  @AC-1 @happy-path
+  @US-123 @AC-1 @happy-path
   Scenario: 請求密碼重設
     Given 我在登入頁面
     And 我有一個電子郵件為 "user@example.com" 的註冊帳號
@@ -256,14 +255,14 @@ Feature: 密碼重設
     Then 我應該看到「重設連結已寄至您的電子郵件」
     And 我應該在 5 分鐘內收到電子郵件
 
-  @AC-2 @error-handling
+  @US-123 @AC-2 @error-handling
   Scenario: 重設連結 24 小時後過期
     Given 我已請求密碼重設
     When 我在 24 小時後點擊重設連結
     Then 我應該看到「此連結已過期」
     And 我應該可以請求新的連結
 
-  @AC-3 @security
+  @US-123 @AC-3 @security
   Scenario: 未註冊電子郵件顯示通用訊息
     Given 我在密碼重設頁面
     When 我輸入未註冊的電子郵件

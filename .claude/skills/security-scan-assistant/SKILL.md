@@ -1,11 +1,15 @@
 ---
+name: scan
 source: ../../../../skills/security-scan-assistant/SKILL.md
 source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
+translation_version: 1.1.0
+last_synced: 2026-08-17
 status: current
-description: "[UDS] 引導自動化安全掃描、相依套件審計和機密偵測"
-name: scan
+description: |
+  引導自動化安全掃描、相依套件稽核與機密偵測。
+  Use when: 相依套件稽核、CVE 掃描、機密偵測、授權條款合規。
+  Not for: 人工的威脅建模與安全設計審查——請用 /security；一般的程式碼整潔度——請用 /sweep。
+  Keywords: scan, audit, CVE, dependency, secret, SBOM, vulnerability, 掃描, 稽核, 相依套件, 機密偵測.
 allowed-tools: Read, Grep, Glob, Bash(npm:audit, npx:*)
 scope: universal
 argument-hint: "[scan type or target | 掃描類型或目標]"
