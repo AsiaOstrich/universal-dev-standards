@@ -45,6 +45,37 @@
  * missing SKILL.md. This checker prints every excluded directory by name on
  * every run so the drop-out is visible rather than inferred from a count.
  *
+ * ── The self-adoption copies: reported, ratcheted, not gated ───────────────
+ * `.claude/skills/` (48) and `.gemini/skills/` (40) are self-adoption copies
+ * installed on an old CLI version. **All 88 have zero trigger surface** — the
+ * exact defect XSPEC-378 is about, sitting in the copies that Claude Code and
+ * Gemini actually load when working inside THIS repo. The shipped paths are
+ * unaffected, so adopters get the good ones.
+ *
+ * They are not gated, and the reason is not that they matter less. They cannot
+ * be fixed from here: the only thing that writes those directories is the CLI
+ * skills installer, reachable only through `uds init` / `uds update`, and both
+ * are refused by the DEC-044 self-adoption guard — verified, not assumed, by
+ * running `uds update --skills` in this repo and getting exit 1 with
+ * "Detected UDS source repo". No script under `scripts/` writes them either
+ * (0 hits, against 33 files there mentioning skills, so the search worked),
+ * and `uds skills` is a read-only lister. The only bypass is `--force`, which
+ * is the action that caused DEC-044 in the first place.
+ *
+ * So it is recorded with a clock instead of quietly skipped, following the
+ * shape `cli/scripts/reachability-baseline.json` already uses here:
+ * `scripts/self-adoption-skills-baseline.json` carries the counts, why it was
+ * deferred, how to shrink it, and an expiry. The check stays green while the
+ * numbers do not get worse and the date has not passed; it turns blocking if a
+ * copy regresses or the deferral expires, so the decision gets made rather
+ * than deferred a second time. An exception with no clock is only a polite
+ * delete key.
+ *
+ * The roots are discovered by walking top-level dot-directories for a
+ * `skills/` holding at least one SKILL.md, so a future `.cursor/skills/`
+ * is covered with no edit here — and, having no baseline entry, would turn
+ * the ratchet blocking rather than passing unnoticed.
+ *
  * ── Proving it is not vacuous ──────────────────────────────────────────────
  * `--self-test` copies the real corpus, confirms it assesses clean, then
  * breaks one description at a time and requires a finding that NAMES the file
@@ -285,6 +316,45 @@ function isDir(p: string): boolean {
   }
 }
 
+// ───────────────────────────────────────────────────────────────────────────
+// Self-adoption copies — reported and ratcheted, not gated. See the header.
+// ───────────────────────────────────────────────────────────────────────────
+
+interface SelfAdoptionBaseline {
+  recorded: string;
+  expires: string;
+  why: string;
+  howToShrink: string;
+  roots: Record<string, { skills: number; withTriggerSurface: number; withoutTriggerSurface: number }>;
+}
+
+const BASELINE_PATH = join(ROOT_DIR, 'scripts', 'self-adoption-skills-baseline.json');
+
+/**
+ * Discover the AI-tool adoption copies by walking, not by naming them: any
+ * top-level dot-directory holding a `skills/` with at least one SKILL.md.
+ * A future `.cursor/skills/` is therefore covered with no edit here.
+ */
+function discoverSelfAdoptionRoots(base: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(base).sort()) {
+    if (!entry.startsWith('.')) continue;
+    const candidate = join(base, entry, 'skills');
+    if (!isDir(candidate)) continue;
+    const hasSkill = readdirSync(candidate).some((d) => existsSync(join(candidate, d, 'SKILL.md')));
+    if (hasSkill) out.push(candidate);
+  }
+  return out;
+}
+
+interface SelfAdoptionResult {
+  root: string;
+  skills: number;
+  withoutTriggerSurface: number;
+  baseline: number | null;
+  worsened: boolean;
+}
+
 /** Discover roots on disk: repo `skills/` plus every locale's own `skills/`. */
 function discoverRoots(base: string): string[] {
   const roots: string[] = [];
@@ -401,6 +471,42 @@ function assessRoot(root: string): RootReport {
   }
 
   return { root, dirsWalked, excluded, skills, findings };
+}
+
+function loadBaseline(): SelfAdoptionBaseline | null {
+  if (!existsSync(BASELINE_PATH)) return null;
+  try {
+    return JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) as SelfAdoptionBaseline;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Measure the self-adoption copies. Never contributes to the blocking
+ * findings; it returns its own numbers and a ratchet verdict.
+ */
+function assessSelfAdoption(base: string, baseline: SelfAdoptionBaseline | null): SelfAdoptionResult[] {
+  const out: SelfAdoptionResult[] = [];
+  for (const root of discoverSelfAdoptionRoots(base)) {
+    const rel = relative(base, root) || root;
+    let report: RootReport;
+    try {
+      report = assessRoot(root);
+    } catch {
+      continue; // an unreadable adoption copy is not a reason to fail the real gate
+    }
+    const bad = new Set(report.findings.map((f) => f.skill)).size;
+    const recorded = baseline?.roots?.[rel]?.withoutTriggerSurface ?? null;
+    out.push({
+      root: rel,
+      skills: report.skills.length,
+      withoutTriggerSurface: bad,
+      baseline: recorded,
+      worsened: recorded !== null && bad > recorded,
+    });
+  }
+  return out;
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -563,13 +669,24 @@ function main(): number {
   const totalSkills = reports.reduce((a, r) => a + r.skills.length, 0);
   const totalExcluded = reports.reduce((a, r) => a + r.excluded.length, 0);
   const totalDirs = reports.reduce((a, r) => a + r.dirsWalked, 0);
+  const baseline = loadBaseline();
 
   if (opts.json) {
+    const sa = assessSelfAdoption(ROOT_DIR, baseline);
+    const saExpired = Boolean(baseline && baseline.expires < new Date().toISOString().slice(0, 10));
+    const saFails = !baseline || saExpired || sa.some((r) => r.worsened || r.baseline === null);
     console.log(
       JSON.stringify(
         {
-          status: allFindings.length === 0 ? 'pass' : 'fail',
+          status: allFindings.length === 0 && !saFails ? 'pass' : 'fail',
           totals: { dirsWalked: totalDirs, skills: totalSkills, excluded: totalExcluded },
+          selfAdoption: {
+            roots: sa,
+            baselineExpires: baseline?.expires ?? null,
+            expired: saExpired,
+            blocking: saFails,
+            note: 'not gated while within the deferral window — DEC-044 blocks the only fix',
+          },
           roots: reports.map((r) => ({
             root: relative(ROOT_DIR, r.root) || r.root,
             dirsWalked: r.dirsWalked,
@@ -583,7 +700,7 @@ function main(): number {
         2
       )
     );
-    return allFindings.length === 0 ? 0 : 1;
+    return allFindings.length === 0 && !saFails ? 0 : 1;
   }
 
   console.log('');
@@ -635,6 +752,59 @@ function main(): number {
   console.log('------------------------------------------');
   console.log('');
 
+  // ── Self-adoption copies: printed every run, blocking only on the ratchet ──
+  const selfAdoption = assessSelfAdoption(ROOT_DIR, baseline);
+  let selfAdoptionFails = false;
+  if (selfAdoption.length > 0) {
+    const totalBad = selfAdoption.reduce((a, r) => a + r.withoutTriggerSurface, 0);
+    const totalCopies = selfAdoption.reduce((a, r) => a + r.skills, 0);
+    console.log('------------------------------------------');
+    console.log(`${BOLD}Self-adoption copies — not gated, and here is why${NC}`);
+    console.log('------------------------------------------');
+    for (const r of selfAdoption) {
+      const state =
+        r.baseline === null
+          ? `${YELLOW}no baseline entry${NC}`
+          : r.worsened
+            ? `${RED}worse than baseline ${r.baseline}${NC}`
+            : `${DIM}baseline ${r.baseline}${NC}`;
+      console.log(
+        `  ${r.root.padEnd(22)} ${r.skills} skill(s), ` +
+          `${r.withoutTriggerSurface} without a trigger surface  ${state}`
+      );
+      if (r.worsened || r.baseline === null) selfAdoptionFails = true;
+    }
+    console.log(
+      `  ${YELLOW}${totalBad}/${totalCopies} of the copies an agent working INSIDE this repo loads ` +
+        `have no trigger surface.${NC}`
+    );
+    if (baseline) {
+      const today = new Date().toISOString().slice(0, 10);
+      const expired = baseline.expires < today;
+      console.log(
+        `  ${DIM}Recorded ${baseline.recorded}, expires ${baseline.expires}.${NC}` +
+          (expired ? ` ${RED}⏰ EXPIRED${NC}` : '')
+      );
+      console.log(
+        `  ${DIM}Not fixed because it cannot be fixed from here: the only writer is the CLI${NC}\n` +
+          `  ${DIM}installer, reachable only via \`uds init\`/\`uds update\`, both refused by the${NC}\n` +
+          `  ${DIM}DEC-044 self-adoption guard. Bypassing it needs --force, which is the action${NC}\n` +
+          `  ${DIM}that caused DEC-044. See scripts/self-adoption-skills-baseline.json.${NC}`
+      );
+      if (expired) {
+        console.log(
+          `  ${RED}The deferral has expired. This is now a blocking failure so the decision${NC}\n` +
+            `  ${RED}gets made rather than deferred again — see howToShrink in the baseline.${NC}`
+        );
+        selfAdoptionFails = true;
+      }
+    } else {
+      console.log(`  ${RED}No baseline file — cannot tell whether this got worse.${NC}`);
+      selfAdoptionFails = true;
+    }
+    console.log('');
+  }
+
   console.log('==========================================');
   if (allFindings.length > 0) {
     const byElement = new Map<Element, number>();
@@ -642,6 +812,16 @@ function main(): number {
     console.log(`${RED}${BOLD}✗ ${allFindings.length} finding(s) across ${totalSkills} skill(s)${NC}`);
     console.log(
       `${RED}  ${[...byElement].map(([e, n]) => `${e}: ${n}`).join(', ')}${NC}`
+    );
+    console.log('');
+    return 1;
+  }
+  if (selfAdoptionFails) {
+    console.log(
+      `${RED}${BOLD}✗ The shipped corpus is clean, but the self-adoption ratchet failed.${NC}`
+    );
+    console.log(
+      `${RED}  Either the deferral expired or a copy got worse. See the section above.${NC}`
     );
     console.log('');
     return 1;

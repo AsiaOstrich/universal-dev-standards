@@ -1,0 +1,18 @@
+{
+  "recorded": "2026-08-20",
+  "expires": "2026-11-20",
+  "why": "XSPEC-378 R4 落地時，UDS repo 自己的自採用 skill 副本（.claude/skills/、.gemini/skills/）一個都沒有觸發面：88 份 SKILL.md，Use when: 0、Not for: 0。出貨路徑（skills/、locales/*/skills/、cli/bundled/skills/）不受影響，採用者拿到的是好的；壞的是「Claude Code 與 Gemini 在 UDS repo 裡工作時實際載得到的那一批」。\n\n沒有修，是因為修不了：唯一會寫這兩個目錄的機制是 CLI 安裝器，而它只從 uds init / uds update 進入，兩者都被 DEC-044 的 self-adoption 防護以 exit 1 擋下（實測 `node cli/bin/uds.js update --skills` 回：『偵測到 UDS source repo。此指令（uds update）僅供採用專案使用』，matched signals: uds-manifest.json, cli/package.json, .uds-source-repo）。scripts/ 底下沒有任何腳本寫 .claude/skills（對照組：scripts/ 有 33 個檔案提到 skills，該查詢在運作）。`uds skills` 只是唯讀列表，不是安裝器。\n\n繞過的方法是 --force，而那正是 DEC-044 這份 Critical 事故報告的成因動作。因此此處記錄並設時鐘，交由人決定，不由 agent 自行決定。",
+  "howToShrink": "這需要一個裁決，不是一個修補。三條路：(1) 認定 source repo 的自採用副本應該存在並被維護 → 為 source repo 補一條受支援的重新產生路徑（不是叫人跑 --force）；(2) 認定它們不該存在 → 刪掉這兩個目錄，UDS repo 內的 agent 改讀 skills/ 來源；(3) 認定現狀可接受 → 把本檔改成明示的長期例外並寫下理由。到期後本檢查一律回 1，逼人做這個決定，而不是讓 88 份沒有觸發面的副本繼續安靜地被載入。",
+  "roots": {
+    ".claude/skills": {
+      "skills": 48,
+      "withTriggerSurface": 0,
+      "withoutTriggerSurface": 48
+    },
+    ".gemini/skills": {
+      "skills": 40,
+      "withTriggerSurface": 0,
+      "withoutTriggerSurface": 40
+    }
+  }
+}
