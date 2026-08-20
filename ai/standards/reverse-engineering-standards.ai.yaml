@@ -3,8 +3,8 @@
 
 id: reverse-engineering
 meta:
-  version: "1.2.0"
-  updated: "2026-06-27"
+  version: "1.3.0"
+  updated: "2026-08-20"
   source: core/reverse-engineering-standards.md
   description: Standards for reverse engineering code into structured specifications
 
@@ -53,6 +53,49 @@ workflow:
         - Tag each rule [Confirmed] (with file:line) / [Inferred] / [Unknown]; route [Unknown] to GAP_IDENTIFICATION
         - "PHP-specific: flag loose-comparison / type-juggling (==, truthy/falsy of \"0\"/\"\"/null/0, string-to-number coercion) — no equivalent under strongly-typed targets"
       gate: pre-flight; unanswered three-question field marked not_implemented and blocks cutover
+
+    - stage: AUTH_SCOPE_EXTRACTION
+      description: >
+        Extract every legacy query predicate that limits results by the OPERATOR'S OWN
+        identity (tenant / org / dept / owner boundary) and verify the ported code has an
+        equivalent predicate — not merely an equivalent output shape.
+      output: Self-scoping predicate inventory, each locked by a negative cross-tenant test
+      certainty: "[Confirmed]/[Inferred]/[Unknown]"
+      position: alongside IMPLICIT_RULE_SCAN — after CODE_SCAN/TEST_ANALYSIS, before GAP_IDENTIFICATION
+      why_its_own_stage:
+        - "The security-critical line looks like a filter: the boundary lives in a WHERE clause, not in the request/response contract"
+        - "Shape-based assertions cannot see scope: '200 + non-empty list' passes identically with the scoping clause deleted"
+        - "A shared scope resolver existing elsewhere is not evidence THIS call site uses it"
+      derive:
+        - "Direct self-binding: WHERE <col> = :currentUser / :uid / $operatorId / session.user_id"
+        - "Tenant/org/owner columns (tenant_id, org_id, master_account, owner_id, dept_id, company_id) compared against a caller-derived value"
+        - "Subquery resolving the caller's own scope: WHERE dept_id = (SELECT dept_id FROM member WHERE account = :uid)"
+        - "Role-branched query construction — enumerate EVERY branch, not just the happy path"
+        - "Scope applied outside SQL: ORM global scopes, query-builder mixins, repository base classes, row-level-security policies, filter-injecting middleware"
+      derive_warning: >
+        A grep over SQL alone reports a SMALLER set than exists, because a predicate can be
+        enforced by something the SELECT never mentions — and a smaller set here reads exactly
+        like a safer one.
+      record_per_match:
+        - "Location (file:line in legacy source)"
+        - "The exact predicate text"
+        - "Self-binding: which caller-derived value it resolves to, and how that value is obtained"
+        - "Triggering branch: which role / parameter / code path reaches it"
+        - "Certainty [Confirmed] (file:line required) / [Inferred] / [Unknown]"
+      oracle_predicate_equivalence:
+        - "A literal equivalent exists in the ported code — same field, same notion of 'self'. A different field that happens to return the same rows today is a coincidence with an expiry date"
+        - "Every role branch is covered. Collapsing five role branches into one coarse 'is this an administrator?' check replaces a boundary with a permission"
+        - "THIS call site invokes the shared scope resolver, if one exists. The utility existing elsewhere is not evidence about this endpoint"
+      mandatory_negative_test: >
+        Operator A issues the request; the assertion is that operator B's records are ABSENT
+        from the response, with A and B both valid and authenticated. The assertion must be
+        about ABSENCE — a 200 / non-empty-list / matching-schema assertion is not sufficient
+        evidence and must not be counted as coverage. Self-check: delete the scoping predicate
+        in a scratch copy and re-run; if the test still passes it is not testing scope.
+      gate: >
+        Pre-flight for extraction, pre-UAT for the negative tests. A self-scoping predicate
+        whose ported equivalent is unverified, or which has no negative test, is marked
+        not_implemented and blocks cutover.
 
     - stage: GAP_IDENTIFICATION
       description: List unknowns requiring human input
@@ -284,6 +327,32 @@ rules:
       is marked not_implemented and blocks cutover.
     priority: required
 
+  - id: auth-scope-extraction
+    trigger: reverse engineering or migrating a system whose data layer is multi-tenant, role-scoped, or owner-scoped
+    instruction: >
+      Run AUTH_SCOPE_EXTRACTION alongside IMPLICIT_RULE_SCAN. Mechanically derive every legacy
+      query predicate that bounds results by the operator's own identity — direct self-bindings,
+      tenant/org/owner columns compared to a caller-derived value, subqueries resolving the
+      caller's scope, every branch of role-branched query construction, and scope enforced
+      outside SQL (ORM global scopes, repository base classes, RLS policies, filter-injecting
+      middleware). Record each with file:line, the exact predicate, its self-binding, the
+      triggering branch, and a certainty tag; route [Unknown] to gap analysis, never assume
+      absent. For each, verify the ported code has a LITERAL equivalent (same field, same notion
+      of self) on EVERY branch, and that this specific call site invokes the shared scope
+      resolver if one exists — the resolver existing elsewhere is not evidence about this
+      endpoint.
+    priority: required
+  - id: auth-scope-negative-test
+    trigger: locking a confirmed self-scoping predicate as a verifiable oracle
+    instruction: >
+      Require a negative test: operator A's request must NOT return operator B's records, with
+      A and B both valid and authenticated. The assertion must be about the ABSENCE of the other
+      operator's records. A "200 with data" or matching-schema assertion is not sufficient
+      evidence and must not be counted as coverage — it passes identically with the scoping
+      clause deleted. Any predicate with an unverified ported equivalent or no negative test is
+      marked not_implemented and blocks cutover.
+    priority: required
+
   - id: human-review-required
     trigger: completing spec generation
     instruction: Always mark specification as requiring human review; [Unknown] sections MUST be filled by humans
@@ -320,6 +389,7 @@ quick_reference:
       - [Code Scan, Technical inventory, "[Confirmed]"]
       - [Test Analysis, Draft AC, "[Confirmed]/[Inferred]"]
       - [Implicit Rule Scan, Non-HTTP implicit-rule inventory, "[Confirmed]/[Inferred]/[Unknown]"]
+      - [Auth Scope Extraction, Self-scoping predicate inventory + negative tests, "[Confirmed]/[Inferred]/[Unknown]"]
       - [Gap ID, Gap analysis, "[Unknown] items"]
       - [Spec Gen, Draft SPEC, Mixed]
       - [Human Review, Validated spec, "[Confirmed]"]
@@ -341,6 +411,7 @@ quick_reference:
       - ["/reverse-tdd", Analyze test coverage against BDD]
 
 related_standards:
+  - test-completeness-dimensions.md   # Dimension 4 names the cross-tenant test; AUTH_SCOPE_EXTRACTION decides which ones you need
   - anti-hallucination.md
   - spec-driven-development.md
   - behavior-driven-development.md

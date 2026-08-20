@@ -1,7 +1,7 @@
 # Reverse Engineering Standards | 反向工程標準
 
-**Version**: 1.2.0
-**Last Updated**: 2026-06-27
+**Version**: 1.3.0
+**Last Updated**: 2026-08-20
 **Applicability**: All projects requiring code-to-specification transformation
 **Scope**: uds-specific
 **Industry Standards**: IEEE 830-1998, SWEBOK v4.0 Chapter 9
@@ -52,10 +52,13 @@ This standard defines the principles, workflows, and best practices for reverse 
 | **Code Scanning** | Analyze code structure, APIs, data models | Technical inventory | [Confirmed] |
 | **Test Analysis** | Parse existing tests for acceptance criteria | Draft acceptance criteria | [Confirmed]/[Inferred] |
 | **Implicit Rule Scan** | Scan non-HTTP persistence write paths for undocumented rules | Implicit-rule inventory + three-question answers | [Confirmed]/[Inferred]/[Unknown] |
+| **Auth Scope Extraction** | Extract every query predicate that bounds results by the operator's own identity | Self-scoping predicate inventory + required negative tests | [Confirmed]/[Inferred]/[Unknown] |
 | **Gap Identification** | List unknowns requiring human input | Gap analysis document | [Unknown] items |
 | **Spec Generation** | Generate draft specification | Draft SPEC-XXX.md | Mixed certainty |
 | **Human Review** | Stakeholder validation and gap filling | Validated specification | [Confirmed] |
 
+> **Note (v1.3.0)**: An **Auth Scope Extraction** stage runs alongside Implicit Rule Scan — see [Auth Scope Extraction (Self-Referential Query Predicates)](#auth-scope-extraction-self-referential-query-predicates) below. Implicit Rule Scan covers rules that are invisible because they run **off** the request path. This stage covers a rule that is invisible while sitting **on** a fully-exercised request path: a `WHERE` predicate that bounds results by the operator's own identity. It reads as one filter among several, and a rewrite that drops it returns data of exactly the right shape — belonging to everyone.
+>
 > **Note (v1.2.0)**: An **Implicit Rule Scan** stage is inserted after Code Scanning / Test Analysis and before Gap Identification — see [Implicit Rule Scan (Non-HTTP Persistence Rules)](#implicit-rule-scan-non-http-persistence-rules) below. Standard code scanning extracts HTTP entry points and data models, but persistent field values are frequently written by **non-HTTP paths** (cron, queue, computed columns, triggers, ORM hooks) whose business rules are never documented — the highest-frequency source of missed logic in a cross-language rewrite or cross-DB migration.
 
 ---
@@ -96,6 +99,80 @@ Pre-flight (planning). Any non-HTTP write field whose three questions are unansw
 ### PHP-specific note: loose comparison / type juggling
 
 When scanning PHP write paths, additionally flag **loose-comparison / type-juggling** dependencies: `==` comparisons, the truthy/falsy behavior of `"0"` / `""` / `null` / `0`, and automatic string-to-number coercion. These have no direct equivalent under a strongly-typed target (e.g. C#/.NET), so the implicit rule they encode is a high-frequency source of silently-dropped logic during a cross-language rewrite. Mark each such site `[Confirmed]` with `file:line` and lock the intended semantics as an explicit rule.
+
+---
+
+## Auth Scope Extraction (Self-Referential Query Predicates)
+
+> **Workflow position**: alongside Implicit Rule Scan — after Code Scanning / Test Analysis, before Gap Identification.
+
+A **self-referential predicate** is a query condition that bounds the result set by *who is asking*: `WHERE tenant_id = :current_user_tenant`, `WHERE owner = :uid`, `WHERE dept_id = (SELECT dept_id FROM member WHERE account = :uid)`. It is the line that turns "list the accounts" into "list **your** accounts".
+
+The question this stage answers is narrow and mechanical:
+
+> **For every predicate in the legacy code that bounds results by the operator's own identity, does the ported code have an equivalent predicate?**
+
+Not "does it return the same shape". Not "does it return data". An **equivalent predicate**: the same field, bound to the same notion of *self*.
+
+### Why this needs its own stage
+
+Authorization is not a missing concern — any competent test taxonomy already names cross-tenant access as something to test. The concern does not go missing; **it goes un-recalled**. Three properties make this specific defect survive every gate that would normally catch it:
+
+1. **The security-critical line looks like a filter.** The boundary lives inside a `WHERE` clause, not in the request or response contract. Someone porting "get all accounts" sees a `SELECT` and a `JOIN`; the tenant predicate reads as one more condition among several.
+2. **Shape-based assertions cannot see scope.** A test that calls the endpoint as some valid administrator and asserts `200` plus a non-empty list passes **identically** whether the scoping is correct or deleted outright. Contract tests, parity snapshots and response-DTO comparisons are all blind here by construction: the response is well-formed either way. It just belongs to everybody.
+3. **A shared resolver existing is not the same as this call site using it.** Codebases that have already been burned once typically grow a shared scope-resolver utility. A new or overlooked call site can reimplement the query from scratch and never call it — and the presence of the utility elsewhere is then actively misleading, because it reads as coverage.
+
+### Derive (mechanical list source)
+
+Enumerate candidate predicates by scanning the legacy data-access layer — do not work from recall. Adapt the patterns to the stack; the target is any condition whose right-hand side resolves to **the caller's own value**:
+
+| Signal | Examples |
+|--------|----------|
+| **Direct self-binding** | `WHERE <col> = :currentUser` / `:uid` / `$operatorId` / `session.user_id` |
+| **Tenant / org / owner columns** | `tenant_id`, `org_id`, `master_account`, `owner_id`, `dept_id`, `company_id` compared against a caller-derived value |
+| **Subquery resolving the caller's scope** | `WHERE dept_id = (SELECT dept_id FROM member WHERE account = :uid)` |
+| **Role-branched query construction** | Branches on `role` / `account_type` where **each branch** applies a different scope — enumerate every branch, not just the one exercised by the happy path |
+| **Scope applied outside SQL** | ORM global scopes, query-builder mixins, repository base classes, row-level-security policies, middleware that injects a filter |
+
+The last row matters: a predicate can be enforced by something the `SELECT` statement never mentions. A grep over SQL alone will report a **smaller** set than exists, and a smaller set here reads exactly like a safer one.
+
+### Record (per match)
+
+For every candidate, record — `[Confirmed]` requires a `file:line` citation:
+
+| Field | Content |
+|-------|---------|
+| **Location** | `file:line` in the legacy source |
+| **Predicate** | The exact condition text |
+| **Self-binding** | Which caller-derived value it resolves to, and how that value is obtained |
+| **Triggering branch** | Which role / parameter / code path reaches this predicate |
+| **Certainty** | `[Confirmed]` / `[Inferred]` / `[Unknown]` |
+
+Every `[Unknown]` — a scope you cannot determine from the code — goes to Gap Identification for a human. It is never guessed, and never assumed absent.
+
+### Oracle (detect) — predicate equivalence, per call site
+
+For each recorded predicate, verify in the ported code:
+
+1. **A literal equivalent exists** — the same field, bound to the same notion of self. A different field that "happens to give the same rows for current data" is not equivalent; it is a coincidence with an expiry date.
+2. **Every branch is covered.** If the legacy scoped differently per role, each branch needs its own verified equivalent. A port that collapses five role-branches into one coarse "is this an administrator?" check has replaced a boundary with a permission.
+3. **This call site invokes the shared resolver.** If the new system centralises scoping in a utility, confirm **this** call site actually calls it. The utility's existence elsewhere in the codebase is not evidence about this endpoint.
+
+### Mandatory negative test
+
+**Rule RE-AUTH-001 (Required)** — Every confirmed self-scoping predicate MUST be locked by a **negative test**: operator **A** issues the request, and the assertion is that operator **B**'s records are **absent** from the response. Both A and B are valid, authenticated, and authorized to use the endpoint.
+
+The assertion must be about **absence**. A test asserting `200`, or a non-empty list, or a matching response schema, is not sufficient evidence and MUST NOT be counted as coverage for this predicate — each of those passes with the scoping clause deleted.
+
+A useful self-check before trusting the test: **delete the scoping predicate in a scratch copy and re-run.** If the test still passes, it is not testing scope, whatever its name says.
+
+### Gate timing
+
+Pre-flight (planning) for extraction; pre-UAT for the negative tests.
+
+**Rule RE-AUTH-002 (Required)** — Any self-scoping predicate whose ported equivalent is unverified, or which has no negative test, is marked `not_implemented` and **blocks cutover**. An unverified authorization boundary is a known omission risk, not an acceptable gap — the failure mode is cross-tenant disclosure, and it ships green.
+
+> **Provenance.** This stage was derived from a real PHP → C# migration in which a tenant-scoped account-listing endpoint lost its isolation predicate during the rewrite. The port replaced per-role scoping with a coarse "is this account any enabled administrator?" check and returned every account in the database regardless of which tenant asked. It shipped, it passed every existing test — the method had none — and it was found when a customer reported seeing account information that should not have been there.
 
 ---
 
@@ -438,6 +515,7 @@ present a sub-threshold-confidence spec as authoritative.
 - [Test-Driven Development](test-driven-development.md) - Red-Green-Refactor cycle
 - [Acceptance Test-Driven Development](acceptance-test-driven-development.md) - Acceptance criteria
 - [Code Review Checklist](code-review-checklist.md) - Review guidelines
+- [Test Completeness Dimensions](test-completeness-dimensions.md) - Dimension 4 (Authorization) names the cross-tenant test; Auth Scope Extraction is the discovery step that determines which ones you need
 
 ---
 
@@ -445,6 +523,7 @@ present a sub-threshold-confidence spec as authoritative.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-08-20 | Added: Auth Scope Extraction stage (self-referential query predicates) — derive signals incl. non-SQL scope enforcement, per-match record with `file:line`, predicate-equivalence oracle covering every role branch and per-call-site resolver use, rule RE-AUTH-001 (mandatory negative test asserting the ABSENCE of another operator's records) and RE-AUTH-002 (unverified predicate blocks cutover) (issue [#166](https://github.com/AsiaOstrich/universal-dev-standards/issues/166)) |
 | 1.2.0 | 2026-06-27 | Added: Implicit Rule Scan stage (non-HTTP persistence write-path extraction) — 4 derive categories + three-question oracle + non-HTTP Devil's Advocate + PHP type-juggling note + certainty/`file:line` (XSPEC-284 R4/AC-8) |
 | 1.1.0 | 2026-06-18 | Added: Failure Handling & Escalation section — parse failure / high-unknown-ratio / contradicted-inference escalation + rule RE-FAIL-001 (XSPEC-292 T7) |
 | 1.0.0 | 2026-01-19 | Initial release |
