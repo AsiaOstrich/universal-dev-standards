@@ -3,10 +3,10 @@
 
 id: tech-debt-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-03-31"
+  version: "1.1.0"
+  updated: "2026-08-20"
   source: core/tech-debt-standards.md
-  description: Tech debt taxonomy, registry, budget, impact matrix, and metrics
+  description: Tech debt taxonomy, registry, budget, impact matrix, metrics, and overdue handling
 
 taxonomy:
   design: "Architecture/design decisions — impacts maintainability, scalability"
@@ -34,6 +34,50 @@ registry_fields:
   - "Target resolution date"
   - "Status (Open→Scheduled→In Progress→Resolved→Verified)"
 
+registry_storage_options:
+  # Each option is legal ONLY if it also satisfies its overdue-check condition.
+  options:
+    - option: "docs/tech-debt-registry.md"
+      best_for: "Small teams, simple tracking"
+      overdue_check_condition: "A repository check parses the table and fails on rows past Target Resolution Date — OR an Unattended Declaration is present"
+    - option: "Issue tracker (GitHub Issues, Jira)"
+      best_for: "Larger teams, workflow integration"
+      overdue_check_condition: "A scheduled due-date query that actually RUNS and raises; a saved filter nobody opens is not a check — OR an Unattended Declaration"
+    - option: "Dedicated spreadsheet"
+      best_for: "Non-technical stakeholders"
+      overdue_check_condition: "Only if exported on a stated cadence to a location a check reads — OR an Unattended Declaration"
+  rationale: >
+    A registry no program can read satisfies every other requirement (11 fields, Owner,
+    Target Resolution Date). Nothing is wrong with it until the date passes and nothing
+    happens. The spreadsheet option is deliberately kept; what is forbidden is any storage
+    option being a place where dates expire unobserved.
+
+overdue_handling:
+  principle: "A Target Resolution Date that passes with no consequence is indistinguishable from no date at all"
+  legal_dispositions:
+    resolve:
+      meaning: "Do the work"
+      trace: "Registry entry closed + `Tech-Debt: TD-NNN resolved` commit footer"
+    withdraw:
+      meaning: "Decide not to do it, and delete the record"
+      trace: "Entry marked withdrawn with a reason and a date"
+    extend:
+      meaning: "Set a new Target Resolution Date"
+      trace: "New date AND a written reason recorded together; earlier dates stay visible (append, never overwrite)"
+  no_fourth_disposition: "'Still open, date passed, nobody looked' is not a permitted state"
+  registry_states:
+    checked: "A named, runnable check reads the registry and fails on items past Target Resolution Date"
+    unattended: "No such check exists; an Unattended Declaration naming owner + review cadence + last-review date is present"
+    neither: "Non-compliant"
+  unattended_declaration_template: >
+    Unattended — no automated check reads this registry for overdue items.
+    Reviewed manually by <owner> on a <cadence> cadence. Last reviewed: <date>.
+  known_cost: >
+    This standard ships no checker. Adopters wanting the Checked state must write it
+    themselves and most will not — the same failure mode the section describes. The minimum
+    bar is therefore not "build a checker" but "never let a registry be silently unattended":
+    declaring Unattended is fully compliant; being unattended without declaring it is not.
+
 budget:
   new_project: "10% of dev time"
   mature_project: "15% of dev time"
@@ -54,3 +98,43 @@ metrics:
   - "High priority ratio (P0+P1 < 20%)"
 
 commit_marking: "Tech-Debt: TD-NNN (introduced|resolved: description)"
+
+rules:
+  - id: td-exp-001
+    trigger: an item is past its Target Resolution Date
+    instruction: >
+      Treat it as a finding, not a neutral background condition. Apply exactly one of the
+      three dispositions (resolve / withdraw / extend-with-reason). A registry holding an
+      overdue item with no disposition applied is non-compliant.
+    priority: required
+  - id: td-exp-002
+    trigger: designing or reviewing any automation over the tech debt registry
+    instruction: >
+      Never implement expiry as automatic extension or automatic closure. Automatic extension
+      makes the date unfalsifiable so it measures nothing; automatic closure deletes the record
+      without anyone deciding to. Both stop the clock and neither leaves a trace.
+    priority: required
+  - id: td-exp-003
+    trigger: extending a Target Resolution Date
+    instruction: >
+      Record the reason next to the new date. Changing only the date is not an extension, it is
+      an erasure with a timestamp on it.
+    priority: required
+  - id: td-exp-004
+    trigger: an item has been extended three or more times with no progress between extensions
+    instruction: Re-triage it as a Withdraw candidate rather than issuing a fourth date.
+    priority: recommended
+  - id: td-exp-005
+    trigger: creating or auditing a tech debt registry, in any storage format
+    instruction: >
+      Put the registry in exactly one of two states and make which one visible inside the
+      registry: Checked (a named runnable check fails on overdue items) or Unattended (an
+      Unattended Declaration naming owner, review cadence, and last-review date). Neither state
+      declared means non-compliant.
+    priority: required
+  - id: td-exp-006
+    trigger: reading an Unattended Declaration
+    instruction: >
+      Apply the declaration's own cadence to its "Last reviewed" date. A declaration whose last
+      review is older than its stated cadence is itself an overdue item.
+    priority: required

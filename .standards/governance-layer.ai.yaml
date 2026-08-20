@@ -3,8 +3,8 @@
 
 id: governance-layer
 meta:
-  version: "1.0.0"
-  updated: "2026-05-07"
+  version: "1.1.0"
+  updated: "2026-08-20"
   source: core/governance-layer.md
   description: "治理層標準（Vision/Mission/Goals 三層架構 + KPI + 紅線清單）"
   scope: universal
@@ -83,7 +83,116 @@ risk_acceptance:
     - signatory
     - gates_bypassed
     - risks_accepted
+    - review_by      # Date the acceptance stops being valid and must be decided again
   fail_closed: "Pipeline MUST refuse to start without a valid Risk Acceptance Clause"
+  expiry:
+    rule: "A clause whose review_by has passed is NOT valid; the pipeline fails closed as if no clause existed"
+    why: >
+      `date` records when the risk was accepted, not when it should be re-examined. Without
+      review_by an acceptance signed once stays in force forever while every field still reads
+      as correct.
+    dispositions:
+      re_accept: "A current signatory signs again with a new review_by"
+      withdraw: "The bypass is removed and human gates are restored"
+      extend: "A new review_by AND a written reason, recorded together"
+    prohibited: >
+      Automatic extension of review_by. It converts a fail-closed gate into a fail-open one
+      while leaving every field looking correct.
+
+# R3 — pending decisions are governed at the same level as accepted risks
+pending_decisions:
+  principle: "'Undecided' is a governance state, not the absence of one"
+  requirements:
+    - id: GOV-PD-001
+      priority: required
+      rule: >
+        Declare WHERE pending decisions are recorded and WHAT marks one — a fixed token
+        (status value, label, literal marker string), never free prose. Enumeration must not
+        depend on guessing the wording.
+    - id: GOV-PD-002
+      priority: required
+      rule: >
+        Enumeration MUST report a total AND the number of sources that could not be parsed.
+        "No pending decisions found" carries no information without the size of the walked set.
+    - id: GOV-PD-003
+      priority: required
+      rule: >
+        Every pending decision carries a decide-by date. On expiry apply one of three
+        dispositions — decide / withdraw the question / extend with a written reason.
+        Automatic extension is prohibited.
+    - id: GOV-PD-004
+      priority: required
+      rule: >
+        If nothing enumerates pending decisions on a schedule, carry an Unattended Declaration
+        naming owner, review cadence, and last-review date. Unenumerated is acceptable;
+        unenumerated and undeclared is not.
+
+# R4 — every aggregate report must declare what it could not evaluate
+aggregate_reporting:
+  principle: "A report is a claim about a set; it is worth what its account of the unevaluable is worth"
+  requirements:
+    - id: GOV-RPT-001
+      priority: required
+      rule: "Print three counts, never two: passed, failed, and undecidable (unparseable / missing field / unreachable source / unsupported format)"
+    - id: GOV-RPT-002
+      priority: required
+      rule: "undecidable MUST NOT be folded into passed and MUST NOT be omitted. An unparseable file is not a clean file"
+    - id: GOV-RPT-003
+      priority: required
+      rule: >
+        State the denominator and how it was derived. A report whose scope comes from a
+        hardcoded list reports on that list, not on the project. Derive by walking and
+        excluding, never by enumerating (see class-level-fix).
+    - id: GOV-RPT-004
+      priority: required
+      rule: >
+        Report positive and negative counts separately; never collapse into one score.
+        A metric on which doing nothing scores the same as doing the work is not measuring
+        the work ("5 of 11 passed" and "the checker never started" give the same figure).
+    - id: GOV-RPT-005
+      priority: recommended
+      rule: >
+        Include a canary — a check with a known-failing input that MUST fail. If the canary
+        passes, report the whole run as undecidable, not green.
+
+# R5 — freshness indicators must name which clock they read
+freshness_metrics:
+  clocks:
+    edit_time:
+      answers: "How long since this artifact was last changed?"
+      readable_from: "File mtime / last commit touching the file / a 'last updated' field"
+    reconciliation_time:
+      answers: "How long since this artifact was last compared against the source of truth it describes?"
+      readable_from: "The recorded date of that comparison — nothing else can supply it"
+  requirements:
+    - id: GOV-FRESH-001
+      priority: required
+      rule: "Any freshness/staleness indicator MUST name which of the two clocks it reads"
+    - id: GOV-FRESH-002
+      priority: required
+      rule: >
+        The two MUST NOT share a field or a column heading. A document edited today whose
+        contents were never checked against reality is zero days old by edit time and
+        unbounded by reconciliation time.
+    - id: GOV-FRESH-003
+      priority: required
+      rule: >
+        Where only edit time is available, label the column as edit time AND report
+        reconciliation age as undecidable — never as fresh, never by omission.
+    - id: GOV-FRESH-004
+      priority: recommended
+      rule: >
+        Reconciliation time is meaningful only if recorded by whatever performed the
+        comparison. A date typed in afterwards is an assertion, not a measurement — label it.
+
+enforcement_reality:
+  ships_a_checker: false
+  note: >
+    UDS defines these requirements but ships no program that enforces them. Adopters must
+    write the enumerator, the three-count reporter, and the reconciliation-date recorder
+    themselves, and most will not — the same failure this standard describes. The minimum bar
+    is therefore not "build the tooling" but: anything recorded as pending, accepted, or fresh
+    must either point at something that runs, or say plainly that nothing is watching it.
 
 # Governance file structure
 file_structure:
@@ -112,3 +221,17 @@ compliance_checks:
     check: "If gate.mode=trace_only, Risk Acceptance Clause exists in mission.md"
   - id: CK-07
     check: "Evaluator weights 0.4/0.3/0.3 with fail-closed veto at < 0.3"
+  - id: CK-08
+    check: "Every Risk Acceptance Clause has a review_by date and none is past it"
+  - id: CK-09
+    check: "The project declares where pending decisions live and what fixed token marks one"
+  - id: CK-10
+    check: "Every pending decision has a decide-by date"
+  - id: CK-11
+    check: "Pending decisions are either enumerated by something that runs, or covered by an Unattended Declaration"
+  - id: CK-12
+    check: "Every governance report prints passed / failed / undecidable separately and states its denominator and how it was derived"
+  - id: CK-13
+    check: "No report collapses positive and negative counts into a single score"
+  - id: CK-14
+    check: "Every freshness indicator names edit time vs reconciliation time, and the two do not share a field"

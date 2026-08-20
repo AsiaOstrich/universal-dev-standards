@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/tech-debt-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-31
+**Version**: 1.1.0
+**Last Updated**: 2026-08-20
 **Applicability**: All software projects
 **Scope**: universal
 **Industry Standards**: Martin Fowler's Technical Debt Quadrant, Ward Cunningham's Debt Metaphor
@@ -65,13 +65,70 @@ Every technical debt item must be recorded in a registry with the following 11 f
 
 ### Registry Storage Options
 
-The registry can be stored in one of the following locations:
+The registry can be stored in any of the following locations. Each option is legal **only if** it also satisfies the condition in the right-hand column — see [Overdue Handling](#overdue-handling) below.
 
-| Option | Best For | Format |
-|--------|----------|--------|
-| `docs/tech-debt-registry.md` | Small teams, simple tracking | Markdown table |
-| Issue tracker (GitHub Issues, Jira) | Larger teams, workflow integration | Tagged issues with `tech-debt` label |
-| Dedicated spreadsheet | Non-technical stakeholders | CSV/Excel with the 11 fields |
+| Option | Best For | Format | Overdue-check condition |
+|--------|----------|--------|-------------------------|
+| `docs/tech-debt-registry.md` | Small teams, simple tracking | Markdown table | A repository check parses the table and fails on rows past their Target Resolution Date — **or** the file carries an Unattended Declaration |
+| Issue tracker (GitHub Issues, Jira) | Larger teams, workflow integration | Tagged issues with `tech-debt` label | A scheduled query on the due-date field that actually **runs** and raises; a saved filter nobody opens is not a check — **or** an Unattended Declaration |
+| Dedicated spreadsheet | Non-technical stakeholders | CSV/Excel with the 11 fields | Only if the sheet is exported, on a stated cadence, to a location a check reads — **or** an Unattended Declaration |
+
+> **Why that column had to be added.** A registry no program can read satisfies every other requirement in this section: all 11 fields present, an Owner named, a Target Resolution Date set. Nothing about it is wrong — until the date passes, and then nothing happens. The spreadsheet option is deliberately **not** removed; a spreadsheet is often the only format the people who fund the work will open. What is no longer legal is for any storage option to be a place where dates go to expire unobserved.
+
+### Overdue Handling
+
+A **Target Resolution Date** that passes with no consequence is indistinguishable from having no date at all. This subsection defines what "the date arrived" means.
+
+#### The three legal dispositions
+
+When an item reaches its Target Resolution Date, exactly one of three things must happen, and it must leave a trace:
+
+| Disposition | Meaning | Required trace |
+|-------------|---------|----------------|
+| **Resolve** | Do the work | Registry entry closed + a `Tech-Debt: TD-NNN resolved` commit footer (see [Commit Marking](#6-commit-marking)) |
+| **Withdraw** | Decide not to do it, and delete the record | Entry marked withdrawn, with a reason and a date. It stops being counted as debt because it no longer is any |
+| **Extend** | Set a new Target Resolution Date | The new date **and** a written reason, recorded together; earlier dates stay visible (append, do not overwrite) |
+
+There is no fourth disposition. "Still open, date passed, nobody looked" is not a state this standard permits — it is the failure this subsection exists to name.
+
+**Rule TD-EXP-001 (Required)** — An item past its Target Resolution Date with none of the three dispositions applied makes the registry non-compliant. Overdue is a finding, not a neutral background condition.
+
+**Rule TD-EXP-002 (Required, prohibition)** — Expiry MUST NOT be implemented as **automatic extension** or **automatic closure**.
+
+- Automatic extension makes the date unfalsifiable: it can never be missed, so it never measures anything.
+- Automatic closure deletes the record without anyone having decided to.
+
+Both stop the clock, and neither leaves a trace that it did. A date whose only consumer is a job that pushes it forward is decoration.
+
+**Rule TD-EXP-003 (Required)** — Extending requires the reason to be recorded next to the new date. Changing only the date is not an extension; it is an erasure with a timestamp on it.
+
+**Rule TD-EXP-004 (Recommended)** — An item extended three or more times with no progress recorded between extensions should be re-triaged as a **Withdraw** candidate. Repeated extension is evidence that nobody intends to do the work; recording that honestly is more useful to the next reader than a fourth date.
+
+#### Unattended Declaration
+
+Not every team can run a check. **A registry with no automated overdue check is still compliant — but only if it says so.**
+
+An **Unattended Declaration** is a visible, dated statement inside the registry itself:
+
+```
+Unattended — no automated check reads this registry for overdue items.
+Reviewed manually by <owner> on a <cadence> cadence. Last reviewed: <date>.
+```
+
+**Rule TD-EXP-005 (Required)** — A registry MUST be in exactly one of two states, and MUST make which one visible to anyone reading the registry:
+
+1. **Checked** — a named, runnable check reads the registry and fails when an item is past its Target Resolution Date.
+2. **Unattended** — no such check exists, an Unattended Declaration is present, and it names an owner, a review cadence, and the date of the last review.
+
+A registry in neither state is non-compliant. The declaration is not paperwork: it is the whole difference between a reader who knows nothing is watching and a reader who assumes something is.
+
+**Rule TD-EXP-006 (Required)** — The "Last reviewed" date in an Unattended Declaration is itself subject to the cadence that declaration states. A declaration whose last review is older than its own cadence is an overdue item in its own right, and the three dispositions apply to it.
+
+> **This standard ships no checker, and that is a known cost — stated here rather than left to be discovered.**
+>
+> UDS defines the requirement; it does not provide a program that enforces it. Adopters who want the **Checked** state must write the check themselves, and most teams will not — which is exactly the failure mode described above, now applying to this section as well.
+>
+> That is why the minimum bar here is **not** "build a checker". It is **"never let a registry be silently unattended."** Declaring `Unattended` costs one paragraph and is fully compliant. Being unattended *without* declaring it is the one outcome this standard actually forbids, because it is the only one that misleads the reader about whether anything is watching.
 
 ---
 
@@ -200,6 +257,7 @@ Tech-Debt: TD-042 resolved
 - [Refactoring Standards](refactoring-standards.md) — Techniques for resolving code debt
 - [Testing Standards](testing-standards.md) — Addressing test debt
 - [Commit Message Guide](commit-message-guide.md) — Commit format including debt markers
+- [Governance Layer](governance-layer.md) — Standard #0; applies the same clock to pending decisions and accepted risks, and defines aggregate-reporting and freshness-metric rules
 
 ---
 
@@ -207,6 +265,7 @@ Tech-Debt: TD-042 resolved
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-08-20 | Added: Overdue Handling — three legal dispositions on expiry (resolve / withdraw / extend-with-reason), TD-EXP-001..006, prohibition on automatic extension and automatic closure, Unattended Declaration as the compliant alternative to a checker; Registry Storage Options gains an overdue-check condition per option (a registry no program can read is legal only when declared unattended) |
 | 1.0.0 | 2026-03-31 | Initial release: 6 debt types, registry template, budget allocation, prioritization matrix, quantitative metrics, commit marking |
 
 ---
