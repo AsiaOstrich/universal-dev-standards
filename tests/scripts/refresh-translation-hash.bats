@@ -157,18 +157,42 @@ _write_trans() {
   [ "$(grep -c '^source_hash:' "$TRANS")" -eq 1 ]
 }
 
+# 取檔案 mtime（epoch 秒）。**GNU 先試，BSD 當後備——順序不能反。**
+#
+# 🔴 原本寫的是 `stat -f '%m' … 2>/dev/null || stat -c '%Y' …`，在 macOS 對、
+# 在 Linux 錯，而錯法是安靜的：GNU 的 `-f` 是 `--file-system`，於是 `'%m'` 和
+# 檔名都被當成操作對象——`'%m'` 失敗（訊息被 2>/dev/null 吞掉）、檔名成功，
+# **stdout 印出整段檔案系統資訊**，同時 exit 非 0 讓 `||` 也跑了。
+# 結果是「檔案系統資訊 ＋ mtime」串接，其中含 `Blocks: Free / Available`
+# 與 `Inodes: Free`——**這個測試比的其實是剩餘磁碟空間，不是檔案的 mtime。**
+# 閒置機器上那些數字一秒內不變所以會過；忙碌的 CI runner 上會變，
+# 於是測試在檔案根本沒被碰過的情況下失敗。2026-08-20 在 main 上紅了，
+# 而更早的一次重跑就過了——一個「重跑一次就好」的假象。
+#
+# 反過來排就安全：BSD 的 `stat` 不認得 `-c`，會印用法到 stderr、**stdout 是空的**、
+# exit 非 0，`||` 乾淨地接手。已在 Debian 容器與本機 macOS 各實測一次。
+_mtime() {
+  local v
+  v="$(stat -c '%Y' "$1" 2>/dev/null || stat -f '%m' "$1")"
+  # 不是純數字就大聲失敗，不要讓下一個人再去追一個安靜的比較。
+  case "$v" in
+    ''|*[!0-9]*) echo "_mtime: 取到的不是 epoch 秒: [$v]" >&2; return 1 ;;
+  esac
+  printf '%s' "$v"
+}
+
 @test "already-matching hash is a true no-op even with --write (file unmodified)" {
   _write_trans "$GOOD_HASH"
   local before_mtime
-  before_mtime="$(stat -f '%m' "$TRANS" 2>/dev/null || stat -c '%Y' "$TRANS")"
+  before_mtime="$(_mtime "$TRANS")" || return 1
   sleep 1
   run_tool "$TRANS" --write
-  [ "$status" -eq 0 ]
+  [ "$status" -eq 0 ] || return 1
   local plain
   plain="$(_strip_ansi "$output")"
-  [[ "$plain" == *"stamped:                     0"* ]]
+  [[ "$plain" == *"stamped:                     0"* ]] || return 1
   local after_mtime
-  after_mtime="$(stat -f '%m' "$TRANS" 2>/dev/null || stat -c '%Y' "$TRANS")"
+  after_mtime="$(_mtime "$TRANS")" || return 1
   [ "$before_mtime" = "$after_mtime" ]
 }
 
