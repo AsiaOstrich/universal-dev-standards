@@ -10,8 +10,8 @@ description: |
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/brainstorm-assistant/guide.md)
 
-**Version**: 4.1.0
-**Last Updated**: 2026-07-09
+**Version**: 4.2.0
+**Last Updated**: 2026-08-21
 **Applicability**: All software projects
 **Scope**: universal
 **Type**: Utility Skill (no core standard)
@@ -286,7 +286,7 @@ A single LLM is a weak, biased evaluator (Li et al., 2025: LLMs are strong at ge
 | **User impact** | Impact 70% · Alignment 30% |
 | **Strategic alignment** | Alignment 60% · Impact 40% |
 
-**Per-criterion guide (1–5):**
+**Per-criterion guide (1–5, reference format — not a script the critic must walk through):**
 
 | Criterion | 5 | 3 | 1 |
 |-----------|---|---|---|
@@ -312,7 +312,7 @@ A soft "please critique this" yields mostly agreement — LLMs are sycophantic u
 - **Devil's Advocate**: "Your job is to argue this idea WILL fail. Produce 2 specific failure conditions."
 - **Steelman**: "State the strongest, most charitable version of the counterargument — the one a thoughtful opponent would actually make."
 
-Each counterargument must take the form: **"This idea will fail in [specific context] because [specific reason]."**
+Constraint: each counterargument must name a **specific context** and a **specific reason**. The sentence pattern **"This idea will fail in [specific context] because [specific reason]"** is a reference format, not a required phrasing (v4.2 — the critic brief is goal + constraints, see SKILL.md "Critic brief shape").
 
 **NOT acceptable** (too vague): "This might be difficult." / "There could be edge cases."
 
@@ -348,6 +348,7 @@ Each idea that remains receives a badge: `✓ Passed rebuttal — [one-line summ
 **Personas Used**: [domain expert, skeptic, analogist, ...]
 **Lenses Used**: [analogical, reversal, ...]
 **Pre-flight**: [Completed / Skipped]   **Rebuttal**: [Completed / Skipped]   **Tier**: [Baseline / Enhanced]
+**Critic model level (D4 mind axis)**: [vendor-neutral level label per core/model-selection.md — naming a vendor model is a violation; not declared → D4 [degraded]]
 
 ## Problem Statement
 [Refined problem + root cause from 5 Whys]
@@ -561,9 +562,9 @@ BQS v1 is an **additive quality contract**, not a rewrite. Everything from v3 is
 
 - **All flags**: `--personas`, `--lens`, `--enhanced`, `--skip-preflight`, `--no-rebuttal`, `--quick`, `--technique` behave exactly as in v3. v4 adds one optional flag, `--intent`, for the Layer 0 declaration.
 - **All mechanisms**: PRE-FLIGHT anti-anchoring, FRAME 5-Whys/HMW, the persona ensemble, diversity lenses, the multi-critic panel, the hard-role rebuttal (Devil's Advocate + Steelman), the Diversity-Collapse Guardrail, and the Enhanced Tier are unchanged.
-- **The `--enhanced` isolated-agent host** is what lets BQS **D4 pass** (judge ≠ generator); on a baseline single context the panel is marked `[degraded]`, never silently passed.
+- **The `--enhanced` isolated-agent host** is what satisfies BQS **D4's seat axis** (judge ≠ generator); since v4.2 (XSPEC-388) a D4 pass additionally requires the review to declare its **model level** (mind axis — vendor-neutral labels per core/model-selection.md). On a baseline single context the panel is marked `[degraded]`, never silently passed.
 
-BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留：所有旗標（`--personas`/`--lens`/`--enhanced`/`--skip-preflight`/`--no-rebuttal`/`--quick`/`--technique`）行為不變，v4 僅新增一個可選的 `--intent` 旗標供第 0 層宣告；所有機制（PRE-FLIGHT 防錨定、FRAME 5-Whys/HMW、persona 集成、多樣性透鏡、多評審面板、硬角色反駁、多樣性崩塌防護、Enhanced 層）不變；`--enhanced` 的隔離 agent 宿主正是讓 BQS **D4 pass**（判官≠產生者）的條件，baseline 單 context 標 `[degraded]`、不靜默通過。
+BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留：所有旗標（`--personas`/`--lens`/`--enhanced`/`--skip-preflight`/`--no-rebuttal`/`--quick`/`--technique`）行為不變，v4 僅新增一個可選的 `--intent` 旗標供第 0 層宣告；所有機制（PRE-FLIGHT 防錨定、FRAME 5-Whys/HMW、persona 集成、多樣性透鏡、多評審面板、硬角色反駁、多樣性崩塌防護、Enhanced 層）不變；`--enhanced` 的隔離 agent 宿主滿足的是 BQS **D4 的座位軸**（判官≠產生者），自 v4.2（XSPEC-388）起 D4 pass 另需評審宣告**模型層級**（心智軸——依 core/model-selection.md 的廠商中立標籤），baseline 單 context 標 `[degraded]`、不靜默通過。
 
 ---
 
@@ -598,6 +599,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 | [Requirement Engineering](../../core/requirement-engineering.md) | Brainstorm output feeds requirement writing |
 | [Spec-Driven Development](../../core/spec-driven-development.md) | Brainstorm output feeds SDD proposals |
 | [Anti-Hallucination](../../core/anti-hallucination.md) | Critic feasibility claims must be evidence-based, not asserted |
+| [Model Selection](../../core/model-selection.md) | The D4 mind axis (declared model level) and the divergence-side level (Standard or higher) defer to this standard's criteria — cited, never restated |
 
 ---
 
@@ -605,6 +607,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.2.0 | 2026-08-21 | XSPEC-388: D4's pass condition gains a second axis — the seat (independent context, unchanged) plus the mind (the review must declare its required **model level**, expressed only with the vendor-neutral labels of core/model-selection.md; naming a concrete vendor model is a violation; missing declaration → `[degraded]`, never pass). CONVERGE critic briefs re-shaped as goal + constraints per MS-009: D5–D8 presented as criteria the judgment must satisfy, never as an ordered procedure; the fixed rebuttal sentence pattern, per-criterion 1–5 guides, and critic weight formulas are kept as reference formats, not mandatory steps. Divergence side cites MS-004/Criterion 2 (Standard or higher — deliberately not "highest"), validated through the calibration loop's existing Diversity (D2/D3) lagging column. Terminology: the model-capability axis is written "model level" throughout, because "tier" is already taken by BQS tiering and the Enhanced Tier. All v3 flags and mechanisms preserved. |
 | 4.1.0 | 2026-07-09 | XSPEC-325: Replaced the fixed Top-3 recommendation cap with a score-threshold **Recommended Set** (Agg. Score ≥ 3.5, uncapped in count) throughout BQS Layer 2 — the product gate (D5–D8), the hard-role rebuttal round (Devil's Advocate + Steelman), the Meta stop rule (set-membership stability), the Diversity-Collapse Guardrail, and the OUTPUT Recommendations block all now key off the Recommended Set instead of a fixed 3. If no idea reaches 3.5, the single highest-scoring idea is still shown, marked "below threshold — shown for reference", so the report is never empty. |
 | 4.0.0 | 2026-06-22 | XSPEC-296: Brainstorm Quality Standard (BQS v1) — a four-layer × timeline quality contract layered additively on v3. Layer 0 explore/exploit intent (modulates D2 weight); Layer 1 process leading dimensions D1–D4 with a hard sequence gate (D5–D8 forbidden during divergence); Layer 2 product leading dimensions D5–D8 applied to Top 3 only, with a Seeds column and high-variance contested zone; Layer 3 Judgment Override (overrides aggregate score). D4 judge≠generator (independent context else `[degraded]`); D5 claim split (external-fact floor cross-tier); D7 two-state falsifiability ("need to do X" → next-step, not fail); Meta stop rule (Top-3 set stability + hard cap 2 rounds). Session Self-Evaluation re-positioned as the calibration loop's lagging end (Adoption→D6, Diversity→D2/D3, Cognitive Load→cost; two parallel evaluations forbidden). First principle refined to "decisions use leading, calibration uses lagging". Tiering bound to objective Mode Selection triggers. New flag `--intent`. All v3 flags/mechanisms preserved. |
 | 3.0.0 | 2026-06-01 | XSPEC-247: DIVERGE re-centred on persona ensemble + diversity lenses (analogical/reversal/morphological); CONVERGE re-centred on multi-critic panel + hard-role rebuttal (Devil's Advocate + Steelman); Diversity-Collapse Guardrail; Enhanced Tier (parallel persona/critic agents, graceful fallback); Research Foundations rebuilt on 6 verified 2024–2026 sources; Validity Caveats re-rated (pre-flight LOW, Nijstad/Nemeth demoted); new flags `--personas`/`--lens`/`--enhanced`; anti-seed guardrail |

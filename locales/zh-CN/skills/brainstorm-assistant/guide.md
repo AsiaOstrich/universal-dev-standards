@@ -1,10 +1,10 @@
 ---
 scope: universal
 source: ../../../../skills/brainstorm-assistant/guide.md
-source_version: 4.1.0
-source_hash: c5cd260548c2
-translation_version: 4.1.0
-last_synced: 2026-07-09
+source_version: 4.2.0
+source_hash: f789b3bbc31a
+translation_version: 4.2.0
+last_synced: 2026-08-21
 status: current
 description: |
   指导在编写规格前进行结构化 AI 辅助头脑风暴。
@@ -16,8 +16,8 @@ description: |
 
 > **语言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 简体中文
 
-**版本**: 4.1.0
-**最后更新**: 2026-07-09
+**版本**: 4.2.0
+**最后更新**: 2026-08-21
 **适用范围**: 所有软件项目
 **Scope**: universal
 **类型**: 工具型 Skill（无对应核心标准）
@@ -292,7 +292,7 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 | **用户影响** | 影响 70% · 对齐 30% |
 | **战略对齐** | 对齐 60% · 影响 40% |
 
-**逐准则指引（1–5）：**
+**逐准则指引（1–5，参考格式——不是评审必须逐步照走的脚本）：**
 
 | 准则 | 5 | 3 | 1 |
 |------|---|---|---|
@@ -318,7 +318,7 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 - **Devil's Advocate**：「你的任务是论证这个想法*会*失败。给出 2 个具体的失败条件。」
 - **Steelman**：「陈述反方论点最强、最善意的版本——一个有思想的对手实际会提出的那种。」
 
-每个反方论点必须采取以下形式：**「这个想法会在 [特定上下文] 失败，因为 [特定理由]。」**
+约束：每个反方论点必须指出**特定上下文**与**特定理由**。句型**「这个想法会在 [特定上下文] 失败，因为 [特定理由]」**是参考格式，不是必用句式（v4.2——评审提示为目标＋约束，见 SKILL.md「评审提示形状」）。
 
 **不可接受**（太空泛）：「这可能很难。」/「可能会有 edge case。」
 
@@ -354,6 +354,7 @@ HMW（默认起点）、SCAMPER（改善既有功能：Substitute、Combine、Ad
 **Personas Used**: [domain expert, skeptic, analogist, ...]
 **Lenses Used**: [analogical, reversal, ...]
 **Pre-flight**: [Completed / Skipped]   **Rebuttal**: [Completed / Skipped]   **Tier**: [Baseline / Enhanced]
+**评审模型层级（D4 心智轴）**: [core/model-selection.md 的厂商中立层级标签——指名厂商模型即违规；未宣告 → D4 [degraded]]
 
 ## Problem Statement
 [Refined problem + root cause from 5 Whys]
@@ -566,7 +567,7 @@ BQS v1 是**叠加的质量契约**，不是推倒重来。v3 的一切都保留
 
 - **所有旗标**：`--personas`、`--lens`、`--enhanced`、`--skip-preflight`、`--no-rebuttal`、`--quick`、`--technique` 行为与 v3 完全相同。v4 仅新增一个可选旗标 `--intent`，供第 0 层宣告。
 - **所有机制**：PRE-FLIGHT 防锚定、FRAME 5-Whys／HMW、persona 集成、多样性透镜、多评审面板、硬角色反驳（Devil's Advocate + Steelman）、多样性坍缩护栏、Enhanced 层，皆不变。
-- **`--enhanced` 隔离 agent 宿主**正是让 BQS **D4 pass**（判官≠产生者）的条件；baseline 单 context 标 `[degraded]`、不静默通过。
+- **`--enhanced` 隔离 agent 宿主**满足的是 BQS **D4 的座位轴**（判官≠产生者）；自 v4.2（XSPEC-388）起，D4 pass 另需评审宣告**模型层级**（心智轴——依 core/model-selection.md 的厂商中立标签）。baseline 单 context 标 `[degraded]`、不静默通过。
 
 ---
 
@@ -601,6 +602,7 @@ BQS v1 是**叠加的质量契约**，不是推倒重来。v3 的一切都保留
 | [Requirement Engineering](../../core/requirement-engineering.md) | 头脑风暴输出馈入需求编写 |
 | [Spec-Driven Development](../../core/spec-driven-development.md) | 头脑风暴输出馈入 SDD 提案 |
 | [Anti-Hallucination](../../core/anti-hallucination.md) | 评审的可行性主张必须基于证据，而非断言 |
+| [Model Selection](../../core/model-selection.md) | D4 心智轴（宣告模型层级）与发散侧层级（Standard 或更高）皆以此标准的判准为准——引用、绝不复述 |
 
 ---
 
@@ -608,6 +610,7 @@ BQS v1 是**叠加的质量契约**，不是推倒重来。v3 的一切都保留
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 4.2.0 | 2026-08-21 | XSPEC-388：D4 的 pass 条件加上第二个轴——座位（独立 context，不变）加上心智（评审必须宣告其**模型层级**要求，且只能以 core/model-selection.md 的厂商中立标签表达；指名具体厂商模型即违规；未宣告 → `[degraded]`、不得 pass）。CONVERGE 评审提示依 MS-009 改为目标＋约束形状：D5–D8 以「判断必须满足的判准」呈现、不得以按顺序执行的程序呈现；固定反驳句型、逐准则 1–5 指引与评审权重公式保留为参考格式、非必经步骤。发散侧引用 MS-004／Criterion 2（Standard 或更高——刻意不是「最高」），由校准回路既有的 Diversity（D2/D3）lagging 栏验证。术语：模型能力轴全文写作「模型层级」，因为「tier」已被 BQS 分级与 Enhanced Tier 占用。所有 v3 旗标与机制保留。 |
 | 4.1.0 | 2026-07-09 | XSPEC-325：把固定 Top-3 推荐上限改为分数门槛**推荐集**（Agg. Score ≥ 3.5，不限笔数），贯穿 BQS 第 2 层——产物闸（D5–D8）、硬角色反驳轮（Devil's Advocate + Steelman）、Meta 停止规则（集合成员稳定性）、多样性坍缩护栏、OUTPUT 推荐区块，全部改以推荐集为对象，不再是固定 3 个。若无想法达 3.5，仍显示分数最高的 1 个并标示「未达门槛，仅供参考」，避免报告空白。 |
 | 4.0.0 | 2026-06-22 | XSPEC-296：头脑风暴质量标准（BQS v1）——叠加于 v3 的四层 × 时间轴质量契约。第 0 层 explore/exploit 意图（调节 D2 权重）；第 1 层过程 leading 维度 D1–D4 + 硬序列闸（发散期禁 D5–D8）；第 2 层产物 leading 维度 D5–D8 仅施于 Top 3，加 Seeds 栏与高方差争议区；第 3 层 Judgment Override（凌驾聚合分）。D4 判官≠产生者（须独立 context，否则 `[degraded]`）；D5 主张分流（外部事实跨级地板）；D7 二态证伪（「需先做 X」→next-step、不算 fail）；Meta 停止规则（Top-3 集合稳定 + 硬上限 2 轮）。工作阶段自评重新定位为校准回路 lagging 端（Adoption→D6、Diversity→D2/D3、Cognitive Load→成本；禁两套平行评估）。第一原理修正为「决策用 leading、校准用 lagging」。分级绑客观模式选择触发。新增旗标 `--intent`。所有 v3 旗标／机制保留。 |
 | 3.0.0 | 2026-06-01 | XSPEC-247：DIVERGE 重新聚焦于 persona 集成 + 多样性透镜（类比 / 反转 / 形态学）；CONVERGE 重新聚焦于多评审面板 + 硬角色反驳（Devil's Advocate + Steelman）；多样性坍缩护栏；Enhanced 层级（并行 persona/评审智能体，优雅回退）；Research Foundations 基于 6 项已验证的 2024–2026 出处重建；效度说明重新评级（飞行前为低、Nijstad/Nemeth 降级）；新旗标 `--personas`/`--lens`/`--enhanced`；反种子护栏 |

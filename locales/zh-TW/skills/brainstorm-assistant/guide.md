@@ -5,10 +5,10 @@ description: |
   使用時機：模糊想法、功能探索、問題再框架、創意發想。
   關鍵字：brainstorm, ideation, persona ensemble, multi-critic, HMW, SCAMPER, 腦力激盪, 發想, 創意。
 source: ../../../../skills/brainstorm-assistant/guide.md
-source_version: 4.1.0
-source_hash: c5cd260548c2
-translation_version: 4.1.0
-last_synced: 2026-07-09
+source_version: 4.2.0
+source_hash: f789b3bbc31a
+translation_version: 4.2.0
+last_synced: 2026-08-21
 status: current
 ---
 
@@ -16,8 +16,8 @@ status: current
 
 > **語言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 繁體中文
 
-**版本**: 4.1.0
-**最後更新**: 2026-07-09
+**版本**: 4.2.0
+**最後更新**: 2026-08-21
 **適用範圍**: 所有軟體專案
 **Scope**: universal
 **類型**: 工具型 Skill（無對應核心標準）
@@ -280,7 +280,7 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 | **使用者衝擊** | 衝擊 70% · 對齊 30% |
 | **策略對齊** | 對齊 60% · 衝擊 40% |
 
-**各準則指引（1–5）：**
+**各準則指引（1–5，參考格式——不是評審必須逐步照走的腳本）：**
 
 | 準則 | 5 | 3 | 1 |
 |------|---|---|---|
@@ -306,7 +306,7 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 - **Devil's Advocate（魔鬼代言人）**：「你的任務是論證這個想法*會*失敗。提出 2 個具體的失敗條件。」
 - **Steelman（強論立場）**：「陳述最強、最善意版本的反論點——一個有思考力的對手真的會提出的那種。」
 
-每個反論點都必須採取以下形式：**「這個想法會在 [特定脈絡] 失敗，因為 [特定理由]。」**
+約束：每個反論點都必須指出**特定脈絡**與**特定理由**。句型**「這個想法會在 [特定脈絡] 失敗，因為 [特定理由]」**是參考格式，不是必用句式（v4.2——評審提示為目標＋約束，見 SKILL.md「評審提示形狀」）。
 
 **不可接受**（太空泛）：「這可能很難。」／「可能會有 edge case。」
 
@@ -342,6 +342,7 @@ HMW（預設起點）、SCAMPER（改善既有功能：Substitute 取代、Combi
 **Personas Used**: [領域專家, 懷疑者, 類比者, ...]
 **Lenses Used**: [類比, 反轉, ...]
 **Pre-flight**: [Completed / Skipped]   **Rebuttal**: [Completed / Skipped]   **Tier**: [Baseline / Enhanced]
+**評審模型層級（D4 心智軸）**: [core/model-selection.md 的廠商中立層級標籤——指名廠商模型即違規；未宣告 → D4 [degraded]]
 
 ## Problem Statement
 [精煉後的問題 + 5 Whys 的根本原因]
@@ -549,7 +550,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 - **所有旗標**：`--personas`、`--lens`、`--enhanced`、`--skip-preflight`、`--no-rebuttal`、`--quick`、`--technique` 行為與 v3 完全相同。v4 僅新增一個可選旗標 `--intent`，供第 0 層宣告。
 - **所有機制**：PRE-FLIGHT 防錨定、FRAME 5-Whys／HMW、persona 集成、多樣性透鏡、多評審面板、硬角色反駁（Devil's Advocate + Steelman）、多樣性崩塌護欄、Enhanced 層，皆不變。
-- **`--enhanced` 隔離 agent 宿主**正是讓 BQS **D4 pass**（判官≠產生者）的條件；baseline 單 context 標 `[degraded]`、不靜默通過。
+- **`--enhanced` 隔離 agent 宿主**滿足的是 BQS **D4 的座位軸**（判官≠產生者）；自 v4.2（XSPEC-388）起，D4 pass 另需評審宣告**模型層級**（心智軸——依 core/model-selection.md 的廠商中立標籤）。baseline 單 context 標 `[degraded]`、不靜默通過。
 
 ---
 
@@ -584,6 +585,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 | [Requirement Engineering](../../core/requirement-engineering.md) | 腦力激盪輸出餵入需求撰寫 |
 | [Spec-Driven Development](../../core/spec-driven-development.md) | 腦力激盪輸出餵入 SDD 提案 |
 | [Anti-Hallucination](../../core/anti-hallucination.md) | 評審的可行性宣稱必須以證據為基礎，不可空口斷言 |
+| [Model Selection](../../core/model-selection.md) | D4 心智軸（宣告模型層級）與發散側層級（Standard 或更高）皆以此標準的判準為準——引用、絕不複述 |
 
 ---
 
@@ -591,6 +593,7 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 4.2.0 | 2026-08-21 | XSPEC-388：D4 的 pass 條件加上第二個軸——座位（獨立 context，不變）加上心智（評審必須宣告其**模型層級**要求，且只能以 core/model-selection.md 的廠商中立標籤表達；指名具體廠商模型即違規；未宣告 → `[degraded]`、不得 pass）。CONVERGE 評審提示依 MS-009 改為目標＋約束形狀：D5–D8 以「判斷必須滿足的判準」呈現、不得以按順序執行的程序呈現；固定反駁句型、逐準則 1–5 指南與評審權重公式保留為參考格式、非必經步驟。發散側引用 MS-004／Criterion 2（Standard 或更高——刻意不是「最高」），由校準回路既有的 Diversity（D2/D3）lagging 欄驗證。術語：模型能力軸全文寫作「模型層級」，因為「tier」已被 BQS 分級與 Enhanced Tier 佔用。所有 v3 旗標與機制保留。 |
 | 4.1.0 | 2026-07-09 | XSPEC-325：把固定 Top-3 推薦上限改為分數門檻**推薦集**（Agg. Score ≥ 3.5，不限筆數），貫穿 BQS 第 2 層——產物閘（D5–D8）、硬角色反駁輪（Devil's Advocate + Steelman）、Meta 停止規則（集合成員穩定性）、多樣性崩塌護欄、OUTPUT 推薦區塊，全部改以推薦集為對象，不再是固定 3 個。若無想法達 3.5，仍顯示分數最高的 1 個並標示「未達門檻，僅供參考」，避免報告空白。 |
 | 4.0.0 | 2026-06-22 | XSPEC-296：腦力激盪品質標準（BQS v1）——疊加於 v3 的四層 × 時間軸品質契約。第 0 層 explore/exploit 意圖（調節 D2 權重）；第 1 層過程 leading 維度 D1–D4 + 硬序列閘（發散期禁 D5–D8）；第 2 層產物 leading 維度 D5–D8 僅施於 Top 3，加 Seeds 欄與高方差爭議區；第 3 層 Judgment Override（凌駕聚合分）。D4 判官≠產生者（須獨立 context，否則 `[degraded]`）；D5 主張分流（外部事實跨級地板）；D7 二態證偽（「需先做 X」→next-step、不算 fail）；Meta 停止規則（Top-3 集合穩定 + 硬上限 2 輪）。工作階段自評重新定位為校準回路 lagging 端（Adoption→D6、Diversity→D2/D3、Cognitive Load→成本；禁兩套平行評估）。第一原理修正為「決策用 leading、校準用 lagging」。分級綁客觀模式選擇觸發。新增旗標 `--intent`。所有 v3 旗標／機制保留。 |
 | 3.0.0 | 2026-06-01 | XSPEC-247：DIVERGE 重新對齊到 persona 集成 + 多樣性透鏡（類比／反轉／形態學）；CONVERGE 重新對齊到多評審面板 + 硬角色反駁（Devil's Advocate + Steelman）；多樣性崩塌護欄；Enhanced 層級（平行 persona／評審代理、優雅退回）；認知科學依據以 6 項已驗證的 2024–2026 出處重建；效度說明重新評等（pre-flight 為低、Nijstad／Nemeth 降級）；新增旗標 `--personas`／`--lens`／`--enhanced`；反種子護欄 |
