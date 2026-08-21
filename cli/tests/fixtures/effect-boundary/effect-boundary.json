@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Synthetic fixture config for XSPEC-383 R8 — the RED demonstration.",
+    "The family is declared by GLOB, not by a list of filenames: a glob is a rule that",
+    "keeps matching files nobody has written yet, whereas a filename list stops being",
+    "true the moment somebody adds the seventh provider — which is the exact failure",
+    "this gate exists to catch.",
+    "Expected outcome: 6 members, 2 excluded, 3 GREEN, 1 EXEMPT-HONEST, 2 RED, exit 1."
+  ],
+  "root": ".",
+  "families": [
+    {
+      "name": "providers",
+      "include": ["providers/**/*.ts"],
+      "exclude": ["**/*.spec.ts", "providers/support/**"]
+    }
+  ],
+  "ownedDomains": {
+    "source": "file",
+    "path": "owned-domains.txt"
+  }
+}

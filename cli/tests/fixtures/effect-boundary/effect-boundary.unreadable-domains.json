@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Synthetic fixture config for XSPEC-383 R7-c — the UNREADABLE-LIST demonstration.",
+    "Same family as the green config, but ownedDomains points at a file that is not there.",
+    "The failure mode this pins: treating 'could not read the owned-domain list' as",
+    "'the list is empty, so every domain is allowed' — which turns the strictest",
+    "possible check into the most permissive one, silently.",
+    "Expected outcome: exit 2, never 0 and never 1."
+  ],
+  "root": ".",
+  "families": [
+    {
+      "name": "providers",
+      "include": ["providers/**/*.ts"],
+      "exclude": ["**/*.spec.ts", "providers/support/**", "providers/shape-d/**"]
+    }
+  ],
+  "ownedDomains": {
+    "source": "file",
+    "path": "owned-domains.this-file-does-not-exist.txt"
+  }
+}

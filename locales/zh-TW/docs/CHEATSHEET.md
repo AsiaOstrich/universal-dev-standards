@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-08-20
+> Quick reference for all UDS features | Last updated: 2026-08-21
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -371,7 +371,9 @@
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
+| `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate  |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGE |
+| `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |

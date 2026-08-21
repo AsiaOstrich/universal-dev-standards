@@ -254,6 +254,12 @@ program
   .option('--trend', 'Show historical score trend (use with --score)')
   .option('--ci', 'CI mode: output score only, exit 1 if below threshold (use with --score)')
   .option('--threshold <n>', 'Score threshold for CI mode (default: 75)', '75')
+  // XSPEC-383 R8 — static effect boundary gate. Exits 0 clean / 1 findings /
+  // 2 cannot measure. Attached to `audit` rather than a new top-level command
+  // because `audit` already means "walk the code looking for a shape", and a new
+  // command is surface every adopter has to learn.
+  .option('--effects', 'Static effect boundary gate: do the implementations of each declared effect interface reach anything outside this process')
+  .option('--effects-config <path>', 'Path to the effect-family config (default: .uds/effect-boundary.json)')
   .action(auditCommand);
 
 program

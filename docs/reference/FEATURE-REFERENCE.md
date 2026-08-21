@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-20
+> Auto-generated | Last updated: 2026-08-21
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (150)
-7. [Scripts](#scripts) (55)
+7. [Scripts](#scripts) (57)
 
-**Total Features: 344**
+**Total Features: 346**
 
 ---
 
@@ -183,6 +183,8 @@
 | `--trend` | Show historical score trend (use with --score) |
 | `--ci` | CI mode: output score only, exit 1 if below threshold (use with --score) |
 | `--threshold` | Score threshold for CI mode (default: 75) |
+| `--effects` | Static effect boundary gate: do the implementations of each declared effect interface reach anything outside this process |
+| `--effects-config` | Path to the effect-family config (default: .uds/effect-boundary.json) |
 
 ### `uds deps`
 
@@ -625,7 +627,9 @@
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
+| `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate — XSPEC-385 |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGELOG.md's own |
+| `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |

@@ -14,6 +14,15 @@
 import chalk from 'chalk';
 import { checkbox, input } from '@inquirer/prompts';
 import { createRequire } from 'node:module';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve as resolvePath } from 'node:path';
+import {
+  analyseEffectBoundary,
+  formatReport,
+  parseBaselineTsv,
+  DEFAULT_CONFIG_PATH,
+  DEFAULT_BASELINE_PATH
+} from '../utils/effect-boundary.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
 import { runHealthCheck } from '../utils/health-checker.js';
 import { runHealthScore, saveScoreSnapshot, loadTrend } from '../utils/health-scorer.js';
@@ -57,6 +66,17 @@ export async function auditCommand(options = {}) {
   // Handle --score mode
   if (options.score) {
     return handleScoreMode(projectPath, options);
+  }
+
+  // Handle --effects mode (XSPEC-383 R8 — static effect boundary gate).
+  //
+  // It is its own mode rather than a fourth layer of the health/patterns/friction
+  // report for one reason: it has a THREE-state exit code (0 clean / 1 findings /
+  // 2 cannot measure), and folding it into a report that always exits 0 would
+  // erase exactly the state it exists to preserve — "we could not measure this"
+  // must not print the same thing as "this is fine".
+  if (options.effects) {
+    return handleEffectsMode(projectPath, options);
   }
 
   // Determine which layers to run
@@ -138,6 +158,68 @@ export async function auditCommand(options = {}) {
   if (isReport) {
     await handleReport(auditResult, options, msg);
   }
+}
+
+/**
+ * XSPEC-383 R8 — static effect boundary gate.
+ *
+ * Shape D: a component that is reachable, is called, runs, reports success, and
+ * does nothing. R3's reachability gate cannot see it — reachability asks who
+ * calls this file (in-edges); shape D lives in the out-edges (what it finally
+ * touches). Opposite direction.
+ *
+ * All judgement lives in utils/effect-boundary.js. This function is one of its
+ * two entry points; the other is scripts/check-effect-boundary.mjs, which CI
+ * and `npm run check:effect-boundary` use. The engine sits in src/ because
+ * `cli/scripts/` ships zero files (measured with `npm pack --dry-run`), so an
+ * engine living only there would not be on an adopter's disk at all.
+ *
+ * @param {string} projectPath
+ * @param {Object} options
+ */
+function handleEffectsMode(projectPath, options) {
+  const configPath = resolvePath(projectPath, options.effectsConfig || DEFAULT_CONFIG_PATH);
+
+  if (!existsSync(configPath)) {
+    console.error(chalk.red('[effect-boundary] FATAL: no effect-family config at ') + configPath);
+    console.error('  This gate asks whether each implementation of an effect interface reaches');
+    console.error('  anything outside this process. It cannot answer that without being told');
+    console.error('  which implementations form a family.');
+    console.error('');
+    console.error(`  Declare them by glob in ${DEFAULT_CONFIG_PATH} (or pass --effects-config <path>):`);
+    console.error('    { "families": [ { "name": "deploy-adapters",');
+    console.error('                      "include": ["src/**/adapters/*.adapter.ts"] } ] }');
+    console.error('');
+    console.error('  Declared by glob, not by a list of filenames: a glob keeps matching the');
+    console.error('  adapter nobody has written yet, which is the one this gate exists to catch.');
+    console.error('');
+    console.error(chalk.yellow('  Exiting 2 (cannot measure), not 0. A gate with nothing to check must not print a green tick.'));
+    process.exit(2);
+  }
+
+  let config;
+  try {
+    config = JSON.parse(readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    console.error(chalk.red(`[effect-boundary] FATAL: config exists but does not parse: ${configPath}: ${e.message}`));
+    console.error('  This is "cannot read the config", not "there is no config".');
+    process.exit(2);
+  }
+
+  const baselinePath = resolvePath(projectPath, DEFAULT_BASELINE_PATH);
+  const baseline = existsSync(baselinePath)
+    ? parseBaselineTsv(readFileSync(baselinePath, 'utf8'))
+    : { entries: [], errors: [] };
+
+  const result = analyseEffectBoundary({ projectPath, config });
+  const { lines, exitCode } = formatReport(result, baseline);
+
+  if (options.format === 'json') {
+    console.log(JSON.stringify({ exitCode, report: lines, result }, null, 2));
+  } else {
+    for (const line of lines) console.log(line);
+  }
+  process.exit(exitCode);
 }
 
 /**

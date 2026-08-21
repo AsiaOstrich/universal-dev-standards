@@ -1,0 +1,10 @@
+{
+  "_comment": [
+    "Synthetic fixture config for XSPEC-383 R8 — the UNDECIDABLE demonstration.",
+    "Expected outcome: exit 2, never 0 (fail-open) and never 1 (accusation)."
+  ],
+  "root": ".",
+  "families": [
+    { "name": "vendor", "include": ["undecidable/**/*.ts"] }
+  ]
+}

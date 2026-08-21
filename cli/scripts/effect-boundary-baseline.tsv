@@ -1,0 +1,33 @@
+# effect-boundary-baseline.tsv — XSPEC-383 R8
+#
+# Each row is a decision somebody made to NOT fix a zero-effect implementation
+# yet. It is not a permission slip; it is a deferral with a clock on it.
+#
+# Format: TSV, five tab-separated columns, one row per deferral.
+#   family <TAB> member <TAB> verdict <TAB> expires(YYYY-MM-DD) <TAB> reason
+#
+# Why TSV and not the JSON the two sibling gates use
+# (scripts/reachability-baseline.json, scripts/command-existence-baseline.json):
+# XSPEC-383 §7.11.2 specifies TSV-with-per-row-expiry for this gate, the shape
+# dev-platform's cross-project/unattended-risks.tsv already uses. The point is
+# that the expiry date has to be readable on the same line as the thing it
+# governs — in a JSON baseline you unfold three levels before you see the date,
+# and a date nobody reads is the same as no date. This is NOT a reason to go
+# back and convert the other two.
+#
+# Rules the parser enforces (all of them exit 2, not 1 — a broken baseline is
+# not "no baseline"):
+#   - exactly five tab-separated columns
+#   - expires must be YYYY-MM-DD; an entry with no clock never expires, and an
+#     exception list with no clock is just a polite delete key
+# An expired row exits 1. Expiry does not mean something broke; it means the
+# decision to defer needs making again.
+#
+# This file is currently EMPTY of rows on purpose. UDS itself declares no effect
+# family (it is a standards library plus a CLI — there is no set of interchangeable
+# implementations of one effect interface here), so there is nothing to defer.
+# The mechanism is exercised by tests/utils/effect-boundary.test.js, not by a
+# placeholder row: a fake row would make the file look maintained while proving
+# nothing.
+#
+# family	member	verdict	expires	reason

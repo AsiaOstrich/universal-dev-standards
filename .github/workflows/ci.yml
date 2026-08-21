@@ -230,6 +230,57 @@ jobs:
       - name: Check command existence
         run: npm run check:command-existence
 
+  # XSPEC-383 R8 — 靜態效果邊界閘。
+  #
+  # 形狀 D：**一個元件可達、被呼叫、跑得動、回報成功，而它什麼動作都沒做。**
+  # 上面那道 reachability job 對它一個字都沒說——可達性問的是入邊（誰呼叫它），
+  # 形狀 D 的病灶在出邊（它最終碰到什麼）。方向相反。
+  #
+  # 這個 job 跑的是 `--self-test`，**不是**一次普通執行，而那是刻意的：
+  # UDS 自己沒有效果家族（它是標準庫 ＋ 一支 CLI，沒有「多個實作同一個效果
+  # 介面」的集合），所以不帶 config 直接跑本支會 exit 2＝量不了。
+  # UDS 這一側能對自己誠實斷言的完整內容就是「這道閘門會紅、會綠、會 exit 2」，
+  # 語料是 cli/tests/fixtures/effect-boundary/ 下自己寫的合成 fixture。
+  # 接上採用者（把 --effects 指向真的 adapter 家族）是下一輪的事。
+  #
+  # 十七臂已實測（2026-08-21，本機 macOS + node 22）：
+  #   探針五控制組（正向／負向／type-only／網域抽取器／邊界表面）
+  #   分母臂（走訪 9 檔、家族命中 8、排除 2、成員 6）
+  #   綠臂 0 ／ 紅臂 1 ／ R7-b 濫用紅 ／ R7-b 誠實豁免 ／ 呼叫圖跨檔綠
+  #   金絲雀（拿掉 spawnSync → GREEN(1) 轉 RED(0)，exit 0→1）
+  #   R7-c 金絲雀（換成非我方網域 → exit 0→1）
+  #   R7-c 讀不到清單 → 2 ／ 空集合 → 2 ／ 不可判定 → 2 ／ 探針失效 → 2
+  #
+  # 🔴 `npm ci` 這一步從一開始就在，不是事後補的。缺它會讓
+  # `src/utils/effect-boundary.js` 的 import 失敗，而本 repo 已經為同一個病
+  # 付過學費：reachability 與 command-existence 兩個 job 因為沒有這一步，
+  # 在 main 上連紅四次沒有人看（5b0f99c3、aeafab51＝6.8.0 發版那次、30174e1d）。
+  effect-boundary:
+    name: Effect Boundary
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.cli == 'true'
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prove the gate can go red, green, and 2 before trusting any of them
+        run: npm run check:effect-boundary:self-test
+
   # XSPEC-357 R7 ② — 採用者指令檔閘門。
   #
   # `scripts/check-ai-agent-sync.sh` 檢查的是本 repo 的 integrations/ 樣板，
