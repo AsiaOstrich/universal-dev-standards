@@ -41,6 +41,7 @@
     "check:adopter-files": "tsx scripts/check-adopter-instruction-files.ts",
     "check:adopter-files:self-test": "tsx scripts/check-adopter-instruction-files.ts --self-test",
     "check:trigger-surface": "tsx scripts/check-skill-trigger-surface.ts",
+    "check:name-mentions": "tsx scripts/check-name-mention-classification.ts",
     "check:trigger-surface:self-test": "tsx scripts/check-skill-trigger-surface.ts --self-test",
     "docs:llms-txt": "node scripts/generate-llms-txt.mjs",
     "check:llms-txt": "node scripts/generate-llms-txt.mjs --check",
