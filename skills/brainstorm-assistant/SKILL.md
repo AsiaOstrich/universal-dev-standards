@@ -29,6 +29,14 @@ v3 把發散從「單一 AI 衝數量」改為**persona 集成**（每個角色�
 
 **v4 的核心改動：** v3 提供了強健的*機制*，卻沒有可判定 pass/fail 的品質閘。v4 在其上疊加一道**時序化品質契約**——**腦力激盪品質標準（BQS v1）**——且不移除任何 v3 行為。BQS 是**四層 × 時間軸**結構：第 0 層宣告 explore/exploit 意圖；第 1 層（過程、leading、發散期全程可見）跑維度 **D1–D4**；第 2 層（產物、leading、收斂後僅施於推薦集，即 Agg. Score ≥ 3.5、不限筆數的想法）跑 **D5–D8** 加 Seeds 欄與爭議區；第 3 層是不受治理的 **Judgment Override**。第一原理：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨。** 硬序列閘禁止 D5–D8 在發散期被揭示或評分。詳見下方「BQS v1 — 品質契約」。
 
+**What changed in v4.2 (XSPEC-388) | v4.2 的核心改動:** D4 pinned where the judge sits and said nothing about whether it can think. An independent context running a literal-following model satisfies the old wording verbatim and rubber-stamps its way through D5–D8 — indistinguishable on paper from a review where someone actually objected. v4.2 gives D4 a **second axis**: the review must also declare its required **model level** (see the terminology note below). The CONVERGE briefs are re-shaped as **goal + constraints** — D5–D8 are criteria the judgment must satisfy, not steps to execute in order; the fixed sentence patterns and per-criterion scoring guides are kept as reference formats. The divergence side cites [core/model-selection.md](../../core/model-selection.md) (Standard or higher) instead of adding a rule of its own. No v3 mechanism is removed.
+
+**v4.2 的核心改動（XSPEC-388）：** D4 原本只釘住判官坐在哪裡，一個字都沒說它得想得動。一個獨立 context 跑字面遵循型模型會逐字滿足舊條文，然後照 D5–D8 逐條打勾放行——與一場真的有人反對過的評審在報告上無從分辨。v4.2 給 D4 加上**第二個軸**：評審還必須宣告其**模型層級**要求（見下方術語說明）。CONVERGE 的提示改為**目標＋約束**形狀——D5–D8 是判斷必須滿足的判準，不是按順序執行的步驟；既有固定句型與逐準則分數指南保留為參考格式。發散側引用 [core/model-selection.md](../../core/model-selection.md)（Standard 或更高）而不另立規則。不移除任何 v3 機制。
+
+> **Terminology — "model level", never "tier" | 術語——「模型層級」，不用「tier」:** inside this skill, `tier` is already taken twice — the BQS tiering table (which dimensions apply) and the Enhanced Tier. The model-capability axis defined in [core/model-selection.md](../../core/model-selection.md) (called *model tier* there) is therefore always written **model level（模型層級）** in this skill. Model levels are that standard's **vendor-neutral labels**; this skill never names a concrete vendor model (see D4).
+>
+> 在本 skill 內，`tier` 已被佔用兩次——BQS 分級表（套用哪些維度）與 Enhanced Tier。[core/model-selection.md](../../core/model-selection.md) 定義的模型能力軸（該標準稱 *model tier*）在本 skill 一律寫作**模型層級（model level）**。模型層級是該標準的**廠商中立標籤**；本 skill 絕不指名具體廠商模型（見 D4）。
+
 ## Mode Selection | 使用前先選模式
 
 Apply these **objective triggers** before starting. Default is full v3 — routing rules are shortcuts to skip phases, not barriers to add.
@@ -81,7 +89,7 @@ At the start, declare the **explore/exploit ratio** and the bet type (incrementa
 | **D1 Frame purity** | Problem embeds a specific solution or a "like X but for Y" framing → fail; must run 5-Whys to the root cause | 問題內嵌特定方案或「像 X 給 Y」→fail；須 5-Whys 到根因 |
 | **D2 Divergence coverage** | Surviving ideas span < 3 independent personas/lenses → fail (modulated by Layer 0 weight); only a round with zero new ideas counts as saturation | 存活想法跨 <3 獨立 persona/透鏡→fail（受第 0 層權重調節）；連一輪零新增才算飽和 |
 | **D3 Cross-session diversity** | Seed is a competitor analogy → fail; Top all from a single lens → fail | 種子是競品類比→fail；Top 全來自單一 lens→fail |
-| **D4 Evaluation de-bias** | Requires ≥3 critics + hard-role Devil's Advocate + Steelman; **pass requires an independent context**, otherwise mark `[degraded]` — must NOT be marked pass | 須 ≥3 評審 + 硬角色 Devil's Advocate + Steelman；**pass 須在獨立 context 執行**，否則標 `[degraded]` 不得標 pass |
+| **D4 Evaluation de-bias** | Requires ≥3 critics + hard-role Devil's Advocate + Steelman; **pass requires both axes**: (1) an independent context, **and** (2) a declared **model level** requirement using the vendor-neutral labels of [model-selection](../../core/model-selection.md) — naming a concrete vendor model is a violation. Missing either axis → mark `[degraded]` — must NOT be marked pass | 須 ≥3 評審 + 硬角色 Devil's Advocate + Steelman；**pass 須同時滿足兩軸**：(1) 獨立 context，**且** (2) 以 [model-selection](../../core/model-selection.md) 的廠商中立標籤宣告**模型層級**要求——指名具體廠商模型即違規。缺任一軸→標 `[degraded]` 不得標 pass |
 
 > **Hard sequence gate | 硬序列閘:** D5–D8 are **forbidden** from being revealed or scored during the divergence period. The CONVERGE critics MUST NOT be invoked before the **last persona** has produced its set.
 >
@@ -109,7 +117,7 @@ A reserved space no oracle enters: a human's intuition to "keep / kill" needs on
 ### Structural rules | 結構規則
 
 1. **Meta stop rule | Meta 停止規則:** stop when the layer's dimensions are all green **and**, after one more round, the **Recommended Set membership is unchanged** (set membership, not internal ranking). **Hard cap: 2 rounds.** This replaces the vague "decision didn't flip" criterion. | 該層維度全綠 **且** 再跑一輪後 **推薦集成員不變**（看集合成員、不看內部排序）→停。**硬上限 2 輪**。取代模糊的「不翻決策」。
-2. **Judge ≠ generator | 判官≠產生者:** D2/D4/D5/D7 judgements need an independent viewpoint; single-context self-evaluation may only be `[degraded]`, never pass. | D2/D4/D5/D7 判定須獨立視角；單 context 自評只能 `[degraded]`，不得 pass。
+2. **Judge ≠ generator | 判官≠產生者:** D2/D4/D5/D7 judgements need an independent viewpoint; single-context self-evaluation may only be `[degraded]`, never pass. D4 additionally requires a declared model level — independence is one of its two axes (see D4). | D2/D4/D5/D7 判定須獨立視角；單 context 自評只能 `[degraded]`，不得 pass。D4 另需宣告模型層級——獨立性只是它兩軸之一（見 D4）。
 3. **Calibration loop (consumes lagging) | 校準回路（吃 lagging）:** v3's three Session Self-Evaluation metrics are folded in as the **lagging** end — **Adoption Rate = D6 lagging validation, Diversity = D2/D3 lagging observation, Cognitive Load = a cost constraint**. **Two parallel evaluation systems are forbidden** — there is one loop, not a separate self-eval. | v3 的 **Adoption Rate**＝D6 滯後驗證、**Diversity**＝D2/D3 滯後觀測、**Cognitive Load**＝成本約束；三者收編為此回路 lagging 端，**禁兩套平行評估**。
 4. **BQS self-evolution (lightweight) | BQS 自我演化（輕量）:** versioned + an evidence `last-reviewed` that flags when overdue; "periodically brainstorm BQS itself" is optional. | 版本化 + 證據清單 last-reviewed 逾期 flag；「定期對 BQS 自身 brainstorm」列可選。
 5. **Minimal sufficiency | 最小充分原則:** apply only the fewest dimensions the tier requires + confining Layer 2 to the Recommended Set (Agg. Score ≥ 3.5) instead of every divergence idea — this is the gate for cognitive economy; no separate cost dimension is added. | 套用該 tier 所需的最少維度 + 把第 2 層限縮在推薦集（Agg. Score ≥ 3.5），而非全部發散想法——認知經濟性的守門，不另設成本維度。
@@ -180,6 +188,10 @@ Define the problem space clearly before generating ideas.
 >
 > **v3 核心機制：** **persona 集成**——每個 persona 以**思維鏈**在**隔離**狀態下推理——再乘上**多樣性透鏡**。Meincke、Mollick、Terwiesch（2024）發現「思維鏈 + persona」的想法多樣性高於所有受測提示策略，接近人類團體。光衝數量是弱代理；結構性逼出不同視角才是真正槓桿。
 
+> **Model level (divergence side) | 模型層級（發散側）:** a divergence brief gives only a goal and constraints — exactly the trigger of [MS-004](../../core/model-selection.md#rules) / [Criterion 2](../../core/model-selection.md#criterion-2--specification-definiteness規格明確度) in core/model-selection.md: run divergence at **Standard or higher**. Not "the highest level" — that would overstate both what MS-004 says and our evidence. Lagging registry: this choice is validated through the calibration loop's existing **Diversity (D2/D3 lagging observation)** column — no second registry.
+>
+> 發散提示只給目標與約束——正是 core/model-selection.md 的 [MS-004](../../core/model-selection.md#rules)／[Criterion 2](../../core/model-selection.md#criterion-2--specification-definiteness規格明確度) 的觸發條件：發散以 **Standard 或更高**層級執行。不是「最高層級」——那會同時超出 MS-004 所說的與我們的證據。lagging 登記：此選擇由校準回路既有的 **Diversity（D2/D3 滯後觀測）** 欄驗證，不另開第二套登記。
+
 #### Step 2a — Persona ensemble | persona 集成
 
 Generate ideas through a default ensemble of personas. Each persona reasons **step by step (chain-of-thought)** and produces 2–4 ideas **from its own lens only**. The user may add, drop, or rename personas via `--personas`.
@@ -238,11 +250,15 @@ The "best ideas appear in the second half" pattern (Nijstad) is a **human-group*
 >
 > **v3 核心機制：** **多評審面板**取代單一加權評分者。單一 LLM 是弱且有偏的評估者（Li 等，2025：LLM 強於生成/精煉、弱於評估——人類保留最終裁決權）。三個獨立評審透鏡各自評分後聚合。
 
+> **Critic brief shape — goal + constraints (v4.2) | 評審提示形狀——目標＋約束（v4.2）:** when dispatching the panel, the Devil's Advocate, or the Steelman — above all into independent contexts (`--enhanced`) — the brief MUST be phrased as a **goal plus the constraints the judgment must satisfy**, never as an ordered procedure. D5–D8 and the specificity requirement below are **criteria** ("your judgment must satisfy these"), not **steps** ("do these in this order"). The fixed sentence patterns, the per-criterion 1–5 guides, and the critic weight formulas below stay available as **reference formats** — none of them is a mandatory step. Rationale: [MS-009](../../core/model-selection.md#rules) in core/model-selection.md.
+>
+> 對面板、Devil's Advocate、Steelman 派工時——尤其派入獨立 context（`--enhanced`）——提示**必須**以**目標＋其判斷必須滿足的約束**表達，不得寫成按順序執行的步驟清單。D5–D8 與下方的具體性要求是**判準**（「你的判斷必須滿足這些」），不是**步驟**（「照這個順序做這些事」）。既有固定句型、逐準則 1–5 指南與評審權重公式**保留為參考格式**，皆非必經步驟。理由：core/model-selection.md 的 [MS-009](../../core/model-selection.md#rules)。
+
 #### Step 3a: Multi-critic panel | 多評審面板
 
-Run **three independent critics**, each scoring every idea 1–5 on its own lens. Aggregate (mean) to reduce single-critic bias. Each critic uses the weighted formula below.
+Run **three independent critics**, each scoring every idea 1–5 on its own lens. Aggregate (mean) to reduce single-critic bias. The weighted criteria below define the default lenses — a reference format, not a script the critic must walk through.
 
-跑**三個獨立評審**，各自以自己的透鏡對每個想法打 1–5 分；取平均聚合以降低單評審偏誤。每位評審皆套用下方加權公式。
+跑**三個獨立評審**，各自以自己的透鏡對每個想法打 1–5 分；取平均聚合以降低單評審偏誤。下方加權準則定義預設透鏡——是參考格式，不是評審必須逐步照走的腳本。
 
 | Critic lens | Weighted criteria it owns | 評審透鏡 |
 |-------------|---------------------------|----------|
@@ -250,7 +266,7 @@ Run **three independent critics**, each scoring every idea 1–5 on its own lens
 | **User impact** | Impact 70% · Alignment 30% | 使用者影響 |
 | **Strategic alignment** | Alignment 60% · Impact 40% | 策略一致性 |
 
-Per-criterion guide (1–5): Feasibility (5=trivial … 1=near-impossible); Impact (5=transformative … 1=negligible); Effort (5=hours … 1=quarters, inverted so lower effort scores higher); Alignment (5=core mission … 1=off-mission).
+Per-criterion guide (1–5, reference format): Feasibility (5=trivial … 1=near-impossible); Impact (5=transformative … 1=negligible); Effort (5=hours … 1=quarters, inverted so lower effort scores higher); Alignment (5=core mission … 1=off-mission).
 
 > **Optional — RICE / ICE (product features):** for prioritising shippable features, score `RICE = (Reach × Impact × Confidence) / Effort` or the lighter `ICE = Impact × Confidence × Ease`. Let engineers — not the LLM — estimate Effort; the LLM lacks codebase knowledge. RICE favours incremental wins, so don't use it alone for strategic bets.
 >
@@ -262,9 +278,9 @@ A soft "please critique this" instruction yields mostly agreement (sycophancy). 
 
 軟性「請批評一下」只會得到附和（諂媚）。v3 指派**硬角色**：對**推薦集**（Agg. Score ≥ 3.5，不限筆數）中的每一個想法各跑一個 **Devil's Advocate**（「你的任務是論證此案會失敗」）與一個 **Steelman**（「說出反方最強而善意的版本」）。兩者一起壓力測試韌性，而非只是戳。
 
-Each counterargument must take the form: "This idea will fail in [specific context] because [specific reason]." Vague concerns ("this might be hard") are rejected.
+Constraint: each counterargument must name a **specific context** and a **specific reason** — vague concerns ("this might be hard") are rejected. The sentence pattern "This idea will fail in [specific context] because [specific reason]" is a reference format, not a required phrasing.
 
-每個反對理由須為：「在 [具體情境] 下，此想法會失敗，因為 [具體原因]。」模糊顧慮（「這可能有點難」）不接受。
+約束：每個反對理由須指出**具體情境**與**具體原因**——模糊顧慮（「這可能有點難」）不接受。句型「在 [具體情境] 下，此想法會失敗，因為 [具體原因]」是參考格式，不是必用句式。
 
 The user **must** respond to each before advancing:
 
@@ -278,15 +294,15 @@ The user **must** respond to each before advancing:
 
 **Flag:** `--no-rebuttal` skips this step; report section marked "Rebuttal: skipped".
 
-> **BQS D4 — judge ≠ generator | BQS D4 — 判官≠產生者:** D4 passes **only when the critics/Devil's Advocate run in an independent context** (the `--enhanced` isolated-agent host). On a baseline single context, the panel runs as same-context self-evaluation, which is marked `[degraded]` and **must NOT be marked pass** — it is honest but not independent. Do not silently treat a baseline run as a D4 pass.
+> **BQS D4 — judge ≠ generator, two axes | BQS D4 — 判官≠產生者，兩軸:** D4 passes **only when both axes hold**. **(1) Seat — independence**: the critics/Devil's Advocate run in an independent context (the `--enhanced` isolated-agent host). **(2) Mind — declared model level**: the review declares its required **model level**, expressed with the vendor-neutral labels of [core/model-selection.md](../../core/model-selection.md); selection basis is that standard's criteria (link, don't restate). Naming a concrete vendor model is a violation — the level labels are the only legal form. Missing either axis → the panel is marked `[degraded]` and **must NOT be marked pass**: an independent context running a literal-following model satisfies the seat axis verbatim and is a fully compliant rubber stamp — recognizing "the same thing under a different name" is judgment work that box-ticking cannot do. On a baseline single context, the panel is same-context self-evaluation — `[degraded]`, never pass, honest but not independent. Do not silently treat a baseline run as a D4 pass.
 >
-> D4 唯有**評審/Devil's Advocate 在獨立 context 執行**（`--enhanced` 隔離 agent 宿主）才可 pass。baseline 單 context 下，面板是同 context 自評，標 `[degraded]`、**不得標 pass**——誠實但非獨立。不得把 baseline 跑當成 D4 pass 靜默通過。
+> D4 唯有**兩軸同時成立**才可 pass。**(1) 座位——獨立性**：評審/Devil's Advocate 在獨立 context 執行（`--enhanced` 隔離 agent 宿主）。**(2) 心智——宣告模型層級**：評審宣告其**模型層級**要求，以 [core/model-selection.md](../../core/model-selection.md) 的廠商中立標籤表達；選層依據為該標準的判準（引用，不複述）。指名具體廠商模型即違規——層級標籤是唯一合法的表達方式。缺任一軸→面板標 `[degraded]`、**不得標 pass**：獨立 context 跑字面遵循型模型會逐字滿足座位軸，成為一枚完全合規的橡皮圖章——認出「不同名字下的同一件事」是打勾做不到的判斷工作。baseline 單 context 下，面板是同 context 自評，標 `[degraded]`、不得 pass——誠實但非獨立。不得把 baseline 跑當成 D4 pass 靜默通過。
 
 #### Step 3c: BQS Layer 2 — product gate on the Recommended Set | BQS 第 2 層——對推薦集的產物閘
 
-After convergence, apply **D5–D8 to the Recommended Set only** (ideas with Agg. Score ≥ 3.5, uncapped — never to every divergence idea). If no idea reaches 3.5, keep the single highest-scoring idea and mark it `[below threshold — shown for reference]` so the report is never empty. For each idea in the Recommended Set:
+After convergence, apply **D5–D8 to the Recommended Set only** (ideas with Agg. Score ≥ 3.5, uncapped — never to every divergence idea). If no idea reaches 3.5, keep the single highest-scoring idea and mark it `[below threshold — shown for reference]` so the report is never empty. D5–D8 are **criteria the judgment must satisfy** — in any order; they are not a procedure. For each idea in the Recommended Set, the judgment must satisfy:
 
-收斂後，**僅對推薦集**（Agg. Score ≥ 3.5 的想法，不限筆數）套用 **D5–D8**（絕不對全部發散想法）。若無想法達 3.5，仍保留分數最高的 1 個，標記 `[未達門檻——僅供參考]`，避免報告空白。對推薦集中每個想法：
+收斂後，**僅對推薦集**（Agg. Score ≥ 3.5 的想法，不限筆數）套用 **D5–D8**（絕不對全部發散想法）。若無想法達 3.5，仍保留分數最高的 1 個，標記 `[未達門檻——僅供參考]`，避免報告空白。D5–D8 是**判斷必須滿足的判準**——不限順序，不是程序。對推薦集中每個想法，判斷必須滿足：
 
 - **D5 Grounding:** split each claim into `[current state / external fact]` (needs a file:line or source, else fail) vs `[future / hypothesis]` (no grounding needed, mark `[hypothesis]`). An **external-fact claim is a cross-tier floor** — it must be grounded even at the creative tier. | 將每個主張分流為 `[現狀/外部事實]`（需 file:line 或來源，否則 fail）vs `[未來/假說]`（免接地、標 `[假說]`）。**外部事實宣稱為跨級地板**——creative 級也須接地。
 - **D6 Net benefit:** each idea in the Recommended Set must answer "whose problem / do we actually have it / cost of not doing it"; at least one idea must be eliminated as "not worth doing"; attach a **lagging registry field** (which later signal validates this). | 推薦集中每個想法須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
@@ -350,9 +366,9 @@ Produce a Brainstorm Report ready for `/requirement` or `/sdd`. Each surviving i
 - [ ] Proceed to `/sdd` if requirements are clear
 ```
 
-> **BQS output additions (v4):** the **Seeds** section (rule: non-empty when ≥1 idea was killed), the **Contested Zone** (high-variance ideas not eliminated by mean ranking), and the **Judgment Override** channel (human decision overriding the aggregate score) are required by BQS Layer 2/3. The Recommendations block records the D5–D8 status per idea, for every idea in the Recommended Set (uncapped).
+> **BQS output additions (v4):** the **Seeds** section (rule: non-empty when ≥1 idea was killed), the **Contested Zone** (high-variance ideas not eliminated by mean ranking), and the **Judgment Override** channel (human decision overriding the aggregate score) are required by BQS Layer 2/3. The Recommendations block records the D5–D8 status per idea, for every idea in the Recommended Set (uncapped). Since v4.2, the report header also records the review's declared **model level** (vendor-neutral label) — without it, D4 is `[degraded]` and the declaration has nowhere to be verified.
 >
-> **BQS 輸出新增（v4）：** **Seeds** 區（規則：被殺 ≥1 則非空）、**爭議區**（高方差想法不按 mean 淘汰）、**Judgment Override** 通道（人類裁決凌駕聚合分）為 BQS 第 2/3 層所要求。Recommendations 區塊為推薦集（不限筆數）中每個想法逐項記錄 D5–D8 狀態。
+> **BQS 輸出新增（v4）：** **Seeds** 區（規則：被殺 ≥1 則非空）、**爭議區**（高方差想法不按 mean 淘汰）、**Judgment Override** 通道（人類裁決凌駕聚合分）為 BQS 第 2/3 層所要求。Recommendations 區塊為推薦集（不限筆數）中每個想法逐項記錄 D5–D8 狀態。自 v4.2 起，報告表頭並記錄評審宣告的**模型層級**（廠商中立標籤）——沒有它，D4 為 `[degraded]`，且宣告無處可驗。
 
 ## Diversity-Collapse Guardrail | 多樣性崩塌防護
 
@@ -441,6 +457,7 @@ After `/brainstorm` completes, the AI assistant should suggest:
 ## Reference | 參考
 
 - Detailed guide: [guide.md](./guide.md)
+- Model level basis: [core/model-selection.md](../../core/model-selection.md) — the D4 mind axis and the divergence-side level defer to that standard's criteria. **Cite it, don't restate it** — a summary rots when its source is corrected; a pointer does not. | 模型層級依據：D4 心智軸與發散側層級皆以該標準的判準為準。**引用、不複述**——摘要會隨來源被更正而腐壞，指標不會。
 
 ## AI Agent Behavior | AI 代理行為
 

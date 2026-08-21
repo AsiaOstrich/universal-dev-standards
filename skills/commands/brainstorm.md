@@ -28,7 +28,7 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | **PRE-FLIGHT** | Prevent AI anchoring | User writes 3 ideas first; no analogy seed; **BQS Layer 0 intent (explore/exploit)** | 防止錨定 |
 | **FRAME** | Define problem clearly | 5 Whys, HMW, Stakeholder Map; **D1 frame purity** | 清楚定義問題 |
 | **DIVERGE** | Force viewpoint diversity | Persona ensemble + diversity lenses; **BQS Layer 1 D1–D4, hard gate hides D5–D8** | 逼出視角多樣性 |
-| **CONVERGE** | Bias-checked selection | Multi-critic panel + Devil's Advocate/Steelman; **BQS Layer 2 D5–D8 on Top 3, D4 judge≠generator** | 降偏誤選擇 |
+| **CONVERGE** | Bias-checked selection | Multi-critic panel + Devil's Advocate/Steelman; **BQS Layer 2 D5–D8 on the Recommended Set (Agg. ≥ 3.5), D4 judge≠generator (two axes: independent context + declared model level)** | 降偏誤選擇 |
 | **OUTPUT** | Actionable report | Brainstorm Report + Seeds + Contested Zone + **Layer 3 Judgment Override** | 可執行的報告 |
 
 > **BQS v1 (XSPEC-296):** v4 layers a four-layer × timeline quality contract on v3. Full oracles and structural rules are in the skill — see [Brainstorm Assistant Skill](../brainstorm-assistant/SKILL.md#bqs-v1--quality-contract--bqs-v1--品質契約).
@@ -64,7 +64,7 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 ## Problem Statement
 [Refined problem from FRAME phase]
 
-## Top 3 Recommendations
+## Recommendations (Agg. Score ≥ 3.5 — uncapped)
 1. **[Idea]** — Agg. X.X ✓ Passed rebuttal — Persona: [..] — [Why recommended]
 
 ## Diversity Note
@@ -96,7 +96,7 @@ After brainstorming, the typical workflow is:
 | `/brainstorm "topic"` | 以指定主題啟動 PRE-FLIGHT，再進入 FRAME |
 | `/brainstorm --personas "a,b,c"` | 以自訂 persona 組進入 DIVERGE |
 | `/brainstorm --lens <name>` | 以指定多樣性透鏡為主進入 DIVERGE |
-| `/brainstorm --enhanced` | 若宿主支援子代理則平行跑 persona/評審，否則靜默退回 baseline；此模式下 BQS D4 方可 pass |
+| `/brainstorm --enhanced` | 若宿主支援子代理則平行跑 persona/評審，否則靜默退回 baseline；此模式滿足 BQS D4 的座位軸（獨立 context），pass 另需宣告模型層級（心智軸，見 skill D4） |
 | `/brainstorm --intent exploit` | 以 exploit 意圖啟動（BQS Layer 0），D2 低覆蓋不扣分 |
 
 ### Interaction Script | 互動腳本
@@ -121,12 +121,13 @@ After brainstorming, the typical workflow is:
 3. 至少套用一個多樣性透鏡（類比／假設反轉／形態矩陣）
 4. 以多樣性（覆蓋的 persona/透鏡數，D2/D3）而非數量為繼續門檻
 5. **硬序列閘**：D5–D8 在最後一個 persona 產完前**不得揭示或評分**；CONVERGE critic 不得提前呼叫
+6. **模型層級（發散側）**：以 **Standard 或更高**層級執行——依 core/model-selection.md 的 MS-004／Criterion 2（引用，不複述；不是「最高層級」）
 
-#### CONVERGE Phase (BQS Layer 2 — D5–D8 on Top 3 only)
-1. 以 3 個獨立評審（工程可行性／使用者影響／策略一致）各自評分後聚合
-2. 對前 3 名跑硬角色 Devil's Advocate（論證會失敗）+ Steelman；使用者以 (a)修改/(b)反駁/(c)移除 回應。**D4 判官≠產生者**：評審須在獨立 context（`--enhanced`）方可 pass，否則標 `[degraded]` 不得 pass
-3. **僅對 Top 3** 套用 D5 接地（外部事實需 file:line／來源、跨級地板；假說免接地）、D6 淨值（解誰問題／真有嗎／不做代價＋掛 lagging 欄）、D7 二態證偽（「需先做 X」轉 next-step、不算 fail）、D8 next-step 裁決
-4. **Meta 停止規則**：維度全綠且再跑一輪 Top 3 集合成員不變→停；硬上限 2 輪
+#### CONVERGE Phase (BQS Layer 2 — D5–D8 on the Recommended Set only)
+1. 以 3 個獨立評審（工程可行性／使用者影響／策略一致）各自評分後聚合；**評審提示以「目標＋約束」表達**（判準，不是步驟清單——理由見 skill 引用的 core/model-selection.md MS-009），加權公式與逐準則指南為參考格式
+2. 對**推薦集**（Agg. Score ≥ 3.5，不限筆數）跑硬角色 Devil's Advocate（論證會失敗）+ Steelman；使用者以 (a)修改/(b)反駁/(c)移除 回應。**D4 判官≠產生者，兩軸**：(1) 評審在獨立 context（`--enhanced`）執行，且 (2) 宣告模型層級（core/model-selection.md 的廠商中立標籤；指名具體廠商模型即違規）——缺任一軸標 `[degraded]` 不得 pass
+3. **僅對推薦集**套用 D5 接地（外部事實需 file:line／來源、跨級地板；假說免接地）、D6 淨值（解誰問題／真有嗎／不做代價＋掛 lagging 欄）、D7 二態證偽（「需先做 X」轉 next-step、不算 fail）、D8 next-step 裁決——四者為判準、不限順序
+4. **Meta 停止規則**：維度全綠且再跑一輪推薦集集合成員不變→停；硬上限 2 輪
 
 🛑 **STOP**: 展示 Brainstorm Report（含 Seeds／爭議區／Judgment Override）後等待使用者決定下一步
 
@@ -147,13 +148,15 @@ After brainstorming, the typical workflow is:
 | 使用「像 X 但給 Y」種子 | 改寫為底層問題再繼續（反種子 guardrail） |
 | 指定的 persona/透鏡不存在 | 列出可用選項供選擇 |
 | `--enhanced` 但宿主不支援子代理 | 靜默退回 baseline，照常進行 |
-| 前 3 名全來自同一 persona/透鏡 | 標示並在輸出前再跑一個透鏡 |
+| 推薦集全來自同一 persona/透鏡 | 標示並在輸出前再跑一個透鏡 |
 | baseline 單 context 跑評審（無獨立 context） | BQS D4 標 `[degraded]`，不得標 pass |
+| 評審未宣告模型層級（或以具體廠商模型名宣告） | BQS D4 標 `[degraded]` 不得 pass；模型名改為 core/model-selection.md 的層級標籤 |
 | 外部事實宣稱無 file:line／來源 | D5 接地 fail，要求補來源或改標 `[假說]` |
 
 ## References | 參考
 
 * [Brainstorm Assistant Skill](../brainstorm-assistant/SKILL.md)
 * [Brainstorm Assistant Guide](../brainstorm-assistant/guide.md)
+* [Model Selection](../../core/model-selection.md) — model-level labels for BQS D4 and the divergence side (cited, not restated)
 * [Requirement Assistant](../requirement-assistant/SKILL.md)
 * [Spec-Driven Development](../spec-driven-dev/SKILL.md)

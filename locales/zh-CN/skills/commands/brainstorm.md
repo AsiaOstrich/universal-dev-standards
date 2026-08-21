@@ -1,9 +1,10 @@
 ---
 source: ../../../../skills/commands/brainstorm.md
-source_version: 4.0.0
-source_hash: b4d32a8b638e
-translation_version: 4.0.0
-last_synced: 2026-07-09
+source_version: 4.2.0
+source_hash: 319f8ad4f02f
+translation_version: 4.2.0
+last_synced: 2026-08-21
+status: current
 ---
 
 ---
@@ -34,7 +35,7 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | **PRE-FLIGHT** | 防止 AI 锚定 | 用户先写 3 个想法；不用类比种子；**BQS 第 0 层意图（explore/exploit）** |
 | **FRAME** | 清楚定义问题 | 5 Whys, HMW, Stakeholder Map；**D1 框架纯度** |
 | **DIVERGE** | 逼出视角多样性 | persona 集成 + 多样性透镜；**BQS 第 1 层 D1–D4，硬闸隐藏 D5–D8** |
-| **CONVERGE** | 经偏误检查的选择 | 多评审面板 + Devil's Advocate/Steelman；**BQS 第 2 层 D5–D8 施于 Top 3，D4 判官≠产生者** |
+| **CONVERGE** | 经偏误检查的选择 | 多评审面板 + Devil's Advocate/Steelman；**BQS 第 2 层 D5–D8 施于推荐集（Agg. ≥ 3.5），D4 判官≠产生者（两轴：独立 context＋宣告模型层级）** |
 | **OUTPUT** | 可执行的报告 | Brainstorm Report + Seeds + 争议区 + **第 3 层 Judgment Override** |
 
 > **BQS v1（XSPEC-296）：** v4 在 v3 上叠加四层 × 时间轴质量契约。完整 oracle 与结构规则见 skill：[Brainstorm Assistant Skill](../brainstorm-assistant/SKILL.md#bqs-v1--质量契约)。
@@ -68,7 +69,7 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 ## Problem Statement
 [Refined problem from FRAME phase]
 
-## Top 3 Recommendations
+## Recommendations (Agg. Score ≥ 3.5 — uncapped)
 1. **[Idea]** — Agg. X.X ✓ Passed rebuttal — Persona: [..] — [Why recommended]
 
 ## Diversity Note
@@ -100,7 +101,7 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | `/brainstorm "topic"` | 以指定主题启动 PRE-FLIGHT，再进入 FRAME |
 | `/brainstorm --personas "a,b,c"` | 以自定义 persona 组进入 DIVERGE |
 | `/brainstorm --lens <name>` | 以指定多样性透镜为主进入 DIVERGE |
-| `/brainstorm --enhanced` | 若宿主支持子代理则并行跑 persona/评审，否则静默退回 baseline；此模式下 BQS D4 方可 pass |
+| `/brainstorm --enhanced` | 若宿主支持子代理则并行跑 persona/评审，否则静默退回 baseline；此模式满足 BQS D4 的座位轴（独立 context），pass 另需宣告模型层级（心智轴，见 skill D4） |
 | `/brainstorm --intent exploit` | 以 exploit 意图启动（BQS 第 0 层），D2 低覆盖不扣分 |
 
 ### 交互脚本
@@ -125,12 +126,13 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 3. 至少套用一个多样性透镜（类比／假设反转／形态矩阵）
 4. 以多样性（覆盖的 persona/透镜数，D2/D3）而非数量为继续门槛
 5. **硬序列闸**：D5–D8 在最后一个 persona 产完前**不得揭示或评分**；CONVERGE critic 不得提前调用
+6. **模型层级（发散侧）**：以 **Standard 或更高**层级执行——依 core/model-selection.md 的 MS-004／Criterion 2（引用，不复述；不是「最高层级」）
 
-#### CONVERGE 阶段（BQS 第 2 层 — D5–D8 仅施于 Top 3）
-1. 以 3 个独立评审（工程可行性／用户影响／战略一致）各自评分后聚合
-2. 对前 3 名跑硬角色 Devil's Advocate（论证会失败）+ Steelman；用户以 (a)修改/(b)反驳/(c)移除 回应。**D4 判官≠产生者**：评审须在独立 context（`--enhanced`）方可 pass，否则标 `[degraded]` 不得 pass
-3. **仅对 Top 3** 套用 D5 接地（外部事实需 file:line／来源、跨级地板；假说免接地）、D6 净值（解谁问题／真有吗／不做代价＋挂 lagging 栏）、D7 二态证伪（「需先做 X」转 next-step、不算 fail）、D8 next-step 裁决
-4. **Meta 停止规则**：维度全绿且再跑一轮 Top 3 集合成员不变→停；硬上限 2 轮
+#### CONVERGE 阶段（BQS 第 2 层 — D5–D8 仅施于推荐集）
+1. 以 3 个独立评审（工程可行性／用户影响／战略一致）各自评分后聚合；**评审提示以「目标＋约束」表达**（判准，不是步骤清单——理由见 skill 引用的 core/model-selection.md MS-009），加权公式与逐准则指引为参考格式
+2. 对**推荐集**（Agg. Score ≥ 3.5，不限笔数）跑硬角色 Devil's Advocate（论证会失败）+ Steelman；用户以 (a)修改/(b)反驳/(c)移除 回应。**D4 判官≠产生者，两轴**：(1) 评审在独立 context（`--enhanced`）执行，且 (2) 宣告模型层级（core/model-selection.md 的厂商中立标签；指名具体厂商模型即违规）——缺任一轴标 `[degraded]` 不得 pass
+3. **仅对推荐集**套用 D5 接地（外部事实需 file:line／来源、跨级地板；假说免接地）、D6 净值（解谁问题／真有吗／不做代价＋挂 lagging 栏）、D7 二态证伪（「需先做 X」转 next-step、不算 fail）、D8 next-step 裁决——四者为判准、不限顺序
+4. **Meta 停止规则**：维度全绿且再跑一轮推荐集集合成员不变→停；硬上限 2 轮
 
 🛑 **STOP**: 展示 Brainstorm Report（含 Seeds／争议区／Judgment Override）后等待用户决定下一步
 
@@ -151,13 +153,15 @@ PRE-FLIGHT ──► FRAME ──► DIVERGE ──────────► C
 | 使用「像 X 但给 Y」种子 | 改写为底层问题再继续（反种子 guardrail） |
 | 指定的 persona/透镜不存在 | 列出可用选项供选择 |
 | `--enhanced` 但宿主不支持子代理 | 静默退回 baseline，照常进行 |
-| 前 3 名全来自同一 persona/透镜 | 标示并在输出前再跑一个透镜 |
+| 推荐集全来自同一 persona/透镜 | 标示并在输出前再跑一个透镜 |
 | baseline 单 context 跑评审（无独立 context） | BQS D4 标 `[degraded]`，不得标 pass |
+| 评审未宣告模型层级（或以具体厂商模型名宣告） | BQS D4 标 `[degraded]` 不得 pass；模型名改为 core/model-selection.md 的层级标签 |
 | 外部事实宣称无 file:line／来源 | D5 接地 fail，要求补来源或改标 `[假说]` |
 
 ## 参考
 
 * [Brainstorm Assistant Skill](../brainstorm-assistant/SKILL.md)
 * [Brainstorm Assistant Guide](../brainstorm-assistant/guide.md)
+* [Model Selection](../../core/model-selection.md) — BQS D4 与发散侧的模型层级标签（引用，不复述）
 * [Requirement Assistant](../requirement-assistant/SKILL.md)
 * [Spec-Driven Development](../spec-driven-dev/SKILL.md)
