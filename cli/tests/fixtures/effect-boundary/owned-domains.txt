@@ -1,0 +1,17 @@
+# Synthetic fixture: the "domains this organisation actually holds" list, for
+# XSPEC-383 R7-c.
+#
+# In a real adoption this file is NOT hand-maintained. The config points at a
+# `command` source instead, and that command asks the registrar or the cloud
+# account — `aws route53 list-hosted-zones`, `gcloud dns managed-zones list`,
+# a registrar API — so the list is read from the system of record rather than
+# from somebody's memory of it.
+#
+# A file source is the fallback for corpora that have no such API reachable
+# (this fixture, an air-gapped build). It is still checked: if the file is
+# missing, unreadable, or yields zero domains, the gate exits 2. Failing to read
+# the list is not the same as "the list is empty, so every domain is allowed".
+#
+# One domain per line; blank lines and # comments ignored; a leading "*." is
+# stripped.
+uds-effect-boundary.test

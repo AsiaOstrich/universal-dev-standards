@@ -58,7 +58,9 @@
     "check:bundle-parity": "node scripts/check-bundle-parity.mjs",
     "prepack": "node scripts/prepack.mjs",
     "check:reachability": "node scripts/check-module-reachability.mjs",
-    "check:command-existence": "node scripts/check-command-existence.mjs"
+    "check:command-existence": "node scripts/check-command-existence.mjs",
+    "check:effect-boundary": "node scripts/check-effect-boundary.mjs",
+    "check:effect-boundary:self-test": "node scripts/check-effect-boundary.mjs --self-test"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.4.2",

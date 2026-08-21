@@ -1,0 +1,20 @@
+{
+  "_comment": [
+    "Synthetic fixture config for XSPEC-383 R8 — the GREEN demonstration.",
+    "Same family, same globs, with the shape-D specimen directory excluded by a",
+    "directory rule (not by naming the two files).",
+    "Expected outcome: 4 members, 4 excluded, 3 GREEN, 1 EXEMPT-HONEST, exit 0."
+  ],
+  "root": ".",
+  "families": [
+    {
+      "name": "providers",
+      "include": ["providers/**/*.ts"],
+      "exclude": ["**/*.spec.ts", "providers/support/**", "providers/shape-d/**"]
+    }
+  ],
+  "ownedDomains": {
+    "source": "file",
+    "path": "owned-domains.txt"
+  }
+}

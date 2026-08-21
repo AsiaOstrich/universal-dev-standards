@@ -1,0 +1,19 @@
+{
+  "_comment": [
+    "Synthetic fixture config for XSPEC-383 R8 / R10 — the EMPTY-COLLECTION demonstration.",
+    "The glob is well-formed and matches nothing (this corpus has no *.adapter.ts).",
+    "A collecting gate whose collector comes back empty prints the same green for",
+    "'0 failures' and '0 things examined'. Expected outcome: exit 2, never 0."
+  ],
+  "root": ".",
+  "families": [
+    {
+      "name": "providers",
+      "include": ["providers/**/*.adapter.ts"]
+    }
+  ],
+  "ownedDomains": {
+    "source": "file",
+    "path": "owned-domains.txt"
+  }
+}
