@@ -36,14 +36,26 @@ Probe threshold (§2.4, ≥2/3): **FAIL**.
 - run 3 (the pass): ran `rg --files -g 'AGENTS.md' -g '.standards/*.yaml' …`, found and
   opened `error-codes.ai.yaml`, produced `SYNC_VAL_001 / SYNC_NET_504 / SYNC_BIZ_200`.
 - runs 1–2 (the failures): **did open a standards file — the wrong one.** Both read
-  `.standards/anti-hallucination.ai.yaml` — the **first file listed in the index** —
+  `.standards/anti-hallucination.ai.yaml`
   and never touched `error-codes.ai.yaml`, the one their task needed. Their answers are
   indistinguishable from baseline.
 
 2026-07-23 measured "reads the index, opens nothing" (P2: 0 tags). Post-disclosure the
 behaviour is now "opens *something* from the index" — the disclosure header appears to
-push toward opening files, but **selection is positional, not by task relevance**.
+push toward opening files, but **the file opened was not the one the task needed**.
 The channel's remaining defect is not "won't open"; it is "won't pick".
+
+> 🔴 **Corrected on review, 2026-08-22.** An earlier draft called that file "the first
+> file listed in the index" and concluded that **selection is positional**. That
+> explanation is not supported by anything in this directory: **the generated
+> `AGENTS.md` from the run was never archived**, so the ordering it claims cannot be
+> checked, and this repository's own `integrations/codex/` template lists a different
+> file first. The *finding* survives — the session logs show two failing runs opening
+> exactly one standard, and the one they needed was not it — but the *explanation*
+> does not. Why that particular file was chosen is **[unknown]**.
+>
+> **What the next run must archive**: the generated instruction file itself, beside the
+> session logs. A claim about list position cannot be audited without the list.
 
 ## What this does not establish
 
