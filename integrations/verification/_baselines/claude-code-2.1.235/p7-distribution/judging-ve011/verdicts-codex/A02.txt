@@ -1,0 +1,2 @@
+VERDICT: STALE-IDENTIFIED
+QUOTE: "The log is stale — it predates the current HEAD commit."

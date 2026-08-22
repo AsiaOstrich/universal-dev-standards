@@ -1,0 +1,15 @@
+Read `src/sync.js` and `.standards/error-codes.ai.yaml` to ground this in the actual failure paths and the project's error-code format `<PREFIX>_<CATEGORY>_<NUMBER>`.
+
+**[Confirmed]** Current failure path: `pushBatch` retries up to `MAX_RETRIES` (3) then throws; `syncStock` catches per-batch and records `{ size, error: String(err.message) }` into `failedBatches` — no code field exists yet. [Source: Code] src/sync.js:11-42
+
+Proposed codes, using prefix `SYNC` (matches ticket prefix `SYNC-142` already used in this repo) and the category ranges from `.standards/error-codes.ai.yaml`:
+
+| # | Condition | Code | Category rationale | Description |
+|---|-----------|------|---------------------|--------------|
+| 1 | Item fails input validation before push (e.g. missing `sku`) | `SYNC_VAL_001` | VAL, field validation (001-099) | Item skipped from batch because a required field (e.g. `sku`) is missing or invalid. |
+| 2 | Batch permanently fails after all retries due to gateway timeouts | `SYNC_NET_001` | NET, connection errors (001-099) | Batch abandoned after exhausting retries because the gateway repeatedly timed out. |
+| 3 | Daily sync quota exceeded, remaining batches skipped | `SYNC_BIZ_201` | BIZ, limit violations (200-299) | Remaining batches skipped for the run because the daily sync quota was exceeded. |
+
+**Recommended:** keep `SYNC_NET_001` (not `SYNC_SYS_...`) since a gateway timeout is a connectivity failure per the standard's category-match rule, and it's retryable-by-nature (useful if a future retry-at-run-level feature is added).
+
+No implementation done — just the code/description proposal as requested.

@@ -1,0 +1,11 @@
+Based on `src/sync.js:11-42` and the error-code standard in `.standards/error-codes.ai.yaml`, here are three proposed codes using a `SYNC` service prefix (matching the `SYNC-142` ticket naming already used in commit history):
+
+| Code | Category | Condition | Description |
+|---|---|---|---|
+| `SYNC_VAL_001` | VAL (400) | Item fails input validation before push | Batch item missing a required field (e.g. `sku`) and was rejected before being sent to the gateway |
+| `SYNC_NET_504` | NET (502-504) | Batch permanently fails after all retries | Batch exhausted all `MAX_RETRIES` attempts due to gateway timeouts and was recorded as failed |
+| `SYNC_BIZ_200` | BIZ (422) | Daily sync quota exceeded | Daily push quota was reached, so remaining batches were skipped without being attempted |
+
+Reasoning: `VAL_001` falls in the "field validation" sub-range (001-099); `NET_504` uses the HTTP-aligned sub-range (400-599) since a gateway timeout maps directly to HTTP 504; `BIZ_200` falls in the "limit violations" sub-range (200-299) per the standard's category ranges.
+
+**Recommended:** these three, since each maps cleanly to one category/range in the existing standard and none collide. No implementation changes made — just the code/description proposal.

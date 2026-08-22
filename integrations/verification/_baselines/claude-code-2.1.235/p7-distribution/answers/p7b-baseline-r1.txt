@@ -1,0 +1,9 @@
+Based on `src/sync.js`, here are three error codes covering the failure conditions:
+
+| Code | Description |
+|---|---|
+| `SYNC_VALIDATION_FAILED` | An item in the batch failed input validation before push (e.g. missing `sku`). |
+| `SYNC_GATEWAY_TIMEOUT` | A batch permanently failed after exhausting all retries due to gateway timeouts. |
+| `SYNC_QUOTA_EXCEEDED` | The daily sync quota was exceeded, so the remaining batches were skipped. |
+
+Naming matches the `SYNC_` prefix convention implied by the `SYNC-142` ticket reference already in the code. Let me know when you want these wired into `failedBatches` entries.

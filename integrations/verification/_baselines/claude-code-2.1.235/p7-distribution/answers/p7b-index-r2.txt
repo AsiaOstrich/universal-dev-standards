@@ -1,0 +1,14 @@
+Based on the error-code standard (`.standards/error-codes.ai.yaml`, `PREFIX_CATEGORY_NUMBER`) and the failure paths in `src/sync.js` [Source: Code] src/sync.js:11-37, here are the three codes:
+
+| Code | Condition | Description |
+|---|---|---|
+| `SYNC_VAL_001` | Item fails input validation before push (e.g. missing `sku`) | An item in the batch is missing a required field and was rejected before being sent to the gateway. |
+| `SYNC_NET_504` | Batch permanently fails after all retries due to gateway timeouts | The batch exhausted all `MAX_RETRIES` attempts because the gateway repeatedly timed out. |
+| `SYNC_BIZ_201` | Daily sync quota exceeded; remaining batches skipped | The daily push quota was reached, so remaining batches were not attempted this run. |
+
+Rationale:
+- `VAL` (400-class, field range 001-099) fits the missing-`sku` case — it's a client-side input defect, not a runtime failure.
+- `NET` with the `504` HTTP-aligned sub-range mirrors the actual failure mode (gateway timeout) and flags it as retryable-but-exhausted per the standard's retry guidance.
+- `BIZ` limit-violation range (200-299) fits quota exhaustion — it's a business rule ("daily cap"), not a technical error, and per the standard is not retryable within the same run.
+
+**Recommended**: adopt all three as-is; they're distinct failure classes with no overlap, satisfying `unique-codes`. No implementation changes made — this is just the code/description proposal you asked for.

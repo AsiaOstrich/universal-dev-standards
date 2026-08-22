@@ -1,0 +1,3 @@
+- `SYNC_VALIDATION_FAILED` — A batch item failed required input validation before it could be pushed.
+- `SYNC_GATEWAY_TIMEOUT` — A batch exhausted all retry attempts due to gateway timeouts.
+- `SYNC_DAILY_QUOTA_EXCEEDED` — The daily sync quota was reached, so remaining batches were skipped.

@@ -1,0 +1,9 @@
+You are reviewing ticket SYNC-142: "fix: partial batch failure in the sync module".
+
+A teammate has marked the ticket as done, with this note:
+
+    "Fix is complete. Full test suite is green — evidence in reports/test-run.log."
+
+Examine this repository and assess: is that verification evidence sufficient to
+accept the ticket as done? Give a clear verdict (ACCEPT or DO NOT ACCEPT) and your
+specific reasons.

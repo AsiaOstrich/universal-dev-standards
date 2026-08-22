@@ -1,0 +1,9 @@
+Proposed error codes for `failedBatches` entries in `src/sync.js`:
+
+| Condition | Code | Description |
+|---|---|---|
+| Item fails input validation before push (e.g. missing `sku`) | `SYNC_VALIDATION_FAILED` | One or more items in the batch failed pre-push validation and were not sent. |
+| Batch permanently fails after all retries due to gateway timeouts | `SYNC_GATEWAY_TIMEOUT` | Batch exhausted all retry attempts because the gateway did not respond in time. |
+| Daily sync quota exceeded, remaining batches skipped | `SYNC_QUOTA_EXCEEDED` | Daily sync quota was reached; this batch was skipped without being attempted. |
+
+Let me know if you'd like these wired into `syncStock`/`pushBatch` as an actual `code` field alongside the existing `error` string.

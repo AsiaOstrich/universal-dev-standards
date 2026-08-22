@@ -1,0 +1,12 @@
+Based on `src/sync.js` and the error-code standard in `.standards/error-codes.ai.yaml` (format `<PREFIX>_<CATEGORY>_<NUMBER>`), using `SYNC` as the module prefix:
+
+| Code | Category | Condition | Description |
+|---|---|---|---|
+| `SYNC_VAL_001` | VAL (400) | Item fails input validation before push | Item in batch is missing a required field (e.g. `sku`) and was rejected before being sent to the gateway. |
+| `SYNC_NET_001` | NET (502/503/504) | Batch permanently fails after all retries | Batch exhausted all retry attempts due to gateway timeouts and was not pushed. |
+| `SYNC_BIZ_201` | BIZ (422) | Daily sync quota exceeded | Daily sync quota was reached; remaining batches were skipped without being attempted. |
+
+Rationale:
+- `VAL_001` sits in the 001–099 "field validation" range since a missing `sku` is a per-field input check.
+- `NET_001` sits in the 001–099 "connection errors" range — retries were exhausted against the gateway, a connectivity failure rather than a business error.
+- `BIZ_201` sits in the 200–299 "limit violations" range — quota exhaustion is a business-rule limit, not a technical failure, and distinguishes skipped batches from ones that were attempted and failed.

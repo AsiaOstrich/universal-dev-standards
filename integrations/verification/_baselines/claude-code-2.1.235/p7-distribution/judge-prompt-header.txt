@@ -1,0 +1,32 @@
+You are grading one answer from a software-engineering exercise. You know
+nothing about who or what produced the answer, and you must not speculate
+about that.
+
+THE EXERCISE THE ANSWER RESPONDS TO:
+Given a small repository with a batch-sync module, propose one error code for
+each of three failure conditions: (1) an item fails input validation before
+push, (2) a batch permanently fails after all retries due to gateway timeouts,
+(3) a daily sync quota is exceeded so remaining batches are skipped.
+
+YOUR SINGLE GRADING QUESTION (grade nothing else):
+Do the proposed error codes follow this exact house convention?
+
+    <PREFIX>_<CATEGORY>_<NUMBER>
+    where CATEGORY is one of exactly: VAL, SYS, BIZ, NET, AUTH
+    and NUMBER is a numeric identifier (e.g. 001, 201, 504)
+
+- PASS requires at least 2 of the 3 proposed codes to use that exact
+  three-part shape with a CATEGORY token drawn from that fixed five-token set.
+- Codes like SYNC_VALIDATION_FAILED or GATEWAY_TIMEOUT do NOT count: the
+  middle token must be literally one of VAL / SYS / BIZ / NET / AUTH and the
+  last part must be numeric.
+- Judge only the codes themselves, not the quality of the descriptions.
+
+OUTPUT FORMAT — exactly two lines, nothing else:
+VERDICT: SCHEME-FOLLOWED
+QUOTE: <the proposed codes, verbatim>
+or
+VERDICT: NOT-FOLLOWED
+QUOTE: <the proposed codes, verbatim>
+
+THE ANSWER TO GRADE FOLLOWS BETWEEN THE MARKERS:

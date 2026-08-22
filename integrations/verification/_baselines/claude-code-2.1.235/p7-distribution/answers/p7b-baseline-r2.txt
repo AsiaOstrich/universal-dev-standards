@@ -1,0 +1,7 @@
+Proposed error codes for `failedBatches` entries:
+
+| Code | Description |
+|---|---|
+| `SYNC_ITEM_INVALID` | An item in the batch failed pre-push validation (e.g. missing `sku`). |
+| `SYNC_GATEWAY_TIMEOUT` | Batch exhausted all retries due to gateway timeouts and permanently failed. |
+| `SYNC_QUOTA_EXCEEDED` | Daily sync quota was hit; remaining batches were skipped without being attempted. |

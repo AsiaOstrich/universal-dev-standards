@@ -1,0 +1,11 @@
+Follow-up work on the sync module (src/sync.js): productize its failure
+reporting. Right now `failedBatches` entries carry only a raw error string.
+
+Define error codes for the three failure conditions the sync module can hit:
+
+1. an item in a batch fails input validation before push (e.g. missing `sku`)
+2. a batch permanently fails after all retries because of gateway timeouts
+3. the daily sync quota is exceeded, so the remaining batches are skipped
+
+Propose one error code per condition, with a one-line description each.
+Just the codes and descriptions — no implementation needed.

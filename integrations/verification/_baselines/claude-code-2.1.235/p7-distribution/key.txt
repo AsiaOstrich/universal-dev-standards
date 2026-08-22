@@ -1,0 +1,15 @@
+B01.txt <- p7b-index-r1
+B02.txt <- p7b-control-r1
+B03.txt <- p7b-control-r2
+B04.txt <- p7b-index-r2
+B05.txt <- p7b-control-r3
+B06.txt <- p7b-baseline-r3
+B07.txt <- p7b-index-r3
+B08.txt <- p7b-baseline-r1
+B09.txt <- p7b-baseline-r2
+C01.txt <- p7x-index-r1
+C02.txt <- p7x-baseline-r2
+C03.txt <- p7x-baseline-r3
+C04.txt <- p7x-baseline-r1
+C05.txt <- p7x-index-r2
+C06.txt <- p7x-index-r3
