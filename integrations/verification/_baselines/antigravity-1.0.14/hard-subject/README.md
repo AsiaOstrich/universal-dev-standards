@@ -1,7 +1,19 @@
 # Harder subject — the flat line, and the two defects nothing touches
 
 **Date**: 2026-07-24 · Reviews by **agy 1.0.14 / Gemini 3.6 Flash (High)**
-Judge: **Gemini 3.1 Pro (High)** only — see caveat.
+Judges: **Gemini 3.1 Pro (High)** and **Codex (codex-cli 0.145.0)** — cross-validated 2026-08-22.
+
+> **The single-judge caveat below is resolved.** Codex re-judged all ten archived reviews blind,
+> against the same `prompt.txt`, and agreed with Gemini on **every one of the 80 verdict cells**.
+> Both judges score all ten reviews 6/8, hitting the same six defects and missing the same two,
+> so the delta of 0.00 no longer rests on one judge.
+>
+> **What this does and does not establish.** It establishes that the *grading* is reproducible
+> across two unrelated judges — which is what the caveat questioned. It does **not** make the
+> reviews themselves more varied: they were already identical per defect, so any competent judge
+> would return the same verdicts. Read 0/80 as "the ruler is stable", not as "the finding is stronger".
+>
+> Raw verdicts in `verdicts-codex/`.
 
 ## Why a new subject
 
