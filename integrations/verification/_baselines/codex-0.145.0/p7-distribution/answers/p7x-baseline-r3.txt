@@ -1,0 +1,3 @@
+- `VALIDATION_ERROR` — A batch item failed pre-push input validation (for example, a required `sku` is missing).
+- `GATEWAY_TIMEOUT_RETRIES_EXHAUSTED` — The batch failed permanently after all retry attempts timed out at the gateway.
+- `DAILY_SYNC_QUOTA_EXCEEDED` — The daily sync quota was reached, so remaining batches were skipped.

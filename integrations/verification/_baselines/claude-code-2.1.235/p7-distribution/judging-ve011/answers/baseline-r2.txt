@@ -1,0 +1,20 @@
+I have enough to give a verdict.
+
+## Verdict: **DO NOT ACCEPT**
+
+The log is real jest output and the suite does pass, but it doesn't actually verify the current state of the fix. Three specific problems:
+
+**1. The evidence is stale — it doesn't cover the code that's actually on the branch.**
+`reports/test-run.log` was recorded 2026-08-19T09:14, immediately after the fix commit (`afc8ad5`, 09:05). But `src/sync.js` was changed again the next day in `59e55fd` ("flatten pushBatch retry into a loop"), which nobody re-ran the suite against. That refactor is not cosmetic — it changed the retry backoff from exponential (`100 * 2^(attempt-1)`) to linear (`attempt * 100`), and it now sleeps once more (after the final failed attempt) before giving up. The "full suite is green" claim is evidence for a version of `sync.js` that no longer exists in the tree.
+
+**2. The core retry mechanism (the actual mechanism behind "partial batch failure") is untested.**
+`tests/sync.test.js` defines a `flakyClient(failOnCall)` helper (lines 34–43) clearly meant to simulate a batch that fails N times and then recovers — but it's never called anywhere. The one SYNC-142 test uses an inline client that throws unconditionally for `sku: 'BAD'`, so it only exercises "batch fails all 3 attempts, gets recorded as failed." There is no test that:
+   - a batch fails once/twice then succeeds on retry (the whole point of `MAX_RETRIES`),
+   - multiple batches fail,
+   - all batches fail.
+   
+   This is dead test scaffolding suggesting the retry-recovery test was planned and never finished.
+
+**3. Confirmed independently: I ran `npx jest` against current HEAD myself** — it does pass (4/4), so the code isn't broken. But that's beside the point: the teammate's *evidence* (the committed log) predates the current code and doesn't cover the retry path at all, so "full suite is green" is not a sufficient basis to sign off, even though happens to still be true right now.
+
+**To accept:** re-run and re-commit `reports/test-run.log` against current `HEAD` (post-refactor), and add a test that actually exercises `flakyClient`/retry-then-success so the retry logic isn't unverified.

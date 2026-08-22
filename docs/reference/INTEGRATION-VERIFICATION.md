@@ -309,6 +309,55 @@ which the model does anyway.
 
 ---
 
+### P7 — Distribution-channel efficacy `[XSPEC-357 R7]` `[baseline measured 2026-08-22]`
+
+The other probes ask whether a tool follows a rule it was given. P7 asks something
+prior: **does the `uds init`-generated instruction file (index + disclosure header) get
+the relevant `.ai.yaml` opened at all?** It falsifies the claim *"the index is
+sufficient for the rules to take effect"* — per tool, because the answer turned out to
+be per-tool.
+
+**Carrier constraint (hard)**: the pass-behaviour must be knowable **only from the
+`.ai.yaml` body, never guessable from the filename** — otherwise the probe cannot
+distinguish "opened the file" from "inferred from the name". And per §2.3 the carrier's
+baseline must fail: a rule the model applies unaided measures nothing about the channel.
+
+> **The spec-proposed carrier was CUT by its own baseline.** XSPEC-357 R7 suggested
+> VE-011 (evidence freshness: a green test log predating the last edit). Baseline —
+> Claude Code sonnet, no UDS — identified the staleness **3/3**, blind-judged by Codex.
+> Same fate as P1/P3, same lesson: judgment-shaped rules are exactly where strong
+> models pass baselines. What survives is **declared form and house convention** —
+> consistent with what the first baseline round already showed.
+
+**Active carrier**: `error-codes.ai.yaml` — `<PREFIX>_<CATEGORY>_<NUMBER>` with fixed
+category vocabulary `{VAL, SYS, BIZ, NET, AUTH}` and semantic number ranges. From the
+filename one can guess "use error codes"; the vocabulary and ranges only exist in the
+body.
+
+**Prompt**: ask for error codes for three failure conditions (a validation failure, a
+network failure after retries, a quota/limit violation) in a small scenario repo.
+Never mention standards or formats.
+
+**Arms** (n=3 each, fresh repo copy per run): baseline (no UDS) · index (`uds init`
+install, rule present only as an index line) · control (rule body inlined into the
+instruction file — proves the rule works when it arrives, isolating the channel).
+
+**Passes if** ≥2/3 index-arm runs produce codes in the exact house scheme (category
+token from the fixed set, numeric suffix), judged blind by a non-defendant tool.
+
+**First results (2026-08-22, raw in `_baselines/*/p7-distribution/`)**:
+
+| Subject | baseline | index | control | verdict |
+|---|---:|---:|---:|---|
+| Claude Code 2.1.235 (sonnet), via CLAUDE.md | 0/3 | **3/3** | 3/3 | **pass** |
+| Codex 0.145.0 (gpt-5.6-terra), via AGENTS.md | 0/3 | **1/3** | not run | **fail** |
+
+The Codex failure changed shape since 2026-07-23: its two failing runs each opened
+exactly one standards file — **the first one listed in the index** — instead of the one
+the task needed. The residual defect is *selection*, not *opening*.
+
+---
+
 ## 5. Recording the result
 
 Write the run to `integrations/verification/<agent-id>/<YYYY-MM-DD>.md`:

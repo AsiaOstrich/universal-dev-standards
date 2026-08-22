@@ -1,0 +1,2 @@
+VERDICT: STALE-IDENTIFIED
+QUOTE: "The evidence is stale — it doesn't cover the code that's actually on the branch."

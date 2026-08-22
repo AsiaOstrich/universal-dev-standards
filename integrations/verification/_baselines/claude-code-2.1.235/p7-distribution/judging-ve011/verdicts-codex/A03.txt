@@ -1,0 +1,2 @@
+VERDICT: STALE-IDENTIFIED
+QUOTE: "The log predates the current source code."

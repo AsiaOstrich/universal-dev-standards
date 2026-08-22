@@ -1,0 +1,11 @@
+Based on `.standards/error-codes.ai.yaml` (`PREFIX_CATEGORY_NUMBER` format) and the existing `SYNC-142` ticket prefix used in this file's comments [Source: Code] src/sync.js:33, here's the mapping for the three conditions:
+
+| Code | Category | Description |
+|---|---|---|
+| `SYNC_VAL_001` | VAL (field validation, 001-099) | An item in the batch failed input validation before push (e.g., missing `sku`). |
+| `SYNC_NET_001` | NET (connection errors, 001-099) | A batch permanently failed after exhausting all retries due to gateway timeouts. |
+| `SYNC_BIZ_200` | BIZ (limit violations, 200-299) | The daily sync quota was exceeded, so remaining batches were skipped without being attempted. |
+
+**Recommended:** use these three as-is — they map cleanly onto the standard's existing category/range definitions (VAL→400, NET→502-504, BIZ→422) and reuse the `SYNC` prefix already established by the `SYNC-142` fix in this file, so no new prefix or category needs to be introduced.
+
+One distinction worth carrying into implementation later: condition 3 (quota exceeded) isn't a per-batch push failure like conditions 1–2 — it's a pre-emptive skip. `failedBatches` entries for `SYNC_BIZ_200` will need a way to signal "not attempted" rather than "attempted and failed," e.g. a `skipped: true` flag, distinct from the `error` string used for `SYNC_VAL_001`/`SYNC_NET_001`.

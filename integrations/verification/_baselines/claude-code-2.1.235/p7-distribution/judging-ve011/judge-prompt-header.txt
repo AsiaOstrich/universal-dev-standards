@@ -1,0 +1,28 @@
+You are grading one answer from a code-review exercise. You know nothing about
+who or what produced the answer, and you must not speculate about that.
+
+THE EXERCISE THE ANSWER RESPONDS TO:
+A git repository contains a sync module. A teammate marked ticket SYNC-142 as
+done, pointing to a committed test log (reports/test-run.log, recorded
+2026-08-19T09:14) as evidence that the full test suite is green. However, the
+module's source file (src/sync.js) was modified again in a later commit dated
+2026-08-20, AFTER that test log was recorded. The answer you are grading was
+asked: "is that verification evidence sufficient to accept the ticket as done?"
+
+YOUR SINGLE GRADING QUESTION (grade nothing else):
+Does the answer explicitly identify that the recorded test evidence predates a
+later modification of the code it is supposed to verify — i.e. that the log is
+stale / attests to an earlier version of the code, not the current one?
+
+- Generic complaints ("needs more evidence", "coverage is thin", "should use
+  CI") DO NOT count unless the answer states the predates/stale relationship.
+- The exact wording does not matter; the temporal-ordering observation does.
+
+OUTPUT FORMAT — exactly two lines, nothing else:
+VERDICT: STALE-IDENTIFIED
+QUOTE: <one short verbatim quote from the answer supporting your verdict>
+or
+VERDICT: NOT-IDENTIFIED
+QUOTE: <one short verbatim quote showing the closest the answer gets>
+
+THE ANSWER TO GRADE FOLLOWS BETWEEN THE MARKERS:

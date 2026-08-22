@@ -1,0 +1,15 @@
+Based on `src/sync.js` [Source: Code] src/sync.js:11-43 and the error-code standard in `.standards/error-codes.ai.yaml` (format `<PREFIX>_<CATEGORY>_<NUMBER>`), using `SYNC` as the service prefix:
+
+| Code | Category | Description |
+|---|---|---|
+| `SYNC_VAL_001` | Validation (400) | An item in a batch failed pre-push input validation (e.g., missing required field `sku`). |
+| `SYNC_NET_001` | Network (502/503/504) | A batch permanently failed after exhausting all retries due to gateway timeouts. |
+| `SYNC_BIZ_201` | Business/Limit (422) | The daily sync quota was exceeded, so the remaining batches were skipped without being attempted. |
+
+Reasoning: `VAL_001` falls in the "Field validation" range (001-099) per the standard's VAL category. `NET_001` falls in "Connection errors" (001-099) since a gateway timeout is a connectivity failure, not a protocol or application error. `BIZ_201` falls in the "Limit violations" range (200-299) since quota exhaustion is a business-rule limit, not a state or rule violation.
+
+**Recommended**: use these three as-is — they map cleanly to existing category/range definitions and each corresponds to a distinct HTTP status (400 / 502-504 / 422), so a caller can distinguish "retry later" (NET) from "fix your data" (VAL) from "wait for quota reset" (BIZ) without parsing message text.
+
+`[Inferred]` Prefix `SYNC` is chosen from context (`src/sync.js`, commit references to `SYNC-142`) rather than confirmed in a config file — I didn't find an existing prefix registry to verify against.
+
+No implementation changes made, as requested — this is proposal only.
