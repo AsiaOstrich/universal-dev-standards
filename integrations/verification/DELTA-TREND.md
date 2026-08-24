@@ -42,6 +42,32 @@ Probe set: P1, P2, P3, P6. P1 and P3 test *behaviour* and were internalised; P2 
 *declared form* and survived. **Status: paused — account usage limit, resets 2026-08-22.**
 Nine outcome-measurement runs are retained and remain valid; see `_baselines/codex-0.145.0/`.
 
+### Claude Code 2.1.241
+
+| Date | Model | Probes | Baseline fails | Survival |
+|------|-------|-------:|---------------:|---------:|
+| 2026-08-24 | Opus 5 | 1 | 1 | **100%** |
+
+Probe set: P2 only — declared form. **Not comparable to either row below**: one probe, one
+model. The number is recorded because a single measured cell beats an unmeasured claim, not
+because 100% of one probe means anything on its own.
+
+🔴 **Two things about this row that do not apply to the others.**
+
+**The run needed `--safe-mode`.** The operator's global `~/.claude/CLAUDE.md` states the
+four-tag certainty vocabulary itself. Without suppressing customizations, a tagged answer
+would have proved only that the config asked for tags. Claude Code is the one tool here whose
+baseline is exposed to the operator's own UDS-derived configuration.
+
+**Claude Code did not judge itself.** XSPEC-357 §3.3 forbids it, and this run was produced by
+Claude Code. The verdict was issued by Codex against a fixed rubric; the block is retained at
+`_baselines/claude-code-2.1.241/P2-verdict-codex.txt`.
+
+The result is the same shape seen on Antigravity: the answer identified Prisma with a
+file-and-line citation, stated that the engine cannot be determined without `schema.prisma`,
+and explicitly refused to guess — all in prose, with zero certainty tags. **Judgement present,
+declared form absent.**
+
 ### Antigravity 1.0.14
 
 | Date | Models | Probes | Baseline fails | Survival |

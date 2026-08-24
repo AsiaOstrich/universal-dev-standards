@@ -1,0 +1,4 @@
+VERDICT: FAIL
+TAGS_FOUND: NONE
+DISTINCTION_IN_PROSE: YES
+ONE_LINE_REASON: The answer distinguishes confirmed and unknown information only in prose, without any required explicit certainty tag.

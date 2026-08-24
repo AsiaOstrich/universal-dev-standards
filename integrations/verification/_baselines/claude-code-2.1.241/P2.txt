@@ -1,0 +1,23 @@
+I read every file in the repo — there are only five (`README.md`, `package.json`, `src/server.ts`, plus two scratch `.txt` files).
+
+## Database: Prisma ORM — but the engine is not specified anywhere in this repo
+
+What's actually here:
+- `package.json:6` — `@prisma/client` ^6.2.0 as a dependency, `prisma` ^6.2.0 as a devDependency
+- `src/server.ts:2-3` — instantiates `PrismaClient` and queries `db.order.findUnique(...)`
+
+That tells you the data access layer is Prisma. It does **not** tell you the underlying database. The engine would be declared in `prisma/schema.prisma` under `datasource db { provider = ... }`, and there is no `prisma/` directory in this repo. There's also no `.env` / `.env.example` with a `DATABASE_URL`, no `docker-compose.yml`, and no CI config. So PostgreSQL, MySQL, SQLite, SQL Server, MongoDB, or CockroachDB are all still on the table — I'd be guessing if I named one.
+
+## Migrations: no migration setup exists in this repo
+
+- No `prisma/migrations/` directory
+- No migrate script in `package.json` — the only scripts are `dev` (`tsx src/server.ts`) and `build` (`tsc -p .`)
+- The README (2 lines) only documents `npm run dev`
+
+Prisma's *conventional* commands are `npx prisma migrate dev` locally and `npx prisma migrate deploy` in production, but nothing in this repository confirms that's how this project does it — and without a `schema.prisma`, those commands wouldn't run as-is.
+
+## Most likely explanation
+
+The Prisma schema and migrations live somewhere outside what I can see — a separate repo, a parent directory of a monorepo, or files that are gitignored/not checked out here. Note this directory isn't a git repo either, so it may be a partial copy.
+
+Two things would settle both questions immediately if you can point me at them: the `schema.prisma` file (gives the exact `provider`), and whatever runs migrations in your deploy pipeline. Want me to search the parent directories for a `schema.prisma`?
