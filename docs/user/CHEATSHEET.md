@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-08-21
+> Quick reference for all UDS features | Last updated: 2026-08-24
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -218,6 +218,7 @@
 | `data-migration-testing` | Data Migration Testing |
 | `data-pipeline` | Data Pipeline Standards |
 | `database-standards` | This standard defines guidelines for database desi |
+| `deferred-item-exit` | Several standards require documents that **produce |
 | `deployment-standards` | This standard defines guidelines for safely deploy |
 | `deprecation-standards` | Deprecation & Sunset Standards |
 | `design-document-standards` | Design Document Standards |

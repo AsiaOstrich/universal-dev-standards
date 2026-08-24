@@ -3,8 +3,8 @@
 
 id: feature-discovery-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-05-13"
+  version: "1.1.0"
+  updated: "2026-08-24"
   source: core/feature-discovery-standards.md
   description: Language-agnostic methodology for exhaustive feature discovery in legacy systems; defines Deterministic-First principle, Software Form Taxonomy, five static foundations, dynamic/human observation protocols, and cross-layer validation matrix
   pipeline_position: "Discovery → feature-manifest-standard → behavior-snapshot"
@@ -457,3 +457,15 @@ related_standards:
   - anti-hallucination.ai.yaml
   - acceptance-criteria-traceability.ai.yaml
   - refactoring-standards.ai.yaml
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "zero-checkmark candidates"
+    - "dead_code_candidates"
+    - "candidates escalated to human observation"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

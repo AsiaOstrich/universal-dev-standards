@@ -3,8 +3,8 @@
 
 id: adr-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-03-26"
+  version: "1.1.0"
+  updated: "2026-08-24"
   source: core/adr-standards.md
   guide: skills/adr-assistant/guide.md
   description: Architecture Decision Records for tracking significant technical decisions
@@ -91,3 +91,15 @@ dec_borrowing_rules:
   tech_radar_index:
     location: "cross-project/decisions/TECH-RADAR.md"
     sync_rule: "Update TECH-RADAR.md whenever a DEC's radar state changes"
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "Consequences → Bad / Accepted risk"
+    - "Links"
+    - "options considered but not taken up"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

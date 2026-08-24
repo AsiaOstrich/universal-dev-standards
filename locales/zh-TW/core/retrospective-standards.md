@@ -1,8 +1,8 @@
 ---
 source: ../../../core/retrospective-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-26
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-08-24
 status: current
 ---
 
@@ -89,6 +89,8 @@ Open ──► In Progress ──► Done
   │
   └──► Cancelled（附原因）
 ```
+
+> Retrospective 記下的**延後項目**（`Action Items`、`Previous Action Items Review` 中仍為 Open 的列、附理由 Cancelled 的項目）適用 [deferred-item-exit](deferred-item-exit.md)。
 
 ### 追蹤規則
 

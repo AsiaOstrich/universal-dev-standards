@@ -2,9 +2,9 @@
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
 source_version: 4.2.0
-source_hash: bf5e782dbdd1
+source_hash: 02e63146c84e
 translation_version: 4.3.0
-last_synced: 2026-08-21
+last_synced: 2026-08-24
 status: current
 description: |
   [UDS] 在規格出現之前執行的結構化多角色腦力激盪，並附帶評分品質關卡。
@@ -243,6 +243,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 - **D6 淨值：** 推薦集中每個想法須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
 - **D7 可證偽（二態）：** 標 `[現可陳述證偽]` **或** `[需先做 X 才能定義證偽]`。後者**轉 next-step 餵 D8——不算 fail**。
 - **D8 可行動：** 每個存活想法需 next-step 裁決（含明確「暫不做」）；無 → fail。
+  - 裁決為「暫不做」者，以及 **Seeds（來自被淘汰的想法）** 中每個被擱置的想法，皆為 [deferred-item-exit](../../../../core/deferred-item-exit.md) 所指的延後項目。
 
 > **Meta 停止規則（BQS 結構規則 1）：** 當套用的維度全綠 **且** 再跑一輪後 **推薦集成員不變**（看集合成員、非內部排序）→停。**硬上限 2 輪。**
 

@@ -1,7 +1,7 @@
 # Spec-Driven Development (SDD) Standards
 
-**Version**: 2.4.0
-**Last Updated**: 2026-08-17
+**Version**: 2.5.0
+**Last Updated**: 2026-08-24
 **Applicability**: All projects adopting Spec-Driven Development
 **Scope**: universal
 **Industry Standards**: None (Emerging 2025+ methodology)
@@ -35,6 +35,8 @@ SDD operates at different maturity levels: Spec-first (discard after completion)
 | **Assumptions** | Required section tracking assumptions ([Assumption]) and open questions ([Need Confirmation]) |
 | **AC YAML Sidecar** | Recommended .ac.yaml for machine-readable AC (when >3 ACs) |
 | **AI Agent Behavior** | Optional section defining agent roles, rules, quality checks, constraints |
+
+> **Deferred items** a spec records — out-of-scope / not-in-this-version entries, open questions, and assumptions still awaiting confirmation — are governed by [deferred-item-exit](deferred-item-exit.md). | 規格記下的**延後項目**（未納入／不在本版的條目、open questions、仍待確認的 assumptions）適用 [deferred-item-exit](deferred-item-exit.md)。
 
 ## Acceptance Criteria Formats | AC 格式
 
@@ -100,6 +102,10 @@ falsify it.
   run was ever pointed at the claim in the first place.
 - [class-level-fix](class-level-fix.md) — the same discipline applied to *scope*: traverse the
   set rather than enumerate it.
+
+## What's New in v2.5.0
+
+- **Pointer to [deferred-item-exit](deferred-item-exit.md)** (XSPEC-391 R5). A spec's out-of-scope entries, open questions and unconfirmed assumptions are deferred items, and the invariant they must satisfy is stated once, there. **A pointer, not a summary** — six copies of one rule rot in six directions.
 
 ## What's New in v2.4.0
 

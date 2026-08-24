@@ -7,8 +7,8 @@ standard:
   description: AC-to-test traceability matrix, coverage calculation, and spec generation quality rules
 
   meta:
-    version: "1.1.0"
-    updated: "2026-03-18"
+    version: "1.2.0"
+    updated: "2026-08-24"
     source: core/acceptance-criteria-traceability.md
     references:
       - "ISO/IEC/IEEE 29119-3 (Test Documentation — Traceability Matrix)"
@@ -268,3 +268,15 @@ related_standards:
   - testing-standards.md
   - checkin-standards.md
   - test-governance.md
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "Gaps: Uncovered AC / Partial AC"
+    - "Threshold Exceptions"
+    - "report Action Items"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

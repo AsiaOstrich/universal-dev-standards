@@ -308,6 +308,7 @@ After convergence, apply **D5–D8 to the Recommended Set only** (ideas with Agg
 - **D6 Net benefit:** each idea in the Recommended Set must answer "whose problem / do we actually have it / cost of not doing it"; at least one idea must be eliminated as "not worth doing"; attach a **lagging registry field** (which later signal validates this). | 推薦集中每個想法須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
 - **D7 Falsifiability (two-state):** mark `[falsifiable now]` **or** `[need to do X first to define falsification]`. The latter is **routed to a next-step that feeds D8 — it does NOT count as fail**. | 標 `[現可陳述證偽]` **或** `[需先做 X 才能定義證偽]`。後者**轉 next-step 餵 D8——不算 fail**。
 - **D8 Actionability:** every surviving idea needs a next-step decision (including an explicit "defer / not now"); none → fail. | 每個存活想法需 next-step 裁決（含明確「暫不做」）；無 → fail。
+  - A `defer` next-step, and every idea parked in **Seeds (from killed ideas)**, are deferred items under [deferred-item-exit](../../core/deferred-item-exit.md). | `defer` 的 next-step，以及**Seeds（來自被淘汰的想法）**中每個被擱置的想法，皆為 [deferred-item-exit](../../core/deferred-item-exit.md) 所指的延後項目。
 
 > **Meta stop rule (BQS structural rule 1) | Meta 停止規則:** stop iterating when the applied dimensions are all green **and** one more round leaves the **Recommended Set membership unchanged** (set membership, not internal ordering). **Hard cap: 2 rounds.**
 >

@@ -1,8 +1,8 @@
 ---
 source: ../../../core/adr-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-26
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-08-24
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../core/adr-standards.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-03-26
+**版本**: 1.1.0
+**最後更新**: 2026-08-24
 **適用範圍**: 所有進行架構決策的軟體專案
 **範疇**: universal
 **產業標準**: ISO/IEC/IEEE 42010（架構描述）、TOGAF ADR
@@ -88,6 +88,23 @@ status: current
 
 - [相關 ADR、SPEC、PR 或外部參考]
 ```
+
+> 此範本中記下的**延後項目**（`Consequences` 下的既受風險與負面後果、被考慮而未採用的選項）適用 [deferred-item-exit](deferred-item-exit.md)。
+
+---
+
+## 驗收標準只在 SPEC 維護一份
+
+一份 ADR 記錄的是**決策**，它不帶自己的一份驗收標準。當一個決策有驗收標準時，
+它們**只在一處維護——SPEC**，而 ADR 以連結（`Technical Story` 或 `Links`）指向它。
+
+一份被複製的 AC 清單有兩個擁有者，而只有其中一個會被更新。實測後果是：
+實作完成、SPEC 的勾選框打勾，ADR 那一份**整份留在未勾選狀態**——
+讀 ADR 的人於是認為什麼都沒做，而讀 SPEC 的 AC 覆蓋率工具**根本看不到 ADR 裡那一份**。
+
+> 本條是關於 **AC 在哪裡維護**的邊界規則，不涉及 AC 的寫法或標註慣例。
+> AC 格式見 [spec-driven-development](spec-driven-development.md)；
+> AC 對驗證項的可追溯性見 [acceptance-criteria-traceability](acceptance-criteria-traceability.md)。
 
 ---
 
@@ -187,6 +204,8 @@ docs/adr/
 - [ ] **狀態**設定正確
 - [ ] **連結**到相關工件
 - [ ] 檔案存放在 `docs/adr/` 且命名正確
+- [ ] **沒有任何驗收標準被複製進 ADR** — 一律連結到維護它們的那份 SPEC
+- [ ] 每一個**延後項目**都載明其出口的識別字（[deferred-item-exit](deferred-item-exit.md)）
 
 ---
 
@@ -200,6 +219,8 @@ docs/adr/
 | 沒有後果分析 | 分析不完整 | 一定要列出正面和負面結果 |
 | 背景模糊 | 對未來讀者無用 | 包含具體的限制條件和驅動因素 |
 | 編輯已接受的 ADR | 歷史遺失 | 改用取代（Supersede）而非編輯 |
+| 把 SPEC 的驗收標準複製進 ADR | 兩個擁有者、只有一個會更新；ADR 那份留在未勾選，覆蓋率工具也看不到它 | 只在 SPEC 保留一份，並以連結指向 |
+| 既受風險沒有出口 | ADR 是唯一的載體，而它現在已被核准 | 給它一個出口，並在此載明該出口 |
 
 ---
 

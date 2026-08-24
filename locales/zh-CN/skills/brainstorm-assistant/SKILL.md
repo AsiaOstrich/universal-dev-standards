@@ -2,9 +2,9 @@
 name: brainstorm-assistant
 source: ../../../../skills/brainstorm-assistant/SKILL.md
 source_version: 4.2.0
-source_hash: bf5e782dbdd1
+source_hash: 02e63146c84e
 translation_version: 4.3.0
-last_synced: 2026-08-21
+last_synced: 2026-08-24
 status: current
 description: |
   [UDS] 在规格出现之前执行的结构化多角色头脑风暴，并附带评分质量关卡。
@@ -243,6 +243,7 @@ BQS 是**四层 × 时间轴**契约。它是 v3 的**叠加**——所有 v3 �
 - **D6 净值：** 推荐集中每个想法须答「解谁问题／我们真有吗／不做的代价」；至少一个淘汰为「不值得做」；挂 **lagging 登记栏**（事后哪个信号验证）。
 - **D7 可证伪（二态）：** 标 `[现可陈述证伪]` **或** `[需先做 X 才能定义证伪]`。后者**转 next-step 喂 D8——不算 fail**。
 - **D8 可行动：** 每个存活想法需 next-step 裁决（含明确「暂不做」）；无 → fail。
+  - 裁决为「暂不做」者，以及 **Seeds（来自被淘汰的想法）** 中每个被搁置的想法，皆为 [deferred-item-exit](../../../../core/deferred-item-exit.md) 所指的延后项目。
 
 > **Meta 停止规则（BQS 结构规则 1）：** 当套用的维度全绿 **且** 再跑一轮后 **推荐集成员不变**（看集合成员、非内部排序）→停。**硬上限 2 轮。**
 

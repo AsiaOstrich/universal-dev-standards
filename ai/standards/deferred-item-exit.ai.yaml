@@ -1,0 +1,225 @@
+# Deferred Item Exit Standard - AI Optimized
+# Source: core/deferred-item-exit.md
+
+standard:
+  id: deferred-item-exit
+  name: Deferred Item Exit Standard
+  description: 延後項目出口標準——延後項目必須離開文件
+
+  meta:
+    version: "1.0.0"
+    updated: "2026-08-24"
+    source: core/deferred-item-exit.md
+    description: >
+      有一批標準會產出延後項目（ADR 的既受風險、規格的未納入清單、retrospective 的
+      action items、探索矩陣的未確認候選、review 的非阻斷建議、AC 報告的缺口），
+      每一條都規定了那份文件要怎麼寫好，沒有一條規定那些項目之後去哪。
+      於是文件寫完就是終點。本標準補上那個缺失的關係：延後項目必須有一個
+      在文件之外的可追蹤出口，而出口的識別字寫在文件裡。
+
+  iron_law: >
+    一個記錄在文件裡的延後項目，必須在該文件之外有一個可追蹤的出口，
+    而該出口的識別字必須寫在文件裡、緊鄰該項目。
+    判準是「這個項目離開文件了嗎」，不是「用了什麼工具」。
+
+  # ── 寫法約束：先讀這一段，它拘束下面每一條 ────────────────────────────────
+  # DEC-049「UDS defines activities, adoption layers orchestrate」曾據以在 6.0.0
+  # 刪掉八條機器可讀標準（其中七條正是工作流狀態）。寫成編排協定會被同一條理由擋下。
+  writing_constraint:
+    basis: DEC-049
+    reference: docs/MIGRATION-v6.md §2
+    admissible_what:
+      - "artefact 之間必須存在的關係"
+      - "一項宣稱要算作證據所必須具備的性質"
+      - "一份回報必須保留的區別"
+      - "延後項目必須有出口"
+    inadmissible_how:
+      - "artefact 必須通過的狀態機"
+      - "必須產出該宣稱的 pipeline 階段"
+      - "回報格式、工具或 schema"
+      - "哪一個 issue tracker／看板／檔案是那個出口"
+    rule: >
+      每一條要求都寫成「必須存在什麼關係」，絕不寫成「應使用什麼機制維持它」。
+      UDS 本來就有一整類這個形狀的標準——acceptance-criteria-traceability
+      要求每一條 AC 都能被某個測試到達，而不規定用什麼維持那條可達性。
+    consequence: >
+      本標準不附帶任何閘門。它只說什麼必須為真；有沒有東西在檢查是採用專案的決定，
+      而 DEX-004 是用來讓那個決定沒辦法被默默做掉的。
+
+  guidelines:
+    - "延後項目必須離開文件——**判準是「離開了嗎」，不是「用了什麼工具」**"
+    - "出口的載體刻意不指定：issue／tracked TODO／manifest 條目／backlog 一列都算"
+    - "**出口必須在產出該文件的那次變更落地之後仍然解析得到**，且仍承載該項目"
+    - "**連結存在不等於連結有效**——必須驗證那個出口確實承載這個項目"
+    - "「有連結且已驗證內容」與「有連結但內容未驗證」**不得印出同一個綠**"
+    - "**錨點走訪結構，不走訪措辭**——結構可窮舉，措辭不可"
+    - "措辭清單的涵蓋率是未知的，必須明示；它的綠燈不得被讀成完整"
+    - "任何窗口／閾值必須寫下來歷，或標為未校準"
+    - "**一支從未紅過的檢查，與一支不可能紅的檢查，輸出一模一樣**"
+
+  # ── 出口的三條關係，全部成立才滿足不變量 ──────────────────────────────────
+  exit_relations:
+    - order: 1
+      relation: "出口存在於這份文件之外"
+      fails_when: "該項目唯一的紀錄就是這份文件的文字"
+    - order: 2
+      relation: "出口可由一個寫在文件裡的識別字定址"
+      fails_when: "文件寫著「之後再處理」而沒有任何可定址的東西"
+    - order: 3
+      relation: "產出該文件的那次變更落地之後，出口仍然解析得到"
+      fails_when: "出口被同一次變更關閉、刪除或取代"
+      observed_leaks:
+        - "待辦寫進會被本次合併關閉的 issue——文件指向一筆在工作被接受當下就停止存在的紀錄"
+        - "待辦寫進出口的留言而非本體，被後續留言推走——出口解析得到，讀出口卻讀不到那個項目"
+
+  # ── 連結存在 ≠ 連結有效 ────────────────────────────────────────────────
+  link_validity:
+    instance: >
+      文件寫著「與 issue #19 一併決定」，而 #19 裡根本沒有這件事。
+      三條關係全部成立，項目照樣不見了。一道只問識別字在不在的閘門會放行這份文件，
+      而它印出的綠燈與「出口都為真」的綠燈逐位元相同。
+    two_states_required:
+      - state: linked_verified
+        meaning: "讀過出口，它承載這個項目"
+      - state: linked_unverified
+        meaning: "識別字在，但它有沒有承載這個項目未知"
+      - state: no_exit
+        meaning: "違反 DEX-001"
+    why_not_one_state: >
+      把前兩態合併成單一通過數，不是通往規則的捷徑——那正是這條規則要防的缺陷，
+      被制度化並給了一個編號。一個被回報成通過的未知，比一個被回報成未知的未知更糟，
+      因為後者還找得到。
+    partial_adoption: >
+      只做得起便宜那一半，屬於 verification-evidence VE-012 / class-level-fix CLF-008
+      已經在管的涵蓋缺口：**必須登記到帶到期日的例外清冊，不能只寫一句揭露**。此處不複述。
+
+  # ── 錨點：走訪結構，不走訪措辭 ────────────────────────────────────────────
+  anchors:
+    principle: "結構由「要求產出這份文件的那條標準」定義，因此可窮舉；措辭不可窮舉，而且沒有任何一張措辭清單能被證明完整"
+    structural_locations:
+      adr: ["Consequences → Bad / Accepted risk", "Links", "被考慮而未採用的選項"]
+      spec: ["未納入／不在本版的段落", "open questions", "待確認的 assumptions"]
+      retrospective: ["Action Items", "Previous Action Items Review 中仍為 Open 的列", "附理由 Cancelled 的項目"]
+      feature_discovery: ["零打勾候選", "dead_code_candidates", "升級為人工觀察的候選"]
+      code_review: ["非阻斷留言類別（⚠️ IMPORTANT／💡 SUGGESTION／[SUGGESTION]／[NIT]）本次未改而被接受者"]
+      ac_coverage_report: ["Gaps → Uncovered AC / Partial AC", "Threshold Exceptions", "Action Items"]
+    wording_list:
+      allowed: true
+      but: >
+        DEX-008 隨即適用：涵蓋率未知必須明示，綠燈不得被讀成「沒有漏掉延後項目」。
+        一張含「待決定」「未納入」的清單，對「這一點我們先放著」這句話什麼也沒說。
+      general_form: class-level-fix
+      note: "閘門自行列舉範圍，正確到有人新增第四個成員為止——措辭清單在構造上就是這個失敗"
+    thresholds: >
+      「識別字須出現在項目後 3 行內」這類判準決定了建立其上的一切的召回率。
+      沒有東西記下 3 是怎麼來的，就沒有人能評估把它改成 2 或 5，也沒有人分得出它是量出來的還是猜的。
+      寫下來歷，或標為未校準——兩者都可接受，沉默不行。
+
+  # ── 證據可採性 ────────────────────────────────────────────────────────
+  evidence_admissibility:
+    rule: >
+      一支被提出作為本標準證據的檢查，必須已經被觀察到「對一個刻意違規的樣本回報失敗」。
+      從未紅過的檢查不是可採信的證據。
+    why: "一支從未失敗過的檢查，與一支不可能失敗的檢查，輸出一模一樣"
+    procedure_lives_in: class-level-fix   # 逐子集合成成員；此處不複述
+    exit_code_caveat_lives_in: verification-evidence
+
+  anti_patterns:
+    - pattern: "記下延後項目，然後核准文件"
+      why: "文件是唯一的載體，而它現在被視為完成了"
+    - pattern: "出口被產出該文件的同一次變更關閉"
+      why: "指標在工作進行中解析得到，工作結束後就不再解析得到"
+    - pattern: "項目寫進出口的留言而不是出口本體"
+      why: "出口解析得到；讀出口卻讀不到那個項目"
+    - pattern: "檢查識別字在不在"
+      why: "「在」與「對」印出同一個綠"
+    - pattern: "已驗證與未驗證的連結共用一個通過狀態"
+      why: "把上一列的缺陷變成永久的，還給了它一個編號"
+    - pattern: "把措辭清單當成「延後」的定義"
+      why: "正確到有人換一種寫法為止，而沒有東西會說"
+    - pattern: "沒有記下來歷的窗口大小"
+      why: "它決定整個判定的召回率，而沒有人能檢查它"
+    - pattern: "從未被觀察到失敗的檢查"
+      why: "與一支不可能失敗的檢查無從分辨"
+
+  rules:
+    - id: DEX-001
+      rule: "文件裡記下的延後項目，必須在文件之外有可追蹤的出口，且文件在該項目旁載明出口識別字"
+      severity: error
+    - id: DEX-002
+      rule: "產出該文件的變更落地之後，出口仍然解析得到且仍承載該項目"
+      severity: error
+    - id: DEX-003
+      rule: "本標準的每一條要求都必須可表述為 artefact 之間可判定的關係；不能如此表述的要求不得進入本標準"
+      severity: error
+    - id: DEX-004
+      rule: "被提出作為本標準證據的檢查，必須已被觀察到對刻意違規的樣本回報失敗；從未紅過的檢查不是可採信的證據"
+      severity: error
+    - id: DEX-005
+      rule: "驗證必須確立「那個出口承載這個項目」，而不只是「識別字解析得到」"
+      severity: error
+    - id: DEX-006
+      rule: "「有連結且已驗證內容」與「有連結但內容未驗證」須回報為兩個相異狀態；合併為單一通過狀態即不滿足 DEX-005"
+      severity: error
+    - id: DEX-007
+      rule: "「這裡有一個延後項目」的錨點，必須是可由該文件自身既定結構窮舉出來的位置"
+      severity: error
+    - id: DEX-008
+      rule: "以措辭清單補充結構錨點時，須明示其涵蓋率未知，且其綠燈不得被回報為完整"
+      severity: warning
+    - id: DEX-009
+      rule: "該判定所用的任何窗口或閾值，須載明來歷，或標為未校準"
+      severity: warning
+
+  # ── 本標準在 UDS 側沒有閘門，這件事被記錄而非被暗示 ──────────────────────
+  enforcement:
+    automated_gate: false
+    why_not: >
+      依上面的寫法約束，UDS 陳述關係，有沒有東西判定它是採用專案的決定。
+      UDS 不出貨這些文件本身，只出貨要求產出它們的標準。
+    what_it_does_instead: >
+      DEX-003 保證這裡每一條「能」被判定；DEX-004 固定「一次判定要算數需要什麼」；
+      DEX-006／DEX-008 固定「一次不完整的判定容許印出什麼」。
+    honest_boundary: >
+      一個採用本標準而什麼都沒建的專案並未違反它——但它同樣不能宣稱自己的延後項目有出口，
+      因為它沒有任何可採信的證據說明有。
+    reopen_condition: >
+      若 UDS 開始出貨那些文件本身而不只是產出它們的標準，
+      走訪 anchors.structural_locations 就在本 repo 內變得可能，屆時誠實的做法是去跑它。
+
+  # ── 產出延後項目的標準：各自放指標，不放摘要 ────────────────────────────
+  producers:
+    list:
+      - id: adr-standards
+        produces: "既受風險、負面後果、被考慮而未採用的選項"
+      - id: spec-driven-development
+        produces: "未納入項目、open questions、待確認的 assumptions"
+      - id: retrospective-standards
+        produces: "action items，以及仍為 Open 的上期項目"
+      - id: feature-discovery-standards
+        produces: "未確認候選與 dead_code_candidates"
+      - id: code-review-checklist
+        produces: "本次未改而被接受的非阻斷留言"
+      - id: acceptance-criteria-traceability
+        produces: "涵蓋缺口、閾值例外、報告的 action items"
+    pointer_not_summary: >
+      六條各加一行指回本標準，**不各自複述規則**——同一條規則複述六次會各自腐壞。
+      摘要會腐壞，指標不會。指標會斷，但斷了是可檢查的（走訪六條，缺指標即失敗）。
+
+  related:
+    - id: acceptance-criteria-traceability
+      relation: "上一層的同一個形狀：要求每條 AC 都能被驗證項到達，而不規定用什麼維持。本標準要求每個延後項目都能被出口到達"
+    - id: class-level-fix
+      relation: "提供 DEX-004 所要求證據的產生程序；也是 DEX-008 所揭露之措辭清單失敗的通則形式"
+    - id: verification-evidence
+      relation: "VE-012 的帶到期日例外清冊，正是 DEX-006 那群「未驗證」項目該被登記進去的地方，而不是揭露一次就放著"
+    - id: self-review-protocol
+      relation: "自我複查抓得到矛盾、抓不到缺漏；沒有出口的延後項目正是缺漏"
+
+physical_spec:
+  applies_to:
+    - "任何標準要求產出、且可能記下延後項目的文件"
+  deliverables:
+    - "每個延後項目旁的出口識別字"
+    - "已驗證／未驗證兩態分開的回報，而非單一通過數"
+    - "任何措辭清單的涵蓋率未知聲明，與任何閾值的來歷（或未校準標示）"

@@ -195,6 +195,8 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 基礎設施限制 | 測試環境限制 | 解決方案計畫 |
 | 延後至下一迭代 | 已與利害關係人確認 | Ticket 參照 |
 
+> 本標準產出的**延後項目**（`Gaps` 的 Uncovered AC／Partial AC、上表的例外、報告的 `Action Items`）適用 [deferred-item-exit](deferred-item-exit.md)。
+
 ---
 
 ## AC 覆蓋率報告格式

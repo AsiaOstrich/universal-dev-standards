@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/acceptance-criteria-traceability.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-06-19
+**Version**: 1.2.0
+**Last Updated**: 2026-08-24
 **Applicability**: All software projects using specification-driven or test-driven workflows
 **Scope**: universal
 
@@ -231,6 +231,8 @@ Exceptions to coverage requirements MUST be documented:
 | Infrastructure limitation | Test environment constraint | Workaround plan |
 | Deferred to next iteration | Agreed with stakeholders | Ticket reference |
 
+> **Deferred items** this standard produces — `Gaps` (Uncovered AC / Partial AC), the exceptions above, and the report's `Action Items` — are governed by [deferred-item-exit](deferred-item-exit.md). | 本標準產出的**延後項目**（`Gaps` 的 Uncovered AC／Partial AC、上表的例外、報告的 `Action Items`）適用 [deferred-item-exit](deferred-item-exit.md)。
+
 ---
 
 ## AC Coverage Report Format
@@ -382,3 +384,4 @@ Generated spec MUST include:
 |---------|------|---------|
 | 1.0.0 | 2026-03-18 | Initial version — traceability matrix, coverage calculation, spec generation rules |
 | 1.1.0 | 2026-05-12 | Add `not_implemented` 4th status; update CI gate formula; add decision tree (XSPEC-199) |
+| 1.2.0 | 2026-08-24 | Pointer to `deferred-item-exit` for coverage gaps, threshold exceptions and report action items (XSPEC-391 R5) |
