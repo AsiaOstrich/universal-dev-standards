@@ -286,6 +286,8 @@ Is there a specific reason for this approach?
 
 > 此評論前綴方式與 [Conventional Comments](https://conventionalcomments.org/) 規範一致，該規範在團隊和工具間標準化了審查回饋格式。
 
+> Review 產出的**延後項目**（本次未改而被接受的非阻斷留言：`⚠️ IMPORTANT`、`💡 SUGGESTION`、`[SUGGESTION]`、`[NIT]`）適用 [deferred-item-exit](deferred-item-exit.md)。
+
 ### 替代方案：文字標籤
 
 對於偏好純文字標籤（無 emoji）的團隊：

@@ -45,6 +45,8 @@ SDD 在不同的成熟度層級運作：規格優先（完成後丟棄）、規�
 | **AC YAML Sidecar** | 建議在 AC 超過 3 條時使用 .ac.yaml（機器可讀 AC） |
 | **AI Agent 行為** | 可選章節，用於在規格中定義 Agent 角色、規則、品質檢查、限制 |
 
+> 規格記下的**延後項目**（未納入／不在本版的條目、open questions、仍待確認的 assumptions）適用 [deferred-item-exit](deferred-item-exit.md)。
+
 ## AC 格式
 
 UDS 支援兩種 AC 記法。**GWT 為預設與首選**（Forward Derivation／BDD 場景生成依賴它）。**EARS**（Easy Approach to Requirements Syntax，IBM Rational）為可選補充，對事件／狀態／恆常／異常需求表達更精準。

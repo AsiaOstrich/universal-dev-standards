@@ -12,8 +12,8 @@ standard:
     - "Be constructive and explain 'why'"
 
   meta:
-    version: "2.1.0"
-    updated: "2026-06-18"
+    version: "2.2.0"
+    updated: "2026-08-24"
     source: core/code-review-checklist.md
     description: Systematic checklist for reviewing code quality and security
 
@@ -138,3 +138,13 @@ physical_spec:
   validator:
     command: "test -d .github/PULL_REQUEST_TEMPLATE || test -f .github/pull_request_template.md || test -f .github/PULL_REQUEST_TEMPLATE.md"
     rule: "pr_template_exists"
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "non-blocking comments accepted without a change in this change"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

@@ -3,8 +3,8 @@
 
 id: spec-driven-development
 meta:
-  version: "1.4.0"
-  updated: "2026-08-12"
+  version: "1.5.0"
+  updated: "2026-08-24"
   source: methodologies/guides/sdd-guide.md
   description: Spec-Driven Development workflow where documentation precedes implementation
 
@@ -254,3 +254,15 @@ quick_reference:
       - [OpenSpec, "/openspec proposal, /openspec approve"]
       - [Spec Kit, "/spec create, /spec close"]
       - [Manual, "specs/SPEC-XXX.md"]
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "out-of-scope / not-in-this-version entries"
+    - "open questions"
+    - "assumptions awaiting confirmation"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

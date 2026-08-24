@@ -3,8 +3,8 @@
 
 id: retrospective-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-03-26"
+  version: "1.1.0"
+  updated: "2026-08-24"
   source: core/retrospective-standards.md
   guide: skills/retrospective-assistant/guide.md
   description: Structured team retrospectives with facilitation techniques and action item tracking
@@ -41,3 +41,15 @@ rules:
   - "Always review previous action items first"
   - "Gather data (git log, metrics) before the session"
   - "Focus on process, not people — no blame"
+
+# ── Deferred items produced here ─────────────────────────────────────────────
+# Pointer, not a summary: the exit invariant is stated once, in deferred-item-exit.
+deferred_items:
+  produced_here:
+    - "Action Items"
+    - "Previous Action Items Review rows still Open"
+    - "items Cancelled with a reason"
+  governed_by: deferred-item-exit
+  note: >
+    規則只在 core/deferred-item-exit.md 一處陳述；此處放指標不放摘要。
+    摘要會腐壞，指標不會。

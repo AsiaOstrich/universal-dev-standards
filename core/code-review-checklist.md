@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-06-18
+**Version**: 1.5.0
+**Last Updated**: 2026-08-24
 **Applicability**: All software projects with code review processes
 **Scope**: universal
 **Industry Standards**: SWEBOK v4.0 Chapter 10
@@ -280,6 +280,8 @@ Is there a specific reason for this approach?
 ```
 
 > This comment prefix approach aligns with the [Conventional Comments](https://conventionalcomments.org/) specification, which standardizes review feedback across teams and tools.
+
+> **Deferred items** a review produces — non-blocking comments (`⚠️ IMPORTANT`, `💡 SUGGESTION`, `[SUGGESTION]`, `[NIT]`) accepted without a change in this change — are governed by [deferred-item-exit](deferred-item-exit.md). | Review 產出的**延後項目**（本次未改而被接受的非阻斷留言：`⚠️ IMPORTANT`、`💡 SUGGESTION`、`[SUGGESTION]`、`[NIT]`）適用 [deferred-item-exit](deferred-item-exit.md)。
 
 ### Alternative: Text Labels
 
@@ -664,6 +666,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.5.0 | 2026-08-24 | Added: pointer to `deferred-item-exit` for non-blocking comments accepted without a change (XSPEC-391 R5) |
 | 1.4.0 | 2026-06-18 | Added: source + configurability note for PR-size/response-time thresholds (SmartBear/Cisco study, Google practices) + bulk-change exception (XSPEC-292 T8) |
 | 1.3.0 | 2026-01-12 | Added: Comprehensive Refactoring PRs section with pre-review checklist, review focus areas, large refactoring guidelines, red flags, and best practices |
 | 1.2.0 | 2026-01-05 | Added: SWEBOK v4.0 Chapter 10 (Software Quality) to References |

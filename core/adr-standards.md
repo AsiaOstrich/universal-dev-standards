@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/adr-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-26
+**Version**: 1.1.0
+**Last Updated**: 2026-08-24
 **Applicability**: All software projects making architectural decisions
 **Scope**: universal
 **Industry Standards**: ISO/IEC/IEEE 42010 (Architecture Description), TOGAF ADR
@@ -80,6 +80,26 @@ Chosen option: **[Option N]**, because [justification].
 
 - [Related ADRs, SPECs, PRs, or external references]
 ```
+
+> **Deferred items** recorded in this template — accepted risks and negative consequences under `Consequences`, and options considered but not taken up — are governed by [deferred-item-exit](deferred-item-exit.md). | 此範本中記下的**延後項目**（`Consequences` 下的既受風險與負面後果、被考慮而未採用的選項）適用 [deferred-item-exit](deferred-item-exit.md)。
+
+---
+
+## Acceptance Criteria Live in the SPEC
+
+An ADR records a **decision**. It does not carry acceptance criteria of its own. Where a decision has acceptance criteria, they are maintained in **exactly one place — the SPEC** — and the ADR reaches them by link, from `Technical Story` or `Links`.
+
+A copied AC list has two owners and only one of them is ever updated. The measured consequence: implementation completed, the SPEC's checkboxes ticked, and the ADR's copy left entirely unticked — so a reader of the ADR concludes nothing was built, while AC coverage tooling, which reads the SPEC, cannot see the ADR's copy at all.
+
+一份 ADR 記錄的是**決策**，它不帶自己的一份驗收標準。當一個決策有驗收標準時，
+它們**只在一處維護——SPEC**，而 ADR 以連結（`Technical Story` 或 `Links`）指向它。
+
+一份被複製的 AC 清單有兩個擁有者，而只有其中一個會被更新。實測後果是：
+實作完成、SPEC 的勾選框打勾，ADR 那一份**整份留在未勾選狀態**——
+讀 ADR 的人於是認為什麼都沒做，而讀 SPEC 的 AC 覆蓋率工具**根本看不到 ADR 裡那一份**。
+
+> This is a boundary rule about **where an AC is maintained**, not about how ACs are written or labelled. For the AC format itself see [spec-driven-development](spec-driven-development.md); for AC-to-verification traceability see [acceptance-criteria-traceability](acceptance-criteria-traceability.md).
+> 本條是關於 **AC 在哪裡維護**的邊界規則，不涉及 AC 的寫法或標註慣例。
 
 ---
 
@@ -179,6 +199,8 @@ Before accepting an ADR, verify:
 - [ ] **Status** is set correctly
 - [ ] **Links** to related artifacts are included
 - [ ] File is stored in `docs/adr/` with correct naming
+- [ ] **No acceptance criteria are copied into the ADR** — they are linked to the SPEC that maintains them
+- [ ] Every **deferred item** carries the identifier of its exit ([deferred-item-exit](deferred-item-exit.md))
 
 ---
 
@@ -192,6 +214,8 @@ Before accepting an ADR, verify:
 | No consequences | Incomplete analysis | Always list good and bad outcomes |
 | Vague context | Useless for future readers | Include specific constraints and drivers |
 | Editing accepted ADRs | Lost history | Supersede instead of editing |
+| Copying the SPEC's acceptance criteria into the ADR | Two owners, one updated; the ADR's copy stays unticked and coverage tooling never sees it | Keep one copy in the SPEC; link to it |
+| An accepted risk with no exit | The ADR is the only carrier, and it is now approved | Give it an exit and name the exit here |
 
 ---
 

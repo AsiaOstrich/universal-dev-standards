@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-08-21
+> Auto-generated | Last updated: 2026-08-24
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -14,10 +14,10 @@
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心規範](#core-standards) (150)
+6. [核心規範](#core-standards) (151)
 7. [腳本](#scripts) (57)
 
-**Total Features: 346**
+**Total Features: 347**
 
 ---
 
@@ -428,10 +428,10 @@
 
 | Standard | 版本 | 說明 |
 |----------|---------|-------------|
-| `acceptance-criteria-traceability` | 1.1.0 |  |
+| `acceptance-criteria-traceability` | 1.2.0 |  |
 | `acceptance-test-driven-development` | 1.1.0 |  |
 | `accessibility-standards` | 1.1.0 | This standard defines comprehensive guidelines for creating accessible software  |
-| `adr-standards` | 1.0.0 | Architecture Decision Records capture the context, options, and rationale behind |
+| `adr-standards` | 1.1.0 | Architecture Decision Records capture the context, options, and rationale behind |
 | `adversarial-test` | - |  |
 | `agent-behavior-discipline` | 1.0.0 | This standard defines four behavioral disciplines for AI agents that elevate per |
 | `agent-communication-protocol` | 1.0.0 | Define a unified communication protocol for AI agents across the AsiaOstrich pro |
@@ -459,7 +459,7 @@
 | `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
 | `class-level-fix` | 1.1.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
-| `code-review-checklist` | 1.4.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
+| `code-review-checklist` | 1.5.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `container-security` | - |  |
@@ -472,6 +472,7 @@
 | `data-migration-testing` | - |  |
 | `data-pipeline` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `database-standards` | 1.0.0 | This standard defines guidelines for database design, querying, migration, and o |
+| `deferred-item-exit` | 1.0.0 | Several standards require documents that **produce deferred items** — an ADR's a |
 | `deployment-standards` | 1.1.0 | This standard defines guidelines for safely deploying software to production, co |
 | `deprecation-standards` | 1.1.0 |  |
 | `design-document-standards` | 1.0.0 |  |
@@ -486,7 +487,7 @@
 | `estimation-standards` | 1.0.0 |  |
 | `execution-history` | 1.0.0 |  |
 | `failure-source-taxonomy` | - |  |
-| `feature-discovery-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
+| `feature-discovery-standards` | 1.1.0 | **Status**: Active | **Updated**: 2026-08-24 |  |
 | `feature-flag-standards` | 1.0.0 |  |
 | `feature-manifest-standard` | - |  |
 | `flaky-test-management` | - |  |
@@ -535,7 +536,7 @@
 | `replay-test` | - |  |
 | `requirement-engineering` | 1.1.0 |  |
 | `resource-cost-boundary` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `retrospective-standards` | 1.0.0 | Retrospectives are structured team reflections that identify what worked well, w |
+| `retrospective-standards` | 1.1.0 | Retrospectives are structured team reflections that identify what worked well, w |
 | `retry-standards` | - |  |
 | `reverse-engineering-standards` | 1.3.0 | This standard defines the principles, workflows, and best practices for reverse  |
 | `rollback-standards` | - |  |
@@ -554,7 +555,7 @@
 | `slo-sli` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `slo-standards` | 1.0.0 |  |
 | `smoke-test` | - |  |
-| `spec-driven-development` | 2.4.0 |  |
+| `spec-driven-development` | 2.5.0 |  |
 | `standard-admission-criteria` | - |  |
 | `standard-lifecycle-management` | - |  |
 | `structured-task-definition` | 1.0.0 |  |

@@ -1,6 +1,6 @@
 # Feature Discovery Standards
 
-> **Version**: 1.0.0 | **Status**: Active | **Updated**: 2026-05-13
+> **Version**: 1.1.0 | **Status**: Active | **Updated**: 2026-08-24
 > **AI-optimized version**: `ai/standards/feature-discovery-standards.ai.yaml`
 > **Spec**: XSPEC-202 (cross-project/specs/XSPEC-202-feature-discovery-standards.md); related: XSPEC-199/200/201 (migration completeness protocol suite)
 
@@ -173,8 +173,11 @@ confidence value from this matrix becomes the manifest's `confidence` field.
 | `matrix-before-manifest` | Generating `feature-manifest.yaml` | Complete the cross-layer validation matrix first; only ≥1-checkmark items become `FM-NNN` entries; zero-checkmark items go to a separate `dead_code_candidates` list | required |
 | `dead-code-handling` | Call graph analysis reveals unreachable code | Never silently exclude unreachable functions; list as `dead_code_candidates`; account for dynamic dispatch; require human confirmation before classifying as dead code | required |
 
+> **Deferred items** this standard produces — zero-checkmark candidates, `dead_code_candidates`, and candidates escalated to human observation — are governed by [deferred-item-exit](deferred-item-exit.md). | 本標準產出的**延後項目**（零打勾候選、`dead_code_candidates`、升級為人工觀察的候選）適用 [deferred-item-exit](deferred-item-exit.md)。
+
 ## Related Standards
 
+- `deferred-item-exit` — the exit every unconfirmed candidate needs before this document is closed
 - `feature-manifest-standard` — represents confirmed candidates as `FM-NNN` entries
 - `behavior-snapshot` — verifies the manifest against observed runtime behavior
 - `reverse-engineering-standards` — broader legacy reverse-engineering process this
@@ -189,3 +192,4 @@ confidence value from this matrix becomes the manifest's `confidence` field.
 | Version | Date | Changes |
 |---------|------|---------|
 | v1.0.0 | 2026-05-13 | Initial — Deterministic-First principle, Software Form Taxonomy (7 forms), five static foundations, dynamic/human observation protocols, cross-layer validation matrix (XSPEC-202) |
+| v1.1.0 | 2026-08-24 | Pointer to `deferred-item-exit` for zero-checkmark candidates, `dead_code_candidates` and human-observation escalations (XSPEC-391 R5) |

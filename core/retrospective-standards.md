@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/retrospective-standards.md)
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-26
+**Version**: 1.1.0
+**Last Updated**: 2026-08-24
 **Applicability**: All software teams practicing iterative development
 **Scope**: universal
 **Industry Standards**: Scrum Guide (Sprint Retrospective), CMMI Level 3, ISO/IEC 12207 §6.3.6
@@ -198,6 +198,8 @@ Open ──► In Progress ──► Done
   │
   └──► Cancelled (with reason)
 ```
+
+> **Deferred items** a retrospective records — `Action Items`, `Previous Action Items Review` rows still Open, and items Cancelled with a reason — are governed by [deferred-item-exit](deferred-item-exit.md). | Retrospective 記下的**延後項目**（`Action Items`、`Previous Action Items Review` 中仍為 Open 的列、附理由 Cancelled 的項目）適用 [deferred-item-exit](deferred-item-exit.md)。
 
 ### Tracking Rules
 
