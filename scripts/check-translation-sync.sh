@@ -133,6 +133,7 @@ GLOBAL_MISSING_SOURCE=0
 GLOBAL_ERRORS=0
 GLOBAL_DRIFT=0          # source_hash present but mismatches source content (the "lie")
 GLOBAL_NOHASH=0         # managed translation with no source_hash field (advisory)
+GLOBAL_CURRENT_HASHED=0 # XSPEC-392 R6: current AND proven by source_hash, not merely by version number
 
 # Function to check a single locale
 check_locale() {
@@ -148,6 +149,11 @@ check_locale() {
     local MISSING_SOURCE=0
     local DRIFT=0
     local NOHASH=0
+    # XSPEC-392 R6：**「雜湊驗過」與「只有版本號相符」不可以印出同一個數。**
+    # source_hash 是這裡唯一不靠人記得更新的證據（本腳本自己的圖例叫它
+    # the anti-lie check），而它只覆蓋一小部分檔案。把兩者併進 Current，
+    # 會讓一小部分的證據看起來覆蓋整個表面。
+    local CURRENT_HASHED=0
 
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${CYAN}  Locale: $LOCALE${NC}"
@@ -310,10 +316,16 @@ check_locale() {
                     echo -e "${GREEN}[CURRENT]${NC} $rel_path"
                 fi
                 CURRENT=$((CURRENT + 1))
+                if [ "$hash_verdict" = "match" ]; then
+                    CURRENT_HASHED=$((CURRENT_HASHED + 1))
+                fi
             else
                 echo -e "${YELLOW}[CHECK]${NC}  $rel_path"
                 echo "          Status: $status (should be 'current'?)"
                 CURRENT=$((CURRENT + 1))
+                if [ "$hash_verdict" = "match" ]; then
+                    CURRENT_HASHED=$((CURRENT_HASHED + 1))
+                fi
             fi
         else
             local diff_level
@@ -435,7 +447,7 @@ check_locale() {
     # Locale summary
     echo ""
     echo -e "  ${BLUE}$LOCALE Summary:${NC}"
-    echo -e "    Total: $TOTAL | Current: ${GREEN}$CURRENT${NC} | Outdated: ${RED}$OUTDATED${NC} | Missing: ${RED}$MISSING_SOURCE${NC}"
+    echo -e "    Total: $TOTAL | Current: ${GREEN}$CURRENT${NC} (hash-proven ${GREEN}$CURRENT_HASHED${NC}) | Outdated: ${RED}$OUTDATED${NC} | Missing: ${RED}$MISSING_SOURCE${NC}"
     if [ $DRIFT -gt 0 ]; then
         echo -e "    Content drift (hash mismatch): ${ORANGE}$DRIFT${NC}"
     fi
@@ -462,6 +474,7 @@ check_locale() {
     GLOBAL_MISSING_SOURCE=$((GLOBAL_MISSING_SOURCE + MISSING_SOURCE))
     GLOBAL_DRIFT=$((GLOBAL_DRIFT + DRIFT))
     GLOBAL_NOHASH=$((GLOBAL_NOHASH + NOHASH))
+    GLOBAL_CURRENT_HASHED=$((GLOBAL_CURRENT_HASHED + CURRENT_HASHED))
 
     # Return error status if this locale has blocking issues
     if [ $OUTDATED_MAJOR -gt 0 ] || [ $MISSING_SOURCE -gt 0 ]; then
@@ -486,6 +499,8 @@ echo ""
 echo -e "Locales checked:    ${BLUE}$(echo $LOCALES | wc -w | tr -d ' ')${NC}"
 echo -e "Total files:        ${BLUE}$GLOBAL_TOTAL${NC}"
 echo -e "Current:            ${GREEN}$GLOBAL_CURRENT${NC}"
+echo -e "  ├─ hash-proven:   ${GREEN}$GLOBAL_CURRENT_HASHED${NC}  (source_hash matched — the only evidence that does not rely on anyone remembering)"
+echo -e "  └─ version-only:  ${YELLOW}$((GLOBAL_CURRENT - GLOBAL_CURRENT_HASHED))${NC}  ⚠️  no hash proof — \"current\" here means \"nobody bumped the version\""
 echo -e "Outdated (MAJOR):   ${RED}$GLOBAL_OUTDATED_MAJOR${NC}  ← release blocker if > 0"
 echo -e "Outdated (total):   ${YELLOW}$GLOBAL_OUTDATED${NC}"
 echo -e "Content drift:      ${ORANGE}$GLOBAL_DRIFT${NC}  (source_hash mismatch — version claims sync but source changed)"

@@ -593,8 +593,16 @@ jobs:
   translation-sync:
     name: Translation Sync Check
     runs-on: ubuntu-latest
-    # Known: 144 missing-source files from past directory restructuring (tech debt)
-    continue-on-error: true
+    # XSPEC-392 R7：這裡原本有 `continue-on-error: true`，理由寫著
+    # 「Known: 144 missing-source files from past directory restructuring」。
+    # 🔴 **那個理由 2026-08-25 已經不成立**——同一支腳本現在回報 Missing source: 0。
+    # 而沒有人會發現，因為**它保護的是一支本來就不會失敗的腳本**：
+    # check-translation-sync.sh 只有 MAJOR 落差才 exit 1，今天 0 筆，所以它 exit 0。
+    # 兩層 non-blocking 疊在一起，下層的理由早已過期。
+    #
+    # 移除下層。上層（MINOR/PATCH 只 advisory）**刻意保留**：今天有 90 份 outdated，
+    # 一次燒紅會讓整個 job 被關掉，而「non-blocking 不是缺陷，沉默才是」——
+    # 它不沉默，它每次都印數字。
 
     steps:
       - name: Checkout
@@ -617,6 +625,25 @@ jobs:
         run: |
           chmod +x ./scripts/check-cli-docs-sync.sh
           ./scripts/check-cli-docs-sync.sh
+
+  # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
+  #
+  # source_hash 是 UDS 自己發明的正確答案——雜湊來源內容，來源一改就對不上，
+  # 與有沒有人記得更新日期無關（本腳本圖例：the anti-lie check）。
+  # 而它只到達 804 份裡的 210 份，其餘的漂移在結構上偵測不到。
+  #
+  # 🔴 **不批次補雜湊**：蓋雜湊是宣稱「此刻與來源同步」，而那件事沒人驗證過；
+  # 錯誤的宣稱會把真的漂移重新藏起來。所以既有的凍結、新的必須合規。
+  translation-hash-ratchet:
+    name: Translation source_hash Ratchet (XSPEC-392 R6)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check hash ratchet
+        run: bash scripts/check-translation-hash-ratchet.sh
 
   # XSPEC-392 R3：出貨的 .ai.yaml 與其來源 .md 的日期是否仍相符。
   #
