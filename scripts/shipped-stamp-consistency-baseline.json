@@ -379,8 +379,8 @@
       "shippedUpdated": "2026-05-13",
       "actualUpdated": "2026-02-02",
       "kind": "DATE_MISMATCH",
-      "verified": false,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): the shipped `updated` value (2026-05-13) is LATER than `git log`'s answer for the source file (2026-02-02) — confirmed with both author date (%ad) and committer date (%cd), no rebase/merge-order artifact found. That means the shipped date was not produced by regenerating from this source at that date; it is either a hand-edit or a relic of the pre-R2 `new Date()` fallback bug this same landing removes. Root cause NOT yet identified — needs a human/dev to dig into blame history for this specific .ai.yaml file before this can be marked verified. Left unverified on purpose."
+      "verified": true,
+      "evidence": "XSPEC-392 R3 主 session 獨立查證（2026-08-25）：出貨 updated=2026-05-13 **正好等於這份 yaml 自己的 git 最後變更日**，而來源 core/test-completeness-dimensions.md 的 git 日期是 2026-02-02（該 md 自己的手寫戳寫 2026-01-24，比 git 早 9 天，是另一個方向的漂移）。🔴 同上：記的是檔案被碰的日，出貨成標準更新的日。正確修法是重新生成（R2 就位後會取 2026-02-02）。"
     },
     {
       "file": "ai/standards/test-data-standards.ai.yaml",
@@ -406,8 +406,8 @@
       "shippedUpdated": "2026-08-12",
       "actualUpdated": "2026-04-20",
       "kind": "DATE_MISMATCH",
-      "verified": false,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): the shipped `updated` value (2026-08-12) is LATER than `git log`'s answer for the source file (2026-04-20) — confirmed with both author date (%ad) and committer date (%cd), no rebase/merge-order artifact found. That means the shipped date was not produced by regenerating from this source at that date; it is either a hand-edit or a relic of the pre-R2 `new Date()` fallback bug this same landing removes. Root cause NOT yet identified — needs a human/dev to dig into blame history for this specific .ai.yaml file before this can be marked verified. Left unverified on purpose."
+      "verified": true,
+      "evidence": "XSPEC-392 R3 主 session 獨立查證（2026-08-25）：出貨 updated=2026-08-12 **正好等於這份 yaml 自己的 git 最後變更日**（`git log -1 -- ai/standards/testing.ai.yaml` → 2026-08-12），而來源 core/testing-standards.md 的戳與 git 日期一致皆為 2026-04-20。🔴 所以這個欄位記的是「這個 yaml 檔被碰過的那天」，卻以「這份標準更新的那天」出貨——正是本規格的形狀。正確修法是重新生成（R2 已就位，會取來源的 git 日期 2026-04-20）；本輪先如實記錄，不手改生成物。"
     },
     {
       "file": "ai/standards/virtual-organization-standards.ai.yaml",
