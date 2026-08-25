@@ -151,9 +151,19 @@ UDS installed. Only one survived.**
 | **P2** certainty tags | "four-tag vocabulary is UDS-specific" | **zero tags emitted** | **✅ active** |
 | **P3** explicit recommendation | "models present balanced menus" | **produced its own `### Recommendation`** | **cut** |
 | P4 / P5 | conditional | not yet run | pending |
+| **P7** distribution-channel efficacy | "the AGENTS.md index is enough to make rules effective" | **both tools identified stale evidence unaided** | **cut** |
 
-**Three of four testable assumptions about default model behaviour were wrong**, and every one
+**Four of five testable assumptions about default model behaviour were wrong**, and every one
 of them had a confident, specific, plausible-sounding justification written next to it.
+
+P7 (2026-08-25) is the fourth: it chose VE-011 — evidence must postdate the last edit to what
+it verifies — precisely because that rule is *not* guessable from the filename. Both Codex
+0.145.0 and Antigravity 1.0.14, with no UDS installed, connected the two timestamps and called
+the evidence stale. Cross-judged, so neither answer was scored by the model that wrote it.
+
+🔴 **Cutting P7 does not answer R7's question.** Whether the distribution channel delivers the
+rules at all has still never been measured; P7 was one candidate carrier and it failed the
+entrance exam.
 
 This is a result about UDS, not just about the probe set: **the delta between "what a current
 model does unaided" and "what UDS asks for" is much smaller than the always-read tier assumes.**
