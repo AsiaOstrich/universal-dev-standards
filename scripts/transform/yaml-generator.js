@@ -6,6 +6,39 @@
  * our options and workflow extensions.
  */
 
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// scripts/transform/yaml-generator.js -> scripts/transform -> scripts -> repo root
+const REPO_ROOT = resolve(__dirname, '../..');
+
+/**
+ * XSPEC-392 R2: `meta.updated` must reflect when the source file's content
+ * actually last changed, not a hand-typed `**Last Updated**` line (which can
+ * go stale relative to the file it lives in) and never a `new Date()` value
+ * standing in for "the day this script happened to run".
+ *
+ * Returns an ISO date (YYYY-MM-DD) from git history for `relativeSourcePath`,
+ * or `null` when git has no record for it (untracked/new file, git missing,
+ * or any other failure) — a missing date is honest; a fabricated one is not.
+ */
+function getGitLastModifiedDate(relativeSourcePath) {
+  if (!relativeSourcePath) return null;
+  try {
+    const out = execFileSync(
+      'git',
+      ['log', '-1', '--format=%ad', '--date=short', '--', relativeSourcePath],
+      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Generate YAML from parsed Markdown structure
  * @param {Object} parsed - Parsed Markdown structure
@@ -40,7 +73,12 @@ export function generateYaml(parsed, options = {}) {
     lines.push(`  parent: ${parent}`);
   }
   lines.push(`  version: "${parsed.meta.version}"`);
-  lines.push(`  updated: "${parsed.meta.updated}"`);
+  // XSPEC-392 R2: derive from git history, not the hand-typed `**Last Updated**`
+  // line md-parser.js may have picked up, and never fabricate today's date.
+  const gitUpdated = getGitLastModifiedDate(parsed.meta.source);
+  if (gitUpdated) {
+    lines.push(`  updated: "${gitUpdated}"`);
+  }
   if (!isOption) {
     lines.push(`  source: ${parsed.meta.source}`);
   }
