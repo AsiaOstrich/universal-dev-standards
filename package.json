@@ -51,7 +51,9 @@
     "check:adoption-skills:self-test": "node scripts/generate-adoption-skills.mjs --self-test",
     "check:shipped-stamp": "tsx scripts/check-shipped-stamp-consistency.ts",
     "check:shipped-stamp:self-test": "tsx scripts/check-shipped-stamp-consistency.ts --self-test",
-    "check:hash-ratchet": "bash scripts/check-translation-hash-ratchet.sh"
+    "check:hash-ratchet": "bash scripts/check-translation-hash-ratchet.sh",
+    "check:baseline-claims": "tsx scripts/check-baseline-status-claims.ts",
+    "check:baseline-claims:self-test": "tsx scripts/check-baseline-status-claims.ts --self-test"
   },
   "type": "module",
   "dependencies": {

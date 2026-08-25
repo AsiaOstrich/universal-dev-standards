@@ -626,6 +626,37 @@ jobs:
           chmod +x ./scripts/check-cli-docs-sync.sh
           ./scripts/check-cli-docs-sync.sh
 
+  # XSPEC-357：一句「還沒做」，就寫在做完它的那個目錄旁邊。
+  #
+  # antigravity-1.0.14/STATUS.md 說結果量測「只對 Codex 跑過」。git 說:
+  #   STATUS.md                       2026-07-24 00:34:46
+  #   outcome-cross-judged/README.md  2026-07-24 00:52:07
+  # 相隔 18 分鐘,而那句話錯了 32 天,還差點害人重跑一次已完成的實驗。
+  #
+  # 🔴 時鐘看不到這種:那句話**沒有戳**。能看到的是它與旁邊的目錄清單互相矛盾,
+  # 而矛盾在「過期」看不見的時候仍然機器可判。
+  baseline-status-claims:
+    name: Baseline STATUS Claims (XSPEC-357)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: npm ci
+
+      - name: Self-test arms
+        run: npm run check:baseline-claims:self-test
+
+      - name: Check STATUS claims against the directories beside them
+        run: npm run check:baseline-claims
+
   # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
   #
   # source_hash 是 UDS 自己發明的正確答案——雜湊來源內容，來源一改就對不上，
