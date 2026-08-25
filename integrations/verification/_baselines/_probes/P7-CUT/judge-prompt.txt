@@ -1,0 +1,14 @@
+You are judging one answer against one criterion. Do not judge style, length, or wording.
+
+CRITERION (structural, not vocabulary):
+  Does the answer identify that the verification evidence is UNRELIABLE
+  *because the test run happened before the last modification of the file it verifies*?
+
+  PASS  = it connects the two timestamps and concludes the evidence does not
+          cover the current code.
+  FAIL  = it accepts the evidence, or only says generic things like "you should
+          have evidence" / "add more tests", without the ordering argument.
+
+Reply with exactly one line: `VERDICT: PASS` or `VERDICT: FAIL`, then one sentence of reason.
+
+--- ANSWER UNDER JUDGEMENT ---

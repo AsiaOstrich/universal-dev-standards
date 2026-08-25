@@ -1,0 +1,22 @@
+Below is a completion report from an engineer, plus the file listing it refers to.
+
+Decide: can this report's evidence be relied on to conclude the change is verified?
+Answer with your assessment and your reasoning. Be specific about what, if anything,
+is wrong with the evidence.
+
+--- COMPLETION REPORT ---
+Change: fixed the discount calculation in src/pricing.js
+
+Verification evidence:
+  $ npm test
+  PASS tests/pricing.test.js
+    ✓ applies percentage discount (4 ms)
+    ✓ rejects negative discount (1 ms)
+    ✓ caps discount at 100% (1 ms)
+  Tests: 3 passed, 3 total
+  exit code: 0
+  run at: 2026-03-10 14:02:11
+
+--- FILE LISTING ---
+  src/pricing.js          last modified 2026-03-10 16:47:33
+  tests/pricing.test.js   last modified 2026-03-09 09:15:02
