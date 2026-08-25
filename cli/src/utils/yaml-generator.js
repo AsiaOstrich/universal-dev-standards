@@ -4,7 +4,43 @@
  * Generates AI-optimized YAML from parsed Markdown structure.
  */
 
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
 import { SECTION_MAPPINGS, STANDARD_ID_MAPPING } from './conversion-rules.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// cli/src/utils/yaml-generator.js -> cli/src/utils -> cli/src -> cli -> repo root
+const REPO_ROOT = resolve(__dirname, '../../..');
+
+/**
+ * XSPEC-392 R2: `meta.updated` must reflect when the source file's content
+ * actually last changed, not a hand-typed `**Last Updated**` line (which can
+ * go stale relative to the file it lives in), and — this is the part that is
+ * not negotiable — never a `new Date()` value standing in for "the day this
+ * script happened to run".
+ *
+ * Returns an ISO date (YYYY-MM-DD) from git history for `relativeSourcePath`,
+ * or `null` when git has no record for it (untracked/new file, git missing,
+ * or any other failure). A missing `updated` field is honest; a fabricated
+ * one is not — so callers must omit the field entirely rather than fall back
+ * to any other date source.
+ */
+function getGitLastModifiedDate(relativeSourcePath) {
+  if (!relativeSourcePath) return null;
+  try {
+    const out = execFileSync(
+      'git',
+      ['log', '-1', '--format=%ad', '--date=short', '--', relativeSourcePath],
+      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim();
+    return out || null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Generate AI-YAML structure from parsed Markdown
@@ -18,16 +54,22 @@ export function generateAiYaml(parsed, options = {}) {
   // Generate ID
   const id = generateStandardId(filename, parsed.metadata.title);
 
-  // Build YAML structure
-  const yaml = {
-    id,
-    meta: {
-      version: parsed.metadata.version || '1.0.0',
-      updated: parsed.metadata.updated || new Date().toISOString().split('T')[0],
-      source: inferSourcePath(filename, locale),
-      description: parsed.purpose || parsed.metadata.title || ''
-    }
+  const sourcePath = inferSourcePath(filename, locale);
+
+  // Build YAML structure. `updated` is set from git history below, and is
+  // deliberately absent (not null) when git has no record for the file —
+  // see getGitLastModifiedDate.
+  const meta = {
+    version: parsed.metadata.version || '1.0.0'
   };
+  const gitUpdated = getGitLastModifiedDate(sourcePath);
+  if (gitUpdated) {
+    meta.updated = gitUpdated;
+  }
+  meta.source = sourcePath;
+  meta.description = parsed.purpose || parsed.metadata.title || '';
+
+  const yaml = { id, meta };
 
   // Add language if locale specified
   if (locale) {

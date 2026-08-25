@@ -618,6 +618,41 @@ jobs:
           chmod +x ./scripts/check-cli-docs-sync.sh
           ./scripts/check-cli-docs-sync.sh
 
+  # XSPEC-392 R3：出貨的 .ai.yaml 與其來源 .md 的日期是否仍相符。
+  #
+  # 為什麼在 CI 而不是只放一支 npm script：**一支沒有呼叫端的閘門與沒有閘門等價**。
+  # 這支檢查器落地當天就是這個狀態——只存在於 package.json 的定義處，
+  # 沒有任何 workflow、hook 或聚合腳本會跑到它。
+  #
+  # 它守的是採用端拿到的東西：`.ai.yaml` 是 `uds init` 複製過去的檔案，
+  # 而採用端**沒有 UDS 的 git**，所以那個日期是他們唯一的判斷依據。
+  # 落地掃描找到 46 筆不一致（含 17 筆日期由已移除的 `new Date()` fallback 造出），
+  # 全部冷凍為基線並逐筆帶查證，到期 2026-11-25。
+  # 基線只證明「沒有變糟」——`Verified` 與 `In baseline` 是兩個數，刻意分開報。
+  shipped-stamp-consistency:
+    name: Shipped Stamp Consistency (XSPEC-392 R3)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # 檢查器要問 git log 每份來源的最後變更日，淺複製會全部查無
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: npm ci
+
+      - name: Self-test arms
+        run: npm run check:shipped-stamp:self-test
+
+      - name: Check shipped stamp consistency
+        run: npm run check:shipped-stamp
+
   # bump ↔ check 往返不變量。
   #
   # bump-version.mjs 寫版本號、check-version-sync.sh 檢查版本號，而**兩者各自持有
