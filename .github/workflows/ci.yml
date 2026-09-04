@@ -387,6 +387,26 @@ jobs:
       - name: Check skill trigger surface
         run: npm run check:trigger-surface
 
+  # ── 錯誤訊息單一出口（自 VibeOps XSPEC-397 §9.5 移植）─────────────────
+  # 起因：使用者照著建議打上名字，畫面回他一句 `Bad Request`。真正的原因
+  # 寫在回應的 details 裡，而呼叫端只讀了 error。當天的修法改了一個呼叫端，
+  # 走訪之後發現同型的有二十四個。這道閘門防的是**第二處**——
+  # 一處是實作，兩處開始就是各寫各的。
+  error-exit:
+    name: Error-message single exit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Prove the check can fail before trusting that it passed
+        run: npm run check:error-exit:self-test
+
+      - name: Check error-message single exit
+        run: npm run check:error-exit
+
   # ── llms.txt 漂移閘門（XSPEC-385）────────────────────────────────────
   # PR #179 提議加一份**手寫的** llms.txt,2026-08-20 婉拒。理由就是
   # XSPEC-385 立的那條規則:手寫的 llms.txt 是專案自我描述的第二份複本,

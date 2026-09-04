@@ -53,7 +53,9 @@
     "check:shipped-stamp:self-test": "tsx scripts/check-shipped-stamp-consistency.ts --self-test",
     "check:hash-ratchet": "bash scripts/check-translation-hash-ratchet.sh",
     "check:baseline-claims": "tsx scripts/check-baseline-status-claims.ts",
-    "check:baseline-claims:self-test": "tsx scripts/check-baseline-status-claims.ts --self-test"
+    "check:baseline-claims:self-test": "tsx scripts/check-baseline-status-claims.ts --self-test",
+    "check:error-exit": "node scripts/check-error-exit.mjs",
+    "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test"
   },
   "type": "module",
   "dependencies": {
