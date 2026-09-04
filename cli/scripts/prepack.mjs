@@ -20,7 +20,10 @@ const BUNDLE_DIRS = [
   { src: 'ai', dest: 'ai' },
   { src: 'core', dest: 'core' },
   { src: 'locales', dest: 'locales' },
-  { src: 'skills', dest: 'skills' }
+  { src: 'skills', dest: 'skills' },
+  // 閘門範本。採用者拿到的是**可執行的檢查**，不是又一份散文標準——
+  // 這個 repo 已經有 122 份純散文標準，而其中零份有機器閘門。
+  { src: 'templates', dest: 'templates' }
 ];
 
 console.log('📦 Preparing bundled files for npm package...');

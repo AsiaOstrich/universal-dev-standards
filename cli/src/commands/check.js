@@ -415,6 +415,9 @@ export async function checkCommand(options = {}) {
   // XSPEC-178: Full coverage compliance check
   checkFullCoverageCompliance(manifest, projectPath);
 
+  // 錯誤訊息單一出口閘門是否已安裝（只報告，不寫入）
+  checkErrorExitGate(projectPath);
+
   // Workflow status
   displayWorkflowStatus(projectPath);
 
@@ -1001,6 +1004,34 @@ function displaySkillsStatus(manifest, projectPath, msg) {
   console.log();
 
   return { missingSkills, missingCommands };
+}
+
+/**
+ * 錯誤訊息單一出口閘門：**偵測並報告，絕不寫入。**
+ *
+ * 🔴 為什麼只報告：`uds update` 之外沒有任何時刻是採用者同意我們動他的 repo 的。
+ *    未經同意往別人的專案寫可執行腳本，比它要修的那個問題更糟。
+ *    所以這裡只說「你沒有這道閘門」與「怎麼拿」，寫入留給 `uds update`，
+ *    而那裡會顯示內容並要人點頭。
+ *
+ * 起因（VibeOps 2026-09-03）：使用者照著建議打上名字，畫面回他一句 `Bad Request`。
+ * 真正的原因寫在回應的 `details` 裡，而呼叫端只讀了 `error`。當天的修法改了一個
+ * 呼叫端；走訪之後發現同型的有二十四個——其中三個在同一個檔案裡。
+ */
+function checkErrorExitGate(projectPath) {
+  const gatePath = join(projectPath, 'scripts', 'check-error-exit.mjs');
+  if (existsSync(gatePath)) {
+    return; // 裝了就不出聲。這裡的沉默代表「有」，不代表「跑過了」——那是它自己的事。
+  }
+  // 沒有 src/ 的專案（純文件、純設定）本來就沒有這個問題，不要對他們嘮叨。
+  if (!existsSync(join(projectPath, 'src'))) {
+    return;
+  }
+  console.log(chalk.yellow('  ⚠ [error-exit] 沒有錯誤訊息單一出口檢查（scripts/check-error-exit.mjs）。'));
+  console.log(chalk.gray('    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——'));
+  console.log(chalk.gray('    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。'));
+  console.log(chalk.gray('    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。'));
+  console.log();
 }
 
 /**

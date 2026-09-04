@@ -2,9 +2,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, unlinkSync } from 'fs';
-import { join, basename, relative } from 'path';
-import { readManifest, writeManifest, copyStandard, isInitialized } from '../utils/copier.js';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { join, basename, dirname, relative } from 'path';
+import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import {
@@ -1554,9 +1554,56 @@ export async function updateCommand(options) {
 
   console.log();
 
+  // 錯誤訊息單一出口閘門：問過才寫，而且從不覆寫。
+  await offerErrorExitGate(projectPath, options);
+
   // Exit explicitly to prevent hanging.
   // T11: a partial update exits non-zero so CI / scripts can detect the failure.
   process.exit(updateIncomplete ? 1 : 0);
+}
+
+/**
+ * 提供錯誤訊息單一出口閘門——**顯示它是什麼、問過、才寫，而且絕不覆寫既有檔案。**
+ *
+ * 🔴 為什麼不自動寫：`uds` 是別人裝進自己 repo 的工具。未經同意往陌生人的專案
+ *    寫一支可執行腳本，比它要修的那個問題更糟——那會變成信任問題，而不是 bug。
+ *    採用者說不要，我們就不寫，而且下次 `uds check` 只會再提一次，不會偷偷放進去。
+ *
+ * ⚠️ 已存在就直接跳過，連問都不問：那個檔案裡的 CONFIG 是採用者自己填的，
+ *    我們沒有立場拿範本蓋掉它。要更新內容是另一件事，不在這裡做。
+ */
+async function offerErrorExitGate(projectPath, options) {
+  const dest = join(projectPath, 'scripts', 'check-error-exit.mjs');
+  if (existsSync(dest)) return;                              // 他們自己的檔案
+  if (!existsSync(join(projectPath, 'src'))) return;         // 沒有原始碼就沒有這個問題
+
+  const src = join(getRepoRoot(), 'templates', 'gates', 'check-error-exit.mjs');
+  if (!existsSync(src)) return;                              // 範本沒出貨——沉默，不要假裝提供了
+
+  console.log(chalk.bold('  錯誤訊息單一出口閘門'));
+  console.log(chalk.gray('    防的是：每個呼叫端各自把錯誤回應拼成給人看的字串。'));
+  console.log(chalk.gray('    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。'));
+  console.log(chalk.gray(`    要寫入：scripts/check-error-exit.mjs（純 Node、零相依、${Math.round(readFileSync(src, 'utf-8').length / 1024)}KB）`));
+  console.log(chalk.gray('    寫入後它會 exit 2 直到你填好 CONFIG——那是刻意的，'));
+  console.log(chalk.gray('    一支在新 repo 裡靜靜回綠的閘門跟一支沒裝的無從分辨。'));
+  console.log();
+
+  const ok = await confirmOrFail({
+    message: '要把這道閘門寫進 scripts/check-error-exit.mjs 嗎？',
+    defaultValue: false,   // 🔴 預設不寫。沉默不是同意。
+    options
+  });
+  if (!ok) {
+    console.log(chalk.gray('  跳過。`uds check` 之後會再提醒，但不會自己寫進去。'));
+    console.log();
+    return;
+  }
+
+  mkdirSync(dirname(dest), { recursive: true });
+  writeFileSync(dest, readFileSync(src, 'utf-8'), 'utf-8');
+  console.log(chalk.green('  ✓ 已寫入 scripts/check-error-exit.mjs'));
+  console.log(chalk.gray('    下一步：填好檔頭的 CONFIG，然後把它接進你的 CI 或 pre-commit。'));
+  console.log();
 }
 
 /**

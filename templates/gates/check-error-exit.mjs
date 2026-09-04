@@ -44,13 +44,13 @@ const CONFIG = {
    * 🔴 沒填就是沒設定，而沒設定會 exit 2，**不會安靜地通過**。
    * 一支在新專案裡靜靜回綠的閘門，跟一支根本沒裝的閘門無從分辨。
    */
-  configured: true,
+  configured: false,
 
   /** 走訪哪些目錄（相對 repo 根）。 */
-  scanDirs: ["cli/src"],
+  scanDirs: ["src"],
 
   /** 規則住在哪個檔案。它是唯一被允許讀那些欄位的地方。 */
-  singleExit: null /* 見走訪結果。出現第二處時本閘門會紅，那時再指定 */,
+  singleExit: null,
 
   /** 走訪時跳過的目錄名。 */
   skipDirs: ["node_modules", "dist", "build", ".vite", "__tests__", "coverage"],
@@ -59,7 +59,7 @@ const CONFIG = {
   extensions: [".ts", ".tsx", ".js", ".jsx", ".mjs"],
 
   /** 走訪至少要看到幾個檔——低於這個數代表走訪器壞了，而那與「全部通過」輸出相同。 */
-  minFilesScanned: 60,
+  minFilesScanned: 10,
 
   /**
    * 這個專案根本不把錯誤回應轉成文字時填這裡（例如純資料處理的函式庫）。
