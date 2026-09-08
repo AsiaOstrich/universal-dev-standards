@@ -13,11 +13,20 @@
 
 Authority for the design: XSPEC-408 §6 (R2), §7 (R3), §11 (the counter-arms).
 
-> **It has now been run.** Five runs across three tools on 2026-09-08 — §8 below, and
-> XSPEC-408 §18 for the results. Short version: the hop still has never been observed,
-> and the reason turned out to sit one level up. **What reaches the model is the skill
-> *description*, not the `SKILL.md` body** — so the companion question is behind a
-> question nobody had asked. Read §8 before spending another run.
+> **It has now been run** — eight runs across three tools on 2026-09-08 (§8 below;
+> XSPEC-408 §18 and §21 for the results). The answer:
+>
+> **`SKILL.md` arrives. Its companions do not.** Loading a skill brings that one file
+> and does not recursively expand the files it links to — attested three independent
+> ways: markers (Codex, head/middle/tail present, all three companions absent), prose
+> (Claude Code, 5/8 body lines present, 0/8 from each companion), and the tool saying
+> so in words.
+>
+> 🔴 **An earlier version of this line said "what reaches the model is the description,
+> not the body". That was wrong, twice over, and §21 records why** — four runs measured
+> a tree that a user-level `~/.claude/skills` had silently shadowed. Read the boxed
+> warning in §3 before spending another run; it is the failure mode that produced a
+> confident wrong answer while every check stayed green.
 
 ---
 
@@ -56,6 +65,23 @@ write no manifest).
 ---
 
 ## 3. Setting up a probe repo
+
+> 🔴 **Isolate `HOME`, or a user-level skills directory will silently win.**
+> Measured 2026-09-08: a probe repo with 55 marked skills at `<repo>/.claude/skills`
+> produced zero markers across four runs. The tool had loaded
+> `~/.claude/skills/tdd-assistant` — 54 unmarked skills — the whole time. **Every
+> downstream signal was identical to a genuine "nothing arrived"**: zero recited, no
+> fishing, the model politely answering "none", the control arm passing.
+>
+> ```
+> HOME=$(mktemp -d) claude ...
+> ```
+>
+> And verify it worked from the transcript, not from precedence rules: **ask the model
+> which base directory the skill came from.** That one question is what caught this;
+> no check did. `canary-inject.ts` now warns when such a directory exists.
+
+
 
 Markers are injected into an **install**, never into the source tree. A tool reads
 bytes from `<repo>/.claude/skills/…` and cannot tell whether they came from a release

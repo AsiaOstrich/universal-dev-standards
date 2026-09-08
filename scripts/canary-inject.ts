@@ -61,6 +61,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
+import { homedir } from "node:os";
 
 const MARK = "UDSCANARY";
 const FENCE = /^\s*`{3,}/;
@@ -167,7 +168,36 @@ function skillDirs(installDir: string): string[] {
     .filter((d) => existsSync(join(d, "SKILL.md")));
 }
 
+/**
+ * 🔴 A user-level skills directory SHADOWS the project one, and the shadow is silent.
+ *
+ * Measured 2026-09-08, and it invalidated a whole run before anyone noticed. The probe
+ * repo had 55 marked skills at `<repo>/.claude/skills`. The tool loaded
+ * `~/.claude/skills/tdd-assistant` instead — 54 skills, none of them marked — and the
+ * model dutifully answered "none". Nothing was wrong with the tool, the injection, or
+ * the scorer. **The measurement and its target were in different trees.**
+ *
+ * It is only detectable by looking, because every downstream signal is identical to a
+ * genuine "nothing arrived": zero markers, no fishing, a model reporting none.
+ */
+function warnAboutShadows(installDir: string): void {
+  const marker = installDir.split("/").filter(Boolean).slice(-2)[0]; // e.g. `.claude`
+  const shadow = join(homedir(), marker, "skills");
+  if (!existsSync(shadow) || resolve(shadow) === resolve(installDir)) return;
+  const n = skillDirs(shadow).length;
+  console.error("");
+  console.error(`[canary-inject] !! ${shadow} exists and holds ${n} skill(s).`);
+  console.error("               A user-level skills directory can shadow the project one, and when it");
+  console.error("               does, every marker here is invisible while the run still LOOKS valid:");
+  console.error('               zero markers recited, no fishing, the model politely answering "none".');
+  console.error("               Isolate the run instead of trusting precedence:");
+  console.error(`                   HOME=$(mktemp -d) claude ...`);
+  console.error("               and confirm from the transcript which base directory the skill came from.");
+  console.error("");
+}
+
 export function inject(installDir: string, salt: string, runId: string): Manifest {
+  warnAboutShadows(installDir);
   const dirs = skillDirs(installDir);
   if (dirs.length === 0) {
     refuse(
