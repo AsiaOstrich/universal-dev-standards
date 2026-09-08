@@ -125,6 +125,10 @@ describe('SPEC-INTSYNC-001: Integration Commands Sync', () => {
 
       // Act
       for (const [agentId, agent] of completeAgents) {
+        // An agent whose adopter file is generated has no template to check; the
+        // registry says why in `instructionFileNote`. join() throws on undefined,
+        // which is how this surfaced.
+        if (!agent.instructionFile) continue;
         const instrFile = join(ROOT_DIR, agent.instructionFile);
         if (!existsSync(instrFile)) continue;
         const content = readFileSync(instrFile, 'utf-8');

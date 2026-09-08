@@ -64,9 +64,20 @@ describe('AI Agent Registry', () => {
       }
     });
 
+    // An agent whose adopter file is GENERATED has no repo template that represents
+    // what the adopter gets, so a template-level check on one measures a document
+    // nobody has. Named rather than relaxed: dropping instructionFile from any other
+    // complete-tier agent still turns this red, and the exception must carry its reason
+    // in the registry so it cannot become folklore.
+    const NO_INSTRUCTION_FILE = ['claude-code'];
+
     it('complete tier agents should have instruction files', () => {
       for (const [agentId, agent] of Object.entries(registry.agents)) {
-        if (agent.tier === 'complete') {
+        if (agent.tier !== 'complete') continue;
+        if (NO_INSTRUCTION_FILE.includes(agentId)) {
+          expect(agent.instructionFile, `Agent ${agentId}`).toBeUndefined();
+          expect(agent.instructionFileNote, `Agent ${agentId} must say why`).toBeTruthy();
+        } else {
           expect(agent.instructionFile, `Agent ${agentId}`).toBeTruthy();
         }
       }

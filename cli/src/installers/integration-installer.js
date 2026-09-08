@@ -36,7 +36,11 @@ export const INTEGRATION_MAPPINGS = {
     target: '.agents/AGENTS.md'
   },
   codex: {
-    source: 'integrations/openai-codex/AGENTS.md',
+    // 🔴 Was 'integrations/openai-codex/AGENTS.md'; that directory does not exist.
+    // This map is only reached when generation fails, so a broken entry here is a
+    // fallback that fails exactly when it is needed. Found by walking the map and
+    // stat-ing every source — nothing was checking that these paths resolve.
+    source: 'integrations/codex/AGENTS.md',
     target: 'AGENTS.md'
   },
   'gemini-cli': {

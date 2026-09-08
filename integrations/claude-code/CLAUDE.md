@@ -1,5 +1,23 @@
 # Project Guidelines for Claude Code
 
+> ⚠️ **This file is not what an adopter receives, and no code path writes it.**
+>
+> `uds init` GENERATES a project's `CLAUDE.md` via `writeIntegrationFile()`. The static
+> copy fallback (`INTEGRATION_MAPPINGS`) covers eight tools and Claude Code is not one
+> of them, so this document is never copied anywhere. It is kept as a readable reference
+> for what the generated file aims to contain.
+>
+> Consequences, decided 2026-09-08:
+> - `REGISTRY.json` deliberately gives `claude-code` no `instructionFile`; template-level
+>   tier checks would otherwise measure a document no adopter has.
+> - `uds check --fix` no longer restores an adopter's `CLAUDE.md` from here. It
+>   regenerates from `manifest.integrationConfigs`, which is how the file was produced.
+> - What adopters actually get is checked by `scripts/check-adopter-instruction-files.ts`
+>   (XSPEC-357 R7), which runs `uds init` and reads the output.
+>
+> Last substantive update: 2026-03-25. Treat any drift from the generator as expected.
+
+
 > **Language**: English | [繁體中文](CLAUDE.md) (See bilingual content below)
 
 **Version**: 1.0.0

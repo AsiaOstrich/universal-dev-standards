@@ -29,7 +29,8 @@ import {
   parseReferences,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
-import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount } from '../utils/integration-generator.js';
+import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
+import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { writeUpdateCache } from '../utils/update-checker.js';
@@ -667,6 +668,27 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
     msg = t().commands.check;
   }
 
+  // 🔴 Integration files are GENERATED, not copied. Restoring one by downloading a
+  // repo template overwrites the adopter's file with a document they never had —
+  // `integrations/claude-code/CLAUDE.md` is 140 lines last touched 2026-03-25, and no
+  // code path writes it at install time. The installer already records how each file
+  // was generated (`manifest.integrationConfigs`), so a correct restore regenerates
+  // from that, exactly as `uds update --sync-refs` does.
+  const genConfig = manifest.integrationConfigs?.[relativePath];
+  if (genConfig?.tool) {
+    const result = writeIntegrationFile(genConfig.tool, {
+      ...genConfig,
+      installedStandards: genConfig.installedStandards || manifest.standards || []
+    }, projectPath);
+    if (result.success) {
+      updateFileHash(projectPath, manifest, relativePath);
+      console.log(chalk.green(`  ✓ ${relativePath}: ${msg.restored}`));
+      return true;
+    }
+    console.log(chalk.red(`  ✗ ${relativePath}: ${result.error}`));
+    return false;
+  }
+
   const sourcePath = getSourcePathFromRelative(manifest, relativePath);
   if (!sourcePath) {
     console.log(chalk.red(`  ✗ ${relativePath}: ${msg.couldNotDetermineSource}`));
@@ -778,15 +800,18 @@ export function getSourcePathFromRelative(manifest, relativePath) {
 
   // Check integrations - these might need special handling
   if (manifest.integrations.some(i => (resolveIntegrationFile(i) || i) === relativePath)) {
-    // Integration files have different source paths
-    const integrationMappings = {
-      '.cursorrules': 'integrations/cursor/.cursorrules',
-      '.windsurfrules': 'integrations/windsurf/.windsurfrules',
-      '.clinerules': 'integrations/cline/.clinerules',
-      '.github/copilot-instructions.md': 'integrations/github-copilot/copilot-instructions.md',
-      'CLAUDE.md': 'integrations/claude-code/CLAUDE.md'
-    };
-    return integrationMappings[relativePath] || null;
+    // 🔴 This was a hand-copied list of five targets. The installer's own
+    // INTEGRATION_MAPPINGS covers eight and is the map actually used when a
+    // generation falls back to a static copy, so a second copy here could only
+    // drift — and had: it named `CLAUDE.md`, which INTEGRATION_MAPPINGS does not
+    // contain because no code path ever writes that template.
+    //
+    // Reached only for legacy manifests with no `integrationConfigs`; a current
+    // install regenerates instead (see restoreSingleFile).
+    for (const { source, target } of Object.values(INTEGRATION_MAPPINGS)) {
+      if (target === relativePath) return source;
+    }
+    return null;
   }
 
   return null;

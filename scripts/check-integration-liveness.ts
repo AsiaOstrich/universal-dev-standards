@@ -149,7 +149,7 @@ process.stdout.write('==========================================\n');
 // ───────────────────────────────────────────────────────────────
 // Check 1 — cross-registry field consistency
 // ───────────────────────────────────────────────────────────────
-section("[1/5] Cross-registry field consistency");
+section("[1/6] Cross-registry field consistency");
 
 const COMPARED_FIELDS = ['supportsSkills'] as const;
 
@@ -197,7 +197,7 @@ for (const agentId of Object.keys(regAgents).sort()) {
 // ───────────────────────────────────────────────────────────────
 // Check 2 — deprecation metadata is complete
 // ───────────────────────────────────────────────────────────────
-section("[2/5] Deprecation metadata completeness");
+section("[2/6] Deprecation metadata completeness");
 
 const deprecatedAgents = Object.entries(regAgents).filter(([, a]) => a.deprecated === true);
 
@@ -246,7 +246,7 @@ for (const [agentId, agent] of deprecatedAgents) {
 // ───────────────────────────────────────────────────────────────
 // Check 3 — README status projection
 // ───────────────────────────────────────────────────────────────
-section("[3/5] README status projection");
+section("[3/6] README status projection");
 
 // Language-independent marker, so one rule covers all three READMEs.
 const DISCONTINUED_MARK = '⛔';
@@ -304,7 +304,7 @@ for (const readmePath of READMES) {
 // ───────────────────────────────────────────────────────────────
 // Check 4 — verification claims must carry evidence (XSPEC-357)
 // ───────────────────────────────────────────────────────────────
-section('[4/5] Verification claims');
+section('[4/6] Verification claims');
 
 // A verification is a claim about the outside world: that a tool actually read our
 // integration and behaved accordingly. Unlike everything else here, nothing in this
@@ -430,7 +430,7 @@ process.stdout.write(
 // A per-item warning about a hand-maintained list treats the symptom. The list is now
 // derived from this same registry, so it cannot drift, and this check asserts THAT —
 // the absence of the enumeration — rather than policing its contents.
-section('[5/5] check-ai-agent-sync.sh derives its agents from the registry');
+section('[5/6] check-ai-agent-sync.sh derives its agents from the registry');
 
 const syncScriptPath = join(ROOT_DIR, 'scripts/check-ai-agent-sync.sh');
 if (!existsSync(syncScriptPath)) {
@@ -471,6 +471,37 @@ if (!existsSync(syncScriptPath)) {
     );
   } else {
     ok('an agent with no registered tier fails instead of being downgraded');
+  }
+}
+
+section('[6/6] Static-copy fallback sources resolve');
+
+// 🔴 Integration files are generated; INTEGRATION_MAPPINGS is the fallback used only
+// when generation fails. A broken entry there is therefore a fallback that fails
+// exactly when it is needed, and nothing was checking it: `codex` pointed at
+// `integrations/openai-codex/AGENTS.md` for an unknown period while the real directory
+// is `integrations/codex/`. Walked, not listed — a new tool is covered the day it is
+// added to the map.
+{
+  const installerPath = join(ROOT_DIR, 'cli/src/installers/integration-installer.js');
+  if (!existsSync(installerPath)) {
+    fail('cli/src/installers/integration-installer.js not found');
+  } else {
+    const src = readFileSync(installerPath, 'utf8');
+    const block = src.slice(src.indexOf('INTEGRATION_MAPPINGS'));
+    const entries = [...block.matchAll(/source:\s*'([^']+)'/g)].map((m) => m[1]);
+    if (entries.length === 0) {
+      fail('could not read any source path out of INTEGRATION_MAPPINGS',
+        'The parser found no `source:` entries — if the map moved, this check is inert.');
+    } else {
+      const missing = entries.filter((rel) => !existsSync(join(ROOT_DIR, rel)));
+      if (missing.length) {
+        fail(`${missing.length} of ${entries.length} fallback sources do not exist`,
+          missing.join(', ') + ' — the copy fallback would fail at the moment it is needed.');
+      } else {
+        ok(`all ${entries.length} static-copy fallback sources exist`);
+      }
+    }
   }
 }
 
