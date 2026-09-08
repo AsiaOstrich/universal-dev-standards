@@ -73,9 +73,90 @@ Reference: `core/anti-hallucination.md`
 Reference: `.standards/ai-response-navigation.ai.yaml` (or `core/ai-response-navigation.md`)
 
 ### Documentation & Commits
-1. **Commit Messages**: Follow `core/commit-message-guide.md`.
+1. **Commit Messages**: Follow Conventional Commits — `<type>(<scope>): <subject>`.
+   **Types**: feat, fix, docs, chore, test, refactor, style, perf, ci, build, revert.
+   Full rules: `core/commit-message-guide.md`.
 2. **File Structure**: Follow `core/documentation-structure.md`.
 3. **Quality Gates**: Verify work against `core/checkin-standards.md` before finishing.
 
 </universal_doc_standards_compliance>
 ```
+
+---
+
+## Available UDS Slash Commands | UDS 可用命令
+
+> Auto-generated index for SPEC-INTSYNC-001 sync compliance. The authoritative descriptions live in `skills/commands/*.md` and `skills/commands/COMMAND-INDEX.json`.
+
+> 為 SPEC-INTSYNC-001 同步合規自動產生的索引。權威描述位於 `skills/commands/*.md` 與 `COMMAND-INDEX.json`。
+
+### core
+
+- `/commit`
+- `/code-review`
+- `/sdd`
+- `/check`
+- `/init`
+- `/update`
+- `/config`
+
+### testing
+
+- `/tdd`
+- `/bdd`
+- `/atdd`
+- `/e2e`
+- `/coverage`
+- `/ac-coverage`
+- `/derive`
+- `/derive-bdd`
+- `/derive-tdd`
+- `/derive-atdd`
+- `/derive-all`
+- `/journey-test`
+
+### quality
+
+- `/checkin`
+- `/refactor`
+- `/scan`
+- `/security`
+- `/reverse`
+- `/reverse-sdd`
+- `/reverse-bdd`
+- `/reverse-tdd`
+
+### docs
+
+- `/docs`
+- `/docgen`
+- `/changelog`
+- `/requirement`
+- `/brainstorm`
+- `/sdd-retro`
+- `/pr`
+
+### ops
+
+- `/observability`
+- `/slo`
+- `/runbook`
+- `/incident`
+- `/metrics`
+- `/durable`
+- `/ci-cd`
+
+### methodology
+
+- `/methodology`
+- `/dev-workflow`
+- `/discover`
+- `/release`
+- `/audit`
+- `/migrate`
+- `/skill-builder`
+
+### reference
+
+- `/database`
+- `/api-design`

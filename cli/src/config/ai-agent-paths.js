@@ -270,7 +270,11 @@ export const AI_AGENT_PATHS = {
   },
   'antigravity': {
     name: 'Google Antigravity',
-    tier: 'minimal',
+    // Raised from 'minimal' 2026-09-08. It was minimal because UDS installed
+    // nothing for it — the tier was describing our own gap, not the tool. It now
+    // gets 55 skills and an instruction file, the same as the other 'partial'
+    // tools, and passes all six of that tier's rules.
+    tier: 'partial',
     // Skills path CONFIRMED 2026-09-08, three independent ways:
     //   1. The agy 1.0.14 binary carries the literal template
     //      `{workspace}/.agents/skills/{skill_name}/SKILL.md`.

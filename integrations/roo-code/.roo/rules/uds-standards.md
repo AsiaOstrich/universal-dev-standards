@@ -124,8 +124,9 @@ Roo Code 仍會讀取 `.clinerules` 與 `.roorules`。UDS 同時提供 `.roo/rul
 ## Documentation & Commits
 
 1. **Commit Messages**:
-   - Follow the pattern defined in `.standards/commit-message.ai.yaml`.
-   - Format: `type(scope): description`
+   - Follow Conventional Commits: `<type>(<scope>): <subject>`
+   - **Types**: feat, fix, docs, chore, test, refactor, style, perf, ci, build, revert
+   - Full rules: `.standards/commit-message.ai.yaml`
 
 2. **Check-in Quality**:
    - Before suggesting "I'm done", verify work against `.standards/checkin-standards.md`.

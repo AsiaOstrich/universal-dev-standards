@@ -147,7 +147,7 @@
     },
     "antigravity": {
       "name": "Google Antigravity",
-      "tier": "minimal",
+      "tier": "partial",
       "integrationFiles": [
         "integrations/google-antigravity/AGENTS.md",
         "integrations/google-antigravity/.antigravity/rules.md"
