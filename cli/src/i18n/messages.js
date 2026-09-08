@@ -960,7 +960,10 @@ export const messages = {
         generatingAgentsMd: 'Generating AGENTS.md (universal summary)...',
         generatedAgentsMd: 'Generated AGENTS.md (universal summary)',
         couldNotGenerateAgentsMd: 'Could not generate AGENTS.md',
-        installingSkills: 'Installing Claude Code Skills...',
+        installingSkills: 'Installing Skills...',
+        // Named per detected tool, never per one tool: the install now goes to each
+        // tool's own path (XSPEC-408 §18.3), so a Claude-only label would be a lie.
+        skillsPathUnknown: 'no verified skills path for this tool — nothing was installed for it',
         installedSkills: 'Installed {count} Skills to {locations}',
         installedSkillsWithErrors: 'Installed {count} Skills with {errors} errors',
         // P1-CLI-1: locale fallback summary (printed after install when some
@@ -2185,7 +2188,8 @@ export const messages = {
         generatingAgentsMd: '產生 AGENTS.md（通用摘要）中...',
         generatedAgentsMd: '已產生 AGENTS.md（通用摘要）',
         couldNotGenerateAgentsMd: '無法產生 AGENTS.md',
-        installingSkills: '安裝 Claude Code Skills 中...',
+        installingSkills: '安裝 Skills 中...',
+        skillsPathUnknown: '沒有查證過的 skills 路徑，這個工具沒有安裝任何東西',
         installedSkills: '已安裝 {count} 個 Skills 到 {locations}',
         installedSkillsWithErrors: '已安裝 {count} 個 Skills，有 {errors} 個錯誤',
         // P1-CLI-1：locale fallback 摘要（安裝結束後顯示，列出沒有對應語系變體而退回英文來源的 skill）

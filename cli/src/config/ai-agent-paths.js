@@ -169,7 +169,14 @@ export const AI_AGENT_PATHS = {
     },
     workflows: null,
     supportsMarketplace: false,
-    fallbackSkillsPath: '.claude/skills/',
+    // 🔴 Was '.claude/skills/'. MEASURED FALSE 2026-09-08 (XSPEC-408 §18.3): two probe
+    // arms differing only in install path. At `.agents/skills` Codex reported "Skill
+    // descriptions were shortened to fit the 2% skills context budget — Codex can
+    // still see every skill", 18,096 input tokens. At `.claude/skills` it said
+    // nothing, 15,235. The discovery list documented above never included that
+    // directory; this field asserted otherwise with no provenance, and `check.js`
+    // printed it to adopters as "Can use fallback".
+    fallbackSkillsPath: null,
     supportsSkills: true,
     supportsTask: false,
     supportsAgents: true

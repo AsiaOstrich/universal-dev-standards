@@ -42,6 +42,7 @@ import {
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
+import { detectAITools } from '../utils/detector.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -2080,7 +2081,35 @@ async function updateSkillsOnly(projectPath, manifest, options) {
       // Convert legacy format to new format
       const legacyLocation = manifest.skills.location;
       if (legacyLocation === 'user' || legacyLocation === 'project') {
-        skillsInstallations.push({ agent: 'claude-code', level: legacyLocation });
+        // 🔴 A legacy manifest records a LOCATION, never a tool — and this used to
+        // fill the gap with `claude-code`, unconditionally. For everyone who ran the
+        // old `uds init -y` in a codex or opencode repo, that guess is wrong and
+        // self-perpetuating: the fix to `init.js` would never reach them, because
+        // update would keep re-installing to `.claude/skills/` on the strength of a
+        // tool name nobody ever recorded. (XSPEC-408 §18.3 — Codex does not read
+        // that directory; measured, two arms, 2026-09-08.)
+        //
+        // So re-derive from what is actually detected in the repo, and keep
+        // `claude-code` only as the fallback for when nothing is detected — which is
+        // exactly the case the old line was written for.
+        let detected = {};
+        try {
+          detected = detectAITools(projectPath) || {};
+        } catch {
+          // Detection failing puts us in the "we do not know" case, which is exactly
+          // what the old unconditional `claude-code` line was for. Never let a probe
+          // for extra information break the update that would have worked without it.
+          detected = {};
+        }
+        const detectedSkillsTools = Object.entries(detected)
+          .filter(([, present]) => present)
+          .map(([key]) => (key === 'claudeCode' ? 'claude-code' : key === 'geminiCli' ? 'gemini-cli' : key))
+          .filter(agent => {
+            const config = getAgentConfig(agent);
+            return Boolean(config?.supportsSkills && config?.skills);
+          });
+        const agents = detectedSkillsTools.length > 0 ? detectedSkillsTools : ['claude-code'];
+        for (const agent of agents) skillsInstallations.push({ agent, level: legacyLocation });
       } else if (legacyLocation === 'marketplace') {
         console.log(chalk.yellow(msg.skillsViaMarketplace || 'Skills installed via Marketplace'));
         console.log(chalk.gray(`  ${msg.updateViaMarketplace || 'Update through Plugin Marketplace'}`));
@@ -2148,8 +2177,16 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   }).join(', ');
 
   if (result.totalErrors === 0) {
+    // 🔴 `{count}` is worded "AI tools" in every locale, and this passed
+    // `totalInstalled` — the number of skill FILES written, summed across targets.
+    // A two-tool update of 55 skills printed "Updated Skills for 165 AI tools".
+    // It was invisible while this branch only ran from the interactive flow; the
+    // fix to `init.js` makes it the common path, so it stops being invisible.
     spinner.succeed((msg.skillsUpdated || 'Updated Skills in {count} locations: {locations}')
-      .replace('{count}', result.totalInstalled)
+      // Counted from the same list that builds `locations`, so the number and the
+      // names can never disagree — and it does not depend on the shape of the
+      // installer's return value.
+      .replace('{count}', fileBasedInstallations.length)
       .replace('{locations}', locations));
   } else {
     spinner.warn((msg.skillsUpdatedWithErrors || 'Updated Skills with {errors} errors')

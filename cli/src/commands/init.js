@@ -157,6 +157,16 @@ export async function initCommand(options) {
             skillHashes: {},
             commandHashes: {}
           };
+          // A detected tool that can take skills and has no verified path gets
+          // nothing — and must be told so. Silence was the actual defect measured
+          // on 2026-09-08: `--mode skills` installed nothing, printed no skills
+          // line, and exited 0. An adopter cannot know to go looking.
+          for (const tool of config.skillsConfig.skillsPathUnknownTools || []) {
+            console.log(chalk.yellow(
+              `⚠ ${getAgentDisplayName(tool) || tool}: ` +
+              `${msg.skillsPathUnknown || 'no verified skills path — nothing was installed for this tool'}`
+            ));
+          }
           await installSkills(config.skillsConfig, projectPath, msg, skillsResults);
           await installCommands(config.skillsConfig, projectPath, msg, skillsResults);
 
@@ -434,13 +444,69 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   });
 
   // Skills Configuration Logic
-  const hasSkillsCompatibleTool = aiToolsNormalized.some(t => t === 'claude-code' || t === 'opencode');
-  const onlySkillsCompatibleTools = aiToolsNormalized.every(t => t === 'claude-code' || t === 'opencode');
-  
+  //
+  // 🔴 Which tools can take skills is asked of the path table, never listed here.
+  // This used to read `t === 'claude-code' || t === 'opencode'`, and the two
+  // consequences were both measured on 2026-09-08 (XSPEC-408 §18.3):
+  //
+  //   - A repo detected as codex ran `uds init --mode skills -y` and got **zero
+  //     skills, in any directory, with no message saying so.**
+  //   - When a location was passed explicitly, the install went to `.claude/skills/`
+  //     for every tool, because the branch below never built `skillsInstallations`
+  //     and `installSkills()` then fell through to the legacy path, whose target is
+  //     the hardcoded `getProjectSkillsDir()`. Codex does not read that directory:
+  //     two arms differing only in path gave 15,235 vs 18,096 input tokens, and only
+  //     the `.agents/skills` arm made Codex say it could see the skills at all.
+  //
+  // 🔴 This is the second time in the same shape. `ai-agent-paths.js` records the
+  // first: `.codex/skills/` was "a directory UDS invented", skills there were
+  // invisible, and a behavioural probe failed while Codex behaved correctly. That
+  // fix corrected the path table. This one broke in the code that never asked it.
+  // The predicate below is the same one `promptSkillsInstallLocation` already used —
+  // the interactive flow was never wrong.
+  const skillsCapableTools = aiToolsNormalized.filter(tool => {
+    const config = getAgentConfig(tool);
+    return Boolean(config?.supportsSkills && config?.skills);
+  });
+  const hasSkillsCompatibleTool = skillsCapableTools.length > 0;
+  // Marketplace is Claude Code's. A tool reaches it either by having one
+  // (`supportsMarketplace`) or by reading Claude's directory (`fallbackSkillsPath`).
+  // ⚠️ Those fallback claims are NOT all verified — `opencode`'s carries the bare
+  // comment "Can read Claude skills" and no evidence. It is preserved here rather
+  // than flipped, because changing behaviour on an unverified field in either
+  // direction is a guess. Codex's identical claim WAS measured, and falsified, so
+  // its field is now null (see `ai-agent-paths.js`) and it drops out here by data.
+  // 🔴 The marketplace is all-or-nothing for a repo: it installs into Claude's
+  // directory, so it serves a tool only if that tool has a marketplace of its own or
+  // declares Claude's directory as its fallback. If ANY detected tool is not served
+  // by it, file installs are used instead — every tool then gets its own path, and
+  // nobody is left with a successful init and an empty directory.
+  const reachesMarketplace = t => {
+    const c = getAgentConfig(t);
+    return Boolean(c?.supportsMarketplace || c?.fallbackSkillsPath);
+  };
+  const onlySkillsCompatibleTools =
+    hasSkillsCompatibleTool && aiToolsNormalized.every(reachesMarketplace);
+
   let skillsLocationFlag = options.skillsLocation;
   if (!skillsLocationFlag) {
-    skillsLocationFlag = (hasSkillsCompatibleTool && onlySkillsCompatibleTools) ? 'marketplace' : 'none';
+    skillsLocationFlag = hasSkillsCompatibleTool
+      ? (onlySkillsCompatibleTools ? 'marketplace' : 'project')
+      : 'none';
   }
+
+  // A detected tool that can take skills and is getting none must SAY SO. The worst
+  // property of the old default was not the wrong directory, it was the silence:
+  // `--mode skills` printed no skills line at all and exited 0.
+  const skippedSkillsTools = aiToolsNormalized.filter(tool => {
+    const config = getAgentConfig(tool);
+    return Boolean(config?.supportsSkills) && !config?.skills;
+  });
+  // Carried on the config and printed by the caller — this function builds config
+  // and has no message bundle in scope. (First version called `msg` here and every
+  // init that detected a pathless tool crashed with `ReferenceError: msg is not
+  // defined`; the gate's own control arm missed it, because the string it looked for
+  // appeared in the stack trace.)
 
   // `auto` is resolved later per tool by resolveContentModeForTool, so it is
   // not a content mode and must not go through the normalizer.
@@ -468,6 +534,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     contentModeFlag = normalized.mode;
   }
   let skillsConfig = {};
+  let skillsInstallationsForYes = [];
 
   if (skillsLocationFlag === 'marketplace') {
     skillsConfig = {
@@ -497,14 +564,39 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
       location = 'project';
     }
 
-    skillsConfig = {
-      installed: true,
-      location,
-      needsInstall: skillsLocationFlag === 'project' || skillsLocationFlag === 'user' || (!userSkillsInfo?.installed && !projectSkillsInfo?.installed),
-      updateTargets: [location],
-      standardsScope: 'minimal',
-      contentMode: contentModeFlag
-    };
+    // 🔴 One installation per skills-capable detected tool, each at that tool's own
+    // path from the table. Without this the config carries only `updateTargets`,
+    // `installSkills()` takes its legacy branch, and every tool's skills land in
+    // `.claude/skills/` — see the block above for what that measured.
+    skillsInstallationsForYes = skillsCapableTools.map(agent => ({ agent, level: location }));
+
+    // 🔴 Detected tools, none of which can take skills, is NOT the same as "no tools
+    // detected". The first is knowledge — install nothing and say why. The second is
+    // ignorance, and there the historical `.claude/skills/` fallback is the least-bad
+    // guess and is kept. Without this split, `--skills-location project` in an
+    // Antigravity-only repo wrote 55 skills into `.claude/skills/`, a directory
+    // nothing in that repo reads. Caught by `check:install-paths`, not by me.
+    const knowinglyUnsupported = skillsCapableTools.length === 0 && aiToolsNormalized.length > 0;
+
+    skillsConfig = knowinglyUnsupported
+      ? {
+          installed: false,
+          location: null,
+          needsInstall: false,
+          updateTargets: [],
+          skillsInstallations: [],
+          standardsScope: 'full',
+          contentMode: contentModeFlag
+        }
+      : {
+          installed: true,
+          location,
+          skillsInstallations: skillsInstallationsForYes,
+          needsInstall: skillsLocationFlag === 'project' || skillsLocationFlag === 'user' || (!userSkillsInfo?.installed && !projectSkillsInfo?.installed),
+          updateTargets: [location],
+          standardsScope: 'minimal',
+          contentMode: contentModeFlag
+        };
   }
 
   // Auto-install commands
@@ -521,6 +613,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   }
 
   skillsConfig.locale = displayLanguageToLocale(displayLanguage);
+  skillsConfig.skillsPathUnknownTools = skippedSkillsTools;
 
   // AGENTS.md: default to true in --yes mode unless codex/opencode selected or --no-agents-md
   // When codex/opencode is selected, they already generate AGENTS.md — no need for universal output

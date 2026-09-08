@@ -55,15 +55,24 @@ vi.mock('../../src/config/ai-agent-paths.js', () => ({
   getAgentConfig: vi.fn((agent) => {
     // Return configs with supportsSkills and skills for skills-compatible agents
     const configs = {
+      // 🔴 This mock is a hand-copy of the real path table and had drifted: it
+      // omitted `supportsMarketplace` and `fallbackSkillsPath` entirely. Once
+      // `init.js` stopped hardcoding the tool names and started asking the table,
+      // the omission made both fields falsy and these tests failed for a reason
+      // that exists only in the fixture. Values below match the real table.
       'opencode': {
         supportsSkills: true,
         skills: { user: '~/.opencode/skills/', project: '.opencode/skills/' },
-        commands: { project: '.opencode/command/' }
+        commands: { project: '.opencode/command/' },
+        supportsMarketplace: false,
+        fallbackSkillsPath: '.claude/skills/'
       },
       'claude-code': {
         supportsSkills: true,
         skills: { user: '~/.claude/skills/', project: '.claude/skills/' },
-        commands: null
+        commands: null,
+        supportsMarketplace: true,
+        fallbackSkillsPath: null
       },
       'cursor': { supportsSkills: false, skills: null, commands: null },
       'copilot': { supportsSkills: false, skills: null, commands: { project: '.github/prompts/' } }
@@ -122,7 +131,16 @@ vi.mock('../../src/utils/github.js', () => ({
   getAgentConfig: vi.fn((agent) => ({
     supportsSkills: true,
     skills: true,
-    commands: agent === 'claude-code' ? null : true
+    commands: agent === 'claude-code' ? null : true,
+    // Same drift as the mock above: added when `init.js` started asking the table
+    // instead of naming tools. Claude Code has the marketplace; the others reach it
+    // only through the Claude directory they declare as a fallback.
+    // Only Claude Code has a marketplace; other tools reach it solely by declaring
+    // Claude's directory as a fallback, and not all of them do. A blanket fallback
+    // here made every detected tool marketplace-eligible and broke the
+    // "non-skills tool present" case, which is the one this file cares about.
+    supportsMarketplace: agent === 'claude-code',
+    fallbackSkillsPath: agent === 'opencode' ? '.claude/skills/' : null
   })),
   getMarketplaceSkillsInfo: vi.fn(() => ({ installed: false, version: null })),
   getAgentDisplayName: vi.fn((agent) => agent)

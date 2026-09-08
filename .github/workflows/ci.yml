@@ -730,6 +730,20 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run check:canary:arms
 
+      # XSPEC-408 §18.3：技能被裝到工具不會讀的目錄，這是**第二次**。
+      # 第一次修的是路徑表（`.codex/skills/` 是 UDS 自己發明的目錄）；
+      # 第二次壞在一條**根本不查那張表**的安裝路徑上，所以修表擋不住它。
+      #
+      # 🔴 這道閘門**走訪路徑表**而不是列舉工具：對每一個宣告了 skills 路徑的工具，
+      # 造一個只含該工具偵測標記的暫存 repo、跑真的 `uds init`、
+      # 斷言技能落在那張表自己宣告的位置。新工具加進表的那天就被涵蓋，不需要有人記得。
+      #
+      # 對照臂：`supportsSkills` 但沒有查證路徑的工具（antigravity）必須什麼都不裝**而且要出聲**
+      # ——沉默才是被守的那個缺陷（曾經 `--mode skills` 什麼都沒裝、什麼都沒印、exit 0）。
+      - name: Skills land where each tool actually reads them
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:install-paths
+
   # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
   #
   # source_hash 是 UDS 自己發明的正確答案——雜湊來源內容，來源一改就對不上，

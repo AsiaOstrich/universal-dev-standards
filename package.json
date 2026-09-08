@@ -61,6 +61,7 @@
     "check:canary:inject:self-test": "tsx scripts/canary-inject.ts --self-test",
     "check:canary:score:self-test": "tsx scripts/check-canary-transcript.ts --self-test",
     "check:canary:arms": "tsx scripts/check-canary-arms.ts",
+    "check:install-paths": "tsx scripts/check-skills-install-paths.ts",
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test"
   },
