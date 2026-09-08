@@ -139,7 +139,19 @@ export const AI_AGENT_PATHS = {
       user: join(homedir(), '.roo', 'workflows')
     },
     supportsMarketplace: false,
-    fallbackSkillsPath: '.claude/skills/',
+    // 🔴 Was '.claude/skills/', with no provenance. Roo Code's docs ENUMERATE where it
+    // looks for skills — `.roo/skills/`, `.agents/skills/`, and their `~` twins — and
+    // `.claude/skills/` is not among them. An enumerated discovery list that omits a
+    // path is a statement, not silence (same shape as the Codex list that this field
+    // was falsified against by measurement).
+    //
+    // ⚠️ Docs only, 2026-09-08: NOT measured, because there is no Roo Code CLI on this
+    // machine. Acting on it anyway because the asymmetry is one-sided — wrong here
+    // means skills land in `.roo/skills/`, which the docs confirm is read; leaving it
+    // meant `uds init` routed Roo Code to Claude's marketplace and installed **zero**
+    // skills, which is what it actually did until this change.
+    // (roocodeinc.github.io/Roo-Code/features/skills)
+    fallbackSkillsPath: null,
     supportsSkills: true,
     supportsTask: true,
     supportsAgents: true

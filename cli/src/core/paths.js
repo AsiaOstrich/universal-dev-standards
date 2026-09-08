@@ -149,7 +149,7 @@ export class PathResolver {
       'copilot': 'copilot-instructions.md',
       'aider': '.aider.conf.yml',
       'opencode': 'AGENTS.md',
-      'roo': 'ROO.md',
+      'roo-code': '.roo/rules/uds-standards.md',
       'antigravity': 'INSTRUCTIONS.md'
     };
 

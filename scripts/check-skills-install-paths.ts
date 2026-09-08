@@ -56,18 +56,45 @@ const { AI_AGENT_PATHS } = (await import(join(ROOT, "cli/src/config/ai-agent-pat
 };
 
 /**
+ * 🔴 The instruction file is checked too, and this arm exists because the gate did
+ * not have it. It passed `roo-code` as "no detector marker" while a real init was
+ * writing that tool's instructions to `roo-code.md` in the repo root — a file Roo
+ * Code reads nowhere. Skills landing correctly says nothing about the instruction
+ * file landing correctly; they come from different tables.
+ */
+const { SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } = (await import(
+  join(ROOT, "cli/src/core/constants.js")
+)) as {
+  SUPPORTED_AI_TOOLS: Record<string, { file: string }>;
+  LEGACY_TOOL_MAPPINGS: Record<string, string>;
+};
+
+function instructionFileFor(agent: string): string | null {
+  const key = LEGACY_TOOL_MAPPINGS[agent] ?? agent;
+  return SUPPORTED_AI_TOOLS[key]?.file ?? null;
+}
+
+/**
  * The marker that makes `detectAITools` see a tool. Read from the detector's own
  * source rather than retyped — a copied list is a second place to forget a tool.
  */
 const DETECTOR_SRC = join(ROOT, "cli/src/utils/detector.js");
 function markerFor(agent: string): { path: string; isDir: boolean } | null {
   const src = readFileSync(DETECTOR_SRC, "utf8");
-  // Each detector line looks like:  codex: hasAgentsMd,  /  cursor: existsSync(join(projectPath, '.cursorrules')),
   const key = agent === "claude-code" ? "claudeCode" : agent === "gemini-cli" ? "geminiCli" : agent;
-  const line = src.split("\n").find((l) => new RegExp(`^\\s*${key}\\s*:`).test(l));
-  if (!line) return null;
-  if (/hasAgentsMd/.test(line)) return { path: "AGENTS.md", isDir: false };
-  const parts = [...line.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  // 🔴 The key may be quoted (`'roo-code':`) and the value may span several lines
+  // (`existsSync(a) ||\n existsSync(b)`). The first version matched an unquoted key on
+  // a single line, so adding Roo Code's two-line entry left the gate still reporting
+  // it as unreachable — the fix was invisible to the thing that found the problem.
+  const at = src.search(new RegExp(`^\\s*'?${key}'?\\s*:`, "m"));
+  if (at === -1) return null;
+  const span = src.slice(at, at + 600);
+  if (/hasAgentsMd/.test(span.split("\n")[0])) return { path: "AGENTS.md", isDir: false };
+  // Take the args of the FIRST existsSync in the entry — later ones are fallbacks,
+  // and seeding one marker is enough to make the tool detected.
+  const call = span.match(/existsSync\(join\(projectPath,\s*((?:'[^']+'\s*,?\s*)+)\)\)/);
+  if (!call) return null;
+  const parts = [...call[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
   if (parts.length === 0) return null;
   const markerPath = join(...parts);
   // 🔴 File or directory is asked of the path table, not guessed from the name.
@@ -136,10 +163,17 @@ const undetectable: string[] = [];
 for (const [agent, config] of capable) {
   const marker = markerFor(agent);
   if (!marker) {
-    // Not red, and the reason is a rule this repo already paid for: a gate that
-    // stays red on something nobody is going to fix today gets switched off, and
-    // then it stops watching the things that ARE fixable. Counted and named loudly
-    // instead — see the summary line.
+    // 🔴 Red, and it was not on the first version. The reasoning then was the rule
+    // this repo has paid for twice: a gate that stays red on something nobody will
+    // fix today gets switched off. That reasoning was right and the conclusion was
+    // wrong, because being unreachable is not a cosmetic gap — `roo-code` sat here,
+    // printed as a note, while a real `uds init` in a Roo Code repo installed zero
+    // skills and wrote its instructions to an invented `roo-code.md`. The note hid a
+    // defect the rest of this gate was built to catch.
+    //
+    // It is red now because the list is EMPTY — every tool in the table is reachable,
+    // so this cannot go permanently red on today's code. The next entry added without
+    // a detector line fails on the day it is added, which is the point.
     undetectable.push(agent);
     continue;
   }
@@ -154,8 +188,32 @@ for (const [agent, config] of capable) {
     red++;
     continue;
   }
+  // An invented root-level `<tool>.md` is the signature of a `SUPPORTED_AI_TOOLS`
+  // lookup that missed and fell through to a generated filename.
+  const invented = existsSync(join(repo, `${agent}.md`));
+  const declaredFile = instructionFileFor(agent);
+  const declaredPresent = declaredFile ? existsSync(join(repo, declaredFile)) : false;
+
+  if (invented) {
+    console.error(
+      `  x   ${agent.padEnd(14)} wrote ${agent}.md at the repo root — an invented filename. ` +
+        `Its key is missing from SUPPORTED_AI_TOOLS.`,
+    );
+    red++;
+    continue;
+  }
+  if (declaredFile && !declaredPresent) {
+    console.error(
+      `  x   ${agent.padEnd(14)} declares ${declaredFile} in SUPPORTED_AI_TOOLS, and init did not write it`,
+    );
+    red++;
+    continue;
+  }
   if (n > 0) {
-    console.log(`  OK  ${agent.padEnd(14)} ${n} skills in ${config.skills!.project}`);
+    console.log(
+      `  OK  ${agent.padEnd(14)} ${n} skills in ${config.skills!.project}` +
+        (declaredFile ? `, instructions in ${declaredFile}` : ""),
+    );
     continue;
   }
 
@@ -213,12 +271,16 @@ if (checked === 0) {
 // `detector.js`. Reported, not failed, and deliberately not guessed at: inventing a
 // marker file is how `.codex/skills/` happened in the first place.
 if (undetectable.length > 0) {
-  console.log(
-    `\n[install-paths] ! ${undetectable.length} tool(s) in the path table that no detector marker reaches: ` +
+  console.error(
+    `\n[install-paths] x ${undetectable.length} tool(s) in the path table that no detector marker reaches: ` +
       `${undetectable.join(", ")}`,
   );
-  console.log("            `uds init` can never install for these, whatever their paths declare.");
-  console.log("            Fixing one means finding its real marker in that tool's own docs — never guessing.");
+  console.error("            `uds init` can never install for these, whatever their paths declare —");
+  console.error("            and nothing else notices, because every other check starts from a repo");
+  console.error("            the tool was already detected in.");
+  console.error("            Fix by finding that tool's real marker in its OWN docs. Never guess one:");
+  console.error("            a guessed path is how `.codex/skills/` and `roo-code.md` both happened.");
+  red += undetectable.length;
 }
 
 if (red > 0) {

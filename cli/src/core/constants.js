@@ -94,9 +94,18 @@ export const SUPPORTED_AI_TOOLS = {
     category: 'secondary',
     supports: ['skills']
   },
-  'roo': {
-    name: 'Roo',
-    file: 'ROO.md',
+  // 🔴 Key was 'roo' and the file was 'ROO.md'. Every other module calls this tool
+  // `roo-code` (`ai-agent-paths.js`, `REGISTRY.json`, `agent-adapter.js`,
+  // `agents-installer.js`), so every lookup here MISSED — and the miss was silent:
+  // `getToolFileName()` ends in `return \`${tool}.md\``, so a real `uds init` in a Roo
+  // Code repo wrote its instructions to `roo-code.md` in the repo root. Roo Code's
+  // docs name `.roo/rules/`, `.roorules`, and `AGENTS.md`; `roo-code.md` is read by
+  // nothing, and `ROO.md` was never written by anything either.
+  // File value matches REGISTRY.json's `instructionFile` for this agent.
+  // (roocodeinc.github.io/Roo-Code/features/custom-instructions, read 2026-09-08)
+  'roo-code': {
+    name: 'Roo Code',
+    file: '.roo/rules/uds-standards.md',
     format: 'markdown',
     category: 'secondary',
     supports: ['skills', 'workflows']
@@ -122,7 +131,12 @@ export const SUPPORTED_AI_TOOLS = {
  */
 export const LEGACY_TOOL_MAPPINGS = {
   'codex': 'opencode',
-  'copilot': 'github-copilot'
+  'copilot': 'github-copilot',
+  // Maps the OLD key to the CORRECT one, never the reverse — an alias pointing at
+  // the wrong name would make the wrong name authoritative. No manifest in any of
+  // the five adopting repos records 'roo' (checked 2026-09-08); this exists for
+  // manifests written before the rename.
+  'roo': 'roo-code'
 };
 
 /**

@@ -127,6 +127,23 @@ export function detectAITools(projectPath) {
     claudeCode: existsSync(join(projectPath, '.claude')) ||
                 existsSync(join(projectPath, 'CLAUDE.md')),
     antigravity: existsSync(join(projectPath, 'INSTRUCTIONS.md')),
+    // 🔴 Roo Code had a full entry in the path table (`.roo/skills/`, tier "complete"
+    // in REGISTRY.json) and NO line here, so `uds init` could never install for it —
+    // however correct those paths were. Found by `check:install-paths`, which walks
+    // the path table instead of naming tools; nothing else was looking.
+    //
+    // Markers are the ones Roo Code's own docs name, not a guess from the tool name:
+    //   `.roo/rules/`  — "Workspace-wide rules", the current directory-based method
+    //   `.roorules`    — the legacy single-file fallback, still read
+    // (roocodeinc.github.io/Roo-Code/features/custom-instructions, read 2026-09-08)
+    // `.roo` is matched rather than `.roo/rules` because Roo also uses `.roo/skills/`
+    // and `.roo/rules-{mode}/`; the directory is what marks the tool.
+    //
+    // ⚠️ Deliberately NOT `.clinerules`. REGISTRY.json lists it under Roo Code as
+    // legacy backward-compat, and it is also Cline's own marker — detecting on it
+    // would make the two tools indistinguishable.
+    'roo-code': existsSync(join(projectPath, '.roo')) ||
+                existsSync(join(projectPath, '.roorules')),
     codex: hasAgentsMd,
     opencode: hasAgentsMd,
     geminiCli: existsSync(join(projectPath, 'GEMINI.md'))

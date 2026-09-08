@@ -73,6 +73,31 @@ function getToolFileName(tool) {
   if (KNOWN_TOOL_FILES.has(tool) || /\.(md|yaml|yml|json)$/i.test(tool)) {
     return tool;
   }
+
+  // 🔴 A tool THIS system already knows, missing from THIS table, is an internal
+  // inconsistency — never a future tool. It must fail rather than get a generated
+  // filename.
+  //
+  // Measured 2026-09-08: `roo-code` is the key used by `ai-agent-paths.js`,
+  // `REGISTRY.json`, `agent-adapter.js` and `agents-installer.js`, while
+  // `SUPPORTED_AI_TOOLS` said `roo`. Every lookup here missed and fell through, so a
+  // real `uds init` in a Roo Code repo wrote its instructions to `roo-code.md` — a
+  // filename Roo Code's docs never mention. Nothing failed. Nothing warned. Same
+  // class as `.codex/skills/`, which this repo's own comments call "a directory UDS
+  // invented"; the line below was a *rule* for inventing them.
+  //
+  // ⚠️ The fallback itself is KEPT, because it is a deliberate design decision, not
+  // an accident: three tests assert it as "forward compatibility with future tools".
+  // Narrowing beats reversing — a genuinely unknown name still gets `<name>.md`; only
+  // the self-contradiction fails.
+  if (getAgentConfig(normalizedName)) {
+    throw new Error(
+      `getToolFileName: "${tool}" is a known agent in ai-agent-paths.js but is missing ` +
+      'from SUPPORTED_AI_TOOLS in cli/src/core/constants.js. Add it with the file that ' +
+      `tool actually reads. Refusing to invent "${tool}.md" — that is how a Roo Code ` +
+      'repo got its instructions written to a file Roo Code never reads.'
+    );
+  }
   return `${tool}.md`;
 }
 
