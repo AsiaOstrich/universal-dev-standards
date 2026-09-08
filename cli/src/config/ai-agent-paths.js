@@ -298,6 +298,16 @@ export const AI_AGENT_PATHS = {
     skills: {
       project: '.agents/skills/'
     },
+    // Shown to the adopter after a successful install. A field rather than a
+    // special case for this tool: the next tool with a precondition fills it in
+    // instead of adding a branch. Without it the condition lives only in a spec,
+    // and the adopter — who reads neither — sees a successful install and an
+    // assistant that picked nothing up.
+    installNote:
+      'Antigravity only discovers .agents/ once the directory is a registered '
+      + 'Antigravity project. Open it in the IDE, or run `agy --new-project` here '
+      + 'once. Measured 2026-09-08: the same repo reported only the built-in skill '
+      + 'before that and all of them after.',
     commands: null,
     agents: null,
     workflows: null,

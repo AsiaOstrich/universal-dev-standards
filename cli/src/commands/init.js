@@ -170,6 +170,16 @@ export async function initCommand(options) {
           await installSkills(config.skillsConfig, projectPath, msg, skillsResults);
           await installCommands(config.skillsConfig, projectPath, msg, skillsResults);
 
+          // A tool may need something from the adopter before it will read what
+          // we just wrote. Driven by an `installNote` on the path table, so a new
+          // precondition is a field and not a branch here.
+          for (const { agent } of config.skillsConfig.skillsInstallations || []) {
+            const note = getAgentConfig(agent)?.installNote;
+            if (note) {
+              console.log(chalk.yellow(`  ⚠ ${getAgentDisplayName(agent) || agent}: ${note}`));
+            }
+          }
+
           // Combine results
           installErrors = [
             ...standardsResults.errors,
