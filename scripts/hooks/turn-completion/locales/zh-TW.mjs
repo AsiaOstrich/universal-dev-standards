@@ -21,9 +21,19 @@
  * @see core/turn-completion-integrity.md
  */
 
+// A request to REPORT BACK is also a request: "tell me when it's done and I will
+// verify" is conditional, and its precondition is the human's action. Measured
+// 2026-09-09 — the guard blocked exactly that sentence because it only knew how
+// to spot requests for information.
+//
+// Widening this is the dangerous direction (it misses real unkept commitments),
+// so the pattern is narrow: a completion word immediately followed by a
+// report-back word. A bare "tell me" does not qualify.
 const ASKING = new RegExp(
   '(告訴我|給我|貼一段|貼上|提供|你是在哪|在哪裡看到|哪一個|是哪|需要知道' +
-  '|請你|麻煩你|等你(裁決|回覆|決定|確認)|要你自己|要你.{0,6}(動手|執行|跑|做)|由你)'
+  '|請你|麻煩你|等你(裁決|回覆|決定|確認)|要你自己|要你.{0,6}(動手|執行|跑|做)|由你' +
+  '|(做完|跑完|試完|裝完|驗完|改完|弄完|完成後|好了|有結果|通了)' +
+  '[，,]?.{0,6}(跟我說|告訴我|回報|讓我知道|再說))'
 );
 
 // First person + future marker + action verb, within one sentence.
@@ -90,6 +100,13 @@ export const corpus = [
     '那個數字會因為引擎自己恢復而變動，與任何改動無關。我不會拿它做任何判斷。'],
   [false, '合法的停止：事情在使用者手上',
     '只剩那一跑要你自己在終端機跑，探測 repo 和判定腳本都備好了。'],
+  // 🔴 條件式承諾的第二種形狀：要求回報。前提在使用者手上，所以不是未兌現的承諾。
+  [false, '做完跟我說，我再驗',
+    'reload 之後不要關掉那個視窗。做完跟我說，我這邊會再獨立驗一次。'],
+  [false, '弄完讓我知道',
+    '第二行印出 no 才算數。弄完讓我知道，我接著把設定寫回 repo。'],
+  [true, '沒有要求回報的承諾（仍必須擋）',
+    '設定檔已經改好了。我接著把驗證結果寫進規格，然後回報。'],
 ];
 
 /**
