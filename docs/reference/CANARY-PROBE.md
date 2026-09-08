@@ -13,6 +13,12 @@
 
 Authority for the design: XSPEC-408 §6 (R2), §7 (R3), §11 (the counter-arms).
 
+> **It has now been run.** Five runs across three tools on 2026-09-08 — §8 below, and
+> XSPEC-408 §18 for the results. Short version: the hop still has never been observed,
+> and the reason turned out to sit one level up. **What reaches the model is the skill
+> *description*, not the `SKILL.md` body** — so the companion question is behind a
+> question nobody had asked. Read §8 before spending another run.
+
 ---
 
 ## 1. What it measures, and the one thing it cannot
@@ -167,3 +173,38 @@ relative paths, so a model that grepped the whole tree scored `via-injection` �
   companion whose tail was cut still scores `present`.
 - **Localized installs are not covered by a single run.** An adopter on `zh-TW` gets
   the localized `SKILL.md`; that is a separate probe repo and a separate manifest.
+
+---
+
+## 8. What five real runs changed (2026-09-08)
+
+These are operational, learned by spending the runs. Read them before spending more.
+
+**Restricting tools is not optional — and `--allowedTools` is not how you do it.**
+A model that can run shell will `grep -r UDSCANARY` the tree and recite everything,
+and the run is then worth nothing. On Claude Code, `--allowedTools "Skill"` was
+silently ignored under `--permission-mode bypassPermissions`; the model ran Bash
+anyway. Use `--disallowedTools "Bash" "Read" "Grep" "Glob" "Write" "Edit"` and leave
+the skill-loading tool available. Verify from the transcript which tools actually
+ran — never from the flag you passed.
+
+**The run-id guard costs you terse models.** Codex answered the whole probe with the
+single word `none` (36 output tokens). It never echoed the run id, so the scorer
+refused to score — correctly, since it cannot tell a terse answer from a mismatched
+manifest. Those transcripts were four lines long and read by hand. This is the
+guard's price, and it is the right side to err on: the opposite default manufactures
+findings.
+
+**🔴 Zero marker hits is not evidence about the install path.** The Antigravity arm
+placed three candidate paths side by side, each with its own salt, expecting the
+recital to name the winner. It could not: every tool measured returns zero hits even
+when it demonstrably sees the skills, because what enters context is the skill
+*description*, not the body. A path probe needs a control that distinguishes whether
+the DESCRIPTION arrived. Codex supplies one by accident — it announces its skills
+context budget when it has skills to fit. The canary does not.
+
+**What the runs found.** Companion marker hits: 0 of 224, on all three tools. On
+Claude Code the skill-loading tool returned 28 characters and no content, and the
+model listed its own context as "system prompt, CLAUDE.md, the skill *list*, git
+status, your message". Arrival of the body is the open question now — the companion
+question sits behind it.
