@@ -669,6 +669,7 @@ jobs:
           node-version: '22'
 
       - name: Install
+        id: install
         run: npm ci
 
       - name: Self-test arms
@@ -676,6 +677,23 @@ jobs:
 
       - name: Check STATUS claims against the directories beside them
         run: npm run check:baseline-claims
+
+      # XSPEC-408：P1／P3 於 2026-09-08 復職，而讓它們進得來的證據
+      # 是 2026-07-23 那兩份留存逐字稿裡「宣告式標記出現 0 次」。
+      #
+      # 🔴 一個讀過一次、抄進文件的 0 就是一枚戳。這一步每次重新從逐字稿導出它，
+      #    逐字稿被改、被截斷、被換掉時，入場資格會變紅而不是安靜地留著。
+      #    每支探針都帶同檔案、同讀取路徑的控制臂——控制臂沒中就是「判不出來」(exit 2)，
+      #    絕不是綠。
+      # 🔴 這兩步只真的依賴 Install。不宣告的話，上面那道閘門一紅，
+      #    它們會被標成 skipped——既不綠也不紅，而看起來像沒事。
+      - name: Reinstated probes — self-test arms
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:probe-rescore:self-test
+
+      - name: Reinstated probes still fail their recorded baseline
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:probe-rescore
 
   # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
   #

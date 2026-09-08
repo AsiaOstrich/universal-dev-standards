@@ -42,6 +42,13 @@ Probe set: P1, P2, P3, P6. P1 and P3 test *behaviour* and were internalised; P2 
 *declared form* and survived. **Status: paused — account usage limit, resets 2026-08-22.**
 Nine outcome-measurement runs are retained and remain valid; see `_baselines/codex-0.145.0/`.
 
+> 🔴 **This row's P1 and P3 are the retired ones** `[2026-09-08]`. Both were rewritten on
+> 2026-09-08 to ask only about the declared marker, and **the rewritten probes have never been
+> scored on Codex** — no P1/P3 transcript was retained under `_baselines/codex-0.145.0/`, so
+> unlike Antigravity there is nothing here to re-score. **The 50% above stands as recorded and
+> must not be restated as a number about the current probe set.** Getting it would cost fresh
+> runs, and this arm is on the operator's paid quota.
+
 ### Claude Code 2.1.241
 
 | Date | Model | Probes | Baseline fails | Survival |
@@ -76,6 +83,22 @@ declared form absent.**
 
 Probe set: P2, P6 only — both declared form. **Not comparable to the Codex row above**: a
 narrower probe set on more models. Status: active, no quota constraint observed.
+
+#### Re-score of the retained P1 / P3 transcripts `[2026-09-08]`
+
+| Date of run | Date scored | Model | Probes | Baseline fails | Survival |
+|------|------|-------|-------:|---------------:|---------:|
+| 2026-07-23 | 2026-09-08 | Gemini (Antigravity default, 1 model) | 2 | 2 | **100%** |
+
+🔴 **This is not a new observation and it does not belong in the table above.** It is the
+2026-07-23 transcripts (`P1-CUT.txt`, `P3-CUT.txt`) read a second time, asking a different
+question: *did the declared marker appear?* It did not — `[Source:` × 0, `[Recommended]` × 0,
+each with a positive control grep on the same file to prove the search was working.
+
+**What it is worth**: it discharges the §2.3 entrance requirement for the two rewritten probes
+without spending a run. **What it is not worth**: anything as evidence of a trend. n = 1 run
+per probe, 1 tool, 1 frontier model, and the run was not designed to answer this question.
+Adding 2 and 2 to the 10 and 10 above would produce a bigger number and no more knowledge.
 
 ### 2026-07-23 — multi-model sweep
 

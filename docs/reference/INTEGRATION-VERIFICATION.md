@@ -50,6 +50,25 @@ LLM output varies between runs. A probe that greps for a sentence is measuring l
 Every probe below asserts a **structural property of the artifact** — a marker is present, a
 file was read before an answer was given, an option was marked as chosen.
 
+> 🔴 **This rule was over-applied once, and it cost two probes.** "Structure, not wording" was
+> written to stop a probe grepping for *a sentence*, because which sentence a model writes
+> varies run to run. It was then read as "**no exact token may be matched**", and P1 and P3
+> were cut on that reading (2026-07-23).
+>
+> **P2 contradicts that reading, in this same document.** P2 matches four literal tags, and it
+> is the most durable probe in the set. A **declared marker** is not a sentence: it is present
+> or absent, it does not vary with phrasing, and emitting it is exactly the house convention
+> UDS asks for. What matters is what the token stands for:
+>
+> | Matching this | Measures |
+> |---|---|
+> | a sentence the model happened to write | luck |
+> | **a marker the standard requires the model to emit** | whether the standard arrived |
+>
+> §4's own summary already said this — "the durable part of the always-read tier looks like
+> **declared form and house convention**, not knowledge" — while two declared-form probes sat
+> cut a few paragraphs below it. Both were reinstated on 2026-09-08; see their entries.
+
 ### 2.3 A probe without a measured baseline is not a probe
 
 **Before using any probe against an installed UDS, run it against the same tool with UDS
@@ -63,6 +82,11 @@ This is not a formality. It has already invalidated a probe in this very documen
 > its own `### Recommendation` section giving a conditional recommendation
 > (single-server → in-memory, multi-server → Redis). The assumption was simply wrong, and only
 > running it showed that.
+>
+> **P3 is back in the active set** `[2026-09-08]`, asking a narrower question. That does not
+> soften this example — the assumption really was wrong, and running it really was the only
+> thing that showed it. It adds a second lesson underneath: **a falsified assumption retires
+> the assumption, not necessarily the probe.** See P3's entry.
 
 Note what the failure looked like: the *stated reason* in the "why this is a delta probe"
 column was confident, specific, and plausible. It was also **a guess wearing the clothes of a
@@ -147,14 +171,25 @@ UDS installed. Only one survived.**
 | Probe | Drafted reasoning | Baseline result | Status |
 |-------|-------------------|-----------------|--------|
 | Conventional commit | "highly specific to UDS" | not run — UDS's default *is* Conventional Commits, which models write unprompted | cut before running |
-| **P1** evidence-based | "models guess rather than decline" | **read the file, answered correctly** | **cut** |
+| **P1** evidence-based | "models guess rather than decline" | **read the file, answered correctly** | **cut**, then **reinstated 2026-09-08** on a different axis (declared form) |
 | **P2** certainty tags | "four-tag vocabulary is UDS-specific" | **zero tags emitted** | **✅ active** |
-| **P3** explicit recommendation | "models present balanced menus" | **produced its own `### Recommendation`** | **cut** |
+| **P3** explicit recommendation | "models present balanced menus" | **produced its own `### Recommendation`** | **cut**, then **reinstated 2026-09-08** on a different axis (declared form) |
 | P4 / P5 | conditional | not yet run | pending |
 | **P7** distribution-channel efficacy | "the AGENTS.md index is enough to make rules effective" | **both tools identified stale evidence unaided** | **cut** |
 
 **Four of five testable assumptions about default model behaviour were wrong**, and every one
 of them had a confident, specific, plausible-sounding justification written next to it.
+
+> 🔴 **That sentence is still true, and the conclusion drawn from it was too wide**
+> `[更正 2026-09-08]`. What the baselines falsified was the **behavioural** claim in each
+> row — the model does read before answering, and it does commit to a recommendation. Two of
+> the four probes were then retired outright, when what had actually failed was one of the two
+> things each probe measured. **P1 and P3 have been rewritten to ask only the surviving
+> half — did the declared marker arrive — and reinstated.** The behavioural halves stay
+> retired, and stay retired for the reason recorded on the day: they passed.
+>
+> The number of falsified assumptions does not change. What changes is that "the assumption
+> was wrong" was allowed to mean "the probe is worthless", and those are different claims.
 
 P7 (2026-08-25) is the fourth: it chose VE-011 — evidence must postdate the last edit to what
 it verifies — precisely because that rule is *not* guessable from the filename. Both Codex
@@ -177,24 +212,58 @@ looks like **declared form and house convention**, not knowledge.
 
 ---
 
-### ~~P1 — Evidence-based analysis `AH-001` + `AH-002`~~ · **CUT — baseline passed** `[確認 2026-07-23]`
+### P1 — Source attribution in the declared form `AH-002` · **reinstated** `[確認 2026-09-08]`
 
-**Not in the active set.**
+**Active.** Cut on 2026-07-23, rewritten and reinstated on 2026-09-08. The cut is kept below,
+because the reason it was wrong is more useful than the probe.
 
-The probe asked for a config value in a file the tool had not opened, passing if the file was
-read before answering rather than guessed. The stated delta reasoning was that an unconfigured
-model guesses a common default (30s, 5000ms) because guessing sounds more helpful than
-declining.
+**Source**: `core/anti-hallucination.md:33-35` — `[Source: Code] file_path:line_number - Description`
 
-**Baseline run** — Antigravity CLI 1.0.14, no UDS, `--new-project --add-dir .`: it listed the
-two project files, opened `src/config.js`, and answered **45000** — the correct value, from a
-file deliberately named `quickTimeout` to make guessing attractive. It did not guess.
+**Prompt** (unchanged from the cut version):
+> What is the default timeout value in this project?
 
-**Why it could not be salvaged**: same shape as P3. What remains is that UDS asks for an
-explicit `[Source: <path>]` attribution while the baseline used a markdown file link. That is
-a vocabulary difference, and §2.2 rules out matching on exact tokens.
+Use a scratch repo where the value sits in a file the tool has not opened, and name the field
+to make guessing attractive — `quickTimeout` holding `45000`.
 
-Baseline: `integrations/verification/_baselines/antigravity-1.0.14/P1-CUT.txt`.
+**Passes if** the answer carries at least one `[Source: ...]` attribution in the declared form.
+
+**Fails if** the source is given as prose, as a bare path, or as a markdown file link —
+**including when the answer is factually correct**. That combination is the whole point. This
+probe no longer asks whether the model reads before answering; the baseline settled that, and
+it does. It asks whether the **house convention for saying so** arrived.
+
+**Baseline — recorded, and the tool fails it** `[確認 2026-09-08]`: re-scored from the retained
+transcript of the 2026-07-23 Antigravity CLI 1.0.14 run
+(`_baselines/antigravity-1.0.14/P1-CUT.txt`). That answer opened `src/config.js`, gave the
+correct **45000**, and cited it as two markdown file links. Occurrences of `[Source:`: **0**.
+**Control arm**: the same grep on the same file finds `45000` — so the search is working, and
+the zero is an absence rather than a broken query.
+
+> ⚠️ **This baseline is a re-score, not a new run.** It is one observation answering a second
+> question, so it carries the original run's n — **one run, one tool, one frontier model** —
+> and it is **not** independent confirmation of anything. It discharges §2.3 (a recorded
+> baseline showing the tool failing the probe) and nothing beyond that.
+
+> 🔴 **The population that matters here has still never been measured.** Every baseline in
+> this document was produced by a frontier model. UDS ships to tools that run local and
+> quantised models (aider, continue-dev), and a probe's whole value is telling you when *that*
+> population stops needing the rule. Reinstating P1 puts the sensor back; it does not tell you
+> what it will read.
+
+<details><summary>Why it was cut on 2026-07-23, and why the cut was wrong</summary>
+
+The cut record read: *"What remains is that UDS asks for an explicit `[Source: <path>]`
+attribution while the baseline used a markdown file link. That is a vocabulary difference, and
+§2.2 rules out matching on exact tokens."*
+
+**Every clause of that is true, and the conclusion does not follow.** It is a vocabulary
+difference — and declared vocabulary is exactly what §4 concluded survives. The same document
+cut P1 for being declared form and kept P2 for being declared form, on the same page, on the
+same day.
+
+Original cut baseline: `_baselines/antigravity-1.0.14/P1-CUT.txt`.
+
+</details>
 
 ---
 
@@ -257,27 +326,52 @@ vocabulary to grade them with. Evidence:
 
 ---
 
-### ~~P3 — Explicit recommendation `AH-004`~~ · **CUT — baseline passed** `[確認 2026-07-23]`
+### P3 — The chosen option carries the declared marker `AH-004` · **reinstated** `[確認 2026-09-08]`
 
-**Not in the active set.** Kept here as the worked example for §2.3.
+**Active.** Cut on 2026-07-23, rewritten and reinstated on 2026-09-08. Still the worked example
+for §2.3 — and now also the worked example for §2.2's own failure mode.
 
-The probe was: *"We need to add caching here. What are our options?"*, passing if the answer
-committed to one path instead of presenting a neutral menu. The stated delta reasoning was
-that a balanced menu is default model behaviour.
+**Source**: `core/anti-hallucination.md:118` — *"**Clear Winner**: Use `[Recommended]` to mark
+the best path"*.
 
-**Baseline run** — Antigravity CLI 1.0.14, no UDS installed, `probe-project` scratch repo:
-the answer produced five options, a comparison table, **and its own `### Recommendation`
-section** with a conditional recommendation (single-server → `node-cache`, multi-server →
-Redis + `Cache-Control`). It passed the probe without ever having seen UDS.
+**Prompt** (unchanged from the cut version):
+> We need to add caching here. What are our options?
 
-**Why it could not be salvaged**: the remaining difference is that UDS asks for the literal
-`[Recommended]` marker. Testing for that string is text matching, which §2.2 rules out as
-too brittle to survive run-to-run variation. A probe that can only distinguish UDS by an exact
-token is measuring vocabulary, not behaviour.
+**Passes if** exactly one option carries the literal `[Recommended]` marker.
 
-> This does **not** mean `AH-004` should leave the always-read tier — a house style for how
-> recommendations are marked is a legitimate choice declaration. It means AH-004 is not
-> **detectable from the outside**, so it cannot serve as evidence that a tool read UDS.
+**Fails if** the answer commits to a path in prose, under its own heading, or in a table
+column — **including when the recommendation is good and conditional and well argued**. The
+baseline established that the model recommends unaided. What is being measured now is whether
+the reader can find the choice **without reading the argument**, which is the entire reason
+AH-004 specifies a marker rather than a behaviour.
+
+**Baseline — recorded, and the tool fails it** `[確認 2026-09-08]`: re-scored from the retained
+transcript of the 2026-07-23 Antigravity CLI 1.0.14 run
+(`_baselines/antigravity-1.0.14/P3-CUT.txt`). That answer gave five options, a comparison
+table, and its own `### Recommendation` section. Occurrences of `[Recommended]`: **0**.
+**Control arm**: the same grep finds `Recommendation` (1) and bare `[` (3) in the same file —
+the search is working, and the marker is genuinely absent rather than unsearchable.
+
+> ⚠️ Same caveat as P1: **a re-score is not a new run.** n = 1 run, 1 tool, 1 frontier model.
+
+<details><summary>Why it was cut on 2026-07-23, and why the cut was wrong</summary>
+
+The cut record read: *"the remaining difference is that UDS asks for the literal
+`[Recommended]` marker. Testing for that string is text matching, which §2.2 rules out as too
+brittle to survive run-to-run variation."*
+
+**"Brittle" was asserted, never measured.** A marker the standard *instructs* the model to
+emit is not subject to run-to-run phrasing variation in the way a sentence is — that is what
+distinguishes it from luck, and P2 has been demonstrating it in the active set the whole time.
+
+The cut's closing line said AH-004 *"is not detectable from the outside, so it cannot serve as
+evidence that a tool read UDS."* That is exactly backwards: `[Recommended]` is the **most**
+externally detectable thing AH-004 asks for. What is undetectable is whether the recommendation
+is any *good* — and no probe in this document ever claimed to measure that.
+
+Original cut baseline: `_baselines/antigravity-1.0.14/P3-CUT.txt`.
+
+</details>
 
 ---
 
@@ -338,6 +432,12 @@ baseline must fail: a rule the model applies unaided measures nothing about the 
 > Same fate as P1/P3, same lesson: judgment-shaped rules are exactly where strong
 > models pass baselines. What survives is **declared form and house convention** —
 > consistent with what the first baseline round already showed.
+>
+> `[更新 2026-09-08]` **P1 and P3 have since been reinstated**, rewritten to ask only the
+> declared-form half. VE-011 has not: what it asserts — that evidence must postdate what it
+> verifies — **has no declared marker to look for**, so there is no surviving half to rewrite
+> it into. The difference is worth stating, because "P1 came back, why not VE-011" is the
+> obvious next question and the answer is not "we haven't got round to it".
 
 **Active carrier**: `error-codes.ai.yaml` — `<PREFIX>_<CATEGORY>_<NUMBER>` with fixed
 category vocabulary `{VAL, SYS, BIZ, NET, AUTH}` and semantic number ranges. From the
