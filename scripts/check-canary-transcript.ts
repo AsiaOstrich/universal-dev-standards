@@ -97,50 +97,92 @@ function escapeRe(s: string): string {
 }
 
 /**
- * Every path under the install dir that the transcript mentions, relative to it.
- * A bare mention of the install dir with no sub-path (an `ls` of the tree) yields "".
+ * 🔴 Real transcripts write paths relative to the repo, not absolute.
+ *
+ * The first version of this built one regex out of `manifest.installDir` — the
+ * absolute scratch path. A tool logging `Read .claude/skills/tdd/guide.md` or
+ * `grep -r UDSCANARY .claude/skills` matches none of it, so a model that grepped the
+ * whole tree scored `via-injection` — **the strongest signal**. A detector whose
+ * failure mode is to report the best possible result is a gauge sitting upstream of
+ * the break. So every anchor below is tried in three forms: absolute, the install
+ * dir's own tail (`.claude/skills`), and the bare skill directory name.
  */
-function referencedPaths(transcript: string, installDir: string): string[] {
-  const re = new RegExp(`${escapeRe(installDir)}(/[A-Za-z0-9._/-]*)?`, "g");
-  const out: string[] = [];
-  for (const m of transcript.matchAll(re)) out.push((m[1] ?? "").replace(/^\//, "").replace(/\/$/, ""));
-  return out;
+function installTail(installDir: string): string {
+  return installDir.split("/").filter(Boolean).slice(-2).join("/");
 }
 
-function routeFor(skill: SkillMarkers, refs: readonly string[]): { route: Route; why: string } {
-  const mine = refs.filter((p) => p === "" || p === skill.skill || p.startsWith(`${skill.skill}/`));
-  if (mine.length === 0) {
-    return { route: "via-injection", why: "transcript never mentions the install tree for this skill" };
+/** Verbs that mean "went looking", whatever path form the line uses. */
+const FISHING_VERB = /\b(grep|rg|ripgrep|find|ls|cat|head|tail|glob|Glob|Grep|Search)\b/;
+
+/**
+ * A search or listing anywhere over the install tree poisons every skill's recital
+ * at once — after it, any token in the tree could have been copied rather than
+ * loaded. Path-form independent: it keys on the verb and on any mention of the tree.
+ */
+function treeWideFishing(transcript: string, installDir: string): string | null {
+  const tail = installTail(installDir);
+  for (const line of transcript.split("\n")) {
+    if (!line.includes(installDir) && !line.includes(tail)) continue;
+    if (FISHING_VERB.test(line)) return line.trim().slice(0, 120);
   }
-  const named = new Set(skill.companions.filter((c) => c.namedBySkillMd).map((c) => `${skill.skill}/${c.file}`));
-  const bad = mine.filter((p) => p !== `${skill.skill}/SKILL.md` && !named.has(p));
-  if (bad.length > 0) {
-    const shown = bad.map((p) => (p === "" ? "<the tree itself>" : p)).slice(0, 3).join(", ");
-    return { route: "fishing", why: `went looking: ${shown}` };
+  return null;
+}
+
+/** Markdown files under this skill's directory that the transcript names, any path form. */
+function filesReferenced(transcript: string, installDir: string, skill: string): string[] {
+  const anchors = [`${installDir}/${skill}`, `${installTail(installDir)}/${skill}`, skill];
+  const out = new Set<string>();
+  for (const a of anchors) {
+    for (const m of transcript.matchAll(new RegExp(`${escapeRe(a)}/([A-Za-z0-9._-]+\\.md)`, "g"))) out.add(m[1]);
   }
-  return { route: "one-hop-observed", why: `read a file SKILL.md names: ${mine.join(", ")}` };
+  return [...out];
+}
+
+function routeFor(
+  skill: SkillMarkers,
+  transcript: string,
+  installDir: string,
+  swept: string | null,
+): { route: Route; why: string } {
+  if (swept) return { route: "fishing", why: `searched the whole tree: ${swept}` };
+  const files = filesReferenced(transcript, installDir, skill.skill);
+  if (files.length === 0) {
+    return { route: "via-injection", why: "transcript never mentions this skill's directory" };
+  }
+  const named = new Set(skill.companions.filter((c) => c.namedBySkillMd).map((c) => c.file));
+  const bad = files.filter((f) => f !== "SKILL.md" && !named.has(f));
+  if (bad.length > 0) return { route: "fishing", why: `read what SKILL.md does not name: ${bad.slice(0, 3).join(", ")}` };
+  return { route: "one-hop-observed", why: `read a file SKILL.md names: ${files.join(", ")}` };
 }
 
 export function score(manifest: Manifest, transcript: string): { rows: SkillScore[]; exit: 0 | 1 | 2 } {
   if (!transcript.includes(manifest.runId)) {
     return { rows: [], exit: 2 };
   }
-  const refs = referencedPaths(transcript, manifest.installDir);
+  const swept = treeWideFishing(transcript, manifest.installDir);
   const rows: SkillScore[] = [];
   for (const skill of manifest.skills) {
-    const { route, why } = routeFor(skill, refs);
+    const { route, why } = routeFor(skill, transcript, manifest.installDir, swept);
     const head = transcript.includes(skill.head);
-    const tail = transcript.includes(skill.tail);
+    // 🔴 All three positions are scored. R2 defines three, the injector writes three,
+    // and an earlier version read only head and tail — so a SKILL.md cut in the middle
+    // and reassembled at the end would have scored DELIVERED.
+    const missing = (["middle", "tail"] as const).filter((slot) => !transcript.includes(skill[slot]));
     let state: State;
     if (!head || route === "fishing") state = "INVALID";
-    else if (!tail) state = "TRUNCATED";
+    else if (missing.length > 0) state = "TRUNCATED";
     else state = "DELIVERED";
 
     rows.push({
       skill: skill.skill,
       state,
       route,
-      why: state === "INVALID" && !head ? "head marker not recited" : why,
+      why:
+        state === "INVALID" && !head
+          ? "head marker not recited"
+          : state === "TRUNCATED"
+            ? `${missing.join(" and ")} marker not recited`
+            : why,
       // 🔴 Structurally empty on INVALID — the scorer cannot manufacture "not loaded".
       companions:
         state === "INVALID"
@@ -214,6 +256,25 @@ if (SELF_TEST) {
 
   const h = score(manifest, `${full}\nRead ${installDir}/demo/secret.md`);
   add("a read of a file SKILL.md does NOT name is fishing", h.rows[0].route === "fishing");
+
+  // 🔴 The arms above all use the absolute path — the one form that already worked.
+  // Real transcripts write paths relative to the repo. These two arms are the reason
+  // the detector was rewritten; before it, both of them scored `via-injection`.
+  const i = score(manifest, `${full}\nBash: grep -r UDSCANARY .claude/skills`);
+  add("🔴 relative-path arm — a grep written as `.claude/skills` is still fishing", i.rows[0].route === "fishing" && i.exit === 2);
+
+  const j = score(manifest, `${full}\nRead .claude/skills/demo/workflow.md`);
+  add("🔴 relative-path arm — a relative read of a named file is still one-hop-observed",
+    j.rows[0].route === "one-hop-observed" && j.exit === 0);
+
+  const k = score(manifest, `${full}\nI listed demo/ and then read demo/secret.md`);
+  add("bare `<skill>/<file>` with no directory prefix is caught too", k.rows[0].route === "fishing");
+
+  // The middle marker exists in R2, is written by the injector, and was not scored at all
+  // until this arm was added.
+  const l = score(manifest, full.replace("UDSCANARY-M1", ""));
+  add("🔴 middle marker removed reads as TRUNCATED, not DELIVERED",
+    l.exit === 1 && l.rows[0].state === "TRUNCATED" && /middle/.test(l.rows[0].why));
 
   let ok = true;
   for (const [label, pass] of arms) {
