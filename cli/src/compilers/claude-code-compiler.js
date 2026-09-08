@@ -33,9 +33,12 @@ export class ClaudeCodeCompiler extends BaseCompiler {
         hooks[trigger] = [];
       }
 
+      // Claude Code dispatches on `type`; an entry without one is skipped
+      // silently. Measured 2026-09-08 with both shapes in the same event of the
+      // same session: the object ran, the bare string did not.
       hooks[trigger].push({
         matcher,
-        hooks: [`node ${hook_script}`],
+        hooks: [{ type: 'command', command: `node ${hook_script}` }],
       });
     }
 

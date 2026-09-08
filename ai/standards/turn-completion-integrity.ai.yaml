@@ -1,0 +1,101 @@
+# Turn Completion Integrity - AI Optimized
+# Source: core/turn-completion-integrity.md
+
+id: turn-completion-integrity
+meta:
+  version: "1.0.0"
+  updated: "2026-09-08"
+  source: core/turn-completion-integrity.md
+  description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
+  related:
+    - agent-behavior-discipline
+    - ai-response-navigation
+    - anti-hallucination
+
+rules:
+  r1_commitment_must_be_kept:
+    summary: A stated next action is not optional
+    rule: If the final message states a first-person commitment to a next action, the turn must not end until that action is taken or the blocker is named
+    do:
+      - Take the action before ending the turn
+      - Or name, per item, the person or input it waits on
+    do_not:
+      - End on "the main parts are done"
+      - End on a sentence describing work that was not performed
+
+  r2_blocker_statement_is_itemized:
+    summary: A blocker statement names who or what each item waits on
+    rule: Ending without acting is permitted only when every remaining item is listed with its blocker
+    do:
+      - "State: item X waits on the user's key; item Y waits on nothing and is being done now"
+    do_not:
+      - Summarize progress in place of listing blockers
+
+  r3_enforce_at_the_decision_point:
+    summary: An instruction is not enforcement
+    rule: R1 must be evaluated at turn end by something that is not the agent
+    rationale: The instruction form of this rule was violated inside the same session that read it, and again seven days after being published as an optional standard with no checker
+
+  r4_never_block_on_standing_work:
+    summary: Fire only on a commitment made in this message
+    rule: The check must not consult repository state such as open TODOs or backlog items
+    rationale: A gate that is true on every turn gets disabled, and then protects nothing
+
+  r5_fail_open:
+    summary: Any error lets the turn end
+    rule: Unreadable transcript, missing field, malformed JSON, or unexpected schema must all exit without blocking
+    rationale: A hook that can trap a session is worse than none — the human's only recovery is to disable it permanently
+
+  r6_bound_the_blocking:
+    summary: Cooldown plus a rolling-window cap
+    rule: Enforce a cooldown between blocks and a maximum number of blocks per rolling time window
+    do_not:
+      - Count the cap per session with no reset — that is an off switch on a delay, and it disarms silently in long sessions
+
+  r7_each_language_ships_its_own_corpus:
+    summary: Language coverage is a correctness property
+    rule: Each supported language ships as a locale pack with its own must-block and must-pass corpus, and that corpus runs in CI
+    rationale: A detector carrying one language's patterns, shipped to an adopter working in another, is installed, runs, exits 0, and can never fire — indistinguishable from good behavior
+
+  r8_declare_unsupported_languages:
+    summary: Say when the check is inactive
+    rule: An adopter whose language has no locale pack must be told the check cannot fire for them
+
+detector_shape:
+  match: first-person future marker plus an action verb within one sentence
+  exclusions:
+    - reporting verbs (say, note, mention) — describing is not doing
+    - negation — a refusal is a decision, not a commitment
+    - quoted or tabular text — examples of the pattern are not instances of it
+  scope: sentence, not paragraph
+  rationale: Each exclusion was added because its absence produced a false block in testing
+
+prohibited_behaviors:
+  - id: stated-but-undone
+    description: Do NOT end a turn on a sentence describing a next action that was not performed
+    correct_action: Perform it, or list every remaining item with its blocker
+
+  - id: instruction-as-enforcement
+    description: Do NOT treat a rule in the agent's instructions as enforcement of that rule
+    correct_action: Evaluate it at the decision point with an external check
+
+  - id: monolingual-detector
+    description: Do NOT ship a prose detector without a corpus for every language it claims to cover
+    correct_action: Ship a locale pack per language, each with a corpus that runs in CI
+
+enforcement:
+  hook_type: Stop
+  trigger: Stop
+  matcher: ""
+  script_ref: "scripts/hooks/check-turn-completion.js"
+  hook_script: "scripts/hooks/check-turn-completion.js"
+  severity: warning
+  timeout_ms: 2000
+
+checklist:
+  - The check runs at turn end, not as an instruction to the agent
+  - Every failure path exits without blocking
+  - A cooldown and a rolling-window cap are both present
+  - Each shipped language has a corpus, and the corpus runs in CI
+  - Adopters in unsupported languages are told the check is inactive
+  - The check does not consult repository state

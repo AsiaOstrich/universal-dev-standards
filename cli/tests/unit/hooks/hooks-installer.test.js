@@ -47,9 +47,12 @@ describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
       // Assert
       const settingsPath = join(testDir, '.claude', 'settings.json');
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-      expect(settings.hooks.PreToolUse[0].hooks[0]).toContain('check-dangerous-cmd.js');
-      expect(settings.hooks.PostToolUse[0].hooks[0]).toContain('check-logging-standard.js');
-      expect(settings.hooks.UserPromptSubmit[0].hooks[0]).toContain('validate-commit-msg.js');
+      expect(settings.hooks.PreToolUse[0].hooks[0].type).toBe('command');
+      expect(settings.hooks.PreToolUse[0].hooks[0].command).toContain('check-dangerous-cmd.js');
+      expect(settings.hooks.PostToolUse[0].hooks[0].command).toContain('check-logging-standard.js');
+      expect(settings.hooks.UserPromptSubmit[0].hooks[0].command).toContain('validate-commit-msg.js');
+      // Derived from enforcement blocks, so a newly declared one appears here.
+      expect(settings.hooks.Stop[0].hooks[0].command).toContain('check-turn-completion.js');
     });
   });
 

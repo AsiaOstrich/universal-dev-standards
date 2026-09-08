@@ -53,9 +53,13 @@ describe('SPEC-COMPILE-001 / REQ-2: Claude Code 編譯器', () => {
       const compiler = new ClaudeCodeCompiler();
       const result = compiler.compile(ENFORCEMENT_STANDARDS);
 
-      expect(result.hooks.UserPromptSubmit[0].hooks[0]).toContain('validate-commit-msg.js');
-      expect(result.hooks.PreToolUse[0].hooks[0]).toContain('check-dangerous-cmd.js');
-      expect(result.hooks.PostToolUse[0].hooks[0]).toContain('check-logging-standard.js');
+      // Claude Code dispatches on `type`; an entry without one is skipped in
+      // silence. This assertion used to accept a bare string, which is what let
+      // the inert shape ship.
+      expect(result.hooks.UserPromptSubmit[0].hooks[0].type).toBe('command');
+      expect(result.hooks.UserPromptSubmit[0].hooks[0].command).toContain('validate-commit-msg.js');
+      expect(result.hooks.PreToolUse[0].hooks[0].command).toContain('check-dangerous-cmd.js');
+      expect(result.hooks.PostToolUse[0].hooks[0].command).toContain('check-logging-standard.js');
     });
   });
 

@@ -737,6 +737,17 @@
       "description": "Four behavioral disciplines for AI agents: Ask (surface assumptions), Simple (minimum code), Precision (scope only what's needed), Test (loop until verified)"
     },
     {
+      "id": "turn-completion-integrity",
+      "name": "Turn Completion Integrity",
+      "nameZh": "回合收尾完整性標準",
+      "source": {
+        "human": "core/turn-completion-integrity.md",
+        "ai": "ai/standards/turn-completion-integrity.ai.yaml"
+      },
+      "category": "core",
+      "description": "An agent must not end a turn having stated a next action it did not take; enforced at turn end by a Stop hook, with a per-language corpus that runs in CI"
+    },
+    {
       "id": "ai-friendly-architecture",
       "name": "AI-Friendly Architecture",
       "nameZh": "AI 友善架構",
