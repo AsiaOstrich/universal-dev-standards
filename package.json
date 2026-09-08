@@ -58,6 +58,9 @@
     "check:probe-rescore:self-test": "tsx scripts/check-reinstated-probe-baselines.ts --self-test",
     "check:companion-reach": "tsx scripts/check-skill-companion-reachability.ts",
     "check:companion-reach:self-test": "tsx scripts/check-skill-companion-reachability.ts --self-test",
+    "check:canary:inject:self-test": "tsx scripts/canary-inject.ts --self-test",
+    "check:canary:score:self-test": "tsx scripts/check-canary-transcript.ts --self-test",
+    "check:canary:arms": "tsx scripts/check-canary-arms.ts",
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test"
   },

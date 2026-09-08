@@ -710,6 +710,26 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run check:companion-reach
 
+      # XSPEC-408 §6（R2）／§11：一跳是結構條件，不是知識。
+      # 「模型會不會真的跟那一跳」沒有任何一次執行觀測過——221 份逐字稿、0 次讀取碰到 skills 路徑。
+      #
+      # 這三道閘門**不量那件事**，它們量的是「量那件事的儀器有沒有在工作」：
+      # 突變臂（截掉一個兄弟檔 → 必須亮紅）與錯 repo 臂（沒有 SKILL.md → 必須拒絕輸出且不寫 manifest）
+      # 都不需要模型、不需要額度、不碰網路。
+      #
+      # 🔴 這兩臂不成立時，真正的量測結果一律不可採信——所以它們先跑，而且長期跑。
+      - name: Canary — injector self-test arms
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:canary:inject:self-test
+
+      - name: Canary — scorer self-test arms
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:canary:score:self-test
+
+      - name: Canary — end-to-end counter-arms (mutation, wrong-repo, pairing, control)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:canary:arms
+
   # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
   #
   # source_hash 是 UDS 自己發明的正確答案——雜湊來源內容，來源一改就對不上，
