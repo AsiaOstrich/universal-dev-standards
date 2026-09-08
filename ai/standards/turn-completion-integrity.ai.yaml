@@ -3,7 +3,7 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.2.0"
+  version: "1.3.0"
   updated: "2026-09-08"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
@@ -72,6 +72,16 @@ rules:
     rule: The block message must carry a fixed marker, and any human turn containing it must be skipped when looking for the human's last message
     rationale: Without this R9 works exactly once — the block message becomes "the human's most recent message" on the next run, hiding the real instruction to stop, silently and only in the situation the exemption was built for
 
+  r12_recognise_the_ending_you_demand:
+    summary: A check that cannot see the ending R2 defines punishes correct behaviour
+    rule: The check must recognise an itemized blocker list and must not block it
+    requires:
+      - two or more list items — one item with an attribution is a sentence, not an itemization
+      - a blocker attribution anywhere in the message, not per item (real writing puts it in the preamble)
+      - no vague-completion phrase ("the rest are done" is the summary R2 rejects)
+      - the attribution search must exclude the check's own headings, or a heading containing "you" satisfies it
+    rationale: Blocking the one ending the standard asks for gets the check uninstalled faster than missing a violation
+
   r8_declare_unsupported_languages:
     summary: Say when the check is inactive
     rule: An adopter whose language has no locale pack must be told the check cannot fire for them
@@ -117,3 +127,5 @@ checklist:
   - A turn the human asked to end is exempt, decided from the human's message
   - The stop-request corpus includes work instructions containing a stopping word
   - The check recognises its own block message and does not read it as the human's
+  - The check recognises the itemized blocker ending R2 defines, and does not block it
+  - The attribution search excludes the check's own headings and scaffolding

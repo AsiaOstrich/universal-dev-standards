@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-09-08
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
@@ -108,6 +108,25 @@ This is the same family as a detector matching the prose that documents it,
 one step further along: **the check reads its own output.** Carry a fixed marker
 string in the block message and skip any human turn containing it.
 
+**R12.** The check MUST be able to recognise the ending R2 defines. A check that
+enforces R2 but cannot see an itemized blocker list blocks the one ending the
+standard asks for — it punishes correct behaviour, and that is a faster way to
+get uninstalled than missing a violation.
+
+Recognition needs three things, and dropping any one of them was measured to
+break it:
+
+| Requirement | Why |
+|---|---|
+| Two or more list items | One item with an attribution is a sentence, not an itemization |
+| A blocker attribution anywhere in the message, not per item | Real writing puts it in the preamble — *"the rest are all on you, itemized:"* — and requiring it per item missed the first real message it was tested against |
+| No vague-completion phrase | *"the rest are done"* is the summary R2 rejects; a list that disposes of the remainder that way is a summary wearing a list's clothes |
+
+🔴 **Exclude the check's own scaffolding from the attribution search.** The
+heading *"what you need to decide"* contains the word *"you"*, so a list of work
+already finished satisfied the attribution test by way of the heading above it.
+The detector read its own structure — the same failure as R11, one layer down.
+
 ---
 
 ## Language coverage is a correctness property, not a translation task
@@ -173,3 +192,5 @@ only because a corpus existed; the two that shipped were the ones no case covere
 - [ ] A turn the human asked to end is exempt, decided from the human's message
 - [ ] The stop-request corpus includes work instructions containing a stopping word
 - [ ] The check recognises its own block message and does not read it as the human's
+- [ ] The check recognises the itemized blocker ending R2 defines, and does not block it
+- [ ] The attribution search excludes the check's own headings and scaffolding
