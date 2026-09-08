@@ -27,11 +27,26 @@ describe('AI Agent Paths Configuration', () => {
       }
     });
 
+    // A tool may legitimately have no user-level skills directory. Rather than relax the
+    // rule for everyone — which would let a real omission slip in anywhere — the tools
+    // without one are named, with the reason. Dropping `user` from any other tool still
+    // turns this red, and a tool that gains one must leave this list.
+    const NO_USER_SKILLS_PATH = {
+      antigravity: 'agy 1.0.14 has exactly one skills template and it is workspace-scoped '
+        + '({workspace}/.agents/skills/{skill_name}/SKILL.md). No user-level path is '
+        + 'documented or present in the binary; inventing one is how two wrong candidate '
+        + 'paths were recorded here for six months.',
+    };
+
     it('should have valid skills paths for each agent with skills support', () => {
       for (const [agent, config] of Object.entries(AI_AGENT_PATHS)) {
-        if (config.skills) {
-          expect(config.skills.project).toBeDefined();
-          expect(typeof config.skills.project).toBe('string');
+        if (!config.skills) continue;
+        expect(config.skills.project).toBeDefined();
+        expect(typeof config.skills.project).toBe('string');
+
+        if (NO_USER_SKILLS_PATH[agent]) {
+          expect(config.skills.user).toBeUndefined();
+        } else {
           expect(config.skills.user).toBeDefined();
           expect(typeof config.skills.user).toBe('string');
         }
@@ -47,11 +62,24 @@ describe('AI Agent Paths Configuration', () => {
     // The config now declines to install rather than write to an unverified location
     // (an unverified path fails silently: init succeeds, skills are never picked up).
     // When one candidate is confirmed, set skills and restore a positive assertion here.
-    it('declines to install skills for Antigravity while the path is unverified', () => {
+    // 🔴 CONFIRMED 2026-09-08, replacing a six-month "unverified" hold. Three
+    // independent sources agree on `.agents/skills/`: the agy 1.0.14 binary carries the
+    // literal template `{workspace}/.agents/skills/{skill_name}/SKILL.md`; the guide
+    // shipped with the tool says `<project-root>/.agents/` holds custom skills; and a
+    // live two-arm run listed a skill planted at `.agents/skills/` (description verbatim)
+    // while a decoy at `.agent/skills/` was not listed at all.
+    //
+    // BOTH candidates previously recorded here were wrong — the official-plugin path and
+    // `.agent/skills/` (singular). The answer came from the tool's own binary, not from
+    // either document.
+    it('installs Antigravity skills to the confirmed .agents/skills path', () => {
       const config = AI_AGENT_PATHS['antigravity'];
 
-      expect(config.skills).toBeNull();
-      // The tool does support skills; only our path for it is unknown.
+      expect(config.skills).not.toBeNull();
+      expect(config.skills.project).toBe('.agents/skills/');
+      // No user-level path: the binary has exactly one skills template and it is
+      // workspace-scoped. Inventing one is how the two wrong candidates got written down.
+      expect(config.skills.user).toBeUndefined();
       expect(config.supportsSkills).toBe(true);
     });
 
@@ -167,10 +195,10 @@ describe('AI Agent Paths Configuration', () => {
     // i.e. "we can install for this agent", not "this agent supports skills". Antigravity
     // does support skills, but UDS has no verified path to install them to, so it is
     // correctly absent from the installable set. Restore it here once the path is confirmed.
-    it('excludes Antigravity while its install path is unverified', () => {
+    it('includes Antigravity now that its install path is confirmed', () => {
       const agents = getSkillsSupportedAgents();
 
-      expect(agents).not.toContain('antigravity');
+      expect(agents).toContain('antigravity');
       expect(AI_AGENT_PATHS['antigravity'].supportsSkills).toBe(true);
     });
   });

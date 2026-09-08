@@ -109,7 +109,7 @@ export async function promptAITools(detected = {}) {
           checked: detected.copilot || false
         },
         {
-          name: `Google Antigravity ${chalk.gray('(INSTRUCTIONS.md)')}`,
+          name: `Google Antigravity ${chalk.gray('(.agents/AGENTS.md)')}`,
           value: 'antigravity',
           checked: detected.antigravity || false
         },
@@ -1159,7 +1159,7 @@ const AI_TOOL_DEFINITIONS = {
   windsurf: { name: 'Windsurf', file: '.windsurfrules' },
   cline: { name: 'Cline', file: '.clinerules' },
   copilot: { name: 'GitHub Copilot', file: '.github/copilot-instructions.md' },
-  antigravity: { name: 'Google Antigravity', file: 'INSTRUCTIONS.md' },
+  antigravity: { name: 'Google Antigravity', file: '.agents/AGENTS.md' },
   codex: { name: 'OpenAI Codex', file: 'AGENTS.md' },
   'gemini-cli': { name: 'Gemini CLI', file: 'GEMINI.md' },
   opencode: { name: 'OpenCode', file: 'AGENTS.md' }

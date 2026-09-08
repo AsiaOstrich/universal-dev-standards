@@ -296,7 +296,10 @@ export function getToolFromPath(integrationPath) {
     '.windsurfrules': 'windsurf',
     '.clinerules': 'cline',
     '.github/copilot-instructions.md': 'copilot',
-    'INSTRUCTIONS.md': 'antigravity',
+    // Antigravity never read INSTRUCTIONS.md.
+    // Measured 2026-09-08 with two positive controls in the same run: tokens planted in `AGENTS.md` and `.agents/AGENTS.md` both came back with correct attribution; the one in INSTRUCTIONS.md did not.
+    // `.agents/AGENTS.md` is used rather than the repo root so it does not collide with Codex/OpenCode, which both target root AGENTS.md.
+    '.agents/AGENTS.md': 'antigravity',
     'CLAUDE.md': 'claude-code',
     '.standards/CLAUDE.md': 'claude-code',
     'AGENTS.md': 'codex'

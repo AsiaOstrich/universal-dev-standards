@@ -150,7 +150,7 @@ export class PathResolver {
       'aider': '.aider.conf.yml',
       'opencode': 'AGENTS.md',
       'roo-code': '.roo/rules/uds-standards.md',
-      'antigravity': 'INSTRUCTIONS.md'
+      'antigravity': '.agents/AGENTS.md'
     };
 
     const targetFile = toolTargets[tool] || fileName;

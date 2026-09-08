@@ -20,7 +20,7 @@ describe('integration entry resolvers (XSPEC-343 R1)', () => {
 
     it('resolves absolute paths — two repos stored those', () => {
       expect(resolveToolKey('/Users/x/GitHub/proj/CLAUDE.md')).toBe('claude-code');
-      expect(resolveIntegrationFile('/Users/x/GitHub/proj/INSTRUCTIONS.md')).toBe('INSTRUCTIONS.md');
+      expect(resolveIntegrationFile('/Users/x/GitHub/proj/.agents/AGENTS.md')).toBe('.agents/AGENTS.md');
     });
 
     it('resolves a tool whose file sits in a subdirectory', () => {

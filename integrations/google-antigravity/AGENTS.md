@@ -1,6 +1,6 @@
 # Antigravity System Instructions
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/integrations/google-antigravity/INSTRUCTIONS.md) | [简体中文](../../locales/zh-CN/integrations/google-antigravity/INSTRUCTIONS.md)
+> **Language**: English | [繁體中文](../../locales/zh-TW/integrations/google-antigravity/AGENTS.md) | [简体中文](../../locales/zh-CN/integrations/google-antigravity/AGENTS.md)
 
 **Version**: 1.0.0
 **Last Updated**: 2026-01-09

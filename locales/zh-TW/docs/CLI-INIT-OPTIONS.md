@@ -45,7 +45,7 @@ status: current
   ◯ Windsurf (.windsurfrules)
   ◯ Cline (.clinerules)
   ◯ GitHub Copilot (.github/copilot-instructions.md)
-  ◯ Google Antigravity (INSTRUCTIONS.md) - Gemini Agent
+  ◯ Google Antigravity (.agents/AGENTS.md) - Gemini Agent
   ── AGENTS.md Tools ──
   ◯ OpenAI Codex (AGENTS.md) - OpenAI Codex CLI
   ◯ OpenCode (AGENTS.md) - Open-source AI coding agent
@@ -68,7 +68,7 @@ status: current
 | **Windsurf** | `.windsurfrules` | Plaintext | Windsurf IDE 規則檔 |
 | **Cline** | `.clinerules` | Plaintext | Cline 擴展規則檔 |
 | **GitHub Copilot** | `.github/copilot-instructions.md` | Markdown | Copilot 自訂指示 |
-| **Google Antigravity** | `INSTRUCTIONS.md` | Markdown | Gemini Agent 系統指令 |
+| **Google Antigravity** | `.agents/AGENTS.md` | Markdown | Gemini Agent 系統指令 |
 | **OpenAI Codex** | `AGENTS.md` | Markdown | OpenAI Codex CLI |
 | **OpenCode** | `AGENTS.md` | Markdown | 開源 AI 編碼 Agent（與 Codex 共用檔案） |
 | **Gemini CLI** | `GEMINI.md` | Markdown | Google Gemini CLI |

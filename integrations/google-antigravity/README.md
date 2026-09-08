@@ -16,7 +16,7 @@ Google Antigravity is an advanced agentic coding assistant. This integration hel
 - **[.antigravity/rules.md](./.antigravity/rules.md)** (Recommended):
   Project-level rules file, automatically loaded by Antigravity.
 
-- **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**:
+- **[AGENTS.md](./AGENTS.md)**:
   System prompt snippets for manual configuration.
 
 ## Rules Configuration
@@ -50,7 +50,7 @@ curl -o .antigravity/rules.md https://raw.githubusercontent.com/AsiaOstrich/univ
    Ensure `core/` standards are copied to your project (e.g., `.standards/`).
 
 2. **Configure Agent**:
-   Copy the content from `INSTRUCTIONS.md` into your Antigravity "User Rules" or specific task instructions.
+   Copy the content from `AGENTS.md` into your Antigravity "User Rules" or specific task instructions.
 
 ### Verify Compliance
 
@@ -62,7 +62,7 @@ Ask the agent to "Review this code following anti-hallucination standards".
 
 - [Anti-Hallucination Standards](../../core/anti-hallucination.md)
 - [Commit Message Guide](../../core/commit-message-guide.md)
-- [INSTRUCTIONS.md](./INSTRUCTIONS.md)
+- [AGENTS.md](./AGENTS.md)
 
 ---
 

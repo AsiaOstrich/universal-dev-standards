@@ -281,7 +281,7 @@ export function scanForUntrackedFiles(projectPath, manifest) {
     '.clinerules',
     '.github/copilot-instructions.md',
     'CLAUDE.md',
-    'INSTRUCTIONS.md'
+    '.agents/AGENTS.md'
   ];
 
   for (const intFile of knownIntegrations) {

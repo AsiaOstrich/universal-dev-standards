@@ -271,27 +271,39 @@ export const AI_AGENT_PATHS = {
   'antigravity': {
     name: 'Google Antigravity',
     tier: 'minimal',
-    // Skills install path is UNVERIFIED against a real Antigravity CLI, so it is null:
-    // `supportsSkills && skills` is the install guard everywhere (init.js, init-flow.js,
-    // update.js, config.js), and a null `skills` makes it decline rather than write to a
-    // path the tool may never read.
+    // Skills path CONFIRMED 2026-09-08, three independent ways:
+    //   1. The agy 1.0.14 binary carries the literal template
+    //      `{workspace}/.agents/skills/{skill_name}/SKILL.md`.
+    //   2. The guide shipped with the tool
+    //      (~/.gemini/antigravity-cli/builtin/skills/antigravity_guide/references/ide.md)
+    //      says `<project-root>/.agents/` holds "project-specific rules, custom skills,
+    //      and plugins".
+    //   3. A live two-arm run: a skill at `.agents/skills/` was listed back with its
+    //      description verbatim; a decoy at `.agent/skills/` was not listed at all.
     //
-    // Two candidates conflict, and neither has been tested:
-    //   a) ~/.gemini/antigravity-cli/plugins/<name>/skills/  -- official plugin docs
-    //   b) .agent/skills/ + ~/.gemini/antigravity/skills     -- UDS's own 2026-02 spec,
-    //      written while Gemini CLI was still the product; Antigravity replaced it on
-    //      2026-06-18, so (b) inherits an assumption that may no longer hold.
+    // 🔴 BOTH candidates previously recorded here were wrong — the official-plugin path
+    // and `.agent/skills/` (singular). Neither had been tested; declining to install was
+    // the right call for six months, and the answer came from the tool's own binary, not
+    // from either document.
     //
-    // Installing to the wrong path fails SILENTLY -- the user sees a successful init and
-    // an assistant that never picks the skills up. Declining is the safer default until
-    // one candidate is confirmed. Tracked as XSPEC-355 OQ6.
-    skills: null,
+    // 🔴 PRECONDITION the adopter must meet: agy only discovers `.agents/` when the
+    // directory is a registered Antigravity project (~/.gemini/projects.json). Measured:
+    // the same probe repo returned only the builtin skill before `agy --new-project` and
+    // both skills after. Installing here is correct, but a user who never opens the
+    // project in Antigravity will see nothing — that is the tool's condition, not ours.
+    //
+    // No `user` path: the binary has exactly one skills template and it is
+    // workspace-scoped. A user-level path would be invented, which is how the two wrong
+    // candidates above got written down in the first place.
+    skills: {
+      project: '.agents/skills/'
+    },
     commands: null,
     agents: null,
     workflows: null,
     supportsMarketplace: false,
     fallbackSkillsPath: null,
-    supportsSkills: true, // The tool does support skills; only our path for it is unverified.
+    supportsSkills: true,
     supportsTask: false,
     supportsAgents: false
   }

@@ -32,8 +32,8 @@ export const INTEGRATION_MAPPINGS = {
     target: '.github/copilot-instructions.md'
   },
   antigravity: {
-    source: 'integrations/google-antigravity/INSTRUCTIONS.md',
-    target: 'INSTRUCTIONS.md'
+    source: 'integrations/google-antigravity/AGENTS.md',
+    target: '.agents/AGENTS.md'
   },
   codex: {
     source: 'integrations/openai-codex/AGENTS.md',

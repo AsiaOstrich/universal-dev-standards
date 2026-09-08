@@ -163,8 +163,13 @@ describe('Detector Utils', () => {
       expect(result.claudeCode).toBe(true);
     });
 
-    it('should detect Antigravity with INSTRUCTIONS.md', () => {
-      writeFileSync(join(TEST_DIR, 'INSTRUCTIONS.md'), '');
+    // Measured 2026-09-08: Antigravity never read INSTRUCTIONS.md. Tokens planted in
+    // AGENTS.md and .agents/AGENTS.md both came back with correct attribution in the same
+    // run; the one in INSTRUCTIONS.md did not. `.agents/AGENTS.md` is the marker because
+    // the repo-root AGENTS.md already belongs to Codex and OpenCode.
+    it('should detect Antigravity with .agents/AGENTS.md', () => {
+      mkdirSync(join(TEST_DIR, '.agents'), { recursive: true });
+      writeFileSync(join(TEST_DIR, '.agents', 'AGENTS.md'), '');
       const result = detectAITools(TEST_DIR);
       expect(result.antigravity).toBe(true);
     });

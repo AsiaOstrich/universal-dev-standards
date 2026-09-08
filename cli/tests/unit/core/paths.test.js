@@ -148,7 +148,7 @@ describe('PathResolver', () => {
 
     it('should return correct target for antigravity', () => {
       const path = PathResolver.getIntegrationTarget(TEST_DIR, 'antigravity', 'test.md');
-      expect(path).toBe(join(TEST_DIR, 'INSTRUCTIONS.md'));
+      expect(path).toBe(join(TEST_DIR, '.agents/AGENTS.md'));
     });
 
     it('should use fileName as fallback for unknown tools', () => {

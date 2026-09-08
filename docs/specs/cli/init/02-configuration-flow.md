@@ -96,7 +96,7 @@ The configuration flow must:
 │   │   ○ Windsurf (.windsurfrules)                                       │   │
 │   │   ○ Cline (.clinerules)                                             │   │
 │   │   ○ GitHub Copilot (.github/copilot-instructions.md)                │   │
-│   │   ○ Google Antigravity (INSTRUCTIONS.md)                            │   │
+│   │   ○ Google Antigravity (.agents/AGENTS.md)                            │   │
 │   │   ○ OpenAI Codex (AGENTS.md)                                        │   │
 │   │   ○ OpenCode (AGENTS.md)                                            │   │
 │   │   ○ Gemini CLI (GEMINI.md)                                          │   │

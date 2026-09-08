@@ -19,7 +19,7 @@ Google Antigravity 是一个先进的代理程序代码开发助理。此集成�
 - **[.antigravity/rules.md](../../../../integrations/google-antigravity/.antigravity/rules.md)**（推荐）：
   项目级规则文件，Antigravity 会自动加载。
 
-- **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**：
+- **[AGENTS.md](./AGENTS.md)**：
   用于手动配置的系统提示词片段。
 
 ## 规则配置
@@ -53,7 +53,7 @@ curl -o .antigravity/rules.md https://raw.githubusercontent.com/AsiaOstrich/univ
    确保 `core/` 规范已复制到您的项目（例如 `.standards/`）。
 
 2. **配置代理**：
-   将 `INSTRUCTIONS.md` 的内容复制到您的 Antigravity「用户规则」或特定任务指令中。
+   将 `AGENTS.md` 的内容复制到您的 Antigravity「用户规则」或特定任务指令中。
 
 ### 验证合规性
 
@@ -65,7 +65,7 @@ curl -o .antigravity/rules.md https://raw.githubusercontent.com/AsiaOstrich/univ
 
 - [防幻觉规范](../../../../core/anti-hallucination.md)
 - [Commit 消息指南](../../../../core/commit-message-guide.md)
-- [INSTRUCTIONS.md](./INSTRUCTIONS.md)
+- [AGENTS.md](./AGENTS.md)
 
 ---
 

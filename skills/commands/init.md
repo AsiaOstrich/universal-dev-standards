@@ -41,7 +41,7 @@ Use AskUserQuestion with multiSelect to ask which AI tools to configure:
 | **OpenCode** | `AGENTS.md` | ✅ | ✅ |
 | **Gemini CLI** | `GEMINI.md` | ✅ | ✅ |
 | **Codex** | `AGENTS.md` | ✅ | ❌ |
-| **Antigravity** | `INSTRUCTIONS.md` | ✅ | ❌ |
+| **Antigravity** | `.agents/AGENTS.md` | ✅ | ❌ |
 
 Pre-select tools detected in the environment. Note: Codex and OpenCode share `AGENTS.md`.
 

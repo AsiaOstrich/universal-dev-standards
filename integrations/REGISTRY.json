@@ -149,10 +149,10 @@
       "name": "Google Antigravity",
       "tier": "minimal",
       "integrationFiles": [
-        "integrations/google-antigravity/INSTRUCTIONS.md",
+        "integrations/google-antigravity/AGENTS.md",
         "integrations/google-antigravity/.antigravity/rules.md"
       ],
-      "instructionFile": "integrations/google-antigravity/INSTRUCTIONS.md",
+      "instructionFile": "integrations/google-antigravity/AGENTS.md",
       "rulesLocation": "integrations/google-antigravity/",
       "supportsSkills": true,
       "supportsAgents": false,

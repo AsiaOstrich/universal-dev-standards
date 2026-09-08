@@ -112,7 +112,7 @@ export const SUPPORTED_AI_TOOLS = {
   },
   'antigravity': {
     name: 'Antigravity',
-    file: 'INSTRUCTIONS.md',
+    file: '.agents/AGENTS.md',
     format: 'markdown',
     category: 'secondary',
     supports: ['skills', 'workflows']
@@ -558,13 +558,27 @@ export function resolveToolKey(entry) {
   if (typeof entry !== 'string' || entry.length === 0) return null;
   if (SUPPORTED_AI_TOOLS[entry]) return entry;
   const norm = entry.replace(/\\/g, '/');
+
+  // Exact or path-suffix only. A bare basename match would let `MY-CLAUDE.md`
+  // or `CLAUDE.md.bak` pass as the managed integration file.
+  //
+  // 🔴 Two passes, and the order matters. Antigravity's file is
+  // `.agents/AGENTS.md` while OpenCode's is `AGENTS.md`, so a single pass
+  // resolved `.agents/AGENTS.md` to OpenCode — whichever tool happened to be
+  // declared first won a path the other had spelled out in full. An exactly
+  // declared path must beat another tool's suffix, and among suffixes the
+  // longest (most specific) one wins.
+  for (const [key, cfg] of Object.entries(SUPPORTED_AI_TOOLS)) {
+    if (cfg?.file && norm === cfg.file) return key;
+  }
+  let best = null;
   for (const [key, cfg] of Object.entries(SUPPORTED_AI_TOOLS)) {
     if (!cfg?.file) continue;
-    // Exact or path-suffix only. A bare basename match would let `MY-CLAUDE.md`
-    // or `CLAUDE.md.bak` pass as the managed integration file.
-    if (norm === cfg.file || norm.endsWith(`/${cfg.file}`)) return key;
+    if (norm.endsWith(`/${cfg.file}`) && (!best || cfg.file.length > best.len)) {
+      best = { key, len: cfg.file.length };
+    }
   }
-  return null;
+  return best ? best.key : null;
 }
 
 /** Entry (tool key OR file path) → repo-relative integration file, or null. */

@@ -42,7 +42,7 @@ argument-hint: "[--level N | --yes]"
 | **OpenCode** | `AGENTS.md` | ✅ | ✅ |
 | **Gemini CLI** | `GEMINI.md` | ✅ | ✅ |
 | **Codex** | `AGENTS.md` | ✅ | ❌ |
-| **Antigravity** | `INSTRUCTIONS.md` | ✅ | ❌ |
+| **Antigravity** | `.agents/AGENTS.md` | ✅ | ❌ |
 
 預選環境中偵測到的工具。注意：Codex 和 OpenCode 共用 `AGENTS.md`。
 

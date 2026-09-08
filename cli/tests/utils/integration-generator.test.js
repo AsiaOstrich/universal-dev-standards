@@ -892,7 +892,7 @@ describe('Integration Generator', () => {
       integrationFileExists('antigravity', '/project');
 
       expect(existsSync).toHaveBeenCalledWith(
-        join('/project', 'INSTRUCTIONS.md')
+        join('/project', '.agents/AGENTS.md')
       );
     });
   });

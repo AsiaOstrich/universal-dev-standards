@@ -126,7 +126,10 @@ export function detectAITools(projectPath) {
     copilot: existsSync(join(projectPath, '.github', 'copilot-instructions.md')),
     claudeCode: existsSync(join(projectPath, '.claude')) ||
                 existsSync(join(projectPath, 'CLAUDE.md')),
-    antigravity: existsSync(join(projectPath, 'INSTRUCTIONS.md')),
+    // Antigravity never read INSTRUCTIONS.md.
+    // Measured 2026-09-08 with two positive controls in the same run: tokens planted in `AGENTS.md` and `.agents/AGENTS.md` both came back with correct attribution; the one in INSTRUCTIONS.md did not.
+    // `.agents/AGENTS.md` is used rather than the repo root so it does not collide with Codex/OpenCode, which both target root AGENTS.md.
+    antigravity: existsSync(join(projectPath, '.agents', 'AGENTS.md')),
     // 🔴 Roo Code had a full entry in the path table (`.roo/skills/`, tier "complete"
     // in REGISTRY.json) and NO line here, so `uds init` could never install for it —
     // however correct those paths were. Found by `check:install-paths`, which walks

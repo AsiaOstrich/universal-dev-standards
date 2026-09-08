@@ -37,7 +37,7 @@ This document provides detailed explanations for every option in the `uds init` 
   ◯ Windsurf (.windsurfrules)
   ◯ Cline (.clinerules)
   ◯ GitHub Copilot (.github/copilot-instructions.md)
-  ◯ Google Antigravity (INSTRUCTIONS.md) - Gemini Agent
+  ◯ Google Antigravity (.agents/AGENTS.md) - Gemini Agent
   ── AGENTS.md Tools ──
   ◯ OpenAI Codex (AGENTS.md) - OpenAI Codex CLI
   ◯ OpenCode (AGENTS.md) - Open-source AI coding agent
@@ -60,7 +60,7 @@ Select the AI coding assistants you use in your project. The CLI will generate c
 | **Windsurf** | `.windsurfrules` | Plaintext | Windsurf IDE rules file |
 | **Cline** | `.clinerules` | Plaintext | Cline extension rules file |
 | **GitHub Copilot** | `.github/copilot-instructions.md` | Markdown | Copilot custom instructions |
-| **Google Antigravity** | `INSTRUCTIONS.md` | Markdown | Gemini Agent system instructions |
+| **Google Antigravity** | `.agents/AGENTS.md` | Markdown | Gemini Agent system instructions |
 | **OpenAI Codex** | `AGENTS.md` | Markdown | OpenAI Codex CLI |
 | **OpenCode** | `AGENTS.md` | Markdown | Open-source AI coding agent (shares file with Codex) |
 | **Gemini CLI** | `GEMINI.md` | Markdown | Google Gemini CLI |
