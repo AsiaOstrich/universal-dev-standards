@@ -417,42 +417,60 @@ process.stdout.write(
 );
 
 // ───────────────────────────────────────────────────────────────
-// Check 5 — the fourth registry: the hardcoded list in check-ai-agent-sync.sh
+// Check 5 — check-ai-agent-sync.sh must WALK the registry, not enumerate it
 // ───────────────────────────────────────────────────────────────
-section('[5/5] Hardcoded agent list in check-ai-agent-sync.sh');
+//
+// 🔴 This check used to parse the `AGENTS="..."` literal out of that script and warn
+// per missing agent. It worked — it had been warning about `aider` and `continue-dev`
+// long enough to become background noise — and it could not see the omission that
+// mattered most: `roo-code` was absent too, and had it been added to the list, the
+// script's `get_agent_tier` would have defaulted it to `minimal` (2 rules) instead of
+// its registered `complete` (7 rules), reporting a pass at the loosest tier there is.
+//
+// A per-item warning about a hand-maintained list treats the symptom. The list is now
+// derived from this same registry, so it cannot drift, and this check asserts THAT —
+// the absence of the enumeration — rather than policing its contents.
+section('[5/5] check-ai-agent-sync.sh derives its agents from the registry');
 
 const syncScriptPath = join(ROOT_DIR, 'scripts/check-ai-agent-sync.sh');
 if (!existsSync(syncScriptPath)) {
   fail('scripts/check-ai-agent-sync.sh not found');
 } else {
-  const syncScript = readFileSync(syncScriptPath, 'utf8');
-  const listMatch = syncScript.match(/^AGENTS="([^"]*)"/m);
-  if (!listMatch) {
-    fail('Could not find the AGENTS="..." list in check-ai-agent-sync.sh', 'The check below cannot run — fix the parser rather than ignoring it.');
+  const raw = readFileSync(syncScriptPath, 'utf8');
+  // 🔴 Comments stripped before matching. The first version of the tier check below
+  // matched the COMMENT that explains the line it was looking for — the comment quotes
+  // `*) echo "minimal"` to say why it was removed — so this gate failed on the very
+  // fix it was written to confirm. Same shape as a search that matches its own query.
+  const syncScript = raw
+    .split('\n')
+    .filter((l) => !/^\s*#/.test(l))
+    .join('\n');
+  const hardcoded = syncScript.match(/^AGENTS="([^"$]*)"/m);
+  if (hardcoded) {
+    fail(
+      'check-ai-agent-sync.sh has gone back to a hardcoded AGENTS list',
+      `Found: "${hardcoded[1].slice(0, 80)}". A hand-maintained list drifts silently — ` +
+        'derive it from REGISTRY.json instead, and print the denominator.',
+    );
+  } else if (!/registry\.agents/.test(syncScript)) {
+    fail(
+      'check-ai-agent-sync.sh reads neither a hardcoded list nor the registry',
+      'It must walk REGISTRY.json so a new agent is covered the day it is registered.',
+    );
   } else {
-    const listed = new Set(listMatch[1].split(/\s+/).filter(Boolean));
+    ok('agents are walked from REGISTRY.json, not enumerated');
+  }
 
-    // `tier: tool` entries are SDD tools, not AI assistants — they carry no rule set.
-    const expected = Object.entries(regAgents)
-      .filter(([, a]) => a.tier !== 'tool')
-      .map(([id]) => id);
-
-    for (const agentId of expected) {
-      if (listed.has(agentId)) {
-        ok(`check-ai-agent-sync.sh covers ${agentId}`);
-      } else {
-        warn(
-          `check-ai-agent-sync.sh does not check ${agentId}`,
-          'It is registered as an AI assistant but absent from the hardcoded list, so no rule is enforced against it.',
-        );
-      }
-    }
-
-    for (const agentId of listed) {
-      if (!regAgents[agentId]) {
-        fail(`check-ai-agent-sync.sh checks "${agentId}", which is not in REGISTRY.json`);
-      }
-    }
+  // The tier lookup is the quieter half: an unknown agent used to fall through to
+  // `minimal` rather than fail, so it was checked against 2 rules and reported green.
+  if (/\*\)\s*echo\s+"minimal"/.test(syncScript)) {
+    fail(
+      'check-ai-agent-sync.sh still defaults an unknown agent to tier "minimal"',
+      'That silently checks it against the loosest rule set and reports a pass. ' +
+        'Read the tier from REGISTRY.json and fail when it is absent.',
+    );
+  } else {
+    ok('an agent with no registered tier fails instead of being downgraded');
   }
 }
 

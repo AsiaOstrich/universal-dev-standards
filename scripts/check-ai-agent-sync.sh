@@ -197,32 +197,48 @@ get_rule_name() {
 }
 
 # Function to get agent file path
-get_agent_file() {
+# 🔴 Read from the registry, never listed here. The nine entries this used to hardcode
+# matched the registry exactly, so switching changes nothing for them — and it adds the
+# five it had silently omitted (aider, continue-dev, roo-code, spec-kit, openspec).
+#
+# `check-integration-liveness.ts` had been WARNING about two of those omissions for
+# long enough that the warning was background noise, and the omission that mattered
+# most was not in the warning at all: `roo-code` is tier "complete" (7 rules) and the
+# tier lookup below defaulted unknown agents to "minimal" (2 rules) — so had it been
+# in the list, it would have been checked, quietly, at the loosest tier there is.
+registry_field() {
     local agent_id="$1"
-    case "$agent_id" in
-        "claude-code") echo "CLAUDE.md" ;;
-        "opencode") echo "integrations/opencode/AGENTS.md" ;;
-        "cursor") echo "integrations/cursor/.cursorrules" ;;
-        "cline") echo "integrations/cline/.clinerules" ;;
-        "windsurf") echo "integrations/windsurf/.windsurfrules" ;;
-        "copilot") echo "integrations/github-copilot/copilot-instructions.md" ;;
-        "codex") echo "integrations/codex/AGENTS.md" ;;
-        "gemini-cli") echo "integrations/gemini-cli/GEMINI.md" ;;
-        "antigravity") echo "integrations/google-antigravity/INSTRUCTIONS.md" ;;
-        *) echo "" ;;
-    esac
+    local field="$2"
+    local result
+    if ! result=$(node -e '
+        const registry = require(process.argv[1]);
+        const agent = registry.agents[process.argv[2]];
+        process.stdout.write(agent && agent[process.argv[3]] != null ? String(agent[process.argv[3]]) : "");
+    ' "$REGISTRY_FILE" "$agent_id" "$field"); then
+        echo -e "${RED}ERROR: cannot read '$field' for '$agent_id' from $REGISTRY_FILE${NC}" >&2
+        exit 1
+    fi
+    printf '%s' "$result"
+}
+
+get_agent_file() {
+    registry_field "$1" "instructionFile"
 }
 
 # Function to get agent tier
+# 🔴 The old `*) echo "minimal"` was the dangerous line: an agent this function did not
+# recognise was not skipped and did not error — it was checked at the LOOSEST tier,
+# and the report said it passed. Reading the registry removes the guess; an agent with
+# no tier there now fails loudly instead of being quietly downgraded.
 get_agent_tier() {
     local agent_id="$1"
-    case "$agent_id" in
-        "claude-code"|"opencode") echo "complete" ;;
-        "cursor"|"cline"|"windsurf"|"copilot"|"codex") echo "partial" ;;
-        "gemini-cli") echo "preview" ;;
-        "antigravity") echo "minimal" ;;
-        *) echo "minimal" ;;
-    esac
+    local tier
+    tier=$(registry_field "$agent_id" "tier")
+    if [ -z "$tier" ]; then
+        echo -e "${RED}ERROR: '$agent_id' has no tier in $REGISTRY_FILE — refusing to guess one${NC}" >&2
+        exit 1
+    fi
+    printf '%s' "$tier"
 }
 
 # Function to get required rules for tier
@@ -365,13 +381,61 @@ if [ "$JSON_OUTPUT" = false ]; then
     echo ""
 fi
 
-# List of agents to check
-AGENTS="claude-code opencode cursor cline windsurf copilot codex gemini-cli antigravity"
+# 🔴 Walked from the registry, never enumerated — and the denominator is printed, so a
+# walk that quietly shrinks cannot report green over less than it did yesterday.
+# Agents with no instruction file are excluded, and the exclusion is COUNTED and NAMED:
+# an exclusion that is silent is just a shorter list with extra steps.
+AGENTS=$(node -e '
+    const registry = require(process.argv[1]);
+    process.stdout.write(Object.keys(registry.agents).join(" "));
+' "$REGISTRY_FILE")
+if [ -z "$AGENTS" ]; then
+    echo -e "${RED}ERROR: walked $REGISTRY_FILE and found 0 agents — nothing would be checked${NC}" >&2
+    exit 1
+fi
 
-# Check each agent
+CHECKED=0
+EXCLUDED=""
+REPORTED_ONLY=""
 for agent_id in $AGENTS; do
+    if [ -z "$(get_agent_file "$agent_id")" ]; then
+        EXCLUDED="$EXCLUDED $agent_id"
+        continue
+    fi
+    tier=$(get_agent_tier "$agent_id")
+    if [ "$tier" = "tool" ]; then
+        # 🔴 Reported, not enforced — the same treatment this script already gives
+        # deprecated targets, and for the same reason: enforcing a rule set nobody
+        # decided on is worse than naming the gap.
+        #
+        # The scope decision already exists, in check-integration-liveness.ts:
+        # "`tier: tool` entries are SDD tools, not AI assistants — they carry no rule
+        # set." This line makes that decision visible HERE, where the skipping happens,
+        # instead of leaving it implicit in another file's filter.
+        #
+        # ⚠️ No expiry, deliberately: an expiry is a clock on debt, and a recorded
+        # decision is not debt. (I first wrote one here claiming nobody had decided —
+        # that was wrong, and the decision was two files away.)
+        #
+        # What WOULD be debt: `tool` has no case in get_tier_rules, so if this skip
+        # were ever removed they would fall to the `*` default and be judged against a
+        # rule set chosen by a fallthrough. Both fail AH-001/AH-002 today.
+        REPORTED_ONLY="$REPORTED_ONLY $agent_id"
+        continue
+    fi
     check_agent "$agent_id"
+    CHECKED=$((CHECKED + 1))
 done
+
+if [ "$JSON_OUTPUT" = false ]; then
+    TOTAL_AGENTS=$(printf '%s' "$AGENTS" | wc -w | tr -d ' ')
+    echo ""
+    echo -e "${BLUE}Walked ${TOTAL_AGENTS} agents in the registry, enforced on ${CHECKED}.${NC}"
+    [ -n "$EXCLUDED" ] && echo -e "${YELLOW}  Excluded (no instructionFile):${EXCLUDED}${NC}"
+    if [ -n "$REPORTED_ONLY" ]; then
+        echo -e "${YELLOW}  Reported, not enforced (tier 'tool' — SDD tools, out of scope by decision):${REPORTED_ONLY}${NC}"
+    fi
+fi
 
 # Summary
 ERRORS=$(get_errors)
