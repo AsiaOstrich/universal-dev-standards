@@ -131,7 +131,7 @@ For Claude Code users, a `UserPromptSubmit` hook can automatically inject releva
 **Requirements:**
 - Hook execution must complete in < 500ms
 - Hook failures must not block the user's prompt
-- See `scripts/hooks/inject-standards.js` for reference implementation
+- See `scripts/hooks/inject-standards.mjs` for reference implementation
 
 ---
 

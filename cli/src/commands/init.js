@@ -236,7 +236,15 @@ export async function initCommand(options) {
     const { installHooks } = await import('../installers/hooks-installer.js');
     const hookResult = installHooks(projectPath);
     if (hookResult.installed) {
-      console.log(chalk.green(`  ✓ Enforcement hooks installed (${hookResult.scriptsCount} scripts)`));
+      console.log(chalk.green(
+        `  ✓ Enforcement hooks installed (${hookResult.scriptsCount} scripts, `
+        + `${hookResult.events.join(', ')})`));
+    } else {
+      // Silence here is how three broken installs reported success.
+      console.log(chalk.yellow('  ⚠ No enforcement hooks installed — no standard produced a usable hook.'));
+    }
+    for (const s of hookResult.skipped ?? []) {
+      console.log(chalk.yellow(`    · skipped ${s.id}: ${s.why}`));
     }
   }
 

@@ -119,9 +119,13 @@ physical_spec:
     command: 'echo "{input}" | npx commitlint'
 
 enforcement:
-  hook_type: PreCommit
-  trigger: UserPromptSubmit
-  script_ref: "scripts/hooks/validate-commit-msg.js"
-  hook_script: "scripts/hooks/validate-commit-msg.js"
+  # 🔴 hook_type was "PreCommit" — Claude Code has no such event — and the
+  # trigger was UserPromptSubmit, so the validator ran on every prompt and
+  # exited 1 every time. It belongs on the Bash call that makes the commit.
+  hook_type: PreToolUse
+  trigger: PreToolUse
+  matcher: Bash
+  script_ref: "scripts/hooks/validate-commit-msg.mjs"
+  hook_script: "scripts/hooks/validate-commit-msg.mjs"
   severity: error
   timeout_ms: 500

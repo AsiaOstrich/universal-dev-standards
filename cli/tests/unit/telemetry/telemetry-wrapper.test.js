@@ -1,12 +1,12 @@
 // [Source: docs/specs/SPEC-TELEMETRY-001-hook-telemetry.md]
-// TDD tests for telemetry-wrapper.js
+// TDD tests for telemetry-wrapper.mjs
 // Pattern: AAA (Arrange-Act-Assert)
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { recordTelemetry, TELEMETRY_FILE } from '../../../../scripts/hooks/telemetry-wrapper.js';
+import { recordTelemetry, TELEMETRY_FILE } from '../../../../scripts/hooks/telemetry-wrapper.mjs';
 
 describe('SPEC-TELEMETRY-001 / REQ-1: Telemetry Wrapper', () => {
   let testDir;

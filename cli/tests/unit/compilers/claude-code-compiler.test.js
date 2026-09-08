@@ -9,7 +9,7 @@ const ENFORCEMENT_STANDARDS = [
   {
     id: 'commit-message',
     enforcement: {
-      hook_script: 'scripts/hooks/validate-commit-msg.js',
+      hook_script: 'scripts/hooks/validate-commit-msg.mjs',
       trigger: 'UserPromptSubmit',
       severity: 'error',
     },
@@ -17,7 +17,7 @@ const ENFORCEMENT_STANDARDS = [
   {
     id: 'security-standards',
     enforcement: {
-      hook_script: 'scripts/hooks/check-dangerous-cmd.js',
+      hook_script: 'scripts/hooks/check-dangerous-cmd.mjs',
       trigger: 'PreToolUse',
       severity: 'error',
     },
@@ -25,7 +25,7 @@ const ENFORCEMENT_STANDARDS = [
   {
     id: 'logging',
     enforcement: {
-      hook_script: 'scripts/hooks/check-logging-standard.js',
+      hook_script: 'scripts/hooks/check-logging-standard.mjs',
       trigger: 'PostToolUse',
       severity: 'warning',
     },
@@ -57,9 +57,9 @@ describe('SPEC-COMPILE-001 / REQ-2: Claude Code 編譯器', () => {
       // silence. This assertion used to accept a bare string, which is what let
       // the inert shape ship.
       expect(result.hooks.UserPromptSubmit[0].hooks[0].type).toBe('command');
-      expect(result.hooks.UserPromptSubmit[0].hooks[0].command).toContain('validate-commit-msg.js');
-      expect(result.hooks.PreToolUse[0].hooks[0].command).toContain('check-dangerous-cmd.js');
-      expect(result.hooks.PostToolUse[0].hooks[0].command).toContain('check-logging-standard.js');
+      expect(result.hooks.UserPromptSubmit[0].hooks[0].command).toContain('validate-commit-msg.mjs');
+      expect(result.hooks.PreToolUse[0].hooks[0].command).toContain('check-dangerous-cmd.mjs');
+      expect(result.hooks.PostToolUse[0].hooks[0].command).toContain('check-logging-standard.mjs');
     });
   });
 

@@ -1,7 +1,7 @@
 /**
  * Hook Statistics - Context-aware loading learning loop
  *
- * Records and analyzes trigger statistics from inject-standards.js hook.
+ * Records and analyzes trigger statistics from inject-standards.mjs hook.
  * Privacy: never records full prompt content or file paths.
  *
  * @module utils/hook-stats

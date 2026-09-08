@@ -131,7 +131,7 @@ claude-code-compiler.js
 
 ```yaml
 enforcement:
-  hook_script: scripts/hooks/validate-commit-msg.js
+  hook_script: scripts/hooks/validate-commit-msg.mjs
   trigger: UserPromptSubmit
   severity: error
 ```
@@ -142,13 +142,13 @@ enforcement:
 {
   "hooks": {
     "UserPromptSubmit": [
-      { "matcher": "", "hooks": ["node scripts/hooks/validate-commit-msg.js"] }
+      { "matcher": "", "hooks": ["node scripts/hooks/validate-commit-msg.mjs"] }
     ],
     "PreToolUse": [
-      { "matcher": "Bash", "hooks": ["node scripts/hooks/check-dangerous-cmd.js"] }
+      { "matcher": "Bash", "hooks": ["node scripts/hooks/check-dangerous-cmd.mjs"] }
     ],
     "PostToolUse": [
-      { "matcher": "Bash", "hooks": ["node scripts/hooks/check-logging-standard.js"] }
+      { "matcher": "Bash", "hooks": ["node scripts/hooks/check-logging-standard.mjs"] }
     ]
   }
 }

@@ -29,7 +29,7 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         'standard:',
         '  id: commit-message',
         'enforcement:',
-        '  hook_script: scripts/hooks/validate-commit-msg.js',
+        '  hook_script: scripts/hooks/validate-commit-msg.mjs',
         '  trigger: UserPromptSubmit',
         '  severity: error',
       ].join('\n'));
@@ -58,7 +58,7 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         'standard:',
         '  id: security-standards',
         'enforcement:',
-        '  hook_script: scripts/hooks/check-dangerous-cmd.js',
+        '  hook_script: scripts/hooks/check-dangerous-cmd.mjs',
         '  trigger: PreToolUse',
         '  severity: error',
       ].join('\n'));
@@ -83,7 +83,7 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         'standard:',
         '  id: logging',
         'enforcement:',
-        '  hook_script: scripts/hooks/check-logging-standard.js',
+        '  hook_script: scripts/hooks/check-logging-standard.mjs',
         '  trigger: PostToolUse',
         '  severity: warning',
       ].join('\n'));

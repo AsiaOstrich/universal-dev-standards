@@ -22,7 +22,7 @@
 
 ### REQ-1: Telemetry Wrapper
 
-系統 SHALL 提供 `telemetry-wrapper.js`，包裹 hook 腳本執行並記錄遙測數據。
+系統 SHALL 提供 `telemetry-wrapper.mjs`，包裹 hook 腳本執行並記錄遙測數據。
 
 #### Scenario: 記錄成功的 hook 執行
 
@@ -92,7 +92,7 @@
 
 | 檔案 | 用途 |
 |------|------|
-| `scripts/hooks/telemetry-wrapper.js` | Hook 遙測包裹器 |
+| `scripts/hooks/telemetry-wrapper.mjs` | Hook 遙測包裹器 |
 | `cli/src/commands/report.js` | 遙測分析報告命令 |
 
 ### 修改檔案
@@ -132,7 +132,7 @@ logging                    389     95.1%      110ms
 
 ## Test Plan
 
-- [ ] `telemetry-wrapper.js` 單元測試（pass/fail/duration 記錄）
+- [ ] `telemetry-wrapper.mjs` 單元測試（pass/fail/duration 記錄）
 - [ ] `report.js` 命令測試（有數據/無數據/報告格式）
 - [ ] rotation 測試（超過大小限制自動截斷）
 

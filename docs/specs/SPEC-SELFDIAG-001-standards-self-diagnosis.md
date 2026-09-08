@@ -29,7 +29,7 @@
 | `pattern-analyzer.js` (commit 分析) | → 整合進 Coverage 維度 |
 | `friction-detector.js` (修改偵測) | → 整合進 Consistency 維度 |
 | `check-*.sh` (17 個腳本) | → 排程自動執行 + 退化自動通知 |
-| `inject-standards.js` (context-aware) | → 加入統計記錄 + 分析迴路 |
+| `inject-standards.mjs` (context-aware) | → 加入統計記錄 + 分析迴路 |
 | `uds audit --report` (GitHub issue) | → 自動化回饋匯總 |
 
 ---
@@ -209,7 +209,7 @@
 系統 SHALL 在 context-aware loading hook 中記錄觸發統計並提供分析。
 
 #### Scenario: 記錄觸發統計
-- **GIVEN** `inject-standards.js` hook 被觸發
+- **GIVEN** `inject-standards.mjs` hook 被觸發
 - **WHEN** hook 完成標準匹配
 - **THEN** 將觸發記錄追加至 `.uds/hook-stats.jsonl`（timestamp、matched count、matched standard IDs），不記錄完整 prompt 內容或檔案路徑
 
@@ -319,7 +319,7 @@ Schema Layer (specs/)
 └─ standards-effectiveness-schema.json  ← 新增：跨產品 schema
 
 Hook Layer (scripts/hooks/)
-└─ inject-standards.js       ← 修改：加入統計記錄
+└─ inject-standards.mjs       ← 修改：加入統計記錄
 
 Test Layer (cli/tests/)
 ├─ unit/utils/health-scorer.test.js     ← 新增
@@ -341,7 +341,7 @@ Test Layer (cli/tests/)
 | 新增 | `specs/standards-effectiveness-schema.json` | 跨產品 schema |
 | 修改 | `cli/src/commands/audit.js` | 加入 `--score`、`--self`、`--save`、`--trend`、`--ci`、`--threshold` |
 | 修改 | `cli/bin/uds.js` | 註冊新 options |
-| 修改 | `scripts/hooks/inject-standards.js` | 加入統計記錄 |
+| 修改 | `scripts/hooks/inject-standards.mjs` | 加入統計記錄 |
 | 修改 | `cli/tests/commands/audit-utils.test.js` | 擴展測試 |
 
 ### 資料格式

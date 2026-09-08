@@ -13,9 +13,9 @@ describe('SPEC-HOOKS-001 / REQ-7: 標準 YAML enforcement 區塊', () => {
   // [Source: SPEC-HOOKS-001:REQ-7]
 
   const standardsToCheck = [
-    { file: 'commit-message.ai.yaml', expectedScript: 'validate-commit-msg.js', expectedTrigger: 'UserPromptSubmit' },
-    { file: 'security-standards.ai.yaml', expectedScript: 'check-dangerous-cmd.js', expectedTrigger: 'PreToolUse' },
-    { file: 'logging.ai.yaml', expectedScript: 'check-logging-standard.js', expectedTrigger: 'PostToolUse' },
+    { file: 'commit-message.ai.yaml', expectedScript: 'validate-commit-msg.mjs', expectedTrigger: 'PreToolUse' },
+    { file: 'security-standards.ai.yaml', expectedScript: 'check-dangerous-cmd.mjs', expectedTrigger: 'PreToolUse' },
+    { file: 'logging.ai.yaml', expectedScript: 'check-logging-standard.mjs', expectedTrigger: 'PostToolUse' },
   ];
 
   standardsToCheck.forEach(({ file, expectedScript, expectedTrigger }) => {

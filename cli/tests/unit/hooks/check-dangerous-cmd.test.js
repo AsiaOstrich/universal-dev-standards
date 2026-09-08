@@ -1,10 +1,10 @@
 // [Source: docs/specs/SPEC-HOOKS-001-core-standard-hooks.md]
-// [Generated] TDD skeleton for check-dangerous-cmd.js
+// [Generated] TDD skeleton for check-dangerous-cmd.mjs
 // Pattern: AAA (Arrange-Act-Assert)
 
 import { describe, it, expect } from 'vitest';
 
-import { isDangerousCommand } from '../../../../scripts/hooks/check-dangerous-cmd.js';
+import { isDangerousCommand } from '../../../../scripts/hooks/check-dangerous-cmd.mjs';
 
 describe('SPEC-HOOKS-001 / REQ-2: 危險命令偵測 Hook', () => {
   // [Source: SPEC-HOOKS-001:AC-3]

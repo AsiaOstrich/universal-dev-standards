@@ -1,10 +1,10 @@
 // [Source: docs/specs/SPEC-HOOKS-001-core-standard-hooks.md]
-// [Generated] TDD skeleton for validate-commit-msg.js
+// [Generated] TDD skeleton for validate-commit-msg.mjs
 // Pattern: AAA (Arrange-Act-Assert)
 
 import { describe, it, expect } from 'vitest';
 
-import { validateCommitMessage } from '../../../../scripts/hooks/validate-commit-msg.js';
+import { validateCommitMessage, commitMessageFrom } from '../../../../scripts/hooks/validate-commit-msg.mjs';
 
 describe('SPEC-HOOKS-001 / REQ-1: Commit Message 驗證 Hook', () => {
   // [Source: SPEC-HOOKS-001:AC-2]
@@ -75,5 +75,43 @@ describe('SPEC-HOOKS-001 / REQ-1: Commit Message 驗證 Hook', () => {
         expect(validateCommitMessage(msg)).toBe(true);
       });
     });
+  });
+});
+
+// The hook sits on PreToolUse(Bash), so it sees every shell command the agent
+// runs. Anything that is not a `git commit -m` must be none of its business —
+// it was previously on UserPromptSubmit and failed on every prompt.
+describe('commitMessageFrom', () => {
+  it('extracts a double-quoted message', () => {
+    expect(commitMessageFrom('git commit -m "feat(x): y"')).toBe('feat(x): y');
+  });
+
+  it('extracts a single-quoted message', () => {
+    expect(commitMessageFrom("git commit -m 'fix: crash'")).toBe('fix: crash');
+  });
+
+  it('extracts an unquoted single-token message', () => {
+    expect(commitMessageFrom('git commit -m wip')).toBe('wip');
+  });
+
+  it('tolerates a global flag before the subcommand', () => {
+    expect(commitMessageFrom('git -C /tmp/repo commit -m "docs: a"')).toBe('docs: a');
+  });
+
+  it('returns null for a commit with no inspectable message', () => {
+    expect(commitMessageFrom('git commit -F -')).toBeNull();
+    expect(commitMessageFrom('git commit --amend --no-edit')).toBeNull();
+  });
+
+  it('returns null for commands that are not commits', () => {
+    expect(commitMessageFrom('npm test')).toBeNull();
+    expect(commitMessageFrom('git push origin main')).toBeNull();
+    expect(commitMessageFrom('echo "git commit -m fake"')).toBeNull();
+  });
+
+  it('returns null for non-strings', () => {
+    expect(commitMessageFrom(undefined)).toBeNull();
+    expect(commitMessageFrom(null)).toBeNull();
+    expect(commitMessageFrom({})).toBeNull();
   });
 });

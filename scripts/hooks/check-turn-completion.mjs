@@ -14,9 +14,9 @@
  * that can trap a session is worse than none, because the only recovery a human
  * has is to disable it, and they will disable it permanently.
  *
- * Usage: node check-turn-completion.js  (reads stdin)
- *        node check-turn-completion.js --self-test
- *        node check-turn-completion.js --languages
+ * Usage: node check-turn-completion.mjs  (reads stdin)
+ *        node check-turn-completion.mjs --self-test
+ *        node check-turn-completion.mjs --languages
  *
  * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md
  * @see core/turn-completion-integrity.md
@@ -25,7 +25,7 @@ import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { detectCommitment, userAskedToStop } from './turn-completion/detect.js';
+import { detectCommitment, userAskedToStop } from './turn-completion/detect.mjs';
 
 export const VERSION = '1.1.0';
 
@@ -39,17 +39,30 @@ const WINDOW_SEC = 3600;
 const STATE_DIR = join(homedir(), '.uds', 'turn-completion');
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-/** Load every shipped locale pack. A pack that fails to load is skipped, not fatal. */
+/** Locales this hook ships. The self-test fails if any of them will not load. */
+export const SHIPPED_LOCALES = ['en', 'zh-TW'];
+
+/**
+ * Load every shipped locale pack.
+ *
+ * At runtime a pack that fails to load is skipped (R5: a broken pack must not
+ * stop the turn from ending). 🔴 But that swallow is also how a shipping
+ * mistake hides: with zero packs loaded the hook runs, exits 0, and can never
+ * fire — the same shape as good behaviour. So `failed` is returned rather than
+ * discarded, and the self-test treats a non-empty `failed` as a failure.
+ * Caught while renaming the packs to .mjs: the loader still asked for .js.
+ */
 export async function loadPacks() {
   const packs = [];
-  for (const id of ['en', 'zh-TW']) {
+  const failed = [];
+  for (const id of SHIPPED_LOCALES) {
     try {
-      packs.push(await import(join(HERE, 'turn-completion', 'locales', `${id}.js`)));
-    } catch {
-      /* R5: a broken pack must not stop the turn from ending */
+      packs.push(await import(join(HERE, 'turn-completion', 'locales', `${id}.mjs`)));
+    } catch (e) {
+      failed.push({ id, why: String((e && e.message) || e) });
     }
   }
-  return packs;
+  return { packs, failed };
 }
 
 /**
@@ -148,7 +161,7 @@ async function main() {
   try { msgs = lastMessages(tp); } catch { return; }
   if (!msgs.assistant.trim()) return;
 
-  const packs = await loadPacks();
+  const { packs } = await loadPacks();
   if (packs.length === 0) return;
 
   // The human asked for the turn to end. That is a legitimate ending, and the
@@ -173,9 +186,11 @@ async function main() {
 }
 
 async function selfTest() {
-  const packs = await loadPacks();
-  let ok = true;
-  console.log(`[turn-completion] v${VERSION} — packs: ${packs.map((p) => p.id).join(', ')}`);
+  const { packs, failed } = await loadPacks();
+  let ok = failed.length === 0 && packs.length === SHIPPED_LOCALES.length;
+  console.log(`[turn-completion] v${VERSION} — packs: ${packs.map((p) => p.id).join(', ')}`
+    + ` (${packs.length}/${SHIPPED_LOCALES.length} shipped locales)`);
+  for (const f of failed) console.log(`  x   locale ${f.id} failed to load — ${f.why}`);
 
   for (const pack of packs) {
     for (const [want, label, text] of pack.corpus) {
@@ -209,7 +224,7 @@ const arg = process.argv[2];
 if (arg === '--self-test') {
   await selfTest();
 } else if (arg === '--languages') {
-  const packs = await loadPacks();
+  const { packs } = await loadPacks();
   console.log(packs.map((p) => `${p.id} (${p.label})`).join('\n'));
   console.log('\nThis check reads prose. If you work in a language not listed above,'
     + '\nit is installed and running but cannot fire. See turn-completion-integrity R8.');

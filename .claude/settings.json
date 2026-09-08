@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/inject-standards.js\"",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hooks/inject-standards.mjs\"",
             "timeout": 5,
             "statusMessage": "Loading relevant UDS standards..."
           }

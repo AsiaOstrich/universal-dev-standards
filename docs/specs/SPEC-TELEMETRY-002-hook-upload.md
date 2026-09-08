@@ -8,7 +8,7 @@
 
 ## Overview
 
-擴充 `.uds/config.json`，加入三個遙測上傳欄位（`telemetryUpload`、`telemetryServer`、`telemetryApiKey`）。當使用者明確 opt-in 後，`telemetry-wrapper.js` 在每次 hook 執行完成（pass 或 fail）後，將結果 payload 上傳至遠端遙測伺服器。預設完全關閉，零數據離開本機。
+擴充 `.uds/config.json`，加入三個遙測上傳欄位（`telemetryUpload`、`telemetryServer`、`telemetryApiKey`）。當使用者明確 opt-in 後，`telemetry-wrapper.mjs` 在每次 hook 執行完成（pass 或 fail）後，將結果 payload 上傳至遠端遙測伺服器。預設完全關閉，零數據離開本機。
 
 ## Motivation
 
@@ -126,7 +126,7 @@ SPEC-TELEMETRY-001 已實作本地 `.standards/telemetry.jsonl` 記錄。本 spe
 
 | 檔案 | 變更 |
 |------|------|
-| `scripts/hooks/telemetry-wrapper.js` | 呼叫 `uploadHookTelemetry()` 於本地記錄後 |
+| `scripts/hooks/telemetry-wrapper.mjs` | 呼叫 `uploadHookTelemetry()` 於本地記錄後 |
 | `package.json` (root) | 加入 `@asiaostrich/telemetry-client` dependency |
 | `cli/package.json` | 加入 `@asiaostrich/telemetry-client` dependency |
 

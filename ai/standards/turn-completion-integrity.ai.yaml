@@ -102,8 +102,8 @@ enforcement:
   hook_type: Stop
   trigger: Stop
   matcher: ""
-  script_ref: "scripts/hooks/check-turn-completion.js"
-  hook_script: "scripts/hooks/check-turn-completion.js"
+  script_ref: "scripts/hooks/check-turn-completion.mjs"
+  hook_script: "scripts/hooks/check-turn-completion.mjs"
   severity: warning
   timeout_ms: 2000
 

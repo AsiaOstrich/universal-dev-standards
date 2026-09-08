@@ -6,7 +6,23 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { installHooks } from '../../../src/installers/hooks-installer.js';
+import { installHooks, collectHookConfigs, standardsSourceDir, hooksSourceDir }
+  from '../../../src/installers/hooks-installer.js';
+
+/**
+ * Every hook command in a settings.json, flattened.
+ *
+ * The set of hooks is derived from the standards' enforcement blocks, so a
+ * positional assertion ("PreToolUse has exactly one entry") is an enumeration
+ * that goes stale the moment a standard declares a hook. These helpers let the
+ * assertions say what must be true regardless of how many there are.
+ */
+const commandsIn = (settings) =>
+  Object.values(settings.hooks ?? {}).flatMap((entries) =>
+    entries.flatMap((e) => (e.hooks ?? []).map((h) => (typeof h === 'string' ? h : h.command))));
+
+const expectedScripts = () =>
+  collectHookConfigs(standardsSourceDir(), hooksSourceDir()).scripts;
 
 describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
   // [Source: SPEC-HOOKS-001:AC-1]
@@ -35,9 +51,13 @@ describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
       expect(existsSync(settingsPath)).toBe(true);
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       expect(settings.hooks).toBeDefined();
-      expect(settings.hooks.PreToolUse).toHaveLength(1);
-      expect(settings.hooks.PostToolUse).toHaveLength(1);
-      expect(settings.hooks.UserPromptSubmit).toHaveLength(1);
+      // Every declared enforcement block produced exactly one command.
+      const cmds = commandsIn(settings);
+      const scripts = expectedScripts();
+      expect(scripts.length).toBeGreaterThan(0);
+      for (const script of scripts) {
+        expect(cmds.filter((c) => c.endsWith(script))).toHaveLength(1);
+      }
     });
 
     it('should include correct hook scripts in settings', () => {
@@ -47,12 +67,23 @@ describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
       // Assert
       const settingsPath = join(testDir, '.claude', 'settings.json');
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-      expect(settings.hooks.PreToolUse[0].hooks[0].type).toBe('command');
-      expect(settings.hooks.PreToolUse[0].hooks[0].command).toContain('check-dangerous-cmd.js');
-      expect(settings.hooks.PostToolUse[0].hooks[0].command).toContain('check-logging-standard.js');
-      expect(settings.hooks.UserPromptSubmit[0].hooks[0].command).toContain('validate-commit-msg.js');
-      // Derived from enforcement blocks, so a newly declared one appears here.
-      expect(settings.hooks.Stop[0].hooks[0].command).toContain('check-turn-completion.js');
+      // Shape: Claude Code dispatches on `type` and skips an entry without one,
+      // in silence. A bare string was shipped for months.
+      for (const entries of Object.values(settings.hooks)) {
+        for (const entry of entries) {
+          expect(typeof entry.matcher).toBe('string');
+          for (const hook of entry.hooks) {
+            expect(hook.type).toBe('command');
+            expect(typeof hook.command).toBe('string');
+          }
+        }
+      }
+      const cmds = commandsIn(settings).join('\n');
+      expect(cmds).toContain('check-dangerous-cmd.mjs');
+      expect(cmds).toContain('check-logging-standard.mjs');
+      expect(cmds).toContain('validate-commit-msg.mjs');
+      expect(settings.hooks.Stop).toBeDefined();
+      expect(cmds).toContain('check-turn-completion.mjs');
     });
   });
 
@@ -78,7 +109,7 @@ describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
       expect(settings.customSetting).toBe('should-be-preserved');
       expect(settings.permissions.allow).toEqual(['Read', 'Write']);
       expect(settings.hooks).toBeDefined();
-      expect(settings.hooks.PreToolUse).toHaveLength(1);
+      expect(commandsIn(settings).length).toBe(expectedScripts().length);
     });
   });
 
@@ -93,9 +124,9 @@ describe('SPEC-HOOKS-001 / REQ-4: Hook 安裝模組', () => {
       // Assert
       const settingsPath = join(testDir, '.claude', 'settings.json');
       const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-      expect(settings.hooks.PreToolUse).toHaveLength(1);
-      expect(settings.hooks.PostToolUse).toHaveLength(1);
-      expect(settings.hooks.UserPromptSubmit).toHaveLength(1);
+      const cmds = commandsIn(settings);
+      expect(cmds.length).toBe(expectedScripts().length);
+      expect(new Set(cmds).size).toBe(cmds.length);
     });
   });
 });

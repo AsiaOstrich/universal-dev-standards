@@ -1,10 +1,10 @@
 // [Source: docs/specs/SPEC-HOOKS-001-core-standard-hooks.md]
-// [Generated] TDD skeleton for check-logging-standard.js
+// [Generated] TDD skeleton for check-logging-standard.mjs
 // Pattern: AAA (Arrange-Act-Assert)
 
 import { describe, it, expect } from 'vitest';
 
-import { hasUnstructuredLogging } from '../../../../scripts/hooks/check-logging-standard.js';
+import { hasUnstructuredLogging } from '../../../../scripts/hooks/check-logging-standard.mjs';
 
 describe('SPEC-HOOKS-001 / REQ-3: 結構化日誌檢查 Hook', () => {
   // [Source: SPEC-HOOKS-001:REQ-3]

@@ -136,7 +136,7 @@ program
   .option('--content-mode <mode>', 'Content mode for integration files (minimal, index) [default: index]; full is retired and resolves to index')
   .option('--agents-md', 'Generate AGENTS.md universal summary')
   .option('--no-agents-md', 'Skip AGENTS.md generation')
-  .option('--with-hooks', 'Install enforcement hooks (commit-msg, security, logging)')
+  .option('--with-hooks', 'Install enforcement hooks declared by the installed standards')
   .option('--content-layout <layout>', 'Content layout (flat, layered) [default: flat]')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')

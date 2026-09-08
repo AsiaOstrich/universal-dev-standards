@@ -23,13 +23,13 @@
 #### Scenario: 合規的 commit message 通過驗證
 
 - **GIVEN** 使用者輸入 `feat(core): add hook support`
-- **WHEN** 執行 `validate-commit-msg.js`
+- **WHEN** 執行 `validate-commit-msg.mjs`
 - **THEN** 腳本以 exit code 0 結束
 
 #### Scenario: 不合規的 commit message 被攔截
 
 - **GIVEN** 使用者輸入 `bad message`
-- **WHEN** 執行 `validate-commit-msg.js`
+- **WHEN** 執行 `validate-commit-msg.mjs`
 - **THEN** 腳本以 exit code 1 結束，並輸出錯誤提示
 
 #### Scenario: 支援的 commit type 清單
@@ -45,13 +45,13 @@
 #### Scenario: 偵測強制刪除命令
 
 - **GIVEN** 使用者的 shell 命令包含 `rm -rf /` 或 `format` 等危險模式
-- **WHEN** 執行 `check-dangerous-cmd.js`
+- **WHEN** 執行 `check-dangerous-cmd.mjs`
 - **THEN** 腳本以 exit code 1 結束，輸出警告訊息
 
 #### Scenario: 安全命令通過
 
 - **GIVEN** 使用者的 shell 命令為 `ls -la` 或 `npm test`
-- **WHEN** 執行 `check-dangerous-cmd.js`
+- **WHEN** 執行 `check-dangerous-cmd.mjs`
 - **THEN** 腳本以 exit code 0 結束
 
 ### REQ-3: 結構化日誌檢查 Hook
@@ -61,13 +61,13 @@
 #### Scenario: 檢查非結構化日誌呼叫
 
 - **GIVEN** 程式碼中包含 `console.log("debug info")` 等非結構化日誌
-- **WHEN** 執行 `check-logging-standard.js`
+- **WHEN** 執行 `check-logging-standard.mjs`
 - **THEN** 腳本以 exit code 1 結束，提示使用結構化日誌
 
 #### Scenario: 結構化日誌通過檢查
 
 - **GIVEN** 程式碼使用符合標準的結構化日誌（如 JSON 格式 logger）
-- **WHEN** 執行 `check-logging-standard.js`
+- **WHEN** 執行 `check-logging-standard.mjs`
 - **THEN** 腳本以 exit code 0 結束
 
 ### REQ-4: Hook 安裝模組
@@ -144,9 +144,9 @@
 
 | 檔案 | 用途 |
 |------|------|
-| `scripts/hooks/validate-commit-msg.js` | Commit message 格式驗證 |
-| `scripts/hooks/check-dangerous-cmd.js` | 危險 shell 命令攔截 |
-| `scripts/hooks/check-logging-standard.js` | 結構化日誌格式檢查 |
+| `scripts/hooks/validate-commit-msg.mjs` | Commit message 格式驗證 |
+| `scripts/hooks/check-dangerous-cmd.mjs` | 危險 shell 命令攔截 |
+| `scripts/hooks/check-logging-standard.mjs` | 結構化日誌格式檢查 |
 | `cli/src/installers/hooks-installer.js` | Hook 安裝模組 |
 
 ### 修改檔案
@@ -155,7 +155,7 @@
 |------|------|
 | `cli/src/commands/init.js` | 新增 `--with-hooks` flag |
 | `cli/src/installers/integration-installer.js` | 新增 hooks 安裝呼叫 |
-| `scripts/hooks/inject-standards.js` | `domainTriggerMap` 新增 `enforcement` domain |
+| `scripts/hooks/inject-standards.mjs` | `domainTriggerMap` 新增 `enforcement` domain |
 | `cli/src/utils/hook-stats.js` | `appendHookStat()` 新增 `hook_type` 欄位 |
 | `.standards/commit-message.ai.yaml` | 新增 `enforcement` 區塊 |
 | `.standards/security-standards.ai.yaml` | 新增 `enforcement` 區塊 |
@@ -174,19 +174,19 @@
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "hooks": ["node scripts/hooks/check-dangerous-cmd.js"]
+        "hooks": ["node scripts/hooks/check-dangerous-cmd.mjs"]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Bash",
-        "hooks": ["node scripts/hooks/check-logging-standard.js"]
+        "hooks": ["node scripts/hooks/check-logging-standard.mjs"]
       }
     ],
     "UserPromptSubmit": [
       {
         "matcher": "",
-        "hooks": ["node scripts/hooks/validate-commit-msg.js"]
+        "hooks": ["node scripts/hooks/validate-commit-msg.mjs"]
       }
     ]
   }
@@ -197,9 +197,9 @@
 
 ## Test Plan
 
-- [ ] `validate-commit-msg.js` 單元測試（合規/不合規/邊界案例）
-- [ ] `check-dangerous-cmd.js` 單元測試（危險/安全命令模式）
-- [ ] `check-logging-standard.js` 單元測試（結構化/非結構化日誌）
+- [ ] `validate-commit-msg.mjs` 單元測試（合規/不合規/邊界案例）
+- [ ] `check-dangerous-cmd.mjs` 單元測試（危險/安全命令模式）
+- [ ] `check-logging-standard.mjs` 單元測試（結構化/非結構化日誌）
 - [ ] `hooks-installer.js` 單元測試（首次安裝/合併/冪等）
 - [ ] `init.js` 整合測試（--with-hooks flag）
 - [ ] `hook-stats.js` 單元測試（新 hook_type 欄位）
@@ -209,3 +209,26 @@
 
 - **依賴**: 無
 - **被依賴**: Issue #63 (Phase 2), Issue #64 (Phase 3), Issue #65 (Phase 3)
+
+---
+
+## REQ-8: 交付（2026-09-08 補，因為前七項全部成立而採用者一支也跑不到）
+
+四個缺陷**同時存在**，每一個都靜默，而「檔案在不在」在四個裡面全都是 true：
+
+| # | 缺陷 | 採用者看到的 | 怎麼量到的 |
+|---|---|---|---|
+| 1 | hook 條目寫成裸字串 | 安裝成功、settings.json 合法、**永不執行** | 同一次執行同一個事件裡並排兩臂：物件跑了、裸字串沒跑 |
+| 2 | `scripts/hooks` 不在 npm 套件裡 | 複製 0 支腳本，仍回報 `installed: true` | `npm pack --dry-run` 只列出安裝器自己 |
+| 3 | hook 是 ESM `.js` | 宣告 `"type":"commonjs"` 的專案**六支全部 SyntaxError**；沒宣告 type 的每回合往 stderr 噴警告 | 三種 package.json 各裝一次並實際執行 |
+| 4 | commit 驗證掛在 `UserPromptSubmit` | **每打一句話就跑一次**，把那句話當 commit message 驗、exit 1 | 閘門執行安裝後的 hook，空輸入即現形 |
+
+### 交付要求
+
+- **R8-1** hook 條目必須是 `{ "type": "command", "command": … }`；`matcher` 必須是字串。
+- **R8-2** hook 腳本副檔名必須是 `.mjs`。採用者的 `package.json` 不歸我們管，而 `.js` 的語意由它決定。
+- **R8-3** 事件與腳本清單必須從標準的 `enforcement:` 區塊**走訪**，不得列舉在安裝器裡。
+- **R8-4** 閘門必須**執行**裝好的每一支 hook，不是檢查它存在——四個缺陷裡「檔案在」全都是真的。
+
+驗證：`npx tsx scripts/check-hook-delivery.ts [--with-pack]`（接在 pre-commit）。
+四個缺陷各自放回去實測，閘門都會變紅。

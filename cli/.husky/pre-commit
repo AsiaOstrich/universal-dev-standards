@@ -105,6 +105,27 @@ if [ -n "$STAGED_INTEGRATION_SRC" ]; then
     fi
 fi
 
+# Hook delivery (2026-09-08)
+# Four defects shipped at once and every one was silent: bare-string entries
+# Claude Code skips, hook scripts missing from the npm package, ESM .js that
+# throws in any adopter declaring "type": "commonjs", and a commit validator
+# wired to UserPromptSubmit so it ran on every prompt. "The file exists" was
+# true in all four, so this gate installs into throwaway projects of each
+# module type and EXECUTES what it installed.
+STAGED_HOOK_SRC=$(git diff --cached --name-only | grep -E "^(scripts/hooks/|cli/src/installers/hooks-installer\.js|cli/src/compilers/|cli/scripts/prepack\.mjs|ai/standards/.*\.ai\.yaml)" || true)
+
+if [ -n "$STAGED_HOOK_SRC" ]; then
+    echo "[Pre-commit] Checking hook delivery (shape + executes under each module type)..."
+    if ! npm run check:hooks --prefix "$REPO_ROOT" --silent; then
+        echo ""
+        echo "An adopter would not get working hooks from this change."
+        echo "  Full check including the npm tarball:"
+        echo "    npx tsx scripts/check-hook-delivery.ts --with-pack"
+        echo ""
+        exit 1
+    fi
+fi
+
 # Navigate to cli directory for npm commands
 cd "$REPO_ROOT/cli"
 

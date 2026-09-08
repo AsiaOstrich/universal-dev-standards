@@ -153,7 +153,7 @@ enforcement:
   trigger: PreToolUse
   matcher:
     tool: Bash
-  script_ref: "scripts/hooks/check-dangerous-cmd.js"
-  hook_script: "scripts/hooks/check-dangerous-cmd.js"
+  script_ref: "scripts/hooks/check-dangerous-cmd.mjs"
+  hook_script: "scripts/hooks/check-dangerous-cmd.mjs"
   severity: error
   timeout_ms: 500

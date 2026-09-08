@@ -6,8 +6,8 @@
  * and suggests using structured logging instead.
  * Exit code: 0 = pass, 1 = unstructured logging found
  *
- * Usage: echo 'console.log("debug")' | node check-logging-standard.js
- *    or: node check-logging-standard.js 'console.log("debug")'
+ * Usage: echo 'console.log("debug")' | node check-logging-standard.mjs
+ *    or: node check-logging-standard.mjs 'console.log("debug")'
  *
  * Performance target: < 500ms
  *
@@ -33,7 +33,7 @@ export function hasUnstructuredLogging(code) {
 }
 
 // CLI mode
-if (process.argv[1] && process.argv[1].endsWith('check-logging-standard.js')) {
+if (process.argv[1] && process.argv[1].endsWith('check-logging-standard.mjs')) {
   const input = process.argv[2];
   if (input) {
     if (hasUnstructuredLogging(input)) {

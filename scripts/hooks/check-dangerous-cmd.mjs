@@ -5,8 +5,8 @@
  * Detects potentially destructive shell commands and blocks execution.
  * Exit code: 0 = safe, 1 = dangerous
  *
- * Usage: echo "rm -rf /" | node check-dangerous-cmd.js
- *    or: node check-dangerous-cmd.js "rm -rf /"
+ * Usage: echo "rm -rf /" | node check-dangerous-cmd.mjs
+ *    or: node check-dangerous-cmd.mjs "rm -rf /"
  *
  * Performance target: < 500ms
  *
@@ -34,7 +34,7 @@ export function isDangerousCommand(cmd) {
 }
 
 // CLI mode
-if (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.js')) {
+if (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.mjs')) {
   const input = process.argv[2];
   if (input) {
     if (isDangerousCommand(input)) {
