@@ -56,6 +56,20 @@ export function isAsking(text) {
   return ASKING.test(text);
 }
 
+/**
+ * The human asking for the turn to end. Kept narrow on purpose: a false
+ * positive disables the check for the rest of the session.
+ */
+const STOP_REQUEST =
+  // 🔴 `先停` 曾寫成裸的，而語料當場抓到「先**停用**那份硬編碼清單」——
+  // 一句要求做事的指令被讀成叫我停。這個方向的誤判會把守衛整場關掉，
+  // 所以 `停` 後面接得出動詞的字一律排除。
+  /(先暫停|暫停一下|先停(?![用止掉住])|停一下|先不要(做|動)|不用繼續|今天(先)?到這|先這樣|收工|下班|我要回家|明天再(說|弄|做)|改天再|先擱著|睡了|晚安)/;
+
+export function isStopRequest(text) {
+  return STOP_REQUEST.test(text);
+}
+
 export const id = 'zh-TW';
 export const label = '繁體中文';
 
@@ -76,4 +90,17 @@ export const corpus = [
     '那個數字會因為引擎自己恢復而變動，與任何改動無關。我不會拿它做任何判斷。'],
   [false, '合法的停止：事情在使用者手上',
     '只剩那一跑要你自己在終端機跑，探測 repo 和判定腳本都備好了。'],
+];
+
+/**
+ * 使用者的訊息，以及它是不是「叫我停」。
+ * 標 true 必須豁免；標 false 必須不豁免——**提到停止不等於叫我停止**。
+ */
+export const stopCorpus = [
+  [true, '直接叫停', '先暫停, 我要回家了. 我不會退出程式. 就先暫停'],
+  [true, '今天到這', '今天先到這，明天再弄。'],
+  [true, '收工', '收工吧，我下班了。'],
+  [false, '提到停止但不是叫停', '解釋一下這支 hook 為什麼會擋下回合。'],
+  [false, '要求做事而句中有停', '先停用那份硬編碼清單，改成走訪註冊表。'],
+  [false, '一般指令', '把偵測器修好然後推上去。'],
 ];

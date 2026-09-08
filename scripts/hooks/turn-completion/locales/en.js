@@ -99,6 +99,19 @@ export function isAsking(text) {
   return ASKING.test(normalize(text));
 }
 
+/**
+ * The human asking for the turn to end. Deliberately narrow: a false positive
+ * here disables the check for the rest of the session, which is worse than a
+ * missed block. It must read as an instruction to stop, not a mention of
+ * stopping.
+ */
+const STOP_REQUEST =
+  /(\blet's (stop|pause|pick this up later)\b|\b(pause|stop) (here|for now|there)\b|\bhold (on|off)\b|\bthat's (enough|it) for (now|today)\b|\b(done|enough) for (now|today)\b|\bwrap (it |this )?up\b|\bcontinue (this )?later\b|\bpick (this|it) up (tomorrow|later)\b|\btake a break\b|\bI'?m (heading|going) (home|out)\b|\bgood ?night\b)/i;
+
+export function isStopRequest(text) {
+  return STOP_REQUEST.test(normalize(text));
+}
+
 export const id = 'en';
 export const label = 'English';
 
@@ -129,4 +142,18 @@ export const corpus = [
   [false, 'legitimate stop: the next move is the human\'s', 'I will wait for your key before deploying.'],
   [false, 'conditional: asking in the same paragraph',
     'Tell me which file you meant and I will check it.'],
+];
+
+/**
+ * Messages from the human, and whether each one ends the turn by request.
+ * Marked `true` must exempt; marked `false` must NOT — a message that merely
+ * mentions stopping is not an instruction to stop.
+ */
+export const stopCorpus = [
+  [true, 'plain pause', "Let's pause here, I'm heading home."],
+  [true, 'enough for today', "That's enough for today, we can continue later."],
+  [true, 'hold on', 'Hold on, I need to step out.'],
+  [false, 'mentions stopping but is not one', 'Explain why the hook stops the turn.'],
+  [false, 'asks for work', 'Stop using the hardcoded list and walk the registry instead.'],
+  [false, 'ordinary instruction', 'Fix the detector and push it.'],
 ];

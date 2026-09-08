@@ -3,7 +3,7 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-09-08"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
@@ -57,6 +57,16 @@ rules:
     rule: Each supported language ships as a locale pack with its own must-block and must-pass corpus, and that corpus runs in CI
     rationale: A detector carrying one language's patterns, shipped to an adopter working in another, is installed, runs, exits 0, and can never fire — indistinguishable from good behavior
 
+  r9_exempt_a_human_directed_stop:
+    summary: The human can end the turn, and the agent's words cannot say so
+    rule: The check must exempt a turn the human asked to end, decided from the human's own most recent message
+    rationale: Measured on the first real firing after shipping — a turn ending by instruction and a turn ending on an abandoned commitment produce the same words from the agent, because in both the agent names work it is not doing now
+
+  r10_keep_the_stop_pattern_narrow:
+    summary: A false exemption silences the check for the rest of the session
+    rule: The stop-request pattern must be narrow, and its corpus must include work instructions that merely contain a stopping word
+    rationale: During implementation the pattern matched "stop using the hardcoded list and walk the registry instead" — an instruction to do work, read as an instruction to stop
+
   r8_declare_unsupported_languages:
     summary: Say when the check is inactive
     rule: An adopter whose language has no locale pack must be told the check cannot fire for them
@@ -99,3 +109,5 @@ checklist:
   - Each shipped language has a corpus, and the corpus runs in CI
   - Adopters in unsupported languages are told the check is inactive
   - The check does not consult repository state
+  - A turn the human asked to end is exempt, decided from the human's message
+  - The stop-request corpus includes work instructions containing a stopping word

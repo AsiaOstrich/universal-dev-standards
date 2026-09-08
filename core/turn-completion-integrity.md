@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2026-09-08
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
@@ -74,6 +74,29 @@ most.
 
 ---
 
+## The human can end the turn, and the agent's words cannot say so
+
+**R9.** The check MUST exempt a turn the human asked to end, and MUST determine
+that from the human's own most recent message — not from the agent's.
+
+This rule exists because its absence was measured, once, on the first real
+firing after this standard shipped. The human wrote *"pause, I'm going home"*;
+the agent acknowledged and listed what it would resume; the check read an
+abandoned commitment and blocked.
+
+The detector was not wrong about the pattern. **A turn ending by instruction and
+a turn ending on an abandoned commitment produce the same words from the agent**,
+because in both cases the agent names work it is not doing now. Nothing in the
+final message separates them, so a check that reads only that message cannot.
+
+**R10.** The stop-request pattern MUST be narrow, and its corpus MUST include
+work instructions that merely contain a stopping word. A false exemption is not
+one missed block: it silences the check for the rest of the session. During
+implementation the pattern matched *"stop using the hardcoded list and walk the
+registry instead"* — an instruction to do work, read as an instruction to stop.
+
+---
+
 ## Language coverage is a correctness property, not a translation task
 
 The check reads prose written by the agent, so **its detector is language-specific**.
@@ -134,3 +157,5 @@ only because a corpus existed; the two that shipped were the ones no case covere
 - [ ] Each shipped language has a corpus, and the corpus runs in CI
 - [ ] Adopters in unsupported languages are told the check is inactive
 - [ ] The check does not consult repository state (open TODOs, backlog)
+- [ ] A turn the human asked to end is exempt, decided from the human's message
+- [ ] The stop-request corpus includes work instructions containing a stopping word

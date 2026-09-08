@@ -25,7 +25,7 @@ import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { detectCommitment } from './turn-completion/detect.js';
+import { detectCommitment, userAskedToStop } from './turn-completion/detect.js';
 
 export const VERSION = '1.0.0';
 
@@ -52,24 +52,37 @@ export async function loadPacks() {
   return packs;
 }
 
-/** Last assistant text block in a Claude Code JSONL transcript. */
-export function lastAssistantText(transcriptPath) {
-  let last = '';
-  const lines = readFileSync(transcriptPath, 'utf8').split('\n');
-  for (const line of lines) {
+/** Plain text of a transcript message, or '' if it carries none. */
+function textOf(msg) {
+  const c = msg && msg.content;
+  if (typeof c === 'string') return c;
+  if (!Array.isArray(c)) return '';
+  // Tool results also arrive with role "user"; only text blocks are prose.
+  const parts = c.filter((p) => p && p.type === 'text').map((p) => p.text || '');
+  return parts.some((p) => p.trim()) ? parts.join('\n') : '';
+}
+
+/**
+ * Last assistant message and last human message in a Claude Code JSONL
+ * transcript. The human's message is needed because a turn that ends by their
+ * instruction looks, from the agent's words alone, exactly like one that ends
+ * on an abandoned commitment.
+ */
+export function lastMessages(transcriptPath) {
+  let assistant = '';
+  let user = '';
+  for (const line of readFileSync(transcriptPath, 'utf8').split('\n')) {
     if (!line.trim()) continue;
     let ev;
     try { ev = JSON.parse(line); } catch { continue; }
     const msg = ev && ev.message;
-    if (!msg || msg.role !== 'assistant') continue;
-    const c = msg.content;
-    if (typeof c === 'string') { last = c; continue; }
-    if (Array.isArray(c)) {
-      const parts = c.filter((p) => p && p.type === 'text').map((p) => p.text || '');
-      if (parts.some((p) => p.trim())) last = parts.join('\n');
-    }
+    if (!msg) continue;
+    const t = textOf(msg);
+    if (!t) continue;
+    if (msg.role === 'assistant') assistant = t;
+    else if (msg.role === 'user') user = t;
   }
-  return last;
+  return { assistant, user };
 }
 
 function readState(path) {
@@ -120,14 +133,18 @@ async function main() {
   if (stamps.length >= MAX_BLOCKS_PER_WINDOW) return;
   if (now - (st.last || 0) < COOLDOWN_SEC) return;
 
-  let text = '';
-  try { text = lastAssistantText(tp); } catch { return; }
-  if (!text.trim()) return;
+  let msgs;
+  try { msgs = lastMessages(tp); } catch { return; }
+  if (!msgs.assistant.trim()) return;
 
   const packs = await loadPacks();
   if (packs.length === 0) return;
 
-  const hit = detectCommitment(text, packs);
+  // The human asked for the turn to end. That is a legitimate ending, and the
+  // agent's own words cannot distinguish it from an abandoned commitment.
+  if (userAskedToStop(msgs.user, packs)) return;
+
+  const hit = detectCommitment(msgs.assistant, packs);
   if (!hit.fired) return;
 
   stamps.push(now);
@@ -158,6 +175,13 @@ async function selfTest() {
       ok &&= good;
       console.log(`  ${good ? 'OK ' : 'x  '} [${pack.id}] ${want ? 'must block' : 'must pass'} — ${label}`
         + (good ? '' : `   (got: ${got ? 'block' : 'pass'})`));
+    }
+    for (const [want, label, text] of pack.stopCorpus || []) {
+      const got = userAskedToStop(text, packs);
+      const good = got === want;
+      ok &&= good;
+      console.log(`  ${good ? 'OK ' : 'x  '} [${pack.id}] user ${want ? 'IS' : 'is NOT'} asking to stop — ${label}`
+        + (good ? '' : `   (got: ${got ? 'exempt' : 'not exempt'})`));
     }
   }
   console.log(`[turn-completion] self-test ${ok ? 'passed' : 'FAILED'}`);

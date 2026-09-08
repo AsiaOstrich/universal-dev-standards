@@ -46,6 +46,26 @@ export function splitSentences(text) {
 }
 
 /**
+ * Did the human ask for the turn to end?
+ *
+ * 🔴 The check reads only the agent's final message, so a turn that ends
+ * because the human said "pause, I'm going home" is indistinguishable from one
+ * that ends on an abandoned commitment — the agent's words are the same in both.
+ * Measured 2026-09-08: the first real firing after shipping was exactly this.
+ *
+ * A user-directed stop is the one legitimate ending the message-only design
+ * cannot represent, so the check has to look at the other side of the exchange.
+ *
+ * @param {string} text - the human's most recent message
+ * @param {Array<{isStopRequest: (t: string) => boolean}>} packs
+ * @returns {boolean}
+ */
+export function userAskedToStop(text, packs) {
+  if (!text || !text.trim()) return false;
+  return packs.some((p) => typeof p.isStopRequest === 'function' && p.isStopRequest(text));
+}
+
+/**
  * Run every locale pack over one message.
  *
  * All packs run, and any one of them firing is enough. A bilingual transcript
