@@ -3,7 +3,7 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-09-08"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
@@ -67,6 +67,11 @@ rules:
     rule: The stop-request pattern must be narrow, and its corpus must include work instructions that merely contain a stopping word
     rationale: During implementation the pattern matched "stop using the hardcoded list and walk the registry instead" — an instruction to do work, read as an instruction to stop
 
+  r11_recognise_your_own_block_message:
+    summary: The check's own output re-enters the input it reads
+    rule: The block message must carry a fixed marker, and any human turn containing it must be skipped when looking for the human's last message
+    rationale: Without this R9 works exactly once — the block message becomes "the human's most recent message" on the next run, hiding the real instruction to stop, silently and only in the situation the exemption was built for
+
   r8_declare_unsupported_languages:
     summary: Say when the check is inactive
     rule: An adopter whose language has no locale pack must be told the check cannot fire for them
@@ -111,3 +116,4 @@ checklist:
   - The check does not consult repository state
   - A turn the human asked to end is exempt, decided from the human's message
   - The stop-request corpus includes work instructions containing a stopping word
+  - The check recognises its own block message and does not read it as the human's

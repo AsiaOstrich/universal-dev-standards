@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: 2026-09-08
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
@@ -95,6 +95,19 @@ one missed block: it silences the check for the rest of the session. During
 implementation the pattern matched *"stop using the hardcoded list and walk the
 registry instead"* — an instruction to do work, read as an instruction to stop.
 
+**R11.** The check's own block message re-enters the transcript as a human turn.
+It MUST be able to recognise its own output and skip it when looking for the
+human's last message.
+
+Without this, R9 works exactly once. The block message becomes "the human's most
+recent message" on the next run, the real instruction to stop is hidden behind
+it, and the exemption disappears — silently, and only in the situation it was
+built for.
+
+This is the same family as a detector matching the prose that documents it,
+one step further along: **the check reads its own output.** Carry a fixed marker
+string in the block message and skip any human turn containing it.
+
 ---
 
 ## Language coverage is a correctness property, not a translation task
@@ -159,3 +172,4 @@ only because a corpus existed; the two that shipped were the ones no case covere
 - [ ] The check does not consult repository state (open TODOs, backlog)
 - [ ] A turn the human asked to end is exempt, decided from the human's message
 - [ ] The stop-request corpus includes work instructions containing a stopping word
+- [ ] The check recognises its own block message and does not read it as the human's

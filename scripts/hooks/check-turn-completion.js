@@ -27,7 +27,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { detectCommitment, userAskedToStop } from './turn-completion/detect.js';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 const COOLDOWN_SEC = 120;
 // A cap counted per session with no reset is an off switch on a delay: it
@@ -51,6 +51,17 @@ export async function loadPacks() {
   }
   return packs;
 }
+
+/**
+ * 🔴 This hook's own block message enters the transcript as a user turn. On the
+ * next run it would therefore be read as "the human's last message", hiding the
+ * real one ("pause, I'm going home") and silently voiding the R9 exemption.
+ *
+ * Same family as the detector matching the prose that documents it — except
+ * here it reads its own output. The reason string carries this line so it can
+ * recognise itself.
+ */
+export const SELF_ECHO = 'UDS standard turn-completion-integrity (R1)';
 
 /** Plain text of a transcript message, or '' if it carries none. */
 function textOf(msg) {
@@ -80,7 +91,7 @@ export function lastMessages(transcriptPath) {
     const t = textOf(msg);
     if (!t) continue;
     if (msg.role === 'assistant') assistant = t;
-    else if (msg.role === 'user') user = t;
+    else if (msg.role === 'user' && !t.includes(SELF_ECHO)) user = t;
   }
   return { assistant, user };
 }
@@ -184,6 +195,12 @@ async function selfTest() {
         + (good ? '' : `   (got: ${got ? 'exempt' : 'not exempt'})`));
     }
   }
+  // The block message must contain the marker, or the hook cannot tell its own
+  // output from the human's next instruction.
+  const selfRecognised = reason('en', 'x').includes(SELF_ECHO);
+  ok &&= selfRecognised;
+  console.log(`  ${selfRecognised ? 'OK ' : 'x  '} block message carries the self-echo marker`);
+
   console.log(`[turn-completion] self-test ${ok ? 'passed' : 'FAILED'}`);
   process.exit(ok ? 0 : 1);
 }
