@@ -117,13 +117,41 @@ const FISHING_VERB = /\b(grep|rg|ripgrep|find|ls|cat|head|tail|glob|Glob|Grep|Se
 /**
  * A search or listing anywhere over the install tree poisons every skill's recital
  * at once — after it, any token in the tree could have been copied rather than
- * loaded. Path-form independent: it keys on the verb and on any mention of the tree.
+ * loaded. Path-form independent: it keys on the verb and on a mention of the tree.
+ *
+ * 🔴 Proximity, not "same line". The first version asked whether a *line* held both
+ * a verb and the tree. Real transcripts are JSONL: `--output-format=stream-json` puts
+ * an entire assistant turn on one line, so any message that mentioned the tree and
+ * used the word "find" anywhere in its prose scored as a search. Measured on the
+ * first real run — it reported `fishing` on skills whose reason text was a whole JSON
+ * blob. The verb now has to sit within `NEAR` characters of the path mention, which
+ * is what `grep -r … .claude/skills` looks like and what prose does not.
  */
+const NEAR = 120;
+
+/**
+ * Is the text between a verb and the path shaped like a command's arguments, or like
+ * a sentence? `grep -rn UDSCANARY <path>` has two argument-ish tokens between them;
+ * "could not **find** a clean way to do this, so I will use `<path>`" has eleven and
+ * a comma. Three tokens and no comma separates the two on every case measured.
+ */
+function looksLikeArguments(gap: string): boolean {
+  if (gap.includes(",")) return false;
+  return gap.trim().split(/\s+/).filter(Boolean).length <= 3;
+}
+
 function treeWideFishing(transcript: string, installDir: string): string | null {
   const tail = installTail(installDir);
-  for (const line of transcript.split("\n")) {
-    if (!line.includes(installDir) && !line.includes(tail)) continue;
-    if (FISHING_VERB.test(line)) return line.trim().slice(0, 120);
+  for (const needle of [installDir, tail]) {
+    let at = transcript.indexOf(needle);
+    while (at !== -1) {
+      const window = transcript.slice(Math.max(0, at - NEAR), at);
+      const hit = [...window.matchAll(new RegExp(FISHING_VERB, "g"))].at(-1);
+      if (hit && looksLikeArguments(window.slice(hit.index + hit[0].length))) {
+        return `${window.slice(hit.index)}${needle}`.slice(-120);
+      }
+      at = transcript.indexOf(needle, at + 1);
+    }
   }
   return null;
 }
@@ -275,6 +303,16 @@ if (SELF_TEST) {
   const l = score(manifest, full.replace("UDSCANARY-M1", ""));
   add("🔴 middle marker removed reads as TRUNCATED, not DELIVERED",
     l.exit === 1 && l.rows[0].state === "TRUNCATED" && /middle/.test(l.rows[0].why));
+
+  // 🔴 Both arms below come from the first real run, where a JSONL transcript put a
+  // whole assistant turn on one line and every skill scored `fishing` off prose.
+  const prose = `${full}\n{"type":"assistant","text":"I could not find a clean way to do this, so I will use ${installDir}/demo/workflow.md as the reference"}`;
+  add("🔴 JSONL arm — a verb far from the path in one huge line is NOT fishing",
+    score(manifest, prose).rows[0].route === "one-hop-observed");
+
+  const realGrep = `${full}\n{"name":"Bash","input":{"command":"grep -rn UDSCANARY ${installDir}/"}}`;
+  add("🔴 JSONL arm — a real grep on the same huge line IS fishing",
+    score(manifest, realGrep).rows[0].route === "fishing");
 
   let ok = true;
   for (const [label, pass] of arms) {
