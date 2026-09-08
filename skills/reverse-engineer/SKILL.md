@@ -147,6 +147,7 @@ After `/reverse` (full or `spec`) completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- Step-by-step workflow: [workflow.md](./workflow.md) — the reverse-engineering phases in order (code scanning, data models, configuration, test analysis, coverage). Read it when actually running the process rather than deciding whether to.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)
 

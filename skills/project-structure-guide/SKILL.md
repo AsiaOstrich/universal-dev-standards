@@ -168,6 +168,7 @@ After `/project-structure` completes, the AI assistant should suggest:
 
 ## Related Standards
 
+- [Language-specific patterns](./language-patterns.md) — concrete directory layouts per language (Node.js/TypeScript, Python, Go, and others). Read it when laying out a project in a specific language.
 - [Core: Project Structure](../../core/project-structure.md)
 - [Core: Documentation Structure](../../core/documentation-structure.md)
 - [Guide: File Placement Decision Guide](../../core/guides/file-placement-guide.md)

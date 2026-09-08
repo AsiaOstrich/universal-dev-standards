@@ -46,6 +46,7 @@ description: |
 
 ## 參考
 
+- 詳細指南：[guide.md](./guide.md) — SLI／SLO／錯誤預算的定義與管理。要定義 SLO、挑選 SLI、計算錯誤預算或設定可靠度目標時讀它。
 - 核心規範：[slo-standards.md](../../../../core/slo-standards.md)
 - 相關：[observability-standards.md](../../../../core/observability-standards.md)
 - 相關：[alerting-standards.md](../../../../core/alerting-standards.md)

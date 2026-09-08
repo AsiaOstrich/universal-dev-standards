@@ -46,6 +46,7 @@ description: |
 
 ## 參考
 
+- 詳細指南：[guide.md](./guide.md) — 運維手冊的撰寫、組織與驗證。要寫手冊、審查運維程序、規劃演練或評估涵蓋範圍時讀它。
 - 核心規範：[runbook-standards.md](../../../../core/runbook-standards.md)
 - 相關：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 相關：[postmortem-standards.md](../../../../core/postmortem-standards.md)

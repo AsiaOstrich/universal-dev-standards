@@ -129,6 +129,7 @@ argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 
 ## 參考
 
+- 逐步流程：[workflow.md](./workflow.md) — 逆向工程的各階段與順序（程式碼掃描、資料模型、設定、測試分析、涵蓋率）。真的要跑一次逆向時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[reverse-engineering-standards.md](../../../../core/reverse-engineering-standards.md)
 

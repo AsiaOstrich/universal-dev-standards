@@ -147,6 +147,7 @@ After `/discover` completes, the AI assistant should suggest based on the assess
 
 ## Reference | 參考
 
+- Step-by-step workflow: [workflow.md](./workflow.md) — the discovery steps in order (code health, architecture, documentation inventory, review snapshot, dependency and security). Read it when actually running a discovery rather than deciding whether to.
 - Detailed guide: [guide.md](./guide.md)
 
 

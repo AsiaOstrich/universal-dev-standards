@@ -150,6 +150,7 @@ project/
 
 ## 相关标准
 
+- [各语言的项目结构](./language-patterns.md) — 按语言列出的实际目录布局（Node.js/TypeScript、Python、Go 等）。要为某个特定语言安排项目结构时读它。
 - [核心：项目结构](../../core/project-structure.md)
 - [核心：文档结构](../../core/documentation-structure.md)
 - [指南：文件归档决策指南](../../core/guides/file-placement-guide.md)

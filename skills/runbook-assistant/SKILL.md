@@ -52,6 +52,7 @@ Any deploy runbook that includes a destructive-update pattern (stop → swap →
 
 ## Reference | 參考
 
+- Detailed guide: [guide.md](./guide.md) — runbook creation, organization and validation. Read it when writing runbooks, reviewing operational procedures, planning drills, or assessing coverage.
 - Core standard: [runbook-standards.md](../../core/runbook-standards.md)
 - Related: [alerting-standards.md](../../core/alerting-standards.md)
 - Related: [postmortem-standards.md](../../core/postmortem-standards.md)

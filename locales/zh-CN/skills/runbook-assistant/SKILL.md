@@ -45,6 +45,7 @@ description: |
 
 ## 参考
 
+- 详细指南：[guide.md](./guide.md) — 运维手册的编写、组织与验证。要写手册、审查运维流程、规划演练或评估覆盖范围时读它。
 - 核心规范：[runbook-standards.md](../../../../core/runbook-standards.md)
 - 相关：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 相关：[postmortem-standards.md](../../../../core/postmortem-standards.md)

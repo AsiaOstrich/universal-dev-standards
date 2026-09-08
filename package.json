@@ -56,6 +56,8 @@
     "check:baseline-claims:self-test": "tsx scripts/check-baseline-status-claims.ts --self-test",
     "check:probe-rescore": "tsx scripts/check-reinstated-probe-baselines.ts",
     "check:probe-rescore:self-test": "tsx scripts/check-reinstated-probe-baselines.ts --self-test",
+    "check:companion-reach": "tsx scripts/check-skill-companion-reachability.ts",
+    "check:companion-reach:self-test": "tsx scripts/check-skill-companion-reachability.ts --self-test",
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test"
   },

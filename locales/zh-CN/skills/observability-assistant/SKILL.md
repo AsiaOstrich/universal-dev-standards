@@ -46,6 +46,7 @@ description: |
 
 ## 参考
 
+- 详细指南：[guide.md](./guide.md) — 日志、指标、追踪三大支柱的完整说明。要搭建监控、选择指标类型、引入追踪或评估成熟度时读它。
 - 核心规范：[observability-standards.md](../../../../core/observability-standards.md)
 - 核心规范：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 核心规范：[slo-standards.md](../../../../core/slo-standards.md)

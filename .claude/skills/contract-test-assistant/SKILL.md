@@ -106,6 +106,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 
 ## 參考
 
+- 詳細指南：[guide.md](./guide.md) — 合約測試的策略與實作。要設定 Pact／OpenAPI，或把合約測試接進 CI 時讀它。
 - 詳細指南：[contract-testing.md](../../options/testing/contract-testing.md)
 - 相關：[api-design-assistant](../api-design-assistant/SKILL.md)
 

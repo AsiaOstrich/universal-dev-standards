@@ -50,6 +50,7 @@ argument-hint: "[service name or observability topic | 服務名稱或可觀測�
 
 ## 參考
 
+- 詳細指南：[guide.md](./guide.md) — 日誌、指標、追蹤三大支柱的完整說明。要建立監控、挑選指標型別、導入追蹤或評估成熟度時讀它。
 - 核心規範：[observability-standards.md](../../../../core/observability-standards.md)
 - 核心規範：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 核心規範：[slo-standards.md](../../../../core/slo-standards.md)

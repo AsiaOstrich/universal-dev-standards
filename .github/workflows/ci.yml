@@ -695,6 +695,21 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run check:probe-rescore
 
+      # XSPEC-408 §14.3：69.8% 的 skill 內容住在 SKILL.md 旁邊的兄弟檔裡，
+      # 而每一家廠商文件描述的載入機制都有同一個前提——**要有東西指路**。
+      #
+      # 🔴 沒有入邊的兄弟檔，在每一個工具上都與「從未出貨」無從分辨，
+      #    差別只在它出貨了、被翻譯了、還被算成已交付。零跳判紅（不需要工具知識就判得出來）；
+      #    二跳凍結成帶到期日的債（模型會不會從按需開啟的檔案再跟一次連結，沒有人知道，
+      #    而一道因為開放問題而長紅的閘門會被關掉）。
+      - name: Skill companions — self-test arms
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:companion-reach:self-test
+
+      - name: Every skill companion is reachable in one hop
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:companion-reach
+
   # XSPEC-392 R6：新的翻譯必須帶 source_hash（棘輪，既有欠債冷凍為基線）。
   #
   # source_hash 是 UDS 自己發明的正確答案——雜湊來源內容，來源一改就對不上，

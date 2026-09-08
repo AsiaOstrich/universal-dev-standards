@@ -111,6 +111,7 @@ After `/contract-test` completes:
 
 ## Reference | 參考
 
+- Detailed guide: [guide.md](./guide.md) — contract testing strategy and setup. Read it when configuring Pact/OpenAPI or wiring contract tests into CI.
 - Detailed guide: [contract-testing.md](../../options/testing/contract-testing.md)
 - Related: [api-design-assistant](../api-design-assistant/SKILL.md)
 

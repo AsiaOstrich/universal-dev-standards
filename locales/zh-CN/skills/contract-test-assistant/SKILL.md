@@ -102,6 +102,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 
 ## 参考
 
+- 详细指南：[guide.md](./guide.md) — 契约测试的策略与实现。要配置 Pact／OpenAPI，或把契约测试接入 CI 时读它。
 - 详细指南：[contract-testing.md](../../options/testing/contract-testing.md)
 - 相关：[api-design-assistant](../api-design-assistant/SKILL.md)
 

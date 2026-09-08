@@ -121,6 +121,7 @@ Before deploying a service to production:
 
 ## Reference | 參考
 
+- Detailed guide: [guide.md](./guide.md) — the three pillars (logs, metrics, traces) in depth. Read it when setting up monitoring, choosing metric types, implementing tracing, or assessing maturity.
 - Core standard: [observability-standards.md](../../core/observability-standards.md)
 - Core standard: [alerting-standards.md](../../core/alerting-standards.md)
 - Core standard: [slo-standards.md](../../core/slo-standards.md)

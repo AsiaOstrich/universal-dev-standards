@@ -46,6 +46,7 @@ Guide SLI selection, SLO setting methodology, and Error Budget management.
 
 ## Reference | 參考
 
+- Detailed guide: [guide.md](./guide.md) — SLI/SLO/error-budget definition and management. Read it when defining SLOs, selecting SLIs, calculating error budgets, or setting reliability targets.
 - Core standard: [slo-standards.md](../../core/slo-standards.md)
 - Related: [observability-standards.md](../../core/observability-standards.md)
 - Related: [alerting-standards.md](../../core/alerting-standards.md)
