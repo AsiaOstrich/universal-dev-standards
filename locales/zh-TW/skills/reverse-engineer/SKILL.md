@@ -126,6 +126,8 @@ description: |
 
 ## 參考
 
+- [BDD 提取工作流程指南](./bdd-extraction.md) — 要從既有規格裡萃取 BDD 場景時讀它。
+- [TDD 分析工作流程指南](./tdd-analysis.md) — 要對照場景分析測試涵蓋率、找出缺口時讀它。
 - 逐步流程：[workflow.md](./workflow.md) — 逆向工程的各階段與順序（程式碼掃描、資料模型、設定、測試分析、涵蓋率）。真的要跑一次逆向時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[reverse-engineering-standards.md](../../../../core/reverse-engineering-standards.md)

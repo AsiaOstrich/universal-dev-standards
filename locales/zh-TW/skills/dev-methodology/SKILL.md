@@ -102,6 +102,8 @@ argument-hint: "[動作] [參數]"
 
 ## 參考
 
+- [建立自訂 Methodology 指南](./create-methodology.md) — 要自建方法論而不是用現成的那幾套時讀它。
+- [Methodology Runtime 指南](./runtime.md) — 需要知道方法論在執行當下如何運作時讀它。
 - 詳細指南：[guide.md](./guide.md)
 
 ## AI 代理行為

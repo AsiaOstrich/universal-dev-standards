@@ -212,7 +212,10 @@ const base = JSON.parse(readFileSync(BASELINE, "utf8")) as {
 };
 const expiry = Date.parse(base.expires);
 if (Number.isNaN(expiry)) fail(`baseline expires field is not a date: ${base.expires}`);
-if (Date.now() > expiry) {
+// 🔴 **到期日是「這筆債」的時鐘，不是這道閘門的時鐘。** 債務歸零之後仍然讓它到期，
+// 會製造一道為了不存在的東西而變紅的閘門——而長紅的閘門會被關掉，連同它還在守的
+// 零跳那一半。所以只有在真的還有二跳債的時候才看時鐘。
+if (base.twoHopFiles > 0 && Date.now() > expiry) {
   console.error(`\n[companion-reach] ✗ two-hop baseline expired on ${base.expires}.`);
   console.error("            An exception without a clock is a polite delete key. Either pull the");
   console.error("            two-hop files up to one hop, or measure that depth and write down what");

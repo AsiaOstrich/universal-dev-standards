@@ -92,6 +92,8 @@ After `/bdd` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [BDD Workflow Guide](./bdd-workflow.md) — Read it when running discovery, formulation and automation as a cycle.
+- [Gherkin Quick Reference Guide](./gherkin-guide.md) — Read it when writing Given/When/Then and you need the exact syntax.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [behavior-driven-development.md](../../core/behavior-driven-development.md)
 

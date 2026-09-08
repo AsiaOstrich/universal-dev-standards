@@ -80,5 +80,7 @@ So that [benefit].
 
 ## 參考
 
+- [驗收標準撰寫指南](./acceptance-criteria-guide.md) — 要撰寫或審查驗收標準時讀它。
+- [ATDD 工作流程指南](./atdd-workflow.md) — 要完整跑一輪 ATDD 循環時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)

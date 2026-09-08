@@ -147,6 +147,8 @@ After `/reverse` (full or `spec`) completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [BDD Extraction Workflow Guide](./bdd-extraction.md) — Read it when extracting BDD scenarios out of an existing spec.
+- [TDD Analysis Workflow Guide](./tdd-analysis.md) — Read it when analysing test coverage against scenarios and finding the gaps.
 - Step-by-step workflow: [workflow.md](./workflow.md) — the reverse-engineering phases in order (code scanning, data models, configuration, test analysis, coverage). Read it when actually running the process rather than deciding whether to.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [reverse-engineering-standards.md](../../core/reverse-engineering-standards.md)

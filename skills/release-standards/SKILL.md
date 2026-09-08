@@ -132,6 +132,9 @@ After `/release` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [Changelog Format Guide](./changelog-format.md) — Read it when writing or reviewing a changelog entry.
+- [Release Workflow Guide](./release-workflow.md) — Read it when actually cutting a release, step by step.
+- [Semantic Versioning Guide](./semantic-versioning.md) — Read it when deciding whether a change is major, minor or patch.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [versioning.md](../../core/versioning.md)
 

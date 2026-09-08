@@ -126,6 +126,8 @@ Closes #123
 
 ## 參考
 
+- [Conventional Commits 指南](./conventional-commits.md) — 需要確切的 type、scope 與格式規則時讀它。
+- [Commit Message 語言選項](./language-options.md) — 要決定 commit message 用哪一種語言時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[commit-message-guide.md](../../../../core/commit-message-guide.md)
 

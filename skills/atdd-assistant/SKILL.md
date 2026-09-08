@@ -97,6 +97,8 @@ After `/atdd` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [Acceptance Criteria Writing Guide](./acceptance-criteria-guide.md) — Read it when writing or reviewing acceptance criteria.
+- [ATDD Workflow Guide](./atdd-workflow.md) — Read it when running the ATDD cycle end to end.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [acceptance-test-driven-development.md](../../core/acceptance-test-driven-development.md)
 

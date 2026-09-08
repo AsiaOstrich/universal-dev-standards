@@ -125,6 +125,8 @@ description: |
 
 ## 参考
 
+- [BDD 提取工作流程指南](./bdd-extraction.md) — 要从既有规格里萃取 BDD 场景时读它。
+- [TDD 分析工作流程指南](./tdd-analysis.md) — 要对照场景分析测试覆盖率、找出缺口时读它。
 - 分步流程：[workflow.md](./workflow.md) — 逆向工程的各阶段与顺序（代码扫描、数据模型、配置、测试分析、覆盖率）。真的要跑一次逆向时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[reverse-engineering-standards.md](../../../../core/reverse-engineering-standards.md)

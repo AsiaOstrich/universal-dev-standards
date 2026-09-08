@@ -147,6 +147,8 @@ After `/commit` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [Conventional Commits Guide](./conventional-commits.md) — Read it when you need the exact type, scope and format rules.
+- [Output Language Options](./language-options.md) — Read it when deciding which language a commit message is written in.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [commit-message-guide.md](../../core/commit-message-guide.md)
 

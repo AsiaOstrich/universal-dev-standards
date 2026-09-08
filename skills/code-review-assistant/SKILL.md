@@ -82,6 +82,7 @@ After `/code-review` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [Pre-Commit Checklist](./checkin-checklist.md) — Read it before committing, as the pre-commit pass.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
 

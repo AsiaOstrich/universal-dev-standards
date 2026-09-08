@@ -104,6 +104,8 @@ argument-hint: "[动作] [参数]"
 
 ## 参考
 
+- [创建自定义 Methodology 指南](./create-methodology.md) — 要自建方法论而不是用现成的那几套时读它。
+- [Methodology Runtime 指南](./runtime.md) — 需要知道方法论在执行当下如何运作时读它。
 - 详细指南：[guide.md](./guide.md)
 
 ## AI 代理行为

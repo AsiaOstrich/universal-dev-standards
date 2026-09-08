@@ -75,6 +75,8 @@ After `/requirement` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [Requirement Completeness Checklist](./requirement-checklist.md) — Read it when checking a requirement is complete before it is accepted.
+- [Requirement Writing Guide](./requirement-writing.md) — Read it when writing a requirement from scratch.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [requirement-engineering.md](../../core/requirement-engineering.md)
 

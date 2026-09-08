@@ -74,5 +74,7 @@ Feature: User Login
 
 ## 参考
 
+- [BDD 工作流程指南](./bdd-workflow.md) — 要把探索、制定、自动化当一个循环跑时读它。
+- [Gherkin 快速参考指南](./gherkin-guide.md) — 要写 Given／When／Then 而需要确切语法时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[behavior-driven-development.md](../../../../core/behavior-driven-development.md)

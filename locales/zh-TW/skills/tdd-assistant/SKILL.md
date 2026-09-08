@@ -75,5 +75,7 @@ description: |
 
 ## 參考
 
+- [TDD 語言範例](./language-examples.md) — 需要某個特定語言的實際範例時讀它。
+- [TDD 工作流程指南](./tdd-workflow.md) — 要完整跑一輪紅-綠-重構時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[test-driven-development.md](../../../../core/test-driven-development.md)

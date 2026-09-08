@@ -87,6 +87,8 @@ After `/tdd` completes, the AI assistant should suggest:
 
 ## Reference | 參考
 
+- [TDD Language Examples](./language-examples.md) — Read it when you need a concrete example in a specific language.
+- [TDD Workflow Guide](./tdd-workflow.md) — Read it when running the red-green-refactor cycle end to end.
 - Detailed guide: [guide.md](./guide.md)
 - Core standard: [test-driven-development.md](../../core/test-driven-development.md)
 

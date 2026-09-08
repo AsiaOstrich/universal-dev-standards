@@ -70,5 +70,8 @@ description: |
 
 ## 参考
 
+- [变更日誌格式指南](./changelog-format.md) — 要撰写或审查变更日志时读它。
+- [發布流程指南](./release-workflow.md) — 真的要发一版、需要逐步流程时读它。
+- [語意化版本指南](./semantic-versioning.md) — 要判断一个变更算 major、minor 还是 patch 时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[versioning.md](../../../../core/versioning.md)

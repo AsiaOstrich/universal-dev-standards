@@ -73,5 +73,7 @@ So that [benefit].
 
 ## 参考
 
+- [需求完整性检查清单](./requirement-checklist.md) — 要在需求被接受之前检查它完不完整时读它。
+- [需求撰写指南](./requirement-writing.md) — 要从零开始写一份需求时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[requirement-engineering.md](../../../../core/requirement-engineering.md)

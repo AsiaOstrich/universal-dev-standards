@@ -63,5 +63,6 @@ description: |
 
 ## 参考
 
+- [Pre-Commit Checklist（提交前检查清单）](./checkin-checklist.md) — 提交之前当作最后一道检查时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[code-review-checklist.md](../../../../core/code-review-checklist.md)

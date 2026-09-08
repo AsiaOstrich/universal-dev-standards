@@ -101,6 +101,10 @@ After `/methodology` completes, the AI assistant should suggest based on the sel
 
 ## Reference | 參考
 
+- [Create Custom Methodology Guide](./create-methodology.md) — Read it when building a custom methodology rather than using a shipped one.
+- [Integrated Development Flow Guide](./integrated-flow.md) — Read it when combining several methodologies into one flow.
+- [Workflow Prerequisite Checking / 工作流前置步驟檢查](./prerequisite-check.md) — Read it when a workflow step needs its prerequisites checked first.
+- [Methodology Runtime Guide](./runtime.md) — Read it when you need to know how a methodology behaves while it runs.
 - Detailed guide: [guide.md](./guide.md)
 
 

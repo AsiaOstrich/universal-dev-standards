@@ -77,5 +77,7 @@ So that [benefit].
 
 ## 参考
 
+- [验收标准撰写指南](./acceptance-criteria-guide.md) — 要撰写或审查验收标准时读它。
+- [ATDD 工作流程指南](./atdd-workflow.md) — 要完整跑一轮 ATDD 循环时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)
