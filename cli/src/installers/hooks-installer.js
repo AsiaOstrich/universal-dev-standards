@@ -32,8 +32,9 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, basename } from 'path';
 import { fileURLToPath } from 'url';
+import { execFileSync } from 'child_process';
 import { load as parseYaml } from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -135,6 +136,41 @@ export function mergeHookArray(existing, incoming) {
  * @param {string} projectPath - Target project root path
  * @returns {{ installed: boolean, scriptsCount: number, settingsPath: string, events: string[], skipped: Array }}
  */
+/**
+ * Which installed hooks only work in some languages, asked of the hooks themselves.
+ *
+ * turn-completion-integrity R8 says an unsupported language must be declared,
+ * and the hook already answers `--languages`. Restating that list here would
+ * make a second hand-maintained copy of it, and the copy would drift — quietly,
+ * because both halves keep looking like valid data.
+ *
+ * 🔴 Why it matters at all: a prose-reading hook in a language it does not ship
+ * is installed, running, and structurally unable to fire. Its output is
+ * byte-identical to a turn with nothing wrong. Without this line the adopter
+ * has no way to tell those apart, ever.
+ *
+ * A hook with no such flag simply produces nothing here; failure is not an
+ * error, because "cannot introspect" must not block an install.
+ */
+function probeLanguageLimits(hooksDir, scripts) {
+  const out = [];
+  for (const rel of new Set(scripts)) {
+    const abs = join(hooksDir, basename(rel));
+    if (!existsSync(abs)) continue;
+    try {
+      const text = execFileSync(process.execPath, [abs, '--languages'], {
+        encoding: 'utf-8',
+        timeout: 5000,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+      if (text) out.push({ script: basename(rel), languages: text });
+    } catch {
+      // no --languages, or it refused: nothing to declare.
+    }
+  }
+  return out;
+}
+
 export function installHooks(projectPath) {
   const claudeDir = join(projectPath, '.claude');
   const settingsPath = join(claudeDir, 'settings.json');
@@ -179,5 +215,6 @@ export function installHooks(projectPath) {
     settingsPath,
     events,
     skipped,
+    languageLimits: probeLanguageLimits(hooksDir, scripts),
   };
 }

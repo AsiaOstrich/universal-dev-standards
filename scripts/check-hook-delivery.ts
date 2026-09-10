@@ -204,6 +204,15 @@ async function main() {
       if (cmds.length === 0) { fail('settings.json carries no hook entries'); continue; }
       ok(`${cmds.length} hook entr${cmds.length === 1 ? 'y' : 'ies'} across ${Object.keys(settings.hooks).length} event(s)`);
 
+      // R8: a prose-reading hook must declare the languages it ships, at install
+      // time. Nothing else in this gate would notice if that line disappeared —
+      // the hook would still install, still run, and still be unable to fire in
+      // an unlisted language, which is exactly the state R8 exists to name.
+      const prose = (result.languageLimits ?? []).filter((l: any) => /turn-completion/.test(l.script));
+      if (prose.length === 0) fail('the prose-reading hook declared no languages — an adopter working outside them is never told');
+      else if (!/\ben\b/.test(prose[0].languages)) fail(`language declaration looks wrong: ${JSON.stringify(prose[0].languages).slice(0, 80)}`);
+      else ok(`prose hook declares its languages (${prose[0].languages.split('\n')[0]}, ...)`);
+
       for (const { event, entry, hook } of cmds) {
         // Shape: Claude Code skips an entry with no `type`, in silence.
         if (typeof hook !== 'object' || hook === null) { fail(`${event}: hook entry is ${typeof hook}, must be an object`); continue; }

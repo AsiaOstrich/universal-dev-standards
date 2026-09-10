@@ -256,6 +256,16 @@ export async function initCommand(options) {
     for (const s of hookResult.skipped ?? []) {
       console.log(chalk.yellow(`    · skipped ${s.id}: ${s.why}`));
     }
+    // turn-completion-integrity R8: a prose-reading hook in a language it does
+    // not ship is installed, running, and unable to fire — and that looks
+    // exactly like a turn with nothing wrong. Say so at install time; there is
+    // no later moment where the adopter could find out.
+    for (const l of hookResult.languageLimits ?? []) {
+      console.log(chalk.yellow(`    · ${l.script} reads prose, and ships:`));
+      for (const line of l.languages.split('\n')) {
+        console.log(chalk.gray(`        ${line}`));
+      }
+    }
   }
 
   // 5. Setup Pre-commit Hook
