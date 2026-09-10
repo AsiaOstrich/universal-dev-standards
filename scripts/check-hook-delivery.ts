@@ -27,7 +27,7 @@
  *                (slow; run in pre-release, not pre-commit)
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,6 +58,125 @@ function installedCommands(settings: any): Array<{ event: string; entry: any; ho
   return out;
 }
 
+/**
+ * If the installer is serving cli/bundled/, is that snapshot the current source?
+ *
+ * 🔴 Printing the resolved path was this gate's original answer, and printing is
+ * not enforcing. On 2026-09-10 the snapshot was two days and two commits behind
+ * — `turn-completion/locales/zh-TW.mjs` was missing the fix that stops the hook
+ * misreading a request to report back — and every arm below was green over it.
+ * A green that does not cover the current source is worse than no gate, because
+ * it is indistinguishable from one that does.
+ *
+ * The comparison walks the repo tree rather than listing files: a gate that
+ * enumerates its own scope stops covering the thing it was built for the moment
+ * someone adds a file.
+ */
+function assertBundledInSync(hooksSrc: string): void {
+  if (!hooksSrc.includes('bundled')) { ok('installer serves the repo tree directly (no bundled snapshot)'); return; }
+  const repo = join(ROOT, 'scripts/hooks');
+  if (!existsSync(repo)) { fail('scripts/hooks is missing — cannot tell whether the snapshot is current'); return; }
+
+  const walk = (base: string, rel = ''): string[] =>
+    readdirSync(join(base, rel), { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() ? walk(base, join(rel, d.name)) : [join(rel, d.name)]);
+
+  const files = walk(repo);
+  if (files.length === 0) { fail('scripts/hooks walked to zero files — the comparison is not running'); return; }
+
+  const drift: string[] = [];
+  for (const rel of files) {
+    const a = join(repo, rel);
+    const b = join(hooksSrc, rel);
+    if (!existsSync(b)) { drift.push(`${rel} (absent from the snapshot)`); continue; }
+    if (readFileSync(a, 'utf8') !== readFileSync(b, 'utf8')) drift.push(rel);
+  }
+  if (drift.length) {
+    fail(`the bundled snapshot is stale — everything below would test yesterday's code: ${drift.join(', ')}`);
+    fail('regenerate it (npm pack in cli/) or delete cli/bundled/ before trusting this run');
+  } else {
+    ok(`bundled snapshot matches all ${files.length} repo hook file(s)`);
+  }
+}
+
+/**
+ * Does the INSTALLED Stop hook actually block?
+ *
+ * Everything above proves a hook loads and survives input it does not
+ * understand. None of it proves the hook does its job: one that always exits 0
+ * passes every check above. That is the shape this repo keeps meeting — a
+ * component that reports success while doing nothing — and for a Stop hook it
+ * is the likely failure, because "allow" is what every error path returns.
+ *
+ * So: run the copy that landed in the adopter's project, on a transcript that
+ * must be blocked and one that must not. The two arms differ only in the
+ * assistant's sentence, so the allow arm cannot be green because the hook is
+ * dead — the block arm would be green too, and it is not.
+ *
+ * HOME is redirected per invocation: the hook keeps a cooldown and a rolling
+ * window under ~/.uds, and without isolation the second call of the day reads
+ * the first one's stamp and returns "allow" for a reason that has nothing to do
+ * with the transcript. It would also write into the developer's own state.
+ */
+function stopHookBehaviour(dir: string, abs: string): void {
+  const arms = [
+    {
+      name: 'a stated next action with the turn ending',
+      assistant: 'The remaining two items I will do next.',
+      user: 'ok',
+      mustBlock: true,
+    },
+    {
+      name: 'an itemized blocker list (the ending R2 demands)',
+      assistant: [
+        'Nothing left to decide. Each remaining item and who it waits on:',
+        '  1. Deploy on the server — waits on you running the setup script.',
+        '  2. Credential renewal — waits on you, I cannot type it.',
+      ].join('\n'),
+      user: 'ok',
+      mustBlock: false,
+    },
+  ];
+
+  for (const arm of arms) {
+    const home = mkdtempSync(join(tmpdir(), 'uds-hook-home-'));
+    const tp = join(home, 'transcript.jsonl');
+    writeFileSync(tp, [
+      JSON.stringify({ message: { role: 'user', content: arm.user } }),
+      JSON.stringify({ message: { role: 'assistant', content: arm.assistant } }),
+    ].join('\n') + '\n');
+
+    let stdout = '';
+    try {
+      stdout = String(execFileSync(process.execPath, [abs], {
+        cwd: dir,
+        env: { ...process.env, HOME: home },
+        input: JSON.stringify({ session_id: `gate-${Math.random()}`, transcript_path: tp, stop_hook_active: false }),
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }));
+    } catch (e: any) {
+      fail(`Stop behaviour (${arm.name}): hook exited ${e.status} — a Stop hook must exit 0 and speak through stdout`);
+      rmSync(home, { recursive: true, force: true });
+      continue;
+    }
+
+    let decision: string | undefined;
+    if (stdout.trim()) {
+      try { decision = JSON.parse(stdout).decision; }
+      catch { fail(`Stop behaviour (${arm.name}): stdout is not JSON — ${stdout.slice(0, 80)}`); rmSync(home, { recursive: true, force: true }); continue; }
+    }
+
+    if (arm.mustBlock && decision !== 'block') {
+      fail(`Stop behaviour (${arm.name}): expected decision "block", got ${JSON.stringify(decision ?? null)} — the hook is installed and inert`);
+    } else if (!arm.mustBlock && decision === 'block') {
+      fail(`Stop behaviour (${arm.name}): blocked a correct ending — a hook that punishes the required behaviour gets turned off`);
+    } else {
+      ok(`Stop behaviour: ${arm.name} → ${arm.mustBlock ? 'blocked' : 'allowed'}`);
+    }
+    rmSync(home, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const mod = await import(join(ROOT, 'cli/src/installers/hooks-installer.js'));
   const { installHooks, standardsSourceDir, hooksSourceDir } = mod;
@@ -69,6 +188,7 @@ async function main() {
   // is visible instead of merely wrong.
   console.log(`standards source: ${String(standardsSourceDir()).replace(ROOT + '/', '')}`);
   console.log(`hooks source:     ${String(hooksSourceDir()).replace(ROOT + '/', '')}`);
+  assertBundledInSync(String(hooksSourceDir()));
 
   for (const type of [null, 'commonjs', 'module']) {
     const label = type ? `"type": "${type}"` : 'no type field';
@@ -111,6 +231,8 @@ async function main() {
           fail(`${event}: ${rel} exited ${code} on empty input — a hook must not crash on input it does not understand`);
         } else {
           ok(`${event}: ${rel} runs under ${label}`);
+          // Loading is not doing. Only the Stop hook has a decision to make.
+          if (event === 'Stop') stopHookBehaviour(dir, abs);
         }
       }
     } finally {

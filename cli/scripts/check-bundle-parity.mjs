@@ -110,6 +110,20 @@ function main() {
     return p; // options/... and other subtrees stay as-is
   }).sort();
 
+  // The prefix strip above is one-way; reading the bundled file back needs the
+  // same rule applied in reverse, in one place, so the two cannot disagree.
+  // Where the bundle was actually built FROM. prepack copies ai/standards →
+  // bundled/ai/standards and ai/options → bundled/ai/options.
+  const aiSourcePathFor = (rel) => {
+    const cands = [join(REPO_ROOT, 'ai', 'standards', rel), join(REPO_ROOT, 'ai', rel)];
+    return cands.find((c) => existsSync(c)) ?? null;
+  };
+
+  const bundledPathFor = (rel) =>
+    existsSync(join(BUNDLED_AI_DIR, 'standards', rel))
+      ? join(BUNDLED_AI_DIR, 'standards', rel)
+      : join(BUNDLED_AI_DIR, rel);
+
   const excludes = loadExcludes();
   const sourceSet = new Set(sourceFiles.filter((p) => !excludes.has(p)));
   const bundledSet = new Set(bundledFiles.filter((p) => !excludes.has(p)));
@@ -119,7 +133,35 @@ function main() {
   // Bundle present but missing in source (reverse drift):
   const missingFromSource = [...bundledSet].filter((p) => !sourceSet.has(p)).sort();
 
-  const ok = missingFromBundle.length === 0 && missingFromSource.length === 0;
+  // Present in both, but not the same file.
+  //
+  // 🔴 Until 2026-09-10 this check compared file NAMES only, and reported
+  // "source=185 bundled=185 OK". Its own docstring says it exists because
+  // "when bundled drifts from source, running `uds update` causes
+  // source-of-truth loss" — and an edited standard is exactly that drift, with
+  // both names present the whole time. The failure it was built to prevent was
+  // the one shape it could not see, and 185=185 reads like strong evidence.
+  //
+  // Found from the neighbouring case: cli/bundled/hooks carried a locale pack
+  // two commits behind while the hook-delivery gate ran green over it.
+  // ⚠️ Compared against `ai/`, NOT against SOURCE_DIR. `.standards/` is this
+  // repo's own INSTALLED copy (dogfooding) — prepack builds the bundle from
+  // `ai/`, so `.standards/` vs bundled answers a different question and gets it
+  // wrong in both directions. The first version of this comparison used
+  // SOURCE_DIR and reported 9 drifts, 8 of which were `.standards/` lagging its
+  // own source by five months — a real problem, but not this check's.
+  // Name parity keeps using SOURCE_DIR: that question (is every standard
+  // present) is about the install surface and has its own exclude list.
+  const contentDrift = [...sourceSet]
+    .filter((p) => bundledSet.has(p))
+    .filter((p) => {
+      const src = aiSourcePathFor(p);
+      if (!src) return false;   // no source file to compare against: not drift
+      return readFileSync(src, 'utf8') !== readFileSync(bundledPathFor(p), 'utf8');
+    })
+    .sort();
+
+  const ok = missingFromBundle.length === 0 && missingFromSource.length === 0 && contentDrift.length === 0;
 
   if (JSON_OUTPUT) {
     const payload = {
@@ -128,7 +170,8 @@ function main() {
       bundled_count: bundledFiles.length,
       excludes: [...excludes].sort(),
       missing_from_bundle: missingFromBundle,
-      missing_from_source: missingFromSource
+      missing_from_source: missingFromSource,
+      content_drift: contentDrift
     };
     console.log(JSON.stringify(payload, null, 2));
     process.exit(ok ? 0 : 1);
@@ -149,6 +192,12 @@ function main() {
     console.log('');
     console.log(`[check-bundle-parity] ${missingFromSource.length} file(s) in bundle but NOT in source:`);
     for (const p of missingFromSource) console.log(`  - ${p}`);
+  }
+  if (contentDrift.length > 0) {
+    console.log('');
+    console.log(`[check-bundle-parity] ${contentDrift.length} file(s) present in BOTH but with different content:`);
+    for (const p of contentDrift) console.log(`  ~ ${p}`);
+    console.log('  (the bundle is stale — regenerate it with `npm run prepack`)');
   }
   console.log('');
   console.log('[check-bundle-parity] FAIL — fix by either:');

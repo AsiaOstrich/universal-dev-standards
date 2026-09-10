@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { installIntegrations, generateClaudeMd, generateUniversalAgentsMd, INTEGRATION_MAPPINGS } from '../../src/installers/integration-installer.js';
+import { existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Mock dependencies
 vi.mock('ora', () => ({
@@ -943,12 +946,19 @@ describe('integration-installer', () => {
         source: 'integrations/github-copilot/copilot-instructions.md',
         target: '.github/copilot-instructions.md'
       });
+      // Renamed 2026-09-08: Antigravity never reads INSTRUCTIONS.md. Measured by
+      // planting tokens in both files — only the one in `.agents/AGENTS.md` came
+      // back in the tool's own run. This assertion kept the old name for two
+      // days after the source moved, so the suite was red the whole time.
       expect(INTEGRATION_MAPPINGS.antigravity).toEqual({
-        source: 'integrations/google-antigravity/INSTRUCTIONS.md',
-        target: 'INSTRUCTIONS.md'
+        source: 'integrations/google-antigravity/AGENTS.md',
+        target: '.agents/AGENTS.md'
       });
+      // Corrected 2026-09-08: integrations/openai-codex/ does not exist, and this
+      // map is only reached when generation fails — so the broken entry pointed
+      // the fallback at nothing precisely when the fallback was needed.
       expect(INTEGRATION_MAPPINGS.codex).toEqual({
-        source: 'integrations/openai-codex/AGENTS.md',
+        source: 'integrations/codex/AGENTS.md',
         target: 'AGENTS.md'
       });
       expect(INTEGRATION_MAPPINGS['gemini-cli']).toEqual({
@@ -959,6 +969,29 @@ describe('integration-installer', () => {
         source: 'integrations/opencode/AGENTS.md',
         target: 'AGENTS.md'
       });
+    });
+
+    // 🔴 Every assertion above restates the map by hand, and a hand-written copy
+    // of the data it checks will drift from it — silently, because both halves
+    // still look like valid data. Two entries did exactly that and the suite was
+    // red for two days before anyone ran it: `openai-codex/` never existed, and
+    // Antigravity's file was renamed out from under this list.
+    //
+    // This assertion asks a question the copy cannot answer wrongly: does the
+    // file each mapping points at exist? It walks the map instead of listing it,
+    // so a tool added tomorrow is covered without editing this test.
+    it('every_mapping_source_exists_on_disk', () => {
+      const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
+      const entries = Object.entries(INTEGRATION_MAPPINGS);
+      // A walk that finds nothing passes every per-item assertion in it.
+      expect(entries.length).toBeGreaterThan(0);
+
+      const missing = entries
+        .filter(([, m]) => m && typeof m.source === 'string')
+        .filter(([, m]) => !existsSync(join(repoRoot, m.source)))
+        .map(([tool, m]) => `${tool} -> ${m.source}`);
+
+      expect(missing).toEqual([]);
     });
   });
 

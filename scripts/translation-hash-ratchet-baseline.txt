@@ -136,7 +136,7 @@ locales/zh-CN/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md
 locales/zh-CN/integrations/github-copilot/README.md
 locales/zh-CN/integrations/github-copilot/copilot-instructions.md
 locales/zh-CN/integrations/github-copilot/skills-mapping.md
-locales/zh-CN/integrations/google-antigravity/INSTRUCTIONS.md
+locales/zh-CN/integrations/google-antigravity/AGENTS.md
 locales/zh-CN/integrations/google-antigravity/README.md
 locales/zh-CN/integrations/opencode/AGENTS.md
 locales/zh-CN/integrations/opencode/README.md
@@ -452,7 +452,7 @@ locales/zh-TW/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md
 locales/zh-TW/integrations/github-copilot/README.md
 locales/zh-TW/integrations/github-copilot/copilot-instructions.md
 locales/zh-TW/integrations/github-copilot/skills-mapping.md
-locales/zh-TW/integrations/google-antigravity/INSTRUCTIONS.md
+locales/zh-TW/integrations/google-antigravity/AGENTS.md
 locales/zh-TW/integrations/google-antigravity/README.md
 locales/zh-TW/integrations/opencode/AGENTS.md
 locales/zh-TW/integrations/opencode/README.md

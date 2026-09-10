@@ -85,7 +85,7 @@ $AgentFiles = @{
     "copilot" = "integrations\github-copilot\copilot-instructions.md"
     "codex" = "integrations\codex\AGENTS.md"
     "gemini-cli" = "integrations\gemini-cli\GEMINI.md"
-    "antigravity" = "integrations\google-antigravity\INSTRUCTIONS.md"
+    "antigravity" = "integrations\google-antigravity\AGENTS.md"
 }
 
 $AgentTiers = @{

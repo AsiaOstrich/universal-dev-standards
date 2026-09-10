@@ -85,7 +85,7 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
       windsurf: '.windsurfrules',
       cline: '.clinerules',
       copilot: '.github/copilot-instructions.md',
-      antigravity: 'INSTRUCTIONS.md',
+      antigravity: '.agents/AGENTS.md',
       'claude-code': 'CLAUDE.md',
       codex: 'AGENTS.md',
       'gemini-cli': 'GEMINI.md',

@@ -249,7 +249,7 @@
       "id": "antigravity-integration",
       "name": "Google Antigravity Instructions",
       "nameZh": "Google Antigravity 指令",
-      "source": "integrations/google-antigravity/INSTRUCTIONS.md",
+      "source": "integrations/google-antigravity/AGENTS.md",
       "category": "integration",
       "skillName": null,
       "description": "System prompt snippets for Google Antigravity agent",

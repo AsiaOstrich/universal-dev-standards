@@ -331,7 +331,7 @@ async function collectGeneratedFiles(workDir) {
     '.github/copilot-instructions.md',
     'CLAUDE.md',
     'AGENTS.md',
-    'INSTRUCTIONS.md',
+    '.agents/AGENTS.md',
     'GEMINI.md',
     '.claude/skills'
   ];
