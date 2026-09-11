@@ -40,7 +40,11 @@ const ASKING = new RegExp(
   // 「看到開始跑就跟我說，我去檢查」 — the precondition words are unbounded, so listing
   // them (看到, 開始跑, ...) would miss the next one. The grammar is what marks it:
   // 就 followed within two characters by a report-back phrase. A bare 就 does not qualify.
-  '|就.{0,2}(跟我說|告訴我|回報我|讓我知道))'
+  '|就.{0,2}(跟我說|告訴我|回報我|讓我知道)' +
+  // 「跟我說一聲，我會到 PC15 上確認」 — the precondition sat in a heading one paragraph up, so
+  // the paragraph opens with the request. A report-back phrase, a comma, then 我 at once is
+  // "you tell me, then I act". A report-back phrase alone does not qualify.
+  '|(跟我說|告訴我|回報我|讓我知道)(一聲)?[，,]\\s*我)'
 );
 
 // First person + future marker + action verb, within one sentence.
@@ -122,6 +126,10 @@ export const corpus = [
     '第二行印出 no 才算數。弄完讓我知道，我接著把設定寫回 repo。'],
   [false, '看到開始跑就跟我說，我去檢查——前提在使用者手上',
     '步驟：\n1. 開 workbench 網頁並登入。\n2. 送出一句需求。\n3. 看到開始跑就跟我說，我去 PC15 檢查。'],
+  [false, '跟我說一聲，我會到 PC15 上確認——請求在段首',
+    '跟我說一聲，我會到 PC15 上確認三件事：\n- 規格檔在這個專案自己的資料夾裡。\n- workbench 的程式資料夾沒有多出任何檔案。'],
+  [true, '「跟我說」是敘述不是請求，後面的承諾仍必須擋',
+    '他跟我說過了。我接著去 PC15 確認部署有沒有生效。'],
   [true, '有「就」但沒有要求回報的承諾（仍必須擋）',
     '設定改好就推上去了。我接著去 PC15 檢查部署有沒有生效。'],
   [false, '請使用者回覆「全甲」是條件式',
