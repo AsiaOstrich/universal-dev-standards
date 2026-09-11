@@ -33,7 +33,14 @@ const ASKING = new RegExp(
   '(告訴我|給我|貼一段|貼上|提供|你是在哪|在哪裡看到|哪一個|是哪|需要知道' +
   '|請你|麻煩你|等你(裁決|回覆|決定|確認)|要你自己|要你.{0,6}(動手|執行|跑|做)|由你' +
   '|(做完|跑完|試完|裝完|驗完|改完|弄完|完成後|好了|有結果|通了)' +
-  '[，,]?.{0,6}(跟我說|告訴我|回報|讓我知道|再說))'
+  '[，,]?.{0,6}(跟我說|告訴我|回報|讓我知道|再說)' +
+  // Asking for a one-word reply is the same kind of request: 「回『全甲』就好」.
+  // Narrow: 回 + an optional short quoted string + 就好／就可以／就行. A bare 回 does not qualify.
+  '|回(一句)?[「"“]?[^」"”\\n]{0,10}[」"”]?[，,]?.{0,2}就(好|可以|行)' +
+  // 「看到開始跑就跟我說，我去檢查」 — the precondition words are unbounded, so listing
+  // them (看到, 開始跑, ...) would miss the next one. The grammar is what marks it:
+  // 就 followed within two characters by a report-back phrase. A bare 就 does not qualify.
+  '|就.{0,2}(跟我說|告訴我|回報我|讓我知道))'
 );
 
 // First person + future marker + action verb, within one sentence.
@@ -44,20 +51,28 @@ const FUTURE = '(接著|接下來|繼續|下一步|等一下|待會|再|會|要|
 const ACTION =
   '(做|辦|處理|推進|接手|進行|查|修|補|寫|跑|建|驗|測|實作|落地|完成|開始|送出|合併|部署' +
   '|走|看|讀|確認|釐清|整理|標|記|盤|清|接|換|補上|收尾|重跑|重寫)';
-const COMMIT = new RegExp(`我(.{0,4})${FUTURE}.{0,24}${ACTION}`, 'g');
+// A subject's predicate ends where the same subject appears again: the window may not
+// cross another 我. Measured: 「我先判斷成…，因為我用的是標準輸入」 read the 標 of 標準
+// as the first 我's verb.
+const COMMIT = new RegExp(`我([^我]{0,4})${FUTURE}[^我]{0,24}${ACTION}`, 'g');
 
 // Between "我" and the future marker: a reporting verb means the sentence
 // describes a commitment ("我說了下一步"), a negation means it declares the
 // opposite ("我不會做").
 const REPORTING = /(說|寫|講|提|記|標|引用|舉例|回報|報告)/;
 const NEGATION = /(不|沒|未|別|無需|毋須|無須)/;
+// A result clause AFTER the match means the step already happened: 「我先確認…，結果發現…」.
+// Only text after the match counts — 「查了一輪結果發現前提不對，我先去確認落點」 is still a commitment.
+const PAST_RESULT = /(結果|才|後來|於是|然後)[^，,。]{0,3}(發現|查到|看到|知道|證實|確認)/;
 
 export function isCommitment(sentence) {
   COMMIT.lastIndex = 0;
   let m;
   while ((m = COMMIT.exec(sentence)) !== null) {
     const gap = m[1];
-    if (!REPORTING.test(gap) && !NEGATION.test(gap)) return true;
+    if (REPORTING.test(gap) || NEGATION.test(gap)) continue;
+    if (PAST_RESULT.test(sentence.slice(m.index + m[0].length))) continue;
+    return true;
   }
   return false;
 }
@@ -105,6 +120,26 @@ export const corpus = [
     'reload 之後不要關掉那個視窗。做完跟我說，我這邊會再獨立驗一次。'],
   [false, '弄完讓我知道',
     '第二行印出 no 才算數。弄完讓我知道，我接著把設定寫回 repo。'],
+  [false, '看到開始跑就跟我說，我去檢查——前提在使用者手上',
+    '步驟：\n1. 開 workbench 網頁並登入。\n2. 送出一句需求。\n3. 看到開始跑就跟我說，我去 PC15 檢查。'],
+  [true, '有「就」但沒有要求回報的承諾（仍必須擋）',
+    '設定改好就推上去了。我接著去 PC15 檢查部署有沒有生效。'],
+  [false, '請使用者回覆「全甲」是條件式',
+    '三題都照建議的話，回「全甲」就好。這三題的代號各自不同（丙／甲／甲），不過我會照建議的組合理解。'],
+  [true, '回覆請求在另一段，不得豁免這一段的承諾',
+    '回「全甲」就好。\n\n我接著把清單整理好。'],
+  [false, '窗越過下一個「我」：先判斷成…因為我用的是標準',
+    '有一處我自己的判斷一度錯了，要說清楚：lint 報了兩個錯，我先判斷成「原本就壞的」，因為我用的是標準輸入的比對方式，而那個方式給錯答案。'],
+  [true, '同一主語內的承諾，後面接另一個「我」也照樣擋',
+    '我接著把清單整理好，因為我已經看過了。'],
+  [false, '過去的順序敘述：我先確認…，結果發現…',
+    '起草之前我先確認這筆設計要落在哪裡，結果發現 DEC-084 的前提有兩處跟程式碼對不上，所以要你決定的事從三題變成四題。'],
+  [true, '同一句拿掉結果子句——那就是還沒做的承諾（仍必須擋）',
+    '起草之前我先確認這筆設計要落在哪裡。'],
+  [true, '結果子句在承諾之前：後半句仍是承諾（仍必須擋）',
+    '查了一輪結果發現前提不對，我先去確認落點。'],
+  [true, '「發現」出現在承諾的受詞裡，不是結果子句（仍必須擋）',
+    '我先去確認有沒有新的發現。'],
   [true, '沒有要求回報的承諾（仍必須擋）',
     '設定檔已經改好了。我接著把驗證結果寫進規格，然後回報。'],
 ];
