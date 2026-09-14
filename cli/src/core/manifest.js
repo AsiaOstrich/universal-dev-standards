@@ -83,29 +83,32 @@ export const SUPPORTED_CONTENT_MODES = ['minimal', 'index'];
 export const RETIRED_CONTENT_MODES = { full: 'index' };
 
 /**
- * Resolve a content mode, migrating retired ones and rejecting unknown ones.
+ * Resolve a content mode, migrating retired ones and flagging unknown ones.
  *
- * Unknown values throw rather than falling back to a default. A silent fallback
- * would turn `--content-mode indx` into a normal run whose output is not what
- * was asked for, and there would be nothing anywhere to say so.
+ * An unknown value resolves to `fallback` and is reported in `unrecognized`, so
+ * the caller can warn. The original intent was to throw — a *silent* fallback
+ * turns `--content-mode indx` into a normal run with nothing saying so — and
+ * that remains the goal for 7.0.0. It does not throw in 6.x because 6.8.0
+ * accepted unknown values and generated the `index` output, and
+ * `core/versioning.md` requires a deprecation warning in a MINOR release before
+ * behaviour that used to work starts failing. The warning is what removes the
+ * silence; the error is the MAJOR-version step.
  *
  * @param {string|undefined} mode - Requested mode
- * @param {string} fallback - Mode to use when nothing was requested
- * @returns {{mode: string, migratedFrom: string|null}}
+ * @param {string} fallback - Mode to use when nothing was requested, or when the value is unknown
+ * @returns {{mode: string, migratedFrom: string|null, unrecognized: string|null}}
  */
 export function normalizeContentMode(mode, fallback = 'index') {
   if (mode === undefined || mode === null || mode === '') {
-    return { mode: fallback, migratedFrom: null };
+    return { mode: fallback, migratedFrom: null, unrecognized: null };
   }
   if (SUPPORTED_CONTENT_MODES.includes(mode)) {
-    return { mode, migratedFrom: null };
+    return { mode, migratedFrom: null, unrecognized: null };
   }
   if (Object.prototype.hasOwnProperty.call(RETIRED_CONTENT_MODES, mode)) {
-    return { mode: RETIRED_CONTENT_MODES[mode], migratedFrom: mode };
+    return { mode: RETIRED_CONTENT_MODES[mode], migratedFrom: mode, unrecognized: null };
   }
-  throw new Error(
-    `Unknown content mode '${mode}'. Supported: ${SUPPORTED_CONTENT_MODES.join(', ')}.`
-  );
+  return { mode: fallback, migratedFrom: null, unrecognized: mode };
 }
 
 /**

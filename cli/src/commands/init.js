@@ -5,7 +5,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { basename, join } from 'path';
 import {
   manifestExists as isInitialized,
-  normalizeContentMode
+  normalizeContentMode,
+  SUPPORTED_CONTENT_MODES
 } from '../core/manifest.js';
 import { t, detectLanguage } from '../i18n/messages.js';
 import { detectAll } from '../utils/detector.js';
@@ -540,18 +541,16 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   // not a content mode and must not go through the normalizer.
   let contentModeFlag = options.contentMode || 'auto';
   if (contentModeFlag !== 'auto') {
-    // Rejects an unrecognised value instead of quietly substituting a
-    // default: a typo that still produces a normal-looking run is how
-    // `--content-mode` would lie about what it generated. (XSPEC-357 R7)
-    let normalized;
-    try {
-      normalized = normalizeContentMode(contentModeFlag);
-    } catch (err) {
-      console.log();
-      console.log(chalk.red(`✗ ${err.message}`));
-      console.log(chalk.gray('  Nothing has been written.'));
-      console.log();
-      process.exit(1);
+    // An unrecognised value is never substituted quietly: a typo that still
+    // produces a normal-looking run is how `--content-mode` would lie about
+    // what it generated. (XSPEC-357 R7) In 6.x it warns and keeps 6.8.0's
+    // result (`index`); it becomes an error in 7.0.0 — see normalizeContentMode.
+    const normalized = normalizeContentMode(contentModeFlag);
+    if (normalized.unrecognized) {
+      console.log(chalk.yellow(
+        `⚠ Unknown content mode '${normalized.unrecognized}'; using '${normalized.mode}'. ` +
+        `Supported: ${SUPPORTED_CONTENT_MODES.join(', ')}. This will be an error in 7.0.0.`
+      ));
     }
     if (normalized.migratedFrom) {
       console.log(chalk.yellow(

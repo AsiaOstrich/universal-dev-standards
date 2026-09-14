@@ -290,19 +290,21 @@ describe('Retired content mode "full" (XSPEC-357 R7)', () => {
   });
 
   it('resolves a retired mode to its replacement and says where it came from', () => {
-    expect(normalizeContentMode('full')).toEqual({ mode: 'index', migratedFrom: 'full' });
+    expect(normalizeContentMode('full')).toEqual({ mode: 'index', migratedFrom: 'full', unrecognized: null });
   });
 
   it('passes supported modes through untouched', () => {
-    expect(normalizeContentMode('index')).toEqual({ mode: 'index', migratedFrom: null });
-    expect(normalizeContentMode('minimal')).toEqual({ mode: 'minimal', migratedFrom: null });
+    expect(normalizeContentMode('index')).toEqual({ mode: 'index', migratedFrom: null, unrecognized: null });
+    expect(normalizeContentMode('minimal')).toEqual({ mode: 'minimal', migratedFrom: null, unrecognized: null });
   });
 
-  // An unknown mode must not fall back to a default. A silent fallback turns
-  // `--content-mode indx` into a run that generates something other than what
-  // was asked for, with nothing anywhere reporting the substitution.
-  it('rejects an unknown mode instead of substituting a default', () => {
-    expect(() => normalizeContentMode('indx')).toThrow(/Unknown content mode/);
+  // An unknown mode must never be substituted *silently*: `--content-mode indx`
+  // would otherwise be a normal-looking run with nothing reporting the swap.
+  // In 6.x it resolves to the fallback (what 6.8.0 generated) and names the bad
+  // value so the caller warns; throwing is deferred to 7.0.0 per core/versioning.md.
+  it('flags an unknown mode and resolves it to the fallback instead of throwing (6.x)', () => {
+    expect(normalizeContentMode('indx')).toEqual({ mode: 'index', migratedFrom: null, unrecognized: 'indx' });
+    expect(normalizeContentMode('indx', 'minimal')).toEqual({ mode: 'minimal', migratedFrom: null, unrecognized: 'indx' });
   });
 
   it('rewrites a stored "full" when an old manifest is migrated', () => {
