@@ -3,7 +3,7 @@
   "version": "6.8.0",
   "last_updated": "2026-08-19",
   "stats": {
-    "core_standards": 151,
+    "core_standards": 152,
     "skills": 55,
     "slash_commands": 51,
     "cli_commands": 23
@@ -761,6 +761,11 @@
     },
     {
       "id": "deferred-item-exit",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "turn-completion-integrity",
       "category": "uncategorized",
       "level": 3
     }
