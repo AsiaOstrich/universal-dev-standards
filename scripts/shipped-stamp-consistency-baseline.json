@@ -143,10 +143,10 @@
       "file": "ai/standards/context-aware-loading.ai.yaml",
       "source": "core/context-aware-loading.md",
       "shippedUpdated": "2026-03-16",
-      "actualUpdated": "2026-06-19",
+      "actualUpdated": "2026-09-08",
       "kind": "DATE_MISMATCH",
       "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/context-aware-loading.md` that the shipped date (2026-03-16) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/context-aware-loading.md` (or the equivalent scripts/transform run)."
+      "evidence": "Re-verified 2026-09-14 (agent, after CI went red): the source changed again in 963cf750 (2026-09-08), and that change only renames `scripts/hooks/inject-standards.js` to `.mjs` in one sentence; the shipped .ai.yaml contains no hook path, so its content is unaffected and only the date stamp is stale. Kept in the baseline rather than regenerated in the same commit as an unrelated CI repair. Original scan — XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/context-aware-loading.md` that the shipped date (2026-03-16) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/context-aware-loading.md` (or the equivalent scripts/transform run)."
     },
     {
       "file": "ai/standards/cross-flow-regression.ai.yaml",

@@ -672,6 +672,13 @@ jobs:
         id: install
         run: npm ci
 
+      # `check:install-paths` (below) runs a real `uds init`, which needs cli/node_modules.
+      # Added 2026-09-08 without this step, so it was red from its first run until 2026-09-14,
+      # and four later failures sat unnoticed behind that red. Same rule as adopter-instruction-files.
+      - name: Install CLI dependencies
+        run: npm ci
+        working-directory: cli
+
       - name: Self-test arms
         run: npm run check:baseline-claims:self-test
 

@@ -293,6 +293,26 @@ try {
   process.exit(1);
 }
 
+// ── Regenerate the other files that carry the version ──────────────────────
+// Both were missed on the 6.9.0 release (2026-09-14) and fixed by hand mid-release:
+//   .claude/skills/.manifest.json carries the CLI version — the release commit itself turned
+//     the Self-Adoption Skill Drift Gate red, because nothing here regenerated it.
+//   llms.txt carries the version — efaf52d1 documents that `check:llms-txt` goes red after a bump.
+// A step that every release needs and nobody runs automatically is a step some release skips.
+for (const [script, what] of [
+  ['docs:adoption-skills', '.claude/skills/.manifest.json (self-adoption skill copies)'],
+  ['docs:llms-txt', 'llms.txt'],
+]) {
+  try {
+    execSync(`npm run ${script}`, { cwd: ROOT_DIR, stdio: 'inherit' });
+    console.log(`  ${GREEN}[OK]${NC} ${what} regenerated`);
+  } catch {
+    console.log('');
+    console.error(`${RED}${script} FAILED — ${what} still carries the previous version.${NC}`);
+    process.exit(1);
+  }
+}
+
 // ── Verify with check-version-sync (platform-aware) ───────────────────────
 console.log('');
 console.log('── Running version sync verification ────────────────────────────────────');

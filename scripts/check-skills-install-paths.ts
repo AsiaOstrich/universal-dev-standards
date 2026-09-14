@@ -147,6 +147,15 @@ if (!existsSync(CLI)) {
   console.error(`[install-paths] cannot tell — CLI not found at ${CLI}`);
   process.exit(2);
 }
+// `uds init` runs out of cli/, so its runtime deps must be installed. Without them every tool
+// prints "init failed" and the gate reads as "10 of 10 tools would get skills they never read"
+// — a claim about adopters that is really a claim about this machine. 2026-09-08 → 09-14 the CI
+// job ran only the root `npm ci` and stayed red for six days with that message, hiding four
+// later failures behind it. Same lesson the adopter-instruction-files job recorded on 2026-08-20.
+if (!existsSync(join(ROOT, "cli", "node_modules"))) {
+  console.error("[install-paths] cannot tell — cli/node_modules is missing; run `npm ci` in cli/ first");
+  process.exit(2);
+}
 
 const entries = Object.entries(AI_AGENT_PATHS);
 const capable = entries.filter(([, c]) => c.supportsSkills && c.skills);
@@ -184,7 +193,11 @@ for (const [agent, config] of capable) {
   checked++;
 
   if (!ok) {
-    console.error(`  x   ${agent.padEnd(14)} init failed\n${out.split("\n").slice(-4).join("\n")}`);
+    // The last lines of a Node crash are the stack's closing brace and the Node version, which
+    // say nothing; lead with the first line that names an error.
+    const lines = out.split("\n");
+    const cause = lines.find((l) => /\b(Error|ERR_[A-Z_]+)\b/.test(l)) ?? "";
+    console.error(`  x   ${agent.padEnd(14)} init failed${cause ? ` — ${cause.trim()}` : ""}\n${lines.slice(-4).join("\n")}`);
     red++;
     continue;
   }
