@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-08-24
+> Auto-generated | Last updated: 2026-09-14
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -14,10 +14,10 @@
 3. [Skills](#skills) (55)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
-6. [Core Standards](#core-standards) (151)
-7. [Scripts](#scripts) (57)
+6. [Core Standards](#core-standards) (152)
+7. [Scripts](#scripts) (59)
 
-**Total Features: 347**
+**Total Features: 350**
 
 ---
 
@@ -52,7 +52,7 @@
 | `--content-mode` | Content mode for integration files (minimal, index) [default: index]; full is retired and resolves to index |
 | `--agents-md` | Generate AGENTS.md universal summary |
 | `--no-agents-md` | Skip AGENTS.md generation |
-| `--with-hooks` | Install enforcement hooks (commit-msg, security, logging) |
+| `--with-hooks` | Install enforcement hooks declared by the installed standards |
 | `--content-layout` | Content layout (flat, layered) [default: flat] |
 | `-y, --yes` | Use defaults, skip interactive prompts |
 | `-E, --experimental` | Enable experimental features (methodology) |
@@ -571,6 +571,7 @@
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
+| `turn-completion-integrity` | 1.3.0 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
@@ -604,6 +605,7 @@
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
+| `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
@@ -617,6 +619,7 @@
 | `check-standards-reference-sync.sh` | check-standards-reference-sync.sh |
 | `check-standards-sync.ps1` | Check Standards Sync |
 | `check-standards-sync.sh` | Standards Consistency Checker |
+| `check-translation-hash-ratchet.sh` | XSPEC-392 R6 棘輪：新的翻譯必須帶 source_hash，既有的欠債冷凍為基線。 |
 | `check-translation-sync.ps1` | Check Translation Sync |
 | `check-translation-sync.sh` | Translation Sync Checker |
 | `check-usage-docs-sync.ps1` | Check if usage documentation needs to be regenerated |

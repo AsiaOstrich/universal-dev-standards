@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-08-24
+> Quick reference for all UDS features | Last updated: 2026-09-14
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -317,6 +317,7 @@
 | `timeout-standards` | Timeout Standards |
 | `token-budget` | Token Budget Zone Standard |
 | `translation-lifecycle-standards` | Translation lifecycle standards: MISSING vs OUTDAT |
+| `turn-completion-integrity` | An agent writes *"I'll do X next"* and then ends t |
 | `user-journey-testing` | User Journey Testing Standard |
 | `user-story-mapping` | User Story Mapping Standards |
 | `verification-evidence` | Establish an "Iron Law" that no task can be claime |
@@ -348,6 +349,7 @@
 | `check-docs-integrity.sh` | Documentation Integrity Checker |
 | `check-docs-sync.ps1` | Check Docs Sync |
 | `check-docs-sync.sh` | Documentation Sync Checker |
+| `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ- |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
@@ -361,6 +363,7 @@
 | `check-standards-reference-sync.sh` | check-standards-reference-sync.sh |
 | `check-standards-sync.ps1` | Check Standards Sync |
 | `check-standards-sync.sh` | Standards Consistency Checker |
+| `check-translation-hash-ratchet.sh` | XSPEC-392 R6 棘輪：新的翻譯必須帶 source_hash，既有的欠債冷凍為基線。 |
 | `check-translation-sync.ps1` | Check Translation Sync |
 | `check-translation-sync.sh` | Translation Sync Checker |
 | `check-usage-docs-sync.ps1` | Check if usage documentation needs to be regenerat |
