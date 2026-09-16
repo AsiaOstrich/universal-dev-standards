@@ -32,14 +32,13 @@ The `review` command/skill is renamed to `code-review` to align the skill's fron
 
 **Not affected:** `/review` mentions that refer to external tools' built-in review commands (e.g. Codex) are unrelated to UDS and were intentionally left as-is.
 
-## 2. Removed: 8 deprecated machine-readable standards (`.ai.yaml`)
+## 2. Removed: 7 deprecated machine-readable standards (`.ai.yaml`)
 
-These 8 standards had their runtime relocated to the adoption layer in 5.4.0 (XSPEC-086/095; UDS defines activities, adoption layers orchestrate — DEC-049). Their `.ai.yaml` stubs are now removed as scheduled:
+These standards had their runtime relocated to the adoption layer in 5.4.0 (XSPEC-086/095; UDS defines activities, adoption layers orchestrate — DEC-049). Their `.ai.yaml` stubs were removed as scheduled:
 
 | Removed `.ai.yaml` | Human-readable doc (kept) |
 |---|---|
 | `agent-communication-protocol` | `core/agent-communication-protocol.md` |
-| `agent-dispatch` | `core/agent-dispatch.md` |
 | `branch-completion` | `core/branch-completion.md` |
 | `change-batching-standards` | `core/change-batching-standards.md` |
 | `execution-history` | `core/execution-history.md` |
@@ -51,7 +50,12 @@ These 8 standards had their runtime relocated to the adoption layer in 5.4.0 (XS
 
 - Nothing, if you never loaded these `.ai.yaml` files directly — the human-readable concepts remain under `core/` as reference documents.
 - If your adoption layer (agent runtime, orchestrator, CI) loaded any of these stubs, implement the equivalent in your own toolchain. The stubs themselves were already deprecation notices pointing you there since 5.4.0.
-- These standards are no longer distributed by `uds init` / `uds update`. Copies already installed in your project's `.standards/` are not deleted automatically — remove them manually if you want a clean tree.
+- These standards are no longer distributed by `uds init` / `uds update`. Each kept `core/*.md` says so in its own first lines, and `scripts/reference-only-standards.json` is the machine-readable list.
+- **`agent-dispatch` was on this list and is not any more.** Its `.ai.yaml` was restored in XSPEC-362 R5a and it ships normally; this guide listed it as removed for two majors after that. If your manifest still carries it, that is correct.
+- Copies already installed in your project's `.standards/` are not deleted automatically. **Use `uds update --prune`** rather than deleting them by hand:
+  - `--prune` removes the files *and* their `fileHashes` entries. Deleting them by hand leaves the entries behind, and `uds check` then reports each one as `missing` and offers `uds check --restore` — a restore that cannot succeed, because the source no longer exists upstream.
+  - **The first `uds update` after upgrading from 6.8.x or earlier deletes nothing**, whatever flags you pass: ownership records do not exist yet, and nothing is removed on the strength of an absent record. Run `uds update` once, then `uds update --prune`.
+  - `--prune` does not clean `integrationConfigs[<file>].installedStandards`. That snapshot is what `uds update --sync-refs` regenerates from, so a stale entry there can still put a wrong standards count into your CLAUDE.md. `uds update --integrations-only` recomputes from the manifest instead.
 
 ## 3. Removed: 4 deprecated CLI commands
 

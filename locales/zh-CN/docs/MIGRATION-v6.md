@@ -32,14 +32,13 @@ UDS 6.0.0 是 **major** 版本：包含一项 breaking 更名、移除 8 个已�
 
 **不受影响**：指涉外部工具内建 review 命令（如 Codex）的 `/review` 字样与 UDS 无关，刻意保留原样。
 
-## 2. 移除：8 个已弃用的机器可读标准（`.ai.yaml`）
+## 2. 移除：7 个已弃用的机器可读标准（`.ai.yaml`）
 
-这 8 个标准的 runtime 已于 5.4.0 移交采用层（XSPEC-086/095；UDS 定义活动、采用层编排流程——DEC-049），其 `.ai.yaml` stub 如期移除：
+这些标准的 runtime 已于 5.4.0 移交采用层（XSPEC-086/095；UDS 定义活动、采用层编排流程——DEC-049），其 `.ai.yaml` stub 如期移除：
 
 | 移除的 `.ai.yaml` | 保留的人类可读文件 |
 |---|---|
 | `agent-communication-protocol` | `core/agent-communication-protocol.md` |
-| `agent-dispatch` | `core/agent-dispatch.md` |
 | `branch-completion` | `core/branch-completion.md` |
 | `change-batching-standards` | `core/change-batching-standards.md` |
 | `execution-history` | `core/execution-history.md` |
@@ -51,7 +50,12 @@ UDS 6.0.0 是 **major** 版本：包含一项 breaking 更名、移除 8 个已�
 
 - 若从未直接载入这些 `.ai.yaml`：不需动作——人类可读概念仍留在 `core/` 作为参考文件。
 - 若采用层（agent runtime、orchestrator、CI）曾载入这些 stub：在自家工具链实作等效机制。这些 stub 自 5.4.0 起本身就是指向此方向的弃用告示。
-- 这些标准不再由 `uds init` / `uds update` 发布。专案 `.standards/` 中既有副本不会被自动删除——想要干净树的话请手动移除。
+- 这些标准不再由 `uds init` / `uds update` 发布。每一份保留下来的 `core/*.md` 都在自己的开头写明这件事，而 `scripts/reference-only-standards.json` 是那份清单的机器可读版本。
+- **`agent-dispatch` 曾在这张表上，现在不在了。** 它的 `.ai.yaml` 已于 XSPEC-362 R5a 恢复、正常发布，而本指南在那之后仍把它列为已移除，跨了两个大版本。**你的 manifest 里若还有它，那是对的。**
+- 专案 `.standards/` 中既有副本不会被自动删除。请用 **`uds update --prune`**，不要手动删：
+  - `--prune` 会连同 `fileHashes` 里的记录一起移除。手动删只删掉文件，记录还在，`uds check` 会把每一个报成「遗失」并建议 `uds check --restore`——**而那个还原不可能成功**，因为上游已经没有来源了。
+  - **从 6.8.x 以前升上来之后的第一次 `uds update` 什么都不会删**，不论你加什么旗标：此时还没有文件归属记录，而 UDS 不会凭一笔不存在的记录删东西。先跑一次 `uds update`，再跑 `uds update --prune`。
+  - `--prune` 不会清 `integrationConfigs[<文件名>].installedStandards`。那份快照正是 `uds update --sync-refs` 重新生成时所依据的东西，所以残留在那里的项目仍可能把错的标准数写进你的 CLAUDE.md。`uds update --integrations-only` 则是从 manifest 重算。
 
 ## 3. 移除：4 个已弃用的 CLI 命令
 
