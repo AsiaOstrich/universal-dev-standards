@@ -1,11 +1,11 @@
 import chalk from 'chalk';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
-import { getRepositoryInfo, getAllStandards, getStandardSource } from '../utils/registry.js';
+import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
@@ -274,7 +274,7 @@ function buildInstallCommand(pm, tag) {
  */
 async function updateCliAndExit(useBeta = false) {
   const msg = t().commands.update;
-  const spinner = ora(msg.updatingCli).start();
+  const spinner = createSpinner(msg.updatingCli).start();
 
   try {
     // Command is hardcoded - no user input, safe from injection
@@ -581,6 +581,23 @@ export async function updateCommand(options) {
     if (versionComparison > 0) {
       console.log(chalk.gray(`  ${msg.newerVersion.replace('{version}', currentVersion)}`));
     }
+
+    // Still forget records of files that are gone and no longer shipped. An
+    // adopter who followed MIGRATION-v6 §2 is on the current version by
+    // definition — telling them to run `uds update --prune` and then returning
+    // before anything is examined is how the complaint became unclearable.
+    const retiredOnLatest = pruneRetiredHashes(manifest, projectPath);
+    if (retiredOnLatest.length > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedRetiredHashes || 'Dropped {count} manifest record(s) for files UDS no longer ships and that are already gone:').replace('{count}', retiredOnLatest.length)}`
+      ));
+      for (const path of retiredOnLatest) {
+        console.log(chalk.gray(`    - ${path}`));
+      }
+      writeManifest(manifest, projectPath);
+    }
+
     console.log();
     return;
   }
@@ -642,7 +659,7 @@ export async function updateCommand(options) {
 
   // Perform update
   console.log();
-  const spinner = ora(msg.updatingStandards).start();
+  const spinner = createSpinner(msg.updatingStandards).start();
 
   const results = {
     updated: [],
@@ -714,7 +731,7 @@ export async function updateCommand(options) {
     }
 
     if (shouldInstallNew) {
-      const newSpinner = ora(msg.installingNewStandards).start();
+      const newSpinner = createSpinner(msg.installingNewStandards).start();
       let newCount = 0;
 
       for (const ns of newStandards) {
@@ -735,7 +752,7 @@ export async function updateCommand(options) {
 
   // Update integrations (unless --standards-only)
   if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
-    const intSpinner = ora(msg.syncingIntegrations).start();
+    const intSpinner = createSpinner(msg.syncingIntegrations).start();
 
     // Build installed standards list
     // Raw, not basename()d. Resolution needs the registry (an ID is not a
@@ -813,6 +830,7 @@ export async function updateCommand(options) {
             installedAt: new Date().toISOString()
           };
         }
+        refreshTrackedFileHash(manifest, projectPath, agentsMdResult.path);
       }
     }
 
@@ -989,6 +1007,22 @@ export async function updateCommand(options) {
     }
   }
 
+  // Records of files that are already gone and that UDS no longer ships. Not
+  // part of the removal plan above: that plan walks what is on disk, and these
+  // are precisely the ones that are not. Reported rather than done quietly,
+  // because a manifest shrinking without explanation is the shape this whole
+  // release is about.
+  const retiredHashes = pruneRetiredHashes(manifest, projectPath);
+  if (retiredHashes.length > 0) {
+    console.log();
+    console.log(chalk.gray(
+      `  ${(msg.droppedRetiredHashes || 'Dropped {count} manifest record(s) for files UDS no longer ships and that are already gone:').replace('{count}', retiredHashes.length)}`
+    ));
+    for (const path of retiredHashes) {
+      console.log(chalk.gray(`    - ${path}`));
+    }
+  }
+
   // Provenance is only a complete account of what we own once a run has
   // written the whole installed set. Until then every unrecorded file is
   // `unknown` rather than `foreign`, and nothing gets deleted on the strength
@@ -1110,7 +1144,7 @@ export async function updateCommand(options) {
     }
 
     if (shouldRestore) {
-      const restoreSpinner = ora((msg.restoringMissing || 'Restoring missing files...')).start();
+      const restoreSpinner = createSpinner((msg.restoringMissing || 'Restoring missing files...')).start();
       const checkMsg = t().commands.check;
       let restoredCount = 0;
 
@@ -1177,7 +1211,7 @@ export async function updateCommand(options) {
 
         // Install Skills if user agreed
         if (installSkills.length > 0) {
-          const skillSpinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
+          const skillSpinner = createSpinner(msg.installingNewSkills || 'Installing Skills...').start();
           const skillsLocale = resolveLocale(manifest, projectPath, options);
           const skillResult = await installSkillsToMultipleAgents(installSkills, null, projectPath, skillsLocale);
 
@@ -1225,7 +1259,7 @@ export async function updateCommand(options) {
 
         // Update outdated Skills if user agreed
         if (updateSkills.length > 0) {
-          const updateSpinner = ora(msg.updatingSkills || 'Updating Skills...').start();
+          const updateSpinner = createSpinner(msg.updatingSkills || 'Updating Skills...').start();
           const updateLocale = resolveLocale(manifest, projectPath, options);
           const updateResult = await installSkillsToMultipleAgents(updateSkills, null, projectPath, updateLocale);
 
@@ -1263,7 +1297,7 @@ export async function updateCommand(options) {
 
         // Install Commands if user agreed
         if (installCommands.length > 0) {
-          const cmdSpinner = ora(msg.installingNewCommands || 'Installing commands...').start();
+          const cmdSpinner = createSpinner(msg.installingNewCommands || 'Installing commands...').start();
           const cmdLocale = resolveLocale(manifest, projectPath, options);
           const cmdResult = await installCommandsToMultipleAgents(installCommands, null, projectPath, cmdLocale);
 
@@ -1294,7 +1328,7 @@ export async function updateCommand(options) {
 
         // Update outdated Commands if user agreed
         if (updateCommands.length > 0) {
-          const updateCmdSpinner = ora(msg.updatingCommands || 'Updating Commands...').start();
+          const updateCmdSpinner = createSpinner(msg.updatingCommands || 'Updating Commands...').start();
           const updateCmdLocale = resolveLocale(manifest, projectPath, options);
           const updateCmdResult = await installCommandsToMultipleAgents(updateCommands, null, projectPath, updateCmdLocale);
 
@@ -1370,7 +1404,7 @@ export async function updateCommand(options) {
         let hasChanges = false;
 
         if (missingSkills.length > 0) {
-          const spinner = ora(msg.installingNewSkills || 'Installing Skills...').start();
+          const spinner = createSpinner(msg.installingNewSkills || 'Installing Skills...').start();
           const result = await installSkillsToMultipleAgents(missingSkills, null, projectPath, skillsLocale);
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.installed = true;
@@ -1391,7 +1425,7 @@ export async function updateCommand(options) {
         }
 
         if (outdatedSkills.length > 0) {
-          const spinner = ora(msg.updatingSkills || 'Updating Skills...').start();
+          const spinner = createSpinner(msg.updatingSkills || 'Updating Skills...').start();
           const result = await installSkillsToMultipleAgents(outdatedSkills, null, projectPath, skillsLocale);
           if (!manifest.skills) manifest.skills = {};
           manifest.skills.version = repoInfo.skills.version;
@@ -1415,7 +1449,7 @@ export async function updateCommand(options) {
         }
 
         if (missingCommands.length > 0) {
-          const spinner = ora(msg.installingNewCommands || 'Installing commands...').start();
+          const spinner = createSpinner(msg.installingNewCommands || 'Installing commands...').start();
           const result = await installCommandsToMultipleAgents(missingCommands, null, projectPath, skillsLocale);
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.installed = true;
@@ -1435,7 +1469,7 @@ export async function updateCommand(options) {
         }
 
         if (outdatedCommands.length > 0) {
-          const spinner = ora(msg.updatingCommands || 'Updating Commands...').start();
+          const spinner = createSpinner(msg.updatingCommands || 'Updating Commands...').start();
           const result = await installCommandsToMultipleAgents(outdatedCommands, null, projectPath, skillsLocale);
           if (!manifest.commands) manifest.commands = {};
           manifest.commands.version = repoInfo.skills.version;
@@ -1688,6 +1722,7 @@ export function regenerateIntegrations(projectPath, manifest) {
           installedAt: now
         };
       }
+      refreshTrackedFileHash(manifest, projectPath, agentsMdResult.path);
     }
   }
 
@@ -1811,7 +1846,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
     return;
   }
 
-  const spinner = ora(msg.regeneratingIntegrations).start();
+  const spinner = createSpinner(msg.regeneratingIntegrations).start();
 
   // Use reusable regeneration function
   const results = regenerateIntegrations(projectPath, manifest);
@@ -1894,6 +1929,135 @@ function resolveToolKeyFromEntry(entry) {
 }
 
 /**
+ * If the manifest already tracks this file, make its record describe what is on
+ * disk now.
+ *
+ * Every path that writes AGENTS.md recorded `integrationBlockHashes` and none
+ * recorded `fileHashes`, so a project whose manifest tracked the file (an older
+ * install, or one where AGENTS.md was written as a tool's integration file) got
+ * `⚠ AGENTS.md (modified)` from `uds check` the moment UDS itself regenerated
+ * it. UDS wrote the file and did not record what it wrote.
+ *
+ * Conditional on purpose. `uds init` does not enrol AGENTS.md in `fileHashes`,
+ * and adopters are expected to extend that summary — a path that started
+ * tracking it would convert every legitimate edit into a reported fault. This
+ * only ever refreshes a record that already exists.
+ *
+ * @param {Object} manifest - Project manifest (mutated)
+ * @param {string} projectPath - Project root
+ * @param {string} relativePath - Path as UDS reports it
+ * @returns {boolean} Whether a record was refreshed
+ */
+export function refreshTrackedFileHash(manifest, projectPath, relativePath) {
+  if (!manifest?.fileHashes || !relativePath) return false;
+  const normalized = String(relativePath).replace(/\\/g, '/');
+  if (!(normalized in manifest.fileHashes)) return false;
+
+  const hashInfo = computeFileHash(join(projectPath, normalized));
+  if (!hashInfo) return false;
+
+  manifest.fileHashes[normalized] = { ...hashInfo, installedAt: new Date().toISOString() };
+  return true;
+}
+
+/**
+ * Forget `fileHashes` records for files that are gone AND that UDS no longer
+ * ships.
+ *
+ * `--prune` deletes files it finds while walking `.standards/`. A file the
+ * adopter already removed by hand is not in that walk, so its record survived
+ * every prune — and the record is what made `uds check` report the completed
+ * migration as seven faults. Following MIGRATION-v6 §2 therefore produced a
+ * complaint that no command could clear.
+ *
+ * This is not a deletion. The file is already absent and no registry entry can
+ * ever resolve to it again, so the record cannot refer to anything. Both facts
+ * are required: a missing file UDS still ships is a real fault and stays; a
+ * descoped standard still on disk is `--prune`'s business, gated on ownership,
+ * and is left alone here.
+ *
+ * @param {Object} manifest - Project manifest (mutated)
+ * @param {string} projectPath - Project root
+ * @param {{shippable?: Set<string>}} [deps] - Injection point for tests
+ * @returns {string[]} Paths whose records were dropped, sorted
+ */
+export function pruneRetiredHashes(manifest, projectPath, deps = {}) {
+  if (!manifest?.fileHashes) return [];
+
+  let shippable;
+  try {
+    shippable = deps.shippable || getShippableFilenames();
+  } catch {
+    return [];
+  }
+
+  // A shippable set this small means the registry did not load, not that UDS
+  // stopped shipping everything. Without this arm a broken install would empty
+  // the manifest and every downstream check would go quiet at the same time.
+  if (!shippable || shippable.size < 50) return [];
+
+  const dropped = [];
+  for (const recorded of Object.keys(manifest.fileHashes)) {
+    const normalized = recorded.replace(/\\/g, '/');
+    if (!normalized.startsWith('.standards/')) continue;
+    const fileName = normalized.split('/').pop();
+    if (shippable.has(fileName)) continue;
+    if (existsSync(join(projectPath, recorded))) continue;
+    delete manifest.fileHashes[recorded];
+    dropped.push(recorded);
+  }
+  return dropped.sort();
+}
+
+/**
+ * Build the config `--sync-refs` regenerates an integration file from.
+ *
+ * The stored `integrationConfigs[file]` is a snapshot taken when the file was
+ * installed. Its `categories` are the thing sync-refs exists to update, and its
+ * `installedStandards` is the thing that must never be trusted: it is not
+ * refreshed by any path, so on a project upgraded across majors it still lists
+ * standards that stopped shipping, and whatever it lists becomes the file's
+ * content. That is how a manifest holding 73 standards produced a CLAUDE.md
+ * announcing 76, which `uds check` then flagged against the same manifest.
+ *
+ * So: manifest-derived fields win, the caller's freshly computed categories win
+ * over both, and anything the manifest knows nothing about (timestamps, fields
+ * a future version adds) is carried through untouched.
+ *
+ * `outputLanguage` is the one place the stored value still gets a say — a
+ * manifest with no `output_language` should not silently reset a project that
+ * chose one before the option was recorded there.
+ *
+ * @param {Object} manifest - Project manifest
+ * @param {string} toolName - Tool key (e.g. 'claude-code')
+ * @param {Object} storedConfig - The existing integrationConfigs entry
+ * @param {string[]} expectedCategories - Categories computed from current standards
+ * @returns {Object} Config for writeIntegrationFile
+ */
+export function refreshIntegrationConfig(manifest, toolName, storedConfig = {}, expectedCategories = []) {
+  const outputLanguage =
+    manifest.options?.output_language
+    || manifest.options?.commit_language
+    || storedConfig.outputLanguage
+    || storedConfig.commitLanguage
+    || 'english';
+
+  const fresh = buildToolIntegrationConfig(
+    { ...manifest, options: { ...(manifest.options || {}), output_language: outputLanguage } },
+    toolName
+  );
+
+  return {
+    ...storedConfig,
+    ...fresh,
+    tool: toolName,
+    categories: expectedCategories,
+    outputLanguage,
+    format: manifest.format || storedConfig.format || 'ai'
+  };
+}
+
+/**
  * Sync integration file references based on manifest standards
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
@@ -1966,14 +2130,9 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
       continue;
     }
 
-    // Regenerate the integration file with updated categories
-    const newConfig = {
-      ...config,
-      tool: toolName,
-      categories: expectedCategories,
-      // Pass output_language for dynamic commit standards generation
-      outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || config.outputLanguage || config.commitLanguage || 'english'
-    };
+    // Regenerate the integration file with updated categories, from the
+    // manifest rather than from the snapshot stored beside it.
+    const newConfig = refreshIntegrationConfig(manifest, toolName, config, expectedCategories);
 
     if (plan) {
       console.log(chalk.yellow(`  ~ ${integrationPath}: categories would change to ${expectedCategories.join(', ') || '(none)'} (dry run — nothing is written)`));
@@ -2222,7 +2381,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     return;
   }
 
-  const spinner = ora(msg.installingSkills || 'Installing Skills...').start();
+  const spinner = createSpinner(msg.installingSkills || 'Installing Skills...').start();
 
   const skillsLocaleForUpdate = resolveLocale(manifest, projectPath, options);
   const result = await installSkillsToMultipleAgents(
@@ -2346,7 +2505,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   }
   console.log();
 
-  const spinner = ora(msg.installingCommands || 'Installing commands...').start();
+  const spinner = createSpinner(msg.installingCommands || 'Installing commands...').start();
 
   const commandsLocale = resolveLocale(manifest, projectPath, options);
   const result = await installCommandsToMultipleAgents(
@@ -2843,7 +3002,7 @@ async function handleRollback(projectPath) {
  * Handle --plan: show what the reconciler would do without executing.
  */
 async function handlePlan(projectPath, options) {
-  const spinner = ora('Calculating reconciliation plan...').start();
+  const spinner = createSpinner('Calculating reconciliation plan...').start();
 
   const result = await reconcilerPlan(projectPath, { force: false });
 
@@ -2918,7 +3077,7 @@ async function handleReconcile(projectPath, options, { force }) {
   }
 
   // Execute
-  const spinner = ora('Applying reconciliation plan...').start();
+  const spinner = createSpinner('Applying reconciliation plan...').start();
 
   const result = await reconcile(projectPath, {
     force,

@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { basename, join } from 'path';
+import { join } from 'path';
 import {
   manifestExists as isInitialized,
   normalizeContentMode,
@@ -55,7 +55,7 @@ export async function initCommand(options) {
   }
 
   // STEP 2: Detect project characteristics
-  const spinner = ora(msg.detectingProject).start();
+  const spinner = createSpinner(msg.detectingProject).start();
   const detected = detectAll(projectPath);
   spinner.succeed(msg.analysisComplete);
 
@@ -123,7 +123,16 @@ export async function initCommand(options) {
         apply: async () => {
           // 1. Install Standards
           const standardsResults = await installStandards(config, projectPath);
-          config.installedStandards = standardsResults.standards.map(s => basename(s));
+          // Paths, not basenames. Everything downstream classifies an option
+          // by an `/options/` segment, so reducing to basenames here is not a
+          // simplification — it deletes the only signal that distinguishes the
+          // two, and `contentLayout: flat` installs option files with no
+          // directory to recover it from. The index block consequently said
+          // "options 0" on every project for two releases, while the manifest
+          // right beside it listed seven. `buildToolIntegrationConfig` (the
+          // update path's equivalent) has carried a comment warning against
+          // exactly this reduction the whole time; only this call site did it.
+          config.installedStandards = standardsResults.standards;
 
           // 1.5. Generate release-config.yaml if non-default mode selected
           if (config.releaseMode && config.releaseMode !== 'ci-cd') {

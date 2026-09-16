@@ -675,7 +675,14 @@ describe('Init Command', () => {
       // getStandardSource returns 'core/test-standard.md'
       // copyStandard returns { success: true }
       // So standardsResults.standards = ['core/test-standard.md']
-      // After basename: ['test-standard.md']
+      //
+      // This used to assert the basename, matching an `init.js` that reduced
+      // every entry with `map(basename)`. That reduction is the defect fixed on
+      // 2026-09-16: everything downstream classifies an option by an
+      // `/options/` segment, and `contentLayout: flat` leaves no directory to
+      // recover it from, so the installed-standards index announced
+      // "options 0" on every project while the manifest listed seven. The paths
+      // must arrive intact.
 
       await expect(initCommand({})).rejects.toThrow('process.exit called');
 
@@ -684,7 +691,7 @@ describe('Init Command', () => {
       const calls = writeIntegrationFile.mock.calls;
       // Find a call and check the config argument (2nd param)
       const configArg = calls[0][1];
-      expect(configArg.installedStandards).toContain('test-standard.md');
+      expect(configArg.installedStandards).toContain('core/test-standard.md');
     });
   });
 });

@@ -1,13 +1,13 @@
 import chalk from 'chalk';
 import { select } from '@inquirer/prompts';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
 import {
   getAllStandards,
-  getRepositoryInfo, resolveStandardFilename, resolveStandardSourcePath } from '../utils/registry.js';
+  getRepositoryInfo, isShippedFilename, resolveStandardFilename, resolveStandardSourcePath } from '../utils/registry.js';
 import {
   computeFileHash,
   compareFileHash,
@@ -27,6 +27,7 @@ import {
 } from '../config/ai-agent-paths.js';
 import {
   parseReferences,
+  findBrokenPathMentions,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
 import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
@@ -60,6 +61,19 @@ function displayFileIntegritySummary(fileStatus, msg) {
     }
   }
 
+  // Reported apart from `missing`, and in grey rather than red, because the
+  // adopter who sees this did what the migration guide asked. The remedy named
+  // here is the one that works: `--restore` cannot resolve a source for any of
+  // them, and used to be the only thing offered.
+  if (fileStatus.retired?.length > 0) {
+    console.log();
+    console.log(chalk.gray(`  ${(msg.retiredHeader || '{count} tracked file(s) are no longer shipped by UDS:').replace('{count}', fileStatus.retired.length)}`));
+    for (const file of fileStatus.retired) {
+      console.log(chalk.gray(`  - ${file} (${msg.retired || 'no longer shipped by UDS'})`));
+    }
+    console.log(chalk.gray(`    ${msg.retiredHint || 'Run `uds update --prune` to drop their manifest entries.'}`));
+  }
+
   if (fileStatus.noHash.length > 0) {
     for (const file of fileStatus.noHash) {
       console.log(chalk.gray(`  ? ${file} (${msg.existsNoHash})`));
@@ -71,8 +85,37 @@ function displayFileIntegritySummary(fileStatus, msg) {
     .replace('{unchanged}', fileStatus.unchanged.length)
     .replace('{modified}', fileStatus.modified.length)
     .replace('{missing}', fileStatus.missing.length)}` +
+    (fileStatus.retired?.length > 0 ? `, ${fileStatus.retired.length} ${msg.retired || 'no longer shipped'}` : '') +
     (fileStatus.noHash.length > 0 ? `, ${fileStatus.noHash.length} no hash` : '')));
   console.log();
+}
+
+/**
+ * A file `fileHashes` tracks has gone. Is that a problem, or is it the migration
+ * guide's instruction carried out?
+ *
+ * MIGRATION-v6 §2 told adopters to delete the seven descoped `.ai.yaml` copies
+ * by hand. Doing so left the hash entries behind, and this check called each one
+ * `missing` and offered `uds check --restore` — a restore that then failed on
+ * every one with "could not determine source", because there has been no source
+ * upstream since 6.0.0. The tool asked the user to undo its own documentation,
+ * using a command it already knew could not work.
+ *
+ * The distinguishing question is whether UDS still ships a file by that name,
+ * which is the registry's to answer, not the manifest's. Anything outside
+ * `.standards/` is never retired: integration files are generated, not shipped
+ * under a standard's name, so a missing CLAUDE.md is exactly what it looks like.
+ *
+ * @param {string} relativePath - Path as recorded in fileHashes
+ * @param {Object} manifest - Project manifest (unused today; kept so callers
+ *   need not know whether the answer depends on project state)
+ * @returns {'missing'|'retired'}
+ */
+export function classifyMissingFile(relativePath, manifest) { // eslint-disable-line no-unused-vars
+  const normalized = String(relativePath).replace(/\\/g, '/');
+  if (!normalized.startsWith('.standards/')) return 'missing';
+  const fileName = normalized.split('/').pop();
+  return isShippedFilename(fileName) ? 'missing' : 'retired';
 }
 
 /**
@@ -84,6 +127,10 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
     unchanged: [],
     modified: [],
     missing: [],
+    // Tracked, gone, and gone on purpose: UDS stopped shipping it. Counted
+    // apart from `missing` so the summary line stops calling a completed
+    // migration a fault.
+    retired: [],
     noHash: []
   };
 
@@ -101,7 +148,7 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
           fileStatus.modified.push(relativePath);
           break;
         case 'missing':
-          fileStatus.missing.push(relativePath);
+          fileStatus[classifyMissingFile(relativePath, manifest)].push(relativePath);
           break;
       }
     }
@@ -1422,9 +1469,12 @@ function checkReferenceSync(manifest, projectPath, msg) {
     }
 
     const references = parseReferences(content);
-    if (references.length === 0) continue;
+    // Whole-file scan, separate from reference sync: the paths that matter here
+    // are the ones outside the UDS block, which no generation ever revisits.
+    const brokenMentions = findBrokenPathMentions(content, projectPath);
+    if (references.length === 0 && brokenMentions.length === 0) continue;
 
-    results.push({ integrationPath, references });
+    results.push({ integrationPath, references, brokenMentions });
   }
 
   // Skip entire section if no files have references
@@ -1434,7 +1484,21 @@ function checkReferenceSync(manifest, projectPath, msg) {
 
   let hasIssues = false;
 
-  for (const { integrationPath, references } of results) {
+  for (const { integrationPath, references, brokenMentions } of results) {
+    // Paths mentioned anywhere in the file that resolve to nothing. Reported
+    // first and separately from reference sync, because these are usually
+    // outside the UDS markers — left by an older `uds init`, never revisited by
+    // any regeneration, and followed by an AI tool that then finds nothing.
+    if (brokenMentions?.length > 0) {
+      hasIssues = true;
+      console.log(chalk.red(`  ✗ ${integrationPath}:`));
+      console.log(chalk.red(`    ${msg.brokenMentions || 'mentions paths that do not exist in this project:'}`));
+      for (const path of brokenMentions) {
+        console.log(chalk.red(`      - ${path}`));
+      }
+      console.log(chalk.gray(`    ${msg.brokenMentionsFix || 'These are usually outside the UDS block and must be corrected by hand; UDS does not rewrite text it did not write.'}`));
+    }
+
     // Compare with manifest standards
     const { orphanedRefs, missingRefs, syncedRefs, danglingRefs } = compareStandardsWithReferences(
       manifest.standards,
@@ -1500,7 +1564,7 @@ function checkReferenceSync(manifest, projectPath, msg) {
  */
 async function checkCliVersion(bundledVersion) {
   const msg = t().commands.check;
-  const spinner = ora({ text: msg.checkingCliUpdates, spinner: 'dots' }).start();
+  const spinner = createSpinner({ text: msg.checkingCliUpdates, spinner: 'dots' }).start();
 
   try {
     const result = await checkForUpdates(bundledVersion, {

@@ -27,6 +27,19 @@ status: current
 - **`uds check` 把 `AGENTS.md` 列了两次。** Codex 与 OpenCode 共用同一份文件，而检查是逐工具而非逐文件进行。现在每个文件只报告一次，并标明共用它的工具。
 - **七条 `core/*.md` 标准自 6.0.0 起就没有被安装过，而它们一个字都没说（[#180](https://github.com/AsiaOstrich/universal-dev-standards/issues/180)）。** 它们的 `.ai.yaml` 在 6.0.0 被移除，文档则刻意留在 `core/` 作为采用层的参考——这个决定合理，也记在 `docs/MIGRATION-v6.md` §2 与 `scripts/reference-only-standards.json` 里，但**没有记在读者真正会遇到它的地方**。迁移指南在升级时读一次，`core/` 是持续被读的：走访它来回答「UDS 有哪些标准」的人或 agent 会数到 152 份，其中七份 `uds init` 从未安装过。七份现在都在开头带一段 `<!-- UDS:REFERENCE-ONLY -->` 告示，英文、繁中、简中三份都有，并指向迁移记录与那份机器可读清单。新闸门（`npm run check:reference-only`，已接进 CI 并附两臂自测）从 registry 里每一条 `source.human` 现算出货面，把它与 `core/*.md` 的差集当成 reference-only 集合，要求每一份都要披露——**反过来也要求正在出货的文档不得带着这段告示**，所以一条重新开始出货的标准不会留下一句谎话。用现算而不是比对那七个名字，是为了让下一次缩减范围不会重演同一种沉默。
 - **`--format human` 的安装把 `testing-standards.md` 挂在两个标准 id 下送出，而全覆盖那一份从来没送到。** `full-coverage-testing` 的 registry 条目把 `source.human` 指到 `core/testing-standards.md`，于是 `core/full-coverage-testing.md`——一条活着的标准，最近一次维护是 XSPEC-288——没有任何人装得到，而 human 格式的 manifest 里同一条路径出现两次。`check-registry-completeness.ts` 的 Check 2 看不到它：那支只要 human 或 ai 任一条路径出现在 registry 文字里就算通过，而 ai 那条在。由上面那支闸门首跑时抓到，是七份预期之外的第八份。修正前后各跑一次真正的 `uds init --format human` 验证。
+- **`uds update --sync-refs` 写进去的标准数，`uds check` 当场否认。** manifest 有 73 条标准的项目，`--sync-refs` 把 CLAUDE.md 改成宣告 76 条，`uds check` 随即回「索引宣告 76 条标准，manifest 实际有 73 条」；而 `--integrations-only` 算得出正确数字，于是它看起来像计数错误，其实是**来源错误**。`--sync-refs` 是从 `integrationConfigs[文件名]` 重新生成的，那里面的 `installedStandards` 是安装当时的快照、**没有任何路径会更新它**——跨大版本升级过的项目，它仍列着 6.0.0 就停止发布的标准，而它列什么，文件内容就是什么。现在改为从 manifest 重新生成；旧快照只剩 `outputLanguage` 还有发言权。
+- **已安装标准索引在每个项目都写「options 0」。** `uds init` 把安装清单缩成纯文件名，而下游一律以 `/options/` 这个路径片段判断选项——在 `contentLayout: flat` 下根本没有目录可以还原它。一个有 66 条核心标准与 7 个选项的项目，被告知自己有「73 条（core 73、options 0）」。同一个缩减也让 AGENTS.md 里每个选项文件都被写成 `.standards/<名称>.ai.yaml`，比选项实际安装的位置高一层，于是每一条都是死链接。现在路径完整传递，AGENTS.md 的选项写在 `.standards/options/`，并依项目实际格式而非一律假设 `ai`。
+- **照着迁移指南做，会让 `uds check` 报错，而它给的解法不可能成功。** MIGRATION-v6 §2 说要手动删掉七个已降级的 `.ai.yaml`。删掉之后 `fileHashes` 记录还在，`uds check` 于是把七个文件报成遗失并建议 `uds check --restore`，而那个还原在每一个文件上都失败（「无法判断来源」）——上游自 6.0.0 起就没有来源了。现在，一个 UDS 已不再发布的文件不见了，会与真正的遗失分开报告；`uds update` 会清掉那些记录并逐笔说出清了什么，**包含已经在最新版的项目**。`--prune` 碰不到它们：它删的是走访 `.standards/` 时找得到的文件。
+- **UDS 重新生成了 AGENTS.md，却没有记下自己写了什么。** `uds update --integrations-only` 之后紧接着 `uds check`，会在一个只有 UDS 动过的文件上报 `AGENTS.md（已修改）`。三个写 AGENTS.md 的调用点都记了 `integrationBlockHashes`，没有一个记 `fileHashes`。现在已存在的记录会被更新；manifest 没在追踪的文件仍然不会被纳入追踪。
+- **在 Windows PowerShell 上，跑成功看起来像失败。** 进度消息走 stderr，而 PowerShell 5.1 会把原生命令的任何 stderr 输出包成 `NativeCommandError`——**包括报告成功的那一句**。改动前实测：stdout 9 行、stderr 2 行，两行都是 spinner。47 个 spinner 现在一律写 stdout。
+- **删除计划用同一句话解释三种完全不同的情况。** 「no longer in desired state」同时被打给「上游已移除的标准」「项目自己取消选取的选项」「desired state 根本没有建模的路径」。现在理由会说出是哪一种。`.standards/release-config.yaml` 则完全不再是删除候选：它是 `uds init` 依用户挑的发布模式写出、`uds config` 会改写的文件，删掉它是在丢掉一个设置却自称在对账。
+- **一个 .NET Framework 项目拿到四个命令，其中三个跑不动。** `.csproj` 自 2017 年起同时指涉两套互不兼容的构建系统，而检测只看扩展名：旧式项目拿到 `dotnet build`（以 `MSB4019` 失败）与 `dotnet list package --vulnerable`（对 `packages.config` 项目静静地什么都不报）。旧式项目现在 `build` 给 `msbuild`，其余留白。
+- **每一份生成的指示文件，开头都叫 AI 去读一个永远不会被安装的目录。** 九个工具、每种语言，全都以「**优先**读取 `core/` 中的精简规则」开场。`uds init` 安装到 `.standards/`，从来没有在采用者的项目里建立过 `core/`。同样两句话有 36 份副本、错法一模一样。现在它们指向 `.standards/`，并有一支测试走访生成结果。
+- **`uds update` 把中文的 CLAUDE.md 改写成英文。** `uds init` 依 `display_language` 生成集成文件内容，而每一条重新生成的路径都是从 `output_language`（commit 消息语言，默认 `english`）推导的。现在内容语言依 `display_language`。
+
+### 新增
+
+- **`uds check` 现在会报出指示文件里提到、但实际不存在的路径。** 先前它只读 `Reference:`／`参考:` 开头的行、而且只看 `.standards/` 路径。UDS 标记之外、由旧版安装留下、之后没有任何重新生成会回头看的散文，把 agent 指向不存在的文件。这支扫描以**文件存不存在**为准而非以路径长相为准，网址里的路径也会被排除。它首跑就找到了本次修正中的两项缺陷。
 
 ## [6.9.0] - 2026-09-14
 

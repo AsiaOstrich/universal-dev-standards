@@ -320,3 +320,60 @@ export function resolveStandardFilename(entry, format = 'ai') {
   const parts = source.split(/[/\\]/);
   return parts[parts.length - 1] || null;
 }
+
+/**
+ * Every filename UDS can install under `.standards/`, in either format.
+ *
+ * Built by walking the registry: each standard's own source plus every option
+ * choice's source, `ai` and `human` alike. Spanning both formats is deliberate
+ * and is why this takes no format argument — a project can hold a file in a
+ * format it did not install (an upgrade that changed `format`, a hand-copied
+ * file), and calling that "no longer shipped" would be wrong in the opposite
+ * direction. The question here is only ever "is this name still ours".
+ *
+ * This exists so that question has one answer, derived from the registry rather
+ * than from the manifest. A manifest that was never cleaned and one that was
+ * must not disagree about it.
+ *
+ * @returns {Set<string>} Filenames (basenames, no directory)
+ */
+let shippableCache = null;
+export function getShippableFilenames() {
+  if (shippableCache) return shippableCache;
+
+  const out = new Set();
+  const addPath = (value) => {
+    if (typeof value !== 'string' || value.length === 0) return;
+    const parts = value.split(/[/\\]/);
+    const name = parts[parts.length - 1];
+    if (name) out.add(name);
+  };
+  const addSource = (source) => {
+    if (!source) return;
+    if (typeof source === 'string') {
+      addPath(source);
+      return;
+    }
+    for (const value of Object.values(source)) addPath(value);
+  };
+
+  for (const std of getAllStandards()) {
+    addSource(std.source);
+    for (const category of Object.values(std.options || {})) {
+      for (const choice of category.choices || []) addSource(choice.source);
+    }
+  }
+
+  shippableCache = out;
+  return out;
+}
+
+/**
+ * Does UDS still ship a file by this name, in either format?
+ * @param {string} filename - Basename, e.g. `anti-hallucination.ai.yaml`
+ * @returns {boolean}
+ */
+export function isShippedFilename(filename) {
+  if (typeof filename !== 'string' || filename.length === 0) return false;
+  return getShippableFilenames().has(filename);
+}

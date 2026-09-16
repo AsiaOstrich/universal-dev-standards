@@ -14,6 +14,8 @@
  * Integration files use migrate_block: only the UDS marker block is replaced.
  */
 
+import { isShippedFilename } from '../utils/registry.js';
+
 /**
  * @typedef {Object} PlanAction
  * @property {'create'|'update'|'delete'|'migrate_block'|'patch_hook'} type
@@ -205,12 +207,18 @@ function diffCategory(desiredMap, actualMap, category, actions, warnings, summar
   // Check actual entries not in desired → delete (only if UDS-managed)
   for (const [key, actualEntry] of actualMap) {
     if (!desiredMap.has(key)) {
-      if (isUDSManaged(actualEntry)) {
+      if (isUserConfigPath(actualEntry.relativePath)) {
+        // Said out loud rather than skipped quietly: a plan that silently omits
+        // things is how the previous round of deletion bugs stayed invisible.
+        warnings.push(
+          `Keeping ${actualEntry.relativePath}: it holds a setting you chose (uds config writes it), not content UDS ships`
+        );
+      } else if (isUDSManaged(actualEntry)) {
         actions.push({
           type: 'delete',
           category,
           path: actualEntry.relativePath,
-          reason: 'no longer in desired state',
+          reason: describeDeletion(actualEntry.relativePath, category),
           details: {
             currentHash: actualEntry.hash,
             metadata: actualEntry.metadata
@@ -330,6 +338,53 @@ function diffIntegrations(desiredMap, actualMap, actions, warnings, summary, for
  * Files in .standards/ are always UDS-managed.
  * Skill/command entries from manifest installations are UDS-managed.
  */
+/**
+ * Files under `.standards/` that hold a choice the user made, not content UDS
+ * ships.
+ *
+ * `release-config.yaml` is written by `uds init` from the release mode the user
+ * picked and rewritten by `uds config`. Nothing in the desired-state calculator
+ * models it, so it fell out of every diff as "no longer in desired state" and
+ * into the delete plan — a plan that discards a user setting and calls that
+ * reconciliation. Reported 2026-09-16 by an adopter who could not tell from the
+ * plan whether the file held anything of theirs. It did.
+ *
+ * @param {string} relativePath
+ * @returns {boolean}
+ */
+export function isUserConfigPath(relativePath) {
+  const normalized = String(relativePath || '').replace(/\\/g, '/');
+  return normalized === '.standards/release-config.yaml';
+}
+
+/**
+ * Why this file is being deleted, in terms the adopter can act on.
+ *
+ * "no longer in desired state" was the reason given for a standard UDS retired
+ * upstream, an option the project deselected, and a path the desired state does
+ * not model — three different situations, three different right responses, one
+ * sentence. The distinction that matters most is the first one: if UDS still
+ * ships the file, the change came from this project and is reversible by
+ * re-selecting it; if UDS does not, it is gone upstream and re-selecting it will
+ * not bring it back.
+ *
+ * @param {string} relativePath
+ * @param {string} category - 'standard' | 'option' | 'skill' | 'command' | …
+ * @returns {string}
+ */
+export function describeDeletion(relativePath, category) {
+  const normalized = String(relativePath || '').replace(/\\/g, '/');
+
+  if (category === 'standard' || category === 'option') {
+    const fileName = normalized.split('/').pop();
+    return isShippedFilename(fileName)
+      ? 'this project no longer selects it (UDS still ships it, so re-selecting restores it)'
+      : 'UDS no longer ships this file (re-selecting will not bring it back)';
+  }
+
+  return `not part of what this project's manifest asks for (category: ${category})`;
+}
+
 function isUDSManaged(entry) {
   // Files in .standards/ are always UDS-managed
   if (entry.relativePath.startsWith('.standards/')) return true;

@@ -113,6 +113,56 @@ export function parseReferences(content) {
 }
 
 /**
+ * Every `.standards/…` or `core/…` path mentioned anywhere in the file that is
+ * not on disk.
+ *
+ * `parseReferences` only reads `Reference:`/`參考:` lines, which is the right
+ * scope for reference *sync* — those lines are the ones UDS generates and owns.
+ * It is the wrong scope for "does this instruction point at anything": an older
+ * `uds init` left prose outside the marker block saying "優先讀取 core/ 中的精簡
+ * 規則（例如 core/testing-standards.md）", and on a `format: ai` project no
+ * `core/` directory is ever installed. An AI tool following that finds nothing,
+ * and nothing in the toolchain looked. Reported 2026-09-16.
+ *
+ * Existence-based, not shape-based, and deliberately so: a project that has its
+ * own `core/` directory is not doing anything wrong, and a rule about the shape
+ * of the path could not tell the two apart.
+ *
+ * @param {string} content - File content
+ * @param {string|null} projectPath - Project root; without it there is nothing
+ *   to check against and the answer is "nothing", not a guess
+ * @returns {string[]} Distinct paths that do not resolve, in first-seen order
+ */
+export function findBrokenPathMentions(content, projectPath) {
+  if (!projectPath || typeof content !== 'string') return [];
+
+  // Not preceded by `/` or a word character: that is what keeps
+  // `https://…/core/testing-standards.md` out of the results.
+  //
+  // The terminator class carries the full-width punctuation as well as the
+  // ASCII. These instructions are written in Chinese, and `（例如
+  // core/testing-standards.md）` ends in `）` — without it the path captured is
+  // `core/testing-standards.md）`, which exists nowhere and matches nothing, so
+  // the finding would be real and the path in it wrong.
+  const pattern = /(^|[^\w/\\])((?:\.standards|core)\/[^\s\n)\]`,;'"）】」』〉》，。、；：！？]+)/g;
+  const seen = new Set();
+  const broken = [];
+
+  for (const match of content.matchAll(pattern)) {
+    const cleaned = match[2].replace(/[.,;:!?、，。]+$/, '');
+    if (!cleaned || seen.has(cleaned)) continue;
+    seen.add(cleaned);
+    try {
+      if (!existsSync(join(projectPath, cleaned))) broken.push(cleaned);
+    } catch {
+      // An unreadable path is not evidence of a broken reference.
+    }
+  }
+
+  return broken;
+}
+
+/**
  * Get standard source paths for a category
  *
  * @param {string} categoryId - Category ID (e.g., 'anti-hallucination')

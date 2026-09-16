@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { select, confirm as inquirerConfirm } from '@inquirer/prompts';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { unlinkSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join, basename } from 'path';
 import { config } from '../utils/config-manager.js';
@@ -381,12 +381,12 @@ async function handleDisplayLanguageChange() {
     if (confirmReinstall) {
       const cmdLocale = displayLanguageToLocale(newLang);
       if (hasSkillInstalls) {
-        const spinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
+        const spinner = createSpinner(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
         await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath, cmdLocale);
         spinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
       }
       if (hasCommandInstalls) {
-        const spinner = ora(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
+        const spinner = createSpinner(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
         await installCommandsToMultipleAgents(manifest.commands.installations, null, projectPath, cmdLocale);
         spinner.succeed(t('config.commandsReinstalled', 'Commands reinstalled'));
       }
@@ -401,7 +401,7 @@ async function handleDisplayLanguageChange() {
     });
 
     if (confirmRegen) {
-      const spinner = ora(t('config.applyingPreset', 'Applying...')).start();
+      const spinner = createSpinner(t('config.applyingPreset', 'Applying...')).start();
       regenerateIntegrations(projectPath, manifest);
       spinner.succeed(t('config.integrationsRegenerated', 'Integrations regenerated'));
     }
@@ -665,7 +665,7 @@ export async function runProjectConfiguration(options) {
       newAITools = newAITools.filter(tool => !result.tools.includes(tool));
 
       // Remove integration files for removed tools
-      const spinner = ora(msgObj.removingIntegrations).start();
+      const spinner = createSpinner(msgObj.removingIntegrations).start();
       for (const tool of result.tools) {
         const filePath = join(projectPath, getToolFilePath(tool));
         if (existsSync(filePath)) {
@@ -854,7 +854,7 @@ export async function runProjectConfiguration(options) {
   }
 
   // Apply changes
-  const spinner = ora(msgObj.updatingConfig).start();
+  const spinner = createSpinner(msgObj.updatingConfig).start();
 
   const results = {
     copied: [],
@@ -914,7 +914,7 @@ export async function runProjectConfiguration(options) {
 
   // Regenerate integration files if needed
   if (needsIntegrationRegeneration && newAITools.length > 0) {
-    const intSpinner = ora(msgObj.regeneratingIntegrations).start();
+    const intSpinner = createSpinner(msgObj.regeneratingIntegrations).start();
 
     // Build installed standards list
     // Raw, not basename()d. Resolution needs the registry (an ID is not a
@@ -989,7 +989,7 @@ export async function runProjectConfiguration(options) {
 
           if (confirmSkills) {
             const newInstallations = skillCapableTools.map(agent => ({ agent, level }));
-            const spinner = ora(t('config.installingSkillsForNewTools', 'Installing Skills for new tools...')).start();
+            const spinner = createSpinner(t('config.installingSkillsForNewTools', 'Installing Skills for new tools...')).start();
             const skillResult = await installSkillsToMultipleAgents(newInstallations, null, projectPath, cmdLocale);
             spinner.succeed(t('config.skillsInstalledForNewTools', 'Skills installed for new tools'));
 
@@ -1026,7 +1026,7 @@ export async function runProjectConfiguration(options) {
 
           if (confirmCmds) {
             const newCmdInstallations = commandCapableTools.map(agent => ({ agent, level }));
-            const spinner = ora(t('config.installingCommandsForNewTools', 'Installing Commands for new tools...')).start();
+            const spinner = createSpinner(t('config.installingCommandsForNewTools', 'Installing Commands for new tools...')).start();
             const cmdResult = await installCommandsToMultipleAgents(newCmdInstallations, null, projectPath, cmdLocale);
             spinner.succeed(t('config.commandsInstalledForNewTools', 'Commands installed for new tools'));
 
@@ -1124,7 +1124,7 @@ export async function runProjectConfiguration(options) {
 
     if (options.yes) {
       // --yes flag: auto-apply without prompting
-      const applySpinner = ora(msgObj.applyingChanges).start();
+      const applySpinner = createSpinner(msgObj.applyingChanges).start();
       const applyResults = regenerateIntegrations(projectPath, manifest);
       applySpinner.succeed(msgObj.changesApplied || msgObj.regeneratedIntegrations.replace('{count}', applyResults.updated.length));
 
@@ -1146,7 +1146,7 @@ export async function runProjectConfiguration(options) {
       });
 
       if (apply) {
-        const applySpinner = ora(msgObj.applyingChanges).start();
+        const applySpinner = createSpinner(msgObj.applyingChanges).start();
         const applyResults = regenerateIntegrations(projectPath, manifest);
         applySpinner.succeed(msgObj.changesApplied || msgObj.regeneratedIntegrations.replace('{count}', applyResults.updated.length));
 
@@ -1172,12 +1172,12 @@ export async function runProjectConfiguration(options) {
     if (hasSkillInstalls || hasCommandInstalls) {
       const cmdLocale = displayLanguageToLocale(newOptions.display_language);
       if (hasSkillInstalls) {
-        const skillSpinner = ora(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
+        const skillSpinner = createSpinner(t('config.reinstallingSkills', 'Reinstalling Skills...')).start();
         await installSkillsToMultipleAgents(manifest.skills.installations, null, projectPath, cmdLocale);
         skillSpinner.succeed(t('config.skillsReinstalled', 'Skills reinstalled'));
       }
       if (hasCommandInstalls) {
-        const cmdSpinner = ora(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
+        const cmdSpinner = createSpinner(t('config.reinstallingCommands', 'Reinstalling Commands...')).start();
         await installCommandsToMultipleAgents(manifest.commands.installations, null, projectPath, cmdLocale);
         cmdSpinner.succeed(t('config.commandsReinstalled', 'Commands reinstalled'));
       }
@@ -1222,7 +1222,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
 
     // Install to specified level (defaults to project)
     const installations = [{ agent: specificTool, level }];
-    const spinner = ora(`Installing Skills for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
+    const spinner = createSpinner(`Installing Skills for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
     const result = await installSkillsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
@@ -1359,7 +1359,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
     }));
 
     // Install Skills
-    const spinner = ora(msgObj.installingSkills || 'Installing Skills...').start();
+    const spinner = createSpinner(msgObj.installingSkills || 'Installing Skills...').start();
     const result = await installSkillsToMultipleAgents(installations, null, projectPath);
     spinner.stop();
 
@@ -1394,7 +1394,7 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
   }
 
   // Install Skills
-  const spinner = ora(msgObj.installingSkills || 'Installing Skills...').start();
+  const spinner = createSpinner(msgObj.installingSkills || 'Installing Skills...').start();
   const result = await installSkillsToMultipleAgents(installations, null, projectPath);
   spinner.stop();
 
@@ -1453,7 +1453,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
 
     // Install to selected level
     const installations = [{ agent: specificTool, level: commandsLevel }];
-    const spinner = ora(`Installing Commands for ${getAgentDisplayName(specificTool)} (${commandsLevel} level)...`).start();
+    const spinner = createSpinner(`Installing Commands for ${getAgentDisplayName(specificTool)} (${commandsLevel} level)...`).start();
     const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
     const result = await installCommandsToMultipleAgents(installations, null, projectPath, cmdLocale);
     spinner.stop();
@@ -1559,7 +1559,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
     }
 
     // Install Commands
-    const spinner = ora(msgObj.installingCommands || 'Installing Commands...').start();
+    const spinner = createSpinner(msgObj.installingCommands || 'Installing Commands...').start();
     const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
     const result = await installCommandsToMultipleAgents(declinedCommandsWithSupport, null, projectPath, cmdLocale);
     spinner.stop();
@@ -1595,7 +1595,7 @@ async function handleCommandsConfiguration(manifest, projectPath, msgObj, common
   }
 
   // Install Commands
-  const spinner = ora(msgObj.installingCommands || 'Installing Commands...').start();
+  const spinner = createSpinner(msgObj.installingCommands || 'Installing Commands...').start();
   const cmdLocale = displayLanguageToLocale(manifest.options?.display_language);
   const result = await installCommandsToMultipleAgents(selectedAgents, null, projectPath, cmdLocale);
   spinner.stop();

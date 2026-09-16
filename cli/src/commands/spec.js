@@ -9,7 +9,7 @@
  */
 
 import chalk from 'chalk';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { select, confirm as inquirerConfirm } from '@inquirer/prompts';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -48,7 +48,7 @@ export async function specCreateCommand(intent, options = {}) {
     output: options.output
   });
 
-  const spinner = ora({
+  const spinner = createSpinner({
     text: t('spec.generating', 'Generating micro-spec...'),
     color: 'cyan'
   }).start();

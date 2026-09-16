@@ -1,5 +1,5 @@
 import { select, checkbox, confirm as inquirerConfirm, Separator, input } from '@inquirer/prompts';
-import { existsSync, writeFileSync, readdirSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import chalk from 'chalk';
 import os from 'os';
@@ -1385,11 +1385,40 @@ export function suggestCommands(projectPath) {
   if (existsSync(p('Gemfile')))
     return { test: 'bundle exec rspec', lint: 'bundle exec rubocop', build: 'gem build *.gemspec', security: 'bundle audit' };
 
-  // C# — glob for .csproj / .sln
+  // C# — glob for .csproj / .sln.
+  //
+  // `.csproj` has named two incompatible build systems since 2017. An SDK-style
+  // project (`<Project Sdk="…">`, `<TargetFramework>`) builds with the `dotnet`
+  // CLI. An old-style one (`<TargetFrameworkVersion>`, no Sdk attribute) needs
+  // MSBuild and Visual Studio's targets, and handing it `dotnet build` produces
+  // `MSB4019: could not find Import project …Microsoft.WebApplication.targets`
+  // — reported 2026-09-16 from a .NET Framework 4.8 Web App, which also got
+  // `dotnet list package --vulnerable`, a command that silently reports nothing
+  // for a `packages.config` project because it only reads `PackageReference`.
+  //
+  // For the old style only `build` gets an answer. `dotnet format` requires an
+  // SDK-style project and there is no drop-in equivalent; test discovery
+  // depends on which runner the solution uses. The unknown-ecosystem branch
+  // below already returns blanks "so user fills them in", and a blank a human
+  // completes beats a command that looks authoritative and fails on first use.
   try {
     const files = readdirSync(projectPath);
-    if (files.some(f => f.endsWith('.csproj') || f.endsWith('.sln')))
-      return { test: 'dotnet test', lint: 'dotnet format --verify-no-changes', build: 'dotnet build', security: 'dotnet list package --vulnerable' };
+    const projectFiles = files.filter(f => f.endsWith('.csproj') || f.endsWith('.vbproj'));
+    if (projectFiles.length > 0 || files.some(f => f.endsWith('.sln'))) {
+      const oldStyle = projectFiles.some(f => {
+        try {
+          const xml = readFileSync(join(projectPath, f), 'utf-8');
+          if (/<Project[^>]*\sSdk\s*=/i.test(xml)) return false;
+          return /<TargetFrameworkVersion\s*>/i.test(xml);
+        } catch {
+          return false;
+        }
+      });
+
+      return oldStyle
+        ? { test: '', lint: '', build: 'msbuild /t:Build /p:Configuration=Release', security: '' }
+        : { test: 'dotnet test', lint: 'dotnet format --verify-no-changes', build: 'dotnet build', security: 'dotnet list package --vulnerable' };
+    }
   } catch {
     // ignore read errors
   }

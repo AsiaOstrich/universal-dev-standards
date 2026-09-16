@@ -13,7 +13,7 @@
  * @version 1.0.0
  */
 
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import chalk from 'chalk';
 import {
   installSkillsToMultipleAgents,
@@ -115,7 +115,7 @@ function getSkillFiles() {
 export async function installSkills(skillsConfig, projectPath, messages, results) {
   // Modern unified multi-agent installation
   if (skillsConfig.needsInstall && skillsConfig.skillsInstallations?.length > 0) {
-    const skillSpinner = ora(messages.installingSkills).start();
+    const skillSpinner = createSpinner(messages.installingSkills).start();
 
     // Use new unified installer for multi-agent support
     const installResult = await installSkillsToMultipleAgents(
@@ -186,7 +186,7 @@ export async function installSkills(skillsConfig, projectPath, messages, results
  * @returns {Promise<void>}
  */
 async function installSkillsLegacy(skillsConfig, projectPath, messages, results) {
-  const skillSpinner = ora(messages.installingSkills).start();
+  const skillSpinner = createSpinner(messages.installingSkills).start();
 
   const skillFiles = getSkillFiles();
   let successCount = 0;
@@ -255,7 +255,7 @@ export async function installCommands(skillsConfig, projectPath, messages, resul
     return;
   }
 
-  const cmdSpinner = ora(messages.installingCommands || 'Installing slash commands...').start();
+  const cmdSpinner = createSpinner(messages.installingCommands || 'Installing slash commands...').start();
 
   const cmdResult = await installCommandsToMultipleAgents(
     skillsConfig.commandsInstallations,

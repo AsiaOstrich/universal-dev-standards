@@ -1,4 +1,4 @@
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { copyIntegration } from '../utils/copier.js';
 import {
   writeIntegrationFile,
@@ -99,7 +99,7 @@ export async function installIntegrations(config, projectPath) {
   }
 
   // Start installation spinner
-  const intSpinner = ora(msg.generatingIntegrations).start();
+  const intSpinner = createSpinner(msg.generatingIntegrations).start();
 
   // Track generated files to handle AGENTS.md sharing (codex + opencode)
   const generatedFiles = new Set();
@@ -224,7 +224,7 @@ export async function generateClaudeMd(config, projectPath) {
     return { path: null, error: null };
   }
 
-  const claudeSpinner = ora(msg.generatingClaudeMd).start();
+  const claudeSpinner = createSpinner(msg.generatingClaudeMd).start();
 
   // Derive categories from installedStandards to avoid referencing non-installed standards
   const categories = installedStandards.length > 0
@@ -285,7 +285,7 @@ export async function generateUniversalAgentsMd(config, integrationResults, proj
   }
 
   const msg = t().commands.init;
-  const spinner = ora(msg.generatingAgentsMd || 'Generating AGENTS.md...').start();
+  const spinner = createSpinner(msg.generatingAgentsMd || 'Generating AGENTS.md...').start();
 
   const outputLanguage = config.outputLanguage || config.commitLanguage ||
     config.standardOptions?.output_language || config.standardOptions?.commit_language ||

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import ora from 'ora';
+import { createSpinner } from '../utils/spinner.js';
 import { basename, join } from 'path';
 import {
   getAllStandards,
@@ -75,7 +75,7 @@ export async function installStandards(config, projectPath) {
   };
 
   // Start copying standards
-  const copySpinner = ora(msg.copyingStandards).start();
+  const copySpinner = createSpinner(msg.copyingStandards).start();
 
   // Copy standards based on format
   const formatsToUse = config.format === 'both' ? ['ai', 'human'] : [config.format];
@@ -113,7 +113,7 @@ export async function installStandards(config, projectPath) {
   const localeExtension = (config.displayLanguage === 'zh-tw' || config.displayLanguage === 'zh-cn') ? config.displayLanguage : null;
 
   if (config.languages.length > 0 || config.frameworks.length > 0 || localeExtension) {
-    const extSpinner = ora(msg.copyingExtensions).start();
+    const extSpinner = createSpinner(msg.copyingExtensions).start();
 
     for (const lang of config.languages) {
       if (EXTENSION_MAPPINGS[lang]) {
