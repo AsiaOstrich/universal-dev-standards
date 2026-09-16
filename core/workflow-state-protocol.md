@@ -1,5 +1,13 @@
 # Workflow State Protocol
 
+<!-- UDS:REFERENCE-ONLY since=6.0.0 -->
+> **Reference only — UDS does not install this standard.** Its machine-readable
+> `.ai.yaml` was removed in 6.0.0; the document is kept here for the adoption
+> layer that implements it, and is **not distributed by `uds init` or
+> `uds update`**. The list this notice is checked against is
+> [`scripts/reference-only-standards.json`](../scripts/reference-only-standards.json);
+> the migration record is [`docs/MIGRATION-v6.md`](../docs/MIGRATION-v6.md) §2.
+
 **Version**: 1.0.0
 **Last Updated**: 2026-03-17
 **Applicability**: All projects using multi-phase AI workflows

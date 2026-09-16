@@ -25,6 +25,8 @@ status: current
 - **`uds check` 把已采用的标准报成索引中缺少。** id 对文件名的表只从 `source.ai` 建立，但部分 registry 条目的 `source` 是字符串——`zh-tw-locale` 是 `extensions/locales/zh-tw.md`——于是它安装出的 `.standards/zh-tw.md` 从未被认出，在明明列出该文件的集成文件上显示「67/68 项标准已引用，缺少：zh-tw-locale」。
 - **引用同步把选项文件报成孤儿，并建议 UDS 已不再发布的文件名。** 选项记在 `manifest.options` 而非 `manifest.standards`，于是每个 `.standards/options/*.ai.yaml` 引用都被报成「未在 manifest 中」；而「未引用的标准」清单来自一张手写的 6.0.0 之前文件名表（`git-workflow.md`、`error-code-standards.md`、`project-structure.md`）。现在选项会被认得，清单也只列出本项目实际持有的文件。
 - **`uds check` 把 `AGENTS.md` 列了两次。** Codex 与 OpenCode 共用同一份文件，而检查是逐工具而非逐文件进行。现在每个文件只报告一次，并标明共用它的工具。
+- **七条 `core/*.md` 标准自 6.0.0 起就没有被安装过，而它们一个字都没说（[#180](https://github.com/AsiaOstrich/universal-dev-standards/issues/180)）。** 它们的 `.ai.yaml` 在 6.0.0 被移除，文档则刻意留在 `core/` 作为采用层的参考——这个决定合理，也记在 `docs/MIGRATION-v6.md` §2 与 `scripts/reference-only-standards.json` 里，但**没有记在读者真正会遇到它的地方**。迁移指南在升级时读一次，`core/` 是持续被读的：走访它来回答「UDS 有哪些标准」的人或 agent 会数到 152 份，其中七份 `uds init` 从未安装过。七份现在都在开头带一段 `<!-- UDS:REFERENCE-ONLY -->` 告示，英文、繁中、简中三份都有，并指向迁移记录与那份机器可读清单。新闸门（`npm run check:reference-only`，已接进 CI 并附两臂自测）从 registry 里每一条 `source.human` 现算出货面，把它与 `core/*.md` 的差集当成 reference-only 集合，要求每一份都要披露——**反过来也要求正在出货的文档不得带着这段告示**，所以一条重新开始出货的标准不会留下一句谎话。用现算而不是比对那七个名字，是为了让下一次缩减范围不会重演同一种沉默。
+- **`--format human` 的安装把 `testing-standards.md` 挂在两个标准 id 下送出，而全覆盖那一份从来没送到。** `full-coverage-testing` 的 registry 条目把 `source.human` 指到 `core/testing-standards.md`，于是 `core/full-coverage-testing.md`——一条活着的标准，最近一次维护是 XSPEC-288——没有任何人装得到，而 human 格式的 manifest 里同一条路径出现两次。`check-registry-completeness.ts` 的 Check 2 看不到它：那支只要 human 或 ai 任一条路径出现在 registry 文字里就算通过，而 ai 那条在。由上面那支闸门首跑时抓到，是七份预期之外的第八份。修正前后各跑一次真正的 `uds init --format human` 验证。
 
 ## [6.9.0] - 2026-09-14
 

@@ -852,3 +852,39 @@ jobs:
 
       - name: Check bump/sync roundtrip
         run: npm run check:bump-roundtrip
+
+  # 「僅供參考」揭露：不出貨的 core/*.md 有沒有在自己的開頭說出這件事。
+  #
+  # 七份標準的 .ai.yaml 在 6.0.0 被移除，文件刻意留在 core/ 當參考——這個決定
+  # 合理，而它**只記在 docs/MIGRATION-v6.md §2**。遷移指南在升級時讀一次，
+  # core/ 是持續被讀的：走訪它來回答「UDS 有哪些標準」的人或 agent 會數到 152 份，
+  # 其中七份自 6.0.0 起從未被安裝過，而**檔案本身一個字都沒提**。
+  #
+  # 閘門**走訪並排除**而不是比對那七個名字：出貨面從 registry 的 source.human
+  # 現算，差集才是 reference-only 集合，手維護的清單反過來被它對帳。
+  # 首跑就找到第八份——core/full-coverage-testing.md 不是退役品，是一條活標準，
+  # 它的 registry 條目把 source.human 指到了 core/testing-standards.md，
+  # 於是 `--format human` 的採用端拿到兩份同樣的 testing-standards.md、
+  # 永遠拿不到全覆蓋那一份。check-registry-completeness 的 Check 2 看不到它，
+  # 因為那支只要 human 或 ai 任一條路徑出現在 registry 文字裡就算過。
+  reference-only-disclosure:
+    name: Reference-Only Disclosure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: npm ci
+
+      - name: Self-test arms
+        run: npm run check:reference-only:self-test
+
+      - name: Check reference-only disclosure
+        run: npm run check:reference-only

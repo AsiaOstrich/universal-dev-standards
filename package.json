@@ -64,7 +64,9 @@
     "check:canary:arms": "tsx scripts/check-canary-arms.ts",
     "check:install-paths": "tsx scripts/check-skills-install-paths.ts",
     "check:error-exit": "node scripts/check-error-exit.mjs",
-    "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test"
+    "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test",
+    "check:reference-only": "tsx scripts/check-reference-only-disclosure.ts",
+    "check:reference-only:self-test": "tsx scripts/check-reference-only-disclosure.ts --self-test"
   },
   "type": "module",
   "dependencies": {

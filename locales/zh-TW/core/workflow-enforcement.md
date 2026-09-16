@@ -8,6 +8,13 @@ status: current
 
 # 工作流程強制執行標準
 
+<!-- UDS:REFERENCE-ONLY since=6.0.0 -->
+> **僅供參考——UDS 不會安裝這條標準。** 它的機器可讀檔 `.ai.yaml` 已於 6.0.0 移除；
+> 本文件保留在此，供實作它的採用層參考，**不由 `uds init` 或 `uds update` 出貨**。
+> 本告示所對照的清單是
+> [`scripts/reference-only-standards.json`](../../../scripts/reference-only-standards.json)，
+> 遷移紀錄見 [`docs/MIGRATION-v6.md`](../../../docs/MIGRATION-v6.md) §2。
+
 **適用範圍**：所有使用結構化開發方法論的軟體專案
 **範圍**：通用
 

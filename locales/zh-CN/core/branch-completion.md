@@ -10,6 +10,13 @@ status: current
 
 # 分支完成工作流程
 
+<!-- UDS:REFERENCE-ONLY since=6.0.0 -->
+> **仅供参考——UDS 不会安装这条标准。** 它的机器可读文件 `.ai.yaml` 已于 6.0.0 移除；
+> 本文档保留在此，供实现它的采用层参考，**不由 `uds init` 或 `uds update` 发布**。
+> 本告示所对照的清单是
+> [`scripts/reference-only-standards.json`](../../../scripts/reference-only-standards.json)，
+> 迁移记录见 [`docs/MIGRATION-v6.md`](../../../docs/MIGRATION-v6.md) §2。
+
 **版本**: 1.0.0
 **最后更新**: 2026-03-20
 **适用范围**: 所有使用 Git 分支工作流的项目

@@ -1091,7 +1091,7 @@
       "name": "Full Coverage Testing Standards",
       "nameZh": "全覆蓋測試標準",
       "source": {
-        "human": "core/testing-standards.md",
+        "human": "core/full-coverage-testing.md",
         "ai": "ai/standards/full-coverage-testing.ai.yaml"
       },
       "category": "skill",
