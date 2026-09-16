@@ -25,19 +25,20 @@ jobs:
       - name: Run health score
         id: health
         run: |
-          cd cli
-          # 分數走 stderr，故必須合併 2>&1。但 `$(cmd || echo 0)` 在 cmd 失敗時是把 0
-          # **附加**在原輸出後面而非取代，SCORE 因而變成多行；多行值寫進 $GITHUB_OUTPUT
-          # 會以 `Invalid format '0'` 失敗——本 job 自 2026-06 起每週失敗的原因。
-          # 分開處理失敗路徑，並強制收斂成單一數字。
-          if ! RAW=$(node bin/uds.js audit --score --self --ci --threshold 0 2>&1); then
-            echo "audit 指令失敗，輸出如下："; echo "$RAW"
-            RAW=""
+          # 本 job 到 2026-09-16 為止仍每週失敗。前一輪修掉了多行 SCORE，剩下的根因
+          # 是**審的是錯的目錄**：這一步原本 `cd cli` 再 audit，而 cli/.gitignore 忽略
+          # .standards/——CI 的乾淨 checkout 裡那個目錄不存在，audit 回 error，而 --ci
+          # 模式只印一個 `0` 把錯誤訊息吃掉。本機看不到，因為本機 cli/.standards 是
+          # 早年留下的殘跡。標準在 repo 根目錄，就在根目錄審。
+          node cli/bin/uds.js audit --score --self --format json > health-report.json
+          ERR=$(node -e 'const r=require("./health-report.json"); if (r.error) console.log(r.error)')
+          if [ -n "$ERR" ]; then
+            echo "audit 失敗：$ERR"
+            exit 1
           fi
-          SCORE=$(printf '%s\n' "$RAW" | tail -n1 | tr -dc '0-9')
-          [ -n "$SCORE" ] || SCORE=0
+          SCORE=$(node -e 'console.log(require("./health-report.json").score)')
+          echo "Score: $SCORE"
           echo "score=$SCORE" >> "$GITHUB_OUTPUT"
-          node bin/uds.js audit --score --self --format json > ../health-report.json
 
       - name: Run dependency audit
         run: cd cli && npm audit --json > ../npm-audit.json 2>&1 || true
@@ -72,10 +73,30 @@ jobs:
               .map(([name, dim]) => `- **${name}**: ${dim.score}/100`)
               .join('\n');
 
-            await github.rest.issues.create({
+            const body = `## 自動偵測\n\n**Overall Score**: ${report.score}/100\n\n### 維度分數\n${dimLines}\n\n### 觸發原因\n${{ steps.check.outputs.reason }}\n\n---\n*此 Issue 由 scheduled-health workflow 自動建立*`;
+
+            // 每週開一張新的等於每週製造一張重複 issue，而重複的告警最後會被整批關掉。
+            // 已經有開著的就補一則留言。
+            const { data: open } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `⚠️ 標準健康分數下降: ${report.score}/100`,
-              body: `## 自動偵測\n\n**Overall Score**: ${report.score}/100\n\n### 維度分數\n${dimLines}\n\n### 觸發原因\n${{ steps.check.outputs.reason }}\n\n---\n*此 Issue 由 scheduled-health workflow 自動建立*`,
-              labels: ['auto-detected', 'standards-health']
+              state: 'open',
+              labels: 'standards-health'
             });
+
+            if (open.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: open[0].number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `⚠️ 標準健康分數下降: ${report.score}/100`,
+                body,
+                labels: ['auto-detected', 'standards-health']
+              });
+            }
