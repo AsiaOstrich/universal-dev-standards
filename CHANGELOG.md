@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.10.0] - 2026-09-16
+
 ### Fixed
 
 - **`uds update --apply` forgot every command it did not touch, and `uds check` called that intact.** A project with 51 OpenCode commands drifted three files; the plan listed those three, and after `--apply` the manifest held three `commandHashes` — the other 48 files stayed on disk with nothing tracking them. The same `uds check` run then printed "Commands: 51 installed" and "✓ All command files intact (3 files)", and tampering with one of the 48 changed neither line (measured 2026-09-16 in a clean temp project on 6.9.0). The reconciler deleted every hash key for an agent before merging the new ones, which is correct only when the installer reinstalled all of that agent's commands — `uds update`'s own call sites do, the plan path does not. It now merges, exactly as the skills path always did, and a planned deletion removes just that file's entry. `uds check` additionally lists installed command files that no hash covers, so the two numbers can no longer disagree in silence.
