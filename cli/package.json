@@ -72,12 +72,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@vitest/coverage-v8": "^4.1.11",
-    "eslint": "10.9.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "10.10.0",
     "globals": "17.11.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.3",
-    "vitest": "^4.1.11"
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
   },
   "lint-staged": {
     "src/**/*.js": [
