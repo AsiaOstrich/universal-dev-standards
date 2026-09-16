@@ -1151,19 +1151,37 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
   // After migrateStandardsPathsToIds(), manifest.standards contains IDs, so a plain
   // content.includes(id) check would fail for these mismatched entries.
   const allRegistryStds = getAllStandards();
-  const idToAiFilename = new Map(
-    allRegistryStds
-      .filter(s => s.source?.ai)
-      .map(s => [s.id, basename(s.source.ai)])
+  // 🔴 `source` is a string for some entries and an object for others. Reading
+  // `s.source.ai` on a string yields undefined, so `zh-tw-locale`
+  // (source: 'extensions/locales/zh-tw.md') fell out of this map and the file it
+  // installs — `.standards/zh-tw.md` — was never recognised: "67/68 項標準已參考,
+  // 缺少: zh-tw-locale" on a project whose index lists it (reported 2026-09-16).
+  const idToFilenames = new Map(
+    allRegistryStds.map(s => {
+      const sources = typeof s.source === 'string'
+        ? [s.source]
+        : [s.source?.ai, s.source?.human].filter(Boolean);
+      return [s.id, sources.map(src => basename(src))];
+    })
   );
 
   let hasIssues = false;
   let checkedCount = 0;
 
+  // codex and opencode both write AGENTS.md, so iterating tools printed the same
+  // file twice with identical verdicts (reported 2026-09-16). One file, one
+  // verdict — the tools that share it are named on the line instead.
+  const toolsByFile = new Map();
   for (const tool of manifest.aiTools) {
-    const toolFile = getToolFilePath(tool);
-    if (!toolFile) continue;
+    const file = getToolFilePath(tool);
+    if (!file) continue;
+    if (!toolsByFile.has(file)) toolsByFile.set(file, []);
+    toolsByFile.get(file).push(tool);
+  }
 
+  for (const [toolFile, sharingTools] of toolsByFile) {
+    const tool = sharingTools[0];
+    const sharedSuffix = sharingTools.length > 1 ? ` (${sharingTools.join(', ')})` : '';
     const fullPath = join(projectPath, toolFile);
 
     // Check if file exists
@@ -1201,9 +1219,9 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
       // migration. For standards where the ID doesn't match the .ai.yaml basename
       // (e.g. ID "error-code-standards" → file "error-codes.ai.yaml"), we must
       // also check the actual filename so those aren't falsely reported as missing.
-      const aiFilename = idToAiFilename.get(stdFile);
+      const filenames = idToFilenames.get(stdFile) || [];
       const isReferenced = content.includes(stdFile) ||
-        (aiFilename !== undefined && aiFilename !== stdFile && content.includes(aiFilename)) ||
+        filenames.some(name => name !== stdFile && content.includes(name)) ||
         content.includes(`.standards/${stdFile}`) ||
         content.includes(`standards/${stdFile}`);
 
@@ -1224,7 +1242,7 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
     const declaredCount = parseStandardsIndexCount(content);
     if (declaredCount !== null) {
       if (declaredCount === totalTrackable) {
-        console.log(chalk.green(`  ✓ ${toolFile}:`));
+        console.log(chalk.green(`  ✓ ${toolFile}${sharedSuffix}:`));
         console.log(chalk.gray(`    ${msg.standardsIndexPresent}`));
         console.log(chalk.gray(`    ${msg.standardsIndexCount
           ? msg.standardsIndexCount.replace('{count}', declaredCount)
@@ -1418,12 +1436,26 @@ function checkReferenceSync(manifest, projectPath, msg) {
 
   for (const { integrationPath, references } of results) {
     // Compare with manifest standards
-    const { orphanedRefs, missingRefs, syncedRefs } = compareStandardsWithReferences(
+    const { orphanedRefs, missingRefs, syncedRefs, danglingRefs } = compareStandardsWithReferences(
       manifest.standards,
-      references
+      references,
+      { projectPath, options: manifest.options }
     );
 
     // Report results
+    // 🔴 A reference to a file that is not on disk is the one failure an AI tool
+    // cannot work around: it follows the link and finds nothing. Reported before
+    // the manifest-level findings because it needs no interpretation.
+    if (danglingRefs.length > 0) {
+      hasIssues = true;
+      console.log(chalk.red(`  ✗ ${integrationPath}:`));
+      console.log(chalk.red(`    ${msg.danglingRefs || 'references files that do not exist:'}`));
+      for (const ref of danglingRefs) {
+        console.log(chalk.red(`      - .standards/${ref}`));
+      }
+      console.log(chalk.gray(`    ${msg.danglingRefsFix || 'Run `uds update --integrations-only` to regenerate them.'}`));
+    }
+
     if (orphanedRefs.length > 0) {
       hasIssues = true;
       console.log(chalk.yellow(`  ⚠ ${integrationPath}:`));
@@ -1442,14 +1474,21 @@ function checkReferenceSync(manifest, projectPath, msg) {
       }
     }
 
-    if (orphanedRefs.length === 0 && missingRefs.length === 0) {
+    if (orphanedRefs.length === 0 && missingRefs.length === 0 && danglingRefs.length === 0) {
       console.log(chalk.green(`  ✓ ${msg.refsInSync.replace('{path}', integrationPath).replace('{count}', syncedRefs.length)}`));
     }
   }
 
   if (hasIssues) {
     console.log();
-    console.log(chalk.yellow(`  ${msg.runSyncRefs}`));
+    // `uds update --sync-refs` refuses to run without `integrationConfigs`, and a
+    // project initialised non-interactively never had that key — so this hint
+    // named a command that could not work (reproduced on a clean 6.9.0 project,
+    // 2026-09-16). Name the one that regenerates from the manifest instead.
+    const canSyncRefs = manifest.integrationConfigs && Object.keys(manifest.integrationConfigs).length > 0;
+    console.log(chalk.yellow(`  ${canSyncRefs
+      ? msg.runSyncRefs
+      : (msg.runIntegrationsOnly || 'Run `uds update --integrations-only` to regenerate integration files.')}`));
   }
 
   console.log();
@@ -1582,17 +1621,17 @@ function checkSkillsIntegrity(manifest, projectPath, msg) {
  * @param {Object} msg - Localized messages
  * @returns {Object} Status { unchanged: [], modified: [], missing: [] }
  */
-function checkCommandsIntegrity(manifest, projectPath, msg) {
+export function checkCommandsIntegrity(manifest, projectPath, msg) {
   const commandHashes = manifest.commandHashes;
 
   // Skip if no command hashes tracked
   if (!commandHashes || Object.keys(commandHashes).length === 0) {
-    return { unchanged: [], modified: [], missing: [], tracked: false };
+    return { unchanged: [], modified: [], missing: [], untracked: [], tracked: false };
   }
 
   console.log(chalk.cyan(msg.commandsIntegrityCheck || 'Commands File Integrity'));
 
-  const status = { unchanged: [], modified: [], missing: [], tracked: true };
+  const status = { unchanged: [], modified: [], missing: [], untracked: [], tracked: true };
 
   for (const [hashKey, hashInfo] of Object.entries(commandHashes)) {
     // Parse key format: agent/filename.md
@@ -1632,8 +1671,42 @@ function checkCommandsIntegrity(manifest, projectPath, msg) {
     }
   }
 
+  // 🔴 The loop above measures only what the manifest happens to track. When a
+  // partial apply dropped 48 of 51 entries (6.9.0, fixed in plan-executor.js),
+  // this section printed "All command files intact (3 files)" while the adoption
+  // summary printed "Commands: 51 installed" from a directory listing — two
+  // numbers, two sources, never compared, so the gap read as a pass.
+  const trackedKeys = new Set(Object.keys(commandHashes));
+  const agentsToScan = new Set(Object.keys(commandHashes).map(k => k.split('/')[0]));
+  for (const entry of manifest.commands?.installations || []) {
+    const agentName = typeof entry === 'string' ? entry : entry?.agent;
+    if (agentName) agentsToScan.add(agentName);
+  }
+  for (const agentName of agentsToScan) {
+    // Reuse the installer's own listing so this file filter cannot drift from it.
+    const info = getInstalledCommandsForAgent(agentName, 'project', projectPath);
+    if (!info?.installed) continue;
+    const ext = agentName === 'gemini-cli' ? '.toml' : '.md';
+    for (const name of info.commands || []) {
+      const key = `${agentName}/${name}${ext}`;
+      if (!trackedKeys.has(key)) status.untracked.push(key);
+    }
+  }
+  if (status.untracked.length > 0) {
+    console.log(chalk.yellow(`  ⚠ ${(msg.commandsUntracked || '{count} installed command file(s) are covered by no hash — integrity is not checked for them')
+      .replace('{count}', status.untracked.length)}`));
+    for (const key of status.untracked.slice(0, 5)) {
+      console.log(chalk.yellow(`      - ${key}`));
+    }
+    if (status.untracked.length > 5) {
+      console.log(chalk.yellow(`      … +${status.untracked.length - 5}`));
+    }
+    console.log(chalk.gray(`  ${msg.commandsUntrackedFix || 'Run `uds update --commands` to record them again.'}`));
+  }
+
+
   // Summary
-  if (status.modified.length === 0 && status.missing.length === 0) {
+  if (status.modified.length === 0 && status.missing.length === 0 && status.untracked.length === 0) {
     console.log(chalk.green(`  ✓ ${msg.allCommandsIntact || 'All command files intact'} (${status.unchanged.length} files)`));
   } else {
     console.log(chalk.gray(`  ${(msg.commandsIntegritySummary || '{unchanged} unchanged, {modified} modified, {missing} missing')

@@ -1,3 +1,6 @@
+import { existsSync } from 'fs';
+import { join } from 'path';
+
 /**
  * Reference Sync Utilities
  *
@@ -176,7 +179,27 @@ function categoryForStandard(pathOrName) {
  *   - missingRefs: Standards in manifest but not referenced in integration file
  *   - syncedRefs: Standards that are properly synced
  */
-export function compareStandardsWithReferences(manifestStandards, integrationReferences) {
+export function compareStandardsWithReferences(manifestStandards, integrationReferences, context = {}) {
+  const { projectPath = null, options = {} } = context;
+
+  // 🔴 Existence is a separate question from adoption, and only one of the two
+  // was ever asked. `.standards/anti-hallucination.md` passed as "synced"
+  // because the manifest adopts `anti-hallucination` — while the project holds
+  // `anti-hallucination.ai.yaml` and the `.md` file is not on disk at all
+  // (reproduced on 6.9.0, 2026-09-16). An adopter's AI tool follows that link
+  // and finds nothing. Without a projectPath there is no disk to ask, so the
+  // list stays empty rather than guessing.
+  const danglingRefs = projectPath
+    ? integrationReferences.filter(ref => !existsSync(join(projectPath, '.standards', ref)))
+    : [];
+
+  // Options are adopted in `manifest.options`, not `manifest.standards`, so
+  // every `.standards/options/...` reference was reported as "not in manifest".
+  const optionStems = new Set(
+    Object.values(options || {})
+      .filter(v => typeof v === 'string')
+      .map(v => standardStem(v))
+  );
   // The manifest is the source of truth for what this project adopted, so ask
   // it directly. The category map below is a hand-written table covering a
   // small fraction of the standards UDS ships (compare its size against
@@ -207,6 +230,10 @@ export function compareStandardsWithReferences(manifestStandards, integrationRef
   // stem (extension- and directory-insensitive) or by legacy category name.
   const orphanedRefs = integrationReferences.filter(ref => {
     if (manifestStems.has(standardStem(ref))) return false;
+    if (optionStems.has(standardStem(ref))) return false;
+    // An option file that is on disk is adopted by definition — it got there
+    // because this project selected it.
+    if (ref.startsWith('options/') && projectPath && existsSync(join(projectPath, '.standards', ref))) return false;
     const category = categoryForStandard(ref);
     return !category || !manifestCategories.has(category);
   });
@@ -221,15 +248,34 @@ export function compareStandardsWithReferences(manifestStandards, integrationRef
   }
   const missingCategories = [...manifestCategories].filter(cat => !refCategories.has(cat));
   // Convert missing categories back to representative filenames for reporting
-  const missingRefs = missingCategories.flatMap(cat => {
-    const paths = CATEGORY_TO_STANDARDS[cat] || [];
-    return paths.map(p => p.split('/').pop());
-  });
+  // 🔴 `CATEGORY_TO_STANDARDS` is a hand-written table of pre-6.0.0 filenames,
+  // so this list named files UDS has not shipped for two majors
+  // (`git-workflow.md`, `error-code-standards.md`, `project-structure.md`).
+  // Report only what this project actually holds. With no projectPath there is
+  // no disk to ask, so the legacy names stand — callers that pass one get the
+  // filtered list.
+  const missingRefs = !projectPath
+    ? missingCategories.flatMap(cat => (CATEGORY_TO_STANDARDS[cat] || []).map(p => p.split('/').pop()))
+    : missingCategories.flatMap(cat => {
+      const paths = CATEGORY_TO_STANDARDS[cat] || [];
+      return paths
+        .map(p => p.split('/').pop())
+        .map(name => {
+          const stem = standardStem(name);
+          for (const candidate of [`${stem}.ai.yaml`, `${stem}.md`]) {
+            if (existsSync(join(projectPath, '.standards', candidate))) return candidate;
+          }
+          return null;
+        })
+        .filter(Boolean);
+    });
 
   // Properly synced references
-  const syncedRefs = integrationReferences.filter(ref => !orphanedRefs.includes(ref));
+  const syncedRefs = integrationReferences.filter(
+    ref => !orphanedRefs.includes(ref) && !danglingRefs.includes(ref)
+  );
 
-  return { orphanedRefs, missingRefs, syncedRefs };
+  return { orphanedRefs, missingRefs, syncedRefs, danglingRefs };
 }
 
 /**

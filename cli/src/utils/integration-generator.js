@@ -3,7 +3,7 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
-import { resolveSelectedOptionSources, resolveStandardFilename } from './registry.js';
+import { resolveSelectedOptionSources, resolveStandardFilename, getAllStandards } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
 
 /**
@@ -2736,6 +2736,86 @@ function generateWorkflowGateContent(language) {
  * @param {Object} config - Integration configuration
  * @returns {string} Generated content
  */
+/**
+ * Point every `.standards/<file>` reference at the file this project actually has.
+ *
+ * `RULE_TEMPLATES` spells its references as `.standards/<name>.md` because that
+ * is what UDS shipped when they were written. A project installed with
+ * `--format ai` holds `<name>.ai.yaml`, so those lines named files that are not
+ * there — reproduced on 6.9.0 (2026-09-16): a clean `--format ai` project got
+ * `.standards/anti-hallucination.md` and `.standards/checkin-standards.md`, and
+ * `uds check` called the file in sync because it compared names with the
+ * extension stripped and never asked whether the file existed.
+ *
+ * Rewrites by stem against the installed set; a reference whose standard this
+ * project did not install is dropped rather than left dangling, and if that
+ * empties the line, the line goes too.
+ *
+ * @param {string} content - Generated integration content
+ * @param {string[]} installedStandards - Manifest standards (IDs or paths)
+ * @param {string} standardsFormat - 'ai' | 'human'
+ * @returns {string}
+ */
+function resolveStandardReferences(content, installedStandards = [], standardsFormat = 'ai', projectPath = null) {
+  if (!content) return content;
+
+  const stemOf = (value) => basename(String(value)).replace(/\.(ai\.yaml|yaml|md)$/i, '');
+  // Every stem UDS itself ships — the only references this function may delete.
+  //
+  // Read defensively: this runs inside pure content generation, and callers
+  // (including this repo's own tests) may have the registry or `fs` mocked. A
+  // registry that cannot be read means "delete nothing", which degrades to
+  // rewriting matched paths only — never to removing a line.
+  const udsOwnedStems = new Set();
+  try {
+    for (const std of getAllStandards()) {
+      if (std?.id) udsOwnedStems.add(stemOf(std.id));
+      const sources = typeof std?.source === 'string'
+        ? [std.source]
+        : [std?.source?.ai, std?.source?.human].filter(Boolean);
+      for (const src of sources) udsOwnedStems.add(stemOf(src));
+    }
+  } catch {
+    // Registry unavailable — keep every reference that does not match.
+  }
+
+  const installedByStem = new Map();
+  for (const entry of installedStandards) {
+    const filename = resolveStandardFilename(entry, standardsFormat) || basename(String(entry));
+    installedByStem.set(stemOf(entry), filename);
+    installedByStem.set(stemOf(filename), filename);
+  }
+
+  const referenceLine = /^([^\n]*(?:Reference|參考|参考)[:：])([^\n]*)$/gim;
+  return content.replace(referenceLine, (line, label, rest) => {
+    let dropped = 0;
+    let kept = 0;
+    const rewritten = rest.replace(/(\.standards\/)([^\s,`)\]]+)/g, (match, prefix, path) => {
+      // Option files live in `.standards/options/…` and are named by path, not ID.
+      if (path.startsWith('options/')) { kept++; return match; }
+      const actual = installedByStem.get(stemOf(path));
+      if (actual) { kept++; return `${prefix}${actual}`; }
+
+      // 🔴 Only UDS's own standards may be dropped. The first version of this
+      // rewrite removed every unmatched reference, which deleted a project's own
+      // `.standards/our-house-rule.md` line — a file it had put there on purpose.
+      // Removing a user's line is worse than the dead link this exists to fix.
+      let onDisk = false;
+      try {
+        onDisk = Boolean(projectPath) && existsSync(join(projectPath, '.standards', path));
+      } catch {
+        onDisk = false;
+      }
+      if (onDisk || !udsOwnedStems.has(stemOf(path))) { kept++; return match; }
+      dropped++;
+      return '';
+    });
+    if (kept === 0 && dropped > 0) return '';
+    // Tidy the separators left behind by a dropped path.
+    return `${label}${rewritten.replace(/,\s*,/g, ',').replace(/[:：]?\s*,\s*$/, '').replace(/\s+,/g, ',')}`;
+  }).replace(/\n{3,}/g, '\n\n');
+}
+
 export function generateIntegrationContent(config) {
   const {
     tool,
@@ -2890,7 +2970,8 @@ export function generateIntegrationContent(config) {
     sections.push('\n');
   }
 
-  return sections.join('\n').trim() + '\n';
+  const assembled = sections.join('\n').trim() + '\n';
+  return resolveStandardReferences(assembled, installedStandards, standardsFormat, config.projectPath || null);
 }
 
 /**
@@ -2972,6 +3053,19 @@ export function writeIntegrationFile(tool, config, projectPath) {
         // If new content has no markers, overwrite entirely (backward compat)
       }
     }
+
+    // 🔴 The rule sections live OUTSIDE the markers, so a marker-based update
+    // never refreshes them: a file first written by an older CLI kept
+    // `.standards/commit-message-guide.md` for ever, and a regenerate on the
+    // fixed generator still left it (measured 2026-09-16). Repoint stale
+    // `.standards/` paths across the whole file — it touches nothing but the
+    // paths, and a path to a file that is not there helps no reader.
+    content = resolveStandardReferences(
+      content,
+      config.installedStandards || [],
+      config.standardsFormat || 'ai',
+      projectPath
+    );
 
     writeFileSync(filePath, content);
 

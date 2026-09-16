@@ -437,6 +437,22 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
 }
 
 /**
+ * Hash-map key for a command action: `<agent>/<file>`.
+ *
+ * `commandHashes` is keyed by agent and filename; a plan action carries a
+ * project-relative path (`.opencode/command/atdd.md`). Deleting by the wrong key
+ * leaves the entry behind and the next `check` reports the file missing.
+ */
+function commandHashKey(action) {
+  const meta = action.details?.metadata;
+  if (meta?.agent && meta?.commandName) return `${meta.agent}/${meta.commandName}.md`;
+  const parts = action.path.split('/').filter(Boolean);
+  const agent = parts[0] ? parts[0].replace(/^\./, '') : null;
+  const file = parts[parts.length - 1];
+  return agent && file ? `${agent}/${file}` : action.path;
+}
+
+/**
  * Batch execute command installations.
  */
 async function executeCommandBatch(projectPath, commandActions, manifest) {
@@ -452,6 +468,9 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
       if (existsSync(targetPath)) {
         rmSync(targetPath, { recursive: true, force: true });
       }
+      // A deleted file must also lose its hash entry, or the next check calls
+      // it missing for good.
+      delete manifest.commandHashes[commandHashKey(action)];
       results.push({ action, success: true });
     } catch (err) {
       results.push({ action, success: false, error: err.message });
@@ -475,17 +494,18 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
         );
 
         if (installResult.allFileHashes) {
-          // Clean up stale entries for agents being updated before merging
-          const updatedPrefixes = new Set(
-            Object.keys(installResult.allFileHashes).map(k => k.split('/')[0])
-          );
-          for (const prefix of updatedPrefixes) {
-            for (const key of Object.keys(manifest.commandHashes)) {
-              if (key.startsWith(prefix + '/')) {
-                delete manifest.commandHashes[key];
-              }
-            }
-          }
+          // Merge, exactly as the skill path above does.
+          //
+          // 🔴 This used to delete every key whose prefix matched an agent in the
+          // result before merging. That is correct only when the installer
+          // reinstalled ALL of that agent's commands — which `uds update`'s own
+          // call sites do (they pass `commandNames = null`). Here the plan names a
+          // subset, so the wipe threw away the entry for every command the plan did
+          // not mention. Measured on 6.9.0 (2026-09-16): a three-file drift turned
+          // 51 tracked commands into 3, the other 48 stayed on disk untracked, and
+          // `uds check` printed "All command files intact (3 files)" in the same run
+          // as "Commands: 51 installed" — tampering with one of the 48 changed
+          // neither line.
           Object.assign(manifest.commandHashes, installResult.allFileHashes);
         }
 

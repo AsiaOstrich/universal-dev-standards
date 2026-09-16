@@ -56,7 +56,7 @@ import {
 } from '../reconciler/index.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
-import { resolveIntegrationFile } from '../core/constants.js';
+import { resolveIntegrationFile, SUPPORTED_AI_TOOLS } from '../core/constants.js';
 import {
   mergeInstalledNames,
   recordFileProvenance,
@@ -1841,6 +1841,59 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
 }
 
 /**
+ * Rebuild `manifest.integrationConfigs` from what the manifest already records.
+ *
+ * 🔴 Only `uds init`'s interactive flow and `--sync-refs` itself ever wrote this
+ * key; no update or reconcile path backfills it, so a project created with
+ * `uds init -y` carries `{}` from the first day (reproduced on a clean 6.9.0
+ * project, 2026-09-16). `--sync-refs` then refuses to run — and `uds check` was
+ * recommending exactly that command. Everything the config holds is derivable
+ * from the manifest, so derive it instead of demanding the user re-init.
+ *
+ * Existing entries are never overwritten: they may hold choices (categories,
+ * content mode) that this derivation cannot know.
+ *
+ * @param {Object} manifest - Manifest object (mutated)
+ * @returns {number} How many entries were added
+ */
+export function backfillIntegrationConfigs(manifest) {
+  if (!manifest.integrationConfigs) manifest.integrationConfigs = {};
+
+  const tools = manifest.aiTools?.length ? manifest.aiTools : [];
+  const byFile = new Map();
+  for (const tool of tools) {
+    const file = resolveIntegrationFile(tool) || getToolFilePath(tool);
+    if (file && !byFile.has(file)) byFile.set(file, tool);
+  }
+  // Integrations can be recorded as file names (`CLAUDE.md`) or tool keys.
+  for (const entry of manifest.integrations || []) {
+    const file = resolveIntegrationFile(entry) || (String(entry).includes('.') ? String(entry) : null);
+    if (!file) continue;
+    if (!byFile.has(file)) {
+      const tool = getToolFromPath(file) || resolveToolKeyFromEntry(entry);
+      if (tool) byFile.set(file, tool);
+    }
+  }
+
+  let added = 0;
+  for (const [file, tool] of byFile) {
+    if (manifest.integrationConfigs[file]) continue;
+    manifest.integrationConfigs[file] = {
+      ...buildToolIntegrationConfig(manifest, tool),
+      format: manifest.format || 'ai',
+      backfilledAt: new Date().toISOString()
+    };
+    added++;
+  }
+  return added;
+}
+
+function resolveToolKeyFromEntry(entry) {
+  const key = String(entry).replace(/\.[^.]+$/, '').toLowerCase();
+  return SUPPORTED_AI_TOOLS?.[key] ? key : null;
+}
+
+/**
  * Sync integration file references based on manifest standards
  * @param {string} projectPath - Project path
  * @param {Object} manifest - Manifest object
@@ -1850,6 +1903,16 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
 
   console.log(chalk.cyan(msg.syncingRefs));
   console.log();
+
+  // Rebuild the config when it is absent rather than sending the user away —
+  // the manifest holds everything it is derived from.
+  if (!manifest.integrationConfigs || Object.keys(manifest.integrationConfigs).length === 0) {
+    const filled = backfillIntegrationConfigs(manifest);
+    if (filled > 0) {
+      console.log(chalk.gray(`  ${(msg.integrationConfigsBackfilled || 'Rebuilt integration config for {count} file(s) from the manifest.').replace('{count}', filled)}`));
+      console.log();
+    }
+  }
 
   // Check if integrationConfigs exists
   if (!manifest.integrationConfigs || Object.keys(manifest.integrationConfigs).length === 0) {

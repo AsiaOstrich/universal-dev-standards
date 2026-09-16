@@ -17,6 +17,15 @@ status: current
 
 ## [Unreleased]
 
+### 修复
+
+- **`uds update --apply` 会忘掉它没有动到的每一个斜杠命令，而 `uds check` 说一切完整。** 一个装有 51 个 OpenCode 命令的项目，三个文件内容漂移：plan 列出那三个，`--apply` 之后 manifest 只剩三条 `commandHashes`——另外 48 个文件仍在磁盘上，却没有任何东西在跟踪它们。同一次 `uds check` 同时打印「Commands: 51 installed」与「✓ All command files intact (3 files)」，而篡改那 48 个之一，两行都不会变（2026-09-16 于干净临时项目在 6.9.0 上实测）。reconciler 在合并新哈希前，会先删掉该工具的所有哈希键——只有在安装器重装了该工具全部命令时才正确，`uds update` 自己的调用点如此，plan 这条路不是。现在改为合并，与 skills 路径一贯的做法相同；plan 标记删除时，只移除该文件那一条。`uds check` 另外列出磁盘上没有任何哈希覆盖的命令文件，两个数字不再能各说各话。
+- **集成文件指向磁盘上不存在的标准，而引用检查说它们同步。** 以 `--format ai` 安装的项目，`uds update --integrations-only` 写出 `Reference: .standards/anti-hallucination.md` 与 `.standards/checkin-standards.md`，这两个文件只存在于 `human` 格式。规则模板一律以 `.md` 书写引用路径，不看实际安装格式；而规则段落位于 UDS 标记之外，标记式更新从不刷新它们——由旧版 CLI 首次写出的文件，在该文件停止发布两个主版本之后，仍留着 `.standards/commit-message-guide.md`。现在无论生成新文件还是更新既有文件，引用路径都会对照本项目实际安装的标准与格式解析；指向未采用标准的引用会被移除，而不是留成死链接。`uds check` 改为报告「文件不存在」的引用，而不是以去掉扩展名的名称比对。只有 UDS 自己发布的标准会被移除：项目自行放进 `.standards/` 的文件，其引用原样保留。
+- **`uds check` 建议执行 `uds update --sync-refs`，而它跑不起来。** manifest 没有 `integrationConfigs` 时 `--sync-refs` 直接中止，而这个键只有 `uds init` 的交互流程会写入——以 `uds init -y` 创建的项目从第一天起就是 `{}`，所以一个全新的 6.9.0 项目，已经处在那段错误信息归咎于「旧版本、手动复制」的状态。`--sync-refs` 现在会从 manifest（integrations、AI 工具、标准、选项）重建配置，而不是拒绝执行；`uds check` 只在它确实可执行时才提它，否则改指 `uds update --integrations-only`。
+- **`uds check` 把已采用的标准报成索引中缺少。** id 对文件名的表只从 `source.ai` 建立，但部分 registry 条目的 `source` 是字符串——`zh-tw-locale` 是 `extensions/locales/zh-tw.md`——于是它安装出的 `.standards/zh-tw.md` 从未被认出，在明明列出该文件的集成文件上显示「67/68 项标准已引用，缺少：zh-tw-locale」。
+- **引用同步把选项文件报成孤儿，并建议 UDS 已不再发布的文件名。** 选项记在 `manifest.options` 而非 `manifest.standards`，于是每个 `.standards/options/*.ai.yaml` 引用都被报成「未在 manifest 中」；而「未引用的标准」清单来自一张手写的 6.0.0 之前文件名表（`git-workflow.md`、`error-code-standards.md`、`project-structure.md`）。现在选项会被认得，清单也只列出本项目实际持有的文件。
+- **`uds check` 把 `AGENTS.md` 列了两次。** Codex 与 OpenCode 共用同一份文件，而检查是逐工具而非逐文件进行。现在每个文件只报告一次，并标明共用它的工具。
+
 ## [6.9.0] - 2026-09-14
 
 ### 采用者升级注意

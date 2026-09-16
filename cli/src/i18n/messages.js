@@ -841,6 +841,11 @@ export const messages = {
         refsInSync: '{path}: references in sync ({count} refs)',
         noIntegrationRefs: 'No integration files with standard references found.',
         runSyncRefs: 'Run `uds update --sync-refs` to fix reference issues.',
+        runIntegrationsOnly: 'Run `uds update --integrations-only` to regenerate integration files.',
+        danglingRefs: 'references files that are not on disk:',
+        danglingRefsFix: 'Run `uds update --integrations-only` to regenerate them.',
+        commandsUntracked: '{count} installed command file(s) are covered by no hash — integrity is not checked for them',
+        commandsUntrackedFix: 'Run `uds update --commands` to record them again.',
         // CLI update
         checkingCliUpdates: 'Checking for CLI updates...',
         couldNotCheckUpdates: 'ℹ Could not check for CLI updates (offline mode)',
@@ -1047,6 +1052,7 @@ export const messages = {
         // Sync refs
         syncingRefs: 'Syncing integration references...',
         noIntegrationConfigs: '⚠ No integration configurations found in manifest.',
+        integrationConfigsBackfilled: 'Rebuilt integration config for {count} file(s) from the manifest.',
         integrationConfigsRequired: 'Integration configs are required for reference sync.',
         thisHappensWhen: 'This happens when:',
         oldVersion: '- The project was initialized with an older version of UDS',
@@ -2069,6 +2075,11 @@ export const messages = {
         refsInSync: '{path}：參考已同步（{count} 個參考）',
         noIntegrationRefs: '找不到有標準參考的整合檔案。',
         runSyncRefs: '執行 `uds update --sync-refs` 修復參考問題。',
+        runIntegrationsOnly: '執行 `uds update --integrations-only` 重新產生整合檔案。',
+        danglingRefs: '引用了磁碟上不存在的檔案：',
+        danglingRefsFix: '執行 `uds update --integrations-only` 重新產生。',
+        commandsUntracked: '{count} 個已安裝的斜線命令沒有任何雜湊涵蓋——這些檔案的完整性沒有被檢查',
+        commandsUntrackedFix: '執行 `uds update --commands` 重新記錄。',
         // CLI update
         checkingCliUpdates: '正在檢查 CLI 更新...',
         couldNotCheckUpdates: 'ℹ 無法檢查 CLI 更新（離線模式）',
@@ -2272,6 +2283,7 @@ export const messages = {
         // Sync refs
         syncingRefs: '同步整合參考中...',
         noIntegrationConfigs: '⚠ manifest 中找不到整合設定。',
+        integrationConfigsBackfilled: '已從 manifest 重建 {count} 個整合檔的設定。',
         integrationConfigsRequired: '參考同步需要整合設定。',
         thisHappensWhen: '這會發生在：',
         oldVersion: '- 專案使用較舊版本的 UDS 初始化',
@@ -3309,6 +3321,11 @@ export const messages = {
         refsInSync: '{path}：引用已同步（{count} 个引用）',
         noIntegrationRefs: '未找到包含标准引用的集成文件。',
         runSyncRefs: '执行 `uds update --sync-refs` 修复引用问题。',
+        runIntegrationsOnly: '执行 `uds update --integrations-only` 重新生成集成文件。',
+        danglingRefs: '引用了磁盘上不存在的文件：',
+        danglingRefsFix: '执行 `uds update --integrations-only` 重新生成。',
+        commandsUntracked: '{count} 个已安装的斜杠命令没有任何哈希覆盖——这些文件的完整性没有被检查',
+        commandsUntrackedFix: '执行 `uds update --commands` 重新记录。',
         // CLI update
         checkingCliUpdates: '检查 CLI 更新...',
         couldNotCheckUpdates: 'ℹ 无法检查 CLI 更新（离线模式）',
@@ -3425,6 +3442,7 @@ export const messages = {
         // Sync refs
         syncingRefs: '正在同步集成引用...',
         noIntegrationConfigs: '⚠ manifest 中未找到集成配置。',
+        integrationConfigsBackfilled: '已从 manifest 重建 {count} 个集成文件的配置。',
         integrationConfigsRequired: '引用同步需要集成配置。',
         thisHappensWhen: '发生这种情况时：',
         oldVersion: '- 项目使用旧版 UDS 初始化',

@@ -17,6 +17,16 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **`uds update --apply` 會忘掉它沒有動到的每一個斜線命令，而 `uds check` 說一切完整。** 一個裝有 51 個 OpenCode 命令的專案，三個檔案內容漂移：plan 列出那三個，`--apply` 之後 manifest 只剩三筆 `commandHashes`——另外 48 個檔案仍在磁碟上，卻沒有任何東西在追蹤它們。同一次 `uds check` 同時印出「Commands: 51 installed」與「✓ All command files intact (3 files)」，而竄改那 48 個之一，兩行都不會變（2026-09-16 於乾淨暫存專案在 6.9.0 上實測）。reconciler 在合併新雜湊前，會先刪掉該工具的所有雜湊鍵——只有在安裝器重裝了該工具全部命令時才正確，`uds update` 自己的呼叫點是如此，plan 這條路不是。現在改為合併，與 skills 路徑一直以來的做法相同；plan 標記刪除時，只移除該檔案那一筆。`uds check` 另外列出磁碟上沒有任何雜湊涵蓋的命令檔，兩個數字不再能各說各話。
+- **整合檔指向磁碟上不存在的標準，而參考檢查說它們同步。** 以 `--format ai` 安裝的專案，`uds update --integrations-only` 寫出 `Reference: .standards/anti-hallucination.md` 與 `.standards/checkin-standards.md`，這兩個檔案只存在於 `human` 格式。規則模板一律以 `.md` 書寫參考路徑，不看實際安裝格式；而規則段落位於 UDS 標記之外，標記式更新從不刷新它們——由舊版 CLI 首次寫出的檔案，在該檔案停止出貨兩個主版本之後，仍留著 `.standards/commit-message-guide.md`。現在無論是產生新檔或更新既有檔案，參考路徑都會對照這個專案實際安裝的標準與格式解析；指向未採用標準的參考會被移除，而不是留成死連結。`uds check` 改為回報「檔案不存在」的參考，而不是以去掉副檔名的名稱比對。只有 UDS 自己出貨的標準會被移除：專案自行放進 `.standards/` 的檔案，其參考原字不動。
+- **`uds check` 建議執行 `uds update --sync-refs`，而它跑不起來。** manifest 沒有 `integrationConfigs` 時 `--sync-refs` 直接中止，而這個鍵只有 `uds init` 的互動流程會寫入——以 `uds init -y` 建立的專案從第一天起就是 `{}`，所以一個全新的 6.9.0 專案，已經處在那段錯誤訊息歸咎於「舊版本、手動複製」的狀態。`--sync-refs` 現在會從 manifest（integrations、AI 工具、標準、選項）重建設定，而不是拒絕執行；`uds check` 只在它確實可執行時才提它，否則改指 `uds update --integrations-only`。
+- **`uds check` 把已採用的標準報成索引中缺少。** id 對檔名的表只從 `source.ai` 建立，但部分 registry 條目的 `source` 是字串——`zh-tw-locale` 是 `extensions/locales/zh-tw.md`——於是它安裝出的 `.standards/zh-tw.md` 從未被認出，在明明列出該檔的整合檔上顯示「67/68 項標準已參考，缺少：zh-tw-locale」。
+- **參考同步把選項檔報成孤兒，並建議 UDS 已不再出貨的檔名。** 選項記在 `manifest.options` 而非 `manifest.standards`，於是每個 `.standards/options/*.ai.yaml` 參考都被報成「未在 manifest 中」；而「未參考的標準」清單來自一張手寫的 6.0.0 之前檔名表（`git-workflow.md`、`error-code-standards.md`、`project-structure.md`）。現在選項會被認得，清單也只列出這個專案實際持有的檔案。
+- **`uds check` 把 `AGENTS.md` 列了兩次。** Codex 與 OpenCode 共用同一份檔案，而檢查是逐工具而非逐檔案進行。現在每個檔案只回報一次，並標明共用它的工具。
+
+
 ## [6.9.0] - 2026-09-14
 
 ### 採用者升級注意
