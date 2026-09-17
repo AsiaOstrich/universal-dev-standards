@@ -1,0 +1,443 @@
+Reading prompt from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0b00c-95a9-77a3-8e74-725272c91fe4
+--------
+user
+Review src/checkout.js and list every issue you find.
+
+codex
+I’ll perform a systematic review of `src/checkout.js`, focusing on correctness, security, edge cases, and maintainability.
+exec
+/bin/zsh -lc "pwd && rg --files -g 'AGENTS.md' -g 'checkout.js' -g 'SKILL.md' | sed -n '1,80p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+ succeeded in 0ms:
+/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+src/checkout.js
+
+exec
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/code-review-assistant/SKILL.md && printf '\\n--- checkout ---\\n' && nl -ba src/checkout.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+ succeeded in 0ms:
+---
+name: code-review
+scope: universal
+description: "[UDS] Perform systematic code review with checklist"
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+disable-model-invocation: true
+status: reference
+---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: 8 review category definitions,
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  For enforced execution, use your adoption layer's toolchain.
+-->
+
+# Code Review Assistant | 程式碼審查助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
+Perform systematic code review using standardized checklists and comment prefixes.
+
+執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+
+## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
+
+1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
+2. **Apply checklist** - Check each review category systematically
+3. **Generate report** - Output findings with standard comment prefixes
+4. **Summarize** - Provide overall assessment and recommended actions
+
+## Review Categories | 審查類別
+
+1. **Functionality** - Does it work correctly? | 功能是否正確？
+2. **Design** - Is the architecture appropriate? | 架構是否合適？
+3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
+4. **Readability** - Is it easy to understand? | 是否容易理解？
+5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
+6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
+7. **Performance** - Is it efficient? | 是否有效率？
+8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+
+## Comment Prefixes | 評論前綴
+
+| Prefix | Meaning | Action | 動作 |
+|--------|---------|--------|------|
+| **BLOCKING** | Must fix before merge | Required | 必須修復 |
+| **IMPORTANT** | Should fix | Recommended | 建議修復 |
+| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
+| **QUESTION** | Need clarification | Discuss | 需要討論 |
+| **NOTE** | Informational | FYI | 僅供參考 |
+
+## Usage | 使用方式
+
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
+
+## Next Steps Guidance | 下一步引導
+
+After `/code-review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
+
+## Reference | 參考
+
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+
+--- checkout ---
+     1	import mysql from 'mysql2/promise';
+     2	
+     3	const conn = await mysql.createConnection({
+     4	  host: 'prod-db.internal',
+     5	  user: 'shop',
+     6	  password: 'Sh0p!2024$prod'
+     7	});
+     8	
+     9	export async function processCheckout(req, res) {
+    10	  const cart = req.body.cart;
+    11	  let total = 0;
+    12	
+    13	  for (const item of cart) {
+    14	    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+    15	    const p = rows[0];
+    16	    total += p.price * item.qty;
+    17	    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+    18	  }
+    19	
+    20	  if (total > 500) {
+    21	    total = total * 0.92;
+    22	  }
+    23	
+    24	  const [r] = await conn.query('INSERT INTO orders (user_id, total) VALUES (?, ?)', [req.body.uid, total]);
+    25	
+    26	  fetch('https://payments.example.com/charge', {
+    27	    method: 'POST',
+    28	    body: JSON.stringify({ orderId: r.insertId, amount: total })
+    29	  });
+    30	
+    31	  res.json({ orderId: r.insertId, total: total });
+    32	}
+    33	
+    34	export function fmt(d, t, x) {
+    35	  return d + '-' + t + '-' + (x ? x.toUpperCase() : 'NA');
+    36	}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/code-review-assistant/guide.md; sed -n '1,320p' .agents/core/code-review-checklist.md; rg -n \"processCheckout|products|CREATE TABLE.*orders|payments\\.example\" -S . -g '"'!node_modules'"' -g '"'!*.lock'"' | sed -n '1,240p'; rg --files | sed -n '1,160p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+ succeeded in 0ms:
+---
+scope: universal
+description: |
+  Systematic code review checklist and pre-commit quality gates for PRs.
+  Use when: reviewing pull requests, checking code quality, before committing code.
+  Keywords: review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入.
+---
+
+# Code Review Assistant
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/SKILL.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+
+---
+
+> **Core Standard**: This skill implements [Code Review Checklist](../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
+
+## Purpose
+
+This skill provides systematic checklists for code review and pre-commit verification.
+
+## Quick Reference
+
+### Comment Prefixes
+
+| Prefix | Meaning | Action Required |
+|--------|---------|------------------|
+| **❗ BLOCKING** | Must fix before merge | 🔴 Required |
+| **⚠️ IMPORTANT** | Should fix, but not blocking | 🟡 Recommended |
+| **💡 SUGGESTION** | Nice-to-have improvement | 🟢 Optional |
+| **❓ QUESTION** | Need clarification | 🔵 Discuss |
+| **📝 NOTE** | Informational, no action | ⚪ Informational |
+
+### Review Checklist Categories
+
+1. **Functionality** - Does it work?
+2. **Design** - Right architecture?
+3. **Quality** - Clean code?
+4. **Readability** - Easy to understand?
+5. **Tests** - Adequate coverage?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Efficient?
+8. **Errors** - Properly handled?
+9. **Docs** - Updated?
+10. **Dependencies** - Necessary?
+
+### Pre-Commit Checklist
+
+- [ ] Build succeeds (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] No security vulnerabilities
+- [ ] Documentation updated
+- [ ] Branch synced with target
+
+## Detailed Guidelines
+
+For complete standards, see:
+- [Review Checklist](./review-checklist.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
+
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
+## Example Review Comments
+
+```markdown
+❗ BLOCKING: Potential SQL injection vulnerability here.
+Please use parameterized queries instead of string concatenation.
+
+⚠️ IMPORTANT: This method is doing too much (120 lines).
+Consider extracting validation logic to a separate method.
+
+💡 SUGGESTION: Consider using a Map here instead of an array for O(1) lookup.
+
+❓ QUESTION: Why are we using setTimeout here instead of async/await?
+
+📝 NOTE: This is a clever solution! Nice use of reduce here.
+```
+
+## Core Principles
+
+1. **Be Respectful** - Review code, not the person
+2. **Be Thorough** - Check functionality, not just syntax
+3. **Be Timely** - Review within 24 hours
+4. **Be Clear** - Explain WHY, not just WHAT
+
+---
+
+## Checkin Quality Gates (YAML Compressed)
+
+```yaml
+# === MANDATORY CHECKLIST ===
+build:
+  - code_compiles: "zero errors, zero warnings"
+  - dependencies: "all installed, versions locked"
+  verify: "run build locally, exit code 0"
+
+test:
+  - existing_pass: "100% pass rate (unit/integration/e2e)"
+  - new_code_tested: "features→tests, bugfix→regression"
+  - coverage: "not decreased, critical paths tested"
+  verify: "run all suites, review coverage report"
+
+quality:
+  - standards: "naming, formatting, comments"
+  - no_smells: "methods≤50 lines, nesting≤3, complexity≤10, no duplication"
+  - security: "no hardcoded secrets, no SQLi, no XSS, no insecure deps"
+  verify: "run linter, static analysis, security scanner"
+
+docs:
+  - api_docs: "public APIs documented"
+  - readme: "updated if needed"
+  - changelog: "user-facing changes → [Unreleased]"
+
+workflow:
+  - branch_naming: "feature/, fix/, docs/, chore/"
+  - commit_message: "conventional commits format"
+  - synced: "merged/rebased with target branch"
+
+# === NEVER COMMIT WHEN ===
+blockers:
+  - "Build has errors"
+  - "Tests failing"
+  - "Feature incomplete (would break functionality)"
+  - "Contains WIP/TODO in critical logic"
+  - "Contains debugging code (console.log, print)"
+  - "Contains commented-out code blocks"
+
+# === COMMIT TIMING ===
+good_times:
+  - "Completed functional unit"
+  - "Specific bug fixed with regression test"
+  - "Independent refactor (all tests pass)"
+  - "Runnable state"
+
+bad_times:
+  - "Build failures"
+  - "Test failures"
+  - "Incomplete features"
+  - "Experimental code with TODOs"
+
+# === GRANULARITY ===
+ideal_size:
+  files: "1-10 (split if >10)"
+  lines: "50-300"
+  scope: "single concern"
+
+split_principle:
+  combine: ["feature + its tests", "tightly related multi-file"]
+  separate: ["Feature A + Feature B", "refactor + new feature", "bugfix + incidental refactor"]
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Disabled Skills" section
+   - If this skill is listed, it is disabled for this project
+2. Check `CONTRIBUTING.md` for "Code Review Language" section
+3. If not found, **default to English**
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured code review language. Which option would you like? (English / 中文)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **[chosen option]** for code review comments.
+<!-- Options: English | 中文 -->
+```
+
+### Configuration Example
+
+In project's `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **English** for code review comments.
+<!-- Options: English | 中文 -->
+
+### Comment Prefixes
+BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
+```
+
+---
+
+## Related Standards
+
+- [Code Review Checklist](../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../core/testing-standards.md) - Testing requirements
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+sed: .agents/core/code-review-checklist.md: No such file or directory
+./src/checkout.js:9:export async function processCheckout(req, res) {
+./src/checkout.js:14:    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+./src/checkout.js:17:    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+./src/checkout.js:26:  fetch('https://payments.example.com/charge', {
+src/checkout.js
+package.json
+
+exec
+/bin/zsh -lc "git status --short && git diff -- src/checkout.js && git log --oneline -5 -- src/checkout.js && sed -n '1,200p' package.json && find .agents -name 'code-review-checklist.md' -o -name 'review-checklist.md' | sort" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7
+ exited 128 in 0ms:
+fatal: not a git repository (or any of the parent directories): .git
+
+codex
+Review findings:
+
+- ❗ **BLOCKING** — [src/checkout.js:6](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:6): Production database credentials are hardcoded in source. This exposes the database through repository/history access; revoke/rotate this password and load credentials from secret-managed configuration.
+
+- ❗ **BLOCKING** — [src/checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:17): Stock is decremented without checking availability. Concurrent checkouts can oversell, and stock can become negative. Use an atomic conditional update (`... WHERE stock >= ?`) and verify the affected-row count.
+
+- ❗ **BLOCKING** — [src/checkout.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:10) and [17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:17): Cart items and quantities are unvalidated. A negative `qty` increases inventory; arbitrary quantities distort totals and inventory.
+
+- ❗ **BLOCKING** — [src/checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:13)–[24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:24): Inventory changes and order creation are not enclosed in a database transaction. Any mid-loop failure leaves partial stock deductions without a corresponding order.
+
+- ❗ **BLOCKING** — [src/checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:26)–[31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:31): The payment request is neither awaited nor error-handled, yet the endpoint immediately reports checkout success. Failed or rejected charges produce unpaid orders and deducted inventory.
+
+- ❗ **BLOCKING** — [src/checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:24): `req.body.uid` is trusted directly. A caller can create orders under another user unless identity is taken from authenticated server-side context and authorization is enforced.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:15](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:15): Unknown product IDs result in `p` being undefined and a server error, after earlier cart lines may already have changed stock. Return a controlled validation error before any mutation.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:3): A single module-global DB connection is a fragile concurrency and recovery model. Use a connection pool, and acquire a dedicated connection for each transaction.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:26): No idempotency mechanism protects against client retries. A timeout after the order insert can lead to duplicate orders/charges. Persist an idempotency key and pass it to the payment provider.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:11](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:11) and [20](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:20): Currency is calculated with JavaScript floating-point numbers, risking incorrect totals/discount thresholds. Store and calculate minor units (e.g., cents) or use fixed-precision decimals.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:9](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:9): There is no error handling around database or network work. Failures become unhandled errors, potentially exposing internals and leaving inconsistent state.
+
+- 💡 **SUGGESTION** — [src/checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:13): Products are queried and updated sequentially, creating 2N database round trips. Consolidate duplicate items and use set-based queries/updates to reduce latency.
+
+- 💡 **SUGGESTION** — [src/checkout.js:34](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:34): `fmt` has opaque parameter names and throws when a truthy non-string `x` is supplied. Give parameters meaningful names and validate/coerce the optional value if it is public-facing.
+tokens used
+14,553
+Review findings:
+
+- ❗ **BLOCKING** — [src/checkout.js:6](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:6): Production database credentials are hardcoded in source. This exposes the database through repository/history access; revoke/rotate this password and load credentials from secret-managed configuration.
+
+- ❗ **BLOCKING** — [src/checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:17): Stock is decremented without checking availability. Concurrent checkouts can oversell, and stock can become negative. Use an atomic conditional update (`... WHERE stock >= ?`) and verify the affected-row count.
+
+- ❗ **BLOCKING** — [src/checkout.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:10) and [17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:17): Cart items and quantities are unvalidated. A negative `qty` increases inventory; arbitrary quantities distort totals and inventory.
+
+- ❗ **BLOCKING** — [src/checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:13)–[24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:24): Inventory changes and order creation are not enclosed in a database transaction. Any mid-loop failure leaves partial stock deductions without a corresponding order.
+
+- ❗ **BLOCKING** — [src/checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:26)–[31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:31): The payment request is neither awaited nor error-handled, yet the endpoint immediately reports checkout success. Failed or rejected charges produce unpaid orders and deducted inventory.
+
+- ❗ **BLOCKING** — [src/checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:24): `req.body.uid` is trusted directly. A caller can create orders under another user unless identity is taken from authenticated server-side context and authorization is enforced.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:15](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:15): Unknown product IDs result in `p` being undefined and a server error, after earlier cart lines may already have changed stock. Return a controlled validation error before any mutation.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:3): A single module-global DB connection is a fragile concurrency and recovery model. Use a connection pool, and acquire a dedicated connection for each transaction.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:26): No idempotency mechanism protects against client retries. A timeout after the order insert can lead to duplicate orders/charges. Persist an idempotency key and pass it to the payment provider.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:11](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:11) and [20](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:20): Currency is calculated with JavaScript floating-point numbers, risking incorrect totals/discount thresholds. Store and calculate minor units (e.g., cents) or use fixed-precision decimals.
+
+- ⚠️ **IMPORTANT** — [src/checkout.js:9](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:9): There is no error handling around database or network work. Failures become unhandled errors, potentially exposing internals and leaving inconsistent state.
+
+- 💡 **SUGGESTION** — [src/checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:13): Products are queried and updated sequentially, creating 2N database round trips. Consolidate duplicate items and use set-based queries/updates to reduce latency.
+
+- 💡 **SUGGESTION** — [src/checkout.js:34](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r7/src/checkout.js:34): `fmt` has opaque parameter names and throws when a truthy non-string `x` is supplied. Give parameters meaningful names and validate/coerce the optional value if it is public-facing.

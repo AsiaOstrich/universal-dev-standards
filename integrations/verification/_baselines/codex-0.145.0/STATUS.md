@@ -1,6 +1,11 @@
 # Codex CLI 0.145.0 — experiment state
 
-**Status**: ⏸ **paused, not abandoned** · **Resumes**: 2026-08-22 (account usage limit)
+**Status**: ▶ **resumed 2026-09-17** — cross-judged extension in progress, 6 of 11 runs done · see `cross-judged/extension-2026-09/`
+
+> The line below was the header until 2026-09-17. It named a resume date and nothing watched it, so
+> "paused" and "forgotten" read the same for 26 days.
+>
+> ~~⏸ paused, not abandoned · Resumes: 2026-08-22 (account usage limit)~~
 **Model**: `gpt-5.6-terra` · **All data below is retained and valid**
 
 ---
@@ -40,7 +45,7 @@ over.
 
 Two changes before the next batch:
 
-1. **Defect 5 must be restated or dropped.** "The HTTP handler directly holds the DB connection
+1. **Defect 5 must be restated or dropped.** → **Dropped (2026-09-17)**; see the extension README for why. "The HTTP handler directly holds the DB connection
    and calls payment, with no layering" — judges agreed on it 1 time out of 8. Gemini scored it
    0/9, Claude 7/8. It is a judgement about architecture, and the reviews discuss the
    module-level connection without framing it as layering. As written it measures the judge,
