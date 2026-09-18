@@ -1641,4 +1641,71 @@ describe('Update Command', () => {
       expect(reconcilerReconcile, `--plan --${flag} ran the reconciler`).not.toHaveBeenCalled();
     });
   });
+
+  describe('XSPEC adopter-report Q3: a general `--plan` must not stay silent about stale Skills/Commands', () => {
+    // A bare `uds update --plan` (no --skills/--commands) only ever called
+    // handlePlan — never planSkills/planCommands, which are the only two
+    // places version staleness is computed. An adopter running plain --plan
+    // saw a clean reconciliation plan and nothing else, with Skills a full
+    // minor behind and no hint that `--plan --skills` would have said so.
+    const planManifest = (skillsVersion, commandsVersion) => ({
+      upstream: { version: '2.0.0' },
+      standards: ['core/test.md'],
+      extensions: [],
+      integrations: [],
+      aiTools: ['claude-code'],
+      skills: {
+        installed: true,
+        version: skillsVersion,
+        installations: [{ agent: 'claude-code', level: 'project' }],
+        names: []
+      },
+      commands: {
+        installed: true,
+        version: commandsVersion,
+        installations: [{ agent: 'opencode', level: 'project' }]
+      }
+    });
+
+    beforeEach(() => {
+      isInitialized.mockReturnValue(true);
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.2.0' }
+      });
+    });
+
+    it('names the stale Skills installation with old -> new version and the command to fix it', async () => {
+      readManifest.mockReturnValue(planManifest('0.9.0', '1.2.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '0.9.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toMatch(/0\.9\.0.*1\.2\.0/s);
+      expect(output).toContain('--skills');
+    });
+
+    it('names a stale Commands installation with old -> new version and the command to fix it', async () => {
+      readManifest.mockReturnValue(planManifest('1.2.0', '0.9.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '1.2.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toMatch(/0\.9\.0.*1\.2\.0/s);
+      expect(output).toContain('--commands');
+    });
+
+    it('says nothing extra when Skills and Commands are both current', async () => {
+      readManifest.mockReturnValue(planManifest('1.2.0', '1.2.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '1.2.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('out of date');
+      expect(output).not.toMatch(/0\.9\.0/);
+    });
+  });
 });

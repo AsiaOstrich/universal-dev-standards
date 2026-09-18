@@ -418,6 +418,13 @@ export async function checkCommand(options = {}) {
   // Check Commands integrity if commandHashes exist
   checkCommandsIntegrity(manifest, projectPath, msg);
 
+  // XSPEC adopter-report Q3: neither of the two checks above (content-hash
+  // integrity) says anything about an installed Skills/Commands version
+  // being behind the latest UDS release — that was only ever computed by
+  // `uds update --plan --skills`/`--commands`. A plain `uds check` gave no
+  // signal at all that `uds update --skills` had anything to do.
+  checkSkillsCommandsVersionStaleness(manifest, projectPath, msg);
+
   // Check Integration blocks integrity if integrationBlockHashes exist
   // XSPEC-418 R1: the return value used to be discarded, so a removed/modified
   // UDS block never affected the final verdict below — `uds check --ci` printed
@@ -1760,6 +1767,59 @@ async function checkCliVersion(bundledVersion) {
 // ============================================================
 // Enhanced Integrity Check Functions (v3.3.0+)
 // ============================================================
+
+/**
+ * Warn when an installed Skills or Commands version is behind the latest
+ * UDS release. This is deliberately modeled on the existing top-level
+ * "Version: X → Y ⚠" row (see the `hasUpdate` check in the summary
+ * dashboard below) rather than on `checkIntegrationBlocksIntegrity`
+ * (XSPEC-418 R1): a version simply being behind the latest release is
+ * ambient, expected state until the adopter chooses to update — not a
+ * compliance defect the way a modified/missing/ambiguous UDS block is — so
+ * it is reported but, unlike a block problem, does not fail `--ci`.
+ *
+ * Skills staleness is read per-installation from what is actually on disk
+ * (`getInstalledSkillsInfoForAgent`), the same source `uds update --plan
+ * --skills` uses, because different agents/levels can be out of sync
+ * independently. Commands have no per-installation version on disk (only a
+ * file count), so Commands staleness is read from the one version the
+ * manifest itself records (`manifest.commands.version`).
+ * // implements XSPEC adopter-report Q3
+ *
+ * @param {Object} manifest
+ * @param {string} projectPath
+ * @param {Object} msg - Localized messages (unused today; kept for symmetry
+ *   with the other Enhanced Integrity Check functions, which all take one)
+ */
+function checkSkillsCommandsVersionStaleness(manifest, projectPath, msg) { // eslint-disable-line no-unused-vars
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+  const stale = [];
+
+  const skillsInstallations = (manifest.skills?.installations || []).filter((i) => i.level !== 'marketplace');
+  for (const inst of skillsInstallations) {
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const current = info?.version;
+    if (current && current !== latestVersion) {
+      stale.push(`${getAgentDisplayName(inst.agent)} (${inst.level}): Skills v${current} → v${latestVersion}`);
+    }
+  }
+
+  if (manifest.commands?.installed && (manifest.commands?.installations || []).length > 0) {
+    const current = manifest.commands.version;
+    if (current && current !== latestVersion) {
+      stale.push(`Commands: v${current} → v${latestVersion}`);
+    }
+  }
+
+  if (stale.length === 0) return;
+
+  for (const line of stale) {
+    console.log(chalk.yellow(`  ⚠ ${line}`));
+  }
+  console.log(chalk.gray('    Run `uds update --plan --skills` / `--commands` for details, then `--apply` to update.'));
+  console.log();
+}
 
 /**
  * Check Skills files integrity against stored hashes
