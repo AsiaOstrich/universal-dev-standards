@@ -12,7 +12,9 @@ import {
   computeFileHash,
   compareFileHash,
   hasFileHashes,
-  compareIntegrationBlockHash
+  compareIntegrationBlockHash,
+  computeIntegrationBlockHash,
+  pruneIntegrationFileHashes
 } from '../utils/hasher.js';
 import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
@@ -593,6 +595,11 @@ async function interactiveMode(projectPath, manifest, fileStatus, msg) {
   }
 
   if (manifestUpdated) {
+    // XSPEC-418 R6: interactive mode still has a "keep current content" branch
+    // that calls the whole-file updateFileHash(); if issue.file happens to be
+    // an integration file left in fileHashes by an older CLI, this is the
+    // write point that stops it from surviving another round.
+    pruneIntegrationFileHashes(manifest);
     writeManifest(manifest, projectPath);
     console.log(chalk.green(msg.manifestUpdated));
     console.log();
@@ -710,6 +717,9 @@ async function restoreFiles(projectPath, manifest, files) {
   }
 
   // Update manifest
+  // XSPEC-418 R6: catches any stale whole-file entry for an integration file
+  // this particular restore run didn't touch, not just the ones it did.
+  pruneIntegrationFileHashes(manifest);
   writeManifest(manifest, projectPath);
   console.log(chalk.gray(`  ${msg.manifestUpdatedShort}`));
   console.log();
@@ -737,7 +747,13 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
       installedStandards: genConfig.installedStandards || manifest.standards || []
     }, projectPath);
     if (result.success) {
-      updateFileHash(projectPath, manifest, relativePath);
+      // XSPEC-418 R6: this rewrites the UDS block, so the BLOCK hash is what
+      // must be refreshed — not a whole-file hash. Restoring used to call
+      // updateFileHash() here, which recorded the whole file (block +
+      // whatever the adopter wrote outside it) while leaving the stale block
+      // hash untouched; the next `uds check` then reported "UDS block
+      // modified" for a block that had just been correctly restored.
+      updateIntegrationBlockHash(manifest, relativePath, result.blockHashInfo);
       console.log(chalk.green(`  ✓ ${relativePath}: ${msg.restored}`));
       return true;
     }
@@ -759,7 +775,18 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
     // Integration file - copy to root
     const result = await copyIntegration(sourcePath, relativePath, projectPath);
     if (result.success) {
-      updateFileHash(projectPath, manifest, relativePath);
+      // XSPEC-418 R6: same rule as the genConfig branch above — track the
+      // block, not the whole file. This legacy static-copy fallback has no
+      // blockHashInfo returned to it, so compute one from what was just
+      // written; a template with no UDS markers at all (computeIntegration
+      // BlockHash returns null) falls back to the old whole-file behaviour,
+      // since there is no block to track instead.
+      const blockHashInfo = computeIntegrationBlockHash(join(projectPath, relativePath));
+      if (blockHashInfo) {
+        updateIntegrationBlockHash(manifest, relativePath, blockHashInfo);
+      } else {
+        updateFileHash(projectPath, manifest, relativePath);
+      }
       console.log(chalk.green(`  ✓ ${relativePath}: ${msg.restored}`));
       return true;
     } else {
@@ -777,6 +804,30 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
     console.log(chalk.red(`  ✗ ${relativePath}: ${result.error}`));
     return false;
   }
+}
+
+/**
+ * Update an integration file's UDS BLOCK hash in the manifest — not its
+ * whole-file hash (XSPEC-418 R6). Also drops any whole-file `fileHashes`
+ * entry for the same path, so restoring an integration file can never leave
+ * both records behind at once.
+ *
+ * @param {Object} manifest - Manifest object (mutated in place)
+ * @param {string} relativePath - Path as UDS reports it
+ * @param {Object|null|undefined} blockHashInfo - `{ blockHash, blockSize, fullHash, fullSize }`,
+ *   e.g. from `writeIntegrationFile`'s result or `computeIntegrationBlockHash`
+ * @returns {boolean} Whether a block hash was recorded
+ */
+export function updateIntegrationBlockHash(manifest, relativePath, blockHashInfo) {
+  if (!blockHashInfo) return false;
+  const normalizedPath = relativePath.replace(/\\/g, '/');
+  if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
+  manifest.integrationBlockHashes[normalizedPath] = {
+    ...blockHashInfo,
+    installedAt: new Date().toISOString()
+  };
+  if (manifest.fileHashes) delete manifest.fileHashes[normalizedPath];
+  return true;
 }
 
 /**
@@ -927,21 +978,39 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
     }
   }
 
-  // Process integrations
+  // Process integrations — tracked by their UDS BLOCK hash, not a whole-file
+  // hash (XSPEC-418 R6). This loop used to write the whole file into the same
+  // `fileHashes` map as standards/extensions above, which is the same defect
+  // as every other write site R6 fixes, just reached by `--migrate` instead
+  // of a normal update: any content the adopter had outside the block then
+  // read as "modified" by standards-file integrity, contradicting the block
+  // check in the same `uds check` run.
+  const integrationBlockHashes = { ...(manifest.integrationBlockHashes || {}) };
   for (const intEntry of manifest.integrations) {
     const int = resolveIntegrationFile(intEntry) || intEntry;
     const fullPath = join(projectPath, int);
 
-    const hashInfo = computeFileHash(fullPath);
-    if (hashInfo) {
-      fileHashes[int] = { ...hashInfo, installedAt: now };
+    const blockHashInfo = computeIntegrationBlockHash(fullPath);
+    if (blockHashInfo) {
+      integrationBlockHashes[int] = { ...blockHashInfo, installedAt: now };
       count++;
+    } else {
+      // No UDS markers found (plaintext template with none, or a file the
+      // adopter fully rewrote) — fall back to whole-file tracking, same as
+      // before this fix, rather than silently tracking nothing.
+      const hashInfo = computeFileHash(fullPath);
+      if (hashInfo) {
+        fileHashes[int] = { ...hashInfo, installedAt: now };
+        count++;
+      }
     }
   }
 
   // Update manifest
   manifest.fileHashes = fileHashes;
+  manifest.integrationBlockHashes = integrationBlockHashes;
   manifest.version = '3.1.0';
+  pruneIntegrationFileHashes(manifest);
   writeManifest(manifest, projectPath);
 
   console.log(chalk.green(msg.migratedCount.replace('{count}', count)));

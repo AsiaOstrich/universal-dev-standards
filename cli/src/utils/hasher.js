@@ -631,7 +631,14 @@ export function compareDirectoryHashes(dirPath, storedHashes, baseKey = '') {
 
 /**
  * Refresh all integrationBlockHashes in manifest by recalculating from disk
- * Ensures manifest hashes always match actual file content
+ * Ensures manifest hashes always match actual file content.
+ *
+ * Also prunes any `fileHashes` entry for the same paths (XSPEC-418 R6) — every
+ * call site of this function is a "we just wrote/restored an integration file,
+ * about to persist the manifest" checkpoint, which is exactly where a stale
+ * whole-file hash for that same path (written by an older CLI, or a write path
+ * this fix missed) needs to stop existing. See `pruneIntegrationFileHashes`.
+ *
  * @param {Object} manifest - Manifest object (mutated in place)
  * @param {string} projectPath - Project root path
  * @returns {Object} The updated manifest
@@ -652,5 +659,42 @@ export function refreshIntegrationBlockHashes(manifest, projectPath) {
     }
   }
 
+  pruneIntegrationFileHashes(manifest);
+
   return manifest;
+}
+
+/**
+ * Remove `fileHashes` entries for files UDS tracks by their UDS block instead
+ * (`integrationBlockHashes`) — CLAUDE.md, CLAUDE.local.md, AGENTS.md, GEMINI.md,
+ * etc. (XSPEC-418 R6).
+ *
+ * An integration file's whole-file hash and its block hash disagree the
+ * moment an adopter edits anything OUTSIDE the UDS block — exactly the
+ * customization UDS's marker-based update promises to preserve. Several write
+ * paths (`uds update`, `uds update --integrations-only`, `uds check
+ * --restore`, `uds check --migrate`) used to add a whole-file entry for these
+ * paths anyway, so `uds check --ci` could report "CLAUDE.md (modified)" from
+ * standards-file integrity in the same run its own block-integrity check said
+ * the block was intact — the two checks contradicted each other, and the one
+ * that failed was the one punishing content UDS says it preserves.
+ *
+ * `manifest.integrationBlockHashes` is the authoritative registry of which
+ * paths are integration files — every writer of it (`writeIntegrationFile`,
+ * `writeAgentsMdSummary`) sets an entry there and nowhere else, so keying off
+ * its keys needs no second list of "known" integration files to keep in sync.
+ *
+ * @param {Object} manifest - Manifest object (mutated in place)
+ * @returns {string[]} Paths whose stale whole-file hash was removed
+ */
+export function pruneIntegrationFileHashes(manifest) {
+  if (!manifest?.fileHashes || !manifest?.integrationBlockHashes) return [];
+  const removed = [];
+  for (const path of Object.keys(manifest.integrationBlockHashes)) {
+    if (path in manifest.fileHashes) {
+      delete manifest.fileHashes[path];
+      removed.push(path);
+    }
+  }
+  return removed;
 }
