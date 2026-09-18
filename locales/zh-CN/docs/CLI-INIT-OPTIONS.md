@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.5.1
-translation_version: 3.5.1
-last_synced: 2026-01-15
+source_version: 3.5.2
+translation_version: 3.5.2
+last_synced: 2026-09-18
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [简体中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
 >
-> **版本**: 3.5.0
-> **最后更新**: 2026-01-09
+> **版本**: 3.5.2
+> **最后更新**: 2026-09-18
 
 本文档详细说明 `uds init` 命令的每一个选项，包含使用情境、影响范围和建议选择。
 
@@ -835,7 +835,48 @@ uds init --experimental
 | 不生成 AGENTS.md | `--no-agents-md` | 跳过 AGENTS.md 生成 |
 | 强制执行 Hooks | `--with-hooks` | 安装强制执行 hooks（commit-msg、security、logging） |
 | 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
+| Claude Code 目标文件 | `--claude-target` | Claude Code 集成内容要写到哪里：`project`（`CLAUDE.md`，默认）或 `local`（`CLAUDE.local.md`） |
 | 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
+
+### Claude Code 集成目标文件（`--claude-target`）
+
+UDS 默认把 Claude Code 内容写进 `CLAUDE.md`——团队共用、会进版本控制的那个文件。
+若你是在一个**已有团队 `CLAUDE.md`** 的仓库里**个人采用** UDS，改用
+`--claude-target local`：UDS 会改写入 `CLAUDE.local.md`，这是
+[Claude Code 原生支持](https://code.claude.com/docs/en/memory.md)、
+紧接在 `CLAUDE.md` 之后读入的文件，且完全不动团队的文件。
+
+```bash
+# 在有团队 CLAUDE.md 的仓库里个人采用
+uds init -y --claude-target local
+```
+
+使用前有三件事要知道：
+
+1. **要自己把它加进 gitignore。** UDS 不会写 `.gitignore` 或
+   `.git/info/exclude`——请自行把 `CLAUDE.local.md` 加进其中一个，
+   否则它会像任何新文件一样被提交。
+2. **只存在于创建它的那个 worktree。** 因为（你 gitignore 之后）它是未受版本控制的文件，
+   在某个 `git worktree` 创建的 `CLAUDE.local.md` 在同一个仓库的另一个 worktree
+   里看不到——每个 worktree 有自己的工作目录，未受版本控制的文件不会在 worktree 之间共享。
+   若你使用多个 worktree，需要在每一个里分别执行
+   `uds init --claude-target local`（或下方的 `uds update --claude-target local`）。
+3. **`AGENTS.md` 不受影响。** `--claude-target` 只改变 Claude Code 内容要写到哪里。
+   若 `--agents-md` 生成了通用的 `AGENTS.md` 摘要，它仍照常写进 `AGENTS.md`；
+   若也不想让它进版本控制，一样要自己排除（例如通过 `.git/info/exclude`）。
+
+已经用默认目标文件装好了，想不重装就切换？`uds update` 支持同一个标志：
+
+```bash
+# 把已有安装的 Claude Code 内容从 CLAUDE.md 移到 CLAUDE.local.md
+uds update --claude-target local
+
+# 移回去
+uds update --claude-target project
+```
+
+这会从旧文件移除 UDS 区块（保留你自己写在里面的其他内容）、写进新文件，并更新
+manifest——之后 `uds check` 校验的是新目标文件，不是旧的。
 
 ### 完整 CLI 示例
 
@@ -876,6 +917,12 @@ uds init -y --output-lang traditional-chinese --locale zh-cn
 
 # PHP 项目
 uds init -y --lang php --framework fat-free
+
+# 在有团队 CLAUDE.md 的仓库里个人采用
+uds init -y --claude-target local
+
+# 之后把已有安装切换到 CLAUDE.local.md，不需要重装
+uds update --claude-target local
 ```
 
 ---

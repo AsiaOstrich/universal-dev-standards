@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds check --ci` could print a visible ✗ for a broken integration block and still exit 0 saying the project was compliant.** `checkIntegrationBlocksIntegrity`'s result (modified/missing/UDS markers removed) was computed and printed, then discarded — the final verdict only looked at standards-file integrity. If your CI has been passing on a project whose CLAUDE.md/GEMINI.md/etc. UDS block was actually removed or edited, that is this bug, and `--ci` will now correctly fail until the block is restored (`uds update --integrations-only`) or the project is otherwise brought back in sync. Interactive `uds check` (no `--ci`) is unaffected — it still exits 0 so it never interrupts normal use. (XSPEC-418 R1)
+
+### Added
+
+- **`uds init --claude-target <project|local>` and `uds update --claude-target <project|local>`: adopt UDS personally in a repo with a team-owned `CLAUDE.md`.** Until now, UDS's Claude Code integration always wrote `CLAUDE.md` — the file teams share and commit — with no way to redirect it. An individual adopting UDS for themselves in a repo that already has a team `CLAUDE.md` had to hand-move the UDS block to `CLAUDE.local.md` (a file Claude Code natively supports, loaded right after `CLAUDE.md`), and from that point on `check`/`update`/`uninstall` all reported errors or silently wrote back into the team file — including deleting the moved file's own tracked hash as an "orphan" during routine cleanup.
+  `--claude-target local` on `uds init` writes the integration content to `CLAUDE.local.md` from the start; the team's `CLAUDE.md` is never touched. `uds update --claude-target <project|local>` switches an *existing* install's target without a reinstall — it removes the UDS block from the old file (keeping anything else written there; a file left 100% UDS-generated is deleted, matching `uninstall`'s existing rule), writes the new target, and updates the manifest whether or not the new target already holds a hand-moved block. `check`, `update` (including `--integrations-only`/`--force`), and orphan-hash cleanup all now resolve the tool's actual target file through one function rather than each independently assuming the default — a project that never sets `--claude-target` sees no change at all: the manifest gains an `integrationTargets` field only when `local` is chosen. `--claude-target` does not affect `AGENTS.md`; keep excluding that yourself via `.git/info/exclude` if you don't want it committed either. `CLAUDE.local.md` is not written to `.gitignore` automatically — add it yourself — and being untracked, it exists only in the git worktree that creates it. See [CLI-INIT-OPTIONS.md](docs/CLI-INIT-OPTIONS.md#claude-code-integration-target---claude-target). (XSPEC-418 R2–R4)
+
 ## [6.10.0] - 2026-09-16
 
 ### Fixed

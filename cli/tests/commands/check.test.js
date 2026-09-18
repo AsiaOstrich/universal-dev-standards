@@ -727,5 +727,60 @@ describe('Check Command', () => {
       expect(output).not.toMatch(/⚠.*CLAUDE\.md/);
     });
 
+    // XSPEC-418 R1: checkIntegrationBlocksIntegrity's result used to be discarded —
+    // uds check --ci printed a visible ✗ for a removed UDS block, then still said
+    // "compliant" and exited 0.
+    describe('XSPEC-418 R1: integration block integrity feeds the final verdict', () => {
+      afterEach(() => {
+        process.exitCode = undefined;
+      });
+
+      it('GIVEN UDS markers removed from the integration file WHEN `uds check --ci` THEN exit code is non-zero and "compliant" is not printed', async () => {
+        process.exitCode = 0;
+        writeFileSync(join(TEST_DIR, 'CLAUDE.md'), '# My own project notes\n\nNo UDS markers here.\n');
+
+        const manifest = createValidManifest({
+          integrations: ['CLAUDE.md'],
+          aiTools: ['claude-code'],
+          integrationBlockHashes: {
+            'CLAUDE.md': { blockHash: 'sha256:doesnotmatter', blockSize: 10, fullHash: 'sha256:doesnotmatter', fullSize: 10 }
+          }
+        });
+        mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+        writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(1);
+        const output = consoleLogs.join('\n');
+        expect(output).not.toContain('Project is compliant with standards');
+      });
+
+      it('GIVEN all integration blocks intact WHEN `uds check --ci` THEN behavior is unchanged (exit code 0)', async () => {
+        process.exitCode = 0;
+        const { computeIntegrationBlockHash } = await import('../../src/utils/hasher.js');
+        const claudePath = join(TEST_DIR, 'CLAUDE.md');
+        writeFileSync(
+          claudePath,
+          ['<!-- UDS:STANDARDS:START -->', 'UDS content here.', '<!-- UDS:STANDARDS:END -->'].join('\n')
+        );
+        const hashInfo = computeIntegrationBlockHash(claudePath);
+
+        const manifest = createValidManifest({
+          integrations: ['CLAUDE.md'],
+          aiTools: ['claude-code'],
+          integrationBlockHashes: { 'CLAUDE.md': hashInfo }
+        });
+        mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+        writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(manifest));
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(0);
+        const output = consoleLogs.join('\n');
+        expect(output).toContain('Project is compliant with standards');
+      });
+    });
+
   });
 });

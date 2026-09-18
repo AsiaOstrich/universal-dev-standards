@@ -138,6 +138,7 @@ program
   .option('--no-agents-md', 'Skip AGENTS.md generation')
   .option('--with-hooks', 'Install enforcement hooks declared by the installed standards')
   .option('--content-layout <layout>', 'Content layout (flat, layered) [default: flat]')
+  .option('--claude-target <target>', 'Claude Code integration target: project (default, writes CLAUDE.md) or local (writes CLAUDE.local.md — not committed to git; gitignore it yourself)')
   .option('-y, --yes', 'Use defaults, skip interactive prompts')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
   .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
@@ -228,6 +229,7 @@ program
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
   .option('--rollback', 'Rollback to the most recent backup')
+  .option('--claude-target <target>', 'Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
   .action(updateCommand);
 

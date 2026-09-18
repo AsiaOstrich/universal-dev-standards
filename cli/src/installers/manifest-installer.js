@@ -31,6 +31,10 @@ export function writeFinalManifest(config, results, projectPath) {
     extensions: results.extensions || [],
     integrations: results.integrations || [],
     integrationConfigs: results.manifestIntegrationConfigs || {},
+    // XSPEC-418 R2: only ever present when --claude-target local was chosen.
+    // Omitted entirely otherwise so a manifest with no override is byte-for-byte
+    // what it was before this feature existed (AC-5).
+    ...(config.integrationTargets ? { integrationTargets: config.integrationTargets } : {}),
     options: {
       display_language: config.displayLanguage || 'en',
       workflow: config.standardOptions?.workflow || null,

@@ -190,6 +190,22 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
     };
     return files[tool] || '';
   }),
+  // XSPEC-418 R2: same default table as getToolFilePath above, plus the
+  // manifest.integrationTargets override init.js now reads.
+  resolveIntegrationTargetFile: vi.fn((tool, manifestLike) => {
+    const files = {
+      cursor: '.cursorrules',
+      windsurf: '.windsurfrules',
+      cline: '.clinerules',
+      copilot: '.github/copilot-instructions.md',
+      antigravity: '.agents/AGENTS.md',
+      'claude-code': 'CLAUDE.md',
+      codex: 'AGENTS.md',
+      'gemini-cli': 'GEMINI.md',
+      opencode: 'AGENTS.md'
+    };
+    return manifestLike?.integrationTargets?.[tool] || files[tool] || '';
+  }),
   getSupportedTools: vi.fn(() => ['cursor', 'windsurf', 'cline', 'copilot', 'antigravity', 'claude-code', 'codex', 'gemini-cli', 'opencode']),
   toolsShareFile: vi.fn((t1, t2) => (t1 === 'codex' && t2 === 'opencode') || (t1 === 'opencode' && t2 === 'codex')),
   generateComplianceInstructions: vi.fn(() => '## Standards Compliance'),

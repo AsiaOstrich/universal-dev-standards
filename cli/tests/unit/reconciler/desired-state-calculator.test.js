@@ -84,6 +84,8 @@ vi.mock('../../../src/core/constants.js', () => {
   };
   return {
     SUPPORTED_AI_TOOLS: MOCK_TOOLS,
+    // Read by resolveIntegrationTargetFile (XSPEC-418 R2), via integration-generator.js.
+    LEGACY_TOOL_MAPPINGS: {},
     OPTIONS_INSTALL_DIR: '.standards/options',
     MANIFEST_OPTION_BINDINGS: [
       { manifestKeys: ['workflow'], standardId: 'git-workflow', categoryKey: 'workflow' },

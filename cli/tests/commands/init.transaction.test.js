@@ -38,7 +38,11 @@ vi.mock('../../src/utils/config-manager.js', () => ({
 }));
 
 vi.mock('../../src/utils/integration-generator.js', () => ({
-  getToolFilePath: vi.fn((tool) => (tool === 'claude-code' ? 'CLAUDE.md' : ''))
+  getToolFilePath: vi.fn((tool) => (tool === 'claude-code' ? 'CLAUDE.md' : '')),
+  // XSPEC-418 R2
+  resolveIntegrationTargetFile: vi.fn((tool, manifestLike) =>
+    manifestLike?.integrationTargets?.[tool] || (tool === 'claude-code' ? 'CLAUDE.md' : '')
+  )
 }));
 
 const { mockInstallStandards } = vi.hoisted(() => ({

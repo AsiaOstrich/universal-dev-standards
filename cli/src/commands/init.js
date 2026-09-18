@@ -26,7 +26,7 @@ import { displayLanguageToLocale } from '../utils/locale.js';
 import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
-import { getToolFilePath } from '../utils/integration-generator.js';
+import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
 
 /**
@@ -107,7 +107,10 @@ export async function initCommand(options) {
   // `uds init` re-installs them idempotently.
   const ownedPaths = [join(projectPath, '.standards')];
   for (const tool of (config.integrations || config.aiTools || [])) {
-    const file = getToolFilePath(tool);
+    // XSPEC-418 R2: honors --claude-target so a local-target install's owned
+    // path is CLAUDE.local.md, not CLAUDE.md — rollback must tear down the
+    // file actually written, not the tool's default.
+    const file = resolveIntegrationTargetFile(tool, { integrationTargets: config.integrationTargets });
     if (file) ownedPaths.push(join(projectPath, file));
   }
   if (config.generateAgentsMd) ownedPaths.push(join(projectPath, 'AGENTS.md'));
@@ -658,6 +661,23 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     ? false // codex/opencode handles AGENTS.md, skip universal output
     : (options.agentsMd !== undefined ? !!options.agentsMd : true);
 
+  // XSPEC-418 R2: --claude-target <project|local>, default 'project'. An
+  // unrecognized value is never substituted quietly (same policy as
+  // --content-mode above) — it falls back to 'project' with a warning rather
+  // than silently writing into CLAUDE.local.md or vice versa.
+  let claudeTargetFlag = options.claudeTarget || 'project';
+  if (claudeTargetFlag !== 'project' && claudeTargetFlag !== 'local') {
+    console.log(chalk.yellow(
+      `⚠ Unknown --claude-target '${claudeTargetFlag}'; using 'project'. Supported: project, local.`
+    ));
+    claudeTargetFlag = 'project';
+  }
+  // Only ever set when 'local' — 'project' or unspecified leaves the manifest
+  // shape completely unchanged (XSPEC-418 AC-5).
+  const integrationTargets = claudeTargetFlag === 'local'
+    ? { 'claude-code': 'CLAUDE.local.md' }
+    : undefined;
+
   return {
     languages: options.lang ? [options.lang] : Object.keys(detected.languages).filter(k => detected.languages[k]),
     frameworks: options.framework ? [options.framework] : Object.keys(detected.frameworks).filter(k => detected.frameworks[k]),
@@ -678,7 +698,8 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     generateAgentsMd,
     releaseMode: options.releaseMode || 'ci-cd',
     withHooks: !!options.withHooks,
-    contentLayout: options.contentLayout || 'flat'
+    contentLayout: options.contentLayout || 'flat',
+    integrationTargets
   };
 }
 

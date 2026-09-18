@@ -161,6 +161,8 @@ vi.mock('../../src/utils/skills-installer.js', () => ({
 vi.mock('../../src/utils/integration-generator.js', () => ({
   writeIntegrationFile: vi.fn(() => ({ success: true, path: 'CLAUDE.md' })),
   getToolFilePath: vi.fn(() => 'CLAUDE.md'),
+  // XSPEC-418 R2/R3: honors manifest.integrationTargets like the real function.
+  resolveIntegrationTargetFile: vi.fn((tool, manifestLike) => manifestLike?.integrationTargets?.[tool] || 'CLAUDE.md'),
   resolveContentModeForTool: vi.fn((tool, userMode) => {
     if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
     return { contentMode: 'index', level: 2 };
@@ -1328,6 +1330,42 @@ describe('Update Command', () => {
       expect(Object.keys(testManifest.integrationBlockHashes)).toEqual(['CLAUDE.md']);
       const output = consoleLogs.join('\n');
       expect(output).not.toMatch(/Pruned \d+ orphaned/);
+    });
+
+    // XSPEC-418 R3: the expected-file set used to be built from each tool's
+    // hardcoded default file — a local-target install's own hash (keyed by
+    // CLAUDE.local.md) looked orphaned the moment this cleanup ran, and got
+    // deleted for the very reason it should have been kept.
+    it('does not prune integrationBlockHashes for a --claude-target local install', async () => {
+      isInitialized.mockReturnValue(true);
+      writeIntegrationFile.mockReturnValue({
+        success: true,
+        path: 'CLAUDE.local.md',
+        blockHashInfo: { blockHash: 'sha256:regenerated', blockSize: 10, fullHash: 'sha256:full', fullSize: 20 }
+      });
+
+      const testManifest = {
+        upstream: { version: '2.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: ['CLAUDE.local.md'],
+        aiTools: ['claude-code'],
+        integrationTargets: { 'claude-code': 'CLAUDE.local.md' },
+        integrationBlockHashes: {
+          'CLAUDE.local.md': { blockHash: 'sha256:current', installedAt: '2026-09-01T00:00:00.000Z' }
+        },
+        skills: { installed: false }
+      };
+      readManifest.mockReturnValue(testManifest);
+
+      await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
+
+      // CLAUDE.local.md's hash survives — it is the expected file for
+      // claude-code once the target override is honored, not an orphan.
+      expect(Object.keys(testManifest.integrationBlockHashes)).toEqual(['CLAUDE.local.md']);
+      const output = consoleLogs.join('\n');
+      expect(output).not.toMatch(/Pruned \d+ orphaned/);
+      writeIntegrationFile.mockReturnValue({ success: true, path: 'CLAUDE.md' });
     });
 
     it('handles manifest without integrationBlockHashes (legacy / pre-3.3 manifest)', async () => {

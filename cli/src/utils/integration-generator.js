@@ -3030,7 +3030,10 @@ export function mergeRules(existingContent, newContent, strategy) {
  * @returns {Object} Result with success status
  */
 export function writeIntegrationFile(tool, config, projectPath) {
-  const fileName = getToolFileName(tool);
+  // XSPEC-418 R2/R3: config.integrationTargets carries manifest.integrationTargets
+  // (or its init-time equivalent) through unchanged — this is the actual write path,
+  // so it must be the one place that honors a per-tool target override.
+  const fileName = resolveIntegrationTargetFile(tool, { integrationTargets: config.integrationTargets });
   if (!fileName) {
     return { success: false, error: `Unknown tool: ${tool}` };
   }
@@ -3097,10 +3100,13 @@ export function writeIntegrationFile(tool, config, projectPath) {
  * Check if integration file exists
  * @param {string} tool - Tool name
  * @param {string} projectPath - Project root path
+ * @param {Object} [manifestLike] - Manifest-like object; only `integrationTargets` is
+ *   read (XSPEC-418 R2) — pass the real manifest, or `{ integrationTargets }` at
+ *   init time before a manifest object exists.
  * @returns {boolean} True if file exists
  */
-export function integrationFileExists(tool, projectPath) {
-  const fileName = getToolFileName(tool);
+export function integrationFileExists(tool, projectPath, manifestLike) {
+  const fileName = resolveIntegrationTargetFile(tool, manifestLike);
   return fileName && existsSync(join(projectPath, fileName));
 }
 
@@ -3334,7 +3340,12 @@ export function buildToolIntegrationConfig(manifest, tool) {
     contentMode: resolved.contentMode,
     level: resolved.level,
     outputLanguage: selected,
-    methodology: manifest.methodology
+    methodology: manifest.methodology,
+    // XSPEC-418 R2/R3: threads the per-tool target override through to
+    // writeIntegrationFile via resolveIntegrationTargetFile. Every caller of
+    // this function (regenerateIntegrations, plan-executor's migrate_block,
+    // backfillIntegrationConfigs) gets the override for free.
+    integrationTargets: manifest.integrationTargets
   };
 }
 
@@ -3441,6 +3452,45 @@ export function getToolFilePath(tool) {
   return getToolFileName(tool) || null;
 }
 
+/**
+ * Tool × manifest → the integration file this tool actually reads/writes.
+ *
+ * XSPEC-418 R2: honors a per-tool override recorded in
+ * `manifest.integrationTargets` (currently only ever set for `claude-code`, to
+ * `CLAUDE.local.md` — a personal UDS adoption in a repo with a team-owned,
+ * version-controlled `CLAUDE.md`). No override set → same file
+ * `getToolFilePath` already returns, so every manifest that never sets
+ * `integrationTargets` gets byte-identical output (XSPEC-418 AC-5).
+ *
+ * This is the single place "tool → target file" is decided once a manifest (or
+ * a manifest-shaped config carrying `integrationTargets`) is in scope. Every
+ * call site that used to call `getToolFilePath`/`getToolFileName` to answer
+ * "what file do I read/write for this tool right now" must call this instead
+ * — enforced by the static-scan guard in
+ * tests/unit/core/integration-target-resolver-guard.test.js.
+ *
+ * Placed here rather than core/constants.js, where XSPEC-418 originally
+ * suggested it next to `resolveIntegrationFile`: the default-file fallback
+ * must be the `getToolFileName` above — the one with the legacy-mapping guard,
+ * the already-a-filename passthrough, and the "known agent missing from
+ * SUPPORTED_AI_TOOLS" throw (see its own comment) — not a re-implementation in
+ * constants.js, which would silently drop that throw for every call site this
+ * migrates. constants.js is imported BY this file already, so this file
+ * cannot be imported back from constants.js without a cycle; it lives beside
+ * the function it wraps instead.
+ *
+ * @param {string} tool - Tool key (e.g. 'claude-code'), or an entry already
+ *   resolved to a file path — passed straight to `getToolFileName`, which
+ *   already tolerates that shape (XSPEC-208 BUG-208-01).
+ * @param {Object} [manifest] - Manifest-like object; only `integrationTargets` is read.
+ * @returns {string|null} Repo-relative target file, or null for a genuinely unknown tool.
+ */
+export function resolveIntegrationTargetFile(tool, manifest) {
+  const key = LEGACY_TOOL_MAPPINGS[tool] || tool;
+  const override = manifest?.integrationTargets?.[key];
+  if (typeof override === 'string' && override.length > 0) return override;
+  return getToolFileName(tool) || null;
+}
 
 /**
  * Get default commands based on ecosystem

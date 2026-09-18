@@ -92,6 +92,21 @@ vi.mock('../../src/utils/integration-generator.js', () => ({
       opencode: 'AGENTS.md'
     };
     return files[tool] || '';
+  }),
+  // XSPEC-418 R2/R3
+  resolveIntegrationTargetFile: vi.fn((tool, manifestLike) => {
+    const files = {
+      cursor: '.cursorrules',
+      windsurf: '.windsurfrules',
+      cline: '.clinerules',
+      copilot: '.github/copilot-instructions.md',
+      antigravity: '.agents/AGENTS.md',
+      'claude-code': 'CLAUDE.md',
+      codex: 'AGENTS.md',
+      'gemini-cli': 'GEMINI.md',
+      opencode: 'AGENTS.md'
+    };
+    return manifestLike?.integrationTargets?.[tool] || files[tool] || '';
   })
 }));
 

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/integrations/claude-code/README.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-08-12
+**Version**: 1.2.0
+**Last Updated**: 2026-09-18
 
 This directory contains resources for integrating Universal Development Standards with [Claude Code](https://docs.anthropic.com/claude-code).
 
@@ -56,6 +56,16 @@ npx universal-dev-standards init
 1. Copy `CLAUDE.md` to your project root.
 2. Ensure the `core/` directory is present in your project.
 3. Install skills if needed (see `skills/README.md`).
+
+### Personal adoption alongside a team-owned `CLAUDE.md` (XSPEC-418)
+
+If the repo already has a team `CLAUDE.md` under version control and you're
+adopting UDS for yourself, pass `--claude-target local` to `init` (or
+`update`, to switch an existing install) so UDS writes into `CLAUDE.local.md`
+instead — Claude Code reads that file right after `CLAUDE.md`. You must add
+`CLAUDE.local.md` to `.gitignore` (or `.git/info/exclude`) yourself, and note
+that an untracked file exists only in the git worktree that created it. Full
+details: [CLI-INIT-OPTIONS.md § Claude Code Integration Target](../../docs/CLI-INIT-OPTIONS.md#claude-code-integration-target---claude-target).
 
 ## Verification
 

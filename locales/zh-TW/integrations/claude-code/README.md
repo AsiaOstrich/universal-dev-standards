@@ -1,8 +1,8 @@
 ---
 source: ../../../../integrations/claude-code/README.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-08-12
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-09-18
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: English | [繁體中文](README.md)
 
-**版本**: 1.1.0
-**最後更新**: 2026-08-12
+**版本**: 1.2.0
+**最後更新**: 2026-09-18
 
 本目錄包含將通用開發標準 (Universal Development Standards) 與 [Claude Code](https://docs.anthropic.com/claude-code) 整合的資源。
 
@@ -62,6 +62,15 @@ npx universal-dev-standards init
 1. 將 `CLAUDE.md` 複製到您的專案根目錄。
 2. 確保專案中存在 `core/` 目錄。
 3. 如有需要，安裝技能（請參閱 `skills/README.md`）。
+
+### 在已有團隊 `CLAUDE.md` 的 repo 裡個人採用（XSPEC-418）
+
+若 repo 已有進版控、團隊共用的 `CLAUDE.md`，而你要為自己個人採用 UDS，
+對 `init`（或 `update`，用於切換既有安裝）加上 `--claude-target local`，
+讓 UDS 改寫進 `CLAUDE.local.md`——Claude Code 會緊接在 `CLAUDE.md` 之後讀取它。
+你必須自己把 `CLAUDE.local.md` 加進 `.gitignore`（或 `.git/info/exclude`），
+且注意未受版控的檔案只存在於建立它的那個 git worktree。
+完整說明見 [CLI-INIT-OPTIONS.md § Claude Code 整合目標檔](../../../../docs/CLI-INIT-OPTIONS.md)。
 
 ## 驗證
 
