@@ -850,6 +850,118 @@ describe('Integration Generator', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Write failed');
     });
+
+    // XSPEC adopter-report Q5: a sentence that merely mentions the marker
+    // text (e.g. UDS's own CLAUDE.md, explaining the marker syntax) used to
+    // be mistaken for the real boundary — everything between that mention
+    // and the real END marker got deleted, including the user's own
+    // content in between. writeIntegrationFile is the write path behind
+    // both `uds update --integrations-only`/`--apply` and `--sync-refs`
+    // (both call it to regenerate an integration file).
+    it('does not mistake a prose mention of the marker for the real block (Q5)', () => {
+      // Guard against the previous test's throwing writeFileSync mock
+      // leaking its implementation forward (vi.clearAllMocks() in
+      // beforeEach clears call history but not a mockImplementation).
+      writeFileSync.mockImplementation(() => {});
+      const existingContent = [
+        '那段文字提到 `<!-- UDS:STANDARDS:START -->` 這個標記的用途，不是真正的區塊邊界。',
+        '',
+        'some user content that must survive this write',
+        '',
+        '<!-- UDS:STANDARDS:START -->',
+        '## Old Standards',
+        'Old content',
+        '<!-- UDS:STANDARDS:END -->',
+        '',
+        '## Another Custom Section',
+        'More project content.'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)   // dir exists
+        .mockReturnValueOnce(true);  // file exists
+      readFileSync.mockReturnValue(existingContent);
+
+      const result = writeIntegrationFile(
+        'claude-code',
+        { categories: [], installedStandards: ['.standards/commit-message.ai.yaml'] },
+        '/project'
+      );
+
+      expect(result.success).toBe(true);
+      const writtenContent = writeFileSync.mock.calls[0][1];
+      // The prose sentence mentioning the marker survives untouched.
+      expect(writtenContent).toContain('那段文字提到');
+      // The user content sitting between the prose mention and the real
+      // block must survive — this is exactly what Q5 deleted.
+      expect(writtenContent).toContain('some user content that must survive this write');
+      expect(writtenContent).toContain('## Another Custom Section');
+      expect(writtenContent).toContain('More project content.');
+      // The real block was still updated.
+      expect(writtenContent).not.toContain('Old content');
+    });
+
+    it('does not mistake a marker mentioned inside a fenced code block for the real block (Q5)', () => {
+      writeFileSync.mockImplementation(() => {});
+      const existingContent = [
+        '```',
+        '<!-- UDS:STANDARDS:START -->',
+        '<!-- UDS:STANDARDS:END -->',
+        '```',
+        '',
+        'user content between the code sample and the real block',
+        '',
+        '<!-- UDS:STANDARDS:START -->',
+        'Old content',
+        '<!-- UDS:STANDARDS:END -->'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true);
+      readFileSync.mockReturnValue(existingContent);
+
+      const result = writeIntegrationFile(
+        'claude-code',
+        { categories: [], installedStandards: ['.standards/commit-message.ai.yaml'] },
+        '/project'
+      );
+
+      expect(result.success).toBe(true);
+      const writtenContent = writeFileSync.mock.calls[0][1];
+      expect(writtenContent).toContain('```');
+      expect(writtenContent).toContain('user content between the code sample and the real block');
+      expect(writtenContent).not.toContain('Old content');
+    });
+
+    it('refuses to write (rather than guess) when the file has two real marker pairs (Q5)', () => {
+      const existingContent = [
+        '<!-- UDS:STANDARDS:START -->',
+        'first block',
+        '<!-- UDS:STANDARDS:END -->',
+        'gap',
+        '<!-- UDS:STANDARDS:START -->',
+        'second block',
+        '<!-- UDS:STANDARDS:END -->'
+      ].join('\n');
+
+      existsSync
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true);
+      readFileSync.mockReturnValue(existingContent);
+
+      const result = writeIntegrationFile(
+        'claude-code',
+        { categories: [], installedStandards: ['.standards/commit-message.ai.yaml'] },
+        '/project'
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Found 2 standalone occurrences/);
+      // Line numbers of both real START markers are named, not guessed at.
+      expect(result.error).toMatch(/line\(s\) 1, 5/);
+      expect(writeFileSync).not.toHaveBeenCalled();
+    });
   });
 
   describe('integrationFileExists', () => {

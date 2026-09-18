@@ -4,6 +4,7 @@ import { join, relative } from 'path';
 import { UDS_MARKERS } from '../core/constants.js';
 import { resolveIntegrationFile } from '../core/constants.js';
 import { isProvenanceEstablished } from '../core/manifest.js';
+import { locateMarkerBlock, AmbiguousMarkerError } from './marker-locator.js';
 
 // GitHub issue #155. `git config core.autocrlf true` (the common
 // Windows default) rewrites LF to CRLF on checkout. The manifest's stored
@@ -472,13 +473,16 @@ function detectFormat(filePath) {
  */
 function extractBlockContent(content, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
-  const startIdx = content.indexOf(markers.start);
-  const endIdx = content.indexOf(markers.end);
+  // XSPEC adopter-report Q5: locateMarkerBlock only counts a marker when it
+  // occupies a whole line by itself, not merely appears somewhere on one —
+  // see marker-locator.js for why raw indexOf broke on real files.
+  const block = locateMarkerBlock(content, markers);
 
-  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
+  if (!block) {
     return { before: content, blockContent: '', after: '' };
   }
 
+  const { startIdx, endIdx } = block;
   return {
     before: content.substring(0, startIdx),
     blockContent: content.substring(startIdx + markers.start.length, endIdx).trim(),
@@ -515,7 +519,15 @@ export function computeIntegrationBlockHash(filePath) {
       fullHash: `sha256:${fullHash}`,
       fullSize: Buffer.byteLength(content, 'utf-8')
     };
-  } catch {
+  } catch (error) {
+    // XSPEC adopter-report Q5: an ambiguous marker pair (two real START or
+    // END lines) is a distinct, reportable condition — not "no markers
+    // found". Every other error (unreadable file, etc.) keeps the original
+    // silent-null behavior; callers that need to surface the ambiguity to a
+    // user must catch AmbiguousMarkerError explicitly (see check.js).
+    if (error instanceof AmbiguousMarkerError) {
+      throw error;
+    }
     return null;
   }
 }

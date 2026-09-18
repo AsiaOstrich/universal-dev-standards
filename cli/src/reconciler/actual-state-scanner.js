@@ -13,6 +13,7 @@ import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
 import { computeFileHash, computeIntegrationBlockHash, normalizeLineEndings } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
+import { locateMarkerBlock, AmbiguousMarkerError } from '../utils/marker-locator.js';
 import { getSkillsDirForAgent, getCommandsDirForAgent, getCommandFileExtension } from '../config/ai-agent-paths.js';
 import { getSkillsSourceEntryNames, getAvailableCommandNames } from '../utils/skills-installer.js';
 
@@ -230,7 +231,21 @@ function scanIntegrations(state, projectPath) {
     const filePath = join(projectPath, toolConfig.file);
     if (!existsSync(filePath)) continue;
 
-    const blockHash = computeIntegrationBlockHash(filePath);
+    // XSPEC adopter-report Q5: this scan walks every configured tool's file
+    // in one pass to build a full picture of the project — one file with an
+    // ambiguous marker pair must not abort the whole scan. `uds check`'s
+    // dedicated block-integrity pass is what surfaces the ambiguity to the
+    // user explicitly, with line numbers; this scan just records "unknown".
+    let blockHash;
+    try {
+      blockHash = computeIntegrationBlockHash(filePath);
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        blockHash = null;
+      } else {
+        throw error;
+      }
+    }
     const fileHash = computeFileHash(filePath);
 
     state.integrations.set(toolConfig.file, {
@@ -543,7 +558,19 @@ function hasUDSMarkers(filePath, format) {
   try {
     const content = readFileSync(filePath, 'utf-8');
     const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
-    return content.includes(markers.start) && content.includes(markers.end);
+    // XSPEC adopter-report Q5: `.includes()` matched the marker text
+    // anywhere in the file, including inside a sentence that merely mentions
+    // it — locateMarkerBlock requires a standalone, non-fenced line. An
+    // ambiguous file (two real marker lines) still "has UDS markers" for
+    // this boolean's purpose, so that is also true, not an error here.
+    try {
+      return locateMarkerBlock(content, markers) !== null;
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        return true;
+      }
+      throw error;
+    }
   } catch {
     return false;
   }

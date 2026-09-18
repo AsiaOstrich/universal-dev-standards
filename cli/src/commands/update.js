@@ -7,6 +7,7 @@ import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes, pruneIntegrationFileHashes } from '../utils/hasher.js';
+import { AmbiguousMarkerError } from '../utils/marker-locator.js';
 import {
   writeIntegrationFile,
   resolveIntegrationTargetFile,
@@ -897,8 +898,14 @@ export async function updateCommand(options) {
       if (!layeredResult.fallback) {
         console.log(chalk.green(`  ✓ Layered CLAUDE.md updated (${layeredResult.generatedFiles.length} files)`));
       }
-    } catch {
-      // Silently skip if generator not available
+    } catch (error) {
+      // XSPEC adopter-report Q5: an ambiguous marker pair is a real problem
+      // the adopter needs to see — refuse that one write and say why,
+      // rather than folding it into "generator not available".
+      if (error instanceof AmbiguousMarkerError) {
+        console.log(chalk.red(`  ✗ Layered CLAUDE.md not updated: ${error.message}`));
+      }
+      // Otherwise: silently skip if generator not available
     }
   }
 
@@ -1709,7 +1716,21 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
   if (existsSync(oldPath)) {
     const format = getToolFormat('claude-code');
     const content = readFileSync(oldPath, 'utf-8');
-    const parts = extractMarkedContent(content, format);
+    // XSPEC adopter-report Q5: an ambiguous marker pair means this write
+    // must refuse rather than guess which block to move — report and leave
+    // the old file untouched instead of switching targets on a bad guess.
+    let parts;
+    try {
+      parts = extractMarkedContent(content, format);
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        console.log(chalk.red(`    ✗ ${oldFile}: ${error.message}`));
+        console.log(chalk.gray(`      Not switching — fix the marker pair in ${oldFile} first.`));
+        process.exitCode = 1;
+        return;
+      }
+      throw error;
+    }
     if (parts.content) {
       const userContent = (parts.before.trim() + parts.after.trim()).trim();
       if (userContent.length > 0) {
@@ -1937,6 +1958,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
     console.log(chalk.bold('=== Integration Plan (dry run — nothing is written) ==='));
     const wouldChange = [];
     const unchanged = [];
+    const ambiguous = [];
     const seen = new Set();
     for (const tool of aiTools) {
       // XSPEC-418 R3: the plan must show the actual target, not the default.
@@ -1967,7 +1989,18 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
       const full = join(projectPath, targetFile);
       const current = existsSync(full) ? readFileSync(full, 'utf8') : '';
       const format = targetFile.endsWith('.md') ? 'markdown' : 'plaintext';
-      const cur = extractMarkedContent(current, format).content || '';
+      // XSPEC adopter-report Q5: an ambiguous marker pair can't be diffed
+      // against — report it explicitly instead of crashing the whole plan.
+      let cur;
+      try {
+        cur = extractMarkedContent(current, format).content || '';
+      } catch (error) {
+        if (error instanceof AmbiguousMarkerError) {
+          ambiguous.push(`${targetFile}: ${error.message}`);
+          continue;
+        }
+        throw error;
+      }
       // 比對正規化過的內容：只關心「受管區塊會不會變」，不關心尾端空白。
       if (cur.trim() === String(next).trim()) {
         unchanged.push(targetFile);
@@ -1975,6 +2008,10 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
         const delta = String(next).trim().length - cur.trim().length;
         wouldChange.push(`${targetFile} (${delta >= 0 ? '+' : ''}${delta} bytes in the UDS block)`);
       }
+    }
+    if (ambiguous.length > 0) {
+      console.log(chalk.red(`  ✗ Ambiguous UDS markers (${ambiguous.length}) — will not be touched by --apply:`));
+      for (const a of ambiguous) console.log(chalk.gray(`      ${a}`));
     }
     if (wouldChange.length > 0) {
       console.log(chalk.yellow(`  ~ Would update (${wouldChange.length}):`));

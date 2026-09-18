@@ -556,6 +556,40 @@ describe('Hasher Utils', () => {
 
         expect(resultA.blockHash).not.toBe(resultB.blockHash);
       });
+
+      // XSPEC adopter-report Q5: a sentence mentioning the marker text must
+      // not be mistaken for the real boundary. Reproduces UDS's own
+      // CLAUDE.md, which explains the marker syntax by quoting it verbatim
+      // ahead of the real block.
+      it('ignores a prose mention of the marker and hashes only the real block', () => {
+        const mentionPath = join(TEST_DIR, 'CLAUDE-mention.md');
+        const plainPath = join(TEST_DIR, 'CLAUDE-plain.md');
+        const mentionContent =
+          `那段文字提到 \`${START}\` 這個標記的用途。\n\n` +
+          `${START}\nRule one.\n${END}\n`;
+        const plainContent = `${START}\nRule one.\n${END}\n`;
+        writeFileSync(mentionPath, mentionContent);
+        writeFileSync(plainPath, plainContent);
+
+        const mentionResult = computeIntegrationBlockHash(mentionPath);
+        const plainResult = computeIntegrationBlockHash(plainPath);
+
+        expect(mentionResult).not.toBeNull();
+        // Same block content → same block hash, regardless of the prose
+        // mention sitting before it. Before the fix, the prose mention's
+        // indexOf hit was used as startIdx, so the "block" incorrectly
+        // spanned from the mention through to the real END marker.
+        expect(mentionResult.blockHash).toBe(plainResult.blockHash);
+      });
+
+      it('throws AmbiguousMarkerError, naming both lines, when the file has two real marker pairs', () => {
+        const filePath = join(TEST_DIR, 'CLAUDE-ambiguous.md');
+        const content = [START, 'first', END, 'gap', START, 'second', END].join('\n');
+        writeFileSync(filePath, content);
+
+        expect(() => computeIntegrationBlockHash(filePath)).toThrow(/Found 2 standalone occurrences/);
+        expect(() => computeIntegrationBlockHash(filePath)).toThrow(/line\(s\) 1, 5/);
+      });
     });
   });
 });

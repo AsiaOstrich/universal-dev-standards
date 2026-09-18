@@ -3,6 +3,7 @@ import { dirname, join, basename } from 'path';
 import { getLanguageRules } from '../prompts/integrations.js';
 import { computeIntegrationBlockHash } from './hasher.js';
 import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/constants.js';
+import { locateMarkerBlock } from './marker-locator.js';
 import { resolveSelectedOptionSources, resolveStandardFilename, getAllStandards } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
 
@@ -3405,13 +3406,18 @@ export function wrapWithMarkers(content, format) {
  */
 export function extractMarkedContent(fileContent, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
-  const startIdx = fileContent.indexOf(markers.start);
-  const endIdx = fileContent.indexOf(markers.end);
+  // XSPEC adopter-report Q5: locateMarkerBlock requires the marker to occupy
+  // a whole line by itself (and not be inside a fenced code block), so a
+  // sentence that merely mentions the marker text is never mistaken for the
+  // real boundary. It throws AmbiguousMarkerError if more than one real pair
+  // exists — callers must not catch that away silently.
+  const block = locateMarkerBlock(fileContent, markers);
 
-  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
+  if (!block) {
     return { before: fileContent, content: '', after: '' };
   }
 
+  const { startIdx, endIdx } = block;
   return {
     before: fileContent.substring(0, startIdx),
     content: fileContent.substring(startIdx + markers.start.length, endIdx).trim(),
@@ -3428,15 +3434,18 @@ export function extractMarkedContent(fileContent, format) {
  */
 export function updateMarkedSection(existingContent, newMarkedContent, format) {
   const markers = UDS_MARKERS[format] || UDS_MARKERS.markdown;
-  const startIdx = existingContent.indexOf(markers.start);
-  const endIdx = existingContent.indexOf(markers.end);
+  // XSPEC adopter-report Q5: same rule as extractMarkedContent — a line that
+  // merely mentions the marker text is not a boundary, so it is never
+  // deleted along with (what used to be mistaken for) "the UDS block".
+  const block = locateMarkerBlock(existingContent, markers);
 
-  if (startIdx === -1 || endIdx === -1) {
+  if (!block) {
     // No existing markers, append new content
     return existingContent.trim() + '\n\n' + wrapWithMarkers(newMarkedContent, format) + '\n';
   }
 
   // Replace existing marked section
+  const { startIdx, endIdx } = block;
   const before = existingContent.substring(0, startIdx);
   const after = existingContent.substring(endIdx + markers.end.length);
 
