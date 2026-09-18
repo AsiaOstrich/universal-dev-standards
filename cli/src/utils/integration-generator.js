@@ -2749,6 +2749,81 @@ function generateWorkflowGateContent(language) {
  * @returns {string} Generated content
  */
 /**
+ * Strip a standard's extension to get its bare identifying stem, e.g.
+ * 'commit-message.ai.yaml' -> 'commit-message'. Shared by
+ * resolveStandardReferences and getHeadingToPrimaryStandardStem below.
+ */
+function stemOf(value) {
+  return basename(String(value)).replace(/\.(ai\.yaml|yaml|md)$/i, '');
+}
+
+/**
+ * Normalize a Markdown ATX heading line for comparison, e.g.
+ * '## 提交訊息標準  ' -> '提交訊息標準'. Returns null for a non-heading line.
+ */
+function normalizeHeadingLine(line) {
+  const m = String(line).match(/^#{1,6}\s+(.+?)\s*$/);
+  return m ? m[1].trim() : null;
+}
+
+let _headingToPrimaryStandardStem = null;
+
+/**
+ * Map every RULE_TEMPLATES section heading (any category, detail level,
+ * language that has a Reference:/參考: line) to the stem of the FIRST
+ * `.standards/...` path on that line — that section's "primary standard".
+ *
+ * XSPEC adopter-report, narrow auto-repair (decision 1, 2026-09-18):
+ * 6.10.0's resolveStandardReferences deleted `.standards/commit-message-guide.md`
+ * from an existing file's "## 提交訊息標準" section — it looked exactly like a
+ * retired, uninstalled UDS standard — leaving only the trailing options
+ * reference behind. Rewriting away the resulting dangling comma (the earlier
+ * fix, same XSPEC) does not bring the deleted item back: it is gone from the
+ * file, and nothing else regenerates that section, because rule-template
+ * sections live OUTSIDE the UDS markers by design.
+ *
+ * This map is how resolveStandardReferences recognizes "this heading belongs
+ * to a UDS rule template, and here is the one reference it must never be
+ * missing" — so it can restore ONLY that single item, ONLY when it is
+ * genuinely installed and missing from the line. A heading that does not
+ * match any template (a user's own section) is simply absent from this map,
+ * so it is never touched.
+ *
+ * Computed once and cached — RULE_TEMPLATES is a static module constant.
+ *
+ * @returns {Map<string, string>} heading text (without leading '#'s) -> primary standard stem
+ */
+function getHeadingToPrimaryStandardStem() {
+  if (_headingToPrimaryStandardStem) return _headingToPrimaryStandardStem;
+
+  const map = new Map();
+  const refLineRe = /^(?:Reference|參考|参考)[:：]([^\n]*)$/im;
+
+  for (const categoryTemplates of Object.values(RULE_TEMPLATES)) {
+    for (const modeTemplates of Object.values(categoryTemplates)) {
+      for (const text of Object.values(modeTemplates)) {
+        const heading = normalizeHeadingLine(String(text).split('\n')[0]);
+        if (!heading) continue;
+
+        // 'minimal' mode has no Reference: line at all — nothing to repair,
+        // and no primary standard to record for that heading.
+        const refMatch = text.match(refLineRe);
+        if (!refMatch) continue;
+
+        const firstItem = refMatch[1].split(',')[0].trim();
+        const pathMatch = firstItem.match(/^\.standards\/([^\s,`)\]]+)$/);
+        if (!pathMatch) continue;
+
+        map.set(heading, stemOf(pathMatch[1]));
+      }
+    }
+  }
+
+  _headingToPrimaryStandardStem = map;
+  return map;
+}
+
+/**
  * Point every `.standards/<file>` reference at the file this project actually has.
  *
  * `RULE_TEMPLATES` spells its references as `.standards/<name>.md` because that
@@ -2771,7 +2846,6 @@ function generateWorkflowGateContent(language) {
 function resolveStandardReferences(content, installedStandards = [], standardsFormat = 'ai', projectPath = null) {
   if (!content) return content;
 
-  const stemOf = (value) => basename(String(value)).replace(/\.(ai\.yaml|yaml|md)$/i, '');
   // Every stem UDS itself ships — the only references this function may delete.
   //
   // Read defensively: this runs inside pure content generation, and callers
@@ -2810,17 +2884,41 @@ function resolveStandardReferences(content, installedStandards = [], standardsFo
     return installedByStem.get(stem) || installedByStem.get(STANDARD_ID_MAPPING[stem] || stem) || null;
   };
 
-  const referenceLine = /^([^\n]*(?:Reference|參考|参考)[:：])([^\n]*)$/gim;
-  return content.replace(referenceLine, (line, label, rest) => {
-    // XSPEC adopter-report Q2: rebuilt as split → filter → join instead of
-    // patching a deleted substring's separators with more regexes. The old
-    // approach deleted only the matched `.standards/...` text in place and
-    // then tried to tidy up whatever punctuation was left around the hole;
-    // it handled a trailing comma, a doubled comma, and a comma with stray
-    // space, but not a comma left dangling right after the colon when the
-    // FIRST item was the one dropped (`Reference:, .standards/other.md`).
+  const headingToPrimaryStem = getHeadingToPrimaryStandardStem();
+  const headingLineRe = /^#{1,6}\s+/;
+  const referenceLineRe = /^([^\n]*(?:Reference|參考|参考)[:：])([^\n]*)$/i;
+
+  // XSPEC adopter-report Q2: rebuilt as a line-by-line split → filter → join
+  // instead of a single global regex, so each "Reference:" line's PRECEDING
+  // heading is known (needed for decision 1's narrow auto-repair below) —
+  // and instead of patching a deleted substring's separators with more
+  // regexes. The old single-regex approach deleted only the matched
+  // `.standards/...` text in place and then tried to tidy up whatever
+  // punctuation was left around the hole; it handled a trailing comma, a
+  // doubled comma, and a comma with stray space, but not a comma left
+  // dangling right after the colon when the FIRST item was the one dropped
+  // (`Reference:, .standards/other.md`).
+  const lines = content.split('\n');
+  let currentHeading = null;
+  const outLines = [];
+
+  for (const rawLine of lines) {
+    if (headingLineRe.test(rawLine)) {
+      currentHeading = normalizeHeadingLine(rawLine);
+      outLines.push(rawLine);
+      continue;
+    }
+
+    const refMatch = rawLine.match(referenceLineRe);
+    if (!refMatch) {
+      outLines.push(rawLine);
+      continue;
+    }
+
+    const [, label, rest] = refMatch;
     const items = rest.split(',').map((s) => s.trim()).filter(Boolean);
     const kept = [];
+    const presentStems = new Set();
 
     for (const item of items) {
       const pathMatch = item.match(/^(\.standards\/)([^\s,`)\]]+)$/);
@@ -2832,10 +2930,10 @@ function resolveStandardReferences(content, installedStandards = [], standardsFo
       const [, prefix, path] = pathMatch;
 
       // Option files live in `.standards/options/…` and are named by path, not ID.
-      if (path.startsWith('options/')) { kept.push(item); continue; }
+      if (path.startsWith('options/')) { kept.push(item); presentStems.add(stemOf(path)); continue; }
 
       const actual = resolveActualFilename(path);
-      if (actual) { kept.push(`${prefix}${actual}`); continue; }
+      if (actual) { kept.push(`${prefix}${actual}`); presentStems.add(stemOf(actual)); continue; }
 
       // 🔴 Only UDS's own standards may be dropped. The first version of this
       // rewrite removed every unmatched reference, which deleted a project's own
@@ -2849,14 +2947,36 @@ function resolveStandardReferences(content, installedStandards = [], standardsFo
       }
       if (onDisk || !udsOwnedStems.has(stemOf(path))) {
         kept.push(item);
+        presentStems.add(stemOf(path));
         continue;
       }
       // Dropped: a UDS-owned reference to a standard this project did not install.
     }
 
-    if (kept.length === 0) return '';
-    return `${label} ${kept.join(', ')}`;
-  }).replace(/\n{3,}/g, '\n\n');
+    // XSPEC adopter-report, narrow auto-repair (decision 1): this line's
+    // heading matches a UDS rule template EXACTLY (see
+    // getHeadingToPrimaryStandardStem's docblock) and that template's
+    // primary standard is genuinely installed but missing from the line —
+    // put it back at the front. Idempotent: a line that already has it does
+    // nothing. Everything else about the line — the project's own entries,
+    // options files, existing order — is untouched, and no OTHER (secondary)
+    // template item is ever added back.
+    const primaryStem = currentHeading ? headingToPrimaryStem.get(currentHeading) : null;
+    if (primaryStem && !presentStems.has(primaryStem)) {
+      const primaryActual = installedByStem.get(primaryStem);
+      if (primaryActual) {
+        kept.unshift(`.standards/${primaryActual}`);
+      }
+    }
+
+    if (kept.length === 0) {
+      outLines.push('');
+      continue;
+    }
+    outLines.push(`${label} ${kept.join(', ')}`);
+  }
+
+  return outLines.join('\n').replace(/\n{3,}/g, '\n\n');
 }
 
 export function generateIntegrationContent(config) {
