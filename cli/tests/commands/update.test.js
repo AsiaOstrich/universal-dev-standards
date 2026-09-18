@@ -51,7 +51,9 @@ vi.mock('../../src/utils/hasher.js', () => ({
     keep: [],
     census: { udsOwned: 0, foreign: 0, unknown: 0, desired: 0 }
   })),
-  refreshIntegrationBlockHashes: vi.fn()
+  refreshIntegrationBlockHashes: vi.fn(),
+  // XSPEC-418 R6
+  pruneIntegrationFileHashes: vi.fn(() => [])
 }));
 
 // Bypass DEC-044 / XSPEC-071 self-adoption guard in unit tests — these

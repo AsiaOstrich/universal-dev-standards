@@ -69,7 +69,9 @@ vi.mock('../../../src/utils/hasher.js', () => ({
   computeFileHash: vi.fn(() => ({ hash: 'sha256:computed', size: 100 })),
   computeIntegrationBlockHash: vi.fn(() => ({
     blockHash: 'sha256:block', blockSize: 50, fullHash: 'sha256:full', fullSize: 200
-  }))
+  })),
+  // XSPEC-418 R6
+  pruneIntegrationFileHashes: vi.fn(() => [])
 }));
 
 import { executePlan } from '../../../src/reconciler/plan-executor.js';

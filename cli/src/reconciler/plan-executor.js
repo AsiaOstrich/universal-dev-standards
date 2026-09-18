@@ -22,7 +22,7 @@ import {
 import { writeManifest } from '../core/manifest.js';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
-import { computeFileHash } from '../utils/hasher.js';
+import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import { createBackup, cleanupBackups } from './backup-manager.js';
 
 /**
@@ -179,6 +179,11 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   // Write updated manifest
   if (!dryRun) {
     try {
+      // XSPEC-418 R6: catches any stale whole-file entry for an integration
+      // file this particular plan didn't touch (e.g. `--plan --skills` never
+      // reaches executeMigrateBlock), not just the one this run might
+      // otherwise have added.
+      pruneIntegrationFileHashes(updatedManifest);
       writeManifest(updatedManifest, projectPath);
     } catch (err) {
       results.push({
@@ -351,21 +356,17 @@ function executeMigrateBlock(projectPath, action, manifest) {
     if (result.blockHashInfo) {
       manifest.integrationBlockHashes[result.path] = result.blockHashInfo;
     }
-    // `init` also records integration files in the whole-file `fileHashes`, which
-    // is what `uds check`'s File Integrity compares. Rewriting the block without
-    // refreshing that entry left the file permanently reported as "modified" —
-    // a successful reconcile that reads, afterwards, as a damaged install.
-    // (XSPEC-343 R2)
-    const tracked = manifest.fileHashes?.[result.path];
-    if (tracked) {
-      const info = computeFileHash(join(projectPath, result.path));
-      if (info) {
-        manifest.fileHashes[result.path] = {
-          ...info,
-          installedAt: tracked.installedAt || new Date().toISOString()
-        };
-      }
-    }
+    // XSPEC-418 R6 supersedes the XSPEC-343 R2 fix this replaces. That fix
+    // refreshed a whole-file `fileHashes` entry here if one already existed,
+    // reasoning that leaving it stale would report the file "modified"
+    // forever. Refreshing it does stop that — but a whole-file hash for an
+    // integration file disagrees with reality the moment the adopter edits
+    // anything OUTSIDE the block, which the marker-based update above
+    // deliberately leaves alone; "modified" then fires for content UDS itself
+    // says it preserves, and contradicts the same run's block-integrity
+    // check. The correct fix is for this path not to be in `fileHashes` at
+    // all — it is tracked by the block hash above instead.
+    if (manifest.fileHashes) delete manifest.fileHashes[result.path];
     return { action, success: true };
   }
 

@@ -20,6 +20,7 @@ status: current
 ### 修复
 
 - **`uds check --ci` 可能画面上打印整合区块的 ✗，结尾却仍宣称项目符合标准并以退出码 0 收尾。** `checkIntegrationBlocksIntegrity` 的检查结果（区块被修改／丢失／UDS 标记被移除）算出来也打印出来了，却在最终判定被丢弃——判定只看标准文件完整性。若你的 CI 一直对某个 CLAUDE.md／GEMINI.md 等文件的 UDS 区块实际上已被移除或改动的项目显示绿灯，那就是这个缺陷；`--ci` 现在会正确地失败，直到区块被恢复（`uds update --integrations-only`）或项目以其他方式恢复同步为止。交互式 `uds check`（不加 `--ci`）不受影响——仍以退出码 0 收尾，不中断一般使用。（XSPEC-418 R1）
+- **整合文件（CLAUDE.md、CLAUDE.local.md、AGENTS.md 等）同时被整份内容与 UDS 区块两套哈希追踪，两套检查在同一次运行里可能互相矛盾。** 全新 `uds init` 从不为这些文件记录整份哈希，但 `uds update --integrations-only` 会——跑过一次之后，用户在 UDS 区块**外**的任何修改（正是 marker-based update 承诺保留的自定义内容）都会让 `uds check --ci` 报 `CLAUDE.md（已修改）` 并退出码 1，而同一次输出里自己的区块完整性检查却说区块完好。另外，`uds check --restore` 正确地重写了损坏的区块（保留区块外内容，没有数据丢失），却只更新了整份哈希，从未更新区块哈希——于是下一次 check 对一个刚被正确恢复的区块报 `CLAUDE.md（UDS 区块已修改）`。整合文件现在不再写入 `fileHashes`（只写入本来就只追踪区块的 `integrationBlockHashes`）——走查了所有写入点，不只最初报告的两处，包括 `--apply`／`--plan` 的 reconciler 路径与 `--sync-refs`；已有 manifest 里这类文件残留的整份哈希，会在下一次 `uds update`（或 `uds check --restore`／`--migrate`）时被移除，区块哈希保留。`uds check --restore` 恢复整合文件后，现在会把区块哈希更新为实际写入的内容。已用一份真实采用者的 manifest（恰好带有这个残留字段）验证：同一份输入，修正前 `uds check --ci` 退出码 1，修正后退出码 0。后续复核另发现两个缺口，一并修掉：`uds check --restore` 过去对受损的 UDS 区块完全无作用——它靠的是 `fileStatus`，而那完全由 `fileHashes` 构建，已不含整合文件，于是它悄悄恢复了 0 个文件而区块仍是坏的；`--restore` 现在也会恢复被判定为「已修改」或「标记丢失」的区块（不动区块外内容，`--restore-missing` 行为不变）。另外，因为上面新增的清除逻辑只挂在写入路径，已有 manifest 里残留的整份哈希若不曾跑过写入，纯 `check` 永远没有机会清掉它——标准文件完整性检查现在也会在读取时跳过同时被 `integrationBlockHashes` 追踪的键，让未跑过 `update` 的已有项目也能报告干净。（XSPEC-418 R6）
 
 ### 新增
 

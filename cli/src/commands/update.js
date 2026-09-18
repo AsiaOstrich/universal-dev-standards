@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from '
 import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
-import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes } from '../utils/hasher.js';
+import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
   resolveIntegrationTargetFile,
@@ -968,14 +968,14 @@ export async function updateCommand(options) {
     }
   }
 
-  // Update hashes for integrations
-  for (const int of results.integrations) {
-    const fullPath = join(projectPath, int);
-    const hashInfo = computeFileHash(fullPath);
-    if (hashInfo) {
-      manifest.fileHashes[int] = { ...hashInfo, installedAt: now };
-    }
-  }
+  // XSPEC-418 R6: integration files (results.integrations — CLAUDE.md,
+  // CLAUDE.local.md, AGENTS.md, etc.) are tracked by their UDS block in
+  // integrationBlockHashes, not by whole-file hash here. A whole-file entry
+  // for one of these disagrees the moment the adopter edits anything outside
+  // the block — exactly the customization the marker-based update preserves —
+  // and made `uds check` report "modified" while its own block-integrity
+  // check said the block was intact. See pruneIntegrationFileHashes below for
+  // cleanup of any such entry an older CLI already wrote.
 
   // Record what UDS wrote this run, then decide what (if anything) may go.
   // (XSPEC-384 R1/R2/R3)
@@ -1758,12 +1758,8 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
       installedAt: new Date().toISOString()
     };
   }
-  const fullPath = join(projectPath, result.path);
-  const hashInfo = computeFileHash(fullPath);
-  if (hashInfo) {
-    if (!manifest.fileHashes) manifest.fileHashes = {};
-    manifest.fileHashes[result.path.replace(/\\/g, '/')] = { ...hashInfo, installedAt: new Date().toISOString() };
-  }
+  // XSPEC-418 R6: no whole-file fileHashes entry for the new target either —
+  // only its UDS block is tracked, above.
 
   // 4. manifest.integrations may record the old file path (XSPEC-343 shapes) —
   // point it at the new one instead of leaving a stale entry check would then
@@ -1772,6 +1768,10 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
   if (!manifest.integrations.includes(newFile) && !manifest.integrations.includes('claude-code')) {
     manifest.integrations.push(newFile);
   }
+
+  // XSPEC-418 R6: also catches a stale whole-file entry for either file left
+  // by an older CLI, not just the one this run might otherwise have added.
+  pruneIntegrationFileHashes(manifest);
 
   writeManifest(manifest, projectPath);
 
@@ -1819,16 +1819,11 @@ export function regenerateIntegrations(projectPath, manifest) {
       results.updated.push(result.path);
       generatedFiles.add(targetFile);
 
-      // Update file hash
-      const fullPath = join(projectPath, result.path);
-      const hashInfo = computeFileHash(fullPath);
-      if (hashInfo) {
-        if (!manifest.fileHashes) {
-          manifest.fileHashes = {};
-        }
-        const normalizedPath = result.path.replace(/\\/g, '/');
-        manifest.fileHashes[normalizedPath] = { ...hashInfo, installedAt: now };
-      }
+      // XSPEC-418 R6: no whole-file `fileHashes` entry for an integration
+      // file — only the UDS block is tracked, below. A whole-file entry here
+      // is exactly what made `uds check` report "CLAUDE.md (modified)" for
+      // content outside the block that UDS's own marker-based update leaves
+      // alone on purpose.
 
       // Track integration block hash for UDS content integrity
       if (result.blockHashInfo) {
@@ -1866,6 +1861,14 @@ export function regenerateIntegrations(projectPath, manifest) {
       refreshTrackedFileHash(manifest, projectPath, agentsMdResult.path);
     }
   }
+
+  // XSPEC-418 R6: drop any fileHashes entry left over from an older CLI (or
+  // from refreshTrackedFileHash above, which predates this rule and still
+  // refreshes AGENTS.md's whole-file hash if one is already tracked). Called
+  // here rather than relying only on refreshIntegrationBlockHashes downstream
+  // because not every caller of this function calls that afterward (`uds
+  // config`'s AI-tools flow does not).
+  pruneIntegrationFileHashes(manifest);
 
   return {
     success: results.errors.length === 0,
@@ -2088,6 +2091,14 @@ function resolveToolKeyFromEntry(entry) {
  * tracking it would convert every legitimate edit into a reported fault. This
  * only ever refreshes a record that already exists.
  *
+ * XSPEC-418 R6 narrowed that further: AGENTS.md is also tracked by its UDS
+ * block (`integrationBlockHashes`) once one exists, and every call site of
+ * this function now also calls `pruneIntegrationFileHashes` afterward — so a
+ * `fileHashes` entry this refreshes is removed again in the same run. Kept
+ * (rather than deleted outright) because it still matters for the moment
+ * between this call and the prune, and for any caller added later that
+ * forgets to prune; the prune is what actually enforces R6.
+ *
  * @param {Object} manifest - Project manifest (mutated)
  * @param {string} projectPath - Project root
  * @param {string} relativePath - Path as UDS reports it
@@ -2297,15 +2308,8 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
         generatedAt: now
       };
 
-      // Update file hash
-      const hashInfo = computeFileHash(fullPath);
-      if (hashInfo) {
-        if (!manifest.fileHashes) {
-          manifest.fileHashes = {};
-        }
-        const normalizedIntPath = integrationPath.replace(/\\/g, '/');
-        manifest.fileHashes[normalizedIntPath] = { ...hashInfo, installedAt: now };
-      }
+      // XSPEC-418 R6: no whole-file fileHashes entry — only the UDS block is
+      // tracked, below.
 
       // Track integration block hash for UDS content integrity
       if (result.blockHashInfo) {
