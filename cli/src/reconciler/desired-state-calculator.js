@@ -15,9 +15,15 @@ import {
   MANIFEST_OPTION_BINDINGS,
   OPTIONS_INSTALL_DIR
 } from '../core/constants.js';
-import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
+import {
+  resolveIntegrationTargetFile,
+  buildToolIntegrationConfig,
+  generateIntegrationContent,
+  extractMarkedContent
+} from '../utils/integration-generator.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
+import { createHash } from 'crypto';
 import {
   getSkillsDirForAgent,
   getCommandsDirForAgent,
@@ -263,6 +269,37 @@ function calculateExtensions(state, manifest) {
 }
 
 /**
+ * Compute the block hash generation would produce for this tool right now,
+ * using the same builder (`buildToolIntegrationConfig`) and generator
+ * (`generateIntegrationContent`) `--apply`/`uds update` themselves use.
+ *
+ * Hashed the same way `computeIntegrationBlockHash` (hasher.js) hashes an
+ * actual on-disk file — extract the marker block, trim, sha256 — so the two
+ * are directly comparable. Never throws: generation can fail for reasons
+ * outside this module's control (an incomplete/mocked registry, a tool this
+ * process cannot resolve, etc.), and the correct response to "cannot compute
+ * an expected hash" is `null` — diffIntegrations already knows how to treat
+ * that the same as before this fix (always migrate_block), not to crash the
+ * whole state calculation over one tool.
+ *
+ * @param {Object} manifest
+ * @param {string} toolName
+ * @param {string} format
+ * @returns {string|null}
+ */
+function computeExpectedIntegrationBlockHash(manifest, toolName, format) {
+  try {
+    const config = { ...buildToolIntegrationConfig(manifest, toolName), format: manifest.format || 'ai' };
+    const generated = generateIntegrationContent({ ...config, tool: toolName });
+    const { content: blockContent } = extractMarkedContent(generated, format);
+    if (!blockContent) return null;
+    return `sha256:${createHash('sha256').update(blockContent).digest('hex')}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Calculate expected integration files.
  * For integrations we track the UDS marker block, not the entire file.
  */
@@ -290,7 +327,14 @@ function calculateIntegrations(state, manifest) {
 
     state.integrations.set(relativePath, {
       relativePath,
-      hash: null,  // Integration hashes are computed after generation
+      // XSPEC adopter-report Q6: this used to be a hardcoded `null` ("hashes
+      // are computed after generation"), which is why diffIntegrations could
+      // never tell "content already matches" from "content differs" and
+      // unconditionally produced migrate_block — `--plan` never converged,
+      // even immediately after `--apply`. Actually generating the content
+      // ahead of time (the same generation `--apply` itself runs) gives a
+      // real hash to compare against the actual file's block hash.
+      hash: computeExpectedIntegrationBlockHash(manifest, toolName, toolConfig.format),
       size: null,
       category: 'integration',
       sourcePath: null,  // Generated, not copied from source

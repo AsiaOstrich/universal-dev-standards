@@ -158,6 +158,84 @@ describe('DiffEngine', () => {
       expect(migrateAction.category).toBe('integration');
     });
 
+    // XSPEC adopter-report Q6: `--plan` never converged. diffIntegrations
+    // unconditionally produced migrate_block for any file with markers,
+    // whether or not its content actually differed from what would be
+    // generated — "we always update integrations since content is generated
+    // dynamically" (the removed comment's own words). Two consecutive
+    // `--apply` runs on an unchanged project kept reporting `Migrate Block: 2`
+    // forever. This requires a real desired-state hash (computed from what
+    // generation would produce), not a mock hash — see
+    // desired-state-calculator.test.js for that half of the fix.
+    it('reports integration as unchanged when the desired hash matches the actual block hash (Q6)', () => {
+      const desired = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:same', 'integration', { toolName: 'claude-code', format: 'markdown' })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+      const actual = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:same', 'integration', { toolName: 'claude-code', hasMarkers: true, blockHash: { blockHash: 'sha256:same' } })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+
+      const plan = computeDiff(desired, actual);
+
+      expect(plan.summary.migrate_block).toBe(0);
+      expect(plan.summary.unchanged).toBeGreaterThan(0);
+      expect(plan.actions.find(a => a.path === 'CLAUDE.md')).toBeUndefined();
+    });
+
+    it('still produces migrate_block when the desired hash differs from the actual block hash (Q6 negative control)', () => {
+      const desired = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:new-content', 'integration', { toolName: 'claude-code', format: 'markdown' })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+      const actual = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:old-content', 'integration', { toolName: 'claude-code', hasMarkers: true, blockHash: { blockHash: 'sha256:old-content' } })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+
+      const plan = computeDiff(desired, actual);
+
+      expect(plan.summary.migrate_block).toBe(1);
+      const migrateAction = plan.actions.find(a => a.type === 'migrate_block');
+      expect(migrateAction.reason).toMatch(/differ/);
+    });
+
+    // --force must still rewrite unconditionally even when hashes already match.
+    it('force mode still migrates the block even when hashes already match', () => {
+      const desired = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:same', 'integration', { toolName: 'claude-code', format: 'markdown' })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+      const actual = {
+        standards: new Map(),
+        options: new Map(),
+        integrations: new Map([['CLAUDE.md', entry('CLAUDE.md', 'sha256:same', 'integration', { toolName: 'claude-code', hasMarkers: true, blockHash: { blockHash: 'sha256:same' } })]]),
+        skills: new Map(),
+        commands: new Map()
+      };
+
+      const plan = computeDiff(desired, actual, { force: true });
+
+      expect(plan.summary.migrate_block).toBe(1);
+      expect(plan.actions[0].reason).toContain('force');
+    });
+
     it('should create integration when file is missing', () => {
       const desired = {
         standards: new Map(),
