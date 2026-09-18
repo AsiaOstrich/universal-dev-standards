@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.10.0
-translation_version: 6.10.0
-last_synced: 2026-09-16
+source_version: 6.11.0
+translation_version: 6.11.0
+last_synced: 2026-09-18
 status: current
 ---
 
@@ -16,6 +16,8 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.11.0] - 2026-09-18
 
 ### 修复
 
