@@ -6,6 +6,7 @@ import { UDS_MARKERS, SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } from '../core/c
 import { locateMarkerBlock } from './marker-locator.js';
 import { resolveSelectedOptionSources, resolveStandardFilename, getAllStandards } from './registry.js';
 import { getAgentConfig, getAgentTier } from '../config/ai-agent-paths.js';
+import { STANDARD_ID_MAPPING } from './conversion-rules.js';
 
 /**
  * Resolve contentMode and level based on AI tool's tier and capabilities.
@@ -2797,15 +2798,44 @@ function resolveStandardReferences(content, installedStandards = [], standardsFo
     installedByStem.set(stemOf(filename), filename);
   }
 
+  // XSPEC adopter-report Q2: a reference written against a pre-6.0.0
+  // filename (`commit-message-guide.md`) must still resolve to whatever this
+  // project installed under the CURRENT id (`commit-message`) — that rename
+  // is exactly what STANDARD_ID_MAPPING already records, previously
+  // consulted only by the human→AI YAML generator. Without it, the old name
+  // was indistinguishable from a retired, UDS-owned standard the project
+  // chose not to install, and got deleted instead of rewritten.
+  const resolveActualFilename = (path) => {
+    const stem = stemOf(path);
+    return installedByStem.get(stem) || installedByStem.get(STANDARD_ID_MAPPING[stem] || stem) || null;
+  };
+
   const referenceLine = /^([^\n]*(?:Reference|參考|参考)[:：])([^\n]*)$/gim;
   return content.replace(referenceLine, (line, label, rest) => {
-    let dropped = 0;
-    let kept = 0;
-    const rewritten = rest.replace(/(\.standards\/)([^\s,`)\]]+)/g, (match, prefix, path) => {
+    // XSPEC adopter-report Q2: rebuilt as split → filter → join instead of
+    // patching a deleted substring's separators with more regexes. The old
+    // approach deleted only the matched `.standards/...` text in place and
+    // then tried to tidy up whatever punctuation was left around the hole;
+    // it handled a trailing comma, a doubled comma, and a comma with stray
+    // space, but not a comma left dangling right after the colon when the
+    // FIRST item was the one dropped (`Reference:, .standards/other.md`).
+    const items = rest.split(',').map((s) => s.trim()).filter(Boolean);
+    const kept = [];
+
+    for (const item of items) {
+      const pathMatch = item.match(/^(\.standards\/)([^\s,`)\]]+)$/);
+      if (!pathMatch) {
+        // Not a bare `.standards/...` reference (e.g. trailing prose) — leave untouched.
+        kept.push(item);
+        continue;
+      }
+      const [, prefix, path] = pathMatch;
+
       // Option files live in `.standards/options/…` and are named by path, not ID.
-      if (path.startsWith('options/')) { kept++; return match; }
-      const actual = installedByStem.get(stemOf(path));
-      if (actual) { kept++; return `${prefix}${actual}`; }
+      if (path.startsWith('options/')) { kept.push(item); continue; }
+
+      const actual = resolveActualFilename(path);
+      if (actual) { kept.push(`${prefix}${actual}`); continue; }
 
       // 🔴 Only UDS's own standards may be dropped. The first version of this
       // rewrite removed every unmatched reference, which deleted a project's own
@@ -2817,13 +2847,15 @@ function resolveStandardReferences(content, installedStandards = [], standardsFo
       } catch {
         onDisk = false;
       }
-      if (onDisk || !udsOwnedStems.has(stemOf(path))) { kept++; return match; }
-      dropped++;
-      return '';
-    });
-    if (kept === 0 && dropped > 0) return '';
-    // Tidy the separators left behind by a dropped path.
-    return `${label}${rewritten.replace(/,\s*,/g, ',').replace(/[:：]?\s*,\s*$/, '').replace(/\s+,/g, ',')}`;
+      if (onDisk || !udsOwnedStems.has(stemOf(path))) {
+        kept.push(item);
+        continue;
+      }
+      // Dropped: a UDS-owned reference to a standard this project did not install.
+    }
+
+    if (kept.length === 0) return '';
+    return `${label} ${kept.join(', ')}`;
   }).replace(/\n{3,}/g, '\n\n');
 }
 
