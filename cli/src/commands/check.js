@@ -34,6 +34,7 @@ import {
 } from '../utils/reference-sync.js';
 import { extractMarkedContent, resolveIntegrationTargetFile, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
 import { AmbiguousMarkerError } from '../utils/marker-locator.js';
+import { bumpManifestVersion } from '../core/manifest.js';
 import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
@@ -1069,7 +1070,7 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   // Update manifest
   manifest.fileHashes = fileHashes;
   manifest.integrationBlockHashes = integrationBlockHashes;
-  manifest.version = '3.1.0';
+  bumpManifestVersion(manifest);
   pruneIntegrationFileHashes(manifest);
   writeManifest(manifest, projectPath);
 

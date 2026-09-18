@@ -338,7 +338,12 @@ export function calculateCategoriesFromStandards(standards) {
   const categories = new Set();
 
   for (const std of standards) {
-    const category = getStandardCategory(std);
+    // XSPEC adopter-report Q1: getStandardCategory is keyed by filename and
+    // returns null for a bare manifest stem ('commit-message'), which is
+    // exactly what a 3.4.0 manifest stores — this emptied the whole category
+    // set on a real install. categoryForStandard (below) tries the stem
+    // against both known extensions first.
+    const category = categoryForStandard(std);
     if (category) {
       categories.add(category);
     }

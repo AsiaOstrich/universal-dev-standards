@@ -49,7 +49,7 @@ import {
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { regenerateIntegrations } from './update.js';
-import { mergeInstalledNames } from '../core/manifest.js';
+import { mergeInstalledNames, bumpManifestVersion } from '../core/manifest.js';
 
 /**
  * Get localized message with fallback (for config-specific keys)
@@ -1058,7 +1058,7 @@ export async function runProjectConfiguration(options) {
   manifest.options = newOptions;
   manifest.contentMode = newContentMode;
   manifest.aiTools = newAITools;
-  manifest.version = '3.2.0';
+  bumpManifestVersion(manifest);
 
   // Update methodology
   if (newMethodology) {

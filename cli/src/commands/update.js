@@ -63,7 +63,8 @@ import {
   recordFileProvenance,
   forgetFileProvenance,
   establishProvenance,
-  isProvenanceEstablished
+  isProvenanceEstablished,
+  bumpManifestVersion
 } from '../core/manifest.js';
 
 /**
@@ -1110,7 +1111,7 @@ export async function updateCommand(options) {
   // date. The manifest is still written so that hash/migration bookkeeping for
   // the files that DID succeed is persisted.
   const updateIncomplete = results.errors.length > 0;
-  manifest.version = '3.3.0';
+  bumpManifestVersion(manifest);
   if (!updateIncomplete) {
     manifest.upstream.version = latestVersion;
     manifest.upstream.installed = new Date().toISOString().split('T')[0];
@@ -2036,7 +2037,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
   spinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.updated.length));
 
   // Update manifest
-  manifest.version = '3.3.0';
+  bumpManifestVersion(manifest);
   refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
@@ -2366,7 +2367,7 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
 
   // Update manifest version and save
   if (updatedCount > 0) {
-    manifest.version = '3.3.0';
+    bumpManifestVersion(manifest);
     refreshIntegrationBlockHashes(manifest, projectPath);
     if (plan) {
       console.log(chalk.gray('  (dry run — the manifest was not written)'));
