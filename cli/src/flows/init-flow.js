@@ -242,6 +242,13 @@ export async function runInitFlow(options, detected, projectPath) {
   // Optional step — skippable by answering "n" or pressing Ctrl+C.
   await promptProjectContractStep(projectPath);
 
+  // XSPEC-418 R2: --claude-target is a flag, not an interactive question, but a
+  // user running `uds init --claude-target local` without `-y` still expects it
+  // honored while answering the rest of the prompts.
+  const integrationTargets = options.claudeTarget === 'local'
+    ? { 'claude-code': 'CLAUDE.local.md' }
+    : undefined;
+
   return {
     languages,
     frameworks,
@@ -253,6 +260,7 @@ export async function runInitFlow(options, detected, projectPath) {
     integrations,
     contentMode,
     generateAgentsMd,
-    releaseMode
+    releaseMode,
+    integrationTargets
   };
 }

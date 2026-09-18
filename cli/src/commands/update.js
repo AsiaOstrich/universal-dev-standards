@@ -9,7 +9,7 @@ import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardS
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes } from '../utils/hasher.js';
 import {
   writeIntegrationFile,
-  getToolFilePath,
+  resolveIntegrationTargetFile,
   writeAgentsMdSummary,
   resolveContentModeForTool,
   generateIntegrationContent,
@@ -56,7 +56,7 @@ import {
 } from '../reconciler/index.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
-import { resolveIntegrationFile, SUPPORTED_AI_TOOLS } from '../core/constants.js';
+import { resolveIntegrationFile, SUPPORTED_AI_TOOLS, getToolFormat } from '../core/constants.js';
 import {
   mergeInstalledNames,
   recordFileProvenance,
@@ -438,6 +438,15 @@ export async function updateCommand(options) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
+  // Handle --claude-target option (XSPEC-418 R4): switch an EXISTING
+  // installation's claude-code integration target between CLAUDE.md and
+  // CLAUDE.local.md, without a full reinstall. Standalone, like --sync-refs
+  // below — it does not compose with other update modes/scopes.
+  if (options.claudeTarget) {
+    await switchClaudeTarget(projectPath, manifest, options.claudeTarget, options);
+    return;
+  }
+
   // Handle --sync-refs option.
   // `--plan` is honoured here too. This branch is above the mode dispatch
   // because sync-refs is its own operation rather than a scope of the
@@ -773,7 +782,9 @@ export async function updateCommand(options) {
     const aiTools = manifest.aiTools || [];
 
     for (const tool of aiTools) {
-      const targetFile = getToolFilePath(tool);
+      // XSPEC-418 R3: honors manifest.integrationTargets — the tool's file may
+      // be CLAUDE.local.md, not the hardcoded default.
+      const targetFile = resolveIntegrationTargetFile(tool, manifest);
       if (generatedFiles.has(targetFile)) {
         continue; // Skip if already generated (AGENTS.md sharing)
       }
@@ -790,7 +801,9 @@ export async function updateCommand(options) {
         contentMode: resolved.contentMode,
         level: resolved.level,
         // Pass output_language for dynamic commit standards generation
-        outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english'
+        outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
+        // XSPEC-418 R2/R3: so writeIntegrationFile resolves the actual target.
+        integrationTargets: manifest.integrationTargets
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -849,7 +862,11 @@ export async function updateCommand(options) {
     if (manifest.integrationBlockHashes) {
       const expectedFiles = new Set();
       for (const tool of (manifest.aiTools || [])) {
-        const targetFile = getToolFilePath(tool);
+        // XSPEC-418 R3: an expected set built from the hardcoded default file
+        // pruned CLAUDE.local.md's own hash the moment a local-target install
+        // ran this cleanup — it looked orphaned because nothing here knew the
+        // real target had moved.
+        const targetFile = resolveIntegrationTargetFile(tool, manifest);
         if (targetFile) expectedFiles.add(targetFile);
       }
       // Universal AGENTS.md is tracked when generateAgentsMd is enabled.
@@ -1119,8 +1136,9 @@ export async function updateCommand(options) {
     allTrackedFiles.push(join('.standards', fileName));
   }
   for (const intEntry of (manifest.integrations || [])) {
-    // 兩種形狀都要能解出路徑（XSPEC-343 R1）
-    const filePath = resolveIntegrationFile(intEntry) || getToolFilePath(intEntry);
+    // 兩種形狀都要能解出路徑（XSPEC-343 R1），且要尊重 manifest.integrationTargets
+    // 的目標覆寫（XSPEC-418 R2/R3）——resolveIntegrationTargetFile 已同時處理兩者。
+    const filePath = resolveIntegrationTargetFile(intEntry, manifest);
     if (filePath) {
       allTrackedFiles.push(filePath);
     }
@@ -1642,6 +1660,126 @@ async function offerErrorExitGate(projectPath, options) {
 }
 
 /**
+ * Switch the claude-code integration's target file between CLAUDE.md and
+ * CLAUDE.local.md for an EXISTING installation, without a full reinstall.
+ * // implements XSPEC-418 R4
+ *
+ * The scenario this exists for: an adopter installed with the default target
+ * (CLAUDE.md), then either hand-moved the UDS block to CLAUDE.local.md (it now
+ * exists there with markers already) or wants to move it there for the first
+ * time. Either way `uds update --claude-target local` should leave exactly one
+ * up-to-date block in the new target and none in the old one.
+ *
+ * @param {string} projectPath
+ * @param {Object} manifest - Mutated and written to disk on success
+ * @param {string} target - 'project' | 'local'
+ * @param {Object} options - CLI options (unused today; kept for symmetry with
+ *   the other option handlers and so a future confirmation prompt has somewhere
+ *   to read --yes from)
+ */
+async function switchClaudeTarget(projectPath, manifest, target, options) { // eslint-disable-line no-unused-vars
+  if (target !== 'project' && target !== 'local') {
+    console.log(chalk.red(`  ✗ --claude-target must be "project" or "local", got "${target}"`));
+    console.log();
+    process.exitCode = 1;
+    return;
+  }
+
+  if (!(manifest.aiTools || []).includes('claude-code')) {
+    console.log(chalk.yellow('  claude-code is not among the configured AI tools — nothing to switch.'));
+    console.log();
+    return;
+  }
+
+  const oldFile = resolveIntegrationTargetFile('claude-code', manifest);
+  const newFile = target === 'local' ? 'CLAUDE.local.md' : 'CLAUDE.md';
+
+  if (oldFile === newFile) {
+    console.log(chalk.gray(`  claude-code integration already targets ${newFile}. Nothing to do.`));
+    console.log();
+    return;
+  }
+
+  console.log(chalk.cyan(`  Switching claude-code integration target: ${oldFile} → ${newFile}`));
+
+  // 1. Remove the UDS block from the OLD file, preserving any user content —
+  // the same rule uninstallIntegrations already applies. A file left 100%
+  // UDS-generated once the block is gone is deleted outright.
+  const oldPath = join(projectPath, oldFile);
+  if (existsSync(oldPath)) {
+    const format = getToolFormat('claude-code');
+    const content = readFileSync(oldPath, 'utf-8');
+    const parts = extractMarkedContent(content, format);
+    if (parts.content) {
+      const userContent = (parts.before.trim() + parts.after.trim()).trim();
+      if (userContent.length > 0) {
+        const cleaned = (parts.before + parts.after).trim() + '\n';
+        writeFileSync(oldPath, cleaned, 'utf-8');
+        console.log(chalk.gray(`    ${oldFile}: UDS block removed, your content kept`));
+      } else {
+        unlinkSync(oldPath);
+        console.log(chalk.gray(`    ${oldFile}: deleted (was 100% UDS-generated)`));
+      }
+    }
+    // else: no UDS markers found in the old file (already moved by hand) —
+    // nothing UDS-owned to remove.
+  }
+  if (manifest.integrationBlockHashes) delete manifest.integrationBlockHashes[oldFile];
+  if (manifest.fileHashes) delete manifest.fileHashes[oldFile];
+
+  // 2. Point the manifest at the new target. Switching back to 'project'
+  // removes the override entirely rather than writing it as 'CLAUDE.md', so a
+  // round-tripped manifest is shaped exactly as if local had never been chosen
+  // (XSPEC-418 AC-5).
+  if (target === 'local') {
+    manifest.integrationTargets = { ...(manifest.integrationTargets || {}), 'claude-code': 'CLAUDE.local.md' };
+  } else if (manifest.integrationTargets) {
+    delete manifest.integrationTargets['claude-code'];
+    if (Object.keys(manifest.integrationTargets).length === 0) delete manifest.integrationTargets;
+  }
+
+  // 3. Write (or update in place) the new target. writeIntegrationFile already
+  // does a marker-based UPDATE when the file exists and has UDS markers — the
+  // "hand-moved to CLAUDE.local.md already" arm of R4 — and only appends when
+  // it does not, so this one call covers both AC-4 arms.
+  const toolConfig = buildToolIntegrationConfig(manifest, 'claude-code');
+  const result = writeIntegrationFile('claude-code', toolConfig, projectPath);
+  if (!result.success) {
+    console.log(chalk.red(`  ✗ Failed to write ${newFile}: ${result.error}`));
+    console.log();
+    process.exitCode = 1;
+    return;
+  }
+
+  if (result.blockHashInfo) {
+    if (!manifest.integrationBlockHashes) manifest.integrationBlockHashes = {};
+    manifest.integrationBlockHashes[result.path] = {
+      ...result.blockHashInfo,
+      installedAt: new Date().toISOString()
+    };
+  }
+  const fullPath = join(projectPath, result.path);
+  const hashInfo = computeFileHash(fullPath);
+  if (hashInfo) {
+    if (!manifest.fileHashes) manifest.fileHashes = {};
+    manifest.fileHashes[result.path.replace(/\\/g, '/')] = { ...hashInfo, installedAt: new Date().toISOString() };
+  }
+
+  // 4. manifest.integrations may record the old file path (XSPEC-343 shapes) —
+  // point it at the new one instead of leaving a stale entry check would then
+  // report as missing.
+  manifest.integrations = (manifest.integrations || []).map(entry => (entry === oldFile ? newFile : entry));
+  if (!manifest.integrations.includes(newFile) && !manifest.integrations.includes('claude-code')) {
+    manifest.integrations.push(newFile);
+  }
+
+  writeManifest(manifest, projectPath);
+
+  console.log(chalk.green(`  ✓ claude-code now targets ${newFile}`));
+  console.log();
+}
+
+/**
  * Regenerate integration files for all configured AI tools
  * Reusable core logic that can be called from both updateIntegrationsOnly and configureCommand
  * @param {string} projectPath - Project path
@@ -1665,12 +1803,15 @@ export function regenerateIntegrations(projectPath, manifest) {
   const now = new Date().toISOString();
 
   for (const tool of aiTools) {
-    const targetFile = getToolFilePath(tool);
+    // XSPEC-418 R3
+    const targetFile = resolveIntegrationTargetFile(tool, manifest);
     if (generatedFiles.has(targetFile)) {
       continue; // Skip if already generated (AGENTS.md sharing)
     }
 
     // Shared with the reconciler so both paths emit the identical block.
+    // buildToolIntegrationConfig already carries manifest.integrationTargets
+    // through to writeIntegrationFile (XSPEC-418 R2).
     const toolConfig = buildToolIntegrationConfig(manifest, tool);
 
     const result = writeIntegrationFile(tool, toolConfig, projectPath);
@@ -1795,7 +1936,8 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
     const unchanged = [];
     const seen = new Set();
     for (const tool of aiTools) {
-      const targetFile = getToolFilePath(tool);
+      // XSPEC-418 R3: the plan must show the actual target, not the default.
+      const targetFile = resolveIntegrationTargetFile(tool, manifest);
       if (seen.has(targetFile)) continue;
       seen.add(targetFile);
       const savedMode = manifest.contentMode || 'auto';
@@ -1897,7 +2039,10 @@ export function backfillIntegrationConfigs(manifest) {
   const tools = manifest.aiTools?.length ? manifest.aiTools : [];
   const byFile = new Map();
   for (const tool of tools) {
-    const file = resolveIntegrationFile(tool) || getToolFilePath(tool);
+    // XSPEC-418 R3: keyed by the actual target file, or integrationConfigs
+    // would key claude-code's entry as 'CLAUDE.md' while every other record
+    // (integrations, integrationBlockHashes) already uses CLAUDE.local.md.
+    const file = resolveIntegrationTargetFile(tool, manifest);
     if (file && !byFile.has(file)) byFile.set(file, tool);
   }
   // Integrations can be recorded as file names (`CLAUDE.md`) or tool keys.

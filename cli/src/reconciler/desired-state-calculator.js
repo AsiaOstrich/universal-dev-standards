@@ -15,6 +15,7 @@ import {
   MANIFEST_OPTION_BINDINGS,
   OPTIONS_INSTALL_DIR
 } from '../core/constants.js';
+import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
 import {
@@ -281,7 +282,11 @@ function calculateIntegrations(state, manifest) {
     const toolConfig = toolName ? SUPPORTED_AI_TOOLS[toolName] : null;
     if (!toolConfig) continue;
 
-    const relativePath = toolConfig.file;
+    // XSPEC-418 R2/R3: the desired path is the tool's ACTUAL target, not always
+    // its default file — a local-target claude-code install's desired state
+    // must say CLAUDE.local.md, or `--apply`/`--plan` (and their orphan
+    // detection) would treat that file as unmanaged and CLAUDE.md as desired.
+    const relativePath = resolveIntegrationTargetFile(toolName, manifest) || toolConfig.file;
 
     state.integrations.set(relativePath, {
       relativePath,

@@ -45,7 +45,7 @@ import {
 import { displayLanguageToLocale } from '../utils/locale.js';
 import {
   writeIntegrationFile,
-  getToolFilePath
+  resolveIntegrationTargetFile
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { regenerateIntegrations } from './update.js';
@@ -667,13 +667,16 @@ export async function runProjectConfiguration(options) {
       // Remove integration files for removed tools
       const spinner = createSpinner(msgObj.removingIntegrations).start();
       for (const tool of result.tools) {
-        const filePath = join(projectPath, getToolFilePath(tool));
+        // XSPEC-418 R3: remove the file this tool actually targets (e.g.
+        // CLAUDE.local.md), not always its hardcoded default.
+        const removedToolFile = resolveIntegrationTargetFile(tool, manifest);
+        const filePath = join(projectPath, removedToolFile);
         if (existsSync(filePath)) {
           try {
             unlinkSync(filePath);
-            console.log(chalk.gray(`  ${msgObj.removed}: ${getToolFilePath(tool)}`));
+            console.log(chalk.gray(`  ${msgObj.removed}: ${removedToolFile}`));
           } catch {
-            console.log(chalk.yellow(`  ${msgObj.couldNotRemove}: ${getToolFilePath(tool)}`));
+            console.log(chalk.yellow(`  ${msgObj.couldNotRemove}: ${removedToolFile}`));
           }
         }
 
@@ -711,7 +714,7 @@ export async function runProjectConfiguration(options) {
         }
 
         // Remove from integrationBlockHashes (keyed by tool file path)
-        const toolFileName = getToolFilePath(tool);
+        const toolFileName = removedToolFile;
         if (manifest.integrationBlockHashes?.[toolFileName]) {
           delete manifest.integrationBlockHashes[toolFileName];
         }
@@ -934,7 +937,8 @@ export async function runProjectConfiguration(options) {
     const generatedFiles = new Set();
 
     for (const tool of newAITools) {
-      const targetFile = getToolFilePath(tool);
+      // XSPEC-418 R3
+      const targetFile = resolveIntegrationTargetFile(tool, manifest);
       if (generatedFiles.has(targetFile)) {
         continue; // Skip if already generated (AGENTS.md sharing)
       }
@@ -947,7 +951,9 @@ export async function runProjectConfiguration(options) {
         standardsFormat: manifest.format || 'ai',
         contentMode: newContentMode,
         // Pass output_language for dynamic commit standards generation
-        outputLanguage: newOptions.output_language || 'english'
+        outputLanguage: newOptions.output_language || 'english',
+        // XSPEC-418 R2/R3
+        integrationTargets: manifest.integrationTargets
       };
 
       const result = writeIntegrationFile(tool, toolConfig, projectPath);

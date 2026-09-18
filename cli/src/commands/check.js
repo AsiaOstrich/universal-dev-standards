@@ -30,7 +30,7 @@ import {
   findBrokenPathMentions,
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
-import { extractMarkedContent, getToolFilePath, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
+import { extractMarkedContent, resolveIntegrationTargetFile, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
 import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
@@ -402,7 +402,10 @@ export async function checkCommand(options = {}) {
   checkCommandsIntegrity(manifest, projectPath, msg);
 
   // Check Integration blocks integrity if integrationBlockHashes exist
-  checkIntegrationBlocksIntegrity(manifest, projectPath, msg);
+  // XSPEC-418 R1: the return value used to be discarded, so a removed/modified
+  // UDS block never affected the final verdict below — `uds check --ci` printed
+  // "compliant" and exited 0 with a visible ✗ still on screen.
+  const integrationBlockStatus = checkIntegrationBlocksIntegrity(manifest, projectPath, msg);
 
   // Handle --restore option
   if (options.restore) {
@@ -470,8 +473,14 @@ export async function checkCommand(options = {}) {
   displayWorkflowStatus(projectPath);
 
   // Final status
+  // XSPEC-418 R1: integration block problems (UDS markers removed, block
+  // modified, or the tracked file missing) now feed the verdict — they used to
+  // be checked and printed above, then silently dropped here.
   const allGood = fileStatus.missing.length === 0 &&
-                  fileStatus.modified.length === 0;
+                  fileStatus.modified.length === 0 &&
+                  integrationBlockStatus.modified.length === 0 &&
+                  integrationBlockStatus.missing.length === 0 &&
+                  integrationBlockStatus.noMarkers.length === 0;
   if (allGood) {
     console.log(chalk.green(msg.projectCompliant));
   } else {
@@ -1220,7 +1229,9 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
   // verdict — the tools that share it are named on the line instead.
   const toolsByFile = new Map();
   for (const tool of manifest.aiTools) {
-    const file = getToolFilePath(tool);
+    // XSPEC-418 R3: check must inspect the actual target file (e.g. CLAUDE.local.md),
+    // not the tool's hardcoded default.
+    const file = resolveIntegrationTargetFile(tool, manifest);
     if (!file) continue;
     if (!toolsByFile.has(file)) toolsByFile.set(file, []);
     toolsByFile.get(file).push(tool);

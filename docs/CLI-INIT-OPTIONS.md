@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/CLI-INIT-OPTIONS.md) | [简体中文](../locales/zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **Version**: 3.5.1
-> **Last Updated**: 2026-01-15
+> **Version**: 3.5.2
+> **Last Updated**: 2026-09-18
 
 This document provides detailed explanations for every option in the `uds init` command, including use cases, effects, and recommended choices.
 
@@ -830,9 +830,57 @@ uds init --experimental
 | No AGENTS.md | `--no-agents-md` | Skip AGENTS.md generation |
 | Enforcement Hooks | `--with-hooks` | Install enforcement hooks (commit-msg, security, logging) |
 | Content Layout | `--content-layout` | Content layout (`flat`, `layered`) - default: `flat` |
+| Claude Code target | `--claude-target` | Where the Claude Code integration content is written: `project` (`CLAUDE.md`, default) or `local` (`CLAUDE.local.md`) |
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 | Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
+
+### Claude Code Integration Target (`--claude-target`)
+
+By default, UDS writes its Claude Code content into `CLAUDE.md` — the file the
+whole team shares and commits. If you are adopting UDS **for yourself** in a
+repo that already has a team-owned `CLAUDE.md`, use `--claude-target local`
+instead: UDS then writes into `CLAUDE.local.md`, a file
+[Claude Code natively supports](https://code.claude.com/docs/en/memory.md) and
+loads right after `CLAUDE.md`, and never touches the team file.
+
+```bash
+# Personal adoption in a repo with a team CLAUDE.md
+uds init -y --claude-target local
+```
+
+Three things to know before you use it:
+
+1. **You must gitignore it yourself.** UDS does not write to `.gitignore` or
+   `.git/info/exclude` — add `CLAUDE.local.md` to one of them, or it will be
+   committed like any other new file.
+2. **It only exists in the worktree that creates it.** Because it is
+   (once you gitignore it) untracked, a `CLAUDE.local.md` created in one
+   `git worktree` is not visible from another worktree of the same repo —
+   each worktree has its own working directory, and untracked files are not
+   shared between them. If you use multiple worktrees, you need to run
+   `uds init --claude-target local` (or `uds update --claude-target local`,
+   below) in each one.
+3. **`AGENTS.md` is unaffected.** `--claude-target` only changes where the
+   Claude Code content goes. If `--agents-md` generated a universal
+   `AGENTS.md` summary, it is still written to `AGENTS.md` as usual; keep
+   excluding it yourself (e.g. via `.git/info/exclude`) if you don't want it
+   committed either.
+
+Already installed with the default target and want to switch without
+reinstalling? `uds update` takes the same flag:
+
+```bash
+# Move an existing install's Claude Code content from CLAUDE.md to CLAUDE.local.md
+uds update --claude-target local
+
+# Move it back
+uds update --claude-target project
+```
+
+This removes the UDS block from the old file (keeping anything else you wrote
+there), writes it into the new one, and updates the manifest — `uds check`
+then validates the new target, not the old one.
 
 ### Complete CLI Examples
 
@@ -879,6 +927,12 @@ uds init --ui-lang zh-tw
 
 # PHP project
 uds init -y --lang php --framework fat-free
+
+# Personal adoption in a repo with a team CLAUDE.md
+uds init -y --claude-target local
+
+# Switch an existing install to CLAUDE.local.md later, without reinstalling
+uds update --claude-target local
 ```
 
 ---

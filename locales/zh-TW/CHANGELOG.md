@@ -17,6 +17,15 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **`uds check --ci` 可能畫面上印出整合區塊的 ✗，結尾卻仍宣稱專案符合標準並以結束碼 0 收尾。** `checkIntegrationBlocksIntegrity` 的檢查結果（區塊被修改／遺失／UDS 標記被移除）算出來也印出來了，卻在最終判定被丟棄——判定只看標準檔完整性。若你的 CI 一直對某個 CLAUDE.md／GEMINI.md 等檔案的 UDS 區塊實際上已被移除或改動的專案顯示綠燈，那就是這個缺陷；`--ci` 現在會正確地失敗，直到區塊被復原（`uds update --integrations-only`）或專案以其他方式恢復同步為止。互動式 `uds check`（不加 `--ci`）不受影響——仍以結束碼 0 收尾，不中斷一般使用。（XSPEC-418 R1）
+
+### 新增
+
+- **`uds init --claude-target <project|local>` 與 `uds update --claude-target <project|local>`：在已有團隊 `CLAUDE.md` 的 repo 裡個人採用 UDS。** 過去 UDS 的 Claude Code 整合一律寫入 `CLAUDE.md`——團隊共用、會進版控的檔案——沒有任何改寫目標的方式。在已有團隊 `CLAUDE.md` 的 repo 裡個人採用 UDS 的使用者，只能手動把 UDS 區塊搬到 `CLAUDE.local.md`（Claude Code 原生支援、緊接在 `CLAUDE.md` 之後讀入的檔案），而從那一刻起 `check`／`update`／`uninstall` 全都回報錯誤，或悄悄寫回團隊檔案——包含在例行孤兒清理中把搬移後檔案自己的雜湊當「孤兒」刪掉。
+  `uds init` 的 `--claude-target local` 從一開始就把整合內容寫進 `CLAUDE.local.md`；團隊的 `CLAUDE.md` 完全不會被動到。`uds update --claude-target <project|local>` 則讓**既有**安裝不必重裝就能切換目標：從舊檔移除 UDS 區塊（保留寫在裡面的其他內容；若舊檔在移除後只剩 UDS 內容則整個刪除，與 `uninstall` 既有規則一致）、寫入新目標、並更新 manifest，不論新目標是否已存在手動搬過去的區塊。`check`、`update`（含 `--integrations-only`／`--force`）與孤兒雜湊清理現在都經同一個函式解出工具的實際目標檔，不再各自假設預設值——從未使用 `--claude-target` 的專案完全不受影響：manifest 只有在選擇 `local` 時才會多出 `integrationTargets` 欄位。`--claude-target` 不影響 `AGENTS.md`；若不想讓它進版控，一樣要自己透過 `.git/info/exclude` 排除。UDS 不會自動把 `CLAUDE.local.md` 寫進 `.gitignore`——請自行加入——且因為它未受版控，只存在於建立它的那個 git worktree。詳見 [CLI-INIT-OPTIONS.md](docs/CLI-INIT-OPTIONS.md)（「Claude Code 整合目標檔」一節）。（XSPEC-418 R2–R4）
+
 ## [6.10.0] - 2026-09-16
 
 ### 修正

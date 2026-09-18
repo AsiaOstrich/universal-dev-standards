@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-09-14
+> Auto-generated | Last updated: 2026-09-18
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -54,6 +54,7 @@
 | `--no-agents-md` | Skip AGENTS.md generation |
 | `--with-hooks` | Install enforcement hooks declared by the installed standards |
 | `--content-layout` | Content layout (flat, layered) [default: flat] |
+| `--claude-target` | Claude Code integration target: project (default, writes CLAUDE.md) or local (writes CLAUDE.local.md — not committed to git; gitignore it yourself) |
 | `-y, --yes` | Use defaults, skip interactive prompts |
 | `-E, --experimental` | Enable experimental features (methodology) |
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
@@ -155,6 +156,7 @@
 | `--force` | Force update all files, ignoring hash comparison |
 | `--prune` | Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write) |
 | `--rollback` | Rollback to the most recent backup |
+| `--claude-target` | Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
 
 ### `uds skills`

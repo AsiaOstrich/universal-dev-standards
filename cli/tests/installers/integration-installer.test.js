@@ -14,16 +14,26 @@ vi.mock('ora', () => ({
   }))
 }));
 
-vi.mock('../../src/utils/integration-generator.js', () => ({
-  writeIntegrationFile: vi.fn(),
-  integrationFileExists: vi.fn(),
-  getToolFilePath: vi.fn(),
-  writeAgentsMdSummary: vi.fn(),
-  resolveContentModeForTool: vi.fn((tool, userMode) => {
-    if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
-    return { contentMode: 'index', level: 2 };
-  })
-}));
+vi.mock('../../src/utils/integration-generator.js', () => {
+  // getToolFilePath is the SAME vi.fn instance as the module's export, so a
+  // test's `getToolFilePath.mockReturnValue(...)` also drives
+  // resolveIntegrationTargetFile below (XSPEC-418 R2) — it delegates rather
+  // than duplicating a second, independently-configured stub.
+  const getToolFilePath = vi.fn();
+  return {
+    writeIntegrationFile: vi.fn(),
+    integrationFileExists: vi.fn(),
+    getToolFilePath,
+    resolveIntegrationTargetFile: vi.fn(
+      (tool, manifestLike) => manifestLike?.integrationTargets?.[tool] || getToolFilePath(tool)
+    ),
+    writeAgentsMdSummary: vi.fn(),
+    resolveContentModeForTool: vi.fn((tool, userMode) => {
+      if (userMode && userMode !== 'auto') return { contentMode: userMode, level: undefined };
+      return { contentMode: 'index', level: 2 };
+    })
+  };
+});
 
 vi.mock('../../src/utils/copier.js', () => ({
   copyIntegration: vi.fn()
@@ -599,7 +609,7 @@ describe('integration-installer', () => {
 
       // Assert - File generated successfully
       expect(result).toEqual({ path: 'CLAUDE.md', error: null });
-      expect(integrationFileExists).toHaveBeenCalledWith('claude-code', mockProjectPath);
+      expect(integrationFileExists).toHaveBeenCalledWith('claude-code', mockProjectPath, { integrationTargets: undefined });
       expect(writeIntegrationFile).toHaveBeenCalledWith(
         'claude-code',
         expect.objectContaining({
@@ -659,7 +669,7 @@ describe('integration-installer', () => {
 
       // Assert - No file generated (already exists)
       expect(result).toEqual({ path: null, error: null });
-      expect(integrationFileExists).toHaveBeenCalledWith('claude-code', mockProjectPath);
+      expect(integrationFileExists).toHaveBeenCalledWith('claude-code', mockProjectPath, { integrationTargets: undefined });
       expect(writeIntegrationFile).not.toHaveBeenCalled();
       expect(ora).not.toHaveBeenCalled();
     });
