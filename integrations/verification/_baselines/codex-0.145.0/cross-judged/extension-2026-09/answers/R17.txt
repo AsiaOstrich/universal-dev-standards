@@ -1,0 +1,35 @@
+## Findings
+
+- [src/checkout.js:3](<path>): Production database credentials are hard-coded in source. They will leak through version control, builds, and logs; revoke/rotate them and use secret-based configuration.
+
+- [src/checkout.js:17](<path>): Stock is decremented without verifying sufficient inventory. Concurrent or oversized purchases can drive stock below zero and oversell items.
+
+- [src/checkout.js:13](<path>): `item.qty` is completely unvalidated. A negative quantity increases inventory and creates a negative order total; non-integer or malformed values can corrupt inventory/accounting.
+
+- [src/checkout.js:13](<path>): The inventory updates and order insert are not transactional. Any failure mid-cart leaves earlier stock decrements committed without an order; a later payment failure also leaves a created order.
+
+- [src/checkout.js:26](<path>): The payment request is neither awaited nor checked. The endpoint returns success and persists the order even if charging fails; a rejected `fetch` can become an unhandled rejection.
+
+- [src/checkout.js:24](<path>): The customer identity comes from `req.body.uid`, allowing a caller to create orders under another user’s ID. Use the authenticated server-side identity and enforce authorization.
+
+- [src/checkout.js:15](<path>): Missing/deleted product IDs make `rows[0]` undefined, causing a server error after prior cart items may already have been decremented.
+
+- [src/checkout.js:26](<path>): The JSON payment request lacks a `Content-Type: application/json` header, so many payment APIs will not parse its body.
+
+- [src/checkout.js:10](<path>): `req.body.cart` is assumed to be iterable. Missing or non-array input produces a 500 instead of a validation error.
+
+- [src/checkout.js:11](<path>): JavaScript floating-point arithmetic is used for money and the discount is not rounded to currency precision. This can charge/store fractional-cent totals.
+
+- [src/checkout.js:3](<path>): The connection configuration specifies no database/schema, so queries normally fail with “No database selected.”
+
+- [src/checkout.js:3](<path>): A single long-lived connection is created at module load rather than using a pool. A dropped connection affects all requests and serializes/limits checkout throughput.
+
+- [src/checkout.js:13](<path>): Each cart line performs sequential read/update queries, creating an N+1 latency pattern that makes large carts unnecessarily slow.
+
+- [src/checkout.js:26](<path>): There is no idempotency mechanism. Retried requests can decrement inventory, create duplicate orders, and submit duplicate charges.
+
+- [package.json:4](<path>): `fetch` is used without declaring a Node engine or a fetch dependency. Deployments on Node versions before 18 will fail at runtime.
+
+- [src/checkout.js:34](<path>): `fmt` appears unrelated and unused; remove it or give it a descriptive name and tests.
+
+- The project contains no test script or tests, leaving the checkout’s pricing, stock, failure, and retry behavior unverified.

@@ -1,0 +1,35 @@
+## Findings
+
+1. **Critical — production database credentials are hard-coded** in [`src/checkout.js:3`](<path>). This exposes secrets through source control/build artifacts; the credential should be rotated and moved to managed configuration.
+
+2. **Critical — no database is selected** in the connection configuration ([line 3](<path>)). Both SQL statements use unqualified table names, so a standard MySQL connection will fail with “No database selected.”
+
+3. **Critical — caller controls `uid`** ([line 24](<path>)). A user can create orders under another user’s ID. The identity must come from verified authentication middleware, not the request body.
+
+4. **Critical — quantities are not validated** ([lines 13–17](<path>)). Negative quantities increase stock and reduce the order total; fractional, zero, non-numeric, and excessively large quantities are also accepted.
+
+5. **Critical — inventory can go negative / be oversold** ([line 17](<path>)). Although `stock` is read, it is never checked, and the update has no `stock >= qty` condition.
+
+6. **Critical — checkout is not transactional** ([lines 14–24](<path>)). Failures after one stock update can leave inventory deducted without an order; failures inserting the order do the same. Concurrent checkouts can also observe stale stock/prices.
+
+7. **Critical — payment is fire-and-forget** ([lines 26–31](<path>)). The handler returns success before payment succeeds, ignores non-2xx responses, and can leave paid/unpaid orders and stock in inconsistent states. Rejections may become unhandled.
+
+8. **High — no idempotency protection** ([lines 24–29](<path>)). A retry after a timeout can create additional orders, decrement stock again, and potentially charge again.
+
+9. **High — request inputs are assumed to be valid** ([lines 10–16](<path>)). Missing/non-array `cart`, malformed items, absent products, and invalid IDs cause exceptions. `rows[0]` can be undefined.
+
+10. **High — money is calculated with JavaScript floating point** ([lines 11, 16, 20–21](<path>)). This can produce rounding errors in totals and discount thresholds. Use integer minor units or a decimal type, with explicit rounding.
+
+11. **Medium — the payment request omits `Content-Type: application/json`** ([lines 26–29](<path>)). Many APIs will not parse the JSON body. It also contains no visible payment authorization/token or endpoint authentication.
+
+12. **Medium — a single global DB connection is used for all requests** ([line 3](<path>)). It is a throughput bottleneck, has no reconnect handling, and a startup connection failure prevents module loading. A pool plus transaction-scoped connection is needed.
+
+13. **Medium — no error handling or controlled client response** ([lines 9–31](<path>)). Database and payment failures fall through to framework defaults, with no rollback, safe error mapping, or operational logging.
+
+14. **Medium — purchased line items are not persisted** ([lines 13–24](<path>)). The order stores only user and total; absent another storage path, fulfillment, audit, refunds, and historical pricing cannot be reconstructed.
+
+15. **Low — checkout queries are serial per item** ([lines 13–18](<path>)). Larger carts incur one read and one write each; duplicate product lines are not consolidated.
+
+16. **Low — `fmt` is unused and has no type contract** ([lines 34–36](<path>)). It relies on implicit coercion and will throw when a truthy `x` lacks `toUpperCase()`.
+
+The SQL parameterization itself is correctly used; I found no SQL-injection issue in these statements.

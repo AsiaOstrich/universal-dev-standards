@@ -1,0 +1,888 @@
+Reading prompt from stdin...
+OpenAI Codex v0.145.0
+--------
+workdir: /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0b214-2ef1-7712-ad51-b7611f427962
+--------
+user
+Review src/checkout.js and list every issue you find.
+
+codex
+I’ll inspect `src/checkout.js` and trace its surrounding usage so the findings are concrete and actionable.
+exec
+/bin/zsh -lc "sed -n '1,240p' /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/.agents/skills/code-review-assistant/SKILL.md && printf '\\n--- checkout ---\\n' && sed -n '1,320p' src/checkout.js && printf '\\n--- files ---\\n' && rg --files | sed -n '1,160p'" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9
+ succeeded in 0ms:
+---
+name: code-review
+scope: universal
+description: "[UDS] Perform systematic code review with checklist"
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+disable-model-invocation: true
+status: reference
+---
+<!-- DEPRECATION NOTICE (XSPEC-086 Phase 4, 2026-04-28):
+  Code review workflow orchestration (4-step sequence, outcome gating) relocated to adoption layer
+  (XSPEC-095, 2026-04-28). This Skill retains: 8 review category definitions,
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE prefix semantics.
+  For enforced execution, use your adoption layer's toolchain.
+-->
+
+# Code Review Assistant | 程式碼審查助手
+
+> ⚠️ **Status: Reference（參考用，非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考。
+> Lifecycle orchestration has moved to the adoption layer (XSPEC-095); this document is **reference-only**. For enforced execution, use your adoption layer's toolchain.
+
+Perform systematic code review using standardized checklists and comment prefixes.
+
+執行系統性的程式碼審查，使用標準化的檢查清單和評論前綴。
+
+## Workflow | 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+> The steps below are a **reference structure**, not an executable workflow.
+
+1. **Identify changes** - Get diff of files to review via `git diff` or `git show`
+2. **Apply checklist** - Check each review category systematically
+3. **Generate report** - Output findings with standard comment prefixes
+4. **Summarize** - Provide overall assessment and recommended actions
+
+## Review Categories | 審查類別
+
+1. **Functionality** - Does it work correctly? | 功能是否正確？
+2. **Design** - Is the architecture appropriate? | 架構是否合適？
+3. **Quality** - Is the code clean and maintainable? | 程式碼是否乾淨可維護？
+4. **Readability** - Is it easy to understand? | 是否容易理解？
+5. **Tests** - Is there adequate test coverage? | 測試覆蓋是否足夠？
+6. **Security** - Are there any vulnerabilities? | 是否有安全漏洞？
+7. **Performance** - Is it efficient? | 是否有效率？
+8. **Error Handling** - Are errors handled properly? | 錯誤處理是否妥當？
+
+## Comment Prefixes | 評論前綴
+
+| Prefix | Meaning | Action | 動作 |
+|--------|---------|--------|------|
+| **BLOCKING** | Must fix before merge | Required | 必須修復 |
+| **IMPORTANT** | Should fix | Recommended | 建議修復 |
+| **SUGGESTION** | Nice-to-have | Optional | 可選改善 |
+| **QUESTION** | Need clarification | Discuss | 需要討論 |
+| **NOTE** | Informational | FYI | 僅供參考 |
+
+## Usage | 使用方式
+
+- `/code-review` - Review all changes in current branch
+- `/code-review src/auth.js` - Review specific file
+- `/code-review feature/login` - Review specific branch
+
+## Next Steps Guidance | 下一步引導
+
+After `/code-review` completes, the AI assistant should suggest:
+
+> **程式碼審查完成。建議下一步 / Code review complete. Suggested next steps:**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review` — Fix issues then re-run `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **Recommended / 推薦** — All passed → Run `/checkin` quality gates
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更 — Only suggestions → Run `/commit`
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報 — Found impractical or missing standards → Run `/audit --report`
+
+## Reference | 參考
+
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [code-review-checklist.md](../../core/code-review-checklist.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/code-review`](../commands/code-review.md#ai-agent-behavior--ai-代理行為)
+
+--- checkout ---
+import mysql from 'mysql2/promise';
+
+const conn = await mysql.createConnection({
+  host: 'prod-db.internal',
+  user: 'shop',
+  password: 'Sh0p!2024$prod'
+});
+
+export async function processCheckout(req, res) {
+  const cart = req.body.cart;
+  let total = 0;
+
+  for (const item of cart) {
+    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+    const p = rows[0];
+    total += p.price * item.qty;
+    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+  }
+
+  if (total > 500) {
+    total = total * 0.92;
+  }
+
+  const [r] = await conn.query('INSERT INTO orders (user_id, total) VALUES (?, ?)', [req.body.uid, total]);
+
+  fetch('https://payments.example.com/charge', {
+    method: 'POST',
+    body: JSON.stringify({ orderId: r.insertId, amount: total })
+  });
+
+  res.json({ orderId: r.insertId, total: total });
+}
+
+export function fmt(d, t, x) {
+  return d + '-' + t + '-' + (x ? x.toUpperCase() : 'NA');
+}
+
+--- files ---
+src/checkout.js
+package.json
+
+exec
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/code-review-assistant/guide.md; sed -n '1,320p' .agents/skills/core/code-review-checklist.md; git status --short; git diff -- src/checkout.js; git log --oneline -5; cat package.json; nl -ba src/checkout.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9
+ succeeded in 0ms:
+---
+scope: universal
+description: |
+  Systematic code review checklist and pre-commit quality gates for PRs.
+  Use when: reviewing pull requests, checking code quality, before committing code.
+  Keywords: review, PR, pull request, checklist, quality, commit, 審查, 檢查, 簽入.
+---
+
+# Code Review Assistant
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/SKILL.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+
+---
+
+> **Core Standard**: This skill implements [Code Review Checklist](../../core/code-review-checklist.md). For comprehensive methodology documentation, refer to the core standard.
+
+## Purpose
+
+This skill provides systematic checklists for code review and pre-commit verification.
+
+## Quick Reference
+
+### Comment Prefixes
+
+| Prefix | Meaning | Action Required |
+|--------|---------|------------------|
+| **❗ BLOCKING** | Must fix before merge | 🔴 Required |
+| **⚠️ IMPORTANT** | Should fix, but not blocking | 🟡 Recommended |
+| **💡 SUGGESTION** | Nice-to-have improvement | 🟢 Optional |
+| **❓ QUESTION** | Need clarification | 🔵 Discuss |
+| **📝 NOTE** | Informational, no action | ⚪ Informational |
+
+### Review Checklist Categories
+
+1. **Functionality** - Does it work?
+2. **Design** - Right architecture?
+3. **Quality** - Clean code?
+4. **Readability** - Easy to understand?
+5. **Tests** - Adequate coverage?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Efficient?
+8. **Errors** - Properly handled?
+9. **Docs** - Updated?
+10. **Dependencies** - Necessary?
+
+### Pre-Commit Checklist
+
+- [ ] Build succeeds (zero errors, zero warnings)
+- [ ] All tests pass
+- [ ] Code follows project standards
+- [ ] No security vulnerabilities
+- [ ] Documentation updated
+- [ ] Branch synced with target
+
+## Detailed Guidelines
+
+For complete standards, see:
+- [Review Checklist](./review-checklist.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
+
+### AI-Optimized Format (Token-Efficient)
+
+For AI assistants, use the YAML format file for reduced token usage:
+- Base standard: `ai/standards/code-review.ai.yaml`
+
+## Example Review Comments
+
+```markdown
+❗ BLOCKING: Potential SQL injection vulnerability here.
+Please use parameterized queries instead of string concatenation.
+
+⚠️ IMPORTANT: This method is doing too much (120 lines).
+Consider extracting validation logic to a separate method.
+
+💡 SUGGESTION: Consider using a Map here instead of an array for O(1) lookup.
+
+❓ QUESTION: Why are we using setTimeout here instead of async/await?
+
+📝 NOTE: This is a clever solution! Nice use of reduce here.
+```
+
+## Core Principles
+
+1. **Be Respectful** - Review code, not the person
+2. **Be Thorough** - Check functionality, not just syntax
+3. **Be Timely** - Review within 24 hours
+4. **Be Clear** - Explain WHY, not just WHAT
+
+---
+
+## Checkin Quality Gates (YAML Compressed)
+
+```yaml
+# === MANDATORY CHECKLIST ===
+build:
+  - code_compiles: "zero errors, zero warnings"
+  - dependencies: "all installed, versions locked"
+  verify: "run build locally, exit code 0"
+
+test:
+  - existing_pass: "100% pass rate (unit/integration/e2e)"
+  - new_code_tested: "features→tests, bugfix→regression"
+  - coverage: "not decreased, critical paths tested"
+  verify: "run all suites, review coverage report"
+
+quality:
+  - standards: "naming, formatting, comments"
+  - no_smells: "methods≤50 lines, nesting≤3, complexity≤10, no duplication"
+  - security: "no hardcoded secrets, no SQLi, no XSS, no insecure deps"
+  verify: "run linter, static analysis, security scanner"
+
+docs:
+  - api_docs: "public APIs documented"
+  - readme: "updated if needed"
+  - changelog: "user-facing changes → [Unreleased]"
+
+workflow:
+  - branch_naming: "feature/, fix/, docs/, chore/"
+  - commit_message: "conventional commits format"
+  - synced: "merged/rebased with target branch"
+
+# === NEVER COMMIT WHEN ===
+blockers:
+  - "Build has errors"
+  - "Tests failing"
+  - "Feature incomplete (would break functionality)"
+  - "Contains WIP/TODO in critical logic"
+  - "Contains debugging code (console.log, print)"
+  - "Contains commented-out code blocks"
+
+# === COMMIT TIMING ===
+good_times:
+  - "Completed functional unit"
+  - "Specific bug fixed with regression test"
+  - "Independent refactor (all tests pass)"
+  - "Runnable state"
+
+bad_times:
+  - "Build failures"
+  - "Test failures"
+  - "Incomplete features"
+  - "Experimental code with TODOs"
+
+# === GRANULARITY ===
+ideal_size:
+  files: "1-10 (split if >10)"
+  lines: "50-300"
+  scope: "single concern"
+
+split_principle:
+  combine: ["feature + its tests", "tightly related multi-file"]
+  separate: ["Feature A + Feature B", "refactor + new feature", "bugfix + incidental refactor"]
+```
+
+---
+
+## Configuration Detection
+
+This skill supports project-specific configuration.
+
+### Detection Order
+
+1. Check `CONTRIBUTING.md` for "Disabled Skills" section
+   - If this skill is listed, it is disabled for this project
+2. Check `CONTRIBUTING.md` for "Code Review Language" section
+3. If not found, **default to English**
+
+### First-Time Setup
+
+If no configuration found and context is unclear:
+
+1. Ask the user: "This project hasn't configured code review language. Which option would you like? (English / 中文)"
+2. After user selection, suggest documenting in `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **[chosen option]** for code review comments.
+<!-- Options: English | 中文 -->
+```
+
+### Configuration Example
+
+In project's `CONTRIBUTING.md`:
+
+```markdown
+## Code Review Language
+
+This project uses **English** for code review comments.
+<!-- Options: English | 中文 -->
+
+### Comment Prefixes
+BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
+```
+
+---
+
+## Related Standards
+
+- [Code Review Checklist](../../core/code-review-checklist.md) - Core code review standard
+- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
+- [Testing Standards](../../core/testing-standards.md) - Testing requirements
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+sed: .agents/skills/core/code-review-checklist.md: No such file or directory
+fatal: not a git repository (or any of the parent directories): .git
+warning: Not a git repository. Use --no-index to compare two paths outside a working tree
+usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]
+
+Diff output format options
+    -p, --patch           generate patch
+    -s, --no-patch        suppress diff output
+    -u                    generate patch
+    -U, --unified[=<n>]   generate diffs with <n> lines context
+    -W, --[no-]function-context
+                          generate diffs with <n> lines context
+    --raw                 generate the diff in raw format
+    --patch-with-raw      synonym for '-p --raw'
+    --patch-with-stat     synonym for '-p --stat'
+    --numstat             machine friendly --stat
+    --shortstat           output only the last line of --stat
+    -X, --dirstat[=<param1>,<param2>...]
+                          output the distribution of relative amount of changes for each sub-directory
+    --cumulative          synonym for --dirstat=cumulative
+    --dirstat-by-file[=<param1>,<param2>...]
+                          synonym for --dirstat=files,<param1>,<param2>...
+    --check               warn if changes introduce conflict markers or whitespace errors
+    --summary             condensed summary such as creations, renames and mode changes
+    --name-only           show only names of changed files
+    --name-status         show only names and status of changed files
+    --stat[=<width>[,<name-width>[,<count>]]]
+                          generate diffstat
+    --stat-width <width>  generate diffstat with a given width
+    --stat-name-width <width>
+                          generate diffstat with a given name width
+    --stat-graph-width <width>
+                          generate diffstat with a given graph width
+    --stat-count <count>  generate diffstat with limited lines
+    --[no-]compact-summary
+                          generate compact summary in diffstat
+    --binary              output a binary diff that can be applied
+    --[no-]full-index     show full pre- and post-image object names on the "index" lines
+    --[no-]color[=<when>] show colored diff
+    --ws-error-highlight <kind>
+                          highlight whitespace errors in the 'context', 'old' or 'new' lines in the diff
+    -z                    do not munge pathnames and use NULs as output field terminators in --raw or --numstat
+    --[no-]abbrev[=<n>]   use <n> digits to display object names
+    --src-prefix <prefix> show the given source prefix instead of "a/"
+    --dst-prefix <prefix> show the given destination prefix instead of "b/"
+    --line-prefix <prefix>
+                          prepend an additional prefix to every line of output
+    --no-prefix           do not show any source or destination prefix
+    --default-prefix      use default prefixes a/ and b/
+    --inter-hunk-context <n>
+                          show context between diff hunks up to the specified number of lines
+    --output-indicator-new <char>
+                          specify the character to indicate a new line instead of '+'
+    --output-indicator-old <char>
+                          specify the character to indicate an old line instead of '-'
+    --output-indicator-context <char>
+                          specify the character to indicate a context instead of ' '
+
+Diff rename options
+    -B, --break-rewrites[=<n>[/<m>]]
+                          break complete rewrite changes into pairs of delete and create
+    -M, --find-renames[=<n>]
+                          detect renames
+    -D, --irreversible-delete
+                          omit the preimage for deletes
+    -C, --find-copies[=<n>]
+                          detect copies
+    --[no-]find-copies-harder
+                          use unmodified files as source to find copies
+    --no-renames          disable rename detection
+    --[no-]rename-empty   use empty blobs as rename source
+    --[no-]follow         continue listing the history of a file beyond renames
+    -l <n>                prevent rename/copy detection if the number of rename/copy targets exceeds given limit
+
+Diff algorithm options
+    --minimal             produce the smallest possible diff
+    -w, --ignore-all-space
+                          ignore whitespace when comparing lines
+    -b, --ignore-space-change
+                          ignore changes in amount of whitespace
+    --ignore-space-at-eol ignore changes in whitespace at EOL
+    --ignore-cr-at-eol    ignore carrier-return at the end of line
+    --ignore-blank-lines  ignore changes whose lines are all blank
+    -I, --[no-]ignore-matching-lines <regex>
+                          ignore changes whose all lines match <regex>
+    --[no-]indent-heuristic
+                          heuristic to shift diff hunk boundaries for easy reading
+    --patience            generate diff using the "patience diff" algorithm
+    --histogram           generate diff using the "histogram diff" algorithm
+    --diff-algorithm <algorithm>
+                          choose a diff algorithm
+    --anchored <text>     generate diff using the "anchored diff" algorithm
+    --word-diff[=<mode>]  show word diff, using <mode> to delimit changed words
+    --word-diff-regex <regex>
+                          use <regex> to decide what a word is
+    --color-words[=<regex>]
+                          equivalent to --word-diff=color --word-diff-regex=<regex>
+    --[no-]color-moved[=<mode>]
+                          moved lines of code are colored differently
+    --[no-]color-moved-ws <mode>
+                          how white spaces are ignored in --color-moved
+
+Other diff options
+    --[no-]relative[=<prefix>]
+                          when run from subdir, exclude changes outside and show relative paths
+    -a, --[no-]text       treat all files as text
+    -R                    swap two inputs, reverse the diff
+    --[no-]exit-code      exit with 1 if there were differences, 0 otherwise
+    --[no-]quiet          disable all output of the program
+    --[no-]ext-diff       allow an external diff helper to be executed
+    --[no-]textconv       run external text conversion filters when comparing binary files
+    --ignore-submodules[=<when>]
+                          ignore changes to submodules in the diff generation
+    --submodule[=<format>]
+                          specify how differences in submodules are shown
+    --ita-invisible-in-index
+                          hide 'git add -N' entries from the index
+    --ita-visible-in-index
+                          treat 'git add -N' entries as real in the index
+    -S <string>           look for differences that change the number of occurrences of the specified string
+    -G <regex>            look for differences that change the number of occurrences of the specified regex
+    --pickaxe-all         show all changes in the changeset with -S or -G
+    --pickaxe-regex       treat <string> in -S as extended POSIX regular expression
+    -O <file>             control the order in which files appear in the output
+    --rotate-to <path>    show the change in the specified path first
+    --skip-to <path>      skip the output to the specified path
+    --find-object <object-id>
+                          look for differences that change the number of occurrences of the specified object
+    --diff-filter [(A|C|D|M|R|T|U|X|B)...[*]]
+                          select files by diff type
+    --max-depth <depth>   maximum tree depth to recurse
+    --output <file>       output to a specific file
+
+fatal: not a git repository (or any of the parent directories): .git
+{
+  "name": "shop-api",
+  "version": "2.1.0",
+  "scripts": { "start": "node src/server.js" },
+  "dependencies": { "express": "^4.18.0", "mysql2": "^3.9.0" }
+}
+     1	import mysql from 'mysql2/promise';
+     2	
+     3	const conn = await mysql.createConnection({
+     4	  host: 'prod-db.internal',
+     5	  user: 'shop',
+     6	  password: 'Sh0p!2024$prod'
+     7	});
+     8	
+     9	export async function processCheckout(req, res) {
+    10	  const cart = req.body.cart;
+    11	  let total = 0;
+    12	
+    13	  for (const item of cart) {
+    14	    const [rows] = await conn.query('SELECT price, stock FROM products WHERE id = ?', [item.id]);
+    15	    const p = rows[0];
+    16	    total += p.price * item.qty;
+    17	    await conn.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+    18	  }
+    19	
+    20	  if (total > 500) {
+    21	    total = total * 0.92;
+    22	  }
+    23	
+    24	  const [r] = await conn.query('INSERT INTO orders (user_id, total) VALUES (?, ?)', [req.body.uid, total]);
+    25	
+    26	  fetch('https://payments.example.com/charge', {
+    27	    method: 'POST',
+    28	    body: JSON.stringify({ orderId: r.insertId, amount: total })
+    29	  });
+    30	
+    31	  res.json({ orderId: r.insertId, total: total });
+    32	}
+    33	
+    34	export function fmt(d, t, x) {
+    35	  return d + '-' + t + '-' + (x ? x.toUpperCase() : 'NA');
+    36	}
+
+exec
+/bin/zsh -lc "find .. -name AGENTS.md -o -name CONTRIBUTING.md -o -path '*code-review-checklist.md' -o -name review-checklist.md | sed -n '1,120p'; find . -maxdepth 3 -type f -not -path './.agents/*' -print; node --check src/checkout.js" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9
+ succeeded in 0ms:
+../work-B_r5/.agents/skills/code-review-assistant/review-checklist.md
+../work-B_r6/.agents/skills/code-review-assistant/review-checklist.md
+../work-B_r8/.agents/skills/code-review-assistant/review-checklist.md
+../work-B_r9/.agents/skills/code-review-assistant/review-checklist.md
+../work-B_r7/.agents/skills/code-review-assistant/review-checklist.md
+../tmpl-B/.agents/skills/code-review-assistant/review-checklist.md
+./package.json
+./src/checkout.js
+
+exec
+/bin/zsh -lc "node src/checkout.js 2>&1 || true; sed -n '1,280p' .agents/skills/code-review-assistant/review-checklist.md; find .agents -path '*code-review-checklist.md' -print" in /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9
+ succeeded in 0ms:
+node:internal/modules/package_json_reader:314
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'mysql2' imported from /private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.23.2
+# Code Review Checklist
+
+> **Language**: English | [繁體中文](../../locales/zh-TW/skills/code-review-assistant/review-checklist.md)
+
+**Version**: 1.0.0
+**Last Updated**: 2025-12-24
+**Applicability**: Claude Code Skills
+
+---
+
+## Purpose
+
+This document provides a comprehensive checklist for code review to ensure code quality and standards compliance.
+
+---
+
+## 1. Functionality
+
+- [ ] **Code does what it's supposed to do**
+  - Requirement/spec alignment verified
+  - Acceptance criteria met
+  - Edge cases handled
+
+- [ ] **No obvious bugs**
+  - Null/undefined checks present
+  - Array bounds checked
+  - Error conditions handled
+
+- [ ] **Logic is correct**
+  - Conditions make sense
+  - Loops terminate properly
+  - Calculations are accurate
+
+---
+
+## 2. Design & Architecture
+
+- [ ] **Follows project architecture**
+  - Layering respected
+  - Separation of concerns maintained
+  - Dependency direction correct
+
+- [ ] **Appropriate design patterns used**
+  - Not over-engineered
+  - Not under-engineered
+  - Patterns applied correctly
+
+- [ ] **Code is in the right place**
+  - Files organized logically
+  - Related code grouped together
+
+---
+
+## 3. Code Quality
+
+- [ ] **Follows coding standards**
+  - Naming conventions adhered to
+  - Formatting consistent
+  - Style guide followed
+
+- [ ] **No code smells**
+  - Methods ≤50 lines
+  - Classes have single responsibility
+  - Cyclomatic complexity ≤10
+  - No deeply nested conditionals (≤3 levels)
+
+- [ ] **DRY principle applied**
+  - No duplicated code blocks
+  - Common logic extracted
+
+---
+
+## 4. Readability
+
+- [ ] **Code is easy to understand**
+  - Variable names are descriptive
+  - Function names reveal intent
+  - Logic flows naturally
+
+- [ ] **Comments are helpful**
+  - Complex logic explained
+  - WHY documented, not WHAT
+  - No commented-out code
+
+---
+
+## 5. Testing
+
+- [ ] **Tests are present**
+  - New code has tests
+  - Tests cover happy path
+  - Tests cover error cases
+  - Edge cases tested
+
+- [ ] **Tests are good quality**
+  - Tests are readable
+  - Test names describe scenarios
+  - Assertions are clear
+  - No flaky tests
+
+- [ ] **Test coverage maintained**
+  - Coverage not decreased
+  - Critical paths covered
+
+---
+
+## 6. Security
+
+- [ ] **No security vulnerabilities**
+  - No SQL injection risks
+  - No XSS vulnerabilities
+  - No hardcoded secrets
+  - No insecure dependencies
+
+- [ ] **Input validation present**
+  - User input sanitized
+  - Type checking performed
+  - Size limits enforced
+
+- [ ] **Auth/Authorization correct**
+  - Proper auth checks
+  - Role-based access enforced
+  - Sensitive data protected
+
+---
+
+## 7. Performance
+
+- [ ] **No obvious performance issues**
+  - No N+1 queries
+  - No unnecessary loops
+  - No blocking operations in hot paths
+
+- [ ] **Efficient algorithms used**
+  - Complexity considered
+  - Appropriate data structures
+  - Caching where beneficial
+
+- [ ] **Resource management proper**
+  - Connections closed
+  - Memory leaks prevented
+  - File handles released
+
+---
+
+## 8. Error Handling
+
+- [ ] **Errors handled appropriately**
+  - Try-catch blocks present
+  - Specific exceptions caught
+  - Generic catch avoided
+
+- [ ] **Error messages helpful**
+  - Messages are descriptive
+  - Actionable information included
+  - No sensitive data exposed
+
+- [ ] **Logging is adequate**
+  - Errors logged with context
+  - Log levels appropriate
+  - No excessive logging
+
+---
+
+## 9. Documentation
+
+- [ ] **API documentation present**
+  - Public methods documented
+  - Parameters explained
+  - Return values described
+  - Exceptions documented
+
+- [ ] **README updated if needed**
+  - New features documented
+  - Setup instructions current
+
+- [ ] **CHANGELOG updated (if applicable)**
+  - User-facing changes added to `[Unreleased]`
+  - Breaking changes marked with **BREAKING**
+
+---
+
+## 10. Dependencies
+
+- [ ] **Dependencies justified**
+  - New dependencies necessary
+  - License compatible
+  - No security vulnerabilities
+  - Actively maintained
+
+- [ ] **Dependency versions locked**
+  - Exact versions specified
+  - Lock file updated
+
+---
+
+## Quick Reference Card
+
+```
+┌─────────────────────────────────────────┐
+│ Code Review Quick Checklist            │
+├─────────────────────────────────────────┤
+│ ✓ Functionality - Does it work?        │
+│ ✓ Design - Right architecture?         │
+│ ✓ Quality - Clean code?                │
+│ ✓ Readability - Easy to understand?    │
+│ ✓ Tests - Adequate coverage?           │
+│ ✓ Security - No vulnerabilities?       │
+│ ✓ Performance - Efficient?             │
+│ ✓ Errors - Properly handled?           │
+│ ✓ Docs - Updated?                      │
+│ ✓ Dependencies - Necessary?            │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Related Standards
+
+- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Checkin Standards](../../core/checkin-standards.md)
+- [Pre-Commit Checklist](./checkin-checklist.md)
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
+
+---
+
+## License
+
+This document is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+
+codex
+## Findings
+
+- ❗ **BLOCKING** — Database credentials are hard-coded in source at [checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3). This exposes production access to everyone with repository access. Revoke/rotate this password and load credentials from a secret manager or environment configuration.
+
+- ❗ **BLOCKING** — The connection has no `database` configured ([checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3)). A newly created MySQL connection has no selected database, so the unqualified `products` and `orders` queries will fail unless this is configured elsewhere—which this connection does not inherit.
+
+- ❗ **BLOCKING** — Client-controlled `uid` is persisted as the order owner ([checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:24)). An authenticated customer can submit another user’s ID and create orders under that account. Derive it from authenticated server-side identity.
+
+- ❗ **BLOCKING** — Stock is decremented without checking availability ([checkout.js:14](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:14), [checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). The fetched `stock` is never used, allowing negative inventory and overselling.
+
+- ❗ **BLOCKING** — The read/decrement sequence is race-prone ([checkout.js:14](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:14)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Concurrent checkouts can both observe stock and both decrement it. Use a transaction with row locking, or an atomic conditional update (`… WHERE stock >= ?`) and check affected rows.
+
+- ❗ **BLOCKING** — Cart input is not validated ([checkout.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:10)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Negative quantities increase stock and can create a negative total; fractional, zero, malformed, oversized, or non-array carts also produce invalid inventory changes or uncaught exceptions.
+
+- ❗ **BLOCKING** — Checkout mutations are not atomic ([checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:13)-[checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:24)). A failure after one stock update leaves prior inventory changes committed, and an order can be inserted after only some items are reserved. Wrap reservation and order creation in a DB transaction with rollback.
+
+- ❗ **BLOCKING** — The payment charge is fire-and-forget ([checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:26)-[checkout.js:31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:31)). The API reports a successful order before knowing whether payment was accepted; failures become unhandled rejections and leave an unpaid order/reserved stock. Persist payment state and use a transactional outbox/job with retries and idempotency.
+
+- ⚠️ **IMPORTANT** — Missing product IDs cause `p.price` to throw ([checkout.js:15](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:15)), potentially after earlier inventory changes have already committed.
+
+- ⚠️ **IMPORTANT** — There is no error handling around database or payment operations. In Express 4, a rejected async handler is not automatically forwarded to error middleware; the request can hang and failures are not translated to safe client responses.
+
+- ⚠️ **IMPORTANT** — Monetary totals are calculated with JavaScript floating point ([checkout.js:16](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:16), [checkout.js:21](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:21)). This can charge/store values such as `27.599999999`; use integer minor units or a decimal-money library and define rounding.
+
+- ⚠️ **IMPORTANT** — The payment request lacks explicit JSON headers and any visible authentication/idempotency token ([checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:26)). Many payment APIs will reject it or parse the body incorrectly; retries without idempotency can double-charge.
+
+- ⚠️ **IMPORTANT** — A single long-lived `createConnection` is shared globally ([checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3)). It has no pooling or recovery strategy, so a dropped connection can take down all subsequent checkouts.
+
+- 💡 **SUGGESTION** — Each cart item causes a separate select and update ([checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:13)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Large carts incur N+1 sequential round trips. Batch-fetch products and reserve inventory efficiently.
+
+- 💡 **SUGGESTION** — `fmt` throws for any truthy non-string `x` ([checkout.js:35](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:35)). Validate its contract or coerce deliberately.
+
+No tests are present, including for insufficient stock, concurrent checkout, invalid input, missing products, payment failure, and discount/rounding boundaries.
+tokens used
+18,977
+## Findings
+
+- ❗ **BLOCKING** — Database credentials are hard-coded in source at [checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3). This exposes production access to everyone with repository access. Revoke/rotate this password and load credentials from a secret manager or environment configuration.
+
+- ❗ **BLOCKING** — The connection has no `database` configured ([checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3)). A newly created MySQL connection has no selected database, so the unqualified `products` and `orders` queries will fail unless this is configured elsewhere—which this connection does not inherit.
+
+- ❗ **BLOCKING** — Client-controlled `uid` is persisted as the order owner ([checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:24)). An authenticated customer can submit another user’s ID and create orders under that account. Derive it from authenticated server-side identity.
+
+- ❗ **BLOCKING** — Stock is decremented without checking availability ([checkout.js:14](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:14), [checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). The fetched `stock` is never used, allowing negative inventory and overselling.
+
+- ❗ **BLOCKING** — The read/decrement sequence is race-prone ([checkout.js:14](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:14)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Concurrent checkouts can both observe stock and both decrement it. Use a transaction with row locking, or an atomic conditional update (`… WHERE stock >= ?`) and check affected rows.
+
+- ❗ **BLOCKING** — Cart input is not validated ([checkout.js:10](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:10)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Negative quantities increase stock and can create a negative total; fractional, zero, malformed, oversized, or non-array carts also produce invalid inventory changes or uncaught exceptions.
+
+- ❗ **BLOCKING** — Checkout mutations are not atomic ([checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:13)-[checkout.js:24](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:24)). A failure after one stock update leaves prior inventory changes committed, and an order can be inserted after only some items are reserved. Wrap reservation and order creation in a DB transaction with rollback.
+
+- ❗ **BLOCKING** — The payment charge is fire-and-forget ([checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:26)-[checkout.js:31](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:31)). The API reports a successful order before knowing whether payment was accepted; failures become unhandled rejections and leave an unpaid order/reserved stock. Persist payment state and use a transactional outbox/job with retries and idempotency.
+
+- ⚠️ **IMPORTANT** — Missing product IDs cause `p.price` to throw ([checkout.js:15](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:15)), potentially after earlier inventory changes have already committed.
+
+- ⚠️ **IMPORTANT** — There is no error handling around database or payment operations. In Express 4, a rejected async handler is not automatically forwarded to error middleware; the request can hang and failures are not translated to safe client responses.
+
+- ⚠️ **IMPORTANT** — Monetary totals are calculated with JavaScript floating point ([checkout.js:16](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:16), [checkout.js:21](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:21)). This can charge/store values such as `27.599999999`; use integer minor units or a decimal-money library and define rounding.
+
+- ⚠️ **IMPORTANT** — The payment request lacks explicit JSON headers and any visible authentication/idempotency token ([checkout.js:26](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:26)). Many payment APIs will reject it or parse the body incorrectly; retries without idempotency can double-charge.
+
+- ⚠️ **IMPORTANT** — A single long-lived `createConnection` is shared globally ([checkout.js:3](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:3)). It has no pooling or recovery strategy, so a dropped connection can take down all subsequent checkouts.
+
+- 💡 **SUGGESTION** — Each cart item causes a separate select and update ([checkout.js:13](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:13)-[checkout.js:17](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:17)). Large carts incur N+1 sequential round trips. Batch-fetch products and reserve inventory efficiently.
+
+- 💡 **SUGGESTION** — `fmt` throws for any truthy non-string `x` ([checkout.js:35](/private/tmp/claude-502/-Users-alberthsu-Documents-GitHub-AsiaOstrich-dev-platform/6e8cec64-003b-4359-b385-60b4f94661ca/scratchpad/codex-extend/work-B_r9/src/checkout.js:35)). Validate its contract or coerce deliberately.
+
+No tests are present, including for insufficient stock, concurrent checkout, invalid input, missing products, payment failure, and discount/rounding boundaries.

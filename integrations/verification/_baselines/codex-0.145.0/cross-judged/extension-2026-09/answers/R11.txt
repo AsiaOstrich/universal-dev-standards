@@ -1,0 +1,31 @@
+## Findings
+
+- [src/checkout.js:4](<path>)–[7] Production database host and plaintext credentials are committed in source. Treat the password as exposed: rotate it, remove it from version control, and load secrets from the environment or a secret manager.
+
+- [src/checkout.js:3](<path>)–[7] The connection specifies no database/schema. In a normal MySQL setup, the subsequent unqualified `products` and `orders` queries fail with “No database selected.”
+
+- [src/checkout.js:13](<path>)–[17] Stock is read but never validated, then decremented unconditionally. Concurrent checkouts can oversell inventory and drive stock negative. Use an atomic conditional update (`... WHERE id = ? AND stock >= ?`), check affected rows, and transact the checkout.
+
+- [src/checkout.js:13](<path>)–[17] `item.qty` is unvalidated. A negative quantity increases stock and produces a negative line total; zero, fractional, non-numeric, or excessively large quantities are also accepted.
+
+- [src/checkout.js:24](<path>) The purchaser is taken from `req.body.uid`, allowing a caller to create orders for another user unless authentication elsewhere independently overrides this. Derive the user ID from verified session/token identity.
+
+- [src/checkout.js:26](<path>)–[31] The payment promise is neither awaited nor checked. The API reports a successful order before the charge succeeds; rejection becomes unhandled and non-2xx payment responses are ignored.
+
+- [src/checkout.js:13](<path>)–[29] There is no transaction. A failure after one inventory update can leave partial stock changes; failures between order creation and payment create unpaid orders; payment retries can charge more than once. Use a transaction for local state plus a durable payment/outbox workflow with idempotency keys.
+
+- [src/checkout.js:10](<path>)–[16] The request body, cart shape, product existence, and price are assumed valid. Missing/invalid input or an unknown product makes `rows[0]` undefined and throws instead of returning a controlled client error.
+
+- [src/checkout.js:11](<path>)–[24] Currency is calculated with JavaScript floating-point arithmetic and no rounding. This can store/charge values with precision artifacts. Use integer minor units or a decimal type and explicitly round according to currency rules.
+
+- [src/checkout.js:26](<path>)–[29] The JSON request has no `Content-Type: application/json`; a typical payment API will receive it as plain text and may reject or fail to parse it. It also has no timeout/cancellation handling.
+
+- [src/checkout.js:3](<path>) A single connection is opened at module import and shared by all requests. Importing the module requires production-database connectivity; one lost connection can take checkout down, and a single connection becomes a throughput bottleneck. Use a pool initialized through application configuration.
+
+- [src/checkout.js:9](<path>)–[31] There is no error handling. Database, validation, and payment failures escape as rejected async operations rather than producing a safe, consistent error response and rollback path.
+
+- [src/checkout.js:13](<path>) A client can submit an arbitrarily large cart, causing serial database queries and a straightforward resource-exhaustion path. Enforce cart and quantity limits; batch product lookups where appropriate.
+
+- The repository has no tests or test script for checkout behavior, including validation, stock races, transaction rollback, discount boundaries, and payment failures.
+
+The credential exposure and inventory/payment consistency defects should be fixed before this is deployed.

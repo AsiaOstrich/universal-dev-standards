@@ -1,6 +1,6 @@
 # Codex CLI 0.145.0 — experiment state
 
-**Status**: ▶ **resumed 2026-09-17** — cross-judged extension in progress, 6 of 11 runs done · see `cross-judged/extension-2026-09/`
+**Status**: ✅ **cross-judged extension complete 2026-09-18** — n=10 per arm; UDS +1.30 (Gemini) / +1.48 (Claude) on 7 defects, carried by defect 8 (tests) with defect 2 (N+1) a new candidate · see `cross-judged/extension-2026-09/README.md`
 
 > The line below was the header until 2026-09-17. It named a resume date and nothing watched it, so
 > "paused" and "forgotten" read the same for 26 days.
@@ -50,7 +50,7 @@ Two changes before the next batch:
    0/9, Claude 7/8. It is a judgement about architecture, and the reviews discuss the
    module-level connection without framing it as layering. As written it measures the judge,
    not the review.
-2. **Target n.** 5/4 today. n=10 per arm needs 11 more runs.
+2. **Target n.** 5/4 today. n=10 per arm needs 11 more runs. → **Reached 2026-09-18** (10/10; Claude UDS 9 because July's R05 verdict was empty).
 
 ## What this data already supports
 

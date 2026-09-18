@@ -1,0 +1,33 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical — production DB credentials are hard-coded** at [lines 3–7](<path>). They are exposed in source control and cannot be safely rotated/configured per environment.
+
+- **Critical — no database is selected** at [lines 3–7](<path>). The connection has no `database` option and queries use unqualified table names, so this will fail with “No database selected.”
+
+- **Critical — clients can submit negative quantities** at [lines 13–17](<path>). A negative `qty` reduces the total and increases stock, allowing credit/refund-like manipulation. Zero, fractional, non-numeric, and excessively large quantities are also unchecked.
+
+- **Critical — stock is never checked** at [lines 14–17](<path>). The code reads `stock` but does not use it; the update can drive inventory negative.
+
+- **Critical — inventory updates are race-prone** at [lines 14–17](<path>). Separate read/update queries are not locked or conditional, so concurrent checkouts can both observe stock and oversell.
+
+- **Critical — checkout is not transactional** at [lines 13–24](<path>). A failure after one stock update can leave partial decrements; a failure after stock changes but before order creation leaves no corresponding order. There is no rollback path.
+
+- **High — payment is fire-and-forget** at [lines 26–29](<path>). The response reports a successful order before payment completes. Rejections are unhandled, meaning failed charges still produce orders and stock decrements.
+
+- **High — the payment request omits `Content-Type: application/json`** at [lines 26–29](<path>). Many payment APIs will not parse the JSON body as intended.
+
+- **High — no idempotency protection** at [lines 9–31](<path>). Retried requests can create duplicate orders, decrement stock repeatedly, and potentially charge repeatedly.
+
+- **High — caller controls `user_id`** at [line 24](<path>). Using `req.body.uid` allows impersonation unless trusted middleware has already replaced and authorized it. Checkout should derive identity from authenticated server-side context.
+
+- **High — request data is not validated** at [lines 10–16](<path>). Missing or non-array carts throw; malformed IDs/quantities are sent directly to the database; an unknown product makes `p` undefined and crashes at `p.price`.
+
+- **High — no error handling** at [lines 9–31](<path>). Database and payment errors are not converted into controlled responses or logged with checkout context.
+
+- **Medium — money uses JavaScript floating-point arithmetic** at [lines 16, 20–22](<path>). This can persist or charge totals with rounding artifacts. Use integer minor units or explicit decimal handling and rounding.
+
+- **Medium — order contents are not persisted by this code** at [line 24](<path>). Only an order total is inserted; product IDs, quantities, and captured prices are absent, preventing reliable fulfillment, refunds, and auditing.
+
+- **Medium — one connection is opened during module import** at [lines 1–7](<path>). A transient DB outage prevents the module/app from loading, and a single long-lived connection has no pooling or reconnection strategy.
+
+- **Medium — `fetch` compatibility is unstated** at [line 26](<path>). `package.json` has no Node engine requirement or fetch dependency; on Node versions before 18 this throws at checkout time.

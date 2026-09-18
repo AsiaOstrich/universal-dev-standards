@@ -1,0 +1,33 @@
+## Findings
+
+- Database credentials are hard-coded in source at [checkout.js:3](<path>). This exposes production access to everyone with repository access. Revoke/rotate this password and load credentials from a secret manager or environment configuration.
+
+- The connection has no `database` configured ([checkout.js:3](<path>)). A newly created MySQL connection has no selected database, so the unqualified `products` and `orders` queries will fail unless this is configured elsewhere—which this connection does not inherit.
+
+- Client-controlled `uid` is persisted as the order owner ([checkout.js:24](<path>)). An authenticated customer can submit another user’s ID and create orders under that account. Derive it from authenticated server-side identity.
+
+- Stock is decremented without checking availability ([checkout.js:14](<path>), [checkout.js:17](<path>)). The fetched `stock` is never used, allowing negative inventory and overselling.
+
+- The read/decrement sequence is race-prone ([checkout.js:14](<path>)-[checkout.js:17](<path>)). Concurrent checkouts can both observe stock and both decrement it. Use a transaction with row locking, or an atomic conditional update (`… WHERE stock >= ?`) and check affected rows.
+
+- Cart input is not validated ([checkout.js:10](<path>)-[checkout.js:17](<path>)). Negative quantities increase stock and can create a negative total; fractional, zero, malformed, oversized, or non-array carts also produce invalid inventory changes or uncaught exceptions.
+
+- Checkout mutations are not atomic ([checkout.js:13](<path>)-[checkout.js:24](<path>)). A failure after one stock update leaves prior inventory changes committed, and an order can be inserted after only some items are reserved. Wrap reservation and order creation in a DB transaction with rollback.
+
+- The payment charge is fire-and-forget ([checkout.js:26](<path>)-[checkout.js:31](<path>)). The API reports a successful order before knowing whether payment was accepted; failures become unhandled rejections and leave an unpaid order/reserved stock. Persist payment state and use a transactional outbox/job with retries and idempotency.
+
+- Missing product IDs cause `p.price` to throw ([checkout.js:15](<path>)), potentially after earlier inventory changes have already committed.
+
+- There is no error handling around database or payment operations. In Express 4, a rejected async handler is not automatically forwarded to error middleware; the request can hang and failures are not translated to safe client responses.
+
+- Monetary totals are calculated with JavaScript floating point ([checkout.js:16](<path>), [checkout.js:21](<path>)). This can charge/store values such as `27.599999999`; use integer minor units or a decimal-money library and define rounding.
+
+- The payment request lacks explicit JSON headers and any visible authentication/idempotency token ([checkout.js:26](<path>)). Many payment APIs will reject it or parse the body incorrectly; retries without idempotency can double-charge.
+
+- A single long-lived `createConnection` is shared globally ([checkout.js:3](<path>)). It has no pooling or recovery strategy, so a dropped connection can take down all subsequent checkouts.
+
+- Each cart item causes a separate select and update ([checkout.js:13](<path>)-[checkout.js:17](<path>)). Large carts incur N+1 sequential round trips. Batch-fetch products and reserve inventory efficiently.
+
+- `fmt` throws for any truthy non-string `x` ([checkout.js:35](<path>)). Validate its contract or coerce deliberately.
+
+No tests are present, including for insufficient stock, concurrent checkout, invalid input, missing products, payment failure, and discount/rounding boundaries.

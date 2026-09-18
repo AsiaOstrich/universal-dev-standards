@@ -1,0 +1,23 @@
+Static review of [src/checkout.js](<path>):
+
+- **Critical:** Production database credentials are hard-coded in source ([lines 3–7](<path>)). They should be rotated and moved to a secret manager/environment configuration.
+- **Critical:** The database host is hard-coded to production ([line 4](<path>)), making local/test deployments unsafe and brittle.
+- **High:** The project starts `node src/server.js`, but `package.json` does not declare `"type": "module"`. This `.js` file’s `import` and top-level `await` will fail under Node’s default CommonJS treatment.
+- **High:** The connection configuration contains no database name ([lines 3–7](<path>)). Unless the account has an unusual default schema, the unqualified queries will fail with “No database selected.”
+- **High:** A single global connection is created at module load ([line 3](<path>)), rather than using a pool. A dropped connection can take down all subsequent checkouts; startup also fails if the DB is briefly unavailable.
+- **High:** Database traffic lacks an explicit TLS configuration, inappropriate for a production database connection ([lines 3–7](<path>)).
+- **Critical:** Request input is untrusted and entirely unvalidated ([lines 10–17](<path>)). Missing/non-array carts, invalid IDs, zero/negative/fractional quantities, and unbounded cart sizes are not handled.
+- **Critical:** Negative quantities increase inventory and can produce a negative order total ([line 17](<path>)).
+- **High:** A nonexistent product causes `p` to be undefined and throws at `p.price` ([lines 14–16](<path>)).
+- **Critical:** Inventory is decremented without checking available stock ([line 17](<path>)); stock can become negative.
+- **Critical:** The price/stock read and stock update are not transactional or locked ([lines 14–17](<path>)). Concurrent checkouts can both observe stock and oversell.
+- **Critical:** There is no transaction for the whole checkout ([lines 13–24](<path>)). A later product failure or failed order insert leaves earlier inventory deductions committed.
+- **High:** The order saves only a user ID and total, not the purchased products, quantities, or captured unit prices ([line 24](<path>)). This prevents reliable fulfillment, refunds, and auditability.
+- **High:** `uid` comes directly from the request body ([line 24](<path>)); absent verified authentication, a caller can create orders for another user.
+- **Medium:** Currency is calculated with JavaScript floating-point arithmetic ([lines 16, 21](<path>)), causing rounding errors. Use integer minor units or a decimal type, with defined rounding.
+- **High:** The payment request is fire-and-forget ([lines 26–29](<path>)). Checkout returns success even if charging fails; rejected fetches can become unhandled rejections.
+- **High:** Payment failure has no retry, compensation, order-status update, or idempotency handling ([lines 24–31](<path>)). Retrying a request can duplicate inventory deductions/orders/charges.
+- **High:** The payment URL is a placeholder `example.com` endpoint ([line 26](<path>)), so it will not perform a real charge.
+- **Medium:** The payment request omits `Content-Type: application/json` ([lines 26–29](<path>)), so many APIs will not parse its body.
+- **Medium:** No error handling maps database/payment/input failures to controlled HTTP responses ([lines 9–31](<path>)); failures will likely become generic 500s and may expose implementation details through upstream middleware.
+- **Medium:** `fetch` is only globally available in modern Node versions, while the package declares no Node engine requirement or fetch dependency ([line 26](<path>)).

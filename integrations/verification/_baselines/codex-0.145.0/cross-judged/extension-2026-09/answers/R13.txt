@@ -1,0 +1,35 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical — hard-coded production database credentials** at lines 3–7. Secrets are committed in source, and the code directly targets production infrastructure. Rotate this credential immediately and move configuration to a secret manager/environment variables.
+
+- **Critical — client-controlled `uid` enables order impersonation** at line 24. `req.body.uid` is trusted instead of deriving the user from authenticated server-side identity.
+
+- **Critical — no input validation** at lines 10–17. A caller can submit negative, zero, fractional, non-numeric, or extreme quantities; a negative quantity increases stock and can produce a negative order total. Missing/malformed carts and product IDs can also crash the handler.
+
+- **Critical — inventory can go below zero / race conditions** at line 17. The update does not require sufficient stock, and the prior read is not locked. Concurrent checkouts can both observe stock and oversell it.
+
+- **Critical — checkout is not atomic** across lines 14–29. Product stock updates, order creation, and payment happen without a transaction or compensating workflow. Failures can leave stock decremented without an order, an order without payment, or a payment/order state mismatch.
+
+- **High — payment request is fire-and-forget** at lines 26–29. It is neither awaited nor checked, yet the API immediately responds successfully. Rejections may become unhandled and failed payments still create successful-looking orders.
+
+- **High — no idempotency protection**. Retried client requests can decrement inventory repeatedly, create duplicate orders, and potentially charge more than once.
+
+- **High — payment request is incomplete/ambiguous** at lines 26–29. It sends no payment authorization/token, no authentication shown for the payment service, and no `Content-Type: application/json` header. The payment provider may reject or misinterpret the body.
+
+- **High — orders are recorded before payment succeeds** at line 24, with no status field or subsequent reconciliation. This makes failed or pending payments indistinguishable from completed orders.
+
+- **Medium — product not found crashes the checkout** at lines 14–16. `rows[0]` may be `undefined`, causing `p.price` to throw rather than returning a controlled 4xx response.
+
+- **Medium — money uses JavaScript floating-point arithmetic** at lines 16 and 20–24. Prices, quantities, discounting, and storage/charging can suffer rounding errors. Use integer minor units or fixed-precision decimal handling.
+
+- **Medium — connection is created at module import and shared globally** at lines 3–7. Startup fails if the database is temporarily unavailable; a single connection is fragile under concurrent traffic and lacks normal pool/reconnect behavior. A connection pool initialized through application configuration is appropriate.
+
+- **Medium — database configuration appears incomplete** at lines 3–7. No database/schema is supplied, so the queries will fail unless the account has a default schema configured externally.
+
+- **Medium — errors are not handled** throughout `processCheckout`. With Express 4 (the declared dependency), rejected async handlers are not automatically forwarded to error middleware; failures can become unhandled rejections or leave clients without a proper response.
+
+- **Low — inefficient N+1 sequential database work** at lines 13–18. Large carts issue two queries per item, serially. This is slow and increases the window for contention; repeated product IDs also cause repeated reads/updates.
+
+- **Low — cart lines are not consolidated**. Duplicate entries for the same product are processed independently, making inventory checks and totals harder to validate and worsening race/oversell behavior.
+
+- **Low — runtime compatibility is unstated for `fetch`** at line 26. `package.json` has no Node engine requirement and no fetch polyfill; Node versions before 18 will fail with `fetch is not defined`.

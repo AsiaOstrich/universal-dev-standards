@@ -1,0 +1,29 @@
+Review findings for [src/checkout.js](<path>):
+
+- [lines 3–7](<path>): Production database credentials are hard-coded in source. They are exposed to anyone with repository access and cannot be safely rotated through configuration.
+
+- [lines 14–17](<path>): Stock is read and decremented in separate statements, with no transaction or `stock >= qty` condition. Concurrent checkouts can both observe the same stock and drive inventory negative.
+
+- [lines 13–31](<path>): The checkout has no transaction. A later item, order insert, or payment step can fail after earlier inventory updates, leaving stock and orders in an inconsistent state.
+
+- [lines 26–31](<path>): The payment request is fire-and-forget. The endpoint returns a successful order ID before knowing whether payment was accepted; failures are unhandled, yielding unpaid orders presented as successful checkouts.
+
+- [lines 10, 16–17, 24](<path>): Client-controlled `uid`, item IDs, and quantities are trusted without authentication or validation. A caller can create orders for another user, submit negative quantities to increase stock/create negative totals, or submit non-integer/invalid quantities.
+
+- [lines 14–16](<path>): Unknown product IDs produce `rows[0] === undefined`, then crash at `p.price`; empty carts are also accepted and can create zero-value orders.
+
+- [lines 3–7](<path>): No database/schema is configured. Unless the connection is given a default schema elsewhere (it is not here), the product and order queries fail with “No database selected.”
+
+- [lines 3–7](<path>): A single connection is created during module initialization. A transient startup/database failure prevents the module loading, and a dropped connection is never recovered. Use a managed connection pool.
+
+- [lines 9–31](<path>): There is no error handling. In Express 4, a rejected async handler is not automatically routed to error middleware, so database/payment errors may leave requests hanging or become unhandled rejections.
+
+- [lines 26–29](<path>): The JSON payment request lacks `Content-Type: application/json`, does not inspect an HTTP response, and has no idempotency mechanism. Retries can double-charge, while many payment APIs will not parse the body as intended.
+
+- [line 16](<path>): Currency is calculated with JavaScript floating-point arithmetic. Totals and the discount can be rounded incorrectly; use integer minor units or a decimal type with explicit rounding.
+
+- [lines 13–17](<path>): Each cart item incurs two sequential database round trips. Larger carts have avoidable latency and consume the connection for longer; bulk/locked queries within a transaction would scale better.
+
+- [lines 1–3](<path>): The file relies on ESM syntax and top-level `await`, but `package.json` does not declare `"type": "module"` or an engine version. Deployments that treat `.js` as CommonJS will fail to load it.
+
+- No tests exist for this checkout path. Critical cases missing include invalid carts, stock boundaries/concurrency, database rollback, payment rejection/timeout, discount rounding, and duplicate payment prevention.

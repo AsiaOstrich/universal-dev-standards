@@ -1,0 +1,27 @@
+Review findings:
+
+- [src/checkout.js:6](<path>): Production database credentials are hardcoded in source. This exposes the database through repository/history access; revoke/rotate this password and load credentials from secret-managed configuration.
+
+- [src/checkout.js:17](<path>): Stock is decremented without checking availability. Concurrent checkouts can oversell, and stock can become negative. Use an atomic conditional update (`... WHERE stock >= ?`) and verify the affected-row count.
+
+- [src/checkout.js:10](<path>) and [17](<path>): Cart items and quantities are unvalidated. A negative `qty` increases inventory; arbitrary quantities distort totals and inventory.
+
+- [src/checkout.js:13](<path>)–[24](<path>): Inventory changes and order creation are not enclosed in a database transaction. Any mid-loop failure leaves partial stock deductions without a corresponding order.
+
+- [src/checkout.js:26](<path>)–[31](<path>): The payment request is neither awaited nor error-handled, yet the endpoint immediately reports checkout success. Failed or rejected charges produce unpaid orders and deducted inventory.
+
+- [src/checkout.js:24](<path>): `req.body.uid` is trusted directly. A caller can create orders under another user unless identity is taken from authenticated server-side context and authorization is enforced.
+
+- [src/checkout.js:15](<path>): Unknown product IDs result in `p` being undefined and a server error, after earlier cart lines may already have changed stock. Return a controlled validation error before any mutation.
+
+- [src/checkout.js:3](<path>): A single module-global DB connection is a fragile concurrency and recovery model. Use a connection pool, and acquire a dedicated connection for each transaction.
+
+- [src/checkout.js:26](<path>): No idempotency mechanism protects against client retries. A timeout after the order insert can lead to duplicate orders/charges. Persist an idempotency key and pass it to the payment provider.
+
+- [src/checkout.js:11](<path>) and [20](<path>): Currency is calculated with JavaScript floating-point numbers, risking incorrect totals/discount thresholds. Store and calculate minor units (e.g., cents) or use fixed-precision decimals.
+
+- [src/checkout.js:9](<path>): There is no error handling around database or network work. Failures become unhandled errors, potentially exposing internals and leaving inconsistent state.
+
+- [src/checkout.js:13](<path>): Products are queried and updated sequentially, creating 2N database round trips. Consolidate duplicate items and use set-based queries/updates to reduce latency.
+
+- [src/checkout.js:34](<path>): `fmt` has opaque parameter names and throws when a truthy non-string `x` is supplied. Give parameters meaningful names and validate/coerce the optional value if it is public-facing.

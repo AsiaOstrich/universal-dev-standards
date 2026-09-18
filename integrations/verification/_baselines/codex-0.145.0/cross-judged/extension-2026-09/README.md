@@ -30,7 +30,7 @@ Arm check: every B run read `SKILL.md`; no A run touched `.agents/` — the same
 | Day | Runs | Result |
 |---|---|---|
 | 2026-09-17 | A_r6 A_r7 A_r8 · B_r5 B_r6 B_r7 | 6/6 usable (`tokens used` present, model matched), no quota error |
-| next | A_r9 A_r10 · B_r8 B_r9 B_r10 | — |
+| 2026-09-18 | A_r9 A_r10 · B_r8 B_r9 B_r10 | 5/5 usable, no quota error — **all 11 done** |
 
 After the last run: extract the text after `tokens used`, strip paths and severity prefixes as in
 `../../blind-judged/README.md`, shuffle the 11 new answers under a fixed seed into R10–R20, and judge
@@ -39,3 +39,41 @@ with the same two Antigravity models (Gemini 3.1 Pro (High), Claude Sonnet 4.6 (
 
 `run.sh` is the runner used: `run.sh <dir-with-tmpl-A-and-tmpl-B> A_r9 B_r8 …`; it stops on the
 first run without `tokens used` or with a different model.
+
+## Result — n=10 per arm (Claude UDS 9: July's R05 verdict was empty)
+
+Full tables in `analysis.md` (produced by `analyze.py ../ .`). Defect 5 excluded; 7 defects scored.
+
+| judge | no UDS | UDS | delta |
+|---|---:|---:|---:|
+| Gemini 3.1 Pro (High) | 3.60 (n=10, 3–4) | 4.90 (n=10, 4–5) | **+1.30** |
+| Claude Sonnet 4.6 (Thinking) | 3.30 (n=10, 3–4) | 4.78 (n=9, 4–5) | **+1.48** |
+
+**Defect 8 (no tests for the payment path) still carries most of it**: 0/10 → 9/10 (Gemini),
+0/10 → 8/9 (Claude). Unchanged from July, now at twice the sample.
+
+**New at n=10: defect 2 (N+1 queries)** — 5/10 → 8/10 (Gemini), 4/10 → 8/9 (Claude). July read it as
+"same rate either way" at n=3–5. Both judges now agree on a gap, but this is the first batch to show it;
+treat it as a second candidate, not a finding, until it survives another round.
+
+Defect 6 (magic numbers) is 0 in all 39 judged reviews, with or without UDS. The checklist names it;
+it is never raised.
+
+The ranges touch at 4 under both judges, so "UDS finds more" is now a consistent direction at n=10,
+not a separation. The per-defect rows are where the evidence is.
+
+## Method checks and what they showed
+
+- **Scoring script reproduces July exactly**: with all 8 defects and July data only, `analyze.py`
+  gives Gemini 3.60 / 4.75 and Claude 4.40 / 5.33 — the numbers in `../README.md`.
+- **Judge drift check**: July answer R01 re-judged by Gemini today matched July's verdict on 7 of 7
+  scored defects; the only change was defect 5 (NO → YES).
+- ⚠️ **Defect 5 agreement moved from 1/8 in July to 11/11 now.** The judges' reading of it changed,
+  which supports excluding it — and is a reminder that "same model name" on Antigravity is not a
+  pinned version. The 7 scored defects agree 74/77 (July 55/56).
+- **Two operational failures, both recovered and neither scored**: the first two judge calls hung
+  with no output until killed (cause not established; every call run with `--log-file` and stdin from
+  `/dev/null` completed — correlation, not proven cause); one Claude call returned empty twice on
+  `503 No capacity available for model claude-sonnet-4-6` and succeeded on a manual retry.
+- Blinding: 11 new answers shuffled with seed 20260918 into R10–R20 (`key.txt`); paths replaced with
+  `<path>`, severity prefixes removed (`extract.py`) — formatting only, wording untouched.

@@ -1,0 +1,33 @@
+Issues found in [src/checkout.js](<path>):
+
+- **Critical:** Production database credentials are hard-coded in source ([lines 3–7](<path>)). They will leak through source control, logs, builds, and any code access; rotate this password immediately.
+
+- **Critical:** Inventory decrement, order creation, and payment are not atomic ([lines 13–29](<path>)). Any failure after an inventory update leaves stock reduced without a corresponding order; a failed/declined payment leaves an order and reduced inventory.
+
+- **Critical:** The stock check is absent. Although `stock` is selected, it is never used, and the update has no `stock >= qty` predicate ([lines 14, 17](<path>)). Orders can drive stock negative.
+
+- **Critical:** There is a race between reading price/stock and decrementing stock ([lines 14–17](<path>)). Concurrent checkouts can both observe stock availability and oversell.
+
+- **High:** `qty`, `id`, `cart`, and `uid` are unvalidated client input ([lines 10, 13–17, 24](<path>)). Negative quantities increase stock and can create negative totals; zero, fractional, non-numeric, duplicate, or excessively large values are also accepted. Missing/non-array carts throw.
+
+- **High:** The user identity comes from `req.body.uid` rather than authenticated server-side identity ([line 24](<path>)). A caller can place orders for another user.
+
+- **High:** Missing product IDs cause `p` to be `undefined`, then `p.price` throws ([lines 14–16](<path>)). There is no usable client error or rollback.
+
+- **High:** Payment is fire-and-forget and its result is ignored ([lines 26–31](<path>)). The API reports checkout success before knowing whether payment succeeded; rejected fetches may become unhandled rejections.
+
+- **High:** The payment request has no `Content-Type: application/json`, authentication, timeout, error handling, or idempotency key ([lines 26–29](<path>)). Retries or duplicate client requests can double-charge, and a payment provider may not parse the body.
+
+- **Medium:** There is no idempotency protection for checkout requests ([lines 9–31](<path>)). A retry after a timeout can create multiple orders, decrement inventory multiple times, and charge repeatedly.
+
+- **Medium:** Money is calculated with JavaScript floating-point arithmetic ([lines 11, 16, 20–22](<path>)). This can produce incorrect charge totals; use integer minor units or a decimal type and defined rounding.
+
+- **Medium:** Database errors are not handled, and the separate queries are not wrapped in a transaction ([lines 14–24](<path>)). With Express 4, rejected async handlers also need explicit forwarding/handling to ensure consistent error responses.
+
+- **Medium:** A single connection is opened during module import ([lines 3–7](<path>)), with no pooling, reconnect strategy, graceful close, or configuration separation. One dropped connection can take checkout down.
+
+- **Low:** Each cart line performs two sequential database round trips ([lines 13–17](<path>)), making larger carts slow and extending the race window.
+
+- **Low:** `fmt` accepts arbitrary values but calls `toUpperCase()` whenever `x` is truthy ([lines 34–36](<path>)); non-string truthy values throw, while `d` and `t` are silently coerced.
+
+- **Compatibility risk:** The file relies on ESM, top-level `await`, and global `fetch`, but the package declares neither `"type": "module"` nor a Node engine requirement. It works under the installed Node 22, but unsupported deployment runtimes may fail at load time.

@@ -1,0 +1,27 @@
+## Findings
+
+- Production database credentials are hard-coded in [checkout.js](<path>). This exposes a live secret to source control and anyone with repository access. Rotate it and load credentials from a secret manager/environment variables.
+
+- Checkout trusts `req.body.uid` as the order owner ([line 24](<path>)). A caller can submit another user’s ID and create orders under that account. Derive the user ID from authenticated server-side identity.
+
+- Inventory is read and decremented in separate statements without a transaction or conditional update ([lines 14–17](<path>)). Concurrent requests can both observe the same stock, oversell items, and drive stock negative. `stock` is selected but never enforced.
+
+- The stock updates and order insert are not atomic ([lines 17, 24](<path>)). An error after one update can leave inventory changed with no order, or partially process a cart. Use a transaction with rollback.
+
+- Payment is fire-and-forget ([lines 26–30](<path>)). The API returns a successful order before the charge completes; charge failures/rejections are unhandled, leaving unpaid orders and potentially unhandled promise rejections. Handle payment outcome, persist a payment state, and use idempotency.
+
+- Cart data is entirely unvalidated ([lines 10–17](<path>)). Missing/non-array carts, unknown product IDs, missing prices, non-numeric quantities, zero/negative quantities, and fractional quantities can crash the endpoint, create invalid totals, or increase stock through subtraction of a negative quantity.
+
+- Monetary arithmetic uses JavaScript floating point and does not round after discounting ([lines 15, 20](<path>)). This can store/charge values such as `459.999999…`. Use integer minor units or a decimal library/database decimal handling with explicit rounding.
+
+- The payment request lacks a `Content-Type: application/json` header ([lines 26–29](<path>)). Many payment APIs will not parse the JSON body correctly.
+
+- There is no error handling around database or payment operations. Failures are not converted to a controlled response, and Express 4 does not reliably propagate rejected async handlers without explicit handling.
+
+- The module relies on top-level `await` ([line 3](<path>)), but [package.json](<path>) does not declare `"type": "module"`. Under the shown configuration, Node will parse this as CommonJS and fail on the `import`/top-level `await`.
+
+- A single global database connection is opened at module load ([line 3](<path>)). It makes startup depend on the DB, provides no reconnect/failure strategy, and is unsuitable for typical concurrent server traffic. Use a managed connection pool.
+
+- Each cart item performs a serial select and update ([lines 13–17](<path>)). This increases latency and database load, especially with duplicate product IDs. Normalize/aggregate cart lines and fetch/update in batches inside the transaction.
+
+- There are no tests in the repository for these critical paths—validation, stock boundaries/concurrency, rollback behavior, discounts, and payment failure/idempotency.
