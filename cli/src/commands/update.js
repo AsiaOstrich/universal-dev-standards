@@ -19,6 +19,7 @@ import {
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
+  repairIntegrationConfigCategories,
   arraysEqual,
   getToolFromPath
 } from '../utils/reference-sync.js';
@@ -763,6 +764,16 @@ export async function updateCommand(options) {
 
   // Update integrations (unless --standards-only)
   if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
+    // XSPEC adopter-report Q1 follow-up: this block writes
+    // integrationBlockHashes but never touched manifest.integrationConfigs at
+    // all, so a manifest that picked up a broken (empty/unrecognized)
+    // categories array from an older buggy `--sync-refs` run stayed broken
+    // through every subsequent plain `uds update` — the only path that
+    // repaired it was `--sync-refs` itself. Self-heal corruption here too, not
+    // just there; an already-valid list is left alone (see
+    // repairIntegrationConfigCategories's docblock for why).
+    repairIntegrationConfigCategories(manifest);
+
     const intSpinner = createSpinner(msg.syncingIntegrations).start();
 
     // Build installed standards list
