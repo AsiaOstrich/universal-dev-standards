@@ -11,26 +11,35 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { mapStandardsToDirectories } from '../utils/directory-mapper.js';
+import { locateMarkerBlock } from '../utils/marker-locator.js';
 
 const UDS_BEGIN = '<!-- UDS:STANDARDS:BEGIN -->';
 const UDS_END = '<!-- UDS:STANDARDS:END -->';
 
 /**
  * Replace content between UDS markers, preserving content outside markers.
+ *
+ * XSPEC adopter-report Q5: same defect class as integration-generator.js —
+ * raw indexOf matched the marker text anywhere in the file, not only on a
+ * standalone line. Routed through the shared locateMarkerBlock so a sentence
+ * mentioning the marker is never mistaken for the real boundary. Ambiguity
+ * (two real marker pairs) throws AmbiguousMarkerError, which this function
+ * intentionally does not catch — a write must refuse rather than guess.
+ *
  * @param {string} existing - Existing file content
  * @param {string} newUdsContent - New UDS content to insert between markers
  * @returns {string} Updated content
  */
 function replaceUdsBlock(existing, newUdsContent) {
-  const beginIdx = existing.indexOf(UDS_BEGIN);
-  const endIdx = existing.indexOf(UDS_END);
+  const block = locateMarkerBlock(existing, { start: UDS_BEGIN, end: UDS_END });
 
-  if (beginIdx === -1 || endIdx === -1) {
+  if (!block) {
     // No markers found — append UDS block
     return existing + '\n\n' + wrapWithMarkers(newUdsContent);
   }
 
-  const before = existing.substring(0, beginIdx);
+  const { startIdx, endIdx } = block;
+  const before = existing.substring(0, startIdx);
   const after = existing.substring(endIdx + UDS_END.length);
   return before + wrapWithMarkers(newUdsContent) + after;
 }

@@ -33,6 +33,8 @@ import {
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
 import { extractMarkedContent, resolveIntegrationTargetFile, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
+import { AmbiguousMarkerError } from '../utils/marker-locator.js';
+import { bumpManifestVersion } from '../core/manifest.js';
 import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
 import { getToolFormat } from '../core/constants.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
@@ -416,6 +418,13 @@ export async function checkCommand(options = {}) {
   // Check Commands integrity if commandHashes exist
   checkCommandsIntegrity(manifest, projectPath, msg);
 
+  // XSPEC adopter-report Q3: neither of the two checks above (content-hash
+  // integrity) says anything about an installed Skills/Commands version
+  // being behind the latest UDS release — that was only ever computed by
+  // `uds update --plan --skills`/`--commands`. A plain `uds check` gave no
+  // signal at all that `uds update --skills` had anything to do.
+  checkSkillsCommandsVersionStaleness(manifest, projectPath, msg);
+
   // Check Integration blocks integrity if integrationBlockHashes exist
   // XSPEC-418 R1: the return value used to be discarded, so a removed/modified
   // UDS block never affected the final verdict below — `uds check --ci` printed
@@ -511,7 +520,8 @@ export async function checkCommand(options = {}) {
                   fileStatus.modified.length === 0 &&
                   integrationBlockStatus.modified.length === 0 &&
                   integrationBlockStatus.missing.length === 0 &&
-                  integrationBlockStatus.noMarkers.length === 0;
+                  integrationBlockStatus.noMarkers.length === 0 &&
+                  integrationBlockStatus.ambiguous.length === 0;
   if (allGood) {
     console.log(chalk.green(msg.projectCompliant));
   } else {
@@ -810,7 +820,21 @@ export async function restoreSingleFile(projectPath, manifest, relativePath, msg
       // written; a template with no UDS markers at all (computeIntegration
       // BlockHash returns null) falls back to the old whole-file behaviour,
       // since there is no block to track instead.
-      const blockHashInfo = computeIntegrationBlockHash(join(projectPath, relativePath));
+      // XSPEC adopter-report Q5: the file was just overwritten wholesale by
+      // copyIntegration (a full template copy, not a marker-preserving
+      // merge), so an ambiguous marker pair here cannot be this restore's
+      // own doing — fall back to whole-file hashing rather than fail a
+      // restore that already succeeded on disk.
+      let blockHashInfo;
+      try {
+        blockHashInfo = computeIntegrationBlockHash(join(projectPath, relativePath));
+      } catch (error) {
+        if (error instanceof AmbiguousMarkerError) {
+          blockHashInfo = null;
+        } else {
+          throw error;
+        }
+      }
       if (blockHashInfo) {
         updateIntegrationBlockHash(manifest, relativePath, blockHashInfo);
       } else {
@@ -1019,7 +1043,22 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
     const int = resolveIntegrationFile(intEntry) || intEntry;
     const fullPath = join(projectPath, int);
 
-    const blockHashInfo = computeIntegrationBlockHash(fullPath);
+    // XSPEC adopter-report Q5: this is a read-only manifest migration over
+    // every tracked integration file at once — one file with an ambiguous
+    // marker pair must not abort migrating the rest. It is simply left
+    // without a block hash, same as a file with no markers at all; `uds
+    // check`'s own block-integrity pass (below) is what surfaces the
+    // ambiguity to the user, with line numbers.
+    let blockHashInfo;
+    try {
+      blockHashInfo = computeIntegrationBlockHash(fullPath);
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        blockHashInfo = null;
+      } else {
+        throw error;
+      }
+    }
     if (blockHashInfo) {
       integrationBlockHashes[int] = { ...blockHashInfo, installedAt: now };
       count++;
@@ -1038,7 +1077,7 @@ async function migrateToHashBasedTracking(projectPath, manifest) {
   // Update manifest
   manifest.fileHashes = fileHashes;
   manifest.integrationBlockHashes = integrationBlockHashes;
-  manifest.version = '3.1.0';
+  bumpManifestVersion(manifest);
   pruneIntegrationFileHashes(manifest);
   writeManifest(manifest, projectPath);
 
@@ -1360,7 +1399,20 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
 
     // Check for standards index marker
     const format = getToolFormat(tool);
-    const { content: markedContent } = extractMarkedContent(content, format);
+    let markedContent;
+    try {
+      ({ content: markedContent } = extractMarkedContent(content, format));
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        // XSPEC adopter-report Q5: report explicitly with line numbers
+        // instead of guessing which marker pair is real, or silently
+        // treating the file as if it had no UDS block at all.
+        console.log(chalk.red(`  ✗ ${toolFile}: ${error.message}`));
+        hasIssues = true;
+        continue;
+      }
+      throw error;
+    }
     const hasStandardsIndex = markedContent.length > 0 ||
       content.includes('Standards Index') ||
       content.includes('Standards Compliance');
@@ -1717,6 +1769,59 @@ async function checkCliVersion(bundledVersion) {
 // ============================================================
 
 /**
+ * Warn when an installed Skills or Commands version is behind the latest
+ * UDS release. This is deliberately modeled on the existing top-level
+ * "Version: X → Y ⚠" row (see the `hasUpdate` check in the summary
+ * dashboard below) rather than on `checkIntegrationBlocksIntegrity`
+ * (XSPEC-418 R1): a version simply being behind the latest release is
+ * ambient, expected state until the adopter chooses to update — not a
+ * compliance defect the way a modified/missing/ambiguous UDS block is — so
+ * it is reported but, unlike a block problem, does not fail `--ci`.
+ *
+ * Skills staleness is read per-installation from what is actually on disk
+ * (`getInstalledSkillsInfoForAgent`), the same source `uds update --plan
+ * --skills` uses, because different agents/levels can be out of sync
+ * independently. Commands have no per-installation version on disk (only a
+ * file count), so Commands staleness is read from the one version the
+ * manifest itself records (`manifest.commands.version`).
+ * // implements XSPEC adopter-report Q3
+ *
+ * @param {Object} manifest
+ * @param {string} projectPath
+ * @param {Object} msg - Localized messages (unused today; kept for symmetry
+ *   with the other Enhanced Integrity Check functions, which all take one)
+ */
+function checkSkillsCommandsVersionStaleness(manifest, projectPath, msg) { // eslint-disable-line no-unused-vars
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+  const stale = [];
+
+  const skillsInstallations = (manifest.skills?.installations || []).filter((i) => i.level !== 'marketplace');
+  for (const inst of skillsInstallations) {
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const current = info?.version;
+    if (current && current !== latestVersion) {
+      stale.push(`${getAgentDisplayName(inst.agent)} (${inst.level}): Skills v${current} → v${latestVersion}`);
+    }
+  }
+
+  if (manifest.commands?.installed && (manifest.commands?.installations || []).length > 0) {
+    const current = manifest.commands.version;
+    if (current && current !== latestVersion) {
+      stale.push(`Commands: v${current} → v${latestVersion}`);
+    }
+  }
+
+  if (stale.length === 0) return;
+
+  for (const line of stale) {
+    console.log(chalk.yellow(`  ⚠ ${line}`));
+  }
+  console.log(chalk.gray('    Run `uds update --plan --skills` / `--commands` for details, then `--apply` to update.'));
+  console.log();
+}
+
+/**
  * Check Skills files integrity against stored hashes
  * @param {Object} manifest - Manifest object
  * @param {string} projectPath - Project root path
@@ -1898,19 +2003,19 @@ export function checkCommandsIntegrity(manifest, projectPath, msg) {
  * @param {Object} manifest - Manifest object
  * @param {string} projectPath - Project root path
  * @param {Object} msg - Localized messages
- * @returns {Object} Status { unchanged: [], modified: [], missing: [], noMarkers: [] }
+ * @returns {Object} Status { unchanged: [], modified: [], missing: [], noMarkers: [], ambiguous: [] }
  */
 function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
   const blockHashes = manifest.integrationBlockHashes;
 
   // Skip if no block hashes tracked
   if (!blockHashes || Object.keys(blockHashes).length === 0) {
-    return { unchanged: [], modified: [], missing: [], noMarkers: [], tracked: false };
+    return { unchanged: [], modified: [], missing: [], noMarkers: [], ambiguous: [], tracked: false };
   }
 
   console.log(chalk.cyan(msg.integrationBlocksCheck || 'Integration UDS Block Integrity'));
 
-  const status = { unchanged: [], modified: [], missing: [], noMarkers: [], tracked: true };
+  const status = { unchanged: [], modified: [], missing: [], noMarkers: [], ambiguous: [], tracked: true };
 
   for (const [filePath, hashInfo] of Object.entries(blockHashes)) {
     const fullPath = join(projectPath, filePath);
@@ -1922,7 +2027,21 @@ function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
     }
 
     // Compare block hash
-    const blockStatus = compareIntegrationBlockHash(fullPath, hashInfo);
+    // XSPEC adopter-report Q5: a file with two real START or END marker
+    // lines is not "modified" and not "no markers" — it is ambiguous, and
+    // the whole point of this fix is to report that explicitly (with line
+    // numbers) instead of silently picking one and guessing.
+    let blockStatus;
+    try {
+      blockStatus = compareIntegrationBlockHash(fullPath, hashInfo);
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        status.ambiguous.push(filePath);
+        console.log(chalk.red(`  ✗ ${filePath}: ${error.message}`));
+        continue;
+      }
+      throw error;
+    }
 
     switch (blockStatus) {
       case 'unchanged':
@@ -1944,14 +2063,14 @@ function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
   }
 
   // Summary
-  if (status.modified.length === 0 && status.missing.length === 0 && status.noMarkers.length === 0) {
+  if (status.modified.length === 0 && status.missing.length === 0 && status.noMarkers.length === 0 && status.ambiguous.length === 0) {
     console.log(chalk.green(`  ✓ ${msg.allBlocksIntact || 'All UDS blocks intact'} (${status.unchanged.length} files)`));
     console.log(chalk.gray(`    ${msg.userContentPreserved || 'User customizations outside UDS blocks are preserved'}`));
   } else {
     console.log(chalk.gray(`  ${(msg.blocksIntegritySummary || '{unchanged} intact, {modified} modified, {missing} missing')
       .replace('{unchanged}', status.unchanged.length)
       .replace('{modified}', status.modified.length)
-      .replace('{missing}', status.missing.length + status.noMarkers.length)}`));
+      .replace('{missing}', status.missing.length + status.noMarkers.length + status.ambiguous.length)}`));
 
     if (status.modified.length > 0 || status.noMarkers.length > 0) {
       // XSPEC-418 R6 gap 1: `uds check --restore` now regenerates just the

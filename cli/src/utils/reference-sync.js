@@ -338,13 +338,65 @@ export function calculateCategoriesFromStandards(standards) {
   const categories = new Set();
 
   for (const std of standards) {
-    const category = getStandardCategory(std);
+    // XSPEC adopter-report Q1: getStandardCategory is keyed by filename and
+    // returns null for a bare manifest stem ('commit-message'), which is
+    // exactly what a 3.4.0 manifest stores — this emptied the whole category
+    // set on a real install. categoryForStandard (below) tries the stem
+    // against both known extensions first.
+    const category = categoryForStandard(std);
     if (category) {
       categories.add(category);
     }
   }
 
   return Array.from(categories);
+}
+
+/**
+ * Whether a stored `categories` array is broken and should not be trusted:
+ * missing/not-an-array, empty, or containing a value this build does not
+ * recognize as a category id.
+ *
+ * @param {*} categories - `manifest.integrationConfigs[file].categories`
+ * @returns {boolean}
+ */
+function categoriesLookBroken(categories) {
+  if (!Array.isArray(categories) || categories.length === 0) return true;
+  const known = new Set(Object.keys(CATEGORY_TO_STANDARDS));
+  return categories.some((c) => !known.has(c));
+}
+
+/**
+ * Repair `manifest.integrationConfigs[file].categories` wherever it is empty
+ * or contains an unrecognized value, recomputing it from `manifest.standards`
+ * the same way `calculateCategoriesFromStandards` (used by `--sync-refs`)
+ * does.
+ *
+ * XSPEC adopter-report Q1 follow-up (main-session review): the original Q1
+ * fix repaired this only inside `--sync-refs`. A manifest that picked up a
+ * broken `categories: []` from an older buggy `--sync-refs` run stayed
+ * broken forever afterward — a plain `uds update` reaches its OWN,
+ * independent integration-sync code path (update.js's general update flow)
+ * which writes `integrationBlockHashes` but never even reads
+ * `integrationConfigs`, so nothing there ever corrected it. The next `uds
+ * check --restore-missing` then rebuilt the file from that broken stored
+ * config and silently dropped sections. Deliberately conservative: an
+ * already-valid (if outdated) categories list is left alone — that is
+ * `--sync-refs`'s job, not every plain `update`'s — this only self-heals
+ * outright corruption (empty or unrecognized values).
+ *
+ * @param {Object} manifest - Manifest object (mutated in place)
+ * @returns {string[]} Paths whose `categories` were repaired
+ */
+export function repairIntegrationConfigCategories(manifest) {
+  if (!manifest?.integrationConfigs) return [];
+  const repaired = [];
+  for (const [file, config] of Object.entries(manifest.integrationConfigs)) {
+    if (!config || !categoriesLookBroken(config.categories)) continue;
+    config.categories = calculateCategoriesFromStandards(manifest.standards || []);
+    repaired.push(file);
+  }
+  return repaired;
 }
 
 /**

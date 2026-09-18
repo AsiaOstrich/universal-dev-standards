@@ -773,8 +773,46 @@ export function needsMigration(manifest) {
   if (!manifest) {
     return true;
   }
-  
+
   return manifest.version !== CURRENT_SCHEMA_VERSION;
+}
+
+/**
+ * Compare two `x.y.z` version strings numerically (not lexically — '3.10.0'
+ * must sort after '3.9.0'). Missing components count as 0.
+ * @returns {number} negative if a<b, 0 if equal, positive if a>b
+ */
+function compareSemverStrings(a, b) {
+  const pa = String(a).split('.').map(Number);
+  const pb = String(b).split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const diff = (pa[i] || 0) - (pb[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+/**
+ * Set `manifest.version` to the CLI's current schema version — never lower.
+ *
+ * XSPEC adopter-report Q1: five write sites across update.js/check.js/config.js
+ * each hardcoded a schema version literal ('3.1.0'/'3.2.0'/'3.3.0') instead of
+ * CURRENT_SCHEMA_VERSION. Every one of those literals predates a later schema
+ * bump, so running the operation on an already-current manifest (3.4.0)
+ * downgraded it back to whatever the literal said. This is the single place
+ * that decision is made: always move toward CURRENT_SCHEMA_VERSION, never
+ * away from it, even if a caller is ever fixed incompletely again.
+ *
+ * @param {Object} manifest - Manifest object (mutated in place)
+ */
+export function bumpManifestVersion(manifest) {
+  const current = manifest.version;
+  const isWellFormed = typeof current === 'string' && /^\d+\.\d+\.\d+$/.test(current);
+  if (!isWellFormed || compareSemverStrings(current, CURRENT_SCHEMA_VERSION) < 0) {
+    manifest.version = CURRENT_SCHEMA_VERSION;
+  }
+  // else: manifest.version is already at or ahead of CURRENT_SCHEMA_VERSION
+  // (e.g. a newer version written by a future CLI) — leave it alone.
 }
 
 /**

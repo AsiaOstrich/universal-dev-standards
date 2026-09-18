@@ -7,6 +7,7 @@ import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes, pruneIntegrationFileHashes } from '../utils/hasher.js';
+import { AmbiguousMarkerError } from '../utils/marker-locator.js';
 import {
   writeIntegrationFile,
   resolveIntegrationTargetFile,
@@ -18,6 +19,7 @@ import {
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
+  repairIntegrationConfigCategories,
   arraysEqual,
   getToolFromPath
 } from '../utils/reference-sync.js';
@@ -62,7 +64,8 @@ import {
   recordFileProvenance,
   forgetFileProvenance,
   establishProvenance,
-  isProvenanceEstablished
+  isProvenanceEstablished,
+  bumpManifestVersion
 } from '../core/manifest.js';
 
 /**
@@ -498,7 +501,7 @@ export async function updateCommand(options) {
   // Handle --plan option (DSR dry-run). Nothing below this line writes.
   if (options.plan) {
     if (!scopedToSkills && !scopedToCommands) {
-      await handlePlan(projectPath, options);
+      await handlePlan(projectPath, options, manifest);
     }
     if (scopedToSkills) await planSkills(projectPath, manifest, options);
     if (scopedToCommands) await planCommands(projectPath, manifest, options);
@@ -761,6 +764,16 @@ export async function updateCommand(options) {
 
   // Update integrations (unless --standards-only)
   if (!options.standardsOnly && manifest.integrations && manifest.integrations.length > 0) {
+    // XSPEC adopter-report Q1 follow-up: this block writes
+    // integrationBlockHashes but never touched manifest.integrationConfigs at
+    // all, so a manifest that picked up a broken (empty/unrecognized)
+    // categories array from an older buggy `--sync-refs` run stayed broken
+    // through every subsequent plain `uds update` — the only path that
+    // repaired it was `--sync-refs` itself. Self-heal corruption here too, not
+    // just there; an already-valid list is left alone (see
+    // repairIntegrationConfigCategories's docblock for why).
+    repairIntegrationConfigCategories(manifest);
+
     const intSpinner = createSpinner(msg.syncingIntegrations).start();
 
     // Build installed standards list
@@ -897,8 +910,14 @@ export async function updateCommand(options) {
       if (!layeredResult.fallback) {
         console.log(chalk.green(`  ✓ Layered CLAUDE.md updated (${layeredResult.generatedFiles.length} files)`));
       }
-    } catch {
-      // Silently skip if generator not available
+    } catch (error) {
+      // XSPEC adopter-report Q5: an ambiguous marker pair is a real problem
+      // the adopter needs to see — refuse that one write and say why,
+      // rather than folding it into "generator not available".
+      if (error instanceof AmbiguousMarkerError) {
+        console.log(chalk.red(`  ✗ Layered CLAUDE.md not updated: ${error.message}`));
+      }
+      // Otherwise: silently skip if generator not available
     }
   }
 
@@ -1103,7 +1122,7 @@ export async function updateCommand(options) {
   // date. The manifest is still written so that hash/migration bookkeeping for
   // the files that DID succeed is persisted.
   const updateIncomplete = results.errors.length > 0;
-  manifest.version = '3.3.0';
+  bumpManifestVersion(manifest);
   if (!updateIncomplete) {
     manifest.upstream.version = latestVersion;
     manifest.upstream.installed = new Date().toISOString().split('T')[0];
@@ -1709,7 +1728,21 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
   if (existsSync(oldPath)) {
     const format = getToolFormat('claude-code');
     const content = readFileSync(oldPath, 'utf-8');
-    const parts = extractMarkedContent(content, format);
+    // XSPEC adopter-report Q5: an ambiguous marker pair means this write
+    // must refuse rather than guess which block to move — report and leave
+    // the old file untouched instead of switching targets on a bad guess.
+    let parts;
+    try {
+      parts = extractMarkedContent(content, format);
+    } catch (error) {
+      if (error instanceof AmbiguousMarkerError) {
+        console.log(chalk.red(`    ✗ ${oldFile}: ${error.message}`));
+        console.log(chalk.gray(`      Not switching — fix the marker pair in ${oldFile} first.`));
+        process.exitCode = 1;
+        return;
+      }
+      throw error;
+    }
     if (parts.content) {
       const userContent = (parts.before.trim() + parts.after.trim()).trim();
       if (userContent.length > 0) {
@@ -1937,6 +1970,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
     console.log(chalk.bold('=== Integration Plan (dry run — nothing is written) ==='));
     const wouldChange = [];
     const unchanged = [];
+    const ambiguous = [];
     const seen = new Set();
     for (const tool of aiTools) {
       // XSPEC-418 R3: the plan must show the actual target, not the default.
@@ -1967,7 +2001,18 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
       const full = join(projectPath, targetFile);
       const current = existsSync(full) ? readFileSync(full, 'utf8') : '';
       const format = targetFile.endsWith('.md') ? 'markdown' : 'plaintext';
-      const cur = extractMarkedContent(current, format).content || '';
+      // XSPEC adopter-report Q5: an ambiguous marker pair can't be diffed
+      // against — report it explicitly instead of crashing the whole plan.
+      let cur;
+      try {
+        cur = extractMarkedContent(current, format).content || '';
+      } catch (error) {
+        if (error instanceof AmbiguousMarkerError) {
+          ambiguous.push(`${targetFile}: ${error.message}`);
+          continue;
+        }
+        throw error;
+      }
       // 比對正規化過的內容：只關心「受管區塊會不會變」，不關心尾端空白。
       if (cur.trim() === String(next).trim()) {
         unchanged.push(targetFile);
@@ -1975,6 +2020,10 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
         const delta = String(next).trim().length - cur.trim().length;
         wouldChange.push(`${targetFile} (${delta >= 0 ? '+' : ''}${delta} bytes in the UDS block)`);
       }
+    }
+    if (ambiguous.length > 0) {
+      console.log(chalk.red(`  ✗ Ambiguous UDS markers (${ambiguous.length}) — will not be touched by --apply:`));
+      for (const a of ambiguous) console.log(chalk.gray(`      ${a}`));
     }
     if (wouldChange.length > 0) {
       console.log(chalk.yellow(`  ~ Would update (${wouldChange.length}):`));
@@ -1999,7 +2048,7 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
   spinner.succeed(msg.regeneratedIntegrations.replace('{count}', results.updated.length));
 
   // Update manifest
-  manifest.version = '3.3.0';
+  bumpManifestVersion(manifest);
   refreshIntegrationBlockHashes(manifest, projectPath);
   writeManifest(manifest, projectPath);
 
@@ -2329,7 +2378,7 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
 
   // Update manifest version and save
   if (updatedCount > 0) {
-    manifest.version = '3.3.0';
+    bumpManifestVersion(manifest);
     refreshIntegrationBlockHashes(manifest, projectPath);
     if (plan) {
       console.log(chalk.gray('  (dry run — the manifest was not written)'));
@@ -2366,6 +2415,66 @@ async function syncIntegrationReferences(projectPath, manifest, { plan = false }
  * "Write then restore" leaves a broken tree if it dies halfway, which is worse
  * than having no dry run at all — the same reasoning as the integrations plan.
  */
+/**
+ * A general `uds update --plan` (no --skills/--commands scope) never called
+ * planSkills/planCommands — those are the only two places version staleness
+ * is computed, and they only run under `--plan --skills`/`--plan --commands`.
+ * An adopter running plain `--plan` saw a clean reconciliation plan and
+ * nothing else, with Skills or Commands a version behind and no hint that a
+ * scoped plan would have said so. This prints a short, best-effort note —
+ * not a full plan — so the general path is never silent about it.
+ *
+ * Skills staleness is read the same way planSkills does: per-installation,
+ * from what is actually on disk (`getInstalledSkillsInfoForAgent`), because
+ * different agents/levels can be out of sync independently. Commands have no
+ * per-installation version on disk (only a file count), so Commands
+ * staleness is read from the one version the manifest itself records
+ * (`manifest.commands.version`, written by every path that installs
+ * commands) against the latest version UDS ships. // implements XSPEC adopter-report Q3
+ *
+ * @param {string} projectPath
+ * @param {Object} manifest
+ */
+function reportStaleSkillsCommandsHint(projectPath, manifest) {
+  const repoInfo = getRepositoryInfo();
+  const latestVersion = repoInfo.skills.version;
+  const stale = [];
+
+  const skillsInstallations = (manifest.skills?.installations || []).filter((i) => i.level !== 'marketplace');
+  for (const inst of skillsInstallations) {
+    const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
+    const current = info?.version;
+    if (current && current !== latestVersion) {
+      stale.push({
+        label: `${getAgentDisplayName(inst.agent)} (${inst.level}): Skills v${current} → v${latestVersion}`,
+        flag: '--skills'
+      });
+    }
+  }
+
+  if (manifest.commands?.installed && (manifest.commands?.installations || []).length > 0) {
+    const current = manifest.commands.version;
+    if (current && current !== latestVersion) {
+      stale.push({
+        label: `Commands: v${current} → v${latestVersion}`,
+        flag: '--commands'
+      });
+    }
+  }
+
+  if (stale.length === 0) return;
+
+  console.log(chalk.yellow('  Skills/Commands installed but out of date:'));
+  for (const s of stale) {
+    console.log(chalk.gray(`    ~ ${s.label}`));
+  }
+  const flags = [...new Set(stale.map((s) => s.flag))];
+  for (const flag of flags) {
+    console.log(chalk.gray(`  Run \`uds update --apply --yes ${flag}\` to update.`));
+  }
+  console.log();
+}
+
 async function planSkills(projectPath, manifest, options) {
   const repoInfo = getRepositoryInfo();
   const latestVersion = repoInfo.skills.version;
@@ -3150,7 +3259,7 @@ async function handleRollback(projectPath) {
 /**
  * Handle --plan: show what the reconciler would do without executing.
  */
-async function handlePlan(projectPath, options) {
+async function handlePlan(projectPath, options, manifest) {
   const spinner = createSpinner('Calculating reconciliation plan...').start();
 
   const result = await reconcilerPlan(projectPath, { force: false });
@@ -3166,6 +3275,12 @@ async function handlePlan(projectPath, options) {
 
   console.log(formatPlan(result.plan));
   console.log();
+
+  // XSPEC adopter-report Q3: the reconciliation plan above never covers
+  // Skills/Commands version staleness — only --plan --skills/--commands did.
+  if (manifest) {
+    reportStaleSkillsCommandsHint(projectPath, manifest);
+  }
 
   if (result.plan.actions.length > 0) {
     // NOT `uds update`. That runs the legacy path, which never executes this

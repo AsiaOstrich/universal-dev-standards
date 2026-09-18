@@ -394,6 +394,26 @@ reference: .standards/commit-message.ai.yaml`;
       expect(categories).toContain('anti-hallucination');
       expect(categories).toContain('commit-standards');
     });
+
+    // XSPEC adopter-report Q1 (part B): a 3.4.0 manifest stores bare stems
+    // ('commit-message'), not filenames ('commit-message.md' /
+    // 'commit-message.ai.yaml'). calculateCategoriesFromStandards used
+    // getStandardCategory, which is keyed by filename and returns null for a
+    // stem, so `--sync-refs` computed an EMPTY category set for a real
+    // installed manifest — the reported symptom was CLAUDE.md losing the
+    // anti-hallucination / commit-message / code-review sections on the next
+    // sync. categoryForStandard (already used elsewhere in this file) tries
+    // the stem against both known extensions and must be used here too.
+    it('resolves categories from manifest STEMS, not just full filenames (Q1)', () => {
+      const stems = ['anti-hallucination', 'commit-message', 'code-review-checklist'];
+
+      const categories = calculateCategoriesFromStandards(stems);
+
+      expect(categories).toContain('anti-hallucination');
+      expect(categories).toContain('commit-standards');
+      expect(categories).toContain('code-review');
+      expect(categories).toHaveLength(3);
+    });
   });
 
   describe('getStandardsForCategories', () => {

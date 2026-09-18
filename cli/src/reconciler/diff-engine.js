@@ -272,18 +272,34 @@ function diffIntegrations(desiredMap, actualMap, actions, warnings, summary, for
           }
         });
         summary.migrate_block++;
+      } else if (desiredEntry.hash && actualEntry.hash && desiredEntry.hash === actualEntry.hash) {
+        // XSPEC adopter-report Q6: the block on disk already hashes the same
+        // as what generation would produce right now — nothing to do. Before
+        // this, every migrate_block fired unconditionally ("we always update
+        // integrations since content is generated dynamically"), so `--plan`
+        // reported `Migrate Block: N` forever, even immediately after
+        // `--apply` on an unchanged project. `desiredEntry.hash` is computed
+        // by desired-state-calculator.js actually generating the content
+        // ahead of time (see calculateIntegrations), the same generation
+        // `--apply` itself would run.
+        summary.unchanged++;
       } else {
-        // Check if block hash differs from what we'd generate
-        // We always update integrations since content is generated dynamically
+        // Either the hashes genuinely differ, or one side has no hash to
+        // compare (generation failed, or an older/mocked desired state that
+        // never computed one) — in which case this falls back to the
+        // previous unconditional behavior rather than silently doing nothing.
         actions.push({
           type: 'migrate_block',
           category: 'integration',
           path: desiredEntry.relativePath,
-          reason: 'integration content may need update',
+          reason: (desiredEntry.hash && actualEntry.hash)
+            ? 'integration content differs from what would be generated'
+            : 'integration content may need update (no hash available for comparison)',
           details: {
             toolName: desiredEntry.metadata.toolName,
             format: desiredEntry.metadata.format,
             currentBlockHash: actualEntry.metadata?.blockHash?.blockHash,
+            desiredBlockHash: desiredEntry.hash,
             metadata: desiredEntry.metadata
           }
         });

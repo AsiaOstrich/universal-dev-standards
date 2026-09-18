@@ -1641,4 +1641,141 @@ describe('Update Command', () => {
       expect(reconcilerReconcile, `--plan --${flag} ran the reconciler`).not.toHaveBeenCalled();
     });
   });
+
+  describe('XSPEC adopter-report Q3: a general `--plan` must not stay silent about stale Skills/Commands', () => {
+    // A bare `uds update --plan` (no --skills/--commands) only ever called
+    // handlePlan — never planSkills/planCommands, which are the only two
+    // places version staleness is computed. An adopter running plain --plan
+    // saw a clean reconciliation plan and nothing else, with Skills a full
+    // minor behind and no hint that `--plan --skills` would have said so.
+    const planManifest = (skillsVersion, commandsVersion) => ({
+      upstream: { version: '2.0.0' },
+      standards: ['core/test.md'],
+      extensions: [],
+      integrations: [],
+      aiTools: ['claude-code'],
+      skills: {
+        installed: true,
+        version: skillsVersion,
+        installations: [{ agent: 'claude-code', level: 'project' }],
+        names: []
+      },
+      commands: {
+        installed: true,
+        version: commandsVersion,
+        installations: [{ agent: 'opencode', level: 'project' }]
+      }
+    });
+
+    beforeEach(() => {
+      isInitialized.mockReturnValue(true);
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.0.0' },
+        skills: { version: '1.2.0' }
+      });
+    });
+
+    it('names the stale Skills installation with old -> new version and the command to fix it', async () => {
+      readManifest.mockReturnValue(planManifest('0.9.0', '1.2.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '0.9.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toMatch(/0\.9\.0.*1\.2\.0/s);
+      expect(output).toContain('--skills');
+    });
+
+    it('names a stale Commands installation with old -> new version and the command to fix it', async () => {
+      readManifest.mockReturnValue(planManifest('1.2.0', '0.9.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '1.2.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toMatch(/0\.9\.0.*1\.2\.0/s);
+      expect(output).toContain('--commands');
+    });
+
+    it('says nothing extra when Skills and Commands are both current', async () => {
+      readManifest.mockReturnValue(planManifest('1.2.0', '1.2.0'));
+      getInstalledSkillsInfoForAgent.mockReturnValue({ installed: true, version: '1.2.0' });
+
+      await updateCommand({ plan: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).not.toContain('out of date');
+      expect(output).not.toMatch(/0\.9\.0/);
+    });
+  });
+
+  describe('XSPEC adopter-report Q1 follow-up: a general `uds update` repairs broken integrationConfigs categories too', () => {
+    // Main-session review found the gap: the Q1 fix only repaired
+    // `manifest.integrationConfigs[file].categories` inside `--sync-refs`
+    // (syncIntegrationReferences). A PLAIN `uds update --yes` reaches its own,
+    // separate integration-sync block (update.js ~line 764) whenever
+    // upstream.version is behind latest — and that block writes
+    // `integrationBlockHashes` but never even reads or writes
+    // `integrationConfigs`, so a manifest already carrying
+    // `integrationConfigs['CLAUDE.md'].categories: []` (left behind by an
+    // older buggy `--sync-refs` run) stays broken forever: every subsequent
+    // plain `uds update` leaves it exactly as broken as it found it. The next
+    // `uds check --restore-missing` then rebuilds CLAUDE.md from that broken
+    // stored config and silently drops the anti-hallucination/commit-message/
+    // code-review sections.
+    const brokenCategoriesManifest = () => ({
+      upstream: { version: '2.0.0' }, // behind the mocked latest ('3.0.0') so the
+      // update-available branch (and its integration-sync block) actually runs.
+      standards: ['anti-hallucination', 'commit-message', 'code-review-checklist'],
+      extensions: [],
+      integrations: ['claude-code'],
+      aiTools: ['claude-code'],
+      integrationConfigs: {
+        'CLAUDE.md': { tool: 'claude-code', categories: [] }
+      },
+      skills: { installed: false },
+      commands: { installed: false }
+    });
+
+    it('repairs an empty categories array to match manifest.standards', async () => {
+      readManifest.mockReturnValue(brokenCategoriesManifest());
+
+      await updateCommand({ yes: true }).catch(() => {});
+
+      const lastManifest = writeManifest.mock.calls.at(-1)[0];
+      const categories = lastManifest.integrationConfigs['CLAUDE.md'].categories;
+      expect(categories).toEqual(
+        expect.arrayContaining(['anti-hallucination', 'commit-standards', 'code-review'])
+      );
+      expect(categories.length).toBe(3);
+    });
+
+    it('repairs categories containing an unrecognized value', async () => {
+      const m = brokenCategoriesManifest();
+      m.integrationConfigs['CLAUDE.md'].categories = ['not-a-real-category'];
+      readManifest.mockReturnValue(m);
+
+      await updateCommand({ yes: true }).catch(() => {});
+
+      const lastManifest = writeManifest.mock.calls.at(-1)[0];
+      const categories = lastManifest.integrationConfigs['CLAUDE.md'].categories;
+      expect(categories).not.toContain('not-a-real-category');
+      expect(categories).toEqual(
+        expect.arrayContaining(['anti-hallucination', 'commit-standards', 'code-review'])
+      );
+    });
+
+    it('leaves an already-correct categories list untouched (does not force a full --sync-refs every run)', async () => {
+      const m = brokenCategoriesManifest();
+      m.integrationConfigs['CLAUDE.md'].categories = ['anti-hallucination', 'commit-standards', 'code-review'];
+      readManifest.mockReturnValue(m);
+
+      await updateCommand({ yes: true }).catch(() => {});
+
+      const lastManifest = writeManifest.mock.calls.at(-1)[0];
+      expect(lastManifest.integrationConfigs['CLAUDE.md'].categories).toEqual(
+        ['anti-hallucination', 'commit-standards', 'code-review']
+      );
+    });
+  });
 });
