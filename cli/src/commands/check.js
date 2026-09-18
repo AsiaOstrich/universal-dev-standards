@@ -139,6 +139,19 @@ function performFileIntegrityCheck(projectPath, manifest, msg) {
   if (hasFileHashes(manifest)) {
     // Hash-based integrity check
     for (const [relativePath, hashInfo] of Object.entries(manifest.fileHashes)) {
+      // XSPEC-418 R6 gap 2: a manifest written before this fix can still
+      // carry a whole-file entry for a path that is ALSO tracked by its UDS
+      // block (integrationBlockHashes) — the pruning added for R6 only runs
+      // on a write (uds update / check --restore / --migrate), so a project
+      // that has not run one of those yet stayed red on `uds check --ci`
+      // forever, for content outside the block that the block check itself
+      // says is fine. This is a READ-time skip — it does not touch the
+      // manifest, so a plain `uds check` alone cannot fix the underlying
+      // stale entry; the write paths still do that (see
+      // pruneIntegrationFileHashes in hasher.js).
+      if (manifest.integrationBlockHashes && relativePath in manifest.integrationBlockHashes) {
+        continue;
+      }
       const fullPath = join(projectPath, relativePath);
       const status = compareFileHash(fullPath, hashInfo);
 
@@ -411,7 +424,23 @@ export async function checkCommand(options = {}) {
 
   // Handle --restore option
   if (options.restore) {
-    await restoreFiles(projectPath, manifest, [...fileStatus.modified, ...fileStatus.missing]);
+    // XSPEC-418 R6 gap 1: integration files no longer live in `fileHashes`
+    // at all (that was the point of R6), so `fileStatus` — built entirely
+    // from `fileHashes` — never contains them any more. Without this,
+    // `--restore` silently did nothing for a damaged UDS block: it
+    // regenerated zero files and printed "Restored 0 file(s)" while the
+    // block-modified/markers-removed content sat untouched.
+    // `restoreSingleFile`'s integration-file branch (`manifest.integrationConfigs`)
+    // does not depend on fileHashes, so feeding these paths in is enough —
+    // it already regenerates just the block and leaves everything else alone.
+    const integrationFilesToRestore = [
+      ...integrationBlockStatus.modified,
+      ...integrationBlockStatus.noMarkers,
+      ...integrationBlockStatus.missing
+    ];
+    await restoreFiles(projectPath, manifest, [
+      ...new Set([...fileStatus.modified, ...fileStatus.missing, ...integrationFilesToRestore])
+    ]);
     return;
   }
 
@@ -1925,7 +1954,11 @@ function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
       .replace('{missing}', status.missing.length + status.noMarkers.length)}`));
 
     if (status.modified.length > 0 || status.noMarkers.length > 0) {
-      console.log(chalk.yellow(`    ${msg.runUpdateIntegrations || 'Run "uds update --integrations-only" to restore UDS content'}`));
+      // XSPEC-418 R6 gap 1: `uds check --restore` now regenerates just the
+      // UDS block for these files too (it used to do nothing for them — see
+      // the --restore handler above), so it is named alongside `uds update
+      // --integrations-only` rather than as a second-choice remedy.
+      console.log(chalk.yellow(`    ${msg.runUpdateIntegrations || 'Run "uds check --restore" or "uds update --integrations-only" to restore UDS content'}`));
     }
   }
 

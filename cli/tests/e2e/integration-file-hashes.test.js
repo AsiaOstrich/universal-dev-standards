@@ -15,6 +15,27 @@
  *    content outside it) but only refreshed the whole-file hash, never the
  *    block hash — so the very next `uds check` reported "UDS block modified"
  *    for a block that had just been correctly restored.
+ *
+ * Two more gaps, found by main-session review of the first version of this
+ * fix (2026-09-18) and closed here:
+ *
+ * 3. (gap 1) `check --restore` is driven entirely by `fileStatus` — built
+ *    from `manifest.fileHashes` — and integration files are no longer in
+ *    there at all (that is the whole point of defect 1's fix). So a UDS
+ *    block reported as "modified" or "UDS markers removed" was invisible to
+ *    `--restore`, which regenerated zero files and printed "Restored 0
+ *    file(s)" while the damaged block sat untouched. The first version of
+ *    this test suite injected a stale `fileHashes.CLAUDE.md` entry to make
+ *    `--restore` reach the file via the OLD path, which accidentally masked
+ *    this gap — reachability was never actually exercised through the block
+ *    check on its own. See "R6 gap 1" below, which does not inject that
+ *    entry.
+ * 4. (gap 2) The pruning added for defect 1 only runs on a WRITE (`uds
+ *    update`, `check --restore`, `check --migrate`). A project whose manifest
+ *    already carries a stale `fileHashes.CLAUDE.md` entry (any manifest
+ *    written before this fix existed) stayed red on `uds check --ci` forever
+ *    — a plain, read-only `check` never had a chance to clean it up. See "R6
+ *    gap 2" below.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -128,10 +149,10 @@ describe('E2E: integration files tracked by block, not whole file (XSPEC-418 R6)
     const claudePath = join(dir, 'CLAUDE.md');
     const original = await readFile(claudePath, 'utf8');
 
-    // Legacy manifest state (R6 bug #1) — otherwise `check --restore`, which
-    // is driven by whole-file `fileHashes`, would never pick CLAUDE.md up at
-    // all going forward (a correct side effect of this fix: the remedy for a
-    // damaged UDS block is `uds update --integrations-only`, not restore).
+    // Legacy manifest state (R6 bug #1) — not required for `--restore` to
+    // reach CLAUDE.md any more (gap 1 below fixed that independently of
+    // fileHashes), but kept here to also exercise the "old-shaped manifest"
+    // arm: a whole-file entry alongside a genuinely corrupted block.
     let manifest = await readManifestJson(dir);
     manifest.fileHashes = {
       ...(manifest.fileHashes || {}),
@@ -183,5 +204,73 @@ describe('E2E: integration files tracked by block, not whole file (XSPEC-418 R6)
     const check = await runCommand('check', { ci: true, noInteractive: true }, dir, 60000);
     expect(check.exitCode).toBe(0);
     expect(check.stdout).not.toMatch(/CLAUDE\.md[^\n]*(modified|UDS block)/i);
+  }, 120000);
+
+  it('R6 gap 1: `check --restore` regenerates a UDS block reported as modified, through the full CLI flow, with NO fileHashes entry involved', async () => {
+    await setupTestDir(dir, {});
+    await markClaudeCodeDetected(dir);
+
+    const init = await runNonInteractive({}, dir, 60000);
+    expect(init.exitCode).toBe(0);
+
+    const update = await runCommand('update', { integrationsOnly: true, yes: true }, dir, 60000);
+    expect(update.exitCode).toBe(0);
+
+    // Exactly the coordinator's repro: insert a line INSIDE the UDS block.
+    const claudePath = join(dir, 'CLAUDE.md');
+    const content = await readFile(claudePath, 'utf8');
+    const corrupted = content.replace(START_MARKER, `${START_MARKER}\nHAND-EDITED LINE INSIDE THE BLOCK.`);
+    await writeFile(claudePath, corrupted, 'utf8');
+
+    // Confirm nothing is tracking this file by whole-file hash going in —
+    // this restore can only work through the block-status path (gap 1).
+    let manifest = await readManifestJson(dir);
+    expect(manifest.fileHashes?.['CLAUDE.md']).toBeUndefined();
+
+    const preCheck = await runCommand('check', { ci: true, noInteractive: true }, dir, 60000);
+    expect(preCheck.exitCode).toBe(1);
+    expect(preCheck.stdout).toMatch(/CLAUDE\.md[^\n]*UDS block modified/);
+
+    const restore = await runCommand('check', { restore: true, noInteractive: true }, dir, 60000);
+    expect(restore.exitCode).toBe(0);
+    expect(restore.stdout).not.toMatch(/Restored 0 file/);
+
+    const afterRestore = await readFile(claudePath, 'utf8');
+    expect(afterRestore).not.toContain('HAND-EDITED LINE INSIDE THE BLOCK');
+
+    const postCheck = await runCommand('check', { ci: true, noInteractive: true }, dir, 60000);
+    expect(postCheck.exitCode).toBe(0);
+    expect(postCheck.stdout).not.toMatch(/CLAUDE\.md[^\n]*(modified|UDS block)/i);
+  }, 180000);
+
+  it('R6 gap 2: `check --ci` does not report a pre-existing fileHashes.CLAUDE.md entry as modified, without needing a prior `update` (read-time skip, manifest untouched)', async () => {
+    await setupTestDir(dir, {});
+    await markClaudeCodeDetected(dir);
+
+    const init = await runNonInteractive({}, dir, 60000);
+    expect(init.exitCode).toBe(0);
+
+    // Simulate an existing (pre-R6) manifest — inject the stale entry WITHOUT
+    // ever running `update`, so the write-side prune never gets a chance to
+    // run. This is the exact shape a real adopter manifest was found in.
+    const claudePath = join(dir, 'CLAUDE.md');
+    let manifest = await readManifestJson(dir);
+    manifest.fileHashes = {
+      ...(manifest.fileHashes || {}),
+      'CLAUDE.md': { ...computeFileHash(claudePath), installedAt: new Date().toISOString() }
+    };
+    await writeManifestJson(dir, manifest);
+
+    // Content outside the block, same customization as Scenario 1.
+    const original = await readFile(claudePath, 'utf8');
+    await writeFile(claudePath, `${original}\n\n## My own notes\nSomething I wrote myself.\n`, 'utf8');
+
+    const check = await runCommand('check', { ci: true, noInteractive: true }, dir, 60000);
+    expect(check.exitCode).toBe(0);
+    expect(check.stdout).not.toMatch(/CLAUDE\.md[^\n]*modified/i);
+
+    // Read-time skip only — a plain `check` must not write the manifest.
+    const manifestAfter = await readManifestJson(dir);
+    expect(manifestAfter.fileHashes?.['CLAUDE.md']).toBeTruthy();
   }, 120000);
 });
