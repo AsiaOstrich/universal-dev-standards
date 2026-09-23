@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-09-18
+> Quick reference for all UDS features | Last updated: 2026-09-23
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -260,6 +260,7 @@
 | `mutation-testing` | Mutation testing evaluates test suite effectivenes |
 | `no-cicd-deployment` | No-CI/CD Deployment Strategy |
 | `observability-standards` | Observability Standards |
+| `open-work-tracking` | The deferred-item-exit standard requires that a de |
 | `packaging-standards` | This standard defines a Recipe-based packaging fra |
 | `performance-standards` | This standard defines comprehensive guidelines for |
 | `pii-classification` | PII Classification and Handling Standards |

@@ -3,7 +3,7 @@
   "version": "6.11.0",
   "last_updated": "2026-09-18",
   "stats": {
-    "core_standards": 152,
+    "core_standards": 153,
     "skills": 55,
     "slash_commands": 51,
     "cli_commands": 23
@@ -766,6 +766,11 @@
     },
     {
       "id": "turn-completion-integrity",
+      "category": "uncategorized",
+      "level": 3
+    },
+    {
+      "id": "open-work-tracking",
       "category": "uncategorized",
       "level": 3
     }
