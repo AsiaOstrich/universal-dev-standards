@@ -1790,6 +1790,18 @@
       "description": "A deferred item must leave the document: a traceable exit outside it, identified beside the item. The carrier is deliberately unspecified. A present link is not a working link — verified and unverified links are two states, never one green. Anchor on document structure, not wording"
     },
     {
+      "id": "open-work-tracking",
+      "name": "Open Work Tracking Standard",
+      "nameZh": "開放工作追蹤標準",
+      "source": {
+        "human": "core/open-work-tracking.md",
+        "ai": "ai/standards/open-work-tracking.ai.yaml"
+      },
+      "category": "reference",
+      "skillName": null,
+      "description": "Downstream of deferred-item-exit: once an item has an exit, its carrier must stay trustworthy. Capture costs no more than two fields; a waiting item records its release condition; derivable fields are generated, not hand-written; a coverage figure states what it could not see; a checkpoint at turn end reports open work but never blocks"
+    },
+    {
       "id": "verification-evidence",
       "name": "Verification Evidence Standard",
       "nameZh": "驗證證據標準",

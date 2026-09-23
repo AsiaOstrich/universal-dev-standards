@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-09-18
+> Auto-generated | Last updated: 2026-09-23
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -14,10 +14,10 @@
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
-6. [核心规范](#core-standards) (152)
+6. [核心规范](#core-standards) (153)
 7. [脚本](#scripts) (59)
 
-**Total Features: 350**
+**Total Features: 351**
 
 ---
 
@@ -516,6 +516,7 @@
 | `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
+| `open-work-tracking` | 1.0.0 | The deferred-item-exit standard requires that a deferred item leave its document |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
 | `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |
