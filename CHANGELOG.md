@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.12.0] - 2026-09-25
+
+### Added
+
+- **New standard `open-work-tracking` — the downstream half of `deferred-item-exit`.** `deferred-item-exit` requires a deferred item to leave its document for a traceable exit but deliberately leaves that exit's carrier unspecified; nothing kept the carrier itself from rotting once items arrived. This standard covers it with 16 requirements (OWT-001..016): a low-friction capture point (at most two required fields), a release condition recorded beside every waiting item, generated rather than hand-written derivable fields, a currency claim proven from content instead of a bare editable timestamp, a coverage figure that states what it could not see, and an end-of-turn checkpoint that reports open work but never blocks. That last point is deliberately the opposite of `turn-completion-integrity`, which hooks the same event and blocks; a comparison table in the standard keeps an adopter from wiring the two as one. Its two numeric thresholds are marked as initial judgment, not measurement.
+
 ## [6.11.0] - 2026-09-18
 
 ### Fixed

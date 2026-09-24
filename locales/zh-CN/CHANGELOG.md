@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.11.0
-translation_version: 6.11.0
-last_synced: 2026-09-18
+source_version: 6.12.0
+translation_version: 6.12.0
+last_synced: 2026-09-24
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.12.0] - 2026-09-25
+
+### 新增
+
+- **新标准 `open-work-tracking`——`deferred-item-exit` 的下游一半。** `deferred-item-exit` 要求被推迟的条目离开原文件、走向可追溯的出口，但刻意不规定出口的承载处；条目进入承载处之后，没有任何规则防止承载处本身腐坏。本标准以 16 条要求（OWT-001～016）补上：低摩擦的记录点（必填字段至多两个）、每个等待中的条目旁写明解除条件、可推导的字段由生成而非手写、以内容证明"最新"而非可随手改的时间戳、覆盖率数字要写出它看不到什么，以及每轮结束时报告未完成工作但**从不阻挡**的检查点。最后一点刻意与挂在同一事件、会阻挡的 `turn-completion-integrity` 相反；标准内附对照表，避免采用者把两者接成同一件事。其中两个数字门槛标明为初始判断、非测量结果。
 
 ## [6.11.0] - 2026-09-18
 
