@@ -46,6 +46,16 @@ const REPORTING =
 const ASKING =
   /(\bshould I\b|\bdo you want\b|\bwould you like\b|\bwhich (one|file|option)\b|\blet me know\b|\btell me\b|\bgive me\b|\bpaste\b|\bwaiting on you\b|\byour call\b|\bup to you\b|\?)/i;
 
+// "Once you pick, I'll ..." — the precondition is the human's decision, not a
+// request for information, so ASKING above never caught it (measured: the
+// zh-TW mirror of this shape fired as an unkept commitment). Grammar-based, not
+// a verb list, to match this pack's own design note above: "once/after/as soon
+// as you", up to 20 non-terminating characters, a comma, then "I".
+// Known limit, left uncovered on purpose rather than widened past this shape:
+// a version with no comma ("After you merged it I will …") still fires. See
+// the corpus entry below.
+const CONDITIONAL_ON_YOU = /\b(once|after|as soon as) you\b[^,.\n]{0,20},\s*I\b/i;
+
 /**
  * Expand contractions so the patterns below never have to fight an apostrophe.
  * Both the ASCII and typographic apostrophes appear in real transcripts.
@@ -96,7 +106,8 @@ export function isCommitment(sentence) {
 }
 
 export function isAsking(text) {
-  return ASKING.test(normalize(text));
+  const n = normalize(text);
+  return ASKING.test(n) || CONDITIONAL_ON_YOU.test(n);
 }
 
 /**
@@ -142,6 +153,23 @@ export const corpus = [
   [false, 'legitimate stop: the next move is the human\'s', 'I will wait for your key before deploying.'],
   [false, 'conditional: asking in the same paragraph',
     'Tell me which file you meant and I will check it.'],
+  // 🔴 A third shape of conditional: the precondition is the human's decision,
+  // not a request for information or a report-back. Mirrors a false block
+  // measured in the zh-TW pack for the same grammar ("你選定後，我會…").
+  [false, 'conditional: once you pick, I will',
+    "Once you pick a model, I'll wire it into the config."],
+  [false, 'conditional: after you confirm, I will',
+    'After you confirm the plan, I will kick off the deploy.'],
+  [false, 'conditional: once you decide, I will',
+    'Once you decide, I will draft the ADR and file the tickets.'],
+  [true, 'subject is not you, still commits',
+    "After I fix this, I'll push it up."],
+  // Known limit, not fixed here: no comma between the precondition and "I"
+  // still fires. Widening past a comma risks swallowing real unkept
+  // commitments ("After you leave I will still ship it" has no comma either),
+  // so this stays a documented gap rather than a wider pattern.
+  [true, 'known limit: same shape, no comma — still fires',
+    'After you merged it I will follow up.'],
 ];
 
 /**
