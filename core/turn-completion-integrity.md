@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-09-08
+**Version**: 1.4.0
+**Last Updated**: 2026-09-25
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
 **Industry Standards**: none claimed — derived from observed failures, see Evidence
@@ -146,6 +146,38 @@ prevent, one level up.
 
 ---
 
+## Supported harnesses
+
+The check is enforced only where a harness adapter exists and a hook is
+actually wired into that harness's own config. As of v1.4.0:
+
+| Harness | Event | Config file | Block contract |
+|---|---|---|---|
+| Claude Code | Stop | `.claude/settings.json` | stdout `{"decision":"block","reason":...}`, exit 0; silence allows |
+| Codex | Stop | `.codex/hooks.json` | stdout `{"decision":"block","reason":...}`, exit 0 — plain text or empty stdout is documented as invalid for this event |
+| Gemini CLI | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
+
+Codex's R9 exemption is best-effort, not silent failure: Codex's Stop payload
+gives the assistant's final message directly but not the human's, so reading
+the human side requires parsing a transcript file whose exact schema was not
+confirmed against a real installation at the time this table was written. A
+failed parse leaves the human side empty — detection still runs on the
+assistant's message, only the R9 exemption for that one turn may be missed.
+
+Cursor was evaluated and is not supported: whether its stop hook can actually
+block a turn in the way this standard requires was unresolved as of this
+writing, and shipping an adapter against an unverified contract would repeat
+the exact failure R3 exists to prevent — an enforcement mechanism nobody has
+confirmed enforces anything.
+
+On any harness not in the table above, the check is inactive — the same
+silent-by-default failure as an unsupported language (R8). `uds init
+--with-hooks` reports which harnesses it wired a hook into; it does not
+enumerate the rest here, because that list is a citation waiting to go stale
+the next time a harness is added or dropped.
+
+---
+
 ## What the detector matches
 
 The shape is: **a first-person future marker, then an action verb, in the same
@@ -194,3 +226,5 @@ only because a corpus existed; the two that shipped were the ones no case covere
 - [ ] The check recognises its own block message and does not read it as the human's
 - [ ] The check recognises the itemized blocker ending R2 defines, and does not block it
 - [ ] The attribution search excludes the check's own headings and scaffolding
+- [ ] Each supported harness's block contract (config file, event, output shape) is verified against that harness's own docs, not assumed from another harness
+- [ ] The installer only writes a harness's hook config for a harness the adopter selected

@@ -1,9 +1,9 @@
 ---
 source: ../../../core/turn-completion-integrity.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-09-08
-source_hash: c396baa28423
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-09-25
+source_hash: 8966d46d5f79
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **语言**: [English](../../../core/turn-completion-integrity.md) | [繁體中文](../../zh-TW/core/turn-completion-integrity.md) | 简体中文
 
-**版本**: 1.3.0
-**最后更新**: 2026-09-08
+**版本**: 1.4.0
+**最后更新**: 2026-09-25
 **适用范围**: 任何由 agent 结束回合、把控制权交还给人的执行环境
 **Scope**: universal
 **行业标准**: 不声称任何来源——由实际观察到的失败归纳，见「证据」
@@ -141,6 +141,34 @@ agent 写下「我接着做 X」，然后结束回合，而 X 没有做。
 
 ---
 
+## 支持的执行环境
+
+这个检查只在「适配层存在，且 hook 真的被接入该执行环境自己的配置」时才生效。
+截至 v1.4.0：
+
+| 执行环境 | 事件 | 配置文件 | 拦截契约 |
+|---|---|---|---|
+| Claude Code | Stop | `.claude/settings.json` | stdout 输出 `{"decision":"block","reason":...}`，exit 0；沉默即放行 |
+| Codex | Stop | `.codex/hooks.json` | stdout 输出 `{"decision":"block","reason":...}`，exit 0——官方文档写明这个事件纯文本或空输出无效 |
+| Gemini CLI | AfterAgent | `.gemini/settings.json` | stdout 输出 `{"decision":"deny","reason":...}`，exit 0——官方文档标记为优先于 exit code 2 的做法 |
+
+Codex 的 R9 豁免是尽力而为，不是静默失效：Codex 的 Stop payload 直接给出
+agent 的最后一条消息，却不给出用户的；要拿到用户那一侧必须解析一份
+对话记录文件，而它的确切格式在撰写本表时未对照真实安装验证过。解析失败时
+用户那一侧会变空——检测仍照样运行在 agent 消息上，只有那一轮的 R9 豁免
+可能漏掉。
+
+Cursor 已评估但不支持：截至撰写本文时，Cursor 的 stop hook 能不能真的
+拦下一个回合仍未确定，若对着一个没人验证过的契约交付一份适配层，
+等于重演 R3 要防的那个失败——一个没人确认过真的在执法的执法机制。
+
+不在上表的任何执行环境，这个检查都是失效的——与语言不支持（R8）同一种
+「默认沉默」失败。`uds init --with-hooks` 会报告它把 hook 接入了哪些
+执行环境；它不会在这里穷举其余的，因为那份清单是一张等着在下一个
+执行环境被加入或移除时就过期的引用。
+
+---
+
 ## 检测器匹配什么
 
 形状是：**第一人称将来标记，接一个动作动词，在同一个句子里**，再减掉三个排除项。
@@ -188,3 +216,5 @@ agent 写下「我接着做 X」，然后结束回合，而 X 没有做。
 - [ ] 检查认得出自己的拦截消息，不把它读成人说的话
 - [ ] 检查认得出 R2 定义的逐项阻塞点结束，而且不拦它
 - [ ] 归属词的搜索排除检查自己的标题与结构
+- [ ] 每个支持的执行环境的拦截契约都对照该环境自己的官方文档验证过，不是照搬另一个环境
+- [ ] 安装器只为采用者实际选择的执行环境写入该环境的 hook 配置
