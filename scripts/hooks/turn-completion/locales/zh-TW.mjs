@@ -44,7 +44,15 @@ const ASKING = new RegExp(
   // 「跟我說一聲，我會到 PC15 上確認」 — the precondition sat in a heading one paragraph up, so
   // the paragraph opens with the request. A report-back phrase, a comma, then 我 at once is
   // "you tell me, then I act". A report-back phrase alone does not qualify.
-  '|(跟我說|告訴我|回報我|讓我知道)(一聲)?[，,]\\s*我)'
+  '|(跟我說|告訴我|回報我|讓我知道)(一聲)?[，,]\\s*我' +
+  // 「你選定後，我會…」— the precondition is the human's decision, not a request
+  // for information or a report-back, so neither branch above caught it. Measured:
+  // fired as an unkept commitment. Narrow on purpose: literal 你, then 1-6 chars
+  // that are not another 我/你 or punctuation (a short decision verb — 選定/選好/
+  // 決定/確認/回覆/點頭 — not a whole clause), then 後, then a comma and 我. 你 with
+  // no 後 right after (「你選定的那份我會接著處理」) and 後 with no 你 right before
+  // (「改好後我接著合併」, 「他確認後，我會…」) must both still fall through and block.
+  '|你[^，,。\\n我你]{1,6}(之)?後[，,]\\s*我)'
 );
 
 // First person + future marker + action verb, within one sentence.
@@ -150,6 +158,26 @@ export const corpus = [
     '我先去確認有沒有新的發現。'],
   [true, '沒有要求回報的承諾（仍必須擋）',
     '設定檔已經改好了。我接著把驗證結果寫進規格，然後回報。'],
+  // 🔴 條件式承諾的第三種形狀：前提是使用者的決定，不是資訊或回報。
+  // 09-25 實測：「你選定後，我會…」被判成未兌現承諾（fired=true）。
+  [false, '條件式承諾：你選定後，我會…',
+    '你選定後，我會把這一輪的發想寫成正式決策紀錄，再分別派工給 UDS 和 EGR。'],
+  [false, '條件式承諾：你決定後',
+    '你決定後，我會接著把設定寫回 repo。'],
+  [false, '條件式承諾：你確認後',
+    '你確認後，我會把清單送出。'],
+  [false, '條件式承諾：你回覆後',
+    '你回覆後，我會接著處理。'],
+  [false, '條件式承諾：你選好後',
+    '你選好後，我會接著跑一次測試。'],
+  [false, '條件式承諾：你點頭後',
+    '你點頭後，我會接著把這份規格送出。'],
+  [true, '主詞不是你，仍必須擋——「後」在，但前面不是你',
+    '改好後我接著合併。'],
+  [true, '主詞不是你，仍必須擋——第三人稱的「後」',
+    '他確認後，我會把清單整理好。'],
+  [true, '你在句中，但後面沒有「後」，仍必須擋',
+    '你選定的那份我會接著處理。'],
 ];
 
 /**

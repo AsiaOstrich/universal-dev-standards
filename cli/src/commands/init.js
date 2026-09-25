@@ -279,6 +279,32 @@ export async function initCommand(options) {
         console.log(chalk.gray(`        ${line}`));
       }
     }
+
+    // turn-completion-integrity is also extended to Codex and Gemini CLI
+    // (2026-09-25), each with its own config file and output contract — see
+    // installCodexHooks/installGeminiHooks in hooks-installer.js. Gated on the
+    // tools the adopter actually selected: writing a hooks.json into every
+    // project's .codex/ regardless of whether Codex is used would be noise,
+    // not help.
+    const selectedTools = config.integrations || config.aiTools || [];
+    if (selectedTools.includes('codex')) {
+      const { installCodexHooks } = await import('../installers/hooks-installer.js');
+      const codexResult = installCodexHooks(projectPath);
+      if (codexResult.installed) {
+        console.log(chalk.green('  ✓ Codex Stop hook installed (turn-completion-integrity)'));
+      } else {
+        console.log(chalk.yellow(`  ⚠ Codex hook not installed — ${codexResult.reason}`));
+      }
+    }
+    if (selectedTools.includes('gemini-cli')) {
+      const { installGeminiHooks } = await import('../installers/hooks-installer.js');
+      const geminiResult = installGeminiHooks(projectPath);
+      if (geminiResult.installed) {
+        console.log(chalk.green('  ✓ Gemini CLI AfterAgent hook installed (turn-completion-integrity)'));
+      } else {
+        console.log(chalk.yellow(`  ⚠ Gemini CLI hook not installed — ${geminiResult.reason}`));
+      }
+    }
   }
 
   // 5. Setup Pre-commit Hook

@@ -218,3 +218,107 @@ export function installHooks(projectPath) {
     languageLimits: probeLanguageLimits(hooksDir, scripts),
   };
 }
+
+/**
+ * turn-completion-integrity is the only standard extended to Codex and Gemini
+ * CLI so far (2026-09-25). Unlike installHooks() above, these two functions do
+ * NOT walk every standard's `enforcement:` block — the other three shipped
+ * standards declare Claude-Code-specific events (PreToolUse/PostToolUse with
+ * a Bash/Write matcher) that Codex and Gemini CLI's hook models don't obviously
+ * map onto, and generalizing that mapping is a separate piece of work. These
+ * are narrowly scoped to the one hook that has been verified against each
+ * tool's own docs.
+ *
+ * @see core/turn-completion-integrity.md
+ */
+const CODEX_HOOK_SCRIPT = 'check-turn-completion-codex.mjs';
+const GEMINI_HOOK_SCRIPT = 'check-turn-completion-gemini.mjs';
+
+/** Copy the shared hook scripts into the project, same as installHooks() does. */
+function copyHookScripts(hookDir, hooksDir) {
+  if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
+  cpSync(hookDir, hooksDir, { recursive: true });
+}
+
+/**
+ * Install the turn-completion-integrity Stop hook for Codex.
+ *
+ * Config lives at <project>/.codex/hooks.json — a dedicated file, NOT
+ * config.toml's [hooks] table. Codex runs matching hooks from every file that
+ * defines them (https://learn.chatgpt.com/docs/hooks, fetched 2026-09-25), so
+ * writing only hooks.json here is a deliberate choice, not an oversight: it
+ * does not need to also read or merge config.toml to avoid double-registering
+ * the same hook, and an adopter who already has a Stop hook in config.toml
+ * keeps it untouched.
+ *
+ * @param {string} projectPath
+ * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
+ */
+export function installCodexHooks(projectPath) {
+  const hooksJsonPath = join(projectPath, '.codex', 'hooks.json');
+  const hookDir = hooksSourceDir();
+
+  if (!hookDir || !existsSync(join(hookDir, CODEX_HOOK_SCRIPT))) {
+    return { installed: false, settingsPath: hooksJsonPath, reason: `hook script not found: ${CODEX_HOOK_SCRIPT}` };
+  }
+
+  const codexDir = join(projectPath, '.codex');
+  if (!existsSync(codexDir)) mkdirSync(codexDir, { recursive: true });
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+
+  let config = {};
+  if (existsSync(hooksJsonPath)) {
+    try { config = JSON.parse(readFileSync(hooksJsonPath, 'utf-8')); } catch { config = {}; }
+  }
+  if (!config.hooks) config.hooks = {};
+  if (!config.hooks.Stop) config.hooks.Stop = [];
+
+  // Matcher is omitted, not empty-stringed: Codex ignores any matcher on Stop
+  // ("any configured matcher is ignored"), and mergeHookArray's dedupe treats
+  // undefined === undefined, so this still merges idempotently.
+  config.hooks.Stop = mergeHookArray(config.hooks.Stop, [
+    { hooks: [{ type: 'command', command: `node scripts/hooks/${CODEX_HOOK_SCRIPT}`, timeout: 30 }] },
+  ]);
+
+  writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2) + '\n');
+  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop' };
+}
+
+/**
+ * Install the turn-completion-integrity AfterAgent hook for Gemini CLI.
+ *
+ * Config lives at <project>/.gemini/settings.json — shared with the rest of
+ * Gemini CLI's project settings, so only the `hooks.AfterAgent` key is ever
+ * touched here (https://geminicli.com/docs/hooks/, fetched 2026-09-25).
+ *
+ * @param {string} projectPath
+ * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
+ */
+export function installGeminiHooks(projectPath) {
+  const settingsPath = join(projectPath, '.gemini', 'settings.json');
+  const hookDir = hooksSourceDir();
+
+  if (!hookDir || !existsSync(join(hookDir, GEMINI_HOOK_SCRIPT))) {
+    return { installed: false, settingsPath, reason: `hook script not found: ${GEMINI_HOOK_SCRIPT}` };
+  }
+
+  const geminiDir = join(projectPath, '.gemini');
+  if (!existsSync(geminiDir)) mkdirSync(geminiDir, { recursive: true });
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    try { settings = JSON.parse(readFileSync(settingsPath, 'utf-8')); } catch { settings = {}; }
+  }
+  if (!settings.hooks) settings.hooks = {};
+  if (!settings.hooks.AfterAgent) settings.hooks.AfterAgent = [];
+
+  // AfterAgent does not use matchers either (matchers apply only to Tool
+  // hooks); see the Codex function above for why matcher is omitted, not "".
+  settings.hooks.AfterAgent = mergeHookArray(settings.hooks.AfterAgent, [
+    { hooks: [{ type: 'command', command: `node scripts/hooks/${GEMINI_HOOK_SCRIPT}`, timeout: 5000 }] },
+  ]);
+
+  writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
+  return { installed: true, settingsPath, event: 'AfterAgent' };
+}

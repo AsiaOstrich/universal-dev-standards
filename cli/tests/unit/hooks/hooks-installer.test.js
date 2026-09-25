@@ -6,8 +6,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { installHooks, collectHookConfigs, standardsSourceDir, hooksSourceDir }
-  from '../../../src/installers/hooks-installer.js';
+import {
+  installHooks, collectHookConfigs, standardsSourceDir, hooksSourceDir,
+  installCodexHooks, installGeminiHooks,
+} from '../../../src/installers/hooks-installer.js';
 
 /**
  * Every hook command in a settings.json, flattened.
@@ -185,6 +187,92 @@ describe('SPEC-HOOKS-001 / REQ-5: Init 命令整合', () => {
       // Assert
       const settingsPath = join(testDir, '.claude', 'settings.json');
       expect(existsSync(settingsPath)).toBe(false);
+    });
+  });
+});
+
+describe('turn-completion-integrity: Codex and Gemini CLI installers', () => {
+  let testDir;
+
+  beforeEach(() => {
+    testDir = join(tmpdir(), `uds-tc-tool-hooks-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(testDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
+
+  describe('installCodexHooks', () => {
+    it('writes .codex/hooks.json with a Stop entry, and copies the script', () => {
+      const result = installCodexHooks(testDir);
+
+      expect(result.installed).toBe(true);
+      expect(result.event).toBe('Stop');
+      const config = JSON.parse(readFileSync(join(testDir, '.codex', 'hooks.json'), 'utf-8'));
+      expect(config.hooks.Stop).toHaveLength(1);
+      expect(config.hooks.Stop[0].hooks[0].type).toBe('command');
+      expect(config.hooks.Stop[0].hooks[0].command).toContain('check-turn-completion-codex.mjs');
+      expect(existsSync(join(testDir, 'scripts', 'hooks', 'check-turn-completion-codex.mjs'))).toBe(true);
+    });
+
+    it('is idempotent — a second install does not duplicate the entry', () => {
+      installCodexHooks(testDir);
+      installCodexHooks(testDir);
+
+      const config = JSON.parse(readFileSync(join(testDir, '.codex', 'hooks.json'), 'utf-8'));
+      expect(config.hooks.Stop).toHaveLength(1);
+    });
+
+    it('merges into an existing hooks.json without discarding unrelated hooks', () => {
+      mkdirSync(join(testDir, '.codex'), { recursive: true });
+      writeFileSync(join(testDir, '.codex', 'hooks.json'), JSON.stringify({
+        hooks: { PreToolUse: [{ hooks: [{ type: 'command', command: 'node some-other-hook.mjs' }] }] },
+      }));
+
+      installCodexHooks(testDir);
+
+      const config = JSON.parse(readFileSync(join(testDir, '.codex', 'hooks.json'), 'utf-8'));
+      expect(config.hooks.PreToolUse).toHaveLength(1);
+      expect(config.hooks.PreToolUse[0].hooks[0].command).toBe('node some-other-hook.mjs');
+      expect(config.hooks.Stop).toHaveLength(1);
+    });
+  });
+
+  describe('installGeminiHooks', () => {
+    it('writes .gemini/settings.json with an AfterAgent entry, and copies the script', () => {
+      const result = installGeminiHooks(testDir);
+
+      expect(result.installed).toBe(true);
+      expect(result.event).toBe('AfterAgent');
+      const settings = JSON.parse(readFileSync(join(testDir, '.gemini', 'settings.json'), 'utf-8'));
+      expect(settings.hooks.AfterAgent).toHaveLength(1);
+      expect(settings.hooks.AfterAgent[0].hooks[0].type).toBe('command');
+      expect(settings.hooks.AfterAgent[0].hooks[0].command).toContain('check-turn-completion-gemini.mjs');
+      expect(existsSync(join(testDir, 'scripts', 'hooks', 'check-turn-completion-gemini.mjs'))).toBe(true);
+    });
+
+    it('is idempotent — a second install does not duplicate the entry', () => {
+      installGeminiHooks(testDir);
+      installGeminiHooks(testDir);
+
+      const settings = JSON.parse(readFileSync(join(testDir, '.gemini', 'settings.json'), 'utf-8'));
+      expect(settings.hooks.AfterAgent).toHaveLength(1);
+    });
+
+    it('merges into an existing settings.json without discarding unrelated settings', () => {
+      mkdirSync(join(testDir, '.gemini'), { recursive: true });
+      writeFileSync(join(testDir, '.gemini', 'settings.json'), JSON.stringify({
+        theme: 'dark',
+        hooks: { BeforeTool: [{ hooks: [{ type: 'command', command: 'node some-other-hook.mjs' }] }] },
+      }));
+
+      installGeminiHooks(testDir);
+
+      const settings = JSON.parse(readFileSync(join(testDir, '.gemini', 'settings.json'), 'utf-8'));
+      expect(settings.theme).toBe('dark');
+      expect(settings.hooks.BeforeTool).toHaveLength(1);
+      expect(settings.hooks.AfterAgent).toHaveLength(1);
     });
   });
 });

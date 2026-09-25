@@ -2,7 +2,7 @@
 source: ../../CHANGELOG.md
 source_version: 6.12.0
 translation_version: 6.12.0
-last_synced: 2026-09-24
+last_synced: 2026-09-25
 status: current
 ---
 
@@ -18,6 +18,12 @@ status: current
 ## [Unreleased]
 
 ### 新增
+
+- **`turn-completion-integrity` 1.4.0 把 Stop 關卡推廣到 Codex 與 Gemini CLI，與既有的 Claude Code 轉接層並存。** 判斷邏輯（語料包、冷卻、滾動視窗、自我回音標記）抽到共用的 `turn-completion/engine.mjs`，三支工具腳本各自只轉譯自己工具的契約，不再各帶一份判斷邏輯。Codex（`.codex/hooks.json`，Stop 事件）直接從 stdin 讀 `last_assistant_message`，在 exit 0 時於 stdout 印 `{"decision":"block","reason":...}` 來擋下——官方文件寫明這個事件純文字或空輸出無效，這點與 Claude Code 的「沉默即放行」不同；使用者的最後一則訊息用 `transcript_path` 盡力讀取，因為其確切格式未對照真實安裝驗證過，所以 R9（豁免使用者主動喊停的回合）在 Codex 上是文件記載的已知落差，不是靜默失效。Gemini CLI（`.gemini/settings.json`，`AfterAgent` 事件）的 stdin 直接給 `prompt` 與 `prompt_response`，完全不需要解析逐字稿，擋下方式是 `{"decision":"deny","reason":...}`——官方文件標記為優先於 exit code 2 的做法。`uds init --with-hooks` 現在也會呼叫 `installCodexHooks`／`installGeminiHooks`，門檻是採用者有沒有選那個工具，沒用到 Codex 或 Gemini CLI 的專案不會被寫入任何東西。Cursor 已評估，明確標記為不支援（Cursor 的 stop hook 能不能真的擋下一個回合仍未確定）。見[支援的執行環境](../../core/turn-completion-integrity.md#supported-harnesses)與 [CLI-INIT-OPTIONS.md](../../docs/CLI-INIT-OPTIONS.md#claude-code-以外的強制執行-hooks)。
+
+### 修正
+
+- **`turn-completion-integrity` 的 zh-TW 與 en 偵測器，會在前提是使用者自己決定的條件式承諾上誤擋。** 「你選定後，我會把這一輪的發想寫成正式決策紀錄…」被判成未兌現的承諾——既有的豁免只涵蓋「要求資訊」與「要求回報」，沒有涵蓋「前提是使用者的決定」這種條件句。zh-TW 新增一支窄樣式：你 + 短決定動詞（選定/選好/決定/確認/回覆/點頭）+ 後 + 逗號 + 我；en 新增以文法為準（不是動詞清單，延續本包既有設計）的 `(once|after|as soon as) you ..., I` 樣式。兩份語料都補了成對的反例（主詞不是你/you，或只有一半的形狀），證明收窄沒有連帶漏擋真的未兌現承諾；en 版本也記下一個刻意留下未解的已知限制（前提與 "I" 之間沒有逗號時仍會誤擋——放寬會漏擋真的未兌現承諾）。
 
 - **`developer-memory` 1.2.0：新增 `code-reference` 過期查核——記憶引用的檔案路徑或符號一旦搬走或不存在，浮出前就會被標記，不再被悄悄沿用。** 沿用 `knowledge-graph-memory` 1.0.0 已定義的雙模式（§2），不另外發明第三種：降級模式（沒有圖引擎——AI 自己用 Glob／Grep／Read 確認引用還在，與既有的記憶驗證原則同一套機制）與引擎模式（有圖引擎時，例如 EngramGraph 的 `egr refs check`，回報每個引用的狀態：`present`／`moved`（附新位置）／`missing`／`unresolvable`）。`unresolvable` 一律不得當成 `present` 或 `missing`——它代表查核器無法判斷，不是引用沒事或已消失。時機掛在既有的 `proactive-surfacing` 規則（§4.1），查核在記憶浮出**之前**進行，不是之後。第一批只涵蓋檔案路徑與符號名稱（函式／類別）；`file:line` 明確排除在外——行號會隨任何不相關的編輯漂移，屬於不同種類的過期（見 DEC-115 OQ-1，2027-01-31 前重新評估）。`core/developer-memory.md` §11 加入一段非規範性的 Claude Code `SessionStart` hook 範例；其他工具則改走各自 repo 的說明檔（CLAUDE.md／AGENTS.md／.cursorrules 等）。（DEC-115-L1）
 

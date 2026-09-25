@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/CLI-INIT-OPTIONS.md) | [简体中文](../locales/zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **Version**: 3.5.2
-> **Last Updated**: 2026-09-18
+> **Version**: 3.6.0
+> **Last Updated**: 2026-09-25
 
 This document provides detailed explanations for every option in the `uds init` command, including use cases, effects, and recommended choices.
 
@@ -834,6 +834,28 @@ uds init --experimental
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 | Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
+
+### Enforcement Hooks Beyond Claude Code
+
+`--with-hooks` always installs into `.claude/settings.json`. One of the four
+hook-backed standards — `turn-completion-integrity` (see CHANGELOG,
+Unreleased) — is also installed for **Codex** and **Gemini CLI**, gated on
+whether you selected that tool in
+[AI Tools Selection](#1-ai-tools-selection) (or passed it via the
+non-interactive tools flag):
+
+| Tool | Config file written | What triggers it |
+|------|---------------------|-------------------|
+| Codex | `.codex/hooks.json` | Selecting **OpenAI Codex** |
+| Gemini CLI | `.gemini/settings.json` | Selecting **Gemini CLI** |
+
+Nothing is written for a tool you did not select — `uds init` does not create
+a `.codex/` or `.gemini/` directory in a project that doesn't use them. The
+other three hook-backed standards (commit-message validation, logging,
+security) remain Claude Code only; see
+[Supported harnesses](../core/turn-completion-integrity.md#supported-harnesses)
+for why turn-completion-integrity is the one extended so far, and for Cursor's
+status (evaluated, not supported).
 
 ### Claude Code Integration Target (`--claude-target`)
 

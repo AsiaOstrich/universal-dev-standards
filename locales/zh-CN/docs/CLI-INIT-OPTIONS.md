@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.5.2
-translation_version: 3.5.2
-last_synced: 2026-09-18
+source_version: 3.6.0
+translation_version: 3.6.0
+last_synced: 2026-09-25
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [简体中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
 >
-> **版本**: 3.5.2
-> **最后更新**: 2026-09-18
+> **版本**: 3.6.0
+> **最后更新**: 2026-09-25
 
 本文档详细说明 `uds init` 命令的每一个选项，包含使用情境、影响范围和建议选择。
 
@@ -837,6 +837,25 @@ uds init --experimental
 | 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
 | Claude Code 目标文件 | `--claude-target` | Claude Code 集成内容要写到哪里：`project`（`CLAUDE.md`，默认）或 `local`（`CLAUDE.local.md`） |
 | 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
+
+### Claude Code 以外的强制执行 Hooks
+
+`--with-hooks` 一定会安装进 `.claude/settings.json`。四个有 hook 支持的标准
+之一——`turn-completion-integrity`（见 CHANGELOG，Unreleased）——也会装进
+**Codex** 与 **Gemini CLI**，门槛是你有没有在 [AI 工具选择](#1-ai-工具选择)
+里选了那个工具（或用非交互模式的工具标志带入）：
+
+| 工具 | 写入的配置文件 | 触发条件 |
+|------|---------------|---------|
+| Codex | `.codex/hooks.json` | 选了 **OpenAI Codex** |
+| Gemini CLI | `.gemini/settings.json` | 选了 **Gemini CLI** |
+
+没选的工具不会写入任何东西——`uds init` 不会在没用到 Codex 或 Gemini CLI
+的项目里创建 `.codex/` 或 `.gemini/` 目录。其余三个有 hook 支持的标准
+（commit message 校验、logging、security）目前仍只支持 Claude Code；
+为什么目前只推广 turn-completion-integrity，以及 Cursor 的现状
+（已评估、不支持），见
+[支持的执行环境](../../../core/turn-completion-integrity.md#supported-harnesses)。
 
 ### Claude Code 集成目标文件（`--claude-target`）
 
