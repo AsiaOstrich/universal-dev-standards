@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/developer-memory.md)
 
-**Version**: 1.1.1
-**Last Updated**: 2026-06-18
+**Version**: 1.2.0
+**Last Updated**: 2026-09-25
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
 **Owning Spec**: XSPEC-291 (developer-memory has no dedicated feature XSPEC; XSPEC-291 owns it)
@@ -250,6 +250,26 @@ recorded so each value is auditable rather than arbitrary.
 | `validity.type == "versioned"` AND version is outdated | Flag as stale |
 | `validity.type == "temporal"` AND `expires_at` passed | Flag as expired |
 | `validity.type == "evergreen"` | Skip version check |
+| Recalled memory cites a file path or symbol (function/class) that no longer exists at that location, or has moved | Flag as `code-reference` stale — see below |
+
+#### Code-Reference Staleness (`code-reference`)
+
+Code moves; a memory recorded against an old location does not update itself. This check catches the case where the memory's insight is still true but its citation — a file path, or a function/class name — is not.
+
+This reuses the **two operating modes [Knowledge Graph Memory](knowledge-graph-memory.md) §2 already defines**, rather than inventing a third:
+
+| Mode | When | How |
+|------|------|-----|
+| Degraded (no graph engine) | Any tool, no extra setup — the default | Before using a memory, the assistant confirms the cited path/symbol still exists itself (`Glob`/`Grep`/`Read`) — the same mechanism already required by §5 Memory Verification Principle |
+| Engine (a graph engine is indexed, e.g. [EngramGraph](https://github.com/AsiaOstrich/EngramGraph)'s `egr refs check`) | When available | The engine reports each citation's state: `present` / `moved` (with its new location) / `missing` / `unresolvable` |
+
+> A correct implementation produces the same answer shape in both modes (Knowledge Graph Memory §2.2) — engine mode is faster and more complete, not different in kind.
+
+**`unresolvable` MUST NOT be treated as `present` or `missing`.** It means the checker could not determine an answer for that citation (e.g. a cross-repo reference outside the indexed scope, per Knowledge Graph Memory §2.2's cross-domain caveat) — that uncertainty must reach the assistant as its own state, not collapse silently into a false positive (treated as still valid) or a false negative (treated as gone).
+
+**Timing**: this check runs as part of `proactive-surfacing` (§4.1) — before a memory is shown, not after. A memory whose citation resolves to `missing` is not silently surfaced as if nothing changed.
+
+**Scope (first batch)**: file paths and symbol names (function/class names) only. `file:line` references are explicitly **out of scope** — a line number drifts on every unrelated edit to the file, which is a different kind of staleness from "this file/symbol no longer exists" (see DEC-115 OQ-1; revisited by 2027-01-31).
 
 #### Revision Suggestions
 
@@ -280,6 +300,7 @@ recorded so each value is auditable rather than arbitrary.
 | Cooldown period | 7 days per entry | Prevent repetitive suggestions |
 | Max per trigger | 3–5 entries | Information overload prevention |
 | Overflow handling | AI summarizes into grouped insight | When > 5 matches found |
+| Code-reference check | Run before surfacing (§3.4 `code-reference` staleness, degraded or engine mode) | Do not surface a memory whose file/symbol citation no longer resolves without flagging it |
 
 #### Surfacing Format
 
@@ -541,6 +562,7 @@ by_category:
 - [AI Instruction Standards](ai-instruction-standards.md) — Token-efficient format for memory system instructions
 - [AI-Friendly Architecture](ai-friendly-architecture.md) — Project structure enabling memory integration
 - [Documentation Writing Standards](documentation-writing-standards.md) — Writing quality for memory entries
+- [Knowledge Graph Memory](knowledge-graph-memory.md) — Source of the degraded/engine dual-mode reused by `code-reference` staleness (§3.4)
 
 ---
 
@@ -587,10 +609,44 @@ If user feedback reveals:
 
 ---
 
+## 11. Tool Adoption Example: Code-Reference Check (Non-Normative)
+
+This section illustrates one way to wire the `code-reference` staleness check (§3.4) into a tool's own automation. It is documentation only — UDS does not ship this hook, and `uds init`/`uds update` do not install it.
+
+### Claude Code
+
+Claude Code's automatic memory lives outside the repo, at `~/.claude/projects/<project-path>/memory/`. A `SessionStart` hook can run the check against that directory before the session's first memory surfacing, falling back to degraded mode when no graph engine is present:
+
+```bash
+#!/usr/bin/env bash
+# Illustrative only — not installed by any UDS command.
+MEMORY_DIR="$HOME/.claude/projects/$(pwd | tr '/' '-')/memory"
+
+if command -v egr >/dev/null 2>&1 && [ -f .engram/graph.db ]; then
+  # Engine mode (§3.4): egr resolves each cited path/symbol.
+  egr refs check "$MEMORY_DIR"
+else
+  # Degraded mode (§3.4): no engine configured — nothing to run up
+  # front; the assistant verifies each citation itself before use (§5).
+  echo "[developer-memory] no graph engine detected; degraded mode applies"
+fi
+```
+
+### Other Tools
+
+A tool without a session-start hook still satisfies this standard through either:
+
+- a rule in the repo's own instruction file (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.clinerules`, `.windsurfrules`, `copilot-instructions.md`, `GEMINI.md`, `.roo/rules/`, etc.) instructing the assistant to verify a memory's cited path/symbol before relying on it; or
+- a pre-commit check that scans the repo's own instruction file(s) for citations that no longer resolve.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-09-25 | Added: `code-reference` staleness check to Review (§3.4) — a memory citing a moved/missing file path or symbol is flagged before surfacing; reuses Knowledge Graph Memory's degraded/engine dual mode instead of inventing a third; `unresolvable` may not be read as present or missing; scope is file paths and symbol names only (`file:line` explicitly out of scope, DEC-115 OQ-1); §11 adds a non-normative Claude Code adoption example (DEC-115-L1) |
+| 1.1.1 | 2026-06-18 | Added: `Owning Spec` header pointing to XSPEC-291 (patch, no behavioral change; XSPEC-291 §11 disposition) |
 | 1.1.0 | 2026-06-18 | Added: rationale column + configurable note to Retirement Suggestions thresholds (XSPEC-292 T8) |
 | 1.0.0 | 2026-02-07 | Initial standard: schema, 4 operations, proactive protocol, noise control, architecture decision (Always-On Protocol) |
 

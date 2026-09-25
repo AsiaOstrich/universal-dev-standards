@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`developer-memory` 1.2.0: a `code-reference` staleness check — a memory citing a file path or symbol that has moved or no longer exists is now flagged before it is surfaced, not silently reused.** Reuses the two operating modes `knowledge-graph-memory` 1.0.0 already defines (§2) rather than inventing a third: degraded mode (no graph engine — the assistant verifies the citation itself via Glob/Grep/Read, same mechanism as the existing Memory Verification Principle) and engine mode (a graph engine such as EngramGraph's `egr refs check` reports each citation as `present` / `moved` (with its new location) / `missing` / `unresolvable`). `unresolvable` must never be read as `present` or `missing` — it means the checker could not determine an answer, not that the citation is fine or gone. Hooked into the existing `proactive-surfacing` rule (§4.1) so the check runs before a memory is shown, not after. First batch covers file paths and symbol names (function/class) only; `file:line` is explicitly out of scope — line numbers drift on unrelated edits, a different kind of staleness (see DEC-115 OQ-1, revisited by 2027-01-31). `core/developer-memory.md` §11 adds a non-normative Claude Code `SessionStart` hook example; other tools route through their own repo instruction file (CLAUDE.md/AGENTS.md/.cursorrules/etc.) instead. (DEC-115-L1)
+
 ## [6.12.0] - 2026-09-25
 
 ### Added

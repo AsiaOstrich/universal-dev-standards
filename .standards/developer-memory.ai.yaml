@@ -13,8 +13,8 @@ standard:
     - "Respect noise control levels and cooldown periods"
 
   meta:
-    version: "1.1.0"
-    updated: "2026-06-18"
+    version: "1.2.0"
+    updated: "2026-09-25"
     source: core/developer-memory.md
     description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
 
@@ -128,6 +128,20 @@ standard:
           trigger: "confidence < 0.2 OR 180+ days unsurfaced with confidence < 0.5"
         - type: staleness
           trigger: "versioned type with outdated version_bound"
+        - type: code-reference
+          trigger: "recalled memory cites a file path or symbol (function/class) that no longer exists at that location, or has moved"
+          timing: "runs before proactive-surfacing (check before a memory is shown, not after)"
+          scope: "file paths and symbol names (functions/classes) only; file:line is out of scope (line numbers drift on unrelated edits — different staleness semantics; see DEC-115 OQ-1)"
+          modes:
+            degraded:
+              when: "no graph engine configured (any tool, no setup — the default)"
+              how: "the assistant verifies the referenced path/symbol itself (Glob/Grep/Read) before using the memory — same mechanism as the memory-as-hint-not-conclusion rule"
+              source: "knowledge-graph-memory 1.0.0 §2.1 Degraded Mode"
+            engine:
+              when: "a graph engine is indexed (e.g. EngramGraph)"
+              how: "engine query (e.g. `egr refs check`) reports each citation's state: present / moved (with new location) / missing / unresolvable"
+              source: "knowledge-graph-memory 1.0.0 §2.2 Service Mode"
+          unresolvable_rule: "unresolvable (e.g. a cross-repo reference outside the indexed scope) MUST NOT be treated as present or missing — surface it as its own state"
         - type: revision
           trigger: "2+ needs-revision feedback"
 
@@ -135,6 +149,11 @@ standard:
     - id: proactive-surfacing
       trigger: conversation start or matching code pattern/error/decision detected
       instruction: >
+        Before surfacing, run the code-reference staleness check
+        (review.checks type: code-reference) on each candidate memory's
+        cited file path / symbol. Do not surface a memory whose citation
+        resolves to missing without flagging it as stale; unresolvable is
+        not the same as present or missing.
         Surface top 3 relevant memories when relevance > 0.7.
         Max 5 per trigger. Cooldown 7 days per entry.
         If > 5 matches, summarize into grouped insight.
@@ -225,3 +244,6 @@ standard:
     Category: {category} | Tags: {tags}
     Insight: {insight}
     Context: {context}
+
+  related_standards:
+    - knowledge-graph-memory

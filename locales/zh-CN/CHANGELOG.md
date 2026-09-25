@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 新增
+
+- **`developer-memory` 1.2.0：新增 `code-reference` 过期检查——记忆引用的文件路径或符号一旦搬走或不存在，浮现前就会被标记，不再被悄悄沿用。** 沿用 `knowledge-graph-memory` 1.0.0 已定义的双模式（§2），不另外发明第三种：降级模式（没有图引擎——AI 自己用 Glob／Grep／Read 确认引用还在，与既有的记忆验证原则同一套机制）与引擎模式（有图引擎时，例如 EngramGraph 的 `egr refs check`，报告每个引用的状态：`present`／`moved`（附新位置）／`missing`／`unresolvable`）。`unresolvable` 一律不得当成 `present` 或 `missing`——它代表检查器无法判断，不是引用没事或已消失。时机挂在既有的 `proactive-surfacing` 规则（§4.1），检查在记忆浮现**之前**进行，不是之后。第一批只涵盖文件路径与符号名称（函数／类）；`file:line` 明确排除在外——行号会随任何不相关的编辑漂移，属于不同种类的过期（见 DEC-115 OQ-1，2027-01-31 前重新评估）。`core/developer-memory.md` §11 加入一段非规范性的 Claude Code `SessionStart` hook 范例；其他工具则改走各自 repo 的说明文件（CLAUDE.md／AGENTS.md／.cursorrules 等）。（DEC-115-L1）
+
 ## [6.12.0] - 2026-09-25
 
 ### 新增
