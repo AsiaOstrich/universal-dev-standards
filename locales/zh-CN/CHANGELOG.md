@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.12.0
-translation_version: 6.12.0
+source_version: 6.13.0-beta.1
+translation_version: 6.13.0-beta.1
 last_synced: 2026-09-25
 status: current
 ---
@@ -17,15 +17,19 @@ status: current
 
 ## [Unreleased]
 
+## [6.13.0-beta.1] - 2026-09-26
+
+> **测试版** — 以 `npm install -g universal-dev-standards@beta` 安装。要测什么、已知限制、如何退回正式版：见 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。已知限制：`uds uninstall` 尚不会移除 Codex／Gemini CLI 设置里的关卡。
+
 ### 新增
 
 - **`turn-completion-integrity` 1.4.0 把 Stop 关卡推广到 Codex 与 Gemini CLI，与既有的 Claude Code 适配层并存。** 判断逻辑（语料包、冷却、滚动窗口、自我回音标记）抽到共用的 `turn-completion/engine.mjs`，三个工具脚本各自只转译自己工具的契约，不再各带一份判断逻辑。Codex（`.codex/hooks.json`，Stop 事件）直接从 stdin 读取 `last_assistant_message`，在 exit 0 时于 stdout 输出 `{"decision":"block","reason":...}` 来拦截——官方文档写明这个事件纯文本或空输出无效，这点与 Claude Code「沉默即放行」不同；用户的最后一条消息用 `transcript_path` 尽力读取，因为其确切格式未对照真实安装验证过，所以 R9（豁免用户主动喊停的回合）在 Codex 上是文档记载的已知落差，不是静默失效。Gemini CLI（`.gemini/settings.json`，`AfterAgent` 事件）的 stdin 直接给出 `prompt` 与 `prompt_response`，完全不需要解析对话记录，拦截方式是 `{"decision":"deny","reason":...}`——官方文档标记为优先于 exit code 2 的做法。`uds init --with-hooks` 现在也会调用 `installCodexHooks`／`installGeminiHooks`，门槛是采用者有没有选那个工具，没用到 Codex 或 Gemini CLI 的项目不会被写入任何东西。Cursor 已评估，明确标记为不支持（Cursor 的 stop hook 能不能真的拦下一个回合仍未确定）。见[支持的执行环境](../../core/turn-completion-integrity.md#supported-harnesses)与 [CLI-INIT-OPTIONS.md](../../docs/CLI-INIT-OPTIONS.md#claude-code-以外的强制执行-hooks)。
 
+- **`developer-memory` 1.2.0：新增 `code-reference` 过期检查——记忆引用的文件路径或符号一旦搬走或不存在，浮现前就会被标记，不再被悄悄沿用。** 沿用 `knowledge-graph-memory` 1.0.0 已定义的双模式（§2），不另外发明第三种：降级模式（没有图引擎——AI 自己用 Glob／Grep／Read 确认引用还在，与既有的记忆验证原则同一套机制）与引擎模式（有图引擎时，例如 EngramGraph 的 `egr refs check`，报告每个引用的状态：`present`／`moved`（附新位置）／`missing`／`unresolvable`）。`unresolvable` 一律不得当成 `present` 或 `missing`——它代表检查器无法判断，不是引用没事或已消失。时机挂在既有的 `proactive-surfacing` 规则（§4.1），检查在记忆浮现**之前**进行，不是之后。第一批只涵盖文件路径与符号名称（函数／类）；`file:line` 明确排除在外——行号会随任何不相关的编辑漂移，属于不同种类的过期（见 DEC-115 OQ-1，2027-01-31 前重新评估）。`core/developer-memory.md` §11 加入一段非规范性的 Claude Code `SessionStart` hook 范例；其他工具则改走各自 repo 的说明文件（CLAUDE.md／AGENTS.md／.cursorrules 等）。（DEC-115-L1）
+
 ### 修复
 
 - **`turn-completion-integrity` 的 zh-TW 与 en 检测器，会在前提是用户自己决定的条件式承诺上误拦。** 「你选定后，我会把这一轮的发想写成正式决策记录…」被判成未兑现的承诺——既有的豁免只涵盖「要求信息」与「要求回报」，没有涵盖「前提是用户的决定」这种条件句。zh-TW 新增一个窄模式：你 + 短决定动词（选定/选好/决定/确认/回覆/点头）+ 后 + 逗号 + 我；en 新增以语法为准（不是动词清单，延续本包既有设计）的 `(once|after|as soon as) you ..., I` 模式。两份语料都补了成对的反例（主语不是你/you，或只有一半的形状），证明收窄没有连带漏拦真的未兑现承诺；en 版本也记下一个刻意留下未解的已知限制（前提与 "I" 之间没有逗号时仍会误拦——放宽会漏拦真的未兑现承诺）。
-
-- **`developer-memory` 1.2.0：新增 `code-reference` 过期检查——记忆引用的文件路径或符号一旦搬走或不存在，浮现前就会被标记，不再被悄悄沿用。** 沿用 `knowledge-graph-memory` 1.0.0 已定义的双模式（§2），不另外发明第三种：降级模式（没有图引擎——AI 自己用 Glob／Grep／Read 确认引用还在，与既有的记忆验证原则同一套机制）与引擎模式（有图引擎时，例如 EngramGraph 的 `egr refs check`，报告每个引用的状态：`present`／`moved`（附新位置）／`missing`／`unresolvable`）。`unresolvable` 一律不得当成 `present` 或 `missing`——它代表检查器无法判断，不是引用没事或已消失。时机挂在既有的 `proactive-surfacing` 规则（§4.1），检查在记忆浮现**之前**进行，不是之后。第一批只涵盖文件路径与符号名称（函数／类）；`file:line` 明确排除在外——行号会随任何不相关的编辑漂移，属于不同种类的过期（见 DEC-115 OQ-1，2027-01-31 前重新评估）。`core/developer-memory.md` §11 加入一段非规范性的 Claude Code `SessionStart` hook 范例；其他工具则改走各自 repo 的说明文件（CLAUDE.md／AGENTS.md／.cursorrules 等）。（DEC-115-L1）
 
 ## [6.12.0] - 2026-09-25
 
