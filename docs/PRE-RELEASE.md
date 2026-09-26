@@ -36,10 +36,10 @@ It is rewritten for **each** beta — the section "Current beta" always describe
   關卡靠讀文字判斷，只支援英文與繁中；其他語言會明確告知不生效。
 - **Cursor** and other tools are not covered by the turn-completion hook in this beta.
   Cursor 與其他工具這一版不支援該關卡。
-- **Codex: "I asked you to stop" is best-effort.** Codex's Stop input does not include your last message, so the exemption reads the transcript file, whose exact format has not been verified against a real Codex install. Please report any turn that was blocked after you asked to stop.
-  Codex 的「使用者叫停就放行」是盡力而為：Codex 不直接提供你的最後一則訊息，要讀逐字稿檔，而其格式尚未在真實 Codex 安裝上驗證過。請回報「已叫停仍被擋」的情況。
-- **`uds uninstall` does not remove the Codex / Gemini hook entries in this beta** (see *Going back to stable*).
-  這一版的 `uds uninstall` 不會移除 Codex／Gemini 設定裡的關卡（見「退回正式版」）。
+- **Codex: "I asked you to stop" did not work in 6.13.0-beta.1 — it read the wrong field and never exempted a turn.** The transcript format has now been checked against a real codex-cli 0.156.1 install and the adapter fixed for 6.13.0-beta.2. Please still report any turn that was blocked after you asked to stop.
+  Codex 的「使用者叫停就放行」在 6.13.0-beta.1 沒有生效——讀錯了欄位，從未真的豁免過任何一輪。逐字稿格式已對照真實 codex-cli 0.156.1 安裝核對，並在 6.13.0-beta.2 修正轉接層。仍請回報「已叫停卻被擋」的情況。
+- **From 6.13.0-beta.2, `uds uninstall` also removes the hook entries from `.claude/settings.json`, `.codex/hooks.json` and `.gemini/settings.json`. In 6.13.0-beta.1, remove them by hand** (see *Going back to stable*).
+  從 6.13.0-beta.2 起，`uds uninstall` 會一併移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡的關卡項目。**6.13.0-beta.1 請手動刪除**（見「退回正式版」）。
 - A zh-TW promise phrased without a recognised action verb (e.g.「改好後，我接著推上去」) is still not caught — this gap predates this beta.
   沒有用到偵測器認得的動作動詞的承諾（例如「改好後，我接著推上去」）仍不會被擋——這是先前就有的缺口。
 
@@ -85,8 +85,8 @@ npm install -g universal-dev-standards@latest
 uds update        # re-apply the stable standards to your project | 把正式版標準重新套回專案
 ```
 
-If the beta installed the hook into Codex or Gemini CLI, **remove it by hand** — neither `uds update` nor `uds uninstall` touches those files in this beta: delete the UDS `check-turn-completion-codex` entry under `hooks.Stop` in `.codex/hooks.json`, and the `check-turn-completion-gemini` entry under `hooks.AfterAgent` in `.gemini/settings.json` (leave your other settings in those files alone).
-若測試版在 Codex 或 Gemini CLI 裡裝了關卡，請**手動移除**——這一版的 `uds update` 與 `uds uninstall` 都不會動這兩個檔案：刪掉 `.codex/hooks.json` 裡 `hooks.Stop` 下的 `check-turn-completion-codex` 項目，以及 `.gemini/settings.json` 裡 `hooks.AfterAgent` 下的 `check-turn-completion-gemini` 項目（檔案裡你自己的其他設定不要動）。
+**From 6.13.0-beta.2**, `uds uninstall` removes the UDS hook entries from `.claude/settings.json`, `.codex/hooks.json` and `.gemini/settings.json` itself (run it before or after switching back to `@latest` — either order works). **On 6.13.0-beta.1**, remove them by hand: delete the UDS `check-turn-completion-codex` entry under `hooks.Stop` in `.codex/hooks.json`, and the `check-turn-completion-gemini` entry under `hooks.AfterAgent` in `.gemini/settings.json` (leave your other settings in those files alone).
+**從 6.13.0-beta.2 起**，`uds uninstall` 會自行移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡 UDS 寫入的關卡項目（在切回 `@latest` 之前或之後執行都可以）。**若你裝的是 6.13.0-beta.1**，請手動移除：刪掉 `.codex/hooks.json` 裡 `hooks.Stop` 下的 `check-turn-completion-codex` 項目，以及 `.gemini/settings.json` 裡 `hooks.AfterAgent` 下的 `check-turn-completion-gemini` 項目（檔案裡你自己的其他設定不要動）。
 
 ---
 

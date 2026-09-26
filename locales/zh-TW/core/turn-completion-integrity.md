@@ -2,8 +2,8 @@
 source: ../../../core/turn-completion-integrity.md
 source_version: 1.4.0
 translation_version: 1.4.0
-last_synced: 2026-09-25
-source_hash: 8966d46d5f79
+last_synced: 2026-09-26
+source_hash: 401b74843abc
 status: current
 ---
 
@@ -154,9 +154,16 @@ agent 寫下「我接著做 X」，然後結束回合，而 X 沒有做。
 
 Codex 的 R9 豁免是盡力而為，不是靜默失效：Codex 的 Stop payload 直接給
 agent 的最後一則訊息，卻不給使用者的；要拿到使用者那一側必須解析一份
-逐字稿檔案，而它的確切格式在撰寫本表時未對照真實安裝驗證過。解析失敗時
-使用者那一側會變空——偵測仍照樣跑在 agent 訊息上，只有那一輪的 R9 豁免
-可能漏掉。
+逐字稿檔案。已對真實 codex-cli 0.156.1 安裝坐實（2026-09-26）：
+`~/.codex/sessions/**/*.jsonl` 裡的一則使用者訊息長這樣——
+`{"type":"response_item","payload":{"type":"message","role":"user",
+"content":[{"type":"input_text","text":...}]}}`——訊息住在 `payload`
+底下，不在該行的最外層、也不在 `message` 鍵底下；同一種形狀但
+`role: "developer"` 的紀錄不算使用者訊息。6.13.0-beta.1 的轉接層試過的
+兩種形狀都不是這個真實形狀，所以 R9 在 Codex 上從未真的豁免過任何一輪；
+6.13.0-beta.2 已修正。解析失敗（或遇到辨識不出的紀錄形狀）時仍只是讓
+使用者那一側變空、不會拋出例外——偵測仍照樣跑在 agent 訊息上，只有那一輪
+的 R9 豁免可能漏掉。
 
 Cursor 已評估但不支援：截至撰寫本文時，Cursor 的 stop hook 能不能真的
 擋下一個回合仍未確定，若對著一個沒人驗證過的契約出一份轉接層，

@@ -93,15 +93,28 @@ export function isAsking(text) {
   return ASKING.test(text);
 }
 
+// 🔴 2026-09-25 實測缺口：「我要出門了，等我回來再繼續」與「暫停，我要出門」
+// 都沒有被下面任何一支既有樣式接住——前者當天真的誤擋了一次真實的 Claude
+// Code 回合。R10 說叫停樣式放寬是危險方向（錯誤豁免會讓整個 session 的檢查
+// 失效），所以這裡刻意寫窄：離開類詞必須跟「稍後再續」或裸的「暫停」同時
+// 出現在同一小段裡，單獨出現的離開詞不算——「出門前把這三件做完」只有離開
+// 詞、沒有稍後再續，仍必須判 false（見下方 stopCorpus 的反例）。
+const LEAVING = '(出門|離開一下|先走)';
+const RESUME_LATER = '(等我回來|回來再|明天再|晚點再|待會再|待会再)';
+const LEAVE_THEN_LATER = `${LEAVING}[^。！？\\n]{0,12}${RESUME_LATER}|${RESUME_LATER}[^。！？\\n]{0,12}${LEAVING}`;
+const LEAVE_WITH_PAUSE = `暫停[^。！？\\n]{0,12}${LEAVING}|${LEAVING}[^。！？\\n]{0,12}暫停`;
+
 /**
  * The human asking for the turn to end. Kept narrow on purpose: a false
  * positive disables the check for the rest of the session.
  */
-const STOP_REQUEST =
+const STOP_REQUEST = new RegExp(
   // 🔴 `先停` 曾寫成裸的，而語料當場抓到「先**停用**那份硬編碼清單」——
   // 一句要求做事的指令被讀成叫我停。這個方向的誤判會把守衛整場關掉，
   // 所以 `停` 後面接得出動詞的字一律排除。
-  /(先暫停|暫停一下|先停(?![用止掉住])|停一下|先不要(做|動)|不用繼續|今天(先)?到這|先這樣|收工|下班|我要回家|明天再(說|弄|做)|改天再|先擱著|睡了|晚安)/;
+  '(先暫停|暫停一下|先停(?![用止掉住])|停一下|先不要(做|動)|不用繼續|今天(先)?到這|先這樣|收工|下班|我要回家|明天再(說|弄|做)|改天再|先擱著|睡了|晚安' +
+  `|${LEAVE_THEN_LATER}|${LEAVE_WITH_PAUSE})`
+);
 
 export function isStopRequest(text) {
   return STOP_REQUEST.test(text);
@@ -191,4 +204,14 @@ export const stopCorpus = [
   [false, '提到停止但不是叫停', '解釋一下這支 hook 為什麼會擋下回合。'],
   [false, '要求做事而句中有停', '先停用那份硬編碼清單，改成走訪註冊表。'],
   [false, '一般指令', '把偵測器修好然後推上去。'],
+  // 🔴 2026-09-25 真實使用者原話——當時真的誤擋了一次回合，見上方 STOP_REQUEST 的註解。
+  [true, '離開＋稍後再續（真實原話）', '我要出門了，等我回來再繼續'],
+  [true, '暫停＋離開（真實原話）', '暫停，我要出門'],
+  // 窄性反例：單獨的離開詞、或單獨的「稍後」詞，都不算叫停——那是要求
+  // 「在離開前」把事情做完，不是要收掉這一輪。
+  [false, '離開詞單獨出現：這是要求離開前做完，不是叫停', '出門前把這三件做完'],
+  [false, '稍後詞單獨出現，沒有離開詞：一樣是要求先做完', '等我回來前先把測試跑完'],
 ];
+// 突變驗證（手動跑過、已還原——見 commit/交接紀錄）：把 STOP_REQUEST 的
+// `LEAVE_THEN_LATER`／`LEAVE_WITH_PAUSE` 兩個新分支拿掉，上面兩筆「真實原話」
+// 會變 false，`--self-test` 隨之變紅，證明這兩筆真的在測新加的規則。

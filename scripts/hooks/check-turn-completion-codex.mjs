@@ -23,12 +23,14 @@
  *
  * R9 (exempt a human-directed stop) is best-effort here. Codex's Stop payload
  * gives the assistant's last message directly but not the human's; this
- * adapter tries transcript_path for it (rollout.jsonl), tolerantly, because
- * its exact schema was not confirmed against a real Codex install at
- * authoring time. If that read fails or the field is null, the user side is
- * treated as empty — which means R9 cannot exempt that turn, not that the
- * check goes silent (last_assistant_message still drives detection). This is
- * the documented gap in core/turn-completion-integrity.md's Codex section.
+ * adapter reads transcript_path for it (rollout.jsonl), tolerantly. The real
+ * record shape has been confirmed against a codex-cli 0.156.1 install
+ * (2026-09-26; see extractMessage() below) — 6.13.0-beta.1 tried two guessed
+ * shapes that never matched it, so R9 never actually exempted a Codex turn.
+ * If the read still fails, or an unrecognized record type is seen, the user
+ * side is treated as empty — which means R9 cannot exempt that turn, not
+ * that the check goes silent (last_assistant_message still drives
+ * detection). See core/turn-completion-integrity.md's Codex section.
  *
  * Judgement (packs, cooldown, rolling window, self-echo) lives in
  * turn-completion/engine.mjs and is shared with every other adapter; this
@@ -44,11 +46,39 @@ import { readFileSync } from 'node:fs';
 import { decide, isSelfEcho, runSelfTest, printLanguages } from './turn-completion/engine.mjs';
 
 /**
+ * A user-message record's `{ role, content }` payload, whichever of the
+ * plausible JSONL shapes `ev` turns out to be.
+ *
+ * 🔴 2026-09-26: verified against a real codex-cli 0.156.1
+ * `~/.codex/sessions/**\/*.jsonl` transcript. The actual shape is
+ * `{"type":"response_item","payload":{"type":"message","role":"user",
+ * "content":[{"type":"input_text","text":"…"}]}}` — the message lives under
+ * `ev.payload`, not `ev.message` and not `ev` itself. The two fallback shapes
+ * below were this file's original best-effort guesses (Claude-Code-style
+ * nested `message`, and a flat record); neither matches what Codex actually
+ * writes, so `bestEffortLastUserMessage` always returned '' and R9 (exempting
+ * a human-directed stop) never fired on Codex. They stay as fallbacks in case
+ * a different Codex version or record type uses one of them, but `ev.payload`
+ * is tried first since it is the confirmed real shape.
+ *
+ * Other record types seen in a real rollout (`event_msg`, `token_usage_record`,
+ * `session_meta`, `world_state`, and `response_item` payloads of type
+ * `reasoning`/`custom_tool_call`/…) do not have `role: "user"` on the object
+ * this function returns, so they fall through untouched. A `role: "developer"`
+ * message is deliberately NOT treated as a user message — only
+ * `payload.type === "message" && payload.role === "user"` counts.
+ */
+function extractMessage(ev) {
+  if (ev && ev.payload && ev.payload.type === 'message') return ev.payload;
+  if (ev && ev.message && typeof ev.message === 'object') return ev.message;
+  return ev;
+}
+
+/**
  * Best-effort extraction of the human's last message from a Codex transcript.
- * Tolerant of several plausible JSONL shapes because the exact rollout.jsonl
- * schema was not confirmed against a real install; any failure returns '',
- * which is the same as "cannot tell" (R5) — it does not stop
- * last_assistant_message from still being checked.
+ * Tolerant of several plausible JSONL shapes; any failure returns '', which
+ * is the same as "cannot tell" (R5) — it does not stop last_assistant_message
+ * from still being checked.
  */
 function bestEffortLastUserMessage(transcriptPath) {
   if (typeof transcriptPath !== 'string' || !transcriptPath) return '';
@@ -58,16 +88,13 @@ function bestEffortLastUserMessage(transcriptPath) {
       if (!line.trim()) continue;
       let ev;
       try { ev = JSON.parse(line); } catch { continue; }
-      // Try a few plausible shapes rather than committing to one: a nested
-      // { message: { role, content } } (Claude-Code-style rollout entry), or
-      // a flat { role, content }.
-      const msg = (ev && ev.message) || ev;
+      const msg = extractMessage(ev);
       if (!msg || msg.role !== 'user') continue;
       const c = msg.content;
       const text = typeof c === 'string'
         ? c
         : Array.isArray(c)
-          ? c.filter((p) => p && (p.type === 'text' || typeof p.text === 'string')).map((p) => p.text || '').join('\n')
+          ? c.filter((p) => p && (p.type === 'text' || p.type === 'input_text' || typeof p.text === 'string')).map((p) => p.text || '').join('\n')
           : '';
       if (text && text.trim() && !isSelfEcho(text)) user = text;
     }

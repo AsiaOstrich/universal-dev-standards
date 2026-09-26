@@ -17,6 +17,12 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **`uds uninstall` 從未移除 `installHooks()`／`installCodexHooks()`／`installGeminiHooks()` 寫入的關卡——不只是 Codex 與 Gemini CLI（6.13.0-beta.1 記載的已知限制），Claude Code 自己的 `.claude/settings.json` 也有一模一樣的缺口，而且從未被記錄過。** `hooks` 這個 uninstall 分類原本只處理 `.husky/pre-commit` 與 `.git/hooks/pre-commit`；三支安裝函式實際寫入的設定檔完全沒有任何 uninstaller 在管，導致每一個關卡在 `uds uninstall` 之後仍持續執行。新增的 `uninstallClaudeCodeHooks`／`uninstallCodexHooks`／`uninstallGeminiHooks`（`src/uninstallers/hook-uninstaller.js`）現在會精準移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡 UDS 安裝的項目——辨識依據是指令路徑**加上**一份 UDS 目前確實有出貨的腳本檔名清單，不是只看路徑，這樣使用者自己放進 UDS 同一個 `scripts/hooks/` 目錄底下的 hook 就不會被誤刪。移除後變空的事件陣列會一併從設定裡移除；設定檔若因此變成完全空的物件（代表整份都是 UDS 寫入的）就直接刪除檔案，否則保留檔案並寫回其餘內容。JSON 格式損壞時回報錯誤並保持原樣，不會覆寫。已接入 `uds uninstall` 既有的 `hooks` 分類、`--dry-run` 預覽，以及互動選單裡該分類的說明文字。
+- **Codex 轉接層的 R9 豁免（「使用者叫停就放行」）在真實 Codex 安裝上從未真的生效過——`scripts/hooks/check-turn-completion-codex.mjs` 的 `bestEffortLastUserMessage()` 試過的兩種紀錄形狀都讀不到欄位。** 已對真實 codex-cli 0.156.1 的 `~/.codex/sessions/**/*.jsonl` 逐字稿坐實：一則使用者訊息紀錄長這樣——`{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":...}]}}`——訊息住在 `payload` 底下，不在該筆紀錄最外層、也不在 `message` 鍵底下，所以那個欄位一直被讀成不存在，R9 從未真的豁免過任何一輪 Codex 回合。現在優先讀 `payload.type === "message"`（其餘紀錄型別若剛好用到原本那兩種形狀仍保留為後備），一併支援 `input_text` 內容項目（與既有的 `text` 形狀並存），且不把 `role: "developer"` 的紀錄當成使用者訊息。`core/turn-completion-integrity.md`「支援的執行環境」一節與 `docs/PRE-RELEASE.md` 已從「未對照真實安裝驗證過」更新為已坐實的真實形狀。
+- **R9 的 zh-TW 叫停偵測漏掉「要離開、稍後再續」這一族——已實測：「我要出門了，等我回來再繼續」在 2026-09-25 真的誤擋了一次 Claude Code 的回合完成關卡。** 這句與「暫停，我要出門」都沒有被既有的任何一支 `STOP_REQUEST` 樣式接住。新增兩支窄樣式：離開類詞（出門／離開一下／先走）必須跟「稍後再續」類詞（等我回來／回來再／明天再／晚點再／待會再）或裸的「暫停」同時出現在同一小段裡——單獨的離開詞（例如「出門前把這三件做完」，這是要求離開前做完，不是叫停）語料仍必須判 false。順手查了 en 語料包有沒有一樣的缺口，發現 `\bI'?m (heading|going) (home|out)\b` 是永遠打不中的死碼：`isStopRequest()` 一律先呼叫 `normalize()`，會把 "I'm" 改寫成 "I am"，只認縮寫形的樣式因此永遠配不到；已修成 `I(?:'m| am) (heading|going) (home|out)`，坐實裸的 "I'm heading out." 修前為 false、修後為 true。
+
 ## [6.13.0-beta.1] - 2026-09-26
 
 > **測試版** — 以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、已知限制、如何退回正式版：見 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。已知限制：`uds uninstall` 尚不會移除 Codex／Gemini CLI 設定裡的關卡。
