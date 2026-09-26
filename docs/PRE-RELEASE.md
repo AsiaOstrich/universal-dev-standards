@@ -36,8 +36,8 @@ It is rewritten for **each** beta — the section "Current beta" always describe
   關卡靠讀文字判斷，只支援英文與繁中；其他語言會明確告知不生效。
 - **Cursor** and other tools are not covered by the turn-completion hook in this beta.
   Cursor 與其他工具這一版不支援該關卡。
-- **Codex: "I asked you to stop" is best-effort.** Codex's Stop input does not include your last message, so the exemption reads the transcript file, whose exact format has not been verified against a real Codex install. Please report any turn that was blocked after you asked to stop.
-  Codex 的「使用者叫停就放行」是盡力而為：Codex 不直接提供你的最後一則訊息，要讀逐字稿檔，而其格式尚未在真實 Codex 安裝上驗證過。請回報「已叫停仍被擋」的情況。
+- **Codex: "I asked you to stop" did not work in 6.13.0-beta.1 — it read the wrong field and never exempted a turn.** The transcript format has now been checked against a real codex-cli 0.156.1 install and the adapter fixed for 6.13.0-beta.2. Please still report any turn that was blocked after you asked to stop.
+  Codex 的「使用者叫停就放行」在 6.13.0-beta.1 沒有生效——讀錯了欄位，從未真的豁免過任何一輪。逐字稿格式已對照真實 codex-cli 0.156.1 安裝核對，並在 6.13.0-beta.2 修正轉接層。仍請回報「已叫停卻被擋」的情況。
 - **From 6.13.0-beta.2, `uds uninstall` also removes the hook entries from `.claude/settings.json`, `.codex/hooks.json` and `.gemini/settings.json`. In 6.13.0-beta.1, remove them by hand** (see *Going back to stable*).
   從 6.13.0-beta.2 起，`uds uninstall` 會一併移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡的關卡項目。**6.13.0-beta.1 請手動刪除**（見「退回正式版」）。
 - A zh-TW promise phrased without a recognised action verb (e.g.「改好後，我接著推上去」) is still not caught — this gap predates this beta.

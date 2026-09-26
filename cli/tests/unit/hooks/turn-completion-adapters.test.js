@@ -14,7 +14,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'child_process';
-import { mkdtempSync, rmSync } from 'fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
@@ -99,6 +99,95 @@ describe('turn-completion-integrity: Codex adapter', () => {
       stop_hook_active: true,
     });
     expect(out.decision).toBeUndefined();
+  });
+
+  // 2026-09-26: bestEffortLastUserMessage() only ever tried
+  // { message: { role, content } } or a flat { role, content } — neither
+  // shape a real codex-cli 0.156.1 rollout.jsonl uses, so R9 (a user-directed
+  // stop exempts the turn) never fired against a real Codex install. The real
+  // shape, confirmed against an actual ~/.codex/sessions/**/*.jsonl file, is
+  // { type: "response_item", payload: { type: "message", role, content:
+  // [{ type: "input_text", text }] } }. These three tests write a transcript
+  // in that exact real shape, mixed in with other record types a rollout
+  // actually contains (event_msg, token_usage_record, session_meta,
+  // world_state, a non-message response_item), to prove the fix reads past
+  // all of them to find the real last user message.
+  describe('R9 against a real codex-cli rollout.jsonl shape', () => {
+    // Stop phrase reused from the Gemini adapter's own R9 test below and from
+    // the en pack's corpus (locales/en.mjs) rather than a fresh one like
+    // "pause, I'm heading out": that phrasing does NOT fire isStopRequest(),
+    // because normalize() rewrites "I'm" to "I am" before STOP_REQUEST (which
+    // still expects the contracted "I'm") is tested against it — a pre-existing
+    // mismatch between normalize() and STOP_REQUEST, out of scope for this fix.
+    // "Let's pause here, ..." matches on the separate `let's (stop|pause|...)`
+    // branch, which normalize() does not touch, so it is unaffected by that gap.
+
+    /** Write a rollout.jsonl with the given ordered list of user message texts, interleaved with noise records. */
+    function writeRollout(path, userTexts) {
+      const lines = [
+        { type: 'session_meta', payload: { id: 'sess-1', timestamp: '2026-09-26T00:00:00Z' } },
+        { type: 'response_item', payload: { type: 'reasoning', content: [] } },
+        { type: 'event_msg', payload: { type: 'agent_message', message: 'working on it' } },
+        { type: 'token_usage_record', payload: { total_tokens: 123 } },
+        { type: 'world_state', payload: {} },
+        // A developer-role message must NOT be read as a user message.
+        { type: 'response_item', payload: { type: 'message', role: 'developer', content: [{ type: 'input_text', text: "Let's pause here, I'm heading home." }] } },
+        ...userTexts.map((text) => ({
+          type: 'response_item',
+          payload: { type: 'message', role: 'user', content: [{ type: 'input_text', text }] },
+        })),
+        { type: 'response_item', payload: { type: 'custom_tool_call', name: 'do_thing' } },
+      ];
+      writeFileSync(path, lines.map((l) => JSON.stringify(l)).join('\n') + '\n');
+    }
+
+    it('has an unkept commitment and the real last user message asked to stop → allowed', () => {
+      const transcriptPath = join(stateDir, 'rollout-stop.jsonl');
+      writeRollout(transcriptPath, ['go ahead and refactor the parser', "Let's pause here, I'm heading home."]);
+
+      const out = runAdapter(CODEX_ADAPTER, {
+        session_id: randomUUID(),
+        last_assistant_message: 'The remaining two items I will do next.',
+        transcript_path: transcriptPath,
+        stop_hook_active: false,
+      });
+
+      expect(out.decision).toBeUndefined();
+    });
+
+    it('same shape, real last user message did NOT ask to stop → still blocks', () => {
+      const transcriptPath = join(stateDir, 'rollout-no-stop.jsonl');
+      writeRollout(transcriptPath, ['go ahead and refactor the parser', 'sounds good, go ahead']);
+
+      const out = runAdapter(CODEX_ADAPTER, {
+        session_id: randomUUID(),
+        last_assistant_message: 'The remaining two items I will do next.',
+        transcript_path: transcriptPath,
+        stop_hook_active: false,
+      });
+
+      expect(out.decision).toBe('block');
+    });
+
+    it('a role:"developer" message alone (no role:"user" message at all) is not read as a user stop request → still blocks', () => {
+      const transcriptPath = join(stateDir, 'rollout-developer-only.jsonl');
+      writeRollout(transcriptPath, []); // no user-role message; only the developer-role one baked into writeRollout
+
+      const out = runAdapter(CODEX_ADAPTER, {
+        session_id: randomUUID(),
+        last_assistant_message: 'The remaining two items I will do next.',
+        transcript_path: transcriptPath,
+        stop_hook_active: false,
+      });
+
+      expect(out.decision).toBe('block');
+    });
+
+    // Mutation check (verified by hand, then reverted — see commit/handback
+    // notes): with extractMessage()'s `ev.payload` branch removed, the "asked
+    // to stop → allowed" test above goes red (block instead of undefined),
+    // confirming it actually exercises the real codex-cli shape and not just
+    // whatever fallback happened to already work.
   });
 });
 

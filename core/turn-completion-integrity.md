@@ -159,10 +159,18 @@ actually wired into that harness's own config. As of v1.4.0:
 
 Codex's R9 exemption is best-effort, not silent failure: Codex's Stop payload
 gives the assistant's final message directly but not the human's, so reading
-the human side requires parsing a transcript file whose exact schema was not
-confirmed against a real installation at the time this table was written. A
-failed parse leaves the human side empty — detection still runs on the
-assistant's message, only the R9 exemption for that one turn may be missed.
+the human side requires parsing a transcript file. Confirmed against a real
+codex-cli 0.156.1 installation (2026-09-26): a user message in
+`~/.codex/sessions/**/*.jsonl` is a `{"type":"response_item","payload":
+{"type":"message","role":"user","content":[{"type":"input_text","text":...}]}}`
+record — the message lives under `payload`, not at the top level of the
+line or under a `message` key, and a `role: "developer"` record on the same
+shape is not a human message. The 6.13.0-beta.1 adapter read neither of the
+two shapes it tried against this real one, so R9 never exempted a turn on
+Codex; fixed for 6.13.0-beta.2. A failed parse (or an unrecognized record
+shape) still leaves the human side empty rather than throwing — detection
+still runs on the assistant's message, only the R9 exemption for that one
+turn may be missed.
 
 Cursor was evaluated and is not supported: whether its stop hook can actually
 block a turn in the way this standard requires was unresolved as of this
