@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.13.0-beta.1
-translation_version: 6.13.0-beta.1
-last_synced: 2026-09-25
+source_version: 6.13.0-beta.2
+translation_version: 6.13.0-beta.2
+last_synced: 2026-09-26
 status: current
 ---
 
@@ -16,6 +16,10 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.13.0-beta.2] - 2026-09-26
+
+> **测试版** — 以 `npm install -g universal-dev-standards@beta` 安装。要测什么、已知限制、如何退回正式版：见 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
 
 ### 修复
 

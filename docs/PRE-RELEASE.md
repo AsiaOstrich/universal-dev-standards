@@ -9,7 +9,10 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.13.0-beta.1`
+## Current beta | 目前的測試版：`6.13.0-beta.2`
+
+> **New in beta.2** — `uds uninstall` now removes the UDS hook entries from Claude Code, Codex and Gemini CLI settings; the Codex "I asked you to stop" exemption now works (beta.1 read the wrong field); "I'm heading out, let's continue when I'm back" style phrases now count as a stop request (zh-TW and en).
+> **beta.2 新增** — `uds uninstall` 會移除 Claude Code、Codex、Gemini CLI 設定裡的 UDS 關卡；Codex 上「你叫它停就放行」現在生效（beta.1 讀錯欄位）；「我要出門了，等我回來再繼續」這類說法現在算叫停（繁中與英文）。
 
 ### What is in it | 這一版有什麼
 
