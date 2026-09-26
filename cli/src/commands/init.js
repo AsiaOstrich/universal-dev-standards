@@ -28,7 +28,7 @@ import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
 import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
-import { wireGitHooksPath, getLocalHooksPathConfig } from '../utils/git-hooks.js';
+import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine } from '../utils/git-hooks.js';
 
 /**
  * Init command - initialize standards in current project
@@ -434,18 +434,42 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
       // propagates its exit code, on this platform, once it is on git's hooks path —
       // see step 5. Existing files are appended to, never rewritten — their contents
       // are the adopter's, not ours.
-      const content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
+      let content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
 
-      if (!content.includes('uds check')) {
+      // A pre-existing file may still carry husky v8's `_/husky.sh` sourcing
+      // line (adopted before v9, or before this fix). That line references a
+      // directory (`.husky/_/`) that only exists after husky's OWN bootstrap
+      // has run — but step 5 below wires `core.hooksPath` straight at
+      // `.husky`, so git executes THIS FILE directly. Left in place, that
+      // line would make every commit fail with "No such file or directory" —
+      // strictly worse than the original defect (verified against a real
+      // adopter's exact legacy template, 2026-09-27). Rewrite it away rather
+      // than appending alongside it; everything else — the adopter's own
+      // commands, an existing `uds check` line — is preserved as-is.
+      const { content: destripped, removed: hadLegacyLine } = stripLegacyHuskyShLine(content);
+      content = destripped;
+
+      const needsAppend = !content.includes('uds check');
+      if (needsAppend) {
         const sep = content && !content.endsWith('\n') ? '\n' : '';
-        writeFileSync(preCommitPath, `${content}${sep}\n# UDS Standard Check\n${udsCmd}\n`, 'utf-8');
+        content = `${content}${sep}\n# UDS Standard Check\n${udsCmd}\n`;
+      }
+
+      if (hadLegacyLine || needsAppend) {
+        writeFileSync(preCommitPath, content, 'utf-8');
         try {
           execSync(`chmod +x ${preCommitPath}`);
         } catch {
           // Ignore chmod failures on systems that don't support it
         }
+      }
+
+      if (hadLegacyLine) {
+        console.log(chalk.yellow('  ⚠ Rewrote legacy husky v8 template: removed `_/husky.sh` sourcing (that directory only exists after husky\'s own bootstrap runs; git now executes this file directly, so that line would have failed every commit).'));
+      }
+      if (needsAppend) {
         console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));
-      } else {
+      } else if (!hadLegacyLine) {
         console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
       }
     } catch (e) {

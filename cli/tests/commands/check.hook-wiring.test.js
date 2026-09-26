@@ -48,6 +48,15 @@ function writeHuskyHook() {
   chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
 }
 
+function writeLegacyHuskyHook() {
+  mkdirSync(join(dir, '.husky'), { recursive: true });
+  writeFileSync(
+    join(dir, '.husky', 'pre-commit'),
+    '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\n# UDS Standard Check\nnpx uds check\n'
+  );
+  chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
+}
+
 describe('checkPreCommitWiring', () => {
   it('is silent when nothing UDS-managed is installed', () => {
     checkPreCommitWiring(dir, msg);
@@ -80,13 +89,37 @@ describe('checkPreCommitWiring', () => {
   });
 
   it('flags legacy husky v8 syntax with a removal hint', () => {
-    mkdirSync(join(dir, '.husky'), { recursive: true });
-    writeFileSync(
-      join(dir, '.husky', 'pre-commit'),
-      '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\n# UDS Standard Check\nnpx uds check\n'
-    );
+    writeLegacyHuskyHook();
     checkPreCommitWiring(dir, msg);
     const out = logs.join('\n');
+    expect(out).toMatch(/husky\.sh/);
+  });
+
+  // Regression for the 2026-09-27 real-world incident: a dispatched agent's
+  // fix told adopters to run `git config --local core.hooksPath .husky`.
+  // Followed literally on a real adopter's legacy `.husky/pre-commit` (still
+  // sourcing `_/husky.sh`), that single instruction made git execute the file
+  // directly and fail EVERY commit with "No such file or directory" — worse
+  // than the original defect. The advice for a legacy template must never be
+  // "just set hooksPath" in isolation; it must say to remove the `_/husky.sh`
+  // line FIRST.
+  it('never suggests hooksPath alone for a legacy template (hooksPath unset)', () => {
+    writeLegacyHuskyHook();
+    checkPreCommitWiring(dir, msg);
+    const out = logs.join('\n');
+    // The plain, non-legacy fix message must not appear in isolation.
+    expect(out).not.toContain('Fix (per-clone');
+    // The combined instruction must mention removing the line, in order,
+    // before the hooksPath command.
+    expect(out).toMatch(/\(1\)[\s\S]*_\/husky\.sh[\s\S]*\(2\)[\s\S]*core\.hooksPath \.husky/);
+  });
+
+  it('also warns about the legacy line when core.hooksPath is overridden elsewhere', () => {
+    writeLegacyHuskyHook();
+    git('config --local core.hooksPath tools/hooks');
+    checkPreCommitWiring(dir, msg);
+    const out = logs.join('\n');
+    expect(out).toContain('tools/hooks');
     expect(out).toMatch(/husky\.sh/);
   });
 

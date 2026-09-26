@@ -136,6 +136,41 @@ function hasUdsMarker(filePath) {
 }
 
 /**
+ * husky v8's `_/husky.sh` sourcing line — the exact shape husky itself
+ * generated before v9 (`. "$(dirname -- "$0")/_/husky.sh"`, with minor
+ * `dirname` argument variations). The directory it sources (`.husky/_/`)
+ * only exists after husky's OWN bootstrap has actually run; once git
+ * executes the hook file directly — which `wireGitHooksPath` above makes it
+ * do, by pointing `core.hooksPath` straight at `.husky` instead of at
+ * husky's shim — a hook still carrying this line fails on EVERY commit with
+ * "No such file or directory", worse than the original defect. Verified
+ * against a real adopter's exact legacy template after following the
+ * hooksPath-only advice this module used to give (2026-09-27).
+ *
+ * Shared by the detector (checkPreCommitHookWiring, below) and the writer
+ * (setupHuskyHook's rewrite step, init.js) so they can never disagree on
+ * what counts as this line.
+ */
+export const LEGACY_HUSKY_SH_LINE = /^\s*(\.|source)\s+.*_\/husky\.sh["']?\s*$/;
+
+/** Does `content` contain husky v8's `_/husky.sh` sourcing line? */
+export function hasLegacyHuskyShLine(content) {
+  return content.split('\n').some((line) => LEGACY_HUSKY_SH_LINE.test(line));
+}
+
+/**
+ * Remove husky v8's `_/husky.sh` sourcing line from `content`, if present.
+ * Everything else — the adopter's own commands, an existing `uds check`
+ * line, a shebang — is left exactly as it was, in its original order.
+ * @returns {{content: string, removed: boolean}}
+ */
+export function stripLegacyHuskyShLine(content) {
+  const lines = content.split('\n');
+  const kept = lines.filter((line) => !LEGACY_HUSKY_SH_LINE.test(line));
+  return { content: kept.join('\n'), removed: kept.length !== lines.length };
+}
+
+/**
  * Read-only detector for `uds check`: a UDS-managed pre-commit hook file
  * exists, but is it actually on git's execution path?
  *
@@ -186,7 +221,7 @@ export function checkPreCommitHookWiring(projectPath) {
 
   const hookFile = hasHuskyHook ? '.husky/pre-commit' : '.git/hooks/pre-commit';
   const legacyV8 = hasHuskyHook && (() => {
-    try { return readFileSync(huskyHookPath, 'utf-8').includes('husky.sh'); } catch { return false; }
+    try { return hasLegacyHuskyShLine(readFileSync(huskyHookPath, 'utf-8')); } catch { return false; }
   })();
 
   return {

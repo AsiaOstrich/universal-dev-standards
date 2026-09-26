@@ -1287,14 +1287,24 @@ export function checkPreCommitWiring(projectPath, msg) {
   if (result.configuredHooksPath) {
     const key = result.hookFile === '.git/hooks/pre-commit' ? 'hookNotWiredFixNative' : 'hookNotWiredOverride';
     console.log(chalk.gray((msg[key] || '').replace('{path}', result.configuredHooksPath)));
+    // 🔴 legacy 舊範本即使在 override 分支也要提醒——一旦使用者照上面那行改用
+    // .husky，同一個 `_/husky.sh` 陷阱一樣會炸。絕不能只在「非 override」分支講。
+    if (result.legacyV8) {
+      console.log(chalk.gray((msg.hookNotWiredLegacyV8Fix || '').replace(/\{file\}/g, result.hookFile)));
+    }
+  } else if (result.legacyV8) {
+    // 🔴 這是 2026-09-27 的實測教訓：舊 husky v8 範本（含 `_/husky.sh` source
+    // 那一行）若只給「設定 core.hooksPath」這個修法，使用者照做後 git 會直接
+    // 執行這個檔案、卡死在那一行、每次 commit 都失敗——比原本的缺陷更糟。
+    // 這裡絕不能退化成只印 hookNotWiredFix；一定要用把「先刪行、再設定」
+    // 兩步講完整的版本。`uds init` 對已初始化專案會直接拒絕執行，修不了這個，
+    // 所以這裡的文字必須自己講完整，不能叫使用者去跑別的指令。
+    console.log(chalk.gray((msg.hookNotWiredFixLegacy || '').replace(/\{file\}/g, result.hookFile)));
   } else {
     console.log(chalk.gray((msg.hookNotWiredUnwired || '').replace('{file}', result.hookFile)));
     console.log(chalk.gray(msg.hookNotWiredFix || ''));
   }
 
-  if (result.legacyV8) {
-    console.log(chalk.gray(msg.hookNotWiredLegacyV8 || ''));
-  }
   console.log();
 }
 

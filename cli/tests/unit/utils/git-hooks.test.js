@@ -15,7 +15,7 @@
  * so results do not depend on the machine running the tests.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, chmodSync } from 'fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, chmodSync } from 'fs';
 import { execSync } from 'child_process';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -23,7 +23,9 @@ import {
   getLocalHooksPathConfig,
   getEffectiveHooksDir,
   wireGitHooksPath,
-  checkPreCommitHookWiring
+  checkPreCommitHookWiring,
+  hasLegacyHuskyShLine,
+  stripLegacyHuskyShLine
 } from '../../../src/utils/git-hooks.js';
 
 let dir;
@@ -191,5 +193,74 @@ describe('checkPreCommitHookWiring', () => {
     chmodSync(join(dir, '.git', 'hooks', 'pre-commit'), 0o755);
     const result = checkPreCommitHookWiring(dir);
     expect(result.wired).toBe(true);
+  });
+});
+
+describe('stripLegacyHuskyShLine / hasLegacyHuskyShLine', () => {
+  it('detects the exact husky v8 sourcing line', () => {
+    expect(hasLegacyHuskyShLine('#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n')).toBe(true);
+  });
+
+  it('does not false-positive on ordinary content', () => {
+    expect(hasLegacyHuskyShLine('# UDS Standard Check\nnpx uds check\n')).toBe(false);
+  });
+
+  it('removes only the sourcing line, keeping everything else in order', () => {
+    const before = '#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\nnpm run lint\n# UDS Standard Check\nnpx uds check\n';
+    const { content, removed } = stripLegacyHuskyShLine(before);
+    expect(removed).toBe(true);
+    expect(content).not.toMatch(/_\/husky\.sh/);
+    expect(content).toContain('#!/usr/bin/env sh');
+    expect(content).toContain('npm run lint');
+    expect(content).toContain('npx uds check');
+  });
+
+  it('is a no-op when the line is not present', () => {
+    const before = '# UDS Standard Check\nnpx uds check\n';
+    const { content, removed } = stripLegacyHuskyShLine(before);
+    expect(removed).toBe(false);
+    expect(content).toBe(before);
+  });
+});
+
+describe('real-world incident reproduction (2026-09-27): hooksPath alone on a legacy template breaks every commit', () => {
+  function commitCmd(message) {
+    return `-c user.name=t -c user.email=t@t.com commit -q --allow-empty -m ${message}`;
+  }
+
+  it('following the hooksPath-only fix on a legacy template makes git commit fail', () => {
+    initRepo();
+    git(commitCmd('init'));
+    writeHuskyHook('#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\n# UDS Standard Check\nnpx uds check\n');
+
+    // This is exactly the advice `uds check` used to give in isolation.
+    wireGitHooksPath(dir, '.husky');
+
+    const before = git('log --oneline').trim().split('\n').filter(Boolean).length;
+    let failed = false;
+    let stderr = '';
+    try {
+      git(commitCmd('test'));
+    } catch (e) {
+      failed = true;
+      stderr = String(e.stderr || e.message || '');
+    }
+    expect(failed).toBe(true);
+    expect(stderr).toMatch(/No such file or directory/);
+    const after = git('log --oneline').trim().split('\n').filter(Boolean).length;
+    expect(after).toBe(before);
+  });
+
+  it('removing the legacy line first, then wiring hooksPath, lets the commit succeed', () => {
+    initRepo();
+    git(commitCmd('init'));
+    writeHuskyHook('#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\n# UDS Standard Check\nnpx uds check\n');
+
+    const raw = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
+    const { content } = stripLegacyHuskyShLine(raw);
+    writeFileSync(join(dir, '.husky', 'pre-commit'), content);
+    wireGitHooksPath(dir, '.husky');
+
+    expect(() => git(commitCmd('test'))).not.toThrow();
   });
 });
