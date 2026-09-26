@@ -115,9 +115,18 @@ export function isAsking(text) {
  * here disables the check for the rest of the session, which is worse than a
  * missed block. It must read as an instruction to stop, not a mention of
  * stopping.
+ *
+ * 🔴 2026-09-27: `\bI'?m (heading|going) (home|out)\b` was dead code — it can
+ * never match, because isStopRequest() always calls normalize() first, and
+ * normalize() rewrites "I'm" to "I am" before this pattern ever sees the
+ * text (`\bI'll\b` -> "I will" etc. have the same shape, but no other branch
+ * here depended on the contracted form surviving normalize()). Verified: a
+ * bare "I'm heading out." tested false pre-fix, true once the pattern
+ * accounts for the post-normalize "I am" form. Written to match either form
+ * defensively, in case normalize()'s rewrite list ever changes.
  */
 const STOP_REQUEST =
-  /(\blet's (stop|pause|pick this up later)\b|\b(pause|stop) (here|for now|there)\b|\bhold (on|off)\b|\bthat's (enough|it) for (now|today)\b|\b(done|enough) for (now|today)\b|\bwrap (it |this )?up\b|\bcontinue (this )?later\b|\bpick (this|it) up (tomorrow|later)\b|\btake a break\b|\bI'?m (heading|going) (home|out)\b|\bgood ?night\b)/i;
+  /(\blet's (stop|pause|pick this up later)\b|\b(pause|stop) (here|for now|there)\b|\bhold (on|off)\b|\bthat's (enough|it) for (now|today)\b|\b(done|enough) for (now|today)\b|\bwrap (it |this )?up\b|\bcontinue (this )?later\b|\bpick (this|it) up (tomorrow|later)\b|\btake a break\b|\bI(?:'m| am) (heading|going) (home|out)\b|\bgood ?night\b)/i;
 
 export function isStopRequest(text) {
   return STOP_REQUEST.test(normalize(text));
@@ -184,4 +193,15 @@ export const stopCorpus = [
   [false, 'mentions stopping but is not one', 'Explain why the hook stops the turn.'],
   [false, 'asks for work', 'Stop using the hardcoded list and walk the registry instead.'],
   [false, 'ordinary instruction', 'Fix the detector and push it.'],
+  // 🔴 the "I'm heading (home|out)" branch above was dead code before this
+  // fix — normalize() rewrites "I'm" to "I am" before the pattern is tested,
+  // and the pattern required the contracted form. This case exercises it
+  // directly (no "let's pause"/"hold on" alongside it, unlike the two cases
+  // above that already passed for a different reason).
+  [true, "bare 'heading out', no other stop phrase nearby", "I'm heading out."],
+  [false, 'a leaving verb alone is an instruction to finish something BEFORE leaving, not a stop request', 'Before I head out, please finish the migration.'],
 ];
+// Mutation check (verified by hand, then reverted — see commit/handback
+// notes): reverting STOP_REQUEST's `I(?:'m| am)` back to the dead-code
+// `I'?m`-only form turns the "bare 'heading out'" case above false, which
+// fails `--self-test`.
