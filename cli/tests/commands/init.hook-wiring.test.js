@@ -182,6 +182,89 @@ describe('setupHuskyHook — Node project, the wiring actually runs', () => {
   });
 });
 
+describe('setupHuskyHook — rewrites a legacy husky v8 template (2026-09-27 regression)', () => {
+  // A dispatched agent's fix told adopters with an existing `.husky/pre-commit`
+  // to run `git config --local core.hooksPath .husky`. On a real adopter's
+  // legacy template (still sourcing `_/husky.sh`, from before husky v9 / this
+  // fix), following that advice made git execute the file directly and fail
+  // EVERY commit with "No such file or directory" — worse than the original
+  // defect. `setupHuskyHook` must rewrite the legacy line away, not wire
+  // hooksPath alongside it.
+  function writeLegacyHook(extraLine = '') {
+    mkdirSync(join(dir, '.husky'), { recursive: true });
+    writeFileSync(
+      join(dir, '.husky', 'pre-commit'),
+      `#!/usr/bin/env sh\n. "$(dirname -- "$0")/_/husky.sh"\n\n${extraLine ? extraLine + '\n' : ''}# UDS Standard Check\nnpx uds check\n`
+    );
+    chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
+  }
+
+  it('removes the `_/husky.sh` line and a real commit succeeds and actually runs the hook', async () => {
+    initRepo();
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({
+      name: 'fixture', version: '1.0.0', devDependencies: { husky: '^9.1.7' }
+    }));
+    writeLegacyHook();
+
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    const rewritten = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
+    expect(rewritten).not.toMatch(/_\/husky\.sh/);
+    expect(getLocalHooksPathConfig(dir)).toBe('.husky');
+
+    // Prove it with a real commit, not just file content: swap in a marker
+    // script (never let the real `npx uds check` run here) and commit.
+    replaceWithMarkerScript(join(dir, '.husky', 'pre-commit'));
+    let threw = false;
+    let stderr = '';
+    try {
+      commit();
+    } catch (e) {
+      threw = true;
+      stderr = String(e.stderr || e.message || '');
+    }
+    expect(threw).toBe(false);
+    expect(stderr).not.toMatch(/No such file or directory/);
+    expect(markerExists()).toBe(true);
+  });
+
+  it('preserves the adopter\'s own line while removing only the legacy sourcing line', async () => {
+    initRepo();
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({
+      name: 'fixture', version: '1.0.0', devDependencies: { husky: '^9.1.7' }
+    }));
+    writeLegacyHook('npm run lint');
+
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    const rewritten = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
+    expect(rewritten).not.toMatch(/_\/husky\.sh/);
+    expect(rewritten).toContain('npm run lint');
+    expect(rewritten).toContain('npx uds check');
+
+    // A real commit must succeed — the adopter's own command must not break
+    // it either (it's a real, if trivial, command in this fixture project).
+    let threw = false;
+    try { commit(); } catch { threw = true; }
+    expect(threw).toBe(false);
+  });
+
+  it('is idempotent: running twice does not reintroduce or duplicate anything', async () => {
+    initRepo();
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({
+      name: 'fixture', version: '1.0.0', devDependencies: { husky: '^9.1.7' }
+    }));
+    writeLegacyHook();
+
+    await setupHuskyHook(dir, { allowInTest: true });
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    const rewritten = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
+    expect(rewritten).not.toMatch(/_\/husky\.sh/);
+    expect(rewritten.match(/npx uds check/g)).toHaveLength(1);
+  });
+});
+
 describe('setupHuskyHook — non-Node project, native hook actually runs', () => {
   it('writes an executable .git/hooks/pre-commit that git actually runs', async () => {
     initRepo();
