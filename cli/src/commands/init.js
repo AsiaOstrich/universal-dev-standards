@@ -28,6 +28,7 @@ import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
 import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
+import { wireGitHooksPath, getLocalHooksPathConfig } from '../utils/git-hooks.js';
 
 /**
  * Init command - initialize standards in current project
@@ -339,32 +340,42 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
   const isNodeProject = existsSync(join(projectPath, 'package.json'));
 
   if (isNodeProject) {
-    console.log(chalk.cyan('Configuring Pre-commit Hook (Husky)...'));
+    console.log(chalk.cyan('Configuring Pre-commit Hook...'));
 
     // Every edit we make to the adopter's package.json, reported at the end.
     // `uds init` writes ~70 files; a one-line change to package.json is invisible
     // in that diff unless we say it out loud (XSPEC-341 R1).
     const pkgChanges = [];
+    const pkgPath = join(projectPath, 'package.json');
 
-    // 1. Install husky if needed
+    // 1. Do NOT install husky, and do NOT touch package.json's dependencies.
+    //
+    // This used to run `npm install --save-dev husky` here. Installing a
+    // package for the adopter is not this command's call to make, and — the
+    // actual bug this fix addresses — the wiring that install produced only
+    // took effect the NEXT time `npm install` ran husky's own `prepare`
+    // script. If node_modules already existed, that install never ran again,
+    // and the hook this function writes below was never executed by git.
+    // Verified against three real adopters (asiaostrich-telemetry-server,
+    // asiaostrich-telemetry-client, machine-setup, 2026-09-26): all three
+    // have `.husky/pre-commit` calling `npx uds check`, none has
+    // `core.hooksPath` set, and the check has never once run on commit.
+    //
+    // Whether husky is installed is the adopter's own decision. Step 5 below
+    // wires git directly and works with or without it.
+    let hasHusky = false;
     try {
-      const pkgPath = join(projectPath, 'package.json');
       const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-      const hasHusky = pkg.devDependencies?.husky || pkg.dependencies?.husky;
-
-      if (!hasHusky) {
-        console.log(chalk.gray('  Installing husky...'));
-        // stdio: 'pipe' rather than 'ignore' — the error text belongs in the
-        // message below, not in /dev/null.
-        execSync('npm install --save-dev husky', { stdio: 'pipe', cwd: projectPath });
-        pkgChanges.push('devDependencies.husky — added');
-      }
+      hasHusky = Boolean(pkg.devDependencies?.husky || pkg.dependencies?.husky);
     } catch (e) {
-      console.log(chalk.yellow(`  ⚠ Failed to check/install husky: ${e.message}`));
-      return;
+      console.log(chalk.yellow(`  ⚠ Failed to read package.json: ${e.message}`));
     }
 
-    // 2. Wire husky's `prepare` script ourselves.
+    // 2. If the adopter already depends on husky, also chain its `prepare`
+    // script so a future `npm install` keeps husky's own wiring in sync too.
+    // This is belt-and-suspenders — step 5 wires git directly regardless of
+    // whether this succeeds — kept only because an adopter who already uses
+    // husky should not have `npm install` silently stop maintaining it.
     //
     // We deliberately do NOT run `npx husky init` (XSPEC-341 R1). That command is a
     // one-time bootstrap for a NEW project, not an idempotent operation: it sets
@@ -375,30 +386,31 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
     // (It also seeds .husky/pre-commit with `npm test`, a gate the adopter never asked
     // for.) Adopting a standards library must never rewrite the adopter's build.
     const huskyDir = join(projectPath, '.husky');
-    try {
-      const pkgPath = join(projectPath, 'package.json');
-      const raw = readFileSync(pkgPath, 'utf-8');
-      const pkg = JSON.parse(raw);
-      pkg.scripts = pkg.scripts || {};
-      const existing = pkg.scripts.prepare;
+    if (hasHusky) {
+      try {
+        const raw = readFileSync(pkgPath, 'utf-8');
+        const pkg = JSON.parse(raw);
+        pkg.scripts = pkg.scripts || {};
+        const existing = pkg.scripts.prepare;
 
-      if (!existing) {
-        pkg.scripts.prepare = 'husky';
-        pkgChanges.push('scripts.prepare — added: "husky"');
-      } else if (!/\bhusky\b/.test(existing)) {
-        // Chain, never clobber. The adopter's command runs first and keeps its
-        // exit code meaningful.
-        pkg.scripts.prepare = `${existing} && husky`;
-        pkgChanges.push(`scripts.prepare — "${existing}" → "${pkg.scripts.prepare}"`);
-      }
+        if (!existing) {
+          pkg.scripts.prepare = 'husky';
+          pkgChanges.push('scripts.prepare — added: "husky"');
+        } else if (!/\bhusky\b/.test(existing)) {
+          // Chain, never clobber. The adopter's command runs first and keeps its
+          // exit code meaningful.
+          pkg.scripts.prepare = `${existing} && husky`;
+          pkgChanges.push(`scripts.prepare — "${existing}" → "${pkg.scripts.prepare}"`);
+        }
 
-      if (pkg.scripts.prepare !== existing) {
-        // Preserve the file's trailing newline convention.
-        const indent = raw.match(/^\{\n(\s+)"/)?.[1]?.length ?? 2;
-        writeFileSync(pkgPath, JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : ''), 'utf-8');
+        if (pkg.scripts.prepare !== existing) {
+          // Preserve the file's trailing newline convention.
+          const indent = raw.match(/^\{\n(\s+)"/)?.[1]?.length ?? 2;
+          writeFileSync(pkgPath, JSON.stringify(pkg, null, indent) + (raw.endsWith('\n') ? '\n' : ''), 'utf-8');
+        }
+      } catch (e) {
+        console.log(chalk.yellow(`  ⚠ Failed to configure the prepare script: ${e.message}`));
       }
-    } catch (e) {
-      console.log(chalk.yellow(`  ⚠ Failed to configure the prepare script: ${e.message}`));
     }
 
     // 3. Ensure .husky directory exists
@@ -411,15 +423,17 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
       }
     }
 
-    // 4. Add pre-commit hook
+    // 4. Add pre-commit hook content
     const preCommitPath = join(huskyDir, 'pre-commit');
     const udsCmd = 'npx uds check';
 
     try {
       // husky v9 hooks are plain shell scripts: no shebang, no `_/husky.sh` sourcing
-      // (that is v8 syntax, deprecated in v9 and removed in v10). We install husky
-      // ^9, so a fresh hook must be v9-shaped. Existing files are appended to, never
-      // rewritten — their contents are the adopter's, not ours.
+      // (that is v8 syntax, deprecated in v9 and removed in v10). Verified empirically
+      // (2026-09-26): git executes a hook file with no shebang directly and correctly
+      // propagates its exit code, on this platform, once it is on git's hooks path —
+      // see step 5. Existing files are appended to, never rewritten — their contents
+      // are the adopter's, not ours.
       const content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
 
       if (!content.includes('uds check')) {
@@ -438,7 +452,28 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
       console.log(chalk.red(`  ✗ Failed to configure pre-commit hook: ${e.message}`));
     }
 
-    // 5. Say what we changed in their package.json.
+    // 5. Wire git so the hook ACTUALLY runs — this is the fix. Setting
+    // `core.hooksPath` ourselves is what husky's own bootstrap does internally
+    // (verified against husky ^9.1.7's source: `git config core.hooksPath
+    // <dir>/_`, plus a shim under `_/` forwarding to the real script); doing
+    // it directly means the check is live immediately after `uds init`,
+    // whether or not husky is installed or `npm install` ever runs again.
+    // Never overrides an adopter's own `core.hooksPath`, or an existing
+    // native `.git/hooks/pre-commit` (see wireGitHooksPath).
+    const wireResult = wireGitHooksPath(projectPath, '.husky');
+    if (wireResult.wired) {
+      console.log(chalk.green('  ✓ Pre-commit check is active for this clone (git core.hooksPath → .husky)'));
+    } else {
+      console.log(chalk.yellow(`  ⚠ Pre-commit check NOT enabled: ${wireResult.reason}`));
+      console.log(chalk.gray(`    ${wireResult.hint}`));
+    }
+    // `core.hooksPath` is LOCAL git config — it is never committed. This wiring
+    // only applies to this clone; `uds check` reports the gap for anyone who
+    // clones the repo without re-running this step (see
+    // checkPreCommitHookWiring in git-hooks.js / check.js).
+    console.log(chalk.gray('    Note: this is per-clone (git config is not committed) — teammates need to run `uds init` (or the fix above) in their own clone too.'));
+
+    // 6. Say what we changed in their package.json.
     if (pkgChanges.length > 0) {
       console.log(chalk.cyan('  package.json modified:'));
       for (const change of pkgChanges) {
@@ -452,13 +487,34 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
     const hookDir = join(projectPath, '.git', 'hooks');
     const hookPath = join(hookDir, 'pre-commit');
 
+    // git's default hooks directory is `.git/hooks` — but only when
+    // `core.hooksPath` is unset. If the adopter (or another tool) already
+    // points it elsewhere, writing here would produce a file git never looks
+    // at, and `uds init` would report success for a check that never runs.
+    const configuredHooksPath = getLocalHooksPathConfig(projectPath);
+    if (configuredHooksPath) {
+      console.log(chalk.yellow(`  ⚠ Pre-commit check NOT enabled: git core.hooksPath is already set to "${configuredHooksPath}"`));
+      console.log(chalk.gray('    UDS writes to .git/hooks/pre-commit, but git will not look there while core.hooksPath points elsewhere.'));
+      console.log(chalk.gray(`    Add "uds check" to a pre-commit hook under "${configuredHooksPath}" yourself, or: git config --local --unset core.hooksPath`));
+      console.log();
+      return;
+    }
+
     try {
       if (!existsSync(hookDir)) {
         mkdirSync(hookDir, { recursive: true });
       }
 
-      if (existsSync(hookPath) && readFileSync(hookPath, 'utf-8').includes('uds check')) {
-        console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
+      if (existsSync(hookPath)) {
+        const existingContent = readFileSync(hookPath, 'utf-8');
+        if (existingContent.includes('uds check')) {
+          console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
+        } else {
+          // Never clobber an adopter's own hook (this fix — it used to be
+          // overwritten unconditionally here).
+          console.log(chalk.yellow('  ⚠ Pre-commit check NOT enabled: .git/hooks/pre-commit already exists'));
+          console.log(chalk.gray('    UDS will not overwrite it. Add "uds check" to it yourself, or remove it and re-run `uds init`.'));
+        }
       } else {
         const hookContent = `#!/bin/sh
 # UDS pre-commit hook

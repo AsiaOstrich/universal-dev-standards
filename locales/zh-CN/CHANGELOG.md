@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds init` 会写入提交前检查（`.husky/pre-commit`，非 Node 项目则为 `.git/hooks/pre-commit`），却从未确认 git 真的会执行它。** 它依赖 husky 自己的 bootstrap 机制——`npm install` 触发 husky 的 `prepare` script 去设定 `core.hooksPath`——而这个时机只在**下一次** `npm install` 执行时才会发生；如果 `node_modules` 早就存在，这件事就永远不会发生。实测三个既有采用者（asiaostrich-telemetry-server、asiaostrich-telemetry-client、machine-setup，2026-09-26）：三者都有调用 `npx uds check` 的 `.husky/pre-commit`，但 `core.hooksPath` 均未设定，提交时检查从未跑过——而且完全没有任何错误信息。`uds init` 现在不再替用户安装 husky 或改动 package.json 的依赖；改为直接执行 `git config --local core.hooksPath .husky`（与 husky 自己 bootstrap 内部所做的事完全相同），让检查在 `uds init` 执行完就立刻生效，无论 husky 有没有安装。绝不覆盖用户既有的 `core.hooksPath`，或既有的 `.git/hooks/pre-commit`——两者都会被保留原状，并打印信息说明检查**未启用**及原因。非 Node 项目的原生 hook 路径也不再无条件覆写既有的 `.git/hooks/pre-commit`（过去会）。新增 `uds check` 警告 `[pre-commit]`：检测 UDS 写入的检查文件存在，但实际不在 git 真正会执行的路径上（涵盖直接设定、husky 自己的 `<dir>/_` shim 转发、以及原生默认路径三种形状），并附上修复方式——这就是像上述三个既有采用者这样“已经中招”的项目能发现问题的渠道。此警告仅提示、不影响 `uds check --ci` 的退出码，因为这是每个 clone 各自的本机设定落差，不是标准本身不合规。`core.hooksPath` 不会进版控，所以这道启用只对执行 `uds init` 的那个 clone 生效——信息与新警告都会说明这一点。
+
 ## [6.13.0-beta.2] - 2026-09-26
 
 > **测试版** — 以 `npm install -g universal-dev-standards@beta` 安装。要测什么、已知限制、如何退回正式版：见 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

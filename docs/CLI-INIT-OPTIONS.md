@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/docs/CLI-INIT-OPTIONS.md) | [简体中文](../locales/zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **Version**: 3.6.0
-> **Last Updated**: 2026-09-25
+> **Version**: 3.7.0
+> **Last Updated**: 2026-09-26
 
 This document provides detailed explanations for every option in the `uds init` command, including use cases, effects, and recommended choices.
 
@@ -834,6 +834,38 @@ uds init --experimental
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
 | Mode (deprecated) | `-m, --mode` | Installation mode (skills, full) - use `--skills-location` instead |
 | Force overwrite | `-f, --force` | Overwrite existing configuration (used by `uds ai-context init`) |
+
+### Pre-commit Standards Check (git hook wiring)
+
+`uds init` always sets up a `uds check` call on `git commit` — this is not a
+flag, it runs unless the project is not a git repository. It writes into
+`.husky/pre-commit` for a Node.js project (detected by `package.json`) or
+`.git/hooks/pre-commit` otherwise, and then makes sure git will actually run
+it by setting `git config --local core.hooksPath .husky` (or leaving the
+native `.git/hooks` default alone for a non-Node project) — the same thing
+husky's own `npx husky` bootstrap does internally, done directly so the check
+is live immediately, whether or not husky ever ends up installed.
+
+Two things this deliberately never does:
+
+- **Install husky, or touch `package.json`'s dependencies.** Whether husky is
+  a dependency is your call; the wiring above works with or without it. If
+  husky is already a dependency, `uds init` also chains its `prepare` script
+  (`"prepare": "existing && husky"`) so a future `npm install` keeps husky's
+  own bootstrap in sync too — belt-and-suspenders, not load-bearing.
+- **Override your own git hook setup.** If `core.hooksPath` is already set to
+  something else, or `.git/hooks/pre-commit` already exists, `uds init`
+  leaves both untouched and prints that the check is **not enabled**, with
+  the reason and the manual fix.
+
+`git config core.hooksPath` is **local, per-clone configuration — it is never
+committed.** Running `uds init` wires it for the clone you ran it in only;
+anyone else who clones the repository needs to run `uds init` again (or the
+one-line fix `uds check` prints) in their own clone. `uds check` detects a
+`.husky/pre-commit`/`.git/hooks/pre-commit` that exists but is not on git's
+actual execution path — including a project that adopted UDS before this
+fix — and reports it under `[pre-commit]` with the same remedy; this warning
+does not affect `uds check --ci`'s exit code.
 
 ### Enforcement Hooks Beyond Claude Code
 

@@ -45,6 +45,7 @@ import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } from '../lint/i18n.js';
 import { resolveIntegrationFile } from '../core/constants.js';
+import { checkPreCommitHookWiring } from '../utils/git-hooks.js';
 
 /**
  * Display the summary of file integrity status
@@ -508,6 +509,9 @@ export async function checkCommand(options = {}) {
 
   // 錯誤訊息單一出口閘門是否已安裝（只報告，不寫入）
   checkErrorExitGate(projectPath);
+
+  // pre-commit 檢查檔存在，但 git 實際不會執行它（只報告，不寫入 —— 見 checkPreCommitWiring 下方註解）
+  checkPreCommitWiring(projectPath, msg);
 
   // Workflow status
   displayWorkflowStatus(projectPath);
@@ -1249,6 +1253,48 @@ function checkErrorExitGate(projectPath) {
   console.log(chalk.gray('    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——'));
   console.log(chalk.gray('    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。'));
   console.log(chalk.gray('    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。'));
+  console.log();
+}
+
+/**
+ * pre-commit 檢查檔存在，但 git 實際不會執行它：偵測並報告，絕不寫入。
+ *
+ * 🔴 起因：`uds init` 會寫 `.husky/pre-commit`（或非 Node 專案的
+ * `.git/hooks/pre-commit`），但過去從未確認 git 真的會執行它——它依賴 husky
+ * 自己的 bootstrap（`npm install` 觸發 `prepare` script 設定
+ * `core.hooksPath`），而那個時機點如果 `node_modules` 已存在就永遠不會再發生。
+ * 2026-09-26 實測三個既有採用者（asiaostrich-telemetry-server、
+ * asiaostrich-telemetry-client、machine-setup）：三者都有呼叫
+ * `npx uds check` 的 `.husky/pre-commit`，但 `core.hooksPath` 皆未設定，
+ * 提交時檢查從未跑過，且沒有任何錯誤訊息——這正是這道檢查要補上的訊號。
+ *
+ * 只報告不寫入的理由與 checkErrorExitGate 相同：`uds check` 不是使用者同意我們
+ * 動他 git 設定的時刻；真要修，`uds init`（新 clone／尚未跑過）或使用者自己
+ * 手動下指令（既有 clone）才是合適的落筆點。
+ *
+ * 🔴 刻意不影響 `allGood` / `--ci` 的 exit code：這是一個既有裝置的健康度警告
+ * （類似 checkErrorExitGate、checkFullCoverageCompliance 的既有慣例），不是
+ * 標準本身的落差，翻動 exit code 會讓不相關的 CI pipeline 因為一個提交前檢查
+ * 的本機設定而失敗，而那個設定本來就是 per-clone、CI 環境通常另有一套。
+ */
+export function checkPreCommitWiring(projectPath, msg) {
+  const result = checkPreCommitHookWiring(projectPath);
+  if (!result.relevant || result.wired) return; // 沒有 UDS 管理的 hook，或已確認會執行——安靜通過
+
+  console.log(chalk.yellow((msg.hookNotWiredTitle || '⚠ [pre-commit] {file} was installed, but git will not run it.')
+    .replace('{file}', result.hookFile)));
+
+  if (result.configuredHooksPath) {
+    const key = result.hookFile === '.git/hooks/pre-commit' ? 'hookNotWiredFixNative' : 'hookNotWiredOverride';
+    console.log(chalk.gray((msg[key] || '').replace('{path}', result.configuredHooksPath)));
+  } else {
+    console.log(chalk.gray((msg.hookNotWiredUnwired || '').replace('{file}', result.hookFile)));
+    console.log(chalk.gray(msg.hookNotWiredFix || ''));
+  }
+
+  if (result.legacyV8) {
+    console.log(chalk.gray(msg.hookNotWiredLegacyV8 || ''));
+  }
   console.log();
 }
 
