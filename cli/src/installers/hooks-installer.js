@@ -231,8 +231,12 @@ export function installHooks(projectPath) {
  *
  * @see core/turn-completion-integrity.md
  */
-const CODEX_HOOK_SCRIPT = 'check-turn-completion-codex.mjs';
-const GEMINI_HOOK_SCRIPT = 'check-turn-completion-gemini.mjs';
+// Exported so the uninstaller (../uninstallers/hook-uninstaller.js) can
+// recognize exactly these two script names as UDS's own, rather than
+// guessing from the shared `scripts/hooks/` directory path alone — a path
+// an adopter's own hook could just as easily live under.
+export const CODEX_HOOK_SCRIPT = 'check-turn-completion-codex.mjs';
+export const GEMINI_HOOK_SCRIPT = 'check-turn-completion-gemini.mjs';
 
 /** Copy the shared hook scripts into the project, same as installHooks() does. */
 function copyHookScripts(hookDir, hooksDir) {

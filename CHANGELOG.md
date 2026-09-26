@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds uninstall` never removed the enforcement hooks `installHooks()`/`installCodexHooks()`/`installGeminiHooks()` write — not only for Codex and Gemini CLI (6.13.0-beta.1's documented known limitation), but for Claude Code's own `.claude/settings.json` too, which had the identical gap and had never been reported.** The `hooks` uninstall category only ever touched `.husky/pre-commit` and `.git/hooks/pre-commit`; the settings/config files the three installers actually write were untouched by any uninstaller, so every enforcement hook kept running after `uds uninstall`. New `uninstallClaudeCodeHooks`/`uninstallCodexHooks`/`uninstallGeminiHooks` (`src/uninstallers/hook-uninstaller.js`) now remove exactly the UDS-installed entries from `.claude/settings.json`, `.codex/hooks.json` and `.gemini/settings.json` — identified by command path *and* a script basename UDS is currently known to ship, not by path alone, so an adopter's own hook script placed under the same `scripts/hooks/` directory UDS scaffolds is never removed. An event array left empty after removal is dropped from the config; a config file left completely empty (meaning it held only what UDS wrote) is deleted, otherwise it is rewritten with everything else intact. Malformed JSON is reported as an error and left untouched rather than overwritten. Wired into `uds uninstall`'s existing `hooks` category, its `--dry-run` preview, and the interactive menu's description of that category.
+
 ## [6.13.0-beta.1] - 2026-09-26
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test, known limitations and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Known limitation: `uds uninstall` does not yet remove the Codex / Gemini CLI hook entries.

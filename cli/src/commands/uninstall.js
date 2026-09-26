@@ -56,7 +56,7 @@ export async function uninstallCommand(options) {
     const categories = await checkbox({
       message: msg.selectCategories,
       choices: [
-        { name: `${msg.categoryHooks} (.husky/pre-commit)`, value: 'hooks', checked: true },
+        { name: `${msg.categoryHooks} (.husky/pre-commit, .claude/settings.json, .codex/hooks.json, .gemini/settings.json)`, value: 'hooks', checked: true },
         { name: `${msg.categorySkills} (skills, commands)`, value: 'skills', checked: true },
         { name: `${msg.categoryIntegrations} (CLAUDE.md, .cursorrules, ...)`, value: 'integrations', checked: true },
         { name: `${msg.categoryStandards} (.standards/)`, value: 'standards', checked: true }

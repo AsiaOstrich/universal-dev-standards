@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **`uds uninstall` 從未移除 `installHooks()`／`installCodexHooks()`／`installGeminiHooks()` 寫入的關卡——不只是 Codex 與 Gemini CLI（6.13.0-beta.1 記載的已知限制），Claude Code 自己的 `.claude/settings.json` 也有一模一樣的缺口，而且從未被記錄過。** `hooks` 這個 uninstall 分類原本只處理 `.husky/pre-commit` 與 `.git/hooks/pre-commit`；三支安裝函式實際寫入的設定檔完全沒有任何 uninstaller 在管，導致每一個關卡在 `uds uninstall` 之後仍持續執行。新增的 `uninstallClaudeCodeHooks`／`uninstallCodexHooks`／`uninstallGeminiHooks`（`src/uninstallers/hook-uninstaller.js`）現在會精準移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡 UDS 安裝的項目——辨識依據是指令路徑**加上**一份 UDS 目前確實有出貨的腳本檔名清單，不是只看路徑，這樣使用者自己放進 UDS 同一個 `scripts/hooks/` 目錄底下的 hook 就不會被誤刪。移除後變空的事件陣列會一併從設定裡移除；設定檔若因此變成完全空的物件（代表整份都是 UDS 寫入的）就直接刪除檔案，否則保留檔案並寫回其餘內容。JSON 格式損壞時回報錯誤並保持原樣，不會覆寫。已接入 `uds uninstall` 既有的 `hooks` 分類、`--dry-run` 預覽，以及互動選單裡該分類的說明文字。
+
 ## [6.13.0-beta.1] - 2026-09-26
 
 > **測試版** — 以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、已知限制、如何退回正式版：見 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。已知限制：`uds uninstall` 尚不會移除 Codex／Gemini CLI 設定裡的關卡。
