@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.6.0
-translation_version: 3.6.0
-last_synced: 2026-09-25
+source_version: 3.7.0
+translation_version: 3.7.0
+last_synced: 2026-09-26
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **版本**: 3.6.0
-> **最後更新**: 2026-09-25
+> **版本**: 3.7.0
+> **最後更新**: 2026-09-26
 
 本文件詳細說明 `uds init` 命令的每一個選項，包含使用情境、影響範圍和建議選擇。
 
@@ -837,6 +837,34 @@ uds init --experimental
 | 內容佈局 | `--content-layout` | 內容佈局（`flat`、`layered`）- 預設：`flat` |
 | Claude Code 目標檔 | `--claude-target` | Claude Code 整合內容要寫到哪裡：`project`（`CLAUDE.md`，預設）或 `local`（`CLAUDE.local.md`） |
 | 模式（已棄用） | `-m, --mode` | 安裝模式（skills, full）- 請改用 `--skills-location` |
+
+### 提交前標準檢查（git hook 接線）
+
+`uds init`一律會設定「`git commit` 時跑 `uds check`」——這不是旗標，只要專案是
+git repo 就會執行。Node.js 專案（偵測到 `package.json`）寫入
+`.husky/pre-commit`，否則寫入 `.git/hooks/pre-commit`，接著會確保 git 真的會
+執行它：設定 `git config --local core.hooksPath .husky`（非 Node 專案則保留
+原生 `.git/hooks` 預設不動）——這與 husky 自己的 `npx husky` bootstrap 內部
+做的事完全相同，只是直接做，讓檢查立刻生效，不論最後有沒有裝 husky。
+
+以下兩件事是刻意不做的：
+
+- **替你安裝 husky，或動 `package.json` 的依賴。** husky 要不要是依賴由你
+  決定；上面的接線不論有沒有 husky 都能運作。若專案已經把 husky 列為依賴，
+  `uds init` 也會順手串接它的 `prepare` script（`"prepare": "既有內容 &&
+  husky"`），讓未來的 `npm install` 也保持 husky 自己的 bootstrap 同步——
+  這是錦上添花，不是這道接線能不能生效的關鍵。
+- **覆蓋你自己的 git hook 設定。** 若 `core.hooksPath` 已經指向別處，或
+  `.git/hooks/pre-commit` 已經存在，`uds init` 會兩者都不動，並印出檢查
+  **未啟用**及原因。
+
+`git config core.hooksPath` 是**本機、per-clone 的設定——不會進版控。**
+跑 `uds init` 只會讓「跑過這個指令的那個 clone」生效；其他人 clone 這個
+repo 後要自己再跑一次 `uds init`（或 `uds check` 印出的那一行修復指令）。
+`uds check` 會偵測「`.husky/pre-commit`／`.git/hooks/pre-commit` 存在，
+但實際不在 git 真正會執行的路徑上」的情況——包含在這個修正之前就已採用
+UDS 的專案——並在 `[pre-commit]` 底下回報同樣的修復方式；此警告不影響
+`uds check --ci` 的結束碼。
 
 ### Claude Code 以外的強制執行 Hooks
 

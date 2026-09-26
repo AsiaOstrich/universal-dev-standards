@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.6.0
-translation_version: 3.6.0
-last_synced: 2026-09-25
+source_version: 3.7.0
+translation_version: 3.7.0
+last_synced: 2026-09-26
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [简体中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
 >
-> **版本**: 3.6.0
-> **最后更新**: 2026-09-25
+> **版本**: 3.7.0
+> **最后更新**: 2026-09-26
 
 本文档详细说明 `uds init` 命令的每一个选项，包含使用情境、影响范围和建议选择。
 
@@ -837,6 +837,34 @@ uds init --experimental
 | 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
 | Claude Code 目标文件 | `--claude-target` | Claude Code 集成内容要写到哪里：`project`（`CLAUDE.md`，默认）或 `local`（`CLAUDE.local.md`） |
 | 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
+
+### 提交前标准检查（git hook 接线）
+
+`uds init` 一律会设定“`git commit` 时跑 `uds check`”——这不是标志，只要项目
+是 git 仓库就会执行。Node.js 项目（检测到 `package.json`）写入
+`.husky/pre-commit`，否则写入 `.git/hooks/pre-commit`，接着会确保 git 真的
+会执行它：设定 `git config --local core.hooksPath .husky`（非 Node 项目则
+保留原生 `.git/hooks` 默认不动）——这与 husky 自己的 `npx husky` bootstrap
+内部所做的事完全相同，只是直接做，让检查立刻生效，不论最后有没有装 husky。
+
+以下两件事是刻意不做的：
+
+- **替你安装 husky，或改动 `package.json` 的依赖。** husky 要不要作为依赖
+  由你决定；上面的接线不论有没有 husky 都能运作。若项目已经把 husky 列为
+  依赖，`uds init` 也会顺手串接它的 `prepare` script（`"prepare": "既有内容
+  && husky"`），让未来的 `npm install` 也保持 husky 自己的 bootstrap 同步
+  ——这是锦上添花，不是这道接线能否生效的关键。
+- **覆盖你自己的 git hook 设定。** 若 `core.hooksPath` 已经指向别处，或
+  `.git/hooks/pre-commit` 已经存在，`uds init` 会两者都不动，并打印检查
+  **未启用**及原因。
+
+`git config core.hooksPath` 是**本机、per-clone 的设定——不会进版控。**
+跑 `uds init` 只会让“跑过这个命令的那个 clone”生效；其他人 clone 这个
+仓库后要自己再跑一次 `uds init`（或 `uds check` 打印的那一行修复命令）。
+`uds check` 会检测“`.husky/pre-commit`／`.git/hooks/pre-commit` 存在，但
+实际不在 git 真正会执行的路径上”的情况——包含在这次修复之前就已采用
+UDS 的项目——并在 `[pre-commit]` 下回报同样的修复方式；此警告不影响
+`uds check --ci` 的退出码。
 
 ### Claude Code 以外的强制执行 Hooks
 

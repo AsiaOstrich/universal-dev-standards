@@ -872,6 +872,14 @@ export const messages = {
         commandsInstalledSuccess: 'Installed commands for {count} AI tools',
         // Read-only hint
         missingSkillsHint: 'Tip: Run `uds update` to install missing Skills/Commands',
+        // Pre-commit hook wiring (XSPEC: uds init writes a hook but never
+        // confirmed git would run it — this reports the gap, read-only)
+        hookNotWiredTitle: '⚠ [pre-commit] {file} was installed, but git will not run it.',
+        hookNotWiredOverride: '  git core.hooksPath is set to "{path}" — UDS will not override it. Confirm the hook there also runs `npx uds check`, or switch it yourself: git config --local core.hooksPath .husky',
+        hookNotWiredUnwired: '  git core.hooksPath is not set, and {file} is not on git\'s default hook path.',
+        hookNotWiredFix: '  Fix (per-clone — not committed, teammates must repeat it): git config --local core.hooksPath .husky',
+        hookNotWiredFixNative: '  Fix: point core.hooksPath back to the default (git config --local --unset core.hooksPath), or add `uds check` under "{path}" instead.',
+        hookNotWiredLegacyV8: '  Also: this file still sources `_/husky.sh` (husky v8 syntax, removed in v10). Safe to delete that line, or overwrite the file by re-running `uds init`.',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS Status Summary',
@@ -2112,6 +2120,13 @@ export const messages = {
         commandsInstalledSuccess: '已為 {count} 個 AI 工具安裝斜線命令',
         // Read-only hint
         missingSkillsHint: '提示：執行 `uds update` 安裝缺少的 Skills/斜線命令',
+        // 提交前檢查是否真的會被 git 執行（uds init 寫了檢查檔，卻沒確認 git 會跑它——這裡只回報，不寫入）
+        hookNotWiredTitle: '⚠ [pre-commit] {file} 已安裝，但 git 實際不會執行它。',
+        hookNotWiredOverride: '  git core.hooksPath 已設定為「{path}」——UDS 不會覆蓋它。請確認該路徑下的檔案也會執行 `npx uds check`，或自行改用：git config --local core.hooksPath .husky',
+        hookNotWiredUnwired: '  git core.hooksPath 未設定，而 {file} 也不在 git 預設會讀取的路徑上。',
+        hookNotWiredFix: '  修復方式（僅對此 clone 生效，不會進版控，其他人 clone 後要自己再跑一次）：git config --local core.hooksPath .husky',
+        hookNotWiredFixNative: '  修復方式：把 core.hooksPath 改回預設（git config --local --unset core.hooksPath），或改在「{path}」底下也加上 `uds check`。',
+        hookNotWiredLegacyV8: '  另外：這個檔案還留著 `_/husky.sh`（husky v8 舊語法，v10 起會被移除）。可以直接刪掉那一行，或重跑 `uds init` 讓它用新版覆寫。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 狀態摘要',
@@ -3364,6 +3379,13 @@ export const messages = {
         commandsInstalledSuccess: '已为 {count} 个 AI 工具安装斜线命令',
         // Read-only hint
         missingSkillsHint: '提示：执行 `uds update` 安装缺少的 Skills/斜线命令',
+        // 提交前检查是否真的会被 git 执行（uds init 写了检查文件，却没确认 git 会跑它——这里只回报，不写入）
+        hookNotWiredTitle: '⚠ [pre-commit] {file} 已安装，但 git 实际不会执行它。',
+        hookNotWiredOverride: '  git core.hooksPath 已设定为“{path}”——UDS 不会覆盖它。请确认该路径下的文件也会执行 `npx uds check`，或自行改用：git config --local core.hooksPath .husky',
+        hookNotWiredUnwired: '  git core.hooksPath 未设定，而 {file} 也不在 git 默认会读取的路径上。',
+        hookNotWiredFix: '  修复方式（仅对此 clone 生效，不会进版控，其他人 clone 后要自己再跑一次）：git config --local core.hooksPath .husky',
+        hookNotWiredFixNative: '  修复方式：把 core.hooksPath 改回默认（git config --local --unset core.hooksPath），或改在“{path}”下也加上 `uds check`。',
+        hookNotWiredLegacyV8: '  另外：这个文件还留着 `_/husky.sh`（husky v8 旧语法，v10 起会被移除）。可以直接删掉那一行，或重跑 `uds init` 让它用新版覆盖。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 状态摘要',
