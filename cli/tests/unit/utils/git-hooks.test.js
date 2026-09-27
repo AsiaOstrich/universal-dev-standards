@@ -246,7 +246,9 @@ describe('real-world incident reproduction (2026-09-27): hooksPath alone on a le
       stderr = String(e.stderr || e.message || '');
     }
     expect(failed).toBe(true);
-    expect(stderr).toMatch(/No such file or directory/);
+    // macOS (bash) says "No such file or directory"; Linux (dash) says ".: cannot open" —
+    // measured 2026-09-27: green on the author's Mac, red on the ubuntu CI runner.
+    expect(stderr).toMatch(/No such file or directory|cannot open/);
     const after = git('log --oneline').trim().split('\n').filter(Boolean).length;
     expect(after).toBe(before);
   });

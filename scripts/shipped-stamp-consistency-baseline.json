@@ -167,15 +167,6 @@
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/data-migration-testing.md` that the shipped date (2026-06-27) is older than the source's real last content change (2026-06-28) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/data-migration-testing.md` (or the equivalent scripts/transform run)."
     },
     {
-      "file": "ai/standards/developer-memory.ai.yaml",
-      "source": "core/developer-memory.md",
-      "shippedUpdated": "2026-06-18",
-      "actualUpdated": "2026-06-19",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/developer-memory.md` that the shipped date (2026-06-18) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/developer-memory.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/documentation-structure.ai.yaml",
       "source": "core/documentation-structure.md",
       "shippedUpdated": "2026-03-17",
