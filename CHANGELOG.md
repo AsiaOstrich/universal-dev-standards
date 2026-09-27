@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.13.0-beta.4] - 2026-09-28
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test, known limitations and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Note: 6.13.0-beta.3 never reached npm; its changes ship here.
+
 ### Fixed
 
 - **`turn-completion-integrity`'s Stop hook was silently inert on Windows for every adopter through 6.13.0-beta.3 — it ran, found no locale pack, and let every turn end uninspected without printing anything.** `engine.mjs`'s `loadPacks()` built each pack's path with `join(HERE, 'locales', ...)` and passed that filesystem path straight to dynamic `import()`; on Windows that path is `C:\...`, which is not a valid ESM import specifier (POSIX absolute paths happen to also parse as one, which is why this went unnoticed on macOS/Linux). Measured 2026-09-27 in CI (windows-latest): every shipped locale pack failed to load, and every adapter (Claude Code, Codex, Gemini CLI) that should have returned a `block`/`deny` decision returned `undefined` instead. Fixed with `pathToFileURL(...).href`, the same conversion `cli/src/utils/standard-fixer.js`/`standard-validator.js` already used correctly. Four `scripts/check-*.ts` dev-tooling scripts had the identical shape (not exercised by the Windows CI job, since they only run on `ubuntu-latest`, but broken there too) and are fixed the same way. A new repo-wide test (`cli/tests/unit/scripts/no-fs-path-dynamic-import.test.js`) walks `scripts/`, `cli/src/` and `cli/scripts/` for this shape so a future site fails on any platform without anyone needing to remember this incident.

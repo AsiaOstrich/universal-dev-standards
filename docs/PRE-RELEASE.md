@@ -9,7 +9,10 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.13.0-beta.3`
+## Current beta | 目前的測試版：`6.13.0-beta.4`
+
+> **New in beta.4** — Windows: the turn-completion hook now actually works (through beta.2 its language packs never loaded on Windows, so it never blocked anything), and hooks written by `uds init` get a shebang so git for Windows can run them (without it every commit failed with `cannot spawn`). **beta.3 was published on GitHub but never reached npm** (a CI failure blocked it); everything listed for beta.3 below ships in beta.4.
+> **beta.4 新增** — Windows：回合完成關卡現在真的會作用（到 beta.2 為止，Windows 上語言包從未載入成功，關卡從未擋下任何東西）；`uds init` 寫的 hook 補上 shebang，git for Windows 才能執行（缺少時每次提交都以 `cannot spawn` 失敗）。**beta.3 在 GitHub 發佈但從未上架 npm**（被 CI 失敗擋下），下方列為 beta.3 的內容都隨 beta.4 出貨。
 
 > **New in beta.3** — `uds init` now makes the pre-commit check actually run (it used to write the hook file and rely on a later `npm install` to wire it, which often never happened); `uds check` warns when a hook file exists but git never runs it, with a fix that also handles the old husky v8 template; the version bump no longer mislabels a beta as "latest stable" in `SECURITY.md`.
 > **beta.3 新增** — `uds init` 會讓提交前檢查真的執行（過去只寫檔、仰賴之後的 `npm install` 才接上，常常從未接上）；`uds check` 在檢查檔存在但 git 不會執行時提出警告，修法也涵蓋舊版 husky v8 範本；升版不再把測試版標成 `SECURITY.md` 的「最新正式版」。
