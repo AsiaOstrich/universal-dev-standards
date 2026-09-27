@@ -1,9 +1,9 @@
 ---
 source: ../../../core/turn-completion-integrity.md
-source_version: 1.4.0
-translation_version: 1.4.0
-last_synced: 2026-09-26
-source_hash: 401b74843abc
+source_version: 1.4.1
+translation_version: 1.4.1
+last_synced: 2026-09-28
+source_hash: c0707b2ff6cb
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **Language**: [English](../../../core/turn-completion-integrity.md) | 繁體中文
 
-**版本**: 1.4.0
-**最後更新**: 2026-09-25
+**版本**: 1.4.1
+**最後更新**: 2026-09-28
 **適用範圍**: 任何由 agent 結束回合、把控制權交還給人的執行環境
 **Scope**: universal
 **產業標準**: 不宣稱任何來源——由實際觀察到的失敗歸納，見「證據」
@@ -144,13 +144,13 @@ agent 寫下「我接著做 X」，然後結束回合，而 X 沒有做。
 ## 支援的執行環境
 
 這個檢查只在「轉接層存在，且 hook 真的被接進該執行環境自己的設定」時才生效。
-截至 v1.4.0：
+截至 v1.4.1：
 
 | 執行環境 | 事件 | 設定檔 | 阻擋契約 |
 |---|---|---|---|
 | Claude Code | Stop | `.claude/settings.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0；沉默即放行 |
 | Codex | Stop | `.codex/hooks.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0——官方文件寫明這個事件純文字或空輸出無效 |
-| Gemini CLI | AfterAgent | `.gemini/settings.json` | stdout 印 `{"decision":"deny","reason":...}`，exit 0——官方文件標記為優先於 exit code 2 的做法 |
+| Gemini CLI（過時） | AfterAgent | `.gemini/settings.json` | stdout 印 `{"decision":"deny","reason":...}`，exit 0——官方文件標記為優先於 exit code 2 的做法 |
 
 Codex 的 R9 豁免是盡力而為，不是靜默失效：Codex 的 Stop payload 直接給
 agent 的最後一則訊息，卻不給使用者的；要拿到使用者那一側必須解析一份
@@ -164,6 +164,15 @@ agent 的最後一則訊息，卻不給使用者的；要拿到使用者那一�
 6.13.0-beta.2 已修正。解析失敗（或遇到辨識不出的紀錄形狀）時仍只是讓
 使用者那一側變空、不會拋出例外——偵測仍照樣跑在 agent 訊息上，只有那一輪
 的 R9 豁免可能漏掉。
+
+Gemini CLI 已過時。Google 於 2026-06-18 對個人帳號停用 Gemini CLI，
+改由 Antigravity CLI（`agy`）取代；企業帳號兩者都還能用。這個適配層為那些使用者保留，
+但它從未在真實的 Gemini CLI 工作階段中驗證過；使用 Google 工具的新採用者該預期的是
+Antigravity CLI，而它**尚未支援**。它文件記載的 Stop hook 契約，在關鍵之處與上表每一個
+適配層都不同：hook 設定在 `.agents/hooks.json`、傳入資料只有 `transcriptPath`
+（沒有最後一則回覆、也沒有人的訊息）、攔截是 `{"decision":"continue","reason":...}`
+而不是 `block` 或 `deny`。等這份契約在真實工作階段中觀察到之後才會加入適配層——
+與下方 Cursor 沒有適配層是同一個理由。
 
 Cursor 已評估但不支援：截至撰寫本文時，Cursor 的 stop hook 能不能真的
 擋下一個回合仍未確定，若對著一個沒人驗證過的契約出一份轉接層，

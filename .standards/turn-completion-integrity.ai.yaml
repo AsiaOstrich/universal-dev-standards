@@ -3,8 +3,8 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.4.0"
-  updated: "2026-09-26"
+  version: "1.4.1"
+  updated: "2026-09-28"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
   related:
@@ -140,6 +140,11 @@ supported_harnesses:
     config_file: ".gemini/settings.json"
     block_shape: '{"decision":"deny","reason":...}, exit 0 — the documented preferred path over exit code 2'
     script: scripts/hooks/check-turn-completion-gemini.mjs
+    status: legacy
+    reason: "Google retired Gemini CLI for personal accounts on 2026-06-18 in favour of Antigravity CLI; enterprise accounts keep both. Adapter kept for them; never confirmed against a real Gemini CLI session"
+  - harness: antigravity-cli
+    status: not-yet-supported
+    reason: "Documented Stop contract differs: config .agents/hooks.json, payload has only transcriptPath (no final or human message), block is {\"decision\":\"continue\",\"reason\":...}. Adapter waits until that contract is observed against a real session (R3)"
   - harness: cursor
     status: evaluated-not-supported
     reason: "Whether Cursor's stop hook can actually block a turn was unresolved as of writing; shipping an adapter against an unverified contract repeats the exact failure R3 exists to prevent"

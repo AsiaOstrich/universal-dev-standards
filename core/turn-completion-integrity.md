@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.4.0
-**Last Updated**: 2026-09-25
+**Version**: 1.4.1
+**Last Updated**: 2026-09-28
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
 **Industry Standards**: none claimed — derived from observed failures, see Evidence
@@ -149,13 +149,13 @@ prevent, one level up.
 ## Supported harnesses
 
 The check is enforced only where a harness adapter exists and a hook is
-actually wired into that harness's own config. As of v1.4.0:
+actually wired into that harness's own config. As of v1.4.1:
 
 | Harness | Event | Config file | Block contract |
 |---|---|---|---|
 | Claude Code | Stop | `.claude/settings.json` | stdout `{"decision":"block","reason":...}`, exit 0; silence allows |
 | Codex | Stop | `.codex/hooks.json` | stdout `{"decision":"block","reason":...}`, exit 0 — plain text or empty stdout is documented as invalid for this event |
-| Gemini CLI | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
+| Gemini CLI (legacy) | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
 
 Codex's R9 exemption is best-effort, not silent failure: Codex's Stop payload
 gives the assistant's final message directly but not the human's, so reading
@@ -171,6 +171,18 @@ Codex; fixed for 6.13.0-beta.2. A failed parse (or an unrecognized record
 shape) still leaves the human side empty rather than throwing — detection
 still runs on the assistant's message, only the R9 exemption for that one
 turn may be missed.
+
+Gemini CLI is legacy. Google retired it for personal accounts on
+2026-06-18 in favour of Antigravity CLI (`agy`); enterprise accounts keep
+access to both. The adapter stays for those users, but it has never been
+confirmed against a real Gemini CLI session, and new adopters on Google's
+tooling should expect Antigravity CLI, which is **not yet supported**. Its
+documented Stop hook contract differs from every adapter above in the ways
+that matter: the hook is configured in `.agents/hooks.json`, the payload
+carries only a `transcriptPath` (no final message, no human message), and a
+block is `{"decision":"continue","reason":...}`, not `block` or `deny`. An
+adapter will be added once that contract has been observed against a real
+session — the same reason Cursor below has none.
 
 Cursor was evaluated and is not supported: whether its stop hook can actually
 block a turn in the way this standard requires was unresolved as of this

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **`turn-completion-integrity` 1.4.1: the Gemini CLI adapter is now marked legacy, and Antigravity CLI is named as not yet supported.** Google retired Gemini CLI for personal accounts on 2026-06-18 in favour of Antigravity CLI (`agy`); enterprise accounts keep both. The adapter is kept for them but has never been confirmed against a real Gemini CLI session, so it is no longer presented as a peer of the Claude Code and Codex adapters. Antigravity CLI's documented Stop hook contract differs from every shipped adapter (config in `.agents/hooks.json`; the payload carries only `transcriptPath`, with no final or human message; a block is `{"decision":"continue"}`), so no adapter ships until that contract has been observed against a real session — the same rule that keeps Cursor unsupported. No behaviour changes: `uds init --with-hooks` still wires the Gemini CLI hook when Gemini CLI is selected.
+
 ## [6.13.0-beta.4] - 2026-09-28
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test, known limitations and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Note: 6.13.0-beta.3 never reached npm; its changes ship here.

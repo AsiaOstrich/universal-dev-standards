@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 變更
+
+- **`turn-completion-integrity` 1.4.1：Gemini CLI 適配層標為過時，並明列 Antigravity CLI 尚未支援。** Google 於 2026-06-18 對個人帳號停用 Gemini CLI，改由 Antigravity CLI（`agy`）取代；企業帳號兩者都還能用。適配層為他們保留，但從未在真實的 Gemini CLI 工作階段中驗證過，因此不再與 Claude Code、Codex 適配層並列。Antigravity CLI 文件記載的 Stop hook 契約與所有已出貨的適配層都不同（設定在 `.agents/hooks.json`；傳入資料只有 `transcriptPath`，沒有最後一則回覆或人的訊息；攔截是 `{"decision":"continue"}`），因此在真實工作階段中觀察到這份契約之前不出貨適配層——與 Cursor 不支援是同一條規則。行為不變：選了 Gemini CLI 時，`uds init --with-hooks` 仍會接上它的關卡。
+
 ## [6.13.0-beta.4] - 2026-09-28
 
 > **測試版** — 以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、已知限制、如何退回正式版：見 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。注意：6.13.0-beta.3 從未上架 npm，其內容隨本版出貨。
