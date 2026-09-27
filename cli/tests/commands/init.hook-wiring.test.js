@@ -224,7 +224,7 @@ describe('setupHuskyHook — rewrites a legacy husky v8 template (2026-09-27 reg
       stderr = String(e.stderr || e.message || '');
     }
     expect(threw).toBe(false);
-    expect(stderr).not.toMatch(/No such file or directory/);
+    expect(stderr).not.toMatch(/No such file or directory|cannot open/);
     expect(markerExists()).toBe(true);
   });
 

@@ -884,8 +884,8 @@ export const messages = {
         // against a real adopter's exact legacy template, 2026-09-27. `uds init`
         // will not fix this for an already-initialized project (it refuses to run
         // at all once `.standards/` exists), so the fix must be self-contained here.
-        hookNotWiredFixLegacy: '  Fix, in this exact order — this file still sources `_/husky.sh` (husky v8 syntax), a directory that only exists after husky\'s own bootstrap has run: (1) delete the line `. "$(dirname -- "$0")/_/husky.sh"` from {file}; (2) then run: git config --local core.hooksPath .husky (per-clone — not committed, teammates must repeat it). Doing (2) alone makes every commit fail with "No such file or directory".',
-        hookNotWiredLegacyV8Fix: '  Also: {file} still sources `_/husky.sh` (husky v8 syntax) — delete that line too, or the fix above will make every commit fail with "No such file or directory".',
+        hookNotWiredFixLegacy: '  Fix, in this exact order — this file still sources `_/husky.sh` (husky v8 syntax), a directory that only exists after husky\'s own bootstrap has run: (1) delete the line `. "$(dirname -- "$0")/_/husky.sh"` from {file}; (2) then run: git config --local core.hooksPath .husky (per-clone — not committed, teammates must repeat it). Doing (2) alone makes every commit fail with an error that `_/husky.sh` cannot be found ("No such file or directory" on macOS, ".: cannot open" on Linux).',
+        hookNotWiredLegacyV8Fix: '  Also: {file} still sources `_/husky.sh` (husky v8 syntax) — delete that line too, or the fix above will make every commit fail with an error that `_/husky.sh` cannot be found ("No such file or directory" on macOS, ".: cannot open" on Linux).',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS Status Summary',
@@ -2136,8 +2136,8 @@ export const messages = {
         // `_/husky.sh` 那一行（2026-09-26 已在真實採用者的舊範本上實測到）。
         // `uds init` 對已初始化的專案會直接拒絕執行，修不了這個，所以這裡要給
         // 一次就講完整、不需要再跑任何指令的修法。
-        hookNotWiredFixLegacy: '  修復方式，順序不可顛倒——這個檔案還留著 `_/husky.sh`（husky v8 舊語法），它 source 的目錄只有在 husky 自己的 bootstrap 跑過後才存在：(1) 先刪掉 {file} 裡的這一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再執行：git config --local core.hooksPath .husky（僅對此 clone 生效，不會進版控，其他人要自己再做一次）。只做 (2) 不做 (1) 會讓每一次提交都失敗，印出「No such file or directory」。',
-        hookNotWiredLegacyV8Fix: '  另外：{file} 還留著 `_/husky.sh`（husky v8 舊語法）——這一行也要刪掉，不然上面的修復方式會讓每一次提交都失敗，印出「No such file or directory」。',
+        hookNotWiredFixLegacy: '  修復方式，順序不可顛倒——這個檔案還留著 `_/husky.sh`（husky v8 舊語法），它 source 的目錄只有在 husky 自己的 bootstrap 跑過後才存在：(1) 先刪掉 {file} 裡的這一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再執行：git config --local core.hooksPath .husky（僅對此 clone 生效，不會進版控，其他人要自己再做一次）。只做 (2) 不做 (1) 會讓每一次提交都失敗，印出找不到 `_/husky.sh` 的錯誤（macOS 為「No such file or directory」、Linux 為「.: cannot open」）。',
+        hookNotWiredLegacyV8Fix: '  另外：{file} 還留著 `_/husky.sh`（husky v8 舊語法）——這一行也要刪掉，不然上面的修復方式會讓每一次提交都失敗，印出找不到 `_/husky.sh` 的錯誤（macOS 為「No such file or directory」、Linux 為「.: cannot open」）。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 狀態摘要',
@@ -3396,8 +3396,8 @@ export const messages = {
         hookNotWiredUnwired: '  git core.hooksPath 未设定，而 {file} 也不在 git 默认会读取的路径上。',
         hookNotWiredFix: '  修复方式（仅对此 clone 生效，不会进版控，其他人 clone 后要自己再跑一次）：git config --local core.hooksPath .husky',
         hookNotWiredFixNative: '  修复方式：把 core.hooksPath 改回默认（git config --local --unset core.hooksPath），或改在“{path}”下也加上 `uds check`。',
-        hookNotWiredFixLegacy: '  修复方式，顺序不可颠倒——这个文件还留着 `_/husky.sh`（husky v8 旧语法），它 source 的目录只有在 husky 自己的 bootstrap 跑过后才存在：(1) 先删掉 {file} 里的这一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再执行：git config --local core.hooksPath .husky（仅对此 clone 生效，不会进版控，其他人要自己再做一次）。只做 (2) 不做 (1) 会让每一次提交都失败，打印“No such file or directory”。',
-        hookNotWiredLegacyV8Fix: '  另外：{file} 还留着 `_/husky.sh`（husky v8 旧语法）——这一行也要删掉，不然上面的修复方式会让每一次提交都失败，打印“No such file or directory”。',
+        hookNotWiredFixLegacy: '  修复方式，顺序不可颠倒——这个文件还留着 `_/husky.sh`（husky v8 旧语法），它 source 的目录只有在 husky 自己的 bootstrap 跑过后才存在：(1) 先删掉 {file} 里的这一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再执行：git config --local core.hooksPath .husky（仅对此 clone 生效，不会进版控，其他人要自己再做一次）。只做 (2) 不做 (1) 会让每一次提交都失败，打印找不到 `_/husky.sh` 的错误（macOS 为“No such file or directory”、Linux 为“.: cannot open”）。',
+        hookNotWiredLegacyV8Fix: '  另外：{file} 还留着 `_/husky.sh`（husky v8 旧语法）——这一行也要删掉，不然上面的修复方式会让每一次提交都失败，打印找不到 `_/husky.sh` 的错误（macOS 为“No such file or directory”、Linux 为“.: cannot open”）。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 状态摘要',

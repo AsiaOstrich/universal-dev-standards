@@ -4,7 +4,7 @@
 id: turn-completion-integrity
 meta:
   version: "1.4.0"
-  updated: "2026-09-25"
+  updated: "2026-09-26"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
   related:
