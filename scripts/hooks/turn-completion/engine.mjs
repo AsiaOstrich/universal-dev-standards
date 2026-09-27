@@ -14,7 +14,7 @@
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { detectCommitment, userAskedToStop } from './detect.mjs';
 
 export const VERSION = '1.2.0';
@@ -53,7 +53,16 @@ export async function loadPacks() {
   const failed = [];
   for (const id of SHIPPED_LOCALES) {
     try {
-      packs.push(await import(join(HERE, 'locales', `${id}.mjs`)));
+      // A filesystem path (`C:\...` on Windows) is not a valid ESM import
+      // specifier — dynamic `import()` needs a `file://` URL there. On
+      // POSIX both happen to look like absolute paths that Node accepts, so
+      // this went unnoticed until measured 2026-09-27 in CI
+      // (windows-latest): every pack failed to load, `failed` was silently
+      // non-empty, and every adapter test that expects a block/deny decision
+      // got `undefined` instead — the hook ran, found no packs, and let
+      // every turn end uninspected. pathToFileURL(...).href is the one
+      // form valid on every platform.
+      packs.push(await import(pathToFileURL(join(HERE, 'locales', `${id}.mjs`)).href));
     } catch (e) {
       failed.push({ id, why: String((e && e.message) || e) });
     }

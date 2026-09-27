@@ -42,13 +42,17 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
 const CLI = join(ROOT, "cli", "bin", "uds.js");
 
-const { AI_AGENT_PATHS } = (await import(join(ROOT, "cli/src/config/ai-agent-paths.js"))) as {
+// A filesystem path (`C:\...` on Windows) is not a valid ESM import
+// specifier — dynamic import() needs a file:// URL there. Only ever
+// measured on ubuntu (this check does not run in the Windows CI job), but
+// it is the same defect measured in scripts/hooks/turn-completion/engine.mjs.
+const { AI_AGENT_PATHS } = (await import(pathToFileURL(join(ROOT, "cli/src/config/ai-agent-paths.js")).href)) as {
   AI_AGENT_PATHS: Record<
     string,
     { name: string; supportsSkills?: boolean; skills?: { project: string } | null }
@@ -63,7 +67,7 @@ const { AI_AGENT_PATHS } = (await import(join(ROOT, "cli/src/config/ai-agent-pat
  * file landing correctly; they come from different tables.
  */
 const { SUPPORTED_AI_TOOLS, LEGACY_TOOL_MAPPINGS } = (await import(
-  join(ROOT, "cli/src/core/constants.js")
+  pathToFileURL(join(ROOT, "cli/src/core/constants.js")).href
 )) as {
   SUPPORTED_AI_TOOLS: Record<string, { file: string }>;
   LEGACY_TOOL_MAPPINGS: Record<string, string>;

@@ -94,7 +94,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 const UDS_BIN = join(ROOT_DIR, 'cli', 'bin', 'uds.js');
@@ -198,7 +198,11 @@ const MARKER_END = /UDS:STANDARDS:END/;
  * empty file at each path, `detectAITools()` selects every tool it knows.
  */
 async function knownToolFiles(): Promise<Map<string, string>> {
-  const constants = await import(join(ROOT_DIR, 'cli', 'src', 'core', 'constants.js'));
+  // A filesystem path (`C:\...` on Windows) is not a valid ESM import
+  // specifier — dynamic import() needs a file:// URL there. Only ever
+  // measured on ubuntu (this check does not run in the Windows CI job), but
+  // it is the same defect measured in scripts/hooks/turn-completion/engine.mjs.
+  const constants = await import(pathToFileURL(join(ROOT_DIR, 'cli', 'src', 'core', 'constants.js')).href);
   const out = new Map<string, string>();
   for (const [tool, cfg] of Object.entries(constants.SUPPORTED_AI_TOOLS as Record<string, { file: string }>)) {
     out.set(tool, cfg.file);
