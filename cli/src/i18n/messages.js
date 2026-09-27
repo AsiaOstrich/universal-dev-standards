@@ -886,6 +886,12 @@ export const messages = {
         // at all once `.standards/` exists), so the fix must be self-contained here.
         hookNotWiredFixLegacy: '  Fix, in this exact order — this file still sources `_/husky.sh` (husky v8 syntax), a directory that only exists after husky\'s own bootstrap has run: (1) delete the line `. "$(dirname -- "$0")/_/husky.sh"` from {file}; (2) then run: git config --local core.hooksPath .husky (per-clone — not committed, teammates must repeat it). Doing (2) alone makes every commit fail with an error that `_/husky.sh` cannot be found ("No such file or directory" on macOS, ".: cannot open" on Linux).',
         hookNotWiredLegacyV8Fix: '  Also: {file} still sources `_/husky.sh` (husky v8 syntax) — delete that line too, or the fix above will make every commit fail with an error that `_/husky.sh` cannot be found ("No such file or directory" on macOS, ".: cannot open" on Linux).',
+        // Missing shebang: independent of wiring — POSIX git falls back to
+        // /bin/sh on ENOEXEC (a hook with no shebang), git for Windows does
+        // not, and fails every commit with "cannot spawn {file}: No such
+        // file or directory". Measured 2026-09-27 in CI (windows-latest).
+        hookMissingShebangTitle: '⚠ [pre-commit] {file} has no shebang line — git cannot run it on Windows.',
+        hookMissingShebangFix: '  Fix: add a `#!/bin/sh` shebang as the very first line of {file} (a husky-managed hook gets this automatically the next time `uds init` touches it), or re-run `uds init`.',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS Status Summary',
@@ -2138,6 +2144,12 @@ export const messages = {
         // 一次就講完整、不需要再跑任何指令的修法。
         hookNotWiredFixLegacy: '  修復方式，順序不可顛倒——這個檔案還留著 `_/husky.sh`（husky v8 舊語法），它 source 的目錄只有在 husky 自己的 bootstrap 跑過後才存在：(1) 先刪掉 {file} 裡的這一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再執行：git config --local core.hooksPath .husky（僅對此 clone 生效，不會進版控，其他人要自己再做一次）。只做 (2) 不做 (1) 會讓每一次提交都失敗，印出找不到 `_/husky.sh` 的錯誤（macOS 為「No such file or directory」、Linux 為「.: cannot open」）。',
         hookNotWiredLegacyV8Fix: '  另外：{file} 還留著 `_/husky.sh`（husky v8 舊語法）——這一行也要刪掉，不然上面的修復方式會讓每一次提交都失敗，印出找不到 `_/husky.sh` 的錯誤（macOS 為「No such file or directory」、Linux 為「.: cannot open」）。',
+        // 缺少 shebang：與 wiring 無關——POSIX git 在 ENOEXEC（hook 沒有 shebang）
+        // 時會退回用 /bin/sh 執行，git for Windows 沒有這個後備機制，每次提交
+        // 都會失敗，訊息是「cannot spawn {file}: No such file or directory」。
+        // 2026-09-27 於 CI（windows-latest）實測。
+        hookMissingShebangTitle: '⚠ [pre-commit] {file} 沒有 shebang 行——在 Windows 上 git 無法執行它。',
+        hookMissingShebangFix: '  修復方式：在 {file} 的第一行加上 shebang `#!/bin/sh`（由 husky 管理的 hook，下次 `uds init` 動到它時會自動處理），或重新執行 `uds init`。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 狀態摘要',
@@ -3398,6 +3410,12 @@ export const messages = {
         hookNotWiredFixNative: '  修复方式：把 core.hooksPath 改回默认（git config --local --unset core.hooksPath），或改在“{path}”下也加上 `uds check`。',
         hookNotWiredFixLegacy: '  修复方式，顺序不可颠倒——这个文件还留着 `_/husky.sh`（husky v8 旧语法），它 source 的目录只有在 husky 自己的 bootstrap 跑过后才存在：(1) 先删掉 {file} 里的这一行：`. "$(dirname -- "$0")/_/husky.sh"`；(2) 再执行：git config --local core.hooksPath .husky（仅对此 clone 生效，不会进版控，其他人要自己再做一次）。只做 (2) 不做 (1) 会让每一次提交都失败，打印找不到 `_/husky.sh` 的错误（macOS 为“No such file or directory”、Linux 为“.: cannot open”）。',
         hookNotWiredLegacyV8Fix: '  另外：{file} 还留着 `_/husky.sh`（husky v8 旧语法）——这一行也要删掉，不然上面的修复方式会让每一次提交都失败，打印找不到 `_/husky.sh` 的错误（macOS 为“No such file or directory”、Linux 为“.: cannot open”）。',
+        // 缺少 shebang：与 wiring 无关——POSIX git 在 ENOEXEC（hook 没有 shebang）
+        // 时会回退用 /bin/sh 执行，git for Windows 没有这个后备机制，每次提交
+        // 都会失败，消息是“cannot spawn {file}: No such file or directory”。
+        // 2026-09-27 于 CI（windows-latest）实测。
+        hookMissingShebangTitle: '⚠ [pre-commit] {file} 没有 shebang 行——在 Windows 上 git 无法执行它。',
+        hookMissingShebangFix: '  修复方式：在 {file} 的第一行加上 shebang `#!/bin/sh`（由 husky 管理的 hook，下次 `uds init` 动到它时会自动处理），或重新运行 `uds init`。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 状态摘要',

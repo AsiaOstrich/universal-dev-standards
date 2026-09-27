@@ -136,6 +136,39 @@ function hasUdsMarker(filePath) {
 }
 
 /**
+ * Does `content` begin with a shebang line (`#!...`)?
+ *
+ * Why this matters on Windows and nowhere else: POSIX git, on ENOEXEC (a
+ * script with no shebang), silently retries the exec via `/bin/sh` — that
+ * fallback is why a husky v9 hook with no shebang has always worked on macOS
+ * and Linux. Git for Windows has no such fallback: without a shebang line it
+ * cannot resolve an interpreter at all, and fails EVERY commit with
+ * `error: cannot spawn <hookfile>: No such file or directory` — the exact
+ * message measured 2026-09-27 in CI (windows-latest) for both a husky hook
+ * (which has never carried a shebang) and a `.git/hooks/pre-commit` test
+ * fixture that also happened to lack one; a sibling fixture carrying
+ * `#!/bin/sh` executed correctly. The message names the hook file, not the
+ * missing interpreter, which is why this was first mistaken for a wiring
+ * problem rather than a content problem.
+ */
+export function hasShebang(content) {
+  return typeof content === 'string' && content.startsWith('#!');
+}
+
+/**
+ * Prepend `#!/bin/sh` when `content` has no shebang; a no-op otherwise. Never
+ * touches an existing shebang (an adopter may already declare bash or another
+ * interpreter) and never rewrites any other line — pairs with
+ * stripLegacyHuskyShLine below, which makes the same promise for the v8
+ * sourcing line.
+ * @returns {{content: string, added: boolean}}
+ */
+export function ensureShebang(content) {
+  if (hasShebang(content)) return { content, added: false };
+  return { content: `#!/bin/sh\n${content}`, added: true };
+}
+
+/**
  * husky v8's `_/husky.sh` sourcing line — the exact shape husky itself
  * generated before v9 (`. "$(dirname -- "$0")/_/husky.sh"`, with minor
  * `dirname` argument variations). The directory it sources (`.husky/_/`)
@@ -184,10 +217,15 @@ export function stripLegacyHuskyShLine(content) {
  *   3. Non-Node native install — `.git/hooks/pre-commit` IS the UDS-managed
  *      file, and `core.hooksPath` is unset (git's default).
  *
+ * Also reports `missingShebang`, independent of `wired`: a hook file that
+ * IS on git's execution path can still fail every commit on Windows if it
+ * has no `#!` line (see hasShebang above) — a portability defect, not a
+ * wiring defect, so it is surfaced even when `wired: true`.
+ *
  * @param {string} projectPath
  * @returns {{relevant: boolean, wired?: boolean, hookFile?: string,
  *   configuredHooksPath?: string|null, effectiveHooksDir?: string|null,
- *   legacyV8?: boolean}}
+ *   legacyV8?: boolean, missingShebang?: boolean}}
  *   `relevant: false` means there is nothing UDS-managed to report on (no
  *   hook file, or hooks-dir could not be determined — never guess "unwired"
  *   from a failed lookup).
@@ -205,6 +243,15 @@ export function checkPreCommitHookWiring(projectPath) {
   const effectiveHooksDir = getEffectiveHooksDir(projectPath);
   if (!effectiveHooksDir) return { relevant: false }; // can't determine — do not guess
 
+  // The UDS-managed source file — not the resolved effectiveFile below, which
+  // for husky's shim shape (case 2) is a forwarding script we do not own —
+  // is the one whose first line actually decides whether Windows can spawn it.
+  const hookFile = hasHuskyHook ? '.husky/pre-commit' : '.git/hooks/pre-commit';
+  const managedPath = hasHuskyHook ? huskyHookPath : nativeHookPath;
+  const missingShebang = (() => {
+    try { return !hasShebang(readFileSync(managedPath, 'utf-8')); } catch { return false; }
+  })();
+
   const effectiveFile = join(effectiveHooksDir, 'pre-commit');
   let wired = false;
   if (existsSync(effectiveFile)) {
@@ -217,9 +264,8 @@ export function checkPreCommitHookWiring(projectPath) {
     }
   }
 
-  if (wired) return { relevant: true, wired: true };
+  if (wired) return { relevant: true, wired: true, hookFile, missingShebang };
 
-  const hookFile = hasHuskyHook ? '.husky/pre-commit' : '.git/hooks/pre-commit';
   const legacyV8 = hasHuskyHook && (() => {
     try { return hasLegacyHuskyShLine(readFileSync(huskyHookPath, 'utf-8')); } catch { return false; }
   })();
@@ -230,6 +276,7 @@ export function checkPreCommitHookWiring(projectPath) {
     hookFile,
     configuredHooksPath: getLocalHooksPathConfig(projectPath),
     effectiveHooksDir,
-    legacyV8
+    legacyV8,
+    missingShebang
   };
 }

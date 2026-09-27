@@ -25,7 +25,9 @@ import {
   wireGitHooksPath,
   checkPreCommitHookWiring,
   hasLegacyHuskyShLine,
-  stripLegacyHuskyShLine
+  stripLegacyHuskyShLine,
+  hasShebang,
+  ensureShebang
 } from '../../../src/utils/git-hooks.js';
 
 let dir;
@@ -193,6 +195,69 @@ describe('checkPreCommitHookWiring', () => {
     chmodSync(join(dir, '.git', 'hooks', 'pre-commit'), 0o755);
     const result = checkPreCommitHookWiring(dir);
     expect(result.wired).toBe(true);
+  });
+});
+
+describe('hasShebang / ensureShebang', () => {
+  it('recognizes an existing shebang', () => {
+    expect(hasShebang('#!/bin/sh\nnpx uds check\n')).toBe(true);
+    expect(hasShebang('#!/usr/bin/env bash\n')).toBe(true);
+  });
+
+  it('recognizes content with no shebang', () => {
+    expect(hasShebang('npx uds check\n')).toBe(false);
+    expect(hasShebang('')).toBe(false);
+  });
+
+  it('ensureShebang prepends #!/bin/sh when none is present', () => {
+    const { content, added } = ensureShebang('# UDS Standard Check\nnpx uds check\n');
+    expect(added).toBe(true);
+    expect(content).toBe('#!/bin/sh\n# UDS Standard Check\nnpx uds check\n');
+  });
+
+  it('ensureShebang is a no-op when a shebang already exists, whatever the interpreter', () => {
+    const before = '#!/usr/bin/env bash\nnpm run lint\n';
+    const { content, added } = ensureShebang(before);
+    expect(added).toBe(false);
+    expect(content).toBe(before);
+  });
+});
+
+describe('checkPreCommitHookWiring — missingShebang', () => {
+  it('flags a wired husky hook that has no shebang (portability, not a wiring defect)', () => {
+    initRepo();
+    writeHuskyHook('# UDS Standard Check\nnpx uds check\n');
+    wireGitHooksPath(dir, '.husky');
+    const result = checkPreCommitHookWiring(dir);
+    expect(result.wired).toBe(true);
+    expect(result.missingShebang).toBe(true);
+  });
+
+  it('does not flag a wired husky hook that already has a shebang', () => {
+    initRepo();
+    writeHuskyHook('#!/bin/sh\n# UDS Standard Check\nnpx uds check\n');
+    wireGitHooksPath(dir, '.husky');
+    const result = checkPreCommitHookWiring(dir);
+    expect(result.wired).toBe(true);
+    expect(result.missingShebang).toBe(false);
+  });
+
+  it('flags an unwired husky hook that also has no shebang', () => {
+    initRepo();
+    writeHuskyHook('# UDS Standard Check\nnpx uds check\n');
+    const result = checkPreCommitHookWiring(dir);
+    expect(result.wired).toBe(false);
+    expect(result.missingShebang).toBe(true);
+  });
+
+  it('flags a native hook with no shebang', () => {
+    initRepo();
+    mkdirSync(join(dir, '.git', 'hooks'), { recursive: true });
+    writeFileSync(join(dir, '.git', 'hooks', 'pre-commit'), '# UDS pre-commit hook\nuds check\n');
+    chmodSync(join(dir, '.git', 'hooks', 'pre-commit'), 0o755);
+    const result = checkPreCommitHookWiring(dir);
+    expect(result.wired).toBe(true);
+    expect(result.missingShebang).toBe(true);
   });
 });
 

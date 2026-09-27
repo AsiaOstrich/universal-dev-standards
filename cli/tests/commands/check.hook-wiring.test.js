@@ -42,7 +42,16 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+// Shape written by the FIXED `uds init` (with a shebang — see git-hooks.js
+// ensureShebang). Tests that specifically exercise the pre-fix, no-shebang
+// shape use writeHuskyHookNoShebang below instead.
 function writeHuskyHook() {
+  mkdirSync(join(dir, '.husky'), { recursive: true });
+  writeFileSync(join(dir, '.husky', 'pre-commit'), '#!/bin/sh\n# UDS Standard Check\nnpx uds check\n');
+  chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
+}
+
+function writeHuskyHookNoShebang() {
   mkdirSync(join(dir, '.husky'), { recursive: true });
   writeFileSync(join(dir, '.husky', 'pre-commit'), '# UDS Standard Check\nnpx uds check\n');
   chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
@@ -127,5 +136,42 @@ describe('checkPreCommitWiring', () => {
     writeHuskyHook();
     checkPreCommitWiring(dir, msg);
     expect(getLocalHooksPathConfig(dir)).toBeNull();
+  });
+
+  // 2026-09-27: a hook can be fully wired (git will run it) and still fail
+  // every commit on Windows because it has no shebang — a portability
+  // defect independent of wiring. See git-hooks.js hasShebang/ensureShebang.
+  describe('missingShebang (Windows portability)', () => {
+    it('warns even when the hook is otherwise wired', () => {
+      writeHuskyHookNoShebang();
+      wireGitHooksPath(dir, '.husky');
+      checkPreCommitWiring(dir, msg);
+      const out = logs.join('\n');
+      expect(out).toContain('.husky/pre-commit');
+      expect(out).toMatch(/shebang/);
+    });
+
+    it('is silent about shebang when the hook already has one and is wired', () => {
+      writeHuskyHook();
+      wireGitHooksPath(dir, '.husky');
+      checkPreCommitWiring(dir, msg);
+      expect(logs.join('\n')).toBe('');
+    });
+
+    it('also mentions the missing shebang alongside the original "will not run" warning', () => {
+      writeHuskyHookNoShebang();
+      checkPreCommitWiring(dir, msg);
+      const out = logs.join('\n');
+      expect(out).toMatch(/will not run it/);
+      expect(out).toMatch(/shebang/);
+    });
+
+    it('never modifies the filesystem while reporting it', () => {
+      writeHuskyHookNoShebang();
+      wireGitHooksPath(dir, '.husky');
+      const before = getLocalHooksPathConfig(dir);
+      checkPreCommitWiring(dir, msg);
+      expect(getLocalHooksPathConfig(dir)).toBe(before);
+    });
   });
 });
