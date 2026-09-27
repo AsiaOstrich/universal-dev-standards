@@ -9,7 +9,10 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.13.0-beta.2`
+## Current beta | 目前的測試版：`6.13.0-beta.3`
+
+> **New in beta.3** — `uds init` now makes the pre-commit check actually run (it used to write the hook file and rely on a later `npm install` to wire it, which often never happened); `uds check` warns when a hook file exists but git never runs it, with a fix that also handles the old husky v8 template; the version bump no longer mislabels a beta as "latest stable" in `SECURITY.md`.
+> **beta.3 新增** — `uds init` 會讓提交前檢查真的執行（過去只寫檔、仰賴之後的 `npm install` 才接上，常常從未接上）；`uds check` 在檢查檔存在但 git 不會執行時提出警告，修法也涵蓋舊版 husky v8 範本；升版不再把測試版標成 `SECURITY.md` 的「最新正式版」。
 
 > **New in beta.2** — `uds uninstall` now removes the UDS hook entries from Claude Code, Codex and Gemini CLI settings; the Codex "I asked you to stop" exemption now works (beta.1 read the wrong field); "I'm heading out, let's continue when I'm back" style phrases now count as a stop request (zh-TW and en).
 > **beta.2 新增** — `uds uninstall` 會移除 Claude Code、Codex、Gemini CLI 設定裡的 UDS 關卡；Codex 上「你叫它停就放行」現在生效（beta.1 讀錯欄位）；「我要出門了，等我回來再繼續」這類說法現在算叫停（繁中與英文）。
@@ -28,7 +31,9 @@ It is rewritten for **each** beta — the section "Current beta" always describe
    記憶查核：在記憶或說明檔有提到檔案路徑的專案裡，請 AI 整理它的記憶；被搬走的路徑應被標成過期，而不是照舊使用。
 2. **Turn-completion on Codex / Gemini CLI** — run `uds init --with-hooks` and select OpenAI Codex and/or Gemini CLI; confirm `.codex/hooks.json` / `.gemini/settings.json` now contain the hook. In a session: (a) let the assistant end a turn with "I'll do the remaining two next" without doing them → it should be sent back to continue; (b) end with "once you pick, I'll write it up" → it should **not** be sent back; (c) ask it to stop ("pause, I'm heading out") → it should not be sent back (on Codex this may still misfire, see limitations).
    Codex／Gemini CLI 上的關卡：執行 `uds init --with-hooks` 並勾選 OpenAI Codex／Gemini CLI，確認 `.codex/hooks.json`／`.gemini/settings.json` 已寫入。在工作階段裡：(a) 讓 AI 說「剩下兩項我繼續做」卻沒做就結束回合 → 應被擋回去；(b) 以「你選定後，我會寫成紀錄」結束 → **不應**被擋；(c) 請它停下（「我要出門了」）→ 不應被擋（Codex 上可能仍誤擋，見已知限制）。
-3. **No regression on Claude Code** — the hook should still block "I'll do X next" when X was not done, and should **not** block when the next step waits on you.
+3. **Pre-commit check actually runs** — in a project where `uds init` wrote `.husky/pre-commit`, run `uds check`; if it warns that git never runs the hook, follow the printed fix in order, then make a commit and confirm the check's output appears.
+   提交前檢查真的會跑：在 `uds init` 寫過 `.husky/pre-commit` 的專案跑 `uds check`；若警告 git 不會執行它，照印出的修法依序做，再提交一次，確認看得到檢查的輸出。
+4. **No regression on Claude Code** — the hook should still block "I'll do X next" when X was not done, and should **not** block when the next step waits on you.
    Claude Code 不退步：說了要做卻沒做仍會被擋；下一步在等你決定時不會被擋。
 
 ### Known limitations | 已知限制
