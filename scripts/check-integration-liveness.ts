@@ -26,7 +26,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -99,7 +99,11 @@ function readJson(relPath: string): any {
 
 const registry = readJson('integrations/REGISTRY.json');
 const standardsRegistry = readJson('cli/standards-registry.json');
-const agentPaths = (await import(join(ROOT_DIR, 'cli/src/config/ai-agent-paths.js')))
+// A filesystem path (`C:\...` on Windows) is not a valid ESM import
+// specifier — dynamic import() needs a file:// URL there. Only ever
+// measured on ubuntu (this check does not run in the Windows CI job), but
+// it is the same defect measured in scripts/hooks/turn-completion/engine.mjs.
+const agentPaths = (await import(pathToFileURL(join(ROOT_DIR, 'cli/src/config/ai-agent-paths.js')).href))
   .AI_AGENT_PATHS as Record<string, { supportsSkills?: boolean; skills?: unknown }>;
 
 const regAgents = registry.agents as Record<string, RegistryAgent>;

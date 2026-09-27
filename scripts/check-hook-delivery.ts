@@ -30,7 +30,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 let failures = 0;
@@ -178,7 +178,11 @@ function stopHookBehaviour(dir: string, abs: string): void {
 }
 
 async function main() {
-  const mod = await import(join(ROOT, 'cli/src/installers/hooks-installer.js'));
+  // A filesystem path (`C:\...` on Windows) is not a valid ESM import
+  // specifier — dynamic import() needs a file:// URL there. Only ever
+  // measured on ubuntu (this check does not run in the Windows CI job), but
+  // it is the same defect measured in scripts/hooks/turn-completion/engine.mjs.
+  const mod = await import(pathToFileURL(join(ROOT, 'cli/src/installers/hooks-installer.js')).href);
   const { installHooks, standardsSourceDir, hooksSourceDir } = mod;
 
   // 🔴 cli/bundled/ is an untracked prepack artifact that the installer PREFERS

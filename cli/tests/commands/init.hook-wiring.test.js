@@ -57,9 +57,18 @@ function markerExists() {
 }
 
 /** Replace whatever's at `hookPath` with a script that just touches MARKER —
- * proves git actually executes THIS FILE, without invoking the real `uds`. */
+ * proves git actually executes THIS FILE, without invoking the real `uds`.
+ * Carries a shebang: without one, git for Windows cannot spawn ANY hook file
+ * at all (see git-hooks.js hasShebang) — that would fail every test in this
+ * file for a reason unrelated to what each test actually checks (wiring,
+ * override behaviour, idempotence). POSIX git does not need it (it falls
+ * back to /bin/sh on ENOEXEC), so this is a no-op there. */
+function markerScriptContent() {
+  return `#!/bin/sh\ntouch ${MARKER}\n`;
+}
+
 function replaceWithMarkerScript(hookPath) {
-  writeFileSync(hookPath, `touch ${MARKER}\n`);
+  writeFileSync(hookPath, markerScriptContent());
   chmodSync(hookPath, 0o755);
 }
 
@@ -69,19 +78,6 @@ function commit(message = 'work') {
   return execSync(`git -c user.name=test -c user.email=test@test.com commit -q -m "${message}"`, {
     cwd: dir, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe']
   });
-}
-
-function commitFails(message = 'work') {
-  writeFileSync(join(dir, `file-${Date.now()}-${Math.random()}`), 'x');
-  git('add -A');
-  try {
-    execSync(`git -c user.name=test -c user.email=test@test.com commit -q -m "${message}"`, {
-      cwd: dir, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe']
-    });
-    return false;
-  } catch {
-    return true;
-  }
 }
 
 function logCount() {
@@ -136,11 +132,25 @@ describe('setupHuskyHook — Node project, the wiring actually runs', () => {
     }));
 
     await setupHuskyHook(dir, { allowInTest: true });
-    writeFileSync(join(dir, '.husky', 'pre-commit'), 'exit 1\n');
+    // Shebang required (see markerScriptContent above) — without it this
+    // would "pass" on Windows for the wrong reason: git cannot spawn ANY
+    // shebang-less hook there, so the commit would fail even if the hook
+    // body were `exit 0`. The assertion below on stderr is what tells the
+    // two failure modes apart.
+    writeFileSync(join(dir, '.husky', 'pre-commit'), '#!/bin/sh\nexit 1\n');
     chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
 
     const before = logCount();
-    expect(commitFails()).toBe(true);
+    let stderr = '';
+    let failed = false;
+    try {
+      commit();
+    } catch (e) {
+      failed = true;
+      stderr = String(e.stderr || e.message || '');
+    }
+    expect(failed).toBe(true);
+    expect(stderr).not.toMatch(/cannot spawn/);
     expect(logCount()).toBe(before);
   });
 
@@ -169,13 +179,13 @@ describe('setupHuskyHook — Node project, the wiring actually runs', () => {
     }));
     mkdirSync(join(dir, '.git', 'hooks'), { recursive: true });
     const nativeHook = join(dir, '.git', 'hooks', 'pre-commit');
-    writeFileSync(nativeHook, `touch ${MARKER}\n`);
+    writeFileSync(nativeHook, markerScriptContent());
     chmodSync(nativeHook, 0o755);
 
     await setupHuskyHook(dir, { allowInTest: true });
 
     expect(getLocalHooksPathConfig(dir)).toBeNull();
-    expect(readFileSync(nativeHook, 'utf-8')).toBe(`touch ${MARKER}\n`);
+    expect(readFileSync(nativeHook, 'utf-8')).toBe(markerScriptContent());
     // The adopter's own native hook is still what runs.
     commit();
     expect(markerExists()).toBe(true);
@@ -297,12 +307,12 @@ describe('setupHuskyHook — non-Node project, native hook actually runs', () =>
     initRepo();
     mkdirSync(join(dir, '.git', 'hooks'), { recursive: true });
     const nativeHook = join(dir, '.git', 'hooks', 'pre-commit');
-    writeFileSync(nativeHook, `touch ${MARKER}\n`);
+    writeFileSync(nativeHook, markerScriptContent());
     chmodSync(nativeHook, 0o755);
 
     await setupHuskyHook(dir, { allowInTest: true });
 
-    expect(readFileSync(nativeHook, 'utf-8')).toBe(`touch ${MARKER}\n`);
+    expect(readFileSync(nativeHook, 'utf-8')).toBe(markerScriptContent());
     commit();
     expect(markerExists()).toBe(true);
   });

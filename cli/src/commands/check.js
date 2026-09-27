@@ -1279,7 +1279,22 @@ function checkErrorExitGate(projectPath) {
  */
 export function checkPreCommitWiring(projectPath, msg) {
   const result = checkPreCommitHookWiring(projectPath);
-  if (!result.relevant || result.wired) return; // 沒有 UDS 管理的 hook，或已確認會執行——安靜通過
+  if (!result.relevant) return; // 沒有 UDS 管理的 hook
+
+  if (result.wired) {
+    // 🔴 「已確認會執行」在 POSIX 上為真，在 Windows 上不一定——git for
+    // Windows 沒有 POSIX 的 ENOEXEC → /bin/sh 後備機制，缺 shebang 的 hook
+    // 每次 commit 都會失敗，訊息卻指向 hook 檔本身
+    // （`cannot spawn <file>: No such file or directory`），2026-09-27 實測
+    // 於 CI windows-latest。這與「wiring」是兩個獨立的缺陷面，有各自的旗標。
+    if (result.missingShebang) {
+      console.log(chalk.yellow((msg.hookMissingShebangTitle || '⚠ [pre-commit] {file} has no shebang line — git cannot run it on Windows.')
+        .replace('{file}', result.hookFile)));
+      console.log(chalk.gray((msg.hookMissingShebangFix || '').replace(/\{file\}/g, result.hookFile)));
+      console.log();
+    }
+    return; // 已確認會執行——wiring 本身安靜通過
+  }
 
   console.log(chalk.yellow((msg.hookNotWiredTitle || '⚠ [pre-commit] {file} was installed, but git will not run it.')
     .replace('{file}', result.hookFile)));
@@ -1303,6 +1318,14 @@ export function checkPreCommitWiring(projectPath, msg) {
   } else {
     console.log(chalk.gray((msg.hookNotWiredUnwired || '').replace('{file}', result.hookFile)));
     console.log(chalk.gray(msg.hookNotWiredFix || ''));
+  }
+
+  // Independent of wiring — a hook can be fully wired for commit and still
+  // fail every commit on Windows if it has no shebang (see the `wired`
+  // branch above for why). Say so here too so fixing wiring alone does not
+  // look like a complete fix.
+  if (result.missingShebang) {
+    console.log(chalk.gray((msg.hookMissingShebangFix || '').replace(/\{file\}/g, result.hookFile)));
   }
 
   console.log();

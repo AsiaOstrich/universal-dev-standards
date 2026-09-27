@@ -17,6 +17,11 @@ status: current
 
 ## [Unreleased]
 
+### 修復
+
+- **`turn-completion-integrity` 的 Stop hook 在 Windows 上一路到 6.13.0-beta.3 都靜默失效——它照跑、找不到任何語言包、然後放行每一輪對話，且什麼都不印。** `engine.mjs` 的 `loadPacks()` 用 `join(HERE, 'locales', ...)` 組出每個語言包的路徑，直接把這個檔案系統路徑交給動態 `import()`；在 Windows 上那是 `C:\...` 這種路徑，不是合法的 ESM import 指定字串（POSIX 上的絕對路徑恰好也能被解析成合法指定字串，這正是為何在 macOS/Linux 上從未被發現）。2026-09-27 於 CI（windows-latest）實測：每一個出貨的語言包都載入失敗，而每一個原本該回 `block`/`deny` 決策的介接層（Claude Code、Codex、Gemini CLI）全部回傳 `undefined`。修法改用 `pathToFileURL(...).href`，與 `cli/src/utils/standard-fixer.js`／`standard-validator.js` 既有的正確寫法一致。四支 `scripts/check-*.ts` 開發工具腳本有同樣的寫法（Windows CI job 不會跑到它們，因為它們只在 `ubuntu-latest` 上執行，但那裡同樣是壞的），一併以同樣方式修正。新增一支全 repo 走訪測試（`cli/tests/unit/scripts/no-fs-path-dynamic-import.test.js`）掃描 `scripts/`、`cli/src/`、`cli/scripts/` 找這個寫法，未來新增的一處不需要有人記得這次事故也會被擋下。
+- **由 `uds init` 寫入的 husky 管理 `.husky/pre-commit`，即使 `core.hooksPath` 已正確接好，在 Windows 上一路到 6.13.0-beta.3 都會讓每一次提交失敗，錯誤是 `error: cannot spawn .husky/pre-commit: No such file or directory`。** husky v9 自己的範本沒有 shebang 行，這在 macOS/Linux 上一直能動，因為 POSIX git 在腳本沒有 shebang 時（`ENOEXEC`）會退回用 `/bin/sh` 執行；git for Windows 沒有這個後備機制，完全無法對沒有 shebang 的檔案 spawn，而且錯誤訊息指向 hook 檔本身而非缺少的直譯器——很容易被誤判成 wiring 問題而非內容問題。`uds init` 現在會在缺少 shebang 時，於 husky 管理的 hook 最前面補上 `#!/bin/sh`，不分平台一律如此，無論是寫新 hook 還是動到既有的採用者檔案（只會插入，絕不重寫採用者自己的 shebang 或任何其他行）。`uds check` 的 `[pre-commit]` 警告新增 `missingShebang` 訊號，獨立於 wiring 回報（一個 hook 可以完全接好但在 Windows 上仍因此失敗），且維持既有設計，只讀不寫。
+
 ## [6.13.0-beta.3] - 2026-09-27
 
 > **測試版** — 以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、已知限制、如何退回正式版：見 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

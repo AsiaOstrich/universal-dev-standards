@@ -28,7 +28,7 @@ import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
 import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
-import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine } from '../utils/git-hooks.js';
+import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang } from '../utils/git-hooks.js';
 
 /**
  * Init command - initialize standards in current project
@@ -428,12 +428,22 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
     const udsCmd = 'npx uds check';
 
     try {
-      // husky v9 hooks are plain shell scripts: no shebang, no `_/husky.sh` sourcing
-      // (that is v8 syntax, deprecated in v9 and removed in v10). Verified empirically
-      // (2026-09-26): git executes a hook file with no shebang directly and correctly
-      // propagates its exit code, on this platform, once it is on git's hooks path —
-      // see step 5. Existing files are appended to, never rewritten — their contents
-      // are the adopter's, not ours.
+      // husky v9's own templates carry no shebang, no `_/husky.sh` sourcing
+      // (that is v8 syntax, deprecated in v9 and removed in v10). Verified
+      // empirically (2026-09-26, macOS): git executes a hook file with no
+      // shebang directly and correctly propagates its exit code, once it is
+      // on git's hooks path — see step 5.
+      //
+      // 🔴 That verification did not cover Windows, and Windows behaves
+      // differently: POSIX git falls back to `/bin/sh` on ENOEXEC (a script
+      // with no shebang) — that fallback is why the shebang-less shape above
+      // has always worked on macOS and Linux. Git for Windows has no such
+      // fallback and fails EVERY commit with `error: cannot spawn
+      // <hookfile>: No such file or directory` (measured 2026-09-27 in CI,
+      // windows-latest). So a shebang is added below regardless of platform
+      // — cheap, harmless on POSIX, and required on Windows. Existing files
+      // are appended to, never rewritten — their contents are the adopter's,
+      // not ours; ensureShebang only ever prepends a missing first line.
       let content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
 
       // A pre-existing file may still carry husky v8's `_/husky.sh` sourcing
@@ -455,7 +465,10 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
         content = `${content}${sep}\n# UDS Standard Check\n${udsCmd}\n`;
       }
 
-      if (hadLegacyLine || needsAppend) {
+      const { content: shebanged, added: addedShebang } = ensureShebang(content);
+      content = shebanged;
+
+      if (hadLegacyLine || needsAppend || addedShebang) {
         writeFileSync(preCommitPath, content, 'utf-8');
         try {
           execSync(`chmod +x ${preCommitPath}`);
@@ -467,9 +480,12 @@ export async function setupHuskyHook(projectPath, { allowInTest = false } = {}) 
       if (hadLegacyLine) {
         console.log(chalk.yellow('  ⚠ Rewrote legacy husky v8 template: removed `_/husky.sh` sourcing (that directory only exists after husky\'s own bootstrap runs; git now executes this file directly, so that line would have failed every commit).'));
       }
+      if (addedShebang) {
+        console.log(chalk.yellow('  ⚠ Added a missing #!/bin/sh shebang: without it, git cannot execute this hook on Windows.'));
+      }
       if (needsAppend) {
         console.log(chalk.green('  ✓ Adding uds check to pre-commit hook'));
-      } else if (!hadLegacyLine) {
+      } else if (!hadLegacyLine && !addedShebang) {
         console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
       }
     } catch (e) {

@@ -136,6 +136,53 @@ describe('setupHuskyHook — the pre-commit hook', () => {
 
     expect(preCommit().match(/npx uds check/g)).toHaveLength(1);
   });
+
+  // 2026-09-27: a hook with no shebang has always worked on macOS/Linux
+  // (POSIX git falls back to /bin/sh on ENOEXEC) but fails EVERY commit on
+  // Windows (`error: cannot spawn .husky/pre-commit: No such file or
+  // directory` — measured in CI, windows-latest). See ensureShebang in
+  // git-hooks.js.
+  it('adds a #!/bin/sh shebang so the hook can run on Windows', async () => {
+    makeProject({ prepare: 'tsup' });
+
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    expect(preCommit().startsWith('#!/bin/sh\n')).toBe(true);
+  });
+
+  it('adds the shebang to an existing hook that lacks one, without disturbing the adopter\'s own lines', async () => {
+    makeProject({ prepare: 'tsup' });
+    mkdirSync(join(dir, '.husky'), { recursive: true });
+    writeFileSync(join(dir, '.husky', 'pre-commit'), 'npm run lint\n');
+
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    const content = preCommit();
+    expect(content.startsWith('#!/bin/sh\n')).toBe(true);
+    expect(content).toContain('npm run lint');
+    expect(content).toContain('npx uds check');
+  });
+
+  it('does not add a second shebang when one already exists (respects the adopter\'s own interpreter)', async () => {
+    makeProject({ prepare: 'tsup' });
+    mkdirSync(join(dir, '.husky'), { recursive: true });
+    writeFileSync(join(dir, '.husky', 'pre-commit'), '#!/usr/bin/env bash\nnpm run lint\n');
+
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    const content = preCommit();
+    expect(content.startsWith('#!/usr/bin/env bash\n')).toBe(true);
+    expect(content.match(/^#!/gm)).toHaveLength(1);
+  });
+
+  it('is idempotent about the shebang across repeated inits', async () => {
+    makeProject({ prepare: 'tsup' });
+
+    await setupHuskyHook(dir, { allowInTest: true });
+    await setupHuskyHook(dir, { allowInTest: true });
+
+    expect(preCommit().match(/^#!/gm)).toHaveLength(1);
+  });
 });
 
 describe('setupHuskyHook — guards', () => {
