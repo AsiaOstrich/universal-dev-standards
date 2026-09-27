@@ -271,12 +271,13 @@ describe('real-world incident reproduction (2026-09-27): hooksPath alone on a le
       writeFileSync(join(stubBin, n), '#!/bin/sh\nexit 0\n');
       chmodSync(join(stubBin, n), 0o755);
     }
-    const savedPath = process.env.PATH;
-    process.env.PATH = `${stubBin}:${savedPath}`;
+    // `git()` here uses GIT_ENV, frozen at module load — setting process.env.PATH
+    // does nothing (measured 2026-09-27: the first version of this stub passed
+    // locally and failed in pre-release-check). Pass PATH in the env explicitly.
+    const env = { ...GIT_ENV, PATH: `${stubBin}:${GIT_ENV.PATH}` };
     try {
-      expect(() => git(commitCmd('test'))).not.toThrow();
+      expect(() => execSync(`git ${commitCmd('test')}`, { cwd: dir, env, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] })).not.toThrow();
     } finally {
-      process.env.PATH = savedPath;
       rmSync(stubBin, { recursive: true, force: true });
     }
   });
