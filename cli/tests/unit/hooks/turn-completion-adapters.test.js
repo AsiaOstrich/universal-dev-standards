@@ -191,6 +191,67 @@ describe('turn-completion-integrity: Codex adapter', () => {
   });
 });
 
+describe('turn-completion-integrity: Claude Code adapter', () => {
+  // Measured 2026-09-28 against Claude Code 2.1.283 in a live `claude -p`
+  // session: when the Stop hook runs, the transcript does NOT yet hold the
+  // final assistant message, and stdin carries it as last_assistant_message.
+  // The adapter used to read only the transcript, got "", and allowed 5/5
+  // turns that should have blocked. These transcripts reproduce the shape the
+  // hook actually sees at that moment, not the completed file seen afterwards.
+
+  /** Claude Code prints nothing on allow, so parse only when there is output. */
+  function runClaude(stdinObj) {
+    const stdout = execFileSync(process.execPath, [CLAUDE_ADAPTER], {
+      input: JSON.stringify(stdinObj),
+      env: { ...process.env, UDS_TURN_COMPLETION_STATE_DIR: stateDir },
+      encoding: 'utf8',
+    });
+    return stdout.trim() ? JSON.parse(stdout) : {};
+  }
+
+  /** Write a Claude Code transcript from [role, text] pairs. */
+  function writeTranscript(name, turns) {
+    const path = join(stateDir, name);
+    writeFileSync(path, turns.map(([role, text]) =>
+      JSON.stringify({ type: role, message: { role, content: role === 'user' ? text : [{ type: 'text', text }] } })).join('\n') + '\n');
+    return path;
+  }
+
+  it('blocks on last_assistant_message when the transcript does not yet hold the final message (the live shape)', () => {
+    const tp = writeTranscript('race.jsonl', [['user', 'please refactor the parser']]);
+    const out = runClaude({ session_id: randomUUID(), transcript_path: tp, stop_hook_active: false,
+      last_assistant_message: "I'll do the remaining two next." });
+    expect(out.decision).toBe('block');
+  });
+
+  it('judges the current message, not a stale commitment from the previous turn left in the transcript', () => {
+    const tp = writeTranscript('stale.jsonl', [
+      ['user', 'please refactor the parser'],
+      ['assistant', "I'll do the remaining two next."],
+      ['user', 'ok go'],
+    ]);
+    const out = runClaude({ session_id: randomUUID(), transcript_path: tp, stop_hook_active: false,
+      last_assistant_message: 'Both are done and the tests pass.' });
+    expect(out).toEqual({});
+  });
+
+  it('still reads the human side from the transcript: a stop request exempts the turn (R9)', () => {
+    const tp = writeTranscript('stop.jsonl', [['user', "Let's pause here, I'm heading home."]]);
+    const out = runClaude({ session_id: randomUUID(), transcript_path: tp, stop_hook_active: false,
+      last_assistant_message: "I'll do the remaining two next." });
+    expect(out).toEqual({});
+  });
+
+  it('falls back to the transcript when stdin has no last_assistant_message (older Claude Code)', () => {
+    const tp = writeTranscript('fallback.jsonl', [
+      ['user', 'please refactor the parser'],
+      ['assistant', "I'll do the remaining two next."],
+    ]);
+    const out = runClaude({ session_id: randomUUID(), transcript_path: tp, stop_hook_active: false });
+    expect(out.decision).toBe('block');
+  });
+});
+
 describe('turn-completion-integrity: Gemini CLI adapter', () => {
   it('(a) an unkept commitment blocks in Gemini\'s shape ("deny", not "block")', () => {
     const out = runAdapter(GEMINI_ADAPTER, {

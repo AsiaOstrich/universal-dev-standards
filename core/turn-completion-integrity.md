@@ -157,6 +157,15 @@ actually wired into that harness's own config. As of v1.4.1:
 | Codex | Stop | `.codex/hooks.json` | stdout `{"decision":"block","reason":...}`, exit 0 — plain text or empty stdout is documented as invalid for this event |
 | Gemini CLI (legacy) | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
 
+Wired is not running on Codex. Codex skips a project hook until the project
+is trusted **and** that exact hook definition has been trusted through `/hooks`
+in an interactive Codex session; trust is recorded against the definition's
+hash, so a changed definition needs trusting again. Under `codex exec` an
+untrusted hook is skipped with no message at all (measured 2026-09-28,
+codex-cli 0.155.1: the adapter was never invoked until the hook was trusted,
+then blocked and allowed exactly as its tests say). `uds init --with-hooks`
+prints this next to the install line.
+
 Codex's R9 exemption is best-effort, not silent failure: Codex's Stop payload
 gives the assistant's final message directly but not the human's, so reading
 the human side requires parsing a transcript file. Confirmed against a real

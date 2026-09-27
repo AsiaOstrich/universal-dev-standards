@@ -134,6 +134,7 @@ supported_harnesses:
     config_file: ".codex/hooks.json"
     block_shape: '{"decision":"block","reason":...}, exit 0 — plain text or empty stdout documented as invalid for this event'
     script: scripts/hooks/check-turn-completion-codex.mjs
+    activation: "Codex skips a project hook until the project is trusted AND the exact hook definition is trusted via /hooks (trust keyed to the definition's hash). Under codex exec an untrusted hook is skipped silently. Measured 2026-09-28, codex-cli 0.155.1"
     known_limit: "R9 (human-directed stop exemption) is best-effort — Codex gives the assistant's last message directly but not the human's; a failed transcript read leaves the human side empty rather than skipping detection"
   - harness: gemini-cli
     event: AfterAgent

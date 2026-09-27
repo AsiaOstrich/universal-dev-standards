@@ -17,6 +17,11 @@ status: current
 
 ## [Unreleased]
 
+### 修复
+
+- **Claude Code 的回合收尾关卡在真实的 Claude Code 会话里从未拦下过任何回合——6.13.0-beta.1 到 beta.4 的每个采用者都接上了、也在执行，而它放行了每一个回合。** 2026-09-28 以 Claude Code 2.1.283 在真实 `claude -p` 会话实测：Stop hook 执行的那一刻，对话记录里还没有最后一条 AI 回复，因此只读对话记录的适配层看到空消息，应拦的 5 次全部放行；在较长的对话里，它判断的会是上一轮的回复。自我测试与单元测试从头到尾都通过，因为每一个都喂给适配层一份已经写完的对话记录。适配层现在改从 stdin 的 `last_assistant_message`（Claude Code 会发送）取得最后一条回复，对话记录只用来读人的那一侧（R9），以及在不发送这个字段的版本上作为备援。修复后已再次实测。新测试重现关卡当下实际看到的形状，在旧适配层上会失败。
+- **Codex 的关卡装上了却从未执行，而且没有任何提示。** Codex 会跳过项目级的 hook，直到项目被信任、且这一支 hook 通过 `/hooks` 被信任为止——在 `codex exec` 下完全无声。`uds init --with-hooks` 现在会在 Codex 安装那一行旁边说明这件事，标准的〈支持的执行环境〉与 `docs/PRE-RELEASE.md` 也补上这个步骤。信任之后，Codex 适配层的拦截与放行与它的测试完全一致（2026-09-28 实测，codex-cli 0.155.1）。
+
 ### 变更
 
 - **`turn-completion-integrity` 1.4.1：Gemini CLI 适配层标为过时，并明列 Antigravity CLI 尚未支持。** Google 于 2026-06-18 对个人账号停用 Gemini CLI，改由 Antigravity CLI（`agy`）取代；企业账号两者都还能用。适配层为他们保留，但从未在真实的 Gemini CLI 会话中验证过，因此不再与 Claude Code、Codex 适配层并列。Antigravity CLI 文档记载的 Stop hook 契约与所有已发布的适配层都不同（配置在 `.agents/hooks.json`；传入数据只有 `transcriptPath`，没有最后一条回复或人的消息；拦截是 `{"decision":"continue"}`），因此在真实会话中观察到这份契约之前不发布适配层——与 Cursor 不支持是同一条规则。行为不变：选了 Gemini CLI 时，`uds init --with-hooks` 仍会接上它的关卡。

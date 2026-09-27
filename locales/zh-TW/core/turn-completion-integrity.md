@@ -3,7 +3,7 @@ source: ../../../core/turn-completion-integrity.md
 source_version: 1.4.1
 translation_version: 1.4.1
 last_synced: 2026-09-28
-source_hash: c0707b2ff6cb
+source_hash: 0c04676006c0
 status: current
 ---
 
@@ -151,6 +151,12 @@ agent 寫下「我接著做 X」，然後結束回合，而 X 沒有做。
 | Claude Code | Stop | `.claude/settings.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0；沉默即放行 |
 | Codex | Stop | `.codex/hooks.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0——官方文件寫明這個事件純文字或空輸出無效 |
 | Gemini CLI（過時） | AfterAgent | `.gemini/settings.json` | stdout 印 `{"decision":"deny","reason":...}`，exit 0——官方文件標記為優先於 exit code 2 的做法 |
+
+在 Codex 上，接上了不等於會執行。Codex 會略過專案層級的 hook，直到專案被信任、**而且**
+這一支 hook 的定義在互動式 Codex 工作階段裡透過 `/hooks` 被信任為止；信任紀錄綁在定義的
+雜湊值上，定義一改就要重新信任。在 `codex exec` 底下，未被信任的 hook 會被略過，而且完全
+沒有任何訊息（2026-09-28 實測，codex-cli 0.155.1：hook 被信任之前適配層一次都沒被呼叫；
+信任之後，擋與放行都與它的測試完全一致）。`uds init --with-hooks` 會在安裝那一行旁邊印出這件事。
 
 Codex 的 R9 豁免是盡力而為，不是靜默失效：Codex 的 Stop payload 直接給
 agent 的最後一則訊息，卻不給使用者的；要拿到使用者那一側必須解析一份

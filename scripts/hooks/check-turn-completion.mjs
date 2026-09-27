@@ -6,7 +6,8 @@
  * commitment to a next action that the turn then ended without taking.
  *
  * Contract (Claude Code Stop hook):
- *   stdin  — JSON with session_id, transcript_path, stop_hook_active
+ *   stdin  — JSON with session_id, transcript_path, stop_hook_active, and
+ *            (current Claude Code) last_assistant_message
  *   block  — print {"decision":"block","reason":"..."} on stdout, exit 0
  *   allow  — print nothing, exit 0
  *
@@ -20,6 +21,17 @@
  * turn-completion/engine.mjs and is shared by all of them; this file's only job
  * is reading Claude Code's stdin/transcript shape and writing Claude Code's
  * output shape.
+ *
+ * The agent's final message is taken from stdin's `last_assistant_message`
+ * when present, NOT from the transcript. Measured 2026-09-28 against Claude
+ * Code 2.1.283 in a live `claude -p` session: at the moment the Stop hook runs,
+ * the transcript does not yet contain the final assistant message — the
+ * adapter read "" and allowed 5 of 5 turns that should have blocked. (In a
+ * longer session it would have read the PREVIOUS turn's message instead.)
+ * Every self-test and unit test passed throughout, because they all hand the
+ * adapter a transcript that is already complete. The transcript is still read
+ * for the human's side (R9), which is written at the start of the turn, and
+ * as the fallback for Claude Code versions that do not send the field.
  *
  * Usage: node check-turn-completion.mjs  (reads stdin)
  *        node check-turn-completion.mjs --self-test
@@ -82,15 +94,19 @@ async function main() {
   if (!data || typeof data !== 'object') return;
   if (data.stop_hook_active === true) return;
 
-  const tp = data.transcript_path;
-  if (!tp || !existsSync(tp)) return;   // cannot tell is not the same as should block
+  const fromStdin = typeof data.last_assistant_message === 'string' ? data.last_assistant_message : null;
 
-  let msgs;
-  try { msgs = lastMessages(tp); } catch { return; }
+  const tp = data.transcript_path;
+  let msgs = { assistant: '', user: '' };
+  if (tp && existsSync(tp)) {
+    try { msgs = lastMessages(tp); } catch { /* human side unknown; see below */ }
+  } else if (fromStdin === null) {
+    return;   // no message from either source: cannot tell is not the same as should block
+  }
 
   const verdict = await decide({
     sessionId: data.session_id,
-    assistantText: msgs.assistant,
+    assistantText: fromStdin !== null ? fromStdin : msgs.assistant,
     userText: msgs.user,
   });
   if (!verdict.fire) return;

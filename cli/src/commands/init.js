@@ -293,6 +293,11 @@ export async function initCommand(options) {
       const codexResult = installCodexHooks(projectPath);
       if (codexResult.installed) {
         console.log(chalk.green('  ✓ Codex Stop hook installed (turn-completion-integrity)'));
+        // Measured 2026-09-28 (codex-cli 0.155.1): Codex skips a project hook
+        // until the project is trusted AND that exact hook definition is
+        // trusted via /hooks — silently under `codex exec`. Installed is not
+        // running; say so here, where the adopter believes it now works.
+        console.log(chalk.yellow('    ⚠ Codex will not run it until you trust it: open Codex in this project, trust the project, then run /hooks and trust this hook. Until then it is skipped (silently under `codex exec`).'));
       } else {
         console.log(chalk.yellow(`  ⚠ Codex hook not installed — ${codexResult.reason}`));
       }
@@ -301,7 +306,7 @@ export async function initCommand(options) {
       const { installGeminiHooks } = await import('../installers/hooks-installer.js');
       const geminiResult = installGeminiHooks(projectPath);
       if (geminiResult.installed) {
-        console.log(chalk.green('  ✓ Gemini CLI AfterAgent hook installed (turn-completion-integrity)'));
+        console.log(chalk.green('  ✓ Gemini CLI AfterAgent hook installed (turn-completion-integrity; Gemini CLI is legacy — see the standard)'));
       } else {
         console.log(chalk.yellow(`  ⚠ Gemini CLI hook not installed — ${geminiResult.reason}`));
       }
