@@ -261,6 +261,23 @@ describe('real-world incident reproduction (2026-09-27): hooksPath alone on a le
     writeFileSync(join(dir, '.husky', 'pre-commit'), content);
     wireGitHooksPath(dir, '.husky');
 
-    expect(() => git(commitCmd('test'))).not.toThrow();
+    // The hook runs `npx uds check` (and here the adopter's `npm run lint`). Whether
+    // those resolve depends on the machine (global install, npx cache, network) —
+    // measured 2026-09-27: green for the author, red in pre-release-check with
+    // "npm error could not determine executable to run". This test is about the
+    // husky.sh line, so npx/npm are stubbed to exit 0 for the duration.
+    const stubBin = mkdtempSync(join(tmpdir(), 'uds-stubbin-'));
+    for (const n of ['npx', 'npm']) {
+      writeFileSync(join(stubBin, n), '#!/bin/sh\nexit 0\n');
+      chmodSync(join(stubBin, n), 0o755);
+    }
+    const savedPath = process.env.PATH;
+    process.env.PATH = `${stubBin}:${savedPath}`;
+    try {
+      expect(() => git(commitCmd('test'))).not.toThrow();
+    } finally {
+      process.env.PATH = savedPath;
+      rmSync(stubBin, { recursive: true, force: true });
+    }
   });
 });
