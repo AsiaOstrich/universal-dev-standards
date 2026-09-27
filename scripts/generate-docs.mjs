@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { syncSecurityVersions as writeSecurityVersionsTable } from './lib/security-versions.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,37 +112,23 @@ function syncReadmeVersions(version) {
 
 function syncSecurityVersions(version, stableVersion) {
   console.log('🔒 Syncing SECURITY.md supported versions...');
-  const isPrerelease = version.includes('-');
 
-  const tables = {
-    en: isPrerelease
-      ? `| Version | Supported | 支援狀態 |\n|---------|-----------|--------|\n| ${version} | ✅ Pre-release | 預發布版本 |\n| ${stableVersion} | ✅ Latest stable | 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ End of life | 已終止支援 |`
-      : `| Version | Supported | 支援狀態 |\n|---------|-----------|--------|\n| ${version} | ✅ Latest stable | 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ End of life | 已終止支援 |`,
-    zh: isPrerelease
-      ? `| 版本 | 支援狀態 |\n|------|--------|\n| ${version} | ✅ 預發布版本 |\n| ${stableVersion} | ✅ 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ 已終止支援 |`
-      : `| 版本 | 支援狀態 |\n|------|--------|\n| ${version} | ✅ 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ 已終止支援 |`,
-    cn: isPrerelease
-      ? `| 版本 | 支持状态 |\n|------|--------|\n| ${version} | ✅ 预发布版本 |\n| ${stableVersion} | ✅ 最新正式版 |\n| < ${stableVersion.split('.')[0]}.0.0 | ❌ 已终止支持 |`
-      : `| 版本 | 支持状态 |\n|------|--------|\n| ${version} | ✅ 最新正式版 |\n| < ${version.split('.')[0]}.0.0 | ❌ 已终止支持 |`
-  };
+  // Table generation itself lives in ./lib/security-versions.mjs, shared with
+  // bump-version.mjs, so the two consumers can't drift into inconsistent
+  // "what should this row say" logic again (that drift is what shipped the
+  // 6.13.0-beta.2 mislabeling — see that module's header comment).
+  const results = writeSecurityVersionsTable(version, stableVersion, securityFiles);
 
-  const regex = /<!-- UDS_SUPPORTED_VERSIONS_START -->[\s\S]*?<!-- UDS_SUPPORTED_VERSIONS_END -->/g;
-
-  securityFiles.forEach(filePath => {
-    if (!fs.existsSync(filePath)) return;
-    let content = fs.readFileSync(filePath, 'utf8');
+  for (const { filePath, status } of results) {
     const relPath = path.relative(ROOT_DIR, filePath);
-    let lang = 'en';
-    if (filePath.includes('zh-TW')) lang = 'zh';
-    if (filePath.includes('zh-CN')) lang = 'cn';
-
-    if (regex.test(content)) {
-      regex.lastIndex = 0;
-      content = content.replace(regex, `<!-- UDS_SUPPORTED_VERSIONS_START -->\n${tables[lang]}\n<!-- UDS_SUPPORTED_VERSIONS_END -->`);
-      fs.writeFileSync(filePath, content);
+    if (status === 'ok') {
       console.log(`✅ Security versions synced in: ${relPath}`);
     }
-  });
+    // 'skip' (file not found) and 'no-match' (marker block missing) stay
+    // silent here, matching this function's pre-existing behaviour — it has
+    // always treated SECURITY.md as optional/best-effort, unlike
+    // bump-version.mjs's stricter loop which errors loudly on both.
+  }
 }
 
 /**

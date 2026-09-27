@@ -23,6 +23,8 @@ status: current
 
 - **後續修正（2026-09-27）：上面那個修法，若既有採用者手上的 `.husky/pre-commit` 還是 husky v8 舊範本（含 `_/husky.sh` 那一行），照做反而會讓每一次提交都失敗。** 實測其中一個既有採用者的拋棄式 clone：照 `uds check` 原本建議的修法（`git config --local core.hooksPath .husky`）執行，結果印出 `.husky/pre-commit: line 2: .husky/_/husky.sh: No such file or directory`，`git commit` 以 exit 1 失敗——比原本「靜默不跑」的缺陷更糟，因為 `.husky/_/` 這個目錄只有在 husky 自己的 bootstrap 真的跑過後才存在，而直接把 `core.hooksPath` 設成 `.husky` 會讓 git 原封不動地執行這個檔案。`uds init` 的 `setupHuskyHook` 現在會偵測並移除這一行後再改寫 `.husky/pre-commit`（其餘內容——使用者自己加的指令、既有的 `uds check` 那一行——全部保留）；`uds check` 的 `[pre-commit]` 警告偵測到這種舊範本時，不再只單獨建議設定 hooksPath，改成給「先刪那一行、再設定 hooksPath」的兩步修法——因為 `uds init` 對已初始化的專案會直接拒絕執行，修不了這三個既有採用者的問題。`git-hooks.js` 新增共用函式 `hasLegacyHuskyShLine`／`stripLegacyHuskyShLine`。
 
+- **`bump-version.mjs` 在「預發布→預發布」的版本升版時，把 `SECURITY.md`「最新正式版」那一列標錯——實測發生於 6.13.0-beta.2 發版當下（2026-09-26），當時以手動更正。** 它的 `SECURITY.md` 修補邏輯找「裸版號（無尾碼）那一列」來認定是正式版列；新的預發布版號（如 `6.13.0-beta.2`）永遠帶著連字號、永遠不會符合「裸版號」，於是修補邏輯退而求其次改到唯一真正裸版號的那一列——也就是不相關的正式版列——把它的版號換成新的預發布版號，而原本該更新、已經過期的預發布列（仍是 `6.13.0-beta.1`）反而原封不動。已將產生表格的邏輯（`generate-docs.mjs` 原本就寫對、但 `bump-version.mjs` 未使用）抽成共用的 `scripts/lib/security-versions.mjs`，兩支腳本現在都改成用 `(version, stableVersion)` 整段重新產生 2 或 3 列的表格，而不是找一列去 patch——已針對全部四種版本型態轉換（正式→正式、正式→預發布、預發布→預發布、預發布→正式）、三種語言，透過對隔離複本執行一次真正的端到端 `bump-version.mjs` 驗證正確。`check-version-sync.sh` 原本的 SECURITY.md 檢查只比對第一列資料的版號是否等於 `package.json`（一種位置代理，恰好抓到了這次事故）；現在還會逐列比對「標籤」與「該列版號的形狀」是否吻合（「最新正式版／Latest stable」列若版號帶連字號、或「預發布版本／Pre-release」列若版號不帶連字號，即使位置檢查會通過，仍會被標記為錯誤）。
+
 ## [6.13.0-beta.2] - 2026-09-26
 
 > **測試版** — 以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、已知限制、如何退回正式版：見 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

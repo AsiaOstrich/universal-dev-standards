@@ -19,6 +19,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import { syncSecurityVersions } from './lib/security-versions.mjs';
 
 const IS_WINDOWS = process.platform === 'win32';
 
@@ -216,27 +217,52 @@ updateFile(
 // 兩份手寫清單各自列舉「哪些檔案帶版本號」，於是它們會漂開：2026-08-20 發 6.8.0 時
 // bump 跑完後 check 立刻紅了三行，而那三行是 bump 自己該做卻沒做的。
 // **一個寫入者與一個檢查者各持一份清單，就是等著不一致。**
-// 這裡先讓兩份對齊；根本修法是讓兩者消費同一份宣告（未做，見 commit body）。
-for (const [label, rel, re] of [
-  ['SECURITY.md', ['SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
-  ['locales/zh-TW/SECURITY.md', ['locales', 'zh-TW', 'SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
-  ['locales/zh-CN/SECURITY.md', ['locales', 'zh-CN', 'SECURITY.md'], /^\| \d+\.\d+\.\d+ \| ✅/m],
-]) {
-  const file = join(ROOT_DIR, ...rel);
-  if (!existsSync(file)) {
-    console.error(`  ✗ ${label} 不存在 —— 這不是「不需要更新」，是找不到要更新的東西`);
-    process.exitCode = 1;
-    continue;
+// 這裡先讓兩份對齊；根本修法是讓兩者消費同一份宣告。
+//
+// 2026-09-26 補（6.13.0-beta.2）：上面對齊之後，這裡曾經是一段自己的 regex
+// patch——找「裸版號（無 `-beta.N` 尾碼）那一列」當作「最新正式版」列去改。
+// 從 6.13.0-beta.1 bump 到 6.13.0-beta.2（預發布→預發布）時，新版號本身帶
+// `-beta.2` 尾碼，永遠不會被那條 regex 判為「裸版號」，於是它退而求其次改到
+// 唯一真正裸版號的那一列——也就是最新正式版列——把 6.12.0 換成
+// 6.13.0-beta.2，而預發布列反而原封不動留著舊的 beta.1。**規格對、標籤全錯**。
+// 根本修法就是上一段留的 TODO：改成呼叫 scripts/lib/security-versions.mjs
+// 那份「兩邊共用同一份宣告」的產生器，整段表格重寫而不是找一列去патch。
+// 呼叫時機刻意留在 plugin.json 尚未於本次 bump 更新之前（見下方步驟 8）：
+// 這正是需要的順序——`stableVersion` 在預發布時要讀「上一個」正式版，
+// 在正式版時 buildSecurityTables() 根本不會用到它，兩種情況這個順序都正確。
+{
+  const pluginJsonForSecurity = join(ROOT_DIR, '.claude-plugin', 'plugin.json');
+  let stableVersion = NEW_VERSION;
+  if (existsSync(pluginJsonForSecurity)) {
+    try {
+      const parsed = JSON.parse(readFileSync(pluginJsonForSecurity, 'utf8'));
+      if (parsed.version) stableVersion = parsed.version;
+    } catch {
+      // Malformed plugin.json — fall back to NEW_VERSION, same default
+      // generate-docs.mjs's injectDocs() uses when plugin.json is absent.
+    }
   }
-  const before = readFileSync(file, 'utf8');
-  const after = before.replace(re, (m) => m.replace(/\d+\.\d+\.\d+/, NEW_VERSION));
-  if (after === before) {
-    console.error(`  ✗ ${label} 沒有匹配到版本列 —— 表格格式可能改了，不是「已經是最新」`);
-    process.exitCode = 1;
-    continue;
-  }
-  writeFileSync(file, after, 'utf8');
-  console.log(`  ✓ ${label}`);
+
+  const securityTargets = [
+    { label: 'SECURITY.md', path: join(ROOT_DIR, 'SECURITY.md') },
+    { label: 'locales/zh-TW/SECURITY.md', path: join(ROOT_DIR, 'locales', 'zh-TW', 'SECURITY.md') },
+    { label: 'locales/zh-CN/SECURITY.md', path: join(ROOT_DIR, 'locales', 'zh-CN', 'SECURITY.md') },
+  ];
+
+  const results = syncSecurityVersions(NEW_VERSION, stableVersion, securityTargets.map((t) => t.path));
+
+  results.forEach((result, i) => {
+    const { label } = securityTargets[i];
+    if (result.status === 'ok') {
+      console.log(`  ✓ ${label}`);
+    } else if (result.status === 'skip') {
+      console.error(`  ✗ ${label} 不存在 —— 這不是「不需要更新」，是找不到要更新的東西`);
+      process.exitCode = 1;
+    } else {
+      console.error(`  ✗ ${label} 沒有匹配到版本標記區塊 —— 格式可能改了，不是「已經是最新」`);
+      process.exitCode = 1;
+    }
+  });
 }
 
 // 7. CHANGELOG frontmatter (zh-TW + zh-CN) — update source_version, translation_version, last_synced
