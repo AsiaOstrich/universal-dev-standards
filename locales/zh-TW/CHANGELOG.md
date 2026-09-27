@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **一般（非 `--apply`）的 `uds update -y` 會把專案 CLAUDE.md 裡繁體中文的提交訊息標題悄悄換成英文版，`--plan --integrations-only` 的預演差異也可能忽略專案的顯示語言設定。** `updateCommand` 主流程與其 `--plan` 預演各自獨立地只用 `output_language`／`commit_language`（提交訊息語言）推導整合區塊的內容語言，完全忽略 `display_language`（`uds init` 與 reconciler 一直用來決定「你想讀哪種語言」的設定）。一個以 `display_language: zh-tw` 與 `output_language: bilingual` 安裝的專案——一種常見組合——因此從 `init` 拿到正確的「## 提交訊息語言」標題，卻在下一次一般 `uds update` 拿到「## Commit Message Language」，丟掉了原本正確的語言選擇。已對兩個真實採用者（asiaostrich-telemetry-server、EngramGraph）從 6.12.0 升到 6.13.0 實測驗證。此缺陷早於 6.13.0 就存在（自 2026-03-25 的 commit `ad555d41` 起），且在 `uds update` 對一個已是最新版的專案執行時完全隱形——因為那種情況下它在走到這段程式碼前就提早返回——只有在真正跨版本升級時才會發作，這正是它看起來像 6.13.0 新回歸的原因。`buildToolIntegrationConfig`（`--apply`／reconciler 使用）在 2026-09-16 已修好正確的推導邏輯；現在剩下的兩個呼叫點都改用新增的 `resolveIntegrationLanguage(manifest)` 共用同一份邏輯。新增的回歸測試對著真實臨時專案與真正的產生器（無 mock）重現了確切的缺陷，另有一支靜態守衛測試，只要那段舊的內嵌推導在 CLI 原始碼任何地方重新出現就會變紅。
+
 ## [6.13.0] - 2026-09-28
 
 > **正式版**：包含下方 6.13.0-beta.1 至 beta.5 的全部內容，beta.5 之後沒有任何變更。重點：回合收尾關卡（agent 說了下一步卻沒做就不得結束回合）現在涵蓋 **Claude Code 與 Codex**，兩者都以從 npm 安裝的版本在真實工作階段驗證過（Codex 要先用 `/hooks` 信任才會執行）；Claude Code 關卡真的會擋（到 beta.4 為止每個回合都放行）；Windows 上可用；`uds uninstall` 會移除它；`uds init` 讓提交前檢查真的執行；`developer-memory` 1.2.0。Gemini CLI 標為過時（Google 已對個人帳號停用，改由 Antigravity CLI 取代，後者尚未支援）。

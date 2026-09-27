@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 修复
+
+- **一般（非 `--apply`）的 `uds update -y` 会把项目 CLAUDE.md 里繁体中文的提交消息标题悄悄换成英文版，`--plan --integrations-only` 的预演差异也可能忽略项目的显示语言设置。** `updateCommand` 主流程与其 `--plan` 预演各自独立地只用 `output_language`／`commit_language`（提交消息语言）推导集成区块的内容语言，完全忽略 `display_language`（`uds init` 与 reconciler 一直用来决定"你想读哪种语言"的设置）。一个以 `display_language: zh-tw` 与 `output_language: bilingual` 安装的项目——一种常见组合——因此从 `init` 拿到正确的"## 提交訊息語言"标题（繁体），却在下一次一般 `uds update` 拿到"## Commit Message Language"，丢掉了原本正确的语言选择。已对两个真实采用者（asiaostrich-telemetry-server、EngramGraph）从 6.12.0 升到 6.13.0 实测验证。此缺陷早于 6.13.0 就存在（自 2026-03-25 的 commit `ad555d41` 起），且在 `uds update` 对一个已是最新版的项目执行时完全隐形——因为那种情况下它在走到这段代码前就提前返回——只有在真正跨版本升级时才会发作，这正是它看起来像 6.13.0 新回归的原因。`buildToolIntegrationConfig`（`--apply`／reconciler 使用）在 2026-09-16 已修好正确的推导逻辑；现在剩下的两个调用点都改用新增的 `resolveIntegrationLanguage(manifest)` 共用同一份逻辑。新增的回归测试对着真实临时项目与真正的生成器（无 mock）重现了确切的缺陷，另有一支静态守卫测试，只要那段旧的内嵌推导在 CLI 源码任何地方重新出现就会变红。
+
 ## [6.13.0] - 2026-09-28
 
 > **正式版**：包含下方 6.13.0-beta.1 至 beta.5 的全部内容，beta.5 之后没有任何变更。重点：回合收尾关卡（agent 说了下一步却没做就不得结束回合）现在覆盖 **Claude Code 与 Codex**，两者都以从 npm 安装的版本在真实会话中验证过（Codex 要先用 `/hooks` 信任才会执行）；Claude Code 关卡真的会拦（到 beta.4 为止每个回合都放行）；Windows 上可用；`uds uninstall` 会移除它；`uds init` 让提交前检查真的执行；`developer-memory` 1.2.0。Gemini CLI 标为过时（Google 已对个人账号停用，改由 Antigravity CLI 取代，后者尚未支持）。

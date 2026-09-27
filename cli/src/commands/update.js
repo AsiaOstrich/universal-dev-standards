@@ -15,7 +15,8 @@ import {
   resolveContentModeForTool,
   generateIntegrationContent,
   extractMarkedContent,
-  buildToolIntegrationConfig
+  buildToolIntegrationConfig,
+  resolveIntegrationLanguage
 } from '../utils/integration-generator.js';
 import {
   calculateCategoriesFromStandards,
@@ -782,13 +783,20 @@ export async function updateCommand(options) {
     // basename() removes both. See resolveStandardFilename.
     const installedStandardsList = manifest.standards || [];
 
-    // Determine language setting
-    let commonLanguage = 'en';
-    if ((manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual') {
-      commonLanguage = 'bilingual';
-    } else if ((manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese') {
-      commonLanguage = 'zh-tw';
-    }
+    // Determine language setting.
+    //
+    // Content language comes from `display_language`, falling back to
+    // `output_language`/`commit_language` only when there is no display
+    // setting to go on — see resolveIntegrationLanguage's docblock. This used
+    // to derive `commonLanguage` from output_language/commit_language alone,
+    // which is the commit-message language, not the display language: a
+    // project installed with `--locale zh-tw` and `output_language: bilingual`
+    // got the correct Chinese heading from `init`/the reconciler and an
+    // English one from the next plain `uds update`, silently overwriting the
+    // block that was already there. `buildToolIntegrationConfig` picked up
+    // the fix on 2026-09-16 (XSPEC-343 R2 follow-up); this call site — the
+    // plain `uds update` main flow — did not.
+    const commonLanguage = resolveIntegrationLanguage(manifest);
 
     // Track generated files to handle AGENTS.md sharing
     const generatedFiles = new Set();
@@ -1982,10 +1990,13 @@ async function updateIntegrationsOnly(projectPath, manifest, options = {}) {
       const next = generateIntegrationContent({
         tool,
         categories: ['anti-hallucination', 'commit-standards', 'code-review'],
-        language: (manifest.options?.output_language || manifest.options?.commit_language) === 'bilingual'
-          ? 'bilingual'
-          : (manifest.options?.output_language || manifest.options?.commit_language) === 'traditional-chinese'
-            ? 'zh-tw' : 'en',
+        // See resolveIntegrationLanguage's docblock: content language comes
+        // from `display_language`, not `output_language`/`commit_language`.
+        // This inline derivation ignored `display_language` entirely, so
+        // `--plan` reported "would change" (or "unchanged" against an
+        // already-wrong file) using the wrong language for any project with
+        // display_language != output_language (e.g. zh-tw + bilingual).
+        language: resolveIntegrationLanguage(manifest),
         // Passed raw. `basename()` here destroyed the two things the
         // generator needs: a registry ID cannot be turned back into a
         // filename once it has been through basename() (it comes out

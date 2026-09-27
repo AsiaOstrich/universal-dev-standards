@@ -3462,21 +3462,41 @@ function withSelectedOptions(manifest) {
   return [...standards, ...extra];
 }
 
-export function buildToolIntegrationConfig(manifest, tool) {
+/**
+ * Resolve the content (display) language an integration block should be
+ * written in, from a project's manifest.
+ *
+ * Content language comes from `display_language` — the setting whose entire
+ * job is "what language do you want to read" — and only falls back to
+ * `output_language`, which is the commit-message language, when the project
+ * has no display setting to go on. They are different questions: `uds init`
+ * has always used the first, and this was the single place that used the
+ * second correctly (XSPEC-343 R2 / a Windows-adopter fix on 2026-09-16).
+ *
+ * `update.js`'s two other, older per-tool config builders (the plain
+ * `uds update` main flow and its `--plan` dry-run) each derived `language`
+ * independently and never picked up that fix — they read only
+ * `output_language`/`commit_language`, so a project installed with
+ * `display_language: zh-tw` and `output_language: bilingual` got the correct
+ * Chinese heading from `init`/the reconciler and an English one the next
+ * plain `uds update`, silently overwriting the block that was already there.
+ * Both call sites now use this function instead of re-deriving the value.
+ *
+ * @param {Object} manifest - Project manifest
+ * @returns {'en'|'zh-tw'|'bilingual'} Resolved content language
+ */
+export function resolveIntegrationLanguage(manifest) {
   const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
-
-  // Content language comes from `display_language` — the setting whose entire
-  // job is "what language do you want to read" — and only falls back to
-  // `output_language`, which is the commit-message language, when the project
-  // has no display setting to go on. They are different questions: `uds init`
-  // has always used the first, every regeneration path used the second, and a
-  // project installed with `--locale zh-tw` therefore got Chinese instructions
-  // from `init` and English ones from the next `uds update`, silently.
   const display = manifest.options?.display_language;
   const fromOutput = selected === 'bilingual'
     ? 'bilingual'
     : selected === 'traditional-chinese' ? 'zh-tw' : 'en';
-  const language = ['en', 'zh-tw', 'bilingual'].includes(display) ? display : fromOutput;
+  return ['en', 'zh-tw', 'bilingual'].includes(display) ? display : fromOutput;
+}
+
+export function buildToolIntegrationConfig(manifest, tool) {
+  const language = resolveIntegrationLanguage(manifest);
+  const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
   const resolved = resolveContentModeForTool(tool, manifest.contentMode || 'auto');
 
   return {
