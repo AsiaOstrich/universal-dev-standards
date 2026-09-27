@@ -266,7 +266,9 @@ for security_path in "${SECURITY_FILES[@]}"; do
 
     if [ -f "$security_full" ]; then
         # First data row inside the UDS_SUPPORTED_VERSIONS marker block is
-        # the "Latest stable" row (header + separator + this row = -A3).
+        # whichever row should carry the CURRENT version: the "Pre-release"
+        # row when one exists (header + separator + this row = -A3), or the
+        # "Latest stable" row when it doesn't (stable-only, 2-row table).
         SECURITY_VERSION=$(grep -A3 'UDS_SUPPORTED_VERSIONS_START' "$security_full" | tail -1 | sed 's/^| *//' | sed 's/ *|.*//')
 
         if [ "$SECURITY_VERSION" = "$PACKAGE_VERSION" ]; then
@@ -276,6 +278,38 @@ for security_path in "${SECURITY_FILES[@]}"; do
             echo -e "           ${YELLOW}Run 'npm run docs:sync' to fix automatically${NC}"
             ERRORS=$((ERRORS + 1))
         fi
+
+        # Label-aware check (2026-09-26, 6.13.0-beta.2 incident): the check
+        # above only compares POSITION (first data row) against
+        # package.json's version. That happened to catch the actual incident
+        # (the stale pre-release row no longer matched), but it never looks
+        # at the LABEL itself — so a bug that got the row position right and
+        # the label wrong (e.g. a "Latest stable" row holding a
+        # pre-release-looking version, however it got there) would pass this
+        # check silently. Walk every data row in the block and cross-check
+        # its label against its own version's shape instead of relying on
+        # position alone.
+        SECURITY_BLOCK=$(sed -n '/UDS_SUPPORTED_VERSIONS_START/,/UDS_SUPPORTED_VERSIONS_END/p' "$security_full")
+        while IFS= read -r row; do
+            ROW_VERSION=$(echo "$row" | sed 's/^| *//' | sed 's/ *|.*//')
+            # Only real version rows start with a digit — skips the header,
+            # the separator, the "< X.0.0" end-of-life row, and the marker
+            # comment lines themselves.
+            [[ "$ROW_VERSION" =~ ^[0-9] ]] || continue
+
+            if echo "$row" | grep -qE 'Latest stable|最新正式版'; then
+                if [[ "$ROW_VERSION" == *-* ]]; then
+                    echo -e "${RED}[MISMATCH]${NC} $security_path: row labeled Latest stable/最新正式版 holds a pre-release-looking version: $ROW_VERSION"
+                    ERRORS=$((ERRORS + 1))
+                fi
+            fi
+            if echo "$row" | grep -qE 'Pre-release|預發布版本|预发布版本'; then
+                if [[ "$ROW_VERSION" != *-* ]]; then
+                    echo -e "${RED}[MISMATCH]${NC} $security_path: row labeled Pre-release/預發布版本 holds a version with no pre-release suffix: $ROW_VERSION"
+                    ERRORS=$((ERRORS + 1))
+                fi
+            fi
+        done <<< "$SECURITY_BLOCK"
     else
         echo -e "${YELLOW}[SKIP]${NC}  $security_path not found"
     fi

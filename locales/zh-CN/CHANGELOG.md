@@ -23,6 +23,8 @@ status: current
 
 - **后续修正（2026-09-27）：上面那个修法，若既有采用者手上的 `.husky/pre-commit` 还是 husky v8 旧模板（含 `_/husky.sh` 那一行），照做反而会让每一次提交都失败。** 实测其中一个既有采用者的一次性 clone：照 `uds check` 原本建议的修法（`git config --local core.hooksPath .husky`）执行，结果打印 `.husky/pre-commit: line 2: .husky/_/husky.sh: No such file or directory`，`git commit` 以 exit 1 失败——比原本“静默不跑”的缺陷更糟，因为 `.husky/_/` 这个目录只有在 husky 自己的 bootstrap 真的跑过后才存在，而直接把 `core.hooksPath` 设成 `.husky` 会让 git 原封不动地执行这个文件。`uds init` 的 `setupHuskyHook` 现在会检测并移除这一行后再改写 `.husky/pre-commit`（其余内容——用户自己加的命令、既有的 `uds check` 那一行——全部保留）；`uds check` 的 `[pre-commit]` 警告检测到这种旧模板时，不再只单独建议设定 hooksPath，改为给出“先删那一行、再设定 hooksPath”的两步修法——因为 `uds init` 对已初始化的项目会直接拒绝执行，修不了这三个既有采用者的问题。`git-hooks.js` 新增共用函数 `hasLegacyHuskyShLine`／`stripLegacyHuskyShLine`。
 
+- **`bump-version.mjs` 在“预发布→预发布”的版本升版时，把 `SECURITY.md`“最新正式版”那一行标错——实测发生于 6.13.0-beta.2 发版当下（2026-09-26），当时以手动更正。** 它的 `SECURITY.md` 修补逻辑找“裸版号（无后缀）那一行”来认定是正式版行；新的预发布版号（如 `6.13.0-beta.2`）永远带着连字符、永远不会符合“裸版号”，于是修补逻辑退而求其次改到唯一真正裸版号的那一行——也就是不相关的正式版行——把它的版号换成新的预发布版号，而原本该更新、已经过期的预发布行（仍是 `6.13.0-beta.1`）反而原封不动。已将产生表格的逻辑（`generate-docs.mjs` 原本就写对、但 `bump-version.mjs` 未使用）抽成共用的 `scripts/lib/security-versions.mjs`，两支脚本现在都改成用 `(version, stableVersion)` 整段重新产生 2 或 3 行的表格，而不是找一行去 patch——已针对全部四种版本类型转换（正式→正式、正式→预发布、预发布→预发布、预发布→正式）、三种语言，通过对隔离副本执行一次真正的端到端 `bump-version.mjs` 验证正确。`check-version-sync.sh` 原本的 SECURITY.md 检查只比对第一行数据的版号是否等于 `package.json`（一种位置代理，恰好抓到了这次事故）；现在还会逐行比对“标签”与“该行版号的形状”是否吻合（“最新正式版／Latest stable”行若版号带连字符、或“预发布版本／Pre-release”行若版号不带连字符，即使位置检查会通过，仍会被标记为错误）。
+
 ## [6.13.0-beta.2] - 2026-09-26
 
 > **测试版** — 以 `npm install -g universal-dev-standards@beta` 安装。要测什么、已知限制、如何退回正式版：见 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
