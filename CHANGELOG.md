@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.13.0] - 2026-09-28
+
+> **Stable Release**: everything in 6.13.0-beta.1 through beta.5 below, with no changes since beta.5. Highlights: the turn-completion hook (an agent must not end a turn having stated a next action it did not take) now covers **Claude Code and Codex**, verified in real sessions of both installed from npm (Codex runs it only after you trust it with `/hooks`); the Claude Code hook actually blocks (through beta.4 it allowed every turn); it works on Windows; `uds uninstall` removes it; `uds init` makes the pre-commit check actually run; `developer-memory` 1.2.0. Gemini CLI is marked legacy (Google retired it for personal accounts in favour of Antigravity CLI, which is not yet supported).
+
 ## [6.13.0-beta.5] - 2026-09-28
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test, known limitations and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). **If you installed 6.13.0-beta.1–beta.4, upgrade: the Claude Code turn-completion hook in those versions never blocked.**

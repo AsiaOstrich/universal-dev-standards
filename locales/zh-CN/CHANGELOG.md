@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.13.0-beta.5
-translation_version: 6.13.0-beta.5
+source_version: 6.13.0
+translation_version: 6.13.0
 last_synced: 2026-09-27
 status: current
 ---
@@ -16,6 +16,10 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.13.0] - 2026-09-28
+
+> **正式版**：包含下方 6.13.0-beta.1 至 beta.5 的全部内容，beta.5 之后没有任何变更。重点：回合收尾关卡（agent 说了下一步却没做就不得结束回合）现在覆盖 **Claude Code 与 Codex**，两者都以从 npm 安装的版本在真实会话中验证过（Codex 要先用 `/hooks` 信任才会执行）；Claude Code 关卡真的会拦（到 beta.4 为止每个回合都放行）；Windows 上可用；`uds uninstall` 会移除它；`uds init` 让提交前检查真的执行；`developer-memory` 1.2.0。Gemini CLI 标为过时（Google 已对个人账号停用，改由 Antigravity CLI 取代，后者尚未支持）。
 
 ## [6.13.0-beta.5] - 2026-09-28
 
