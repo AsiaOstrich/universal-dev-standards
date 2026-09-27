@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.13.0-beta.5] - 2026-09-28
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test, known limitations and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). **If you installed 6.13.0-beta.1–beta.4, upgrade: the Claude Code turn-completion hook in those versions never blocked.**
+
 ### Fixed
 
 - **The Claude Code turn-completion hook never blocked in a real Claude Code session — every adopter of 6.13.0-beta.1 through beta.4 had it wired and running, and it allowed every turn.** Measured 2026-09-28 with Claude Code 2.1.283 in live `claude -p` sessions: when the Stop hook runs, the transcript does not yet contain the final assistant message, so the adapter (which read only the transcript) saw an empty message and allowed 5 of 5 turns that should have blocked; in a longer session it would have judged the previous turn's message instead. Every self-test and unit test passed throughout, because each one hands the adapter a transcript that is already complete. The adapter now takes the final message from stdin's `last_assistant_message`, which Claude Code sends, and reads the transcript only for the human's side (R9) and as a fallback for versions that do not send the field. Re-measured live after the fix. New tests reproduce the shape the hook actually sees at that moment and fail on the old adapter.

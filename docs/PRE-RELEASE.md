@@ -9,7 +9,10 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.13.0-beta.4`
+## Current beta | 目前的測試版：`6.13.0-beta.5`
+
+> **New in beta.5** — **the Claude Code turn-completion hook now actually blocks.** Through beta.4 it ran on every turn and allowed every one: when Claude Code runs the Stop hook, the transcript does not yet hold the final message, so the hook read an empty message (measured in live sessions, 5 of 5 allowed). It now reads the message Claude Code passes it directly. **If you installed beta.1–beta.4, upgrade and run `uds update`.** Codex: the hook only runs after you trust it with `/hooks` (see step 2). Gemini CLI is now marked legacy (Google retired it for personal accounts in favour of Antigravity CLI, which is not yet supported).
+> **beta.5 新增** — **Claude Code 的回合收尾關卡現在真的會擋。** 到 beta.4 為止，它每個回合都有執行、也每個回合都放行：Claude Code 執行 Stop hook 時，逐字稿裡還沒有最後一則回覆，關卡讀到的是空訊息（真實工作階段實測，5 次全放行）。現在改讀 Claude Code 直接交給它的那則回覆。**裝過 beta.1～beta.4 的請升級並執行 `uds update`。** Codex：hook 要先用 `/hooks` 信任才會執行（見步驟 2）。Gemini CLI 標為過時（Google 已對個人帳號停用，改由 Antigravity CLI 取代，後者尚未支援）。
 
 > **New in beta.4** — Windows: the turn-completion hook now actually works (through beta.2 its language packs never loaded on Windows, so it never blocked anything), and hooks written by `uds init` get a shebang so git for Windows can run them (without it every commit failed with `cannot spawn`). **beta.3 was published on GitHub but never reached npm** (a CI failure blocked it); everything listed for beta.3 below ships in beta.4.
 > **beta.4 新增** — Windows：回合完成關卡現在真的會作用（到 beta.2 為止，Windows 上語言包從未載入成功，關卡從未擋下任何東西）；`uds init` 寫的 hook 補上 shebang，git for Windows 才能執行（缺少時每次提交都以 `cannot spawn` 失敗）。**beta.3 在 GitHub 發佈但從未上架 npm**（被 CI 失敗擋下），下方列為 beta.3 的內容都隨 beta.4 出貨。

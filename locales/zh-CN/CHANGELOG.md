@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.13.0-beta.4
-translation_version: 6.13.0-beta.4
+source_version: 6.13.0-beta.5
+translation_version: 6.13.0-beta.5
 last_synced: 2026-09-27
 status: current
 ---
@@ -16,6 +16,10 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.13.0-beta.5] - 2026-09-28
+
+> **测试版** — 以 `npm install -g universal-dev-standards@beta` 安装。要测什么、已知限制、如何退回正式版：见 [docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**装过 6.13.0-beta.1～beta.4 的请升级：那几版的 Claude Code 回合收尾关卡从未拦下过。**
 
 ### 修复
 
