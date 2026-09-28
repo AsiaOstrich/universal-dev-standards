@@ -57,8 +57,13 @@ setup() {
 # 2026-05-19 and still asserted 23. Nothing noticed for six days because CI runs
 # ONE of the 16 files in tests/scripts/ — check-scripts-passing.bats — and that
 # is the sibling the same commit did remember to update.
+#
+# Red again 2026-09-28: `56f517c9` added the upgrade-fidelity gate as step 24 and
+# bumped TOTAL 24 → 25; this assertion still said 24. Same shape as 07-23, and
+# again invisible locally, because pre-release-check.sh does not run this file —
+# only CI's "Check Script Ratchet" job does. 6.13.1 shipped with this job red.
 @test "TOTAL counter matches the step count the script displays" {
-  run grep "^TOTAL=24" "$SCRIPT"
+  run grep "^TOTAL=25" "$SCRIPT"
   [ "$status" -eq 0 ]
 }
 
