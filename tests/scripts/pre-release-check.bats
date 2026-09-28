@@ -62,12 +62,31 @@ setup() {
 # bumped TOTAL 24 → 25; this assertion still said 24. Same shape as 07-23, and
 # again invisible locally, because pre-release-check.sh does not run this file —
 # only CI's "Check Script Ratchet" job does. 6.13.1 shipped with this job red.
+#
+# Bumped again 2026-09-28 (same day, different commit): DEC-117 D2/L2 added the
+# prompt-footprint ratchet as step 25 and bumped TOTAL 25 → 26. Updated in the
+# SAME commit as pre-release-check.sh this time — the whole point of the two
+# red incidents above was that this file and pre-release-check.sh drift apart
+# when only one of them gets touched.
 @test "TOTAL counter matches the step count the script displays" {
-  run grep "^TOTAL=25" "$SCRIPT"
+  run grep "^TOTAL=26" "$SCRIPT"
   [ "$status" -eq 0 ]
 }
 
 @test "--skip-tests does not skip Dogfooding Gate" {
   run bash -c "awk '/SKIP_TESTS.*true/,/^fi/' '$SCRIPT' | grep -c 'Dogfooding'"
+  [ "$output" -eq 0 ]
+}
+
+# DEC-117 D2/L2: prompt-footprint ratchet (Step 25)
+
+@test "pre-release-check.sh defines Step 25 prompt footprint ratchet" {
+  run grep -c "check-prompt-footprint" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "--skip-tests does not skip the prompt footprint ratchet" {
+  run bash -c "awk '/SKIP_TESTS.*true/,/^fi/' '$SCRIPT' | grep -c 'check-prompt-footprint'"
   [ "$output" -eq 0 ]
 }

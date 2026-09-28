@@ -74,7 +74,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=25
+TOTAL=26
 
 # `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
 # Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
@@ -93,7 +93,7 @@ else
 fi
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=20
+    TOTAL=21
 fi
 
 # Function to run a check
@@ -572,6 +572,20 @@ fi
 # gated behind --skip-tests: its entire purpose is a gap --skip-tests's
 # existing scope never covered either.
 run_check "24" "Running upgrade fidelity check | 升級實測檢查" "$SCRIPT_DIR/check-upgrade-fidelity.sh"
+
+# Step 25: Prompt footprint ratchet (DEC-117 D2/L2) — the tokens UDS
+# unconditionally injects into an adopter's agent context (CLAUDE.md/
+# AGENTS.md's UDS block, the turn-completion-integrity Stop hook's block
+# message, skill descriptions) must not grow in a release unless this same
+# commit also raises scripts/prompt-footprint-baseline.json. Local (spawns
+# `node cli/bin/uds.js init` three times against the CURRENT working tree —
+# not a version diff like step 24, so no previous-release fetch either).
+# `uds init -y` was measured with HTTP(S)_PROXY pointed at an unreachable
+# address and still completed in ~0.15s (see this check's introducing
+# commit report) — it makes no network call this proxy could have caught,
+# unlike step 24. Not gated behind --skip-tests, same rationale as step 24:
+# this check's entire purpose is a gap neither the unit nor E2E suite covers.
+run_check "25" "Running prompt footprint ratchet | 提示詞足跡棘輪" "node $SCRIPT_DIR/check-prompt-footprint.mjs"
 
 # Show summary
 show_summary

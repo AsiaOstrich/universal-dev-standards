@@ -1,0 +1,32 @@
+{
+  "recorded": "2026-09-28",
+  "measuredBy": "scripts/check-prompt-footprint.mjs (DEC-117 D2/L2)",
+  "unit": "tokens, via cli/src/utils/context-chunker.js estimateTokens() — a flat chars/4 heuristic with NO language awareness. zh-TW numbers are a systematic UNDER-estimate of real tokenizer cost (CJK runs roughly 4x MORE tokens per character than English); see check-prompt-footprint.mjs's own header for why this estimator is used anyway and what it is and is not good for.",
+  "why": "First commit of the DEC-117 D2/L2 ratchet. `ceiling` per shape is the exact total this script measured against this repo's own `main` at the time of writing (see git history of this file for the introducing commit's report). `ceiling` is the day-to-day gate: any commit whose measured total exceeds it fails scripts/check-prompt-footprint.mjs, and the ONLY way to make a legitimate growth pass is to raise `ceiling` here, in the SAME commit that caused the growth — the check's compareShapeToBaseline() takes no justification/changelog parameter, so nothing else can satisfy it.",
+  "howToRaise": "Run `node scripts/check-prompt-footprint.mjs` (builds the three real fixtures with the CURRENT working tree's CLI and prints each shape's totals). If the growth is intentional, set this file's `ceiling` for the grown shape(s) to at least the new measured total, and commit this file alongside the change that grew it. Do not round up further than needed to pass — a ceiling padded far above the real number defeats the ratchet's purpose (it stops catching the NEXT small regression). Lowering a ceiling after real content shrinks is welcome but not required by any check.",
+  "absoluteMaxNote": "`absoluteMax` is a second, independent backstop per shape, sized at roughly 2x this baseline's initial ceiling, rounded to a clean number. Raising `ceiling` past `absoluteMax` in the same edit does NOT make the check pass — compareShapeToBaseline() rejects that shape (code: ceiling-exceeds-absolute-max) as an invalid baseline. Crossing `absoluteMax` for real is a signal something structural changed (a new mandatory standard section, a large new skill category, etc.) and deserves a deliberate decision — recorded here as a comment, with the number raised alongside it — not a routine baseline bump.",
+  "skillRawNote": "`skillRawCeiling`/`skillRawAbsoluteMax` ratchet the UNCAPPED skill-description sum, independently of `ceiling`/`absoluteMax` on `total`. Needed because the zh-TW/Claude Code shape's own cap (CLAUDE_CODE_SKILL_BUDGET_CAP_TOKENS, 2000) otherwise makes `total` blind to skill-description growth once the cap is already saturated — today's raw sum for that shape (3,490) is already well past the cap, so a skill description could grow arbitrarily and `total` would never move. For the other two shapes the cap does not apply (raw == effective already), so this is largely redundant with `total` there — kept uniform across all three shapes anyway, since `total` growing from a bigger CLAUDE.md/AGENTS.md block does not by itself prove skill descriptions did not also grow.",
+  "shapes": {
+    "zh-tw-index-claude-code": {
+      "description": "zh-TW display + bilingual commits + content-mode index + Claude Code only (DEC-117 shape a, modeled on asiaostrich-telemetry-server). Skill descriptions are capped at CLAUDE_CODE_SKILL_BUDGET_CAP_TOKENS (2000) per check-prompt-footprint.mjs — see its LIMITATIONS section for what this cap does and does not model. NOTE: raw skill-description tokens (3,490) already exceed DEC-061's own ~2,000-token 1%-of-context reference point BY ITSELF, before any other adopter plugin is counted — see this ratchet's introducing commit report for the plain-language version of this finding.",
+      "ceiling": 3717,
+      "absoluteMax": 8000,
+      "skillRawCeiling": 3490,
+      "skillRawAbsoluteMax": 7000
+    },
+    "en-minimal-no-ai-tool": {
+      "description": "en display + content-mode minimal + no AI tool selected at all (DEC-117 shape b, modeled on EngramGraph). AGENTS.md only, no skills installed (measured empirically as zero — no skills-capable tool is selected in this shape).",
+      "ceiling": 1440,
+      "absoluteMax": 3000,
+      "skillRawCeiling": 0,
+      "skillRawAbsoluteMax": 0
+    },
+    "codex-opencode-index": {
+      "description": "codex/opencode genuinely selected + content-mode index (DEC-117 shape c, control arm). AGENTS.md via the per-tool template, not the universal summary. Skill descriptions here are a direct, uncapped measurement of the 55 SKILL.md files check-prompt-footprint.mjs's own fixture actually installs under .agents/skills/ — no published truncation budget exists for Codex/OpenCode to model a cap against.",
+      "ceiling": 6273,
+      "absoluteMax": 13000,
+      "skillRawCeiling": 5753,
+      "skillRawAbsoluteMax": 12000
+    }
+  }
+}
