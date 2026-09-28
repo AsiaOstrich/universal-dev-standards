@@ -74,7 +74,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=24
+TOTAL=25
 
 # `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
 # Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
@@ -561,6 +561,17 @@ else
         exit 1
     fi
 fi
+
+# Step 24: Upgrade fidelity — a real cross-version `uds update` against a
+# real previous stable release (6.13.0's own blind spot: every check above
+# either runs `uds init` fresh or runs `uds update` at matching versions,
+# neither of which reaches the code path a genuine version-bump upgrade
+# exercises — see scripts/check-upgrade-fidelity.sh's own header for the
+# two regressions this closes and why nothing above could have caught them).
+# Network-dependent (fetches the previous stable release from npm) and not
+# gated behind --skip-tests: its entire purpose is a gap --skip-tests's
+# existing scope never covered either.
+run_check "24" "Running upgrade fidelity check | 升級實測檢查" "$SCRIPT_DIR/check-upgrade-fidelity.sh"
 
 # Show summary
 show_summary

@@ -314,7 +314,11 @@ npm unpublish universal-dev-standards@<version>
 In exceptional cases, manual publish is possible:
 
 ```bash
-# Ensure all checks pass first
+# Ensure all checks pass first (requires network access — step 24,
+# check-upgrade-fidelity.sh, fetches the previous stable release from npm to
+# run a real cross-version `uds update` upgrade against it; the two 6.13.0
+# regressions it was added to catch only ever fired on that exact path, which
+# every other step in this script and CI skip)
 ./scripts/pre-release-check.sh
 
 # Manual publish with explicit tag

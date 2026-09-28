@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### 新增
+
+- **`scripts/check-upgrade-fidelity.sh`，已接進 `pre-release-check.sh` 第 24 步：每次發版前跑一次真實的跨版本 `uds update` 升級檢查。** 上面修的兩個缺陷有同一個共同形狀——只有「既有專案、已經被上一個正式版更新過，再對更新版執行 `uds update`／`uds update --apply`」時才會發作——而 pre-release-check.sh 其餘 31 步與 CI 全都沒抓到，因為沒有任何一步做真正的跨版本升級：`uds init` 是全新跑一次（沒有東西可以回歸）；`uds update` 對照的 bundled registry 版本又跟 manifest 已記錄的版本相同，會在走到出問題的那段程式碼前就提早返回。此檢查用真實、已發布在 npm 上的上一個正式版建立三種專案形狀（對應三個真的踩到這兩個缺陷的專案），分別用一般 `uds update -y` 與 `uds update --apply` 讓待檢查的 CLI 升級，並斷言：UDS 標記區塊外的內容永不改變；區塊內只允許一次真實升級該有的標準清單／數量變化；CLAUDE.md 的提交訊息語言標題逐字不變（不是「有出現」就算過）；「這只是索引」的提醒存在；一般 update 與 `--apply` 對「該用哪個產生器」意見一致；連續兩次 `--apply`，第二次不再有任何變化。npm 連不上或上一版從未發布時**直接失敗**（結束碼 2，不是略過）——這個檢查唯一的價值就是跑一次真實的發布版，沒有它卻悄悄回報通過，正是要堵住的那個盲點重新打開。已雙向驗證：用 `--cli="npx -y universal-dev-standards@6.13.0"` 重現了上面兩個缺陷（CLAUDE.md 語言被換掉、AGENTS.md 產生器被換掉），並印出實際差異；本機開發版 CLI（已套用 commit `e1524872` 與 `8373207d`）在三種形狀上全部乾淨通過。
+
 ### 修正
 
 - **一般（非 `--apply`）的 `uds update -y` 會把專案 CLAUDE.md 裡繁體中文的提交訊息標題悄悄換成英文版，`--plan --integrations-only` 的預演差異也可能忽略專案的顯示語言設定。** `updateCommand` 主流程與其 `--plan` 預演各自獨立地只用 `output_language`／`commit_language`（提交訊息語言）推導整合區塊的內容語言，完全忽略 `display_language`（`uds init` 與 reconciler 一直用來決定「你想讀哪種語言」的設定）。一個以 `display_language: zh-tw` 與 `output_language: bilingual` 安裝的專案——一種常見組合——因此從 `init` 拿到正確的「## 提交訊息語言」標題，卻在下一次一般 `uds update` 拿到「## Commit Message Language」，丟掉了原本正確的語言選擇。已對兩個真實採用者（asiaostrich-telemetry-server、EngramGraph）從 6.12.0 升到 6.13.0 實測驗證。此缺陷早於 6.13.0 就存在（自 2026-03-25 的 commit `ad555d41` 起），且在 `uds update` 對一個已是最新版的專案執行時完全隱形——因為那種情況下它在走到這段程式碼前就提早返回——只有在真正跨版本升級時才會發作，這正是它看起來像 6.13.0 新回歸的原因。`buildToolIntegrationConfig`（`--apply`／reconciler 使用）在 2026-09-16 已修好正確的推導邏輯；現在剩下的兩個呼叫點都改用新增的 `resolveIntegrationLanguage(manifest)` 共用同一份邏輯。新增的回歸測試對著真實臨時專案與真正的產生器（無 mock）重現了確切的缺陷，另有一支靜態守衛測試，只要那段舊的內嵌推導在 CLI 原始碼任何地方重新出現就會變紅。
