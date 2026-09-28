@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.13.0
-translation_version: 6.13.0
-last_synced: 2026-09-27
+source_version: 6.13.1
+translation_version: 6.13.1
+last_synced: 2026-09-28
 status: current
 ---
 
@@ -16,6 +16,10 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.13.1] - 2026-09-28
+
+> **修补版**：修复 6.13.0 暴露的两个“以 `uds update` 升级既有项目”的缺陷（繁中的提交消息语言段落变成英文；AGENTS.md 被改写成另一种格式且少了“这是索引”提醒），并新增一道发版前检查，实际从上一个正式版升级一次。**若你已用 `uds update` 升到 6.13.0，请在升级至 6.13.1 后再执行一次 `uds update`**，以还原那些段落。
 
 ### 新增
 
