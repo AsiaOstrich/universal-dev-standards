@@ -3523,6 +3523,33 @@ export function buildToolIntegrationConfig(manifest, tool) {
 }
 
 /**
+ * Build the generation config for the universal AGENTS.md summary
+ * (`generateAgentsMdSummary`/`writeAgentsMdSummary`) from the manifest.
+ *
+ * This is the OTHER AGENTS.md producer — used when no genuinely-selected AI
+ * tool (codex/opencode) claims AGENTS.md as its own file, i.e. the file is
+ * present in `manifest.integrations` only because `uds init` tracks it there
+ * once `generateAgentsMd` writes one, not because a tool was chosen. Mirrors
+ * `commands/update.js`'s own construction of this same config exactly, so
+ * the reconciler (`--apply`) and a plain `uds update` compute and write
+ * IDENTICAL content for this case — see resolveIntegrationLanguage's and
+ * this whole area's history for what happens when "the same config" is
+ * derived independently in two places instead of shared.
+ *
+ * @param {Object} manifest - Project manifest
+ * @returns {Object} Config for generateAgentsMdSummary/writeAgentsMdSummary
+ */
+export function buildAgentsMdSummaryConfig(manifest) {
+  return {
+    installedStandards: manifest.standards || [],
+    standardsFormat: manifest.format || 'ai',
+    language: manifest.options?.display_language || 'en',
+    outputLanguage: manifest.options?.output_language || manifest.options?.commit_language || 'english',
+    standardOptions: manifest.options || {}
+  };
+}
+
+/**
  * Heading of the index-mode standards block. Not localised — both the English and
  * the Chinese body sit under this exact string, so it is a stable marker.
  */
@@ -3855,13 +3882,45 @@ export function generateAgentsMdSummary(config = {}) {
   lines.push('');
 
   // Installed Standards Index
-  lines.push('<!-- UDS:STANDARDS:START -->');
-  lines.push('## Installed Standards');
-  lines.push('');
+  //
+  // Built as a separate block body and wrapped with wrapWithMarkers (the
+  // same helper generateIntegrationContent's own block uses), rather than
+  // hand-rolling the `<!-- UDS:STANDARDS:START/END -->` lines directly.
+  // Hand-rolled, this block never carried the
+  // `<!-- WARNING: This block is managed by UDS ... -->` line that
+  // wrapWithMarkers adds — so a hash computed straight from this function's
+  // output (desired-state-calculator.js's computeExpectedAgentsMdSummaryHash)
+  // never matched a real on-disk file's hash (computeIntegrationBlockHash,
+  // hasher.js — which always includes that line, since a written file only
+  // ever gets it added by the merge path's own wrapWithMarkers call), and
+  // `uds update --apply` reported "content differs" and re-wrote AGENTS.md
+  // on EVERY run forever, settled state or not — a non-convergent
+  // reconciliation loop, reproduced with a second `--apply` immediately
+  // after a first that had already "fixed" everything.
+  const blockLines = [];
+  // XSPEC-357 R7's disclosure was added to this function's HEADER above
+  // (2026-08-18) but never to the marker block itself. `writeAgentsMdSummary`'s
+  // marker-based update for an EXISTING file only ever replaces the content
+  // BETWEEN the markers — the header (including that reminder) is copied
+  // verbatim from whatever the file already had. Every adopter whose
+  // AGENTS.md predates 2026-08-18 therefore never received the reminder via
+  // the header (nothing ever regenerates it) and never received it in the
+  // block either, since it was never written there. Measured 2026-09-28
+  // against two real adopters (asiaostrich-telemetry-server, EngramGraph):
+  // reminder present at neither the file level nor the block level, 0 of 2.
+  // Placed here, inside the block, it reaches every project on every
+  // `uds update`/`--apply`, new or existing, regardless of the header's age.
+  // Uses the SAME wording as the per-tool generator's index/minimal
+  // templates (generateIndexDisclosure) rather than inventing a third
+  // phrasing for a third producer of the same idea.
+  blockLines.push(generateIndexDisclosure('markdown', language));
+  blockLines.push('');
+  blockLines.push('## Installed Standards');
+  blockLines.push('');
 
   if (installedStandards.length > 0) {
-    lines.push('All standards are in `.standards/`. Installed standards:');
-    lines.push('');
+    blockLines.push('All standards are in `.standards/`. Installed standards:');
+    blockLines.push('');
 
     // Resolved before filtering, not after. The filter asks for an `.ai.yaml`
     // suffix and a manifest's core entries are registry IDs, which carry no
@@ -3887,14 +3946,13 @@ export function generateAgentsMdSummary(config = {}) {
       if (!filename?.endsWith(suffix)) continue;
       const isOption = entry.includes('/options/') || entry.includes('\\options\\');
       const dir = isOption ? '.standards/options' : '.standards';
-      lines.push(`- \`${dir}/${filename}\` — ${filename.replace(suffix, '')}`);
+      blockLines.push(`- \`${dir}/${filename}\` — ${filename.replace(suffix, '')}`);
     }
   } else {
-    lines.push('No standards installed yet. Run `npx uds init` to install.');
+    blockLines.push('No standards installed yet. Run `npx uds init` to install.');
   }
 
-  lines.push('');
-  lines.push('<!-- UDS:STANDARDS:END -->');
+  lines.push(wrapWithMarkers(blockLines.join('\n'), 'markdown'));
   lines.push('');
 
   // Boundaries

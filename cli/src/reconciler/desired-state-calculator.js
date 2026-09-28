@@ -12,6 +12,7 @@ import { getAllStandards, getStandardSource, findOption, getOptionSource } from 
 import {
   resolveToolKey,
   SUPPORTED_AI_TOOLS,
+  LEGACY_TOOL_MAPPINGS,
   MANIFEST_OPTION_BINDINGS,
   OPTIONS_INSTALL_DIR
 } from '../core/constants.js';
@@ -19,7 +20,9 @@ import {
   resolveIntegrationTargetFile,
   buildToolIntegrationConfig,
   generateIntegrationContent,
-  extractMarkedContent
+  extractMarkedContent,
+  generateAgentsMdSummary,
+  buildAgentsMdSummaryConfig
 } from '../utils/integration-generator.js';
 import { PathResolver } from '../core/paths.js';
 import { computeFileHash } from '../utils/hasher.js';
@@ -300,6 +303,61 @@ function computeExpectedIntegrationBlockHash(manifest, toolName, format) {
 }
 
 /**
+ * The same block-hash computation as computeExpectedIntegrationBlockHash,
+ * for the OTHER AGENTS.md producer (the universal summary — see
+ * isAgentsMdGenuinelyToolOwned's docblock for why there are two).
+ *
+ * @param {Object} manifest
+ * @returns {string|null}
+ */
+function computeExpectedAgentsMdSummaryHash(manifest) {
+  try {
+    const generated = generateAgentsMdSummary(buildAgentsMdSummaryConfig(manifest));
+    const { content: blockContent } = extractMarkedContent(generated, 'markdown');
+    if (!blockContent) return null;
+    return `sha256:${createHash('sha256').update(blockContent).digest('hex')}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Whether `toolName` is a tool the project actually selected, as opposed to
+ * one `resolveToolKey` happened to resolve an entry to because a filename
+ * collided.
+ *
+ * AGENTS.md is the one case in `SUPPORTED_AI_TOOLS` where this distinction
+ * matters: it is opencode's per-tool file, but it is ALSO the generic
+ * "universal AGENTS.md summary" target that `generateAgentsMd` writes for
+ * ANY project regardless of which AI tools are selected (`uds init` always
+ * pushes 'AGENTS.md' into `manifest.integrations` once that summary is
+ * written — see init.js's `generateUniversalAgentsMd` call site — purely as
+ * a "this file is UDS-managed" marker, not as a record of a tool choice).
+ * `resolveToolKey('AGENTS.md')` resolves to 'opencode' regardless, because
+ * that is simply the first (only) tool whose default file matches.
+ *
+ * Every other file in `SUPPORTED_AI_TOOLS` maps 1:1 to exactly one tool, so
+ * this check is only ever consulted for opencode/AGENTS.md; it is written
+ * generically in case that ever changes.
+ *
+ * Confirmed as a real bug, not a hypothetical: `uds init` (aiTools:
+ * ['claude-code'] only) followed immediately by `uds update --apply` — zero
+ * manifest edits, zero version change, nothing to reconcile — silently
+ * replaced AGENTS.md's content, because `calculateIntegrations` treated the
+ * bare tracking marker as evidence opencode was selected. Confirmed in
+ * production on two real adopters (asiaostrich-telemetry-server,
+ * EngramGraph) and dev-platform's own `.standards/` install, all three with
+ * `aiTools` containing no codex/opencode entry.
+ *
+ * @param {string} toolName - Tool key to check (e.g. 'opencode')
+ * @param {Object} manifest - Project manifest
+ * @returns {boolean}
+ */
+function isToolGenuinelySelected(toolName, manifest) {
+  return (manifest.aiTools || []).some((t) => (LEGACY_TOOL_MAPPINGS[t] || t) === toolName);
+}
+
+/**
  * Calculate expected integration files.
  * For integrations we track the UDS marker block, not the entire file.
  */
@@ -324,6 +382,31 @@ function calculateIntegrations(state, manifest) {
     // must say CLAUDE.local.md, or `--apply`/`--plan` (and their orphan
     // detection) would treat that file as unmanaged and CLAUDE.md as desired.
     const relativePath = resolveIntegrationTargetFile(toolName, manifest) || toolConfig.file;
+
+    // See isToolGenuinelySelected's docblock. `relativePath === 'AGENTS.md'`
+    // rather than `toolName === 'opencode'`: correct either way today (only
+    // opencode's file is 'AGENTS.md'), but this is the actual thing that
+    // matters — which FILE is ambiguous — should another tool ever share it.
+    if (relativePath === 'AGENTS.md' && !isToolGenuinelySelected(toolName, manifest)) {
+      if (!manifest.generateAgentsMd) continue; // Not wanted at all; nothing to track.
+      state.integrations.set(relativePath, {
+        relativePath,
+        hash: computeExpectedAgentsMdSummaryHash(manifest),
+        size: null,
+        category: 'integration',
+        sourcePath: null,
+        metadata: {
+          toolName: null,
+          // Read by plan-executor.js's executeMigrateBlock to pick the
+          // matching writer (writeAgentsMdSummary, not writeIntegrationFile).
+          generator: 'summary',
+          format: 'markdown',
+          toolCategory: null,
+          supports: []
+        }
+      });
+      continue;
+    }
 
     state.integrations.set(relativePath, {
       relativePath,

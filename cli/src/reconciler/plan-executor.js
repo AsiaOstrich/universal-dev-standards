@@ -14,7 +14,12 @@
 import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { copyStandard } from '../utils/copier.js';
-import { writeIntegrationFile, buildToolIntegrationConfig } from '../utils/integration-generator.js';
+import {
+  writeIntegrationFile,
+  buildToolIntegrationConfig,
+  writeAgentsMdSummary,
+  buildAgentsMdSummaryConfig
+} from '../utils/integration-generator.js';
 import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents
@@ -342,6 +347,34 @@ function executeDelete(projectPath, action, manifest) {
  * Uses writeIntegrationFile which handles marker-based section replacement.
  */
 function executeMigrateBlock(projectPath, action, manifest) {
+  // AGENTS.md tracked as the universal summary rather than a genuine
+  // per-tool integration — see desired-state-calculator.js's
+  // isToolGenuinelySelected docblock. Written through writeAgentsMdSummary,
+  // not writeIntegrationFile, so `--apply` produces the SAME content a plain
+  // `uds update` would for this case, instead of the opencode-shaped block a
+  // project with no codex/opencode selected never asked for.
+  // `diffIntegrations` (diff-engine.js) nests the desired-state metadata
+  // under `details.metadata`, not at the top level of `details` — only
+  // `toolName`/`format`/the hash fields are copied out. Checking
+  // `action.details?.generator` (rather than `action.details?.metadata?.generator`)
+  // is silently always false, and this branch would never fire; the
+  // fallback below then reads `action.details?.toolName` as `null` (correctly
+  // propagated from calculateIntegrations) and fails with "No tool name in
+  // action details" — reproduced live via `uds update --apply` E2E
+  // (tests/e2e/update-version-advances.test.js) before this fix.
+  if (action.details?.metadata?.generator === 'summary') {
+    const config = buildAgentsMdSummaryConfig(manifest);
+    const result = writeAgentsMdSummary(config, projectPath);
+    if (result.success) {
+      if (result.blockHashInfo) {
+        manifest.integrationBlockHashes[result.path] = result.blockHashInfo;
+      }
+      if (manifest.fileHashes) delete manifest.fileHashes[result.path];
+      return { action, success: true };
+    }
+    return { action, success: false, error: result.error };
+  }
+
   const toolName = action.details?.toolName;
   if (!toolName) {
     return { action, success: false, error: 'No tool name in action details' };
