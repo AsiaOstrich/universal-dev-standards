@@ -72,7 +72,7 @@
 
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { resolve, dirname, relative, join, isAbsolute } from 'node:path';
+import { resolve, dirname, join, isAbsolute, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // ── Vocabulary (UNCALIBRATED, OWT-016) ───────────────────────────────────────
@@ -577,7 +577,13 @@ function gitShowBase(file, rev) {
   const git = (args, cwd) => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   const top = git(['rev-parse', '--show-toplevel'], dirname(abs)).trim();
   git(['rev-parse', '--verify', `${rev}^{commit}`], top);
-  const rel = relative(realpathSync(top), realpathSync(abs)).split('\\').join('/');
+  // Ask git for the path, never compute it from two filesystem paths: on Windows the
+  // temp directory can carry an 8.3 short name (RUNNER~1) that realpathSync does not
+  // expand while git reports the long name, so relative() walks out of the repo and
+  // `git show` fails, which this tool reports as "undecidable" (exit 2) rather than a
+  // verdict. git computes the prefix from the same cwd it will read from.
+  const prefix = git(['rev-parse', '--show-prefix'], dirname(abs)).trim();
+  const rel = `${prefix}${basename(abs)}`;
   const listed = git(['ls-tree', rev, '--', rel], top).trim();
   if (!listed) return null; // absent at that revision: a new file, not an error
   return git(['show', `${rev}:${rel}`], top);
