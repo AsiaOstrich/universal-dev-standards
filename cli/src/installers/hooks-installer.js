@@ -244,6 +244,19 @@ export const AGY_HOOK_SCRIPT = 'check-turn-completion-agy.mjs';
 // ships, so a user's own hook (under any name, or even under this name with a
 // different command) is never touched.
 export const AGY_HOOK_NAME = 'uds-turn-completion-integrity';
+// 🔴 agy runs a hook with the working directory set to `.agents/` (measured
+// 2026-09-29 on agy 1.2.12, PC15: the project-root-relative command
+// `node scripts/hooks/...` failed with "Cannot find module
+// '<project>/.agents/scripts/hooks/...'", and agy lets a failed hook through
+// silently). The command therefore climbs out of `.agents/` first. It is
+// deliberately relative, not absolute: hooks.json is meant to be committed and
+// shared, and an absolute path is one machine's. It is also deliberately not
+// `sh -c` / `$(git rev-parse ...)`: whether agy runs `command` through a shell
+// has no evidence behind it.
+export const AGY_HOOK_COMMAND = `node ../scripts/hooks/${AGY_HOOK_SCRIPT}`;
+// The first form this installer wrote (never released); recognised only so a
+// re-install repairs it and uninstall still removes it.
+export const AGY_HOOK_COMMAND_LEGACY = `node scripts/hooks/${AGY_HOOK_SCRIPT}`;
 
 /** Copy the shared hook scripts into the project, same as installHooks() does. */
 function copyHookScripts(hookDir, hooksDir) {
@@ -345,6 +358,8 @@ export function installGeminiHooks(projectPath) {
  * So neither mergeHookArray nor the uninstaller's Claude-shaped stripping can
  * be reused here.
  *
+ * - The command is `node ../scripts/hooks/...`, not `node scripts/hooks/...`:
+ *   agy's hook working directory is `.agents/` (see AGY_HOOK_COMMAND).
  * - `timeout` is seconds (agy's default is 30), like Codex, unlike Gemini CLI.
  * - `enabled` is deliberately NOT written: an `enabled: false` there is a
  *   silent off switch, and omitting it is the documented default.
@@ -381,10 +396,15 @@ export function installAgyHooks(projectPath) {
   if (!existsSync(agentsDir)) mkdirSync(agentsDir, { recursive: true });
   copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
 
-  const command = `node scripts/hooks/${AGY_HOOK_SCRIPT}`;
+  const command = AGY_HOOK_COMMAND;
   const entry = config[AGY_HOOK_NAME];
   const mine = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {};
-  const stop = Array.isArray(mine.Stop) ? [...mine.Stop] : [];
+  // A UDS handler written by an earlier install with the pre-fix command
+  // (`node scripts/hooks/...`, which does not resolve from agy's cwd) is
+  // replaced, not left beside the new one. Only that exact stale command is
+  // touched; anything else the adopter put under this name stays.
+  const stop = (Array.isArray(mine.Stop) ? mine.Stop : [])
+    .filter((h) => !(h && h.command === AGY_HOOK_COMMAND_LEGACY));
   if (!stop.some((h) => h && h.command === command)) {
     stop.push({ type: 'command', command, timeout: 30 });
   }

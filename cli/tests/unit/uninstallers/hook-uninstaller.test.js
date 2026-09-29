@@ -262,7 +262,7 @@ describe('hook-uninstaller', () => {
       const config = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
       config['my-guard'] = { PreToolUse: [{ command: 'node my-guard.mjs' }], Stop: [{ type: 'command', command: 'node my-stop.mjs' }] };
       // a user handler placed under UDS's own name and event, at UDS's own directory
-      config['uds-turn-completion-integrity'].Stop.push({ type: 'command', command: 'node scripts/hooks/my-own-hook.mjs' });
+      config['uds-turn-completion-integrity'].Stop.push({ type: 'command', command: 'node ../scripts/hooks/my-own-hook.mjs' });
       writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2));
 
       const result = uninstallAgyHooks(testDir);
@@ -272,8 +272,20 @@ describe('hook-uninstaller', () => {
       expect(updated['my-guard'].PreToolUse[0].command).toBe('node my-guard.mjs');
       expect(updated['my-guard'].Stop[0].command).toBe('node my-stop.mjs');
       expect(updated['uds-turn-completion-integrity'].Stop).toEqual([
-        { type: 'command', command: 'node scripts/hooks/my-own-hook.mjs' },
+        { type: 'command', command: 'node ../scripts/hooks/my-own-hook.mjs' },
       ]);
+    });
+
+    it('agy: also removes a handler written with the earlier `node scripts/hooks/...` command', () => {
+      mkdirSync(join(testDir, '.agents'), { recursive: true });
+      writeFileSync(join(testDir, '.agents', 'hooks.json'), JSON.stringify({
+        'uds-turn-completion-integrity': { Stop: [{ type: 'command', command: 'node scripts/hooks/check-turn-completion-agy.mjs', timeout: 30 }] },
+      }));
+
+      const result = uninstallAgyHooks(testDir);
+
+      expect(result.removed.length).toBe(1);
+      expect(existsSync(join(testDir, '.agents', 'hooks.json'))).toBe(false);
     });
 
     it('agy: deletes .agents/hooks.json when UDS created it and nothing else remains', () => {

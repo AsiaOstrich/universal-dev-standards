@@ -211,6 +211,15 @@ contract differs from every adapter above in the ways that matter:
   in this transcript's own shape.
 - **A block is `{"decision":"continue","reason":...}`**, not `block` or `deny`;
   `{}` allows.
+- **The hook runs with `.agents/` as its working directory, not the project
+  root** (measured 2026-09-29, agy 1.2.12). The installed command is therefore
+  `node ../scripts/hooks/check-turn-completion-agy.mjs`; the project-root form
+  `node scripts/hooks/...` resolved to `<project>/.agents/scripts/hooks/...`,
+  failed with "Cannot find module", and **agy let the failed hook through
+  silently** — no message, stdout unchanged, the turn simply ended. The path is
+  relative on purpose (the file is meant to be committed and shared, and an
+  absolute path is one machine's) and uses no shell syntax (`sh -c`, `$(...)`),
+  because whether agy runs `command` through a shell has no evidence behind it.
 - **Unlike Claude Code, the transcript already holds the final reply** when the
   hook runs.
 
@@ -222,8 +231,9 @@ conversations, turns that include tool calls (whether the last
 `PLANNER_RESPONSE` is then the final reply, and whether it is already written
 when the hook runs), `fullyIdle: false`, a non-empty `error`, interactive mode,
 whether a project `.agents/hooks.json` is only honoured for a registered
-Antigravity project (as `.agents/skills/` is), and the hook's working
-directory (the installed command is relative to the project root). In an
+Antigravity project (as `.agents/skills/` is), and whether the working
+directory is always `.agents/` (it was measured for a project-level file only;
+a user-level `~/.gemini/config/hooks.json` is not written by `uds init`). In an
 unverified case the adapter may judge an earlier reply rather than the final
 one; any failure to read still allows (R5). `uds init --with-hooks` prints the
 verified range next to the install line.

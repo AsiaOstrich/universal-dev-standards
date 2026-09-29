@@ -37,6 +37,13 @@
  * block-message echo). Filtering by `source` is the guard; the SELF_ECHO check
  * below is a second, weaker one.
  *
+ * 🔴 agy runs the hook with the working directory set to `.agents/`, not the
+ * project root (measured 2026-09-29, agy 1.2.12), and silently lets a hook that
+ * fails to start through — hence the installed command `node ../scripts/hooks/...`.
+ * Nothing here or in the engine reads process.cwd(): packs load relative to the
+ * module, state lives under ~/.uds (or UDS_TURN_COMPLETION_STATE_DIR), and the
+ * transcript path from stdin is absolute. Tests run the adapter from `.agents/`.
+ *
  * At the moment the hook runs, the transcript ALREADY holds the model's final
  * reply (observed, single turn, no tool calls). This is the opposite of Claude
  * Code, where it does not (see check-turn-completion.mjs). Not verified: multi-

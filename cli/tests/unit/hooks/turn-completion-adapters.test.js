@@ -14,7 +14,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'child_process';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
@@ -433,6 +433,56 @@ describe('turn-completion-integrity: Antigravity CLI (agy) adapter', () => {
       writeFileSync(tp, lines.map((l) => JSON.stringify(l)).join('\n') + '\n');
       const stdin = JSON.parse(readFileSync(join(AGY_FIXTURES, 'stdin-1.json'), 'utf8'));
       expect(runAgyWithStdin({ ...stdin, conversationId: randomUUID(), transcriptPath: tp }).decision).toBe('continue');
+    });
+  });
+
+  // 🔴 agy runs the hook with the working directory set to `.agents/`
+  // (measured 2026-09-29, agy 1.2.12). Nothing in the adapter or engine reads
+  // process.cwd() (packs load relative to the module, state lives under
+  // ~/.uds or UDS_TURN_COMPLETION_STATE_DIR, the transcript path is absolute
+  // from stdin) — these pin that, by running the adapter from `.agents/`.
+  describe('working directory is `.agents/`, not the project root', () => {
+    function runFrom(cwd, records, conversationId = randomUUID()) {
+      const tp = join(stateDir, 'transcript_full.jsonl');
+      writeFileSync(tp, records.map((r) => JSON.stringify(r)).join('\n') + '\n');
+      const stdout = execFileSync(process.execPath, [AGY_ADAPTER], {
+        cwd,
+        input: JSON.stringify({ conversationId, transcriptPath: tp, workspacePaths: [join(cwd, '..')] }),
+        env: { ...process.env, UDS_TURN_COMPLETION_STATE_DIR: join(stateDir, 'state') },
+        encoding: 'utf8',
+      });
+      return JSON.parse(stdout);
+    }
+    const setup = () => {
+      const root = mkdtempSync(join(stateDir, 'proj-'));
+      const agents = join(root, '.agents');
+      mkdirSync(agents);
+      return { root, agents };
+    };
+
+    it('blocks the same as from the project root', () => {
+      const { root, agents } = setup();
+      const recs = [userRec('refactor'), modelRec(COMMIT)];
+      expect(runFrom(agents, recs).decision).toBe('continue');
+      expect(runFrom(root, recs).decision).toBe('continue');
+    });
+
+    it('allows (conditional, and human-asked stop) the same as from the project root', () => {
+      const { root, agents } = setup();
+      const cond = [userRec('pick'), modelRec("Once you pick a model, I'll wire it into the config.")];
+      const stop = [userRec("Let's pause here, I'm heading home."), modelRec(COMMIT)];
+      for (const cwd of [agents, root]) {
+        expect(runFrom(cwd, cond)).toEqual({});
+        expect(runFrom(cwd, stop)).toEqual({});
+      }
+    });
+
+    it('a second call in the same conversation inside the cooldown allows (R6) — same from either directory', () => {
+      const { agents } = setup();
+      const recs = [userRec('refactor'), modelRec(COMMIT)];
+      const id = randomUUID();
+      expect(runFrom(agents, recs, id).decision).toBe('continue');
+      expect(runFrom(agents, recs, id)).toEqual({});
     });
   });
 

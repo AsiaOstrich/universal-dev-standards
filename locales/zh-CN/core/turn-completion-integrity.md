@@ -3,7 +3,7 @@ source: ../../../core/turn-completion-integrity.md
 source_version: 1.5.0
 translation_version: 1.5.0
 last_synced: 2026-09-29
-source_hash: aa4986da9191
+source_hash: 08579653d9a4
 status: current
 ---
 
@@ -193,6 +193,12 @@ Antigravity CLI 已支持，依据是真实会话观察到的契约（2026-09-29
   「Stop hook blocked termination: …」）。若把「不是模型的任何记录」都当成人，就会把 hook
   自己的话当成人说的，R9 豁免随之失效——也就是 R11 的失败，换成这份转录的形状重演。
 - **拦截是 `{"decision":"continue","reason":...}`**，不是 `block` 或 `deny`；`{}` 即放行。
+- **hook 执行时的工作目录是 `.agents/`，不是项目根目录**（2026-09-29 实测，agy 1.2.12）。
+  因此安装的命令是 `node ../scripts/hooks/check-turn-completion-agy.mjs`；以项目根目录为准的
+  `node scripts/hooks/...` 会解析成 `<项目>/.agents/scripts/hooks/...`，出现
+  「Cannot find module」，而且**agy 对执行失败的 hook 静默放行**——没有任何消息、stdout 照常，
+  回合就这样结束。路径刻意用相对路径（这个文件本来就是要提交并共用的，绝对路径只属于某一台机器），
+  也不用任何 shell 语法（`sh -c`、`$(...)`），因为 agy 是否经过 shell 执行 `command` 没有证据。
 - **与 Claude Code 相反，hook 被调用时转录已经写到最后一条回复。**
 
 已验证：agy 1.2.12、非交互的 `agy -p`、**单轮且没有工具调用**——hook 被调用时最后一条回复
@@ -200,7 +206,8 @@ Antigravity CLI 已支持，依据是真实会话观察到的契约（2026-09-29
 **未验证**：多轮对话、含工具调用的回合（此时最后一条 `PLANNER_RESPONSE` 是不是最后回复、
 hook 执行时是否已写入）、`fullyIdle: false`、`error` 非空、交互模式、项目级
 `.agents/hooks.json` 是否像 `.agents/skills/` 一样只对已登记的 Antigravity 项目生效，
-以及 hook 的工作目录（安装的命令是相对于项目根目录）。在未验证的情境下，适配层可能判断的是
+以及工作目录是否永远是 `.agents/`（只对项目级文件量测过；`uds init` 不会写用户级的
+`~/.gemini/config/hooks.json`）。在未验证的情境下，适配层可能判断的是
 较早的一条回复而不是最后一条；读取失败时仍一律放行（R5）。`uds init --with-hooks` 会在安装
 那一行旁边打印已验证的范围。
 

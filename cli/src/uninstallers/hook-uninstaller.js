@@ -165,7 +165,10 @@ export function uninstallGeminiHooks(projectPath, options = {}) {
  */
 function isUdsAgyHandler(handler, knownScripts) {
   const cmd = handler && typeof handler.command === 'string' ? handler.command : undefined;
-  return typeof cmd === 'string' && UDS_HOOK_COMMAND_PATTERN.test(cmd) && knownScripts.has(basename(cmd));
+  // agy's hook cwd is `.agents/`, so the installed command climbs out first
+  // (`node ../scripts/hooks/...`); the earlier `node scripts/hooks/...` form
+  // is still recognised so an install made before that fix can be removed.
+  return typeof cmd === 'string' && /^node (?:\.\.\/)?scripts\/hooks\//.test(cmd) && knownScripts.has(basename(cmd));
 }
 
 /**
