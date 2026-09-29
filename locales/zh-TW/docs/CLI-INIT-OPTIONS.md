@@ -1,8 +1,8 @@
 ---
 source: ../../../docs/CLI-INIT-OPTIONS.md
-source_version: 3.7.0
-translation_version: 3.7.0
-last_synced: 2026-09-26
+source_version: 3.7.1
+translation_version: 3.7.1
+last_synced: 2026-09-29
 status: current
 ---
 
@@ -10,8 +10,8 @@ status: current
 
 > **語言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CLI-INIT-OPTIONS.md)
 >
-> **版本**: 3.7.0
-> **最後更新**: 2026-09-26
+> **版本**: 3.7.1
+> **最後更新**: 2026-09-29
 
 本文件詳細說明 `uds init` 命令的每一個選項，包含使用情境、影響範圍和建議選擇。
 
@@ -870,16 +870,17 @@ UDS 的專案——並在 `[pre-commit]` 底下回報同樣的修復方式；此
 
 `--with-hooks` 一定會安裝進 `.claude/settings.json`。四個有 hook 支援的標準
 之一——`turn-completion-integrity`（見 CHANGELOG，Unreleased）——也會裝進
-**Codex** 與 **Gemini CLI**，門檻是你有沒有在 [AI 工具選擇](#1-ai-工具選擇)
+**Codex**、**Gemini CLI**（過時）與 **Antigravity CLI**（`agy`），門檻是你有沒有在 [AI 工具選擇](#1-ai-工具選擇)
 裡選了那個工具（或用非互動模式的工具旗標帶入）：
 
 | 工具 | 寫入的設定檔 | 觸發條件 |
 |------|-------------|---------|
 | Codex | `.codex/hooks.json` | 選了 **OpenAI Codex** |
 | Gemini CLI | `.gemini/settings.json` | 選了 **Gemini CLI** |
+| Antigravity CLI | `.agents/hooks.json` | 選了 **Google Antigravity** |
 
-沒選的工具不會寫入任何東西——`uds init` 不會在沒用到 Codex 或 Gemini CLI
-的專案裡建立 `.codex/` 或 `.gemini/` 目錄。其餘三個有 hook 支援的標準
+沒選的工具不會寫入任何東西——`uds init` 不會在沒用到 Codex、Gemini CLI 或 Antigravity
+的專案裡建立 `.codex/`、`.gemini/` 或 `.agents/` 目錄。其餘三個有 hook 支援的標準
 （commit message 驗證、logging、security）目前仍只支援 Claude Code；
 為什麼目前只推廣 turn-completion-integrity，以及 Cursor 的現況
 （已評估、不支援），見

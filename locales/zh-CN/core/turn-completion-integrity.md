@@ -1,9 +1,9 @@
 ---
 source: ../../../core/turn-completion-integrity.md
-source_version: 1.4.1
-translation_version: 1.4.1
-last_synced: 2026-09-28
-source_hash: 0c04676006c0
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-09-29
+source_hash: aa4986da9191
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **语言**: [English](../../../core/turn-completion-integrity.md) | [繁體中文](../../zh-TW/core/turn-completion-integrity.md) | 简体中文
 
-**版本**: 1.4.1
-**最后更新**: 2026-09-28
+**版本**: 1.5.0
+**最后更新**: 2026-09-29
 **适用范围**: 任何由 agent 结束回合、把控制权交还给人的执行环境
 **Scope**: universal
 **行业标准**: 不声称任何来源——由实际观察到的失败归纳，见「证据」
@@ -144,13 +144,14 @@ agent 写下「我接着做 X」，然后结束回合，而 X 没有做。
 ## 支持的执行环境
 
 这个检查只在「适配层存在，且 hook 真的被接入该执行环境自己的配置」时才生效。
-截至 v1.4.1：
+截至 v1.5.0：
 
 | 执行环境 | 事件 | 配置文件 | 拦截契约 |
 |---|---|---|---|
 | Claude Code | Stop | `.claude/settings.json` | stdout 输出 `{"decision":"block","reason":...}`，exit 0；沉默即放行 |
 | Codex | Stop | `.codex/hooks.json` | stdout 输出 `{"decision":"block","reason":...}`，exit 0——官方文档写明这个事件纯文本或空输出无效 |
 | Gemini CLI（过时） | AfterAgent | `.gemini/settings.json` | stdout 输出 `{"decision":"deny","reason":...}`，exit 0——官方文档标记为优先于 exit code 2 的做法 |
+| Antigravity CLI（`agy`） | Stop | `.agents/hooks.json` | stdout 输出 `{"decision":"continue","reason":...}`，exit 0；`{}` 即放行 |
 
 在 Codex 上，接上了不等于会执行。Codex 会跳过项目级的 hook，直到项目被信任、**而且**
 这一支 hook 的定义在交互式 Codex 会话里通过 `/hooks` 被信任为止；信任记录绑定在定义的
@@ -173,12 +174,35 @@ agent 的最后一条消息，却不给出用户的；要拿到用户那一侧�
 
 Gemini CLI 已过时。Google 于 2026-06-18 对个人账号停用 Gemini CLI，
 改由 Antigravity CLI（`agy`）取代；企业账号两者都还能用。这个适配层为那些用户保留，
-但它从未在真实的 Gemini CLI 会话中验证过；使用 Google 工具的新采用者应预期的是
-Antigravity CLI，而它**尚未支持**。它文档记载的 Stop hook 契约，在关键之处与上表每一个
-适配层都不同：hook 配置在 `.agents/hooks.json`、传入数据只有 `transcriptPath`
-（没有最后一条回复、也没有人的消息）、拦截是 `{"decision":"continue","reason":...}`
-而不是 `block` 或 `deny`。等这份契约在真实会话中观察到之后才会加入适配层——
-与下方 Cursor 没有适配层是同一个理由。
+但它从未在真实的 Gemini CLI 会话中验证过；使用 Google 工具的新采用者应使用下面的
+Antigravity CLI 适配层。
+
+Antigravity CLI 已支持，依据是真实会话观察到的契约（2026-09-29，agy 1.2.12），
+而不只是它的文档。这份契约在关键之处与上表每一个适配层都不同：
+
+- **配置**在 `.agents/hooks.json`，以 hook 名称为键——
+  `{"<名称>": {"Stop": [{"type":"command","command":"...","timeout":N}]}}`，
+  `timeout` 单位为秒。没有 `hooks` 外层，handler 也不嵌套在 `hooks[]` 里。
+- **stdin 既没有最后一条回复、也没有人的消息**，只有 `transcriptPath` 与元数据，所以两者
+  都要从转录读（JSONL，每条有 `source`、`type`、`content`）。最后一条回复是最后一条
+  `source: MODEL`、`type: PLANNER_RESPONSE`。人的消息是最后一条
+  `source: USER_EXPLICIT`、`type: USER_INPUT`，取 `<USER_REQUEST>…</USER_REQUEST>` 之内的文字——
+  后面接着的系统区块（`<ADDITIONAL_METADATA>` 等）不是人说的话。
+- **`SYSTEM_MESSAGE` 记录绝不可当成人的消息读。** agy 会把这个 hook 自己的 `continue` 理由
+  写回转录，成为这种记录（`source: SYSTEM`、`type: SYSTEM_MESSAGE`，内容为
+  「Stop hook blocked termination: …」）。若把「不是模型的任何记录」都当成人，就会把 hook
+  自己的话当成人说的，R9 豁免随之失效——也就是 R11 的失败，换成这份转录的形状重演。
+- **拦截是 `{"decision":"continue","reason":...}`**，不是 `block` 或 `deny`；`{}` 即放行。
+- **与 Claude Code 相反，hook 被调用时转录已经写到最后一条回复。**
+
+已验证：agy 1.2.12、非交互的 `agy -p`、**单轮且没有工具调用**——hook 被调用时最后一条回复
+已在转录里，`continue` 确实生效（模型又回了一轮），且没有遇到信任提示（与 Codex 不同）。
+**未验证**：多轮对话、含工具调用的回合（此时最后一条 `PLANNER_RESPONSE` 是不是最后回复、
+hook 执行时是否已写入）、`fullyIdle: false`、`error` 非空、交互模式、项目级
+`.agents/hooks.json` 是否像 `.agents/skills/` 一样只对已登记的 Antigravity 项目生效，
+以及 hook 的工作目录（安装的命令是相对于项目根目录）。在未验证的情境下，适配层可能判断的是
+较早的一条回复而不是最后一条；读取失败时仍一律放行（R5）。`uds init --with-hooks` 会在安装
+那一行旁边打印已验证的范围。
 
 Cursor 已评估但不支持：截至撰写本文时，Cursor 的 stop hook 能不能真的
 拦下一个回合仍未确定，若对着一个没人验证过的契约交付一份适配层，
@@ -240,3 +264,5 @@ Cursor 已评估但不支持：截至撰写本文时，Cursor 的 stop hook 能�
 - [ ] 归属词的搜索排除检查自己的标题与结构
 - [ ] 每个支持的执行环境的拦截契约都对照该环境自己的官方文档验证过，不是照搬另一个环境
 - [ ] 安装器只为采用者实际选择的执行环境写入该环境的 hook 配置
+- [ ] 转录里会出现系统代写消息的执行环境，只从「人的记录」读人的消息，绝不从「不是模型写的任何东西」读
+- [ ] 一份执行环境契约只对「真实会话观察过的范围」交付，并注明没观察到的范围

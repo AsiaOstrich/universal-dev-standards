@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`turn-completion-integrity` 1.5.0: Antigravity CLI (`agy`) is now supported, on a contract observed in a real session.** The standard used to say agy was "not yet supported" because its Stop hook contract had not been observed (R3: no adapter against an unobserved contract). It was observed on 2026-09-29 (agy 1.2.12, `agy -p`, single turn, no tool calls), and the adapter `scripts/hooks/check-turn-completion-agy.mjs` is built on what that run produced, not on the documentation alone: the hook payload carries only `transcriptPath`, so the final reply is the last `MODEL`/`PLANNER_RESPONSE` record and the human's message is the last `USER_EXPLICIT`/`USER_INPUT` record (unwrapped from `<USER_REQUEST>`, the system blocks after it dropped). `SYSTEM_MESSAGE` records are never read as the human — agy writes this hook's own `continue` reason back as one, and reading it as the human would void the R9 stop exemption. A block is `{"decision":"continue","reason":...}`, allow is `{}`, and every failure path allows. `uds init --with-hooks` writes `.agents/hooks.json` when Google Antigravity is a selected tool (and does not overwrite a `hooks.json` it cannot parse), `uds uninstall` removes only UDS's own handler and keeps the user's other hooks. **Verified range: single turn, no tool calls, `agy -p`. Not verified: multi-turn, turns with tool calls, interactive mode, `fullyIdle: false`, a non-empty `error`, whether `.agents/hooks.json` needs a registered Antigravity project, and the hook's working directory** — the standard, the adapter and the install output all say so.
+
 ## [6.13.1] - 2026-09-28
 
 > **Patch release**: fixes two defects in upgrading an existing project with `uds update` that 6.13.0 exposed (a zh-TW commit-language section turned English; AGENTS.md rewritten into a different format without its index reminder), and adds a pre-release gate that performs a real upgrade from the previous stable release. **If you already ran `uds update` to 6.13.0, run `uds update` again after upgrading to 6.13.1** to restore those sections.

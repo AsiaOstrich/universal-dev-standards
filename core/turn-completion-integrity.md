@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.4.1
-**Last Updated**: 2026-09-28
+**Version**: 1.5.0
+**Last Updated**: 2026-09-29
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
 **Industry Standards**: none claimed — derived from observed failures, see Evidence
@@ -149,13 +149,14 @@ prevent, one level up.
 ## Supported harnesses
 
 The check is enforced only where a harness adapter exists and a hook is
-actually wired into that harness's own config. As of v1.4.1:
+actually wired into that harness's own config. As of v1.5.0:
 
 | Harness | Event | Config file | Block contract |
 |---|---|---|---|
 | Claude Code | Stop | `.claude/settings.json` | stdout `{"decision":"block","reason":...}`, exit 0; silence allows |
 | Codex | Stop | `.codex/hooks.json` | stdout `{"decision":"block","reason":...}`, exit 0 — plain text or empty stdout is documented as invalid for this event |
 | Gemini CLI (legacy) | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
+| Antigravity CLI (`agy`) | Stop | `.agents/hooks.json` | stdout `{"decision":"continue","reason":...}`, exit 0; `{}` allows |
 
 Wired is not running on Codex. Codex skips a project hook until the project
 is trusted **and** that exact hook definition has been trusted through `/hooks`
@@ -184,14 +185,48 @@ turn may be missed.
 Gemini CLI is legacy. Google retired it for personal accounts on
 2026-06-18 in favour of Antigravity CLI (`agy`); enterprise accounts keep
 access to both. The adapter stays for those users, but it has never been
-confirmed against a real Gemini CLI session, and new adopters on Google's
-tooling should expect Antigravity CLI, which is **not yet supported**. Its
-documented Stop hook contract differs from every adapter above in the ways
-that matter: the hook is configured in `.agents/hooks.json`, the payload
-carries only a `transcriptPath` (no final message, no human message), and a
-block is `{"decision":"continue","reason":...}`, not `block` or `deny`. An
-adapter will be added once that contract has been observed against a real
-session — the same reason Cursor below has none.
+confirmed against a real Gemini CLI session; new adopters on Google's tooling
+should use the Antigravity CLI adapter below.
+
+Antigravity CLI is supported, on a contract observed in a real session
+(2026-09-29, agy 1.2.12) rather than taken from its documentation alone. The
+contract differs from every adapter above in the ways that matter:
+
+- **Config** is `.agents/hooks.json`, keyed by hook name —
+  `{"<name>": {"Stop": [{"type":"command","command":"...","timeout":N}]}}`,
+  `timeout` in seconds. There is no `hooks` wrapper and no `hooks[]` nesting
+  around the handler.
+- **stdin carries neither the final reply nor the human's message**, only
+  `transcriptPath` and metadata, so both are read from the transcript (JSONL,
+  each record with `source`, `type`, `content`). The final reply is the last
+  record with `source: MODEL`, `type: PLANNER_RESPONSE`. The human's message is
+  the last record with `source: USER_EXPLICIT`, `type: USER_INPUT`, taken from
+  inside `<USER_REQUEST>…</USER_REQUEST>` — the system blocks that follow it
+  (`<ADDITIONAL_METADATA>` and others) are not the human's words.
+- **`SYSTEM_MESSAGE` records MUST NOT be read as the human's message.** agy
+  writes this hook's own `continue` reason back into the transcript as one
+  (`source: SYSTEM`, `type: SYSTEM_MESSAGE`, "Stop hook blocked termination:
+  …"). Reading "any record that is not the model" as the human takes the hook's
+  own text for the human's words and voids the R9 exemption — the R11 failure
+  in this transcript's own shape.
+- **A block is `{"decision":"continue","reason":...}`**, not `block` or `deny`;
+  `{}` allows.
+- **Unlike Claude Code, the transcript already holds the final reply** when the
+  hook runs.
+
+Verified: agy 1.2.12, non-interactive `agy -p`, a **single turn with no tool
+calls** — the hook was called with the final reply already in the transcript,
+`continue` was honoured (the model produced a further turn), and no trust
+prompt was encountered (unlike Codex). **Not verified**: multi-turn
+conversations, turns that include tool calls (whether the last
+`PLANNER_RESPONSE` is then the final reply, and whether it is already written
+when the hook runs), `fullyIdle: false`, a non-empty `error`, interactive mode,
+whether a project `.agents/hooks.json` is only honoured for a registered
+Antigravity project (as `.agents/skills/` is), and the hook's working
+directory (the installed command is relative to the project root). In an
+unverified case the adapter may judge an earlier reply rather than the final
+one; any failure to read still allows (R5). `uds init --with-hooks` prints the
+verified range next to the install line.
 
 Cursor was evaluated and is not supported: whether its stop hook can actually
 block a turn in the way this standard requires was unresolved as of this
@@ -257,3 +292,5 @@ only because a corpus existed; the two that shipped were the ones no case covere
 - [ ] The attribution search excludes the check's own headings and scaffolding
 - [ ] Each supported harness's block contract (config file, event, output shape) is verified against that harness's own docs, not assumed from another harness
 - [ ] The installer only writes a harness's hook config for a harness the adopter selected
+- [ ] A harness whose transcript records system-written messages reads the human's message from the human's records only, never from "anything that is not the model"
+- [ ] A harness contract is shipped only for the range observed against a real session, and the unobserved range is stated
