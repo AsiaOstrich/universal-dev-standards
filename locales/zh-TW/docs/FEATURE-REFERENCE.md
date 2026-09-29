@@ -9,15 +9,15 @@
 
 ## 目錄
 
-1. [CLI 指令](#cli-commands) (23)
+1. [CLI 指令](#cli-commands) (24)
 2. [斜線命令](#slash-commands) (51)
 3. [技能](#skills) (55)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (153)
-7. [腳本](#scripts) (62)
+7. [腳本](#scripts) (63)
 
-**Total Features: 354**
+**Total Features: 356**
 
 ---
 
@@ -158,6 +158,8 @@
 | `--rollback` | Rollback to the most recent backup |
 | `--claude-target` | Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
+| `--with-hooks` | Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; with --plan, writes nothing; --force also overwrites edited hook scripts) |
+| `--ai-tool` | With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them |
 
 ### `uds skills`
 
@@ -275,6 +277,10 @@
 ### `uds mcp`
 
 **說明**: MCP server commands for AI tool integration
+
+### `uds open-work`
+
+**說明**: Reference checks for open-work-tracking (OWT-017/018/019). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
 
 ### `uds run`
 
@@ -610,7 +616,8 @@
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
-| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 / OWT-018 / OWT-019. |
+| `check-home-untouched.mjs` | check-home-untouched — did this run write anywhere UDS writes under HOME? |
+| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 / OWT-018 / OWT-019 — repo entry point. |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
 | `check-prompt-footprint.mjs` | Prompt Footprint Ratchet — DEC-117 D2/L2 |

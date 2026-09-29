@@ -32,6 +32,7 @@
 | `uds agent` | Manage UDS agents for AI tools |
 | `uds ai-context` | Manage .ai-context.yaml configuration for AI-friendly architecture |
 | `uds mcp` | MCP server commands for AI tool integration |
+| `uds open-work` | Reference checks for open-work-tracking (OWT-017/018/019). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass) |
 | `uds run` | Run a project command by intent (test/lint/build/security) via uds.project.yaml |
 
 ## 💬 斜线命令
@@ -352,6 +353,7 @@
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ- |
+| `check-home-untouched.mjs` | check-home-untouched — did this run write anywhere |
 | `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 /  |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
