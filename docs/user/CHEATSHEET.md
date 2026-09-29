@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-09-23
+> Quick reference for all UDS features | Last updated: 2026-09-29
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -352,8 +352,10 @@
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ- |
+| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 /  |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
+| `check-prompt-footprint.mjs` | Prompt Footprint Ratchet — DEC-117 D2/L2 |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
@@ -367,6 +369,7 @@
 | `check-translation-hash-ratchet.sh` | XSPEC-392 R6 棘輪：新的翻譯必須帶 source_hash，既有的欠債冷凍為基線。 |
 | `check-translation-sync.ps1` | Check Translation Sync |
 | `check-translation-sync.sh` | Translation Sync Checker |
+| `check-upgrade-fidelity.sh` | Upgrade Fidelity Checker |
 | `check-usage-docs-sync.ps1` | Check if usage documentation needs to be regenerat |
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |

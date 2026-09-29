@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-09-23
+> Auto-generated | Last updated: 2026-09-29
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (153)
-7. [腳本](#scripts) (59)
+7. [腳本](#scripts) (62)
 
-**Total Features: 351**
+**Total Features: 354**
 
 ---
 
@@ -478,7 +478,7 @@
 | `deployment-standards` | 1.1.0 | This standard defines guidelines for safely deploying software to production, co |
 | `deprecation-standards` | 1.1.0 |  |
 | `design-document-standards` | 1.0.0 |  |
-| `developer-memory` | 1.1.1 | This standard defines a structured system for capturing, retrieving, and surfaci |
+| `developer-memory` | 1.2.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `disaster-recovery-drill` | - |  |
 | `documentation-lifecycle` | 1.0.0 | This standard defines **when** to update documentation, **when** to check it, an |
 | `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
@@ -516,7 +516,7 @@
 | `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
-| `open-work-tracking` | 1.0.0 | The deferred-item-exit standard requires that a deferred item leave its document |
+| `open-work-tracking` | 1.1.0 | The deferred-item-exit standard requires that a deferred item leave its document |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
 | `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |
@@ -574,7 +574,7 @@
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
-| `turn-completion-integrity` | 1.3.0 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
+| `turn-completion-integrity` | 1.5.0 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
@@ -610,8 +610,10 @@
 | `check-docs-sync.sh` | Documentation Sync Checker |
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
+| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 / OWT-018 / OWT-019. |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
+| `check-prompt-footprint.mjs` | Prompt Footprint Ratchet — DEC-117 D2/L2 |
 | `check-scope-sync.ps1` | Check Scope Sync |
 | `check-scope-sync.sh` | Scope Consistency Check Script |
 | `check-skill-next-steps-sync.ps1` | Check Skill Next Steps Sync |
@@ -625,6 +627,7 @@
 | `check-translation-hash-ratchet.sh` | XSPEC-392 R6 棘輪：新的翻譯必須帶 source_hash，既有的欠債冷凍為基線。 |
 | `check-translation-sync.ps1` | Check Translation Sync |
 | `check-translation-sync.sh` | Translation Sync Checker |
+| `check-upgrade-fidelity.sh` | Upgrade Fidelity Checker |
 | `check-usage-docs-sync.ps1` | Check if usage documentation needs to be regenerated |
 | `check-usage-docs-sync.sh` | check-usage-docs-sync.sh |
 | `check-version-sync.ps1` | Check Version Sync |
