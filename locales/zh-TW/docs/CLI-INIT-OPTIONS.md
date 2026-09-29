@@ -886,6 +886,30 @@ UDS 的專案——並在 `[pre-commit]` 底下回報同樣的修復方式；此
 （已評估、不支援），見
 [支援的執行環境](../../../core/turn-completion-integrity.md#supported-harnesses)。
 
+### 為已初始化的專案補裝 Hooks（`uds update --with-hooks`）
+
+`uds init` 不能跑第二次，所以 `--with-hooks` 到不了已經初始化的專案——包括在 UDS 支援某個工具**之前**
+（或在偵測認得它之前）就初始化的專案。`uds update --with-hooks` 就是那扇門：
+
+```bash
+uds update --with-hooks --plan                   # 列出會裝什麼；不寫任何檔
+uds update --with-hooks                          # 補裝缺少的 hooks
+uds update --with-hooks --ai-tool antigravity    # 直接指定工具，不做偵測
+```
+
+- **裝給哪些工具。** `.standards/manifest.json` 裡的工具，加上專案檔案現在看得出來的（Claude Code：
+  `.claude/` 或 `CLAUDE.md`；Codex：根目錄 `AGENTS.md`；Gemini CLI：`GEMINI.md`；Antigravity：
+  `.agents/AGENTS.md`、`.agents/rules/`、`.agents/workflows/`、`.agents/plugins/` 或
+  `.agents/hooks.json`）。**`.agents/skills/` 不算 Antigravity 的標記**——Codex 也從同一個目錄讀專案技能，
+  所以它分不出是哪個工具。`--ai-tool <清單>`（`claude-code`、`codex`、`gemini-cli`、`antigravity`，
+  以逗號分隔）會取代偵測。找不到任何工具時，它會說明、印出如何指定，並以 1 結束。
+- **不會動什麼。** 已經裝好的 hook 不會被重寫。你自己的 hooks 不會被移除或重排：Claude、Codex、Gemini 的
+  項目是合併進去；Antigravity 的 `.agents/hooks.json` 只寫在 `uds-turn-completion-integrity` 這個鍵底下
+  （不是合法 JSON 的 `hooks.json` 會原樣保留並回報）。`scripts/hooks/` 裡與隨附版本不同的 hook 腳本會被保留並回報；
+  加上 `--force` 才會覆寫。
+- **它不做什麼。** 不更新標準、技能或整合檔（那是一般的 `uds update`），也不會把工具加進 manifest。
+  它不能與 `--skills`、`--commands` 等其他 update 模式合用，合用時會明說。
+
 ### Claude Code 整合目標檔（`--claude-target`）
 
 UDS 預設把 Claude Code 內容寫進 `CLAUDE.md`——團隊共用、會進版控的那個檔案。

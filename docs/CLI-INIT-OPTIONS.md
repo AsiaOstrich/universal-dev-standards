@@ -891,6 +891,36 @@ security) remain Claude Code only; see
 for why turn-completion-integrity is the one extended so far, and for Cursor's
 status (evaluated, not supported).
 
+### Adding Hooks to an Already-Initialized Project (`uds update --with-hooks`)
+
+`uds init` refuses to run twice, so `--with-hooks` cannot reach a project that is
+already initialized — including a project that initialized **before** UDS supported
+a tool (or before its detection found it). `uds update --with-hooks` is that door:
+
+```bash
+uds update --with-hooks --plan                   # what would be installed; writes nothing
+uds update --with-hooks                          # install the hooks that are missing
+uds update --with-hooks --ai-tool antigravity    # name the tool(s) instead of detecting
+```
+
+- **Which tools.** The tools in `.standards/manifest.json` plus what the project's files
+  show now (Claude Code: `.claude/` or `CLAUDE.md`; Codex: root `AGENTS.md`; Gemini CLI:
+  `GEMINI.md`; Antigravity: `.agents/AGENTS.md`, `.agents/rules/`, `.agents/workflows/`,
+  `.agents/plugins/` or `.agents/hooks.json`). **`.agents/skills/` is not an Antigravity
+  marker** — Codex reads project skills from the same directory, so it cannot say which
+  tool is in use. `--ai-tool <list>` (`claude-code`, `codex`, `gemini-cli`,
+  `antigravity`, comma-separated) replaces detection. When no tool can be found it says
+  so, prints how to name one, and exits 1.
+- **What it will not touch.** A hook that is already installed is not rewritten. Your own
+  hooks are never removed or reordered: Claude, Codex and Gemini entries are merged, and
+  Antigravity's `.agents/hooks.json` is only written under the `uds-turn-completion-integrity`
+  key (a `hooks.json` that is not valid JSON is left as it is and reported). A hook script
+  in `scripts/hooks/` that differs from the shipped one is kept and reported; add `--force`
+  to overwrite it.
+- **What it does not do.** It does not update standards, skills or integration files (that
+  is plain `uds update`) and it does not add a tool to the manifest. It does not compose with
+  `--skills`, `--commands` and the other update modes, and says so if you combine them.
+
 ### Claude Code Integration Target (`--claude-target`)
 
 By default, UDS writes its Claude Code content into `CLAUDE.md` — the file the

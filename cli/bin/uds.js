@@ -232,6 +232,8 @@ program
   .option('--rollback', 'Rollback to the most recent backup')
   .option('--claude-target <target>', 'Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
+  .option('--with-hooks', 'Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; with --plan, writes nothing; --force also overwrites edited hook scripts)')
+  .option('--ai-tool <tools>', 'With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them')
   .action(updateCommand);
 
 program

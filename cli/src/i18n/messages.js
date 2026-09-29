@@ -930,6 +930,7 @@ export const messages = {
         title: 'Universal Development Standards - Initialize',
         alreadyInitialized: '⚠ Standards already initialized in this project.',
         useUpdateOrDelete: 'Use `uds update` to update, or delete .standards/ to reinitialize.',
+        useUpdateWithHooks: 'To add enforcement hooks to this project (including for tools UDS began supporting after you initialized), run `uds update --with-hooks`.',
         // Detection
         detectingProject: 'Detecting project characteristics...',
         analysisComplete: 'Project analysis complete',
@@ -2188,6 +2189,7 @@ export const messages = {
         title: '通用開發標準 - 初始化',
         alreadyInitialized: '⚠ 此專案已初始化標準。',
         useUpdateOrDelete: '使用 `uds update` 更新，或刪除 .standards/ 重新初始化。',
+        useUpdateWithHooks: '要為這個專案補裝執行關卡（含 UDS 在你初始化之後才支援的工具），請執行 `uds update --with-hooks`。',
         // Detection
         detectingProject: '正在偵測專案特性...',
         analysisComplete: '專案分析完成',
@@ -3158,6 +3160,7 @@ export const messages = {
         title: '通用开发标准 - 初始化',
         alreadyInitialized: '⚠ 此项目已初始化标准。',
         useUpdateOrDelete: '使用 `uds update` 更新，或删除 .standards/ 重新初始化。',
+        useUpdateWithHooks: '要为这个项目补装执行关卡（含 UDS 在你初始化之后才支持的工具），请执行 `uds update --with-hooks`。',
         // Detection
         detectingProject: '正在检测项目特性...',
         analysisComplete: '项目分析完成',

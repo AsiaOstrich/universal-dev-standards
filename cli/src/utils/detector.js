@@ -112,6 +112,50 @@ export function detectFramework(projectPath) {
 }
 
 /**
+ * Files and directories under `.agents/` that Antigravity (agy) owns.
+ *
+ * 🔴 Detection used to be `.agents/AGENTS.md` alone (2026-09-08). That file is one
+ * of the things agy reads but a project can use agy for a long time without ever
+ * creating it, so `uds init --with-hooks` in such a project never wired the hook
+ * (found 2026-09-29 installing 6.14.0-beta.1 into a fresh project).
+ *
+ * The markers below come from the agy 1.2.12 binary (`strings`: the literal path
+ * templates `.agents/rules/`, `.agents/workflows/`, `.agents/plugins/`,
+ * `.agents/hooks.json`, `.agents/skills.json`, `.agents/agents/`) and from
+ * antigravity.google/docs/hooks (project hooks live at `.agents/hooks.json`;
+ * "Rules" and "Workflows" are documented Antigravity concepts). Chosen: the ones
+ * documented or carried by the tool itself whose NAME is agy's — not the generic
+ * `agents/` or `skills.json`.
+ *
+ * ⚠️ `.agents/skills/` is NOT a marker. Codex reads project skills from the same
+ * `.agents/skills/` (measured 2026-09-08: only that arm made Codex see the
+ * skills), so a directory that both tools share cannot say which one is in use.
+ * A repo with root AGENTS.md plus `.agents/skills/` is Codex and must stay Codex.
+ *
+ * ⚠️ `.agents/hooks.json` is also the file `uds` itself writes for agy. Detecting
+ * on it is self-referential: after an install it proves the install happened, not
+ * that the adopter uses agy. It is kept because a hooks.json that someone else
+ * (the adopter, another tool) put there is real evidence, and because dropping it
+ * would make a re-run of the installer stop seeing the project it just wired.
+ *
+ * Not used: `~/.gemini/projects.json` lists the projects agy has opened. It is the
+ * tool's own registry and a strong signal, but it lives in the user's home, is
+ * machine-local, and would make the same repository detect differently on two
+ * machines. Detection stays a function of the project directory.
+ */
+export const ANTIGRAVITY_MARKERS = ['AGENTS.md', 'hooks.json', 'rules', 'workflows', 'plugins'];
+
+/**
+ * @param {string} projectPath
+ * @returns {boolean} true when `.agents/` carries something Antigravity owns
+ */
+export function detectAntigravity(projectPath) {
+  const dir = join(projectPath, '.agents');
+  if (!existsSync(dir)) return false;
+  return ANTIGRAVITY_MARKERS.some((m) => existsSync(join(dir, m)));
+}
+
+/**
  * Detect AI tools configured in the project
  * @param {string} projectPath - Path to the project
  * @returns {Object} Detected AI tools
@@ -129,7 +173,8 @@ export function detectAITools(projectPath) {
     // Antigravity never read INSTRUCTIONS.md.
     // Measured 2026-09-08 with two positive controls in the same run: tokens planted in `AGENTS.md` and `.agents/AGENTS.md` both came back with correct attribution; the one in INSTRUCTIONS.md did not.
     // `.agents/AGENTS.md` is used rather than the repo root so it does not collide with Codex/OpenCode, which both target root AGENTS.md.
-    antigravity: existsSync(join(projectPath, '.agents', 'AGENTS.md')),
+    // See detectAntigravity() for the wider marker set and for what is deliberately NOT one.
+    antigravity: detectAntigravity(projectPath),
     // 🔴 Roo Code had a full entry in the path table (`.roo/skills/`, tier "complete"
     // in REGISTRY.json) and NO line here, so `uds init` could never install for it —
     // however correct those paths were. Found by `check:install-paths`, which walks

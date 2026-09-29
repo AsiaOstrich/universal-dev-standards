@@ -46,6 +46,7 @@ import {
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { detectAITools } from '../utils/detector.js';
+import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -448,6 +449,15 @@ export async function updateCommand(options) {
   // below — it does not compose with other update modes/scopes.
   if (options.claudeTarget) {
     await switchClaudeTarget(projectPath, manifest, options.claudeTarget, options);
+    return;
+  }
+
+  // Handle --with-hooks (added 2026-09-29): install the enforcement hooks that are
+  // MISSING from an already-initialized project — the door `uds init --with-hooks`
+  // cannot be, because `uds init` refuses to run twice. Standalone like
+  // --claude-target and --sync-refs; and like them it honours --plan by writing nothing.
+  if (options.withHooks) {
+    await updateHooksOnly(projectPath, manifest, options);
     return;
   }
 
@@ -1827,6 +1837,87 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
  * @param {Object} manifest - Manifest object (will be mutated with updated hashes)
  * @returns {{success: boolean, updated: string[], errors: string[]}}
  */
+/**
+ * `uds update --with-hooks [--ai-tool <list>] [--plan] [--force]`
+ *
+ * Adds the enforcement hooks that are missing; a hook that is already there is not
+ * touched, and the adopter's own hooks are never touched (see installMissingHooks).
+ * Exit code 1 only when there is no hook-capable tool to act on, or an install failed:
+ * "nothing to do" is 0, "could not tell which tool" is not.
+ *
+ * @param {string} projectPath
+ * @param {object} manifest
+ * @param {{ plan?: boolean, force?: boolean, aiTool?: string, yes?: boolean }} options
+ * @returns {Promise<void>}
+ */
+export async function updateHooksOnly(projectPath, manifest, options = {}) {
+  const ignored = ['skills', 'commands', 'syncRefs', 'integrationsOnly', 'standardsOnly', 'apply', 'rollback', 'prune']
+    .filter((k) => options[k]).map((k) => `--${k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}`);
+  if (ignored.length) {
+    console.log(chalk.yellow(`  ! --with-hooks does one thing and does not compose; ${ignored.join(', ')} ignored.`));
+    console.log();
+  }
+
+  const capable = HOOK_CAPABLE_TOOLS.join(', ');
+  const resolved = resolveHookTools(projectPath, manifest, { aiTool: options.aiTool });
+
+  if (resolved.unknown.length) {
+    console.log(chalk.red(`  ✗ No hook installer for: ${resolved.unknown.join(', ')}`));
+    console.log(chalk.gray(`    Tools with hooks: ${capable}`));
+    console.log();
+    process.exitCode = 1;
+    return;
+  }
+  if (resolved.tools.length === 0) {
+    // Both non-interactive and interactive get the same message: there is no prompt to
+    // fall back to here, so the way to say which tool is spelled out instead.
+    console.log(chalk.yellow('  ⚠ Could not tell which AI tool to install hooks for.'));
+    console.log(chalk.gray('    Neither this project\'s manifest nor its files name one of: ' + capable + '.'));
+    console.log(chalk.gray('    Say which one:  uds update --with-hooks --ai-tool <tool>[,<tool>...]'));
+    console.log(chalk.gray('    e.g.            uds update --with-hooks --ai-tool antigravity'));
+    console.log(chalk.gray('    What is detected:  claude-code (.claude/ or CLAUDE.md) · codex (root AGENTS.md) · gemini-cli (GEMINI.md)'));
+    console.log(chalk.gray('                       antigravity (.agents/AGENTS.md, .agents/rules/, .agents/workflows/, .agents/plugins/ or .agents/hooks.json; .agents/skills/ is shared with Codex and does not count)'));
+    console.log();
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log(chalk.bold(options.plan ? 'Hooks — plan (nothing is written)' : 'Hooks'));
+  for (const tool of resolved.tools) {
+    console.log(chalk.gray(`  ${tool}: ${resolved.sources[tool].join(', ')}`));
+  }
+
+  const { results, scripts } = installMissingHooks(projectPath, resolved.tools, {
+    plan: !!options.plan,
+    overwriteScripts: !!options.force,
+  });
+
+  let failed = false;
+  for (const r of results) {
+    const rel = r.path ? relative(projectPath, r.path) || r.path : '';
+    if (r.outcome === 'installed') console.log(chalk.green(`  ✓ ${r.tool}: installed${r.repaired ? ' (replaced an out-of-date UDS entry)' : ''} — ${rel}`));
+    else if (r.outcome === 'would-install') console.log(chalk.cyan(`  + ${r.tool}: would install${r.repaired ? ' (replacing an out-of-date UDS entry)' : ''} — ${rel}`));
+    else if (r.outcome === 'unchanged') console.log(chalk.gray(`  · ${r.tool}: already installed, not touched — ${rel}`));
+    else { failed = true; console.log(chalk.yellow(`  ⚠ ${r.tool}: not installed — ${r.why}`)); }
+  }
+  const installedAny = results.some((r) => r.outcome === 'installed' || r.outcome === 'would-install');
+  if (installedAny && scripts.kept.length) {
+    console.log(chalk.yellow(`  ! ${scripts.kept.length} hook script(s) in scripts/hooks/ differ from this UDS version and were kept: ${scripts.kept.slice(0, 5).join(', ')}${scripts.kept.length > 5 ? ', ...' : ''}`));
+    console.log(chalk.gray('    Add --force to overwrite them with the shipped versions.'));
+  }
+  if (results.some((r) => r.tool === 'antigravity' && r.outcome === 'installed')) {
+    console.log(chalk.yellow('    ⚠ Verified against a real agy session for a single turn without tool calls in `agy -p` mode only; multi-turn, tool-call turns and interactive mode are not yet verified.'));
+  }
+  if (results.some((r) => r.tool === 'codex' && r.outcome === 'installed')) {
+    console.log(chalk.yellow('    ⚠ Codex will not run it until you trust it: open Codex in this project, trust the project, then run /hooks and trust this hook.'));
+  }
+  if (!results.some((r) => r.outcome === 'installed' || r.outcome === 'would-install')) {
+    console.log(chalk.gray('  Nothing to add.'));
+  }
+  console.log();
+  if (failed) process.exitCode = 1;
+}
+
 export function regenerateIntegrations(projectPath, manifest) {
   const aiTools = manifest.aiTools || [];
 

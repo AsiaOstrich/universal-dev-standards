@@ -52,6 +52,8 @@ export async function initCommand(options) {
   if (isInitialized(projectPath)) {
     console.log(chalk.yellow(msg.alreadyInitialized));
     console.log(chalk.gray(`  ${msg.useUpdateOrDelete}`));
+    // `init` cannot run twice, so `--with-hooks` has no effect here; say where the door is.
+    if (options.withHooks) console.log(chalk.yellow(`  ${msg.useUpdateWithHooks}`));
     return;
   }
 

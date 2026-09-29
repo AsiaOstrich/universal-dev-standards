@@ -36,6 +36,7 @@ import { join, dirname, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { execFileSync } from 'child_process';
 import { load as parseYaml } from 'js-yaml';
+import { detectAITools } from '../utils/detector.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -171,7 +172,7 @@ function probeLanguageLimits(hooksDir, scripts) {
   return out;
 }
 
-export function installHooks(projectPath) {
+export function installHooks(projectPath, { overwriteScripts = true } = {}) {
   const claudeDir = join(projectPath, '.claude');
   const settingsPath = join(claudeDir, 'settings.json');
   const hooksDir = join(projectPath, 'scripts', 'hooks');
@@ -190,7 +191,7 @@ export function installHooks(projectPath) {
   if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
 
   // Recursive: a hook may ship a directory beside it (locale packs, fixtures).
-  cpSync(hookDir, hooksDir, { recursive: true });
+  cpSync(hookDir, hooksDir, { recursive: true, force: overwriteScripts });
 
   let settings = {};
   if (existsSync(settingsPath)) {
@@ -258,10 +259,14 @@ export const AGY_HOOK_COMMAND = `node ../scripts/hooks/${AGY_HOOK_SCRIPT}`;
 // re-install repairs it and uninstall still removes it.
 export const AGY_HOOK_COMMAND_LEGACY = `node scripts/hooks/${AGY_HOOK_SCRIPT}`;
 
-/** Copy the shared hook scripts into the project, same as installHooks() does. */
-function copyHookScripts(hookDir, hooksDir) {
+/**
+ * Copy the shared hook scripts into the project, same as installHooks() does.
+ * `overwrite: false` keeps a script that already exists (an adopter may have
+ * edited it); it is what `uds update --with-hooks` uses unless `--force` is given.
+ */
+function copyHookScripts(hookDir, hooksDir, { overwrite = true } = {}) {
   if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
-  cpSync(hookDir, hooksDir, { recursive: true });
+  cpSync(hookDir, hooksDir, { recursive: true, force: overwrite });
 }
 
 /**
@@ -278,7 +283,7 @@ function copyHookScripts(hookDir, hooksDir) {
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installCodexHooks(projectPath) {
+export function installCodexHooks(projectPath, { overwriteScripts = true } = {}) {
   const hooksJsonPath = join(projectPath, '.codex', 'hooks.json');
   const hookDir = hooksSourceDir();
 
@@ -288,7 +293,7 @@ export function installCodexHooks(projectPath) {
 
   const codexDir = join(projectPath, '.codex');
   if (!existsSync(codexDir)) mkdirSync(codexDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
 
   let config = {};
   if (existsSync(hooksJsonPath)) {
@@ -318,7 +323,7 @@ export function installCodexHooks(projectPath) {
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installGeminiHooks(projectPath) {
+export function installGeminiHooks(projectPath, { overwriteScripts = true } = {}) {
   const settingsPath = join(projectPath, '.gemini', 'settings.json');
   const hookDir = hooksSourceDir();
 
@@ -328,7 +333,7 @@ export function installGeminiHooks(projectPath) {
 
   const geminiDir = join(projectPath, '.gemini');
   if (!existsSync(geminiDir)) mkdirSync(geminiDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
 
   let settings = {};
   if (existsSync(settingsPath)) {
@@ -372,7 +377,7 @@ export function installGeminiHooks(projectPath) {
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installAgyHooks(projectPath) {
+export function installAgyHooks(projectPath, { overwriteScripts = true } = {}) {
   const hooksJsonPath = join(projectPath, '.agents', 'hooks.json');
   const hookDir = hooksSourceDir();
 
@@ -394,7 +399,7 @@ export function installAgyHooks(projectPath) {
 
   const agentsDir = join(projectPath, '.agents');
   if (!existsSync(agentsDir)) mkdirSync(agentsDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
 
   const command = AGY_HOOK_COMMAND;
   const entry = config[AGY_HOOK_NAME];
@@ -412,4 +417,177 @@ export function installAgyHooks(projectPath) {
 
   writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2) + '\n');
   return { installed: true, settingsPath: hooksJsonPath, event: 'Stop' };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// `uds update --with-hooks` — hooks for a project that is already initialized.
+//
+// 🔴 Found 2026-09-29 installing the 6.14.0-beta.1 package into a fresh project:
+// hooks were only ever wired by `uds init --with-hooks`, and `uds init` refuses to
+// run twice ("Standards already initialized"). `uds update` had no hook option.
+// So an existing adopter could NEVER receive the hook for a tool UDS started
+// supporting after they initialized — and could not repair a hook file that was
+// never written. This is that door.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The tools that have a hook installer, in the order they are reported. */
+export const HOOK_CAPABLE_TOOLS = ['claude-code', 'codex', 'gemini-cli', 'antigravity'];
+
+/** detectAITools() keys are camelCase; manifests and flags use the kebab-case tool names. */
+const DETECTED_KEY_TO_TOOL = { claudeCode: 'claude-code', geminiCli: 'gemini-cli' };
+
+/**
+ * Which tools to install hooks for.
+ *
+ *   --ai-tool given → exactly those (validated); nothing is detected or guessed.
+ *   otherwise       → the manifest's tools ∪ what the project directory shows now.
+ *
+ * The union is the point: a project initialized before agy detection existed (or
+ * before the adopter started using agy) has no `antigravity` in its manifest, and
+ * detection alone finds it; a project whose marker files were deleted still has
+ * the tool in its manifest. Either source is enough, neither is required.
+ *
+ * @param {string} projectPath
+ * @param {object|null} manifest
+ * @param {{ aiTool?: string }} [options]
+ * @returns {{ tools: string[], explicit: boolean, unknown: string[], sources: Record<string,string[]> }}
+ */
+export function resolveHookTools(projectPath, manifest, options = {}) {
+  if (options.aiTool) {
+    const asked = String(options.aiTool).split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+    const unknown = asked.filter((t) => !HOOK_CAPABLE_TOOLS.includes(t));
+    const tools = HOOK_CAPABLE_TOOLS.filter((t) => asked.includes(t));
+    return { tools, explicit: true, unknown, sources: Object.fromEntries(tools.map((t) => [t, ['--ai-tool']])) };
+  }
+  const sources = {};
+  const add = (tool, why) => {
+    if (!HOOK_CAPABLE_TOOLS.includes(tool)) return;
+    (sources[tool] ||= []).push(why);
+  };
+  for (const t of [...(manifest?.integrations ?? []), ...(manifest?.aiTools ?? [])]) add(t, 'manifest');
+  const detected = detectAITools(projectPath);
+  for (const [k, on] of Object.entries(detected)) if (on) add(DETECTED_KEY_TO_TOOL[k] ?? k, 'detected in the project');
+  for (const t of Object.keys(sources)) sources[t] = [...new Set(sources[t])];
+  return { tools: HOOK_CAPABLE_TOOLS.filter((t) => sources[t]), explicit: false, unknown: [], sources };
+}
+
+function readJson(path) {
+  if (!existsSync(path)) return { state: 'absent' };
+  try {
+    const value = JSON.parse(readFileSync(path, 'utf-8'));
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { state: 'invalid', why: 'is not a JSON object' };
+    return { state: 'ok', value };
+  } catch {
+    return { state: 'invalid', why: 'is not valid JSON' };
+  }
+}
+
+const hasCommand = (entries, cmd) =>
+  Array.isArray(entries) && entries.some((e) => commandOf(e) === cmd);
+
+/**
+ * Is the hook for `tool` already in the project's config? Read-only.
+ *
+ * @returns {{ status: 'present'|'missing'|'stale'|'blocked', path: string, why?: string }}
+ *   present  every entry UDS would write is there — nothing to do
+ *   missing  none (or only part) of it is there
+ *   stale    agy's pre-fix command is there (does not resolve from agy's cwd)
+ *   blocked  the config file exists but cannot be merged safely (invalid JSON)
+ */
+export function hookStatus(projectPath, tool) {
+  if (tool === 'antigravity') {
+    const path = join(projectPath, '.agents', 'hooks.json');
+    const j = readJson(path);
+    if (j.state === 'absent') return { status: 'missing', path };
+    if (j.state === 'invalid') return { status: 'blocked', path, why: `.agents/hooks.json ${j.why}; left untouched` };
+    const stop = j.value[AGY_HOOK_NAME]?.Stop;
+    const cmds = Array.isArray(stop) ? stop.map((h) => h && h.command) : [];
+    if (cmds.includes(AGY_HOOK_COMMAND) && !cmds.includes(AGY_HOOK_COMMAND_LEGACY)) return { status: 'present', path };
+    return { status: cmds.includes(AGY_HOOK_COMMAND_LEGACY) ? 'stale' : 'missing', path };
+  }
+  if (tool === 'codex') {
+    const path = join(projectPath, '.codex', 'hooks.json');
+    const j = readJson(path);
+    if (j.state === 'absent') return { status: 'missing', path };
+    if (j.state === 'invalid') return { status: 'missing', path, why: 'unreadable; it would be rewritten by the installer' };
+    return { status: hasCommand(j.value.hooks?.Stop, `node scripts/hooks/${CODEX_HOOK_SCRIPT}`) ? 'present' : 'missing', path };
+  }
+  if (tool === 'gemini-cli') {
+    const path = join(projectPath, '.gemini', 'settings.json');
+    const j = readJson(path);
+    if (j.state === 'absent') return { status: 'missing', path };
+    if (j.state === 'invalid') return { status: 'missing', path, why: 'unreadable; it would be rewritten by the installer' };
+    return { status: hasCommand(j.value.hooks?.AfterAgent, `node scripts/hooks/${GEMINI_HOOK_SCRIPT}`) ? 'present' : 'missing', path };
+  }
+  if (tool === 'claude-code') {
+    const path = join(projectPath, '.claude', 'settings.json');
+    const { configs } = collectHookConfigs(standardsSourceDir(), hooksSourceDir());
+    if (Object.keys(configs).length === 0) return { status: 'blocked', path, why: 'no standard produced a usable hook' };
+    const j = readJson(path);
+    if (j.state === 'absent') return { status: 'missing', path };
+    if (j.state === 'invalid') return { status: 'missing', path, why: 'unreadable; it would be rewritten by the installer' };
+    for (const [event, entries] of Object.entries(configs)) {
+      const existing = j.value.hooks?.[event] ?? [];
+      if (mergeHookArray(existing, entries).length !== existing.length) return { status: 'missing', path };
+    }
+    return { status: 'present', path };
+  }
+  return { status: 'blocked', path: '', why: `no hook installer for ${tool}` };
+}
+
+/** Hook scripts UDS ships vs what the project already has: how many are new, identical, or edited. */
+function scriptDiff(projectPath) {
+  const src = hooksSourceDir();
+  const out = { added: 0, identical: 0, kept: [] };
+  if (!src) return out;
+  const walk = (dir, rel = '') => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const r = rel ? `${rel}/${e.name}` : e.name;
+      if (e.isDirectory()) { walk(join(dir, e.name), r); continue; }
+      const dest = join(projectPath, 'scripts', 'hooks', r);
+      if (!existsSync(dest)) out.added++;
+      else if (readFileSync(dest).equals(readFileSync(join(dir, e.name)))) out.identical++;
+      else out.kept.push(r);
+    }
+  };
+  walk(src);
+  return out;
+}
+
+const INSTALLERS = {
+  'claude-code': (p, o) => installHooks(p, o),
+  codex: (p, o) => installCodexHooks(p, o),
+  'gemini-cli': (p, o) => installGeminiHooks(p, o),
+  antigravity: (p, o) => installAgyHooks(p, o),
+};
+
+/**
+ * Add the hooks that are missing to an already-initialized project.
+ *
+ * - A hook that is already there is not touched, and nothing is written for it.
+ * - The adopter's own hooks are never touched: every installer merges (Claude,
+ *   Codex, Gemini) or writes only under the key UDS owns (agy).
+ * - A hook script the project already has and that differs from this version is
+ *   KEPT unless `overwriteScripts` — it may have been edited. It is reported.
+ * - `plan: true` reads and reports, and writes nothing.
+ *
+ * @param {string} projectPath
+ * @param {string[]} tools
+ * @param {{ plan?: boolean, overwriteScripts?: boolean }} [opts]
+ * @returns {{ results: Array<{tool:string, outcome:'installed'|'unchanged'|'would-install'|'blocked'|'failed', path:string, why?:string, repaired?:boolean}>, scripts: {added:number, identical:number, kept:string[]} }}
+ */
+export function installMissingHooks(projectPath, tools, { plan = false, overwriteScripts = false } = {}) {
+  // Measured BEFORE anything is copied: afterwards every script would read "identical".
+  const scripts = scriptDiff(projectPath);
+  const results = [];
+  for (const tool of tools) {
+    const st = hookStatus(projectPath, tool);
+    if (st.status === 'present') { results.push({ tool, outcome: 'unchanged', path: st.path }); continue; }
+    if (st.status === 'blocked') { results.push({ tool, outcome: 'blocked', path: st.path, why: st.why }); continue; }
+    if (plan) { results.push({ tool, outcome: 'would-install', path: st.path, repaired: st.status === 'stale' }); continue; }
+    const r = INSTALLERS[tool](projectPath, { overwriteScripts });
+    if (r.installed) results.push({ tool, outcome: 'installed', path: r.settingsPath ?? st.path, repaired: st.status === 'stale' });
+    else results.push({ tool, outcome: 'failed', path: r.settingsPath ?? st.path, why: r.reason ?? 'no standard produced a usable hook' });
+  }
+  return { results, scripts };
 }
