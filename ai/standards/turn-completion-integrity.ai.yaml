@@ -3,8 +3,8 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.4.1"
-  updated: "2026-09-28"
+  version: "1.5.0"
+  updated: "2026-09-29"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
   related:
@@ -119,9 +119,9 @@ enforcement:
 
 # The check is enforced only where an adapter exists AND a hook is wired into
 # that harness's own config. This is separate from `enforcement:` above, which
-# only describes the Claude Code entry the generic installer walks — Codex and
-# Gemini CLI are installed by their own installCodexHooks/installGeminiHooks
-# functions (cli/src/installers/hooks-installer.js), each writing that
+# only describes the Claude Code entry the generic installer walks — Codex,
+# Gemini CLI and Antigravity CLI are installed by their own
+# installCodexHooks/installGeminiHooks/installAgyHooks functions (cli/src/installers/hooks-installer.js), each writing that
 # harness's own config file and output contract.
 supported_harnesses:
   - harness: claude-code
@@ -144,8 +144,13 @@ supported_harnesses:
     status: legacy
     reason: "Google retired Gemini CLI for personal accounts on 2026-06-18 in favour of Antigravity CLI; enterprise accounts keep both. Adapter kept for them; never confirmed against a real Gemini CLI session"
   - harness: antigravity-cli
-    status: not-yet-supported
-    reason: "Documented Stop contract differs: config .agents/hooks.json, payload has only transcriptPath (no final or human message), block is {\"decision\":\"continue\",\"reason\":...}. Adapter waits until that contract is observed against a real session (R3)"
+    event: Stop
+    config_file: ".agents/hooks.json"
+    block_shape: '{"decision":"continue","reason":...}, exit 0; {} allows'
+    script: scripts/hooks/check-turn-completion-agy.mjs
+    contract: "Config is keyed by hook name ({name:{Stop:[{type,command,timeout}]}}, timeout in seconds). stdin carries only transcriptPath + metadata, so the final reply (last MODEL/PLANNER_RESPONSE) and the human's message (last USER_EXPLICIT/USER_INPUT, unwrapped from <USER_REQUEST>) are both read from the transcript. SYSTEM_MESSAGE records must never be read as the human: the hook's own continue reason comes back as one."
+    verified: "agy 1.2.12, 2026-09-29: non-interactive `agy -p`, single turn, no tool calls; transcript already holds the final reply when the hook runs; continue is honoured; no trust prompt encountered; the hook's working directory is `.agents/` (NOT the project root), so the installed command is `node ../scripts/hooks/check-turn-completion-agy.mjs`, and agy silently lets a hook that fails to start through"
+    not_verified: "multi-turn; turns with tool calls; fullyIdle false; non-empty error; interactive mode; whether .agents/hooks.json needs a registered Antigravity project; whether the working directory is always .agents/ (measured for a project-level file only)"
   - harness: cursor
     status: evaluated-not-supported
     reason: "Whether Cursor's stop hook can actually block a turn was unresolved as of writing; shipping an adapter against an unverified contract repeats the exact failure R3 exists to prevent"
@@ -167,3 +172,5 @@ checklist:
   - The attribution search excludes the check's own headings and scaffolding
   - Each supported harness's block contract is verified against that harness's own docs, not assumed from another harness
   - The installer only writes a harness's hook config for a harness the adopter selected
+  - A harness whose transcript records system-written messages reads the human's message from the human's records only, never from anything that is not the model
+  - A harness contract is shipped only for the range observed against a real session, and the unobserved range is stated

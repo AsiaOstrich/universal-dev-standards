@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Added
+
+- **`turn-completion-integrity` 1.5.0：Antigravity CLI（`agy`）现已支持，依据是真实会话观察到的契约。** 这份标准过去写 agy「尚未支持」，因为它的 Stop hook 契约还没被观察过（R3：不对未经观察的契约出适配层）。2026-09-29 已观察（agy 1.2.12、`agy -p`、单轮、无工具调用），适配层 `scripts/hooks/check-turn-completion-agy.mjs` 建立在那次实跑的产出上，而不只是文档：hook 传入数据只有 `transcriptPath`，所以最后一条回复取最后一条 `MODEL`/`PLANNER_RESPONSE`，人的消息取最后一条 `USER_EXPLICIT`/`USER_INPUT`（从 `<USER_REQUEST>` 内取出，后面的系统区块丢掉）。`SYSTEM_MESSAGE` 记录绝不当成人说的话——agy 会把这个 hook 自己的 `continue` 理由写回成这种记录，读成人的话会让 R9 叫停豁免失效。拦截是 `{"decision":"continue","reason":...}`，放行是 `{}`，所有失败路径都放行。`uds init --with-hooks` 在选了 Google Antigravity 时写入 `.agents/hooks.json`（遇到无法解析的 `hooks.json` 不覆盖），`uds uninstall` 只移除 UDS 自己的 handler、保留用户其他 hook。**已验证范围：单轮、无工具调用、`agy -p`。未验证：多轮、含工具调用的回合、交互模式、`fullyIdle: false`、`error` 非空、`.agents/hooks.json` 是否需要已登记的 Antigravity 项目、以及工作目录是否永远是 `.agents/`**——标准、适配层与安装输出都写明了这一点。**同日实测：agy 执行 hook 时的工作目录是 `.agents/`（不是项目根目录），且对启动失败的 hook 静默放行，所以安装的命令是 `node ../scripts/hooks/check-turn-completion-agy.mjs`。**
+
 ## [6.13.1] - 2026-09-28
 
 > **修补版**：修复 6.13.0 暴露的两个“以 `uds update` 升级既有项目”的缺陷（繁中的提交消息语言段落变成英文；AGENTS.md 被改写成另一种格式且少了“这是索引”提醒），并新增一道发版前检查，实际从上一个正式版升级一次。**若你已用 `uds update` 升到 6.13.0，请在升级至 6.13.1 后再执行一次 `uds update`**，以还原那些段落。

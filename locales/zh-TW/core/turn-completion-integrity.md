@@ -1,9 +1,9 @@
 ---
 source: ../../../core/turn-completion-integrity.md
-source_version: 1.4.1
-translation_version: 1.4.1
-last_synced: 2026-09-28
-source_hash: 0c04676006c0
+source_version: 1.5.0
+translation_version: 1.5.0
+last_synced: 2026-09-29
+source_hash: 08579653d9a4
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **Language**: [English](../../../core/turn-completion-integrity.md) | 繁體中文
 
-**版本**: 1.4.1
-**最後更新**: 2026-09-28
+**版本**: 1.5.0
+**最後更新**: 2026-09-29
 **適用範圍**: 任何由 agent 結束回合、把控制權交還給人的執行環境
 **Scope**: universal
 **產業標準**: 不宣稱任何來源——由實際觀察到的失敗歸納，見「證據」
@@ -144,13 +144,14 @@ agent 寫下「我接著做 X」，然後結束回合，而 X 沒有做。
 ## 支援的執行環境
 
 這個檢查只在「轉接層存在，且 hook 真的被接進該執行環境自己的設定」時才生效。
-截至 v1.4.1：
+截至 v1.5.0：
 
 | 執行環境 | 事件 | 設定檔 | 阻擋契約 |
 |---|---|---|---|
 | Claude Code | Stop | `.claude/settings.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0；沉默即放行 |
 | Codex | Stop | `.codex/hooks.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0——官方文件寫明這個事件純文字或空輸出無效 |
 | Gemini CLI（過時） | AfterAgent | `.gemini/settings.json` | stdout 印 `{"decision":"deny","reason":...}`，exit 0——官方文件標記為優先於 exit code 2 的做法 |
+| Antigravity CLI（`agy`） | Stop | `.agents/hooks.json` | stdout 印 `{"decision":"continue","reason":...}`，exit 0；`{}` 即放行 |
 
 在 Codex 上，接上了不等於會執行。Codex 會略過專案層級的 hook，直到專案被信任、**而且**
 這一支 hook 的定義在互動式 Codex 工作階段裡透過 `/hooks` 被信任為止；信任紀錄綁在定義的
@@ -173,12 +174,42 @@ agent 的最後一則訊息，卻不給使用者的；要拿到使用者那一�
 
 Gemini CLI 已過時。Google 於 2026-06-18 對個人帳號停用 Gemini CLI，
 改由 Antigravity CLI（`agy`）取代；企業帳號兩者都還能用。這個適配層為那些使用者保留，
-但它從未在真實的 Gemini CLI 工作階段中驗證過；使用 Google 工具的新採用者該預期的是
-Antigravity CLI，而它**尚未支援**。它文件記載的 Stop hook 契約，在關鍵之處與上表每一個
-適配層都不同：hook 設定在 `.agents/hooks.json`、傳入資料只有 `transcriptPath`
-（沒有最後一則回覆、也沒有人的訊息）、攔截是 `{"decision":"continue","reason":...}`
-而不是 `block` 或 `deny`。等這份契約在真實工作階段中觀察到之後才會加入適配層——
-與下方 Cursor 沒有適配層是同一個理由。
+但它從未在真實的 Gemini CLI 工作階段中驗證過；使用 Google 工具的新採用者應使用下面的
+Antigravity CLI 適配層。
+
+Antigravity CLI 已支援，依據是真實工作階段觀察到的契約（2026-09-29，agy 1.2.12），
+而不只是它的文件。這份契約在關鍵之處與上表每一個適配層都不同：
+
+- **設定**在 `.agents/hooks.json`，以 hook 名稱為鍵——
+  `{"<名稱>": {"Stop": [{"type":"command","command":"...","timeout":N}]}}`，
+  `timeout` 單位為秒。沒有 `hooks` 外層，handler 也不巢狀在 `hooks[]` 裡。
+- **stdin 既沒有最後一則回覆、也沒有人的訊息**，只有 `transcriptPath` 與中繼資料，所以兩者
+  都要從逐字稿讀（JSONL，每筆有 `source`、`type`、`content`）。最後一則回覆是最後一筆
+  `source: MODEL`、`type: PLANNER_RESPONSE`。人的訊息是最後一筆
+  `source: USER_EXPLICIT`、`type: USER_INPUT`，取 `<USER_REQUEST>…</USER_REQUEST>` 之內的文字——
+  後面接著的系統區塊（`<ADDITIONAL_METADATA>` 等）不是人說的話。
+- **`SYSTEM_MESSAGE` 紀錄絕不可當成人的訊息讀。** agy 會把這個 hook 自己的 `continue` 理由
+  寫回逐字稿，成為這種紀錄（`source: SYSTEM`、`type: SYSTEM_MESSAGE`，內容為
+  「Stop hook blocked termination: …」）。若把「不是模型的任何紀錄」都當成人，就會把 hook
+  自己的話當成人說的，R9 豁免隨之失效——也就是 R11 的失敗，換成這份逐字稿的形狀重演。
+- **攔截是 `{"decision":"continue","reason":...}`**，不是 `block` 或 `deny`；`{}` 即放行。
+- **hook 執行時的工作目錄是 `.agents/`，不是專案根目錄**（2026-09-29 實測，agy 1.2.12）。
+  因此安裝的指令是 `node ../scripts/hooks/check-turn-completion-agy.mjs`；以專案根目錄為準的
+  `node scripts/hooks/...` 會解析成 `<專案>/.agents/scripts/hooks/...`，出現
+  「Cannot find module」，而且**agy 對執行失敗的 hook 靜默放行**——沒有任何訊息、stdout 照常，
+  回合就這樣結束。路徑刻意用相對路徑（這個檔案本來就是要提交並共用的，絕對路徑只屬於某一台機器），
+  也不用任何 shell 語法（`sh -c`、`$(...)`），因為 agy 是否經過 shell 執行 `command` 沒有證據。
+- **與 Claude Code 相反，hook 被呼叫時逐字稿已經寫到最後一則回覆。**
+
+已驗證：agy 1.2.12、非互動的 `agy -p`、**單輪且沒有工具呼叫**——hook 被呼叫時最後一則回覆
+已在逐字稿裡，`continue` 確實生效（模型又回了一輪），且沒有遇到信任提示（與 Codex 不同）。
+**未驗證**：多輪對話、含工具呼叫的回合（此時最後一筆 `PLANNER_RESPONSE` 是不是最後回覆、
+hook 執行時是否已寫入）、`fullyIdle: false`、`error` 非空、互動模式、專案層
+`.agents/hooks.json` 是否像 `.agents/skills/` 一樣只對已登記的 Antigravity 專案生效，
+以及工作目錄是否永遠是 `.agents/`（只對專案層檔案量測過；`uds init` 不會寫使用者層的
+`~/.gemini/config/hooks.json`）。在未驗證的情境下，適配層可能判斷的是
+較早的一則回覆而不是最後一則；讀取失敗時仍一律放行（R5）。`uds init --with-hooks` 會在安裝
+那一行旁邊印出已驗證的範圍。
 
 Cursor 已評估但不支援：截至撰寫本文時，Cursor 的 stop hook 能不能真的
 擋下一個回合仍未確定，若對著一個沒人驗證過的契約出一份轉接層，
@@ -240,3 +271,5 @@ Cursor 已評估但不支援：截至撰寫本文時，Cursor 的 stop hook 能�
 - [ ] 歸屬詞的搜尋排除檢查自己的標題與結構
 - [ ] 每個支援的執行環境的阻擋契約都對照該環境自己的官方文件驗證過，不是照抄另一個環境
 - [ ] 安裝器只為採用者實際選擇的執行環境寫入該環境的 hook 設定
+- [ ] 逐字稿裡會出現系統代寫訊息的執行環境，只從「人的紀錄」讀人的訊息，絕不從「不是模型寫的任何東西」讀
+- [ ] 一份執行環境契約只對「真實工作階段觀察過的範圍」出貨，並註明沒觀察到的範圍

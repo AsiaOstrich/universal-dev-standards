@@ -281,8 +281,8 @@ export async function initCommand(options) {
       }
     }
 
-    // turn-completion-integrity is also extended to Codex and Gemini CLI
-    // (2026-09-25), each with its own config file and output contract — see
+    // turn-completion-integrity is also extended to Codex, Gemini CLI and
+    // Antigravity CLI (2026-09-25; agy 2026-09-29), each with its own config file and output contract — see
     // installCodexHooks/installGeminiHooks in hooks-installer.js. Gated on the
     // tools the adopter actually selected: writing a hooks.json into every
     // project's .codex/ regardless of whether Codex is used would be noise,
@@ -309,6 +309,19 @@ export async function initCommand(options) {
         console.log(chalk.green('  ✓ Gemini CLI AfterAgent hook installed (turn-completion-integrity; Gemini CLI is legacy — see the standard)'));
       } else {
         console.log(chalk.yellow(`  ⚠ Gemini CLI hook not installed — ${geminiResult.reason}`));
+      }
+    }
+    if (selectedTools.includes('antigravity')) {
+      const { installAgyHooks } = await import('../installers/hooks-installer.js');
+      const agyResult = installAgyHooks(projectPath);
+      if (agyResult.installed) {
+        console.log(chalk.green('  ✓ Antigravity CLI Stop hook installed (turn-completion-integrity; .agents/hooks.json)'));
+        // Verified 2026-09-29 (agy 1.2.12): single turn, no tool calls, `agy -p`.
+        // Multi-turn, tool-call turns and interactive mode are not verified —
+        // say so here, where the adopter believes it now works everywhere.
+        console.log(chalk.yellow('    ⚠ Verified against a real agy session for a single turn without tool calls in `agy -p` mode only; multi-turn, tool-call turns and interactive mode are not yet verified.'));
+      } else {
+        console.log(chalk.yellow(`  ⚠ Antigravity CLI hook not installed — ${agyResult.reason}`));
       }
     }
   }

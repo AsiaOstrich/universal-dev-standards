@@ -7,11 +7,13 @@ import {
   uninstallClaudeCodeHooks,
   uninstallCodexHooks,
   uninstallGeminiHooks,
+  uninstallAgyHooks,
 } from '../../../src/uninstallers/hook-uninstaller.js';
 import {
   installHooks,
   installCodexHooks,
   installGeminiHooks,
+  installAgyHooks,
 } from '../../../src/installers/hooks-installer.js';
 
 describe('hook-uninstaller', () => {
@@ -250,6 +252,94 @@ describe('hook-uninstaller', () => {
       expect(updated.theme).toBe('dark');
       expect(updated.hooks.AfterAgent).toBeUndefined();
       expect(updated.hooks.BeforeTool[0].hooks[0].command).toBe('node some-other-hook.mjs');
+    });
+
+    // agy's hooks.json is { "<name>": { "<Event>": [flat handler] } } — none of
+    // the Claude-shaped stripping applies, so these pin its own removal.
+    it('agy: removes only the UDS handler from .agents/hooks.json, keeping the user\'s own hooks (other name, and same name + same event)', () => {
+      installAgyHooks(testDir);
+      const hooksJsonPath = join(testDir, '.agents', 'hooks.json');
+      const config = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+      config['my-guard'] = { PreToolUse: [{ command: 'node my-guard.mjs' }], Stop: [{ type: 'command', command: 'node my-stop.mjs' }] };
+      // a user handler placed under UDS's own name and event, at UDS's own directory
+      config['uds-turn-completion-integrity'].Stop.push({ type: 'command', command: 'node ../scripts/hooks/my-own-hook.mjs' });
+      writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2));
+
+      const result = uninstallAgyHooks(testDir);
+
+      expect(result.removed.length).toBe(1);
+      const updated = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+      expect(updated['my-guard'].PreToolUse[0].command).toBe('node my-guard.mjs');
+      expect(updated['my-guard'].Stop[0].command).toBe('node my-stop.mjs');
+      expect(updated['uds-turn-completion-integrity'].Stop).toEqual([
+        { type: 'command', command: 'node ../scripts/hooks/my-own-hook.mjs' },
+      ]);
+    });
+
+    it('agy: also removes a handler written with the earlier `node scripts/hooks/...` command', () => {
+      mkdirSync(join(testDir, '.agents'), { recursive: true });
+      writeFileSync(join(testDir, '.agents', 'hooks.json'), JSON.stringify({
+        'uds-turn-completion-integrity': { Stop: [{ type: 'command', command: 'node scripts/hooks/check-turn-completion-agy.mjs', timeout: 30 }] },
+      }));
+
+      const result = uninstallAgyHooks(testDir);
+
+      expect(result.removed.length).toBe(1);
+      expect(existsSync(join(testDir, '.agents', 'hooks.json'))).toBe(false);
+    });
+
+    it('agy: deletes .agents/hooks.json when UDS created it and nothing else remains', () => {
+      installAgyHooks(testDir);
+
+      uninstallAgyHooks(testDir);
+
+      expect(existsSync(join(testDir, '.agents', 'hooks.json'))).toBe(false);
+    });
+
+    it('agy: drops the emptied hook name but keeps a file that still holds the user\'s hooks', () => {
+      installAgyHooks(testDir);
+      const hooksJsonPath = join(testDir, '.agents', 'hooks.json');
+      const config = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+      config['my-guard'] = { Stop: [{ command: 'node my-stop.mjs' }] };
+      writeFileSync(hooksJsonPath, JSON.stringify(config));
+
+      uninstallAgyHooks(testDir);
+
+      expect(Object.keys(JSON.parse(readFileSync(hooksJsonPath, 'utf-8')))).toEqual(['my-guard']);
+    });
+
+    it('agy: dry-run does not modify the file; a second real run then a third reports nothing to remove', () => {
+      installAgyHooks(testDir);
+      const hooksJsonPath = join(testDir, '.agents', 'hooks.json');
+      const before = readFileSync(hooksJsonPath, 'utf-8');
+
+      expect(uninstallAgyHooks(testDir, { dryRun: true }).removed.length).toBe(1);
+      expect(readFileSync(hooksJsonPath, 'utf-8')).toBe(before);
+
+      uninstallAgyHooks(testDir);
+      const again = uninstallAgyHooks(testDir);
+      expect(again.removed).toHaveLength(0);
+      expect(again.errors).toHaveLength(0);
+    });
+
+    it('agy: reports invalid JSON as an error without writing to the file or throwing', () => {
+      mkdirSync(join(testDir, '.agents'), { recursive: true });
+      writeFileSync(join(testDir, '.agents', 'hooks.json'), '{ not valid json');
+
+      const result = uninstallAgyHooks(testDir);
+
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(readFileSync(join(testDir, '.agents', 'hooks.json'), 'utf-8')).toBe('{ not valid json');
+    });
+
+    it('agy: uninstallHook() also removes .agents/hooks.json in one call', () => {
+      installHooks(testDir);
+      installAgyHooks(testDir);
+
+      const result = uninstallHook(testDir);
+
+      expect(existsSync(join(testDir, '.agents', 'hooks.json'))).toBe(false);
+      expect(result.errors).toHaveLength(0);
     });
 
     it('is a no-op (skipped, not an error) when none of the three config files exist', () => {

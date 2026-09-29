@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join, basename } from 'path';
 import {
   collectHookConfigs, standardsSourceDir, hooksSourceDir,
-  CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT,
+  CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT,
 } from '../installers/hooks-installer.js';
 
 /**
@@ -17,7 +17,7 @@ import {
  * test placing a user hook at `scripts/hooks/my-own-hook.mjs` lost it).
  * The safe signature is path *and* a script basename UDS is actually known to
  * ship right now — the same set collectHookConfigs() derives for install,
- * plus the two fixed Codex/Gemini script names.
+ * plus the three fixed Codex/Gemini/agy script names.
  *
  * 🔴 Until this file added the three functions below, uninstall only ever
  * touched .husky/pre-commit and .git/hooks/pre-commit — the settings.json /
@@ -37,7 +37,7 @@ function commandOf(entry) {
 /** Script basenames UDS currently ships and would install a hook entry for. */
 function knownUdsHookScripts() {
   const { scripts } = collectHookConfigs(standardsSourceDir(), hooksSourceDir());
-  return new Set([...scripts.map((s) => basename(s)), CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT]);
+  return new Set([...scripts.map((s) => basename(s)), CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT]);
 }
 
 function isUdsHookEntry(entry, knownScripts) {
@@ -160,9 +160,111 @@ export function uninstallGeminiHooks(projectPath, options = {}) {
 }
 
 /**
+ * A bare `{ type, command }` handler (agy's shape — no `hooks[]` wrapper) that
+ * runs one of the scripts UDS ships.
+ */
+function isUdsAgyHandler(handler, knownScripts) {
+  const cmd = handler && typeof handler.command === 'string' ? handler.command : undefined;
+  // agy's hook cwd is `.agents/`, so the installed command climbs out first
+  // (`node ../scripts/hooks/...`); the earlier `node scripts/hooks/...` form
+  // is still recognised so an install made before that fix can be removed.
+  return typeof cmd === 'string' && /^node (?:\.\.\/)?scripts\/hooks\//.test(cmd) && knownScripts.has(basename(cmd));
+}
+
+/**
+ * Remove UDS's Stop handler from .agents/hooks.json (installAgyHooks()'s output).
+ *
+ * agy's file is `{ "<hook name>": { "<Event>": handler[] } }`, not the
+ * `{ hooks: { <Event>: entry[] } }` the other three share, so the generic
+ * stripper cannot be used. Only handlers that run a UDS-shipped script are
+ * removed, and from ANY hook name (an adopter may have renamed our key); a
+ * user's own handler, even inside the same name or the same event array, stays.
+ * A name left with no event after removal is dropped, and a file left empty is
+ * deleted.
+ */
+export function uninstallAgyHooks(projectPath, options = {}) {
+  const configPath = join(projectPath, '.agents', 'hooks.json');
+  const label = '.agents/hooks.json';
+  const dryRun = options.dryRun || false;
+  const result = { removed: [], skipped: [], errors: [] };
+  if (!existsSync(configPath)) return result;
+
+  let config;
+  try {
+    config = JSON.parse(readFileSync(configPath, 'utf-8'));
+  } catch (error) {
+    result.errors.push(`${label} — could not parse (${error.message}); left untouched`);
+    return result;
+  }
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    result.skipped.push(`${label} (no UDS hook entries found)`);
+    return result;
+  }
+
+  const knownScripts = knownUdsHookScripts();
+  let removedCount = 0;
+  const next = {};
+  for (const [name, def] of Object.entries(config)) {
+    if (!def || typeof def !== 'object' || Array.isArray(def)) {
+      next[name] = def;
+      continue;
+    }
+    const nextDef = {};
+    let touched = false;
+    let eventsLeft = 0;
+    for (const [key, value] of Object.entries(def)) {
+      if (!Array.isArray(value)) {
+        nextDef[key] = value; // e.g. `enabled`
+        continue;
+      }
+      const kept = value.filter((h) => {
+        if (isUdsAgyHandler(h, knownScripts)) {
+          removedCount += 1;
+          touched = true;
+          return false;
+        }
+        return true;
+      });
+      if (kept.length > 0) {
+        nextDef[key] = kept;
+        eventsLeft += 1;
+      }
+    }
+    // A name we emptied is dropped (nothing but `enabled` would remain);
+    // a name we did not touch is kept exactly as found.
+    if (touched && eventsLeft === 0) continue;
+    next[name] = touched ? nextDef : def;
+  }
+
+  if (removedCount === 0) {
+    result.skipped.push(`${label} (no UDS hook entries found)`);
+    return result;
+  }
+
+  const entryLabel = `${label} (${removedCount} UDS hook ${removedCount === 1 ? 'entry' : 'entries'})`;
+  if (dryRun) {
+    result.removed.push(entryLabel);
+    return result;
+  }
+  try {
+    if (Object.keys(next).length === 0) {
+      unlinkSync(configPath);
+      result.removed.push(`${entryLabel}, file removed — created by UDS, now empty`);
+    } else {
+      writeFileSync(configPath, JSON.stringify(next, null, 2) + '\n');
+      result.removed.push(entryLabel);
+    }
+  } catch (error) {
+    result.errors.push(`${label} — ${error.message}`);
+  }
+  return result;
+}
+
+/**
  * Remove UDS-related lines from .husky/pre-commit, the native
  * .git/hooks/pre-commit fallback, and the enforcement-hook entries UDS wrote
- * into .claude/settings.json, .codex/hooks.json and .gemini/settings.json.
+ * into .claude/settings.json, .codex/hooks.json, .gemini/settings.json and
+ * .agents/hooks.json.
  * @param {string} projectPath - Project root path
  * @param {Object} options - { dryRun: boolean }
  * @returns {Object} { removed: string[], skipped: string[], errors: string[] }
@@ -231,6 +333,7 @@ export function uninstallHook(projectPath, options = {}) {
     uninstallClaudeCodeHooks(projectPath, { dryRun }),
     uninstallCodexHooks(projectPath, { dryRun }),
     uninstallGeminiHooks(projectPath, { dryRun }),
+    uninstallAgyHooks(projectPath, { dryRun }),
   ]) {
     result.removed.push(...sub.removed);
     result.skipped.push(...sub.skipped);

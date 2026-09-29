@@ -4,11 +4,12 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { tmpdir } from 'os';
+import { execFileSync } from 'child_process';
 import {
   installHooks, collectHookConfigs, standardsSourceDir, hooksSourceDir,
-  installCodexHooks, installGeminiHooks,
+  installCodexHooks, installGeminiHooks, installAgyHooks,
 } from '../../../src/installers/hooks-installer.js';
 
 /**
@@ -276,3 +277,116 @@ describe('turn-completion-integrity: Codex and Gemini CLI installers', () => {
     });
   });
 });
+
+describe('turn-completion-integrity: Antigravity CLI (agy) installer', () => {
+  let testDir;
+  const hooksPath = () => join(testDir, '.agents', 'hooks.json');
+
+  beforeEach(() => {
+    testDir = join(tmpdir(), `uds-tc-agy-hooks-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(testDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
+
+  it('writes .agents/hooks.json in agy\'s shape (name -> Stop -> flat handler, seconds), and copies the script', () => {
+    const result = installAgyHooks(testDir);
+
+    expect(result.installed).toBe(true);
+    expect(result.event).toBe('Stop');
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(Object.keys(config)).toEqual(['uds-turn-completion-integrity']);
+    const entry = config['uds-turn-completion-integrity'];
+    expect(entry.hooks).toBeUndefined(); // no Claude/Codex-style wrapper
+    expect(entry.enabled).toBeUndefined(); // never write an off switch
+    expect(entry.Stop).toEqual([
+      { type: 'command', command: 'node ../scripts/hooks/check-turn-completion-agy.mjs', timeout: 30 },
+    ]);
+    expect(existsSync(join(testDir, 'scripts', 'hooks', 'check-turn-completion-agy.mjs'))).toBe(true);
+  });
+
+  // 🔴 Measured 2026-09-29 (agy 1.2.12, PC15): agy runs a hook with the working
+  // directory set to `.agents/`, NOT the project root, and lets a hook that
+  // fails to start through silently. The installer's first form
+  // (`node scripts/hooks/...`) resolved to `<project>/.agents/scripts/hooks/...`,
+  // and every test here still passed — they read the JSON and never ran the
+  // command from where agy runs it. This one runs it, for real, from `.agents/`.
+  it('the written command runs and blocks when executed from `.agents/`, where agy runs it', () => {
+    installAgyHooks(testDir);
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    const command = config['uds-turn-completion-integrity'].Stop[0].command;
+    const [exe, ...args] = command.split(' ');
+    expect(exe).toBe('node'); // no shell features: agy running command through a shell is unverified
+    expect(command).not.toMatch(/[$`;|&]|sh -c/);
+
+    const agentsDir = join(testDir, '.agents');
+    expect(existsSync(resolve(agentsDir, args[0]))).toBe(true);
+
+    const tp = join(testDir, 'transcript_full.jsonl');
+    writeFileSync(tp, [
+      { step_index: 0, source: 'USER_EXPLICIT', type: 'USER_INPUT', content: '<USER_REQUEST>\nrefactor\n</USER_REQUEST>' },
+      { step_index: 1, source: 'MODEL', type: 'PLANNER_RESPONSE', content: 'The remaining two items I will do next.' },
+    ].map((r) => JSON.stringify(r)).join('\n') + '\n');
+    const out = execFileSync(process.execPath, args, {
+      cwd: agentsDir,
+      input: JSON.stringify({ conversationId: `agy-cwd-${Date.now()}`, transcriptPath: tp }),
+      env: { ...process.env, UDS_TURN_COMPLETION_STATE_DIR: join(testDir, 'state') },
+      encoding: 'utf8',
+    });
+    expect(JSON.parse(out).decision).toBe('continue');
+  });
+
+  it('re-installing over the earlier `node scripts/hooks/...` command replaces it, and leaves the user\'s own Stop handler', () => {
+    mkdirSync(join(testDir, '.agents'), { recursive: true });
+    writeFileSync(hooksPath(), JSON.stringify({
+      'uds-turn-completion-integrity': { Stop: [
+        { type: 'command', command: 'node scripts/hooks/check-turn-completion-agy.mjs', timeout: 30 },
+        { type: 'command', command: 'node my-own-stop.mjs' },
+      ] },
+    }));
+
+    installAgyHooks(testDir);
+
+    const stop = JSON.parse(readFileSync(hooksPath(), 'utf-8'))['uds-turn-completion-integrity'].Stop;
+    expect(stop.map((h) => h.command).sort()).toEqual([
+      'node ../scripts/hooks/check-turn-completion-agy.mjs',
+      'node my-own-stop.mjs',
+    ]);
+  });
+
+  it('is idempotent — a second install does not duplicate the handler', () => {
+    installAgyHooks(testDir);
+    installAgyHooks(testDir);
+
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(config['uds-turn-completion-integrity'].Stop).toHaveLength(1);
+  });
+
+  it('merges into an existing hooks.json without discarding the user\'s own hooks', () => {
+    mkdirSync(join(testDir, '.agents'), { recursive: true });
+    writeFileSync(hooksPath(), JSON.stringify({
+      'my-guard': { PreToolUse: [{ command: 'node my-guard.mjs' }], Stop: [{ type: 'command', command: 'node my-stop.mjs' }] },
+    }));
+
+    installAgyHooks(testDir);
+
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(config['my-guard'].PreToolUse[0].command).toBe('node my-guard.mjs');
+    expect(config['my-guard'].Stop[0].command).toBe('node my-stop.mjs');
+    expect(config['uds-turn-completion-integrity'].Stop).toHaveLength(1);
+  });
+
+  it('a hooks.json that is not valid JSON is left byte-for-byte untouched, and the install says why', () => {
+    mkdirSync(join(testDir, '.agents'), { recursive: true });
+    writeFileSync(hooksPath(), '{ not valid json');
+
+    const result = installAgyHooks(testDir);
+
+    expect(result.installed).toBe(false);
+    expect(result.reason).toContain('not valid JSON');
+    expect(readFileSync(hooksPath(), 'utf-8')).toBe('{ not valid json');
+  });
+});
+
