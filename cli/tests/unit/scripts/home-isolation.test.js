@@ -23,7 +23,7 @@
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync, realpathSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync, realpathSync, cpSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, relative } from 'node:path';
 
@@ -299,6 +299,61 @@ describe('check-home-untouched: end to end with the real CLI', () => {
     expect(r.status).toBe(2);
     expect(r.stderr).toMatch(/CANNOT MEASURE/);
     expect(r.stderr).toMatch(/installer source directory was not found/);
+  });
+});
+
+describe('check-home-untouched: the exclusion of ~/.claude/skills/synced (owned by Claude Code)', () => {
+  // 2026-09-30: the first full run on a real HOME failed on ~/.claude/skills/synced/<id>/manifest.json
+  // and .last-complete-round, written by the Claude Code session that ran the check.
+  const SRC = readFileSync(GUARD, 'utf8');
+  const EXCL = "{ rel: '.claude/skills/synced',";
+
+  /** Run a copy of the guard (edited text) against a stand-in home; returns compare's exit + output. */
+  function scenario(guardText, { touch }) {
+    const root = tmp('uds-guard-mut-');
+    mkdirSync(join(root, 'scripts'));
+    cpSync(join(REPO_ROOT, 'cli', 'src'), join(root, 'cli', 'src'), { recursive: true });
+    writeFileSync(join(root, 'scripts', 'check-home-untouched.mjs'), guardText);
+    const home = tmp('uds-fake-real-home-');
+    mkdirSync(join(home, '.claude', 'skills', 'synced', 'acct'), { recursive: true });
+    writeFileSync(join(home, '.claude', 'skills', 'synced', 'acct', 'manifest.json'), '{}');
+    const env = { ...process.env, HOME: home, USERPROFILE: home };
+    const run = (...a) => spawnSync(process.execPath, [join(root, 'scripts', 'check-home-untouched.mjs'), ...a], { encoding: 'utf8', env });
+    const snap = join(root, 's.json');
+    expect(run('snapshot', snap).status).toBe(0);
+    touch(home);
+    return run('compare', snap);
+  }
+  const touchSynced = (h) => { writeFileSync(join(h, '.claude', 'skills', 'synced', 'acct', 'manifest.json'), '{"x":1}'); writeFileSync(join(h, '.claude', 'skills', 'synced', 'acct', '.last-complete-round'), '1'); };
+  const touchSibling = (h) => { mkdirSync(join(h, '.claude', 'skills', 'plan'), { recursive: true }); writeFileSync(join(h, '.claude', 'skills', 'plan', 'SKILL.md'), 'x'); };
+
+  it('the exclusion is one list, each entry with a stated reason', () => {
+    expect(SRC.split(EXCL).length - 1).toBe(1);
+    expect(SRC).toMatch(/rel: '\.claude\/skills\/synced', why: 'owned by Claude Code, never written by UDS/);
+  });
+
+  it('a change under synced/ is not a failure, and compare prints what it excluded', () => {
+    const r = scenario(SRC, { touch: touchSynced });
+    expect(r.status, r.stdout).toBe(0);
+    expect(r.stdout).toMatch(/excluded 1 \(~\/\.claude\/skills\/synced — owned by Claude Code/);
+  });
+
+  it('a change anywhere else under ~/.claude/skills still fails', () => {
+    const r = scenario(SRC, { touch: touchSibling });
+    expect(r.status, r.stdout).toBe(1);
+    expect(r.stdout).toMatch(/~\/\.claude\/skills\/plan/);
+  });
+
+  it('MUTATION: the exclusion removed -> a change under synced/ fails (this is the false red it fixes)', () => {
+    const r = scenario(SRC.replace(EXCL, "{ rel: '.claude/skills/__nothing__',"), { touch: touchSynced });
+    expect(r.status).toBe(1);
+  });
+
+  it('MUTATION: the exclusion widened to all of skills/ -> a stray UDS skill install goes unseen (the bug the guard exists for)', () => {
+    const r = scenario(SRC.replace(EXCL, "{ rel: '.claude/skills',"), { touch: touchSibling });
+    expect(r.status, 'a widened exclusion must NOT be tolerated: this run should have been red').toBe(0);
+    // ... which is exactly why the real one is narrow: the same touch is red for the real guard
+    expect(scenario(SRC, { touch: touchSibling }).status).toBe(1);
   });
 });
 

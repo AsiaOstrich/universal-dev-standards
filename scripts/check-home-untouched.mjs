@@ -119,10 +119,38 @@ export async function discoverWatched(home, { cliSrc = CLI_SRC } = {}) {
   return { watched: [...abs].sort(), tableCount, scannedFiles: scan.files, scannedPaths: scan.rel.length };
 }
 
+// ── exclusions ──────────────────────────────────────────────────────────────
+
+/**
+ * Places INSIDE a watched location that this guard deliberately does not watch.
+ * The single list; every entry states why. An entry belongs here only if a
+ * program other than UDS owns the path AND nothing in cli/ or scripts/ writes it.
+ *
+ * 🔴 Added 2026-09-30: with the real HOME, the first full pre-release-check
+ * failed on `~/.claude/skills/synced/<id>/.last-complete-round` and `manifest.json`.
+ * Claude Code syncs the account's claude.ai skills into `skills/synced/` while it
+ * runs — the guard was run FROM a Claude Code session — and grepping cli/src and
+ * scripts/ finds no code that writes there. It is the blind spot this header
+ * already named (another process writing a watched path during the run), made
+ * concrete. The whole of `~/.claude/skills` must stay watched: UDS's own skills
+ * land in its direct children, which is what the guard exists to see.
+ *
+ * Keep entries as narrow as the owner's directory. Widening one to a parent
+ * (e.g. all of `.claude/skills`) blinds the guard to the very bug it was built for;
+ * the test suite mutates exactly that.
+ */
+export const EXCLUDED = [
+  { rel: '.claude/skills/synced', why: 'owned by Claude Code, never written by UDS: Claude Code syncs the account\'s claude.ai skills here while it runs' },
+];
+
+const excludedPaths = (home) => EXCLUDED.map((e) => join(home, e.rel));
+const isExcluded = (p, ex) => ex.some((x) => p === x || p.startsWith(x + sep));
+
 // ── snapshot ────────────────────────────────────────────────────────────────
 
 /** path -> "d" | "f:<size>:<mtimeMs>" | "l" for every entry at or under `root`; "" when absent. */
-function snapshotOne(root, into) {
+function snapshotOne(root, into, ex) {
+  if (isExcluded(root, ex)) { ex.hits = (ex.hits || 0) + 1; return; }
   let st;
   try { st = lstatSync(root); } catch { into.set(root, 'absent'); return; }
   if (st.isSymbolicLink()) { into.set(root, 'l'); return; }
@@ -130,15 +158,17 @@ function snapshotOne(root, into) {
     into.set(root, 'd');
     let names = [];
     try { names = readdirSync(root); } catch { return; }
-    for (const n of names) snapshotOne(join(root, n), into);
+    for (const n of names) snapshotOne(join(root, n), into, ex);
   } else {
     into.set(root, `f:${st.size}:${Math.trunc(st.mtimeMs)}`);
   }
 }
 
-export function takeSnapshot(watched) {
+export function takeSnapshot(watched, ex = []) {
   const m = new Map();
-  for (const w of watched) snapshotOne(w, m);
+  ex.hits = 0;
+  for (const w of watched) snapshotOne(w, m, ex);
+  m.skipped = ex.hits; // how many excluded entries were passed over, for the report
   return m;
 }
 
@@ -168,10 +198,11 @@ async function cmdSnapshot(file) {
   if (d.watched.length === 0 || d.tableCount === 0 || d.scannedPaths === 0) {
     throw new Unmeasurable(`nothing to watch (table paths ${d.tableCount}, source-scanned paths ${d.scannedPaths}, source files ${d.scannedFiles}); a guard over an empty set passes everything`);
   }
-  const snap = takeSnapshot(d.watched);
+  const ex = excludedPaths(home);
+  const snap = takeSnapshot(d.watched, ex);
   writeFileSync(file, JSON.stringify({ home, watched: d.watched, entries: [...snap] }));
   const present = [...snap.values()].filter((v) => v !== 'absent').length;
-  console.log(`[home-guard] snapshot: HOME=${home}; watching ${d.watched.length} location(s) (${d.tableCount} from the installer path table, ${d.scannedPaths} scanned from ${d.scannedFiles} source files); ${present} existing entries recorded`);
+  console.log(`[home-guard] snapshot: HOME=${home}; watching ${d.watched.length} location(s) (${d.tableCount} from the installer path table, ${d.scannedPaths} scanned from ${d.scannedFiles} source files); excluding ${EXCLUDED.length} (${EXCLUDED.map((e) => `~/${e.rel}`).join(', ')}); ${present} existing entries recorded`);
   return 0;
 }
 
@@ -183,11 +214,13 @@ async function cmdCompare(file) {
   if (home !== rec.home) throw new Unmeasurable(`HOME changed between snapshot and compare (${rec.home} -> ${home}); comparing two different homes says nothing`);
   const d = await discoverWatched(home);
   const watched = [...new Set([...rec.watched, ...d.watched])].sort();
-  const after = takeSnapshot(watched);
-  const before = new Map(rec.entries);
+  const ex = excludedPaths(home);
+  const after = takeSnapshot(watched, ex);
+  // A snapshot taken before an exclusion existed may hold entries under it; they are not compared.
+  const before = new Map(rec.entries.filter(([p]) => !isExcluded(p, ex)));
   const diff = diffSnapshots(before, after);
   const n = diff.added.length + diff.modified.length + diff.removed.length;
-  console.log(`[home-guard] compare: HOME=${home}; watching ${watched.length} location(s); ${n} change(s)`);
+  console.log(`[home-guard] compare: HOME=${home}; watching ${watched.length} location(s); excluded ${EXCLUDED.length} (${EXCLUDED.map((e) => `~/${e.rel} — ${e.why}`).join('; ')}); ${n} change(s)`);
   if (n === 0) return 0;
   const rel = (p) => `~/${relative(home, p).split(sep).join('/')}`;
   const show = (label, list) => {
@@ -220,8 +253,8 @@ async function selfTest() {
     encoding: 'utf8', env: { ...process.env, HOME: home, USERPROFILE: home },
   });
   try {
-    mkdirSync(join(home, '.claude', 'skills', 'synced'), { recursive: true });
-    writeFileSync(join(home, '.claude', 'skills', 'synced', 'keep.md'), 'user file');
+    mkdirSync(join(home, '.claude', 'skills', 'mine'), { recursive: true });
+    writeFileSync(join(home, '.claude', 'skills', 'mine', 'keep.md'), 'user file');
     const s = run('snapshot', snap);
     expect('snapshot exits 0', s.status === 0);
     expect('snapshot watches ~/.claude/skills (derived from the installer table)', /watching \d+ location/.test(s.stdout));
@@ -238,7 +271,7 @@ async function selfTest() {
     // same guard, modification instead of addition
     rmSync(join(home, '.claude', 'skills', 'plan'), { recursive: true });
     run('snapshot', snap);
-    writeFileSync(join(home, '.claude', 'skills', 'synced', 'keep.md'), 'user file, edited by a stray uds');
+    writeFileSync(join(home, '.claude', 'skills', 'mine', 'keep.md'), 'user file, edited by a stray uds');
     const modified = run('compare', snap);
     expect('RED: an existing file modified -> exit 1', modified.status === 1 && modified.stdout.includes('MODIFIED'));
 
@@ -249,6 +282,22 @@ async function selfTest() {
     writeFileSync(join(home, '.uds', 'update-check.json'), '{}');
     const uds = run('compare', snap);
     expect('RED: ~/.uds appearing (a location that was absent) -> exit 1', uds.status === 1 && uds.stdout.includes('~/.uds'));
+
+    // an excluded place (owned by another program) is not a change; its sibling still is
+    mkdirSync(join(home, '.claude', 'skills', 'synced', 'acct'), { recursive: true });
+    writeFileSync(join(home, '.claude', 'skills', 'synced', 'acct', 'manifest.json'), '{}');
+    run('snapshot', snap);
+    writeFileSync(join(home, '.claude', 'skills', 'synced', 'acct', 'manifest.json'), '{"synced":"again"}');
+    writeFileSync(join(home, '.claude', 'skills', 'synced', 'acct', '.last-complete-round'), 'x');
+    const synced = run('compare', snap);
+    expect('GREEN: a change under ~/.claude/skills/synced is not a failure', synced.status === 0);
+    expect('compare prints what it excluded', /excluded 1 \(~\/\.claude\/skills\/synced/.test(synced.stdout));
+    mkdirSync(join(home, '.claude', 'skills', 'plan'), { recursive: true });
+    writeFileSync(join(home, '.claude', 'skills', 'plan', 'SKILL.md'), 'x');
+    const sibling = run('compare', snap);
+    expect('RED: a skill folder beside synced/ still fails', sibling.status === 1 && sibling.stdout.includes('~/.claude/skills/plan'));
+    rmSync(join(home, '.claude'), { recursive: true, force: true });
+    run('snapshot', snap);
 
     // a write OUTSIDE the watched set is not this guard's business
     run('snapshot', snap);
