@@ -8,7 +8,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import {
   installHooks, collectHookConfigs, standardsSourceDir, hooksSourceDir,
-  installCodexHooks, installGeminiHooks,
+  installCodexHooks, installGeminiHooks, installAgyHooks,
 } from '../../../src/installers/hooks-installer.js';
 
 /**
@@ -276,3 +276,67 @@ describe('turn-completion-integrity: Codex and Gemini CLI installers', () => {
     });
   });
 });
+
+describe('turn-completion-integrity: Antigravity CLI (agy) installer', () => {
+  let testDir;
+  const hooksPath = () => join(testDir, '.agents', 'hooks.json');
+
+  beforeEach(() => {
+    testDir = join(tmpdir(), `uds-tc-agy-hooks-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(testDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true });
+  });
+
+  it('writes .agents/hooks.json in agy\'s shape (name -> Stop -> flat handler, seconds), and copies the script', () => {
+    const result = installAgyHooks(testDir);
+
+    expect(result.installed).toBe(true);
+    expect(result.event).toBe('Stop');
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(Object.keys(config)).toEqual(['uds-turn-completion-integrity']);
+    const entry = config['uds-turn-completion-integrity'];
+    expect(entry.hooks).toBeUndefined(); // no Claude/Codex-style wrapper
+    expect(entry.enabled).toBeUndefined(); // never write an off switch
+    expect(entry.Stop).toEqual([
+      { type: 'command', command: 'node scripts/hooks/check-turn-completion-agy.mjs', timeout: 30 },
+    ]);
+    expect(existsSync(join(testDir, 'scripts', 'hooks', 'check-turn-completion-agy.mjs'))).toBe(true);
+  });
+
+  it('is idempotent — a second install does not duplicate the handler', () => {
+    installAgyHooks(testDir);
+    installAgyHooks(testDir);
+
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(config['uds-turn-completion-integrity'].Stop).toHaveLength(1);
+  });
+
+  it('merges into an existing hooks.json without discarding the user\'s own hooks', () => {
+    mkdirSync(join(testDir, '.agents'), { recursive: true });
+    writeFileSync(hooksPath(), JSON.stringify({
+      'my-guard': { PreToolUse: [{ command: 'node my-guard.mjs' }], Stop: [{ type: 'command', command: 'node my-stop.mjs' }] },
+    }));
+
+    installAgyHooks(testDir);
+
+    const config = JSON.parse(readFileSync(hooksPath(), 'utf-8'));
+    expect(config['my-guard'].PreToolUse[0].command).toBe('node my-guard.mjs');
+    expect(config['my-guard'].Stop[0].command).toBe('node my-stop.mjs');
+    expect(config['uds-turn-completion-integrity'].Stop).toHaveLength(1);
+  });
+
+  it('a hooks.json that is not valid JSON is left byte-for-byte untouched, and the install says why', () => {
+    mkdirSync(join(testDir, '.agents'), { recursive: true });
+    writeFileSync(hooksPath(), '{ not valid json');
+
+    const result = installAgyHooks(testDir);
+
+    expect(result.installed).toBe(false);
+    expect(result.reason).toContain('not valid JSON');
+    expect(readFileSync(hooksPath(), 'utf-8')).toBe('{ not valid json');
+  });
+});
+

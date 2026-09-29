@@ -220,8 +220,9 @@ export function installHooks(projectPath) {
 }
 
 /**
- * turn-completion-integrity is the only standard extended to Codex and Gemini
- * CLI so far (2026-09-25). Unlike installHooks() above, these two functions do
+ * turn-completion-integrity is the only standard extended to Codex, Gemini
+ * CLI and Antigravity CLI so far (2026-09-25; agy 2026-09-29). Unlike
+ * installHooks() above, these three functions do
  * NOT walk every standard's `enforcement:` block — the other three shipped
  * standards declare Claude-Code-specific events (PreToolUse/PostToolUse with
  * a Bash/Write matcher) that Codex and Gemini CLI's hook models don't obviously
@@ -237,6 +238,12 @@ export function installHooks(projectPath) {
 // an adopter's own hook could just as easily live under.
 export const CODEX_HOOK_SCRIPT = 'check-turn-completion-codex.mjs';
 export const GEMINI_HOOK_SCRIPT = 'check-turn-completion-gemini.mjs';
+export const AGY_HOOK_SCRIPT = 'check-turn-completion-agy.mjs';
+// agy's hooks.json is keyed by hook NAME, and this is the one UDS owns. The
+// uninstaller removes only handlers under this key that also run a script UDS
+// ships, so a user's own hook (under any name, or even under this name with a
+// different command) is never touched.
+export const AGY_HOOK_NAME = 'uds-turn-completion-integrity';
 
 /** Copy the shared hook scripts into the project, same as installHooks() does. */
 function copyHookScripts(hookDir, hooksDir) {
@@ -325,4 +332,64 @@ export function installGeminiHooks(projectPath) {
 
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
   return { installed: true, settingsPath, event: 'AfterAgent' };
+}
+
+/**
+ * Install the turn-completion-integrity Stop hook for Antigravity CLI (agy).
+ *
+ * Config lives at <project>/.agents/hooks.json. Its shape differs from every
+ * other adapter's file: a top-level map of hook NAME -> { <Event>: handler[] },
+ * with the handler written flat (`{type, command, timeout}`), no `hooks`
+ * wrapper key and no `hooks[]` nesting (https://antigravity.google/docs/hooks/,
+ * fetched 2026-09-29; the shape was also confirmed by a real agy 1.2.12 run).
+ * So neither mergeHookArray nor the uninstaller's Claude-shaped stripping can
+ * be reused here.
+ *
+ * - `timeout` is seconds (agy's default is 30), like Codex, unlike Gemini CLI.
+ * - `enabled` is deliberately NOT written: an `enabled: false` there is a
+ *   silent off switch, and omitting it is the documented default.
+ * - A hooks.json that exists but cannot be parsed is NOT overwritten (the
+ *   other installers fall back to `{}` and would discard the adopter's file);
+ *   the install reports why and leaves the file alone.
+ * - Whether agy runs a project `.agents/hooks.json` only for a registered
+ *   Antigravity project (as it does for `.agents/skills/`) is not verified.
+ *
+ * @param {string} projectPath
+ * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
+ */
+export function installAgyHooks(projectPath) {
+  const hooksJsonPath = join(projectPath, '.agents', 'hooks.json');
+  const hookDir = hooksSourceDir();
+
+  if (!hookDir || !existsSync(join(hookDir, AGY_HOOK_SCRIPT))) {
+    return { installed: false, settingsPath: hooksJsonPath, reason: `hook script not found: ${AGY_HOOK_SCRIPT}` };
+  }
+
+  let config = {};
+  if (existsSync(hooksJsonPath)) {
+    try {
+      config = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+    } catch {
+      return { installed: false, settingsPath: hooksJsonPath, reason: '.agents/hooks.json exists but is not valid JSON; left untouched' };
+    }
+    if (!config || typeof config !== 'object' || Array.isArray(config)) {
+      return { installed: false, settingsPath: hooksJsonPath, reason: '.agents/hooks.json is not a JSON object; left untouched' };
+    }
+  }
+
+  const agentsDir = join(projectPath, '.agents');
+  if (!existsSync(agentsDir)) mkdirSync(agentsDir, { recursive: true });
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'));
+
+  const command = `node scripts/hooks/${AGY_HOOK_SCRIPT}`;
+  const entry = config[AGY_HOOK_NAME];
+  const mine = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {};
+  const stop = Array.isArray(mine.Stop) ? [...mine.Stop] : [];
+  if (!stop.some((h) => h && h.command === command)) {
+    stop.push({ type: 'command', command, timeout: 30 });
+  }
+  config[AGY_HOOK_NAME] = { ...mine, Stop: stop };
+
+  writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2) + '\n');
+  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop' };
 }
