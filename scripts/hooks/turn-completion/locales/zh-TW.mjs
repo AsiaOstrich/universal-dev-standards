@@ -47,12 +47,26 @@ const ASKING = new RegExp(
   '|(跟我說|告訴我|回報我|讓我知道)(一聲)?[，,]\\s*我' +
   // 「你選定後，我會…」— the precondition is the human's decision, not a request
   // for information or a report-back, so neither branch above caught it. Measured:
-  // fired as an unkept commitment. Narrow on purpose: literal 你, then 1-6 chars
-  // that are not another 我/你 or punctuation (a short decision verb — 選定/選好/
-  // 決定/確認/回覆/點頭 — not a whole clause), then 後, then a comma and 我. 你 with
-  // no 後 right after (「你選定的那份我會接著處理」) and 後 with no 你 right before
-  // (「改好後我接著合併」, 「他確認後，我會…」) must both still fall through and block.
-  '|你[^，,。\\n我你]{1,6}(之)?後[，,]\\s*我)'
+  // fired as an unkept commitment. Grammar, not a length: literal 你 as the SUBJECT
+  // of the clause, then everything up to the clause boundary that is not another
+  // 我/你, then 後 (or 之後), then a comma and 我.
+  //
+  // 🔴 The clause used to be capped at 1–6 characters "so it stays a short
+  // decision verb". That is the same mistake the en pack made with 20: a human's
+  // precondition is often a whole clause (「你看完上面三個選項並選好一個之後，我會…」),
+  // and a count decided it instead of the grammar. Measured 2026-09-29 (en side,
+  // 6.14.0-beta.1); this side had the identical cap and the identical miss.
+  // The clause ends at 逗號/句號/驚嘆/問號/分號/冒號/換行, and may not contain 我
+  // (a precondition that carries my own act is not the human's).
+  //
+  // What replaces the count as the thing keeping real commitments out:
+  //   - 你 must OPEN the clause (line/clause start, or after 等/待/當/若/一旦/
+  //     如果/只要), and must not be 你的. 「我看了你的設定檔並判斷需要重構之後，
+  //     我會接著改」 has 你 in the middle as a possessive inside MY sentence; with
+  //     the cap gone it would have been exempted, and it is my commitment.
+  //   - no 後 right after 你…: 「你選定的那份我會接著處理」 falls through.
+  //   - no 你 before it: 「改好後我接著合併」, 「他確認後，我會…」 fall through.
+  '|(?:^|[，,。！？；;：:\\n]|等到|等|待|當|若|一旦|如果|只要)\\s*你(?!的)[^，,。！？；;：:\\n我你]+(之)?後[，,]\\s*我)'
 );
 
 // First person + future marker + action verb, within one sentence.
@@ -185,6 +199,23 @@ export const corpus = [
     '你選好後，我會接著跑一次測試。'],
   [false, '條件式承諾：你點頭後',
     '你點頭後，我會接著把這份規格送出。'],
+  // 🔴 2026-09-29 實測（6.14.0-beta.1）：en 側同一句話因為「你」到逗號之間差一個字而擋或放，
+  // 是字數上限決定的，不是語法。本側原本的 1–6 字上限是同一個缺陷。下面三句是真實會出現的長前提子句。
+  [false, '條件式承諾：你選好方案 A 或 B 後（原本被擋：超過 6 字）',
+    '你選好方案 A 或 B 後，我會接著套用。'],
+  [false, '條件式承諾：長前提子句',
+    '你看完上面三個選項並選好一個之後，我會接著套用。'],
+  [false, '條件式承諾：長前提子句，含頓號',
+    '你把上面三個選項都看過、挑好一個後，我會接著套用。'],
+  [false, '條件式承諾：等你……後',
+    '等你把上面三個選項看完並選好後，我會接著套用。'],
+  // 放寬之後，子句不能變成藏承諾的地方。
+  [true, '「你的」是所有格，句子的主詞是我，仍必須擋',
+    '我看了你的設定檔並判斷需要重構之後，我會接著改。'],
+  [true, '「你」在受詞位置（我把你貼的…整理完），仍必須擋',
+    '我把你貼的那一段整理完之後，我會接著改。'],
+  [true, '前提不是你，是建置——沒有在等使用者，仍必須擋',
+    '建置跑完之後，我會接著套用修正。'],
   [true, '主詞不是你，仍必須擋——「後」在，但前面不是你',
     '改好後我接著合併。'],
   [true, '主詞不是你，仍必須擋——第三人稱的「後」',

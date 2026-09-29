@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Fixed
+
+- **`turn-completion-integrity` 在用户的前提子句超过固定字数时，会把“正在等用户”的一轮拦下——自 6.13 起就存在。** 条件式承诺（“你选好后，我会套用”）的豁免，在英文语言包是 `you` 到逗号之间最多 20 个字符，在 zh-TW 语言包是 `你` 到 `後` 之间 1–6 个字；两个数字都是凭感觉定的。以已发布的 6.14.0-beta.1、真实的 Claude Code Stop hook 输入实测：“Once you choose A, I will apply it.”放行，“Once you choose option A or B, I will apply it.”（21 个字符）被拦，“After you choose option A or B, I will apply it.”同样被拦——决定结果的是子句长度，不是 `once`／`after`。此 hook 只看一轮的**最后**一条消息，所以采用者看到的是：代理明明已经正确地停下来问人，却被逼着继续说话。修正：豁免改为延伸到子句边界（逗号、句末标点或换行），不再是字数，因此“Once you've reviewed the three options above and picked one, I will apply it.”与“你看完上面三個選項並選好一個之後，我會接著套用。”都放行。放宽上限就是让真承诺漏过的方向，所以改用两道规则取代字数：英文的子句内不得含有我自己的承诺（“After you merged it I will follow up, I will push the tag.”仍被拦）；zh-TW 的 `你` 必须是子句的开头、且不能是“你的”（“我看了你的設定檔並判斷需要重構之後，我會接著改。”仍被拦——那里的 `你` 是我自己那句话里的所有格）。“I will apply it once the build finishes.”不是在等用户，仍被拦。**每次测试都观察到会红：**新测试复制 hook 目录、把两个旧上限各自放回去，要求同样那几句话对副本重新被拦（且 `--self-test` 失败）。**已知限制，没有改变：**豁免以段落为单位，含有一个这种条件子句的段落，会连带豁免旁边不相干的无条件承诺（原本就如此）；没有逗号的条件句（“After you merged it I will follow up”）仍会被拦。
+
 ## [6.14.0-beta.1] - 2026-09-29
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

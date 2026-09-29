@@ -50,11 +50,34 @@ const ASKING =
 // request for information, so ASKING above never caught it (measured: the
 // zh-TW mirror of this shape fired as an unkept commitment). Grammar-based, not
 // a verb list, to match this pack's own design note above: "once/after/as soon
-// as you", up to 20 non-terminating characters, a comma, then "I".
-// Known limit, left uncovered on purpose rather than widened past this shape:
-// a version with no comma ("After you merged it I will …") still fires. See
-// the corpus entry below.
-const CONDITIONAL_ON_YOU = /\b(once|after|as soon as) you\b[^,.\n]{0,20},\s*I\b/i;
+// as you", then everything up to the CLAUSE BOUNDARY, a comma, then "I".
+//
+// 🔴 The clause used to be capped at 20 characters, chosen by feel. Measured
+// 2026-09-29 on the published 6.14.0-beta.1: "Once you choose, I will apply it."
+// passed and "Once you choose option A or B, I will apply it." (21 characters)
+// blocked — the cap, not the grammar, decided. A human's precondition is often a
+// long clause ("Once you've reviewed the three options above and picked one,
+// …"), so no count is the right count. The clause ends where the class stops:
+// a comma, sentence punctuation, or a line break. A precondition cannot be
+// longer than the sentence it sits in, and it cannot cross a sentence.
+//
+// What the boundary keeps out, and why the comma stays required: "I will apply
+// it once the build finishes." is not conditional on the human (no "you"), and
+// "After you merged it I will …" (no comma) still fires — see the corpus.
+//
+// A widened clause must not swallow a commitment of mine, so the clause may not
+// contain "I will / I am going to / I am about to". Without that,
+// "After you merged it I will follow up, I will …" — the no-comma shape above,
+// then a comma and a second "I" — would match, where the 20-character cap used
+// to stop it. The subject of the precondition is the human's; a clause that
+// makes a promise of its own is not one. (Contractions are already expanded by
+// normalize() before this runs.)
+const CONDITIONAL_ON_YOU = new RegExp(
+  '\\b(once|after|as soon as) you\\b' +
+  '(?:(?!\\bI\\s+(?:will|am going to|am about to|going to|about to)\\b)[^,.;:!?\\n])*' +
+  ',\\s*I\\b',
+  'i'
+);
 
 /**
  * Expand contractions so the patterns below never have to fight an apostrophe.
@@ -171,6 +194,32 @@ export const corpus = [
     'After you confirm the plan, I will kick off the deploy.'],
   [false, 'conditional: once you decide, I will',
     'Once you decide, I will draft the ADR and file the tickets.'],
+  // 🔴 Measured 2026-09-29 on 6.14.0-beta.1 (published): the SAME sentence
+  // blocked or passed depending on how many characters sat between "you" and the
+  // comma — the 20-character cap, not the grammar. Each of these is one of the
+  // sentences that was measured, and the last three are the long clauses real
+  // agents write.
+  [false, 'conditional: once you choose (short, always passed)',
+    'Once you choose, I will apply it.'],
+  [false, 'conditional: once you choose A (short, always passed)',
+    'Once you choose A, I will apply it.'],
+  [false, 'conditional: as soon as you choose A or B',
+    'As soon as you choose A or B, I will apply it.'],
+  [false, 'conditional: after you choose option A or B (was blocked: 21 chars)',
+    'After you choose option A or B, I will apply it.'],
+  [false, 'conditional: once you choose option A or B (was blocked: 21 chars)',
+    'Once you choose option A or B, I will apply it.'],
+  [false, 'conditional: a long precondition clause',
+    "Once you've reviewed the three options above and picked one, I will apply it."],
+  [false, 'conditional: a long precondition clause, no contraction',
+    'After you have read the summary and decided which of the two migrations to keep, I will start the rollout.'],
+  // The widening must not turn the clause into a place to hide a commitment.
+  [true, 'not conditional on the human: the condition is a build, not you',
+    'I will apply it once the build finishes.'],
+  [true, 'not conditional on the human: "you" appears only after the commitment',
+    'I will apply the fix now, and you can review it later.'],
+  [true, 'a promise of my own inside the clause is not the human\'s precondition',
+    'After you merged it I will follow up, I will push the tag.'],
   [true, 'subject is not you, still commits',
     "After I fix this, I'll push it up."],
   // Known limit, not fixed here: no comma between the precondition and "I"
