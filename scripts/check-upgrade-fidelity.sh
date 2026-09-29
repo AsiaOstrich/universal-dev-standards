@@ -146,6 +146,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 UDS_BIN="$ROOT_DIR/cli/bin/uds.js"
 
+# 🔴 Every CLI call below runs under a throwaway HOME (2026-09-29). This script was the
+# measured source of 54 skill folders + a .manifest.json written into the maintainer's REAL
+# ~/.claude/skills by `pre-release-check.sh`: both `uds update` (the CLI under test) and
+# the previous-release `npx ... init` inherited the real HOME, and a user-level skill
+# shadows the project-level one. A temp cwd isolates the project, not the user.
+# The variable list lives once, in scripts/lib/isolated-home.mjs.
+# shellcheck source=lib/isolated-home.sh
+. "$SCRIPT_DIR/lib/isolated-home.sh"
+
 PREV_VERSION=""
 CLI_UNDER_TEST="node $UDS_BIN"
 KEEP_TMP=false
@@ -225,7 +234,11 @@ echo ""
 # condition — no network — that also lets a real regression back through the
 # other 31 checks.
 echo -e "${CYAN}Preflight: resolving universal-dev-standards@${PREV_VERSION} from npm...${NC}"
-if ! npx -y --prefer-online "universal-dev-standards@${PREV_VERSION}" --version >/tmp/uds-fidelity-preflight.$$.log 2>&1; then
+if ! uds_isolated_home_init; then
+  echo -e "${RED}✗ Could not create an isolated HOME; refusing to run the CLI against the real one.${NC}" >&2
+  exit 2
+fi
+if ! run_isolated npx -y --prefer-online "universal-dev-standards@${PREV_VERSION}" --version >/tmp/uds-fidelity-preflight.$$.log 2>&1; then
   echo -e "${RED}✗ Could not resolve universal-dev-standards@${PREV_VERSION} via npx.${NC}"
   echo "  This is a hard failure, not a skip: this check exists specifically to" >&2
   echo "  exercise a REAL published previous release; without network access to" >&2
@@ -233,6 +246,7 @@ if ! npx -y --prefer-online "universal-dev-standards@${PREV_VERSION}" --version 
   echo "  blind spot that let 6.13.0's two regressions through." >&2
   sed 's/^/  /' /tmp/uds-fidelity-preflight.$$.log >&2
   rm -f /tmp/uds-fidelity-preflight.$$.log
+  uds_isolated_home_cleanup
   exit 2
 fi
 rm -f /tmp/uds-fidelity-preflight.$$.log
@@ -247,6 +261,7 @@ fi
 
 _cleanup_tmp() {
   _cleanup_null_file
+  uds_isolated_home_cleanup
   if [ "$KEEP_TMP" = true ]; then
     echo ""
     echo -e "${YELLOW}--keep-tmp: fixtures left at $TMP_ROOT${NC}"
@@ -372,7 +387,7 @@ run_cli() {
   # it is a whole command ("node /path/to/uds.js" or "npx -y
   # universal-dev-standards@X"), assembled from this script's own trusted
   # arguments, never from fixture-controlled input.
-  ( cd "$dir" && $CLI_UNDER_TEST "$@" ) >"$logfile" 2>&1
+  ( cd "$dir" && run_isolated $CLI_UNDER_TEST "$@" ) >"$logfile" 2>&1
 }
 
 # check_file NAME FIXTURE_DIR UPDATE_DIR APPLY_DIR RELATIVE_FILE_PATH IS_CLAUDE_MD
@@ -488,7 +503,7 @@ run_scenario() {
     cd "$fixture_dir" || exit 1
     printf '{"name":"%s-fixture","version":"1.0.0"}\n' "$name" > package.json
     eval "$setup"
-    npx -y --prefer-online "universal-dev-standards@${PREV_VERSION}" init -y "$@"
+    run_isolated npx -y --prefer-online "universal-dev-standards@${PREV_VERSION}" init -y "$@"
   ) >"$TMP_ROOT/$name-init.log" 2>&1
   if [ ! -f "$fixture_dir/.standards/manifest.json" ]; then
     report_finding "$name: fixture build (universal-dev-standards@${PREV_VERSION} init) did not produce a manifest — cannot measure this scenario"

@@ -39,6 +39,7 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { isolatedHome } from "./lib/isolated-home.mjs";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -121,16 +122,21 @@ function skillCount(dir: string): number {
 }
 
 function runInit(repo: string): { ok: boolean; out: string } {
+  // A temp repo isolates the project, not the user; `uds init` writes user-level files
+  // wherever it runs. See scripts/lib/isolated-home.mjs.
+  const iso = isolatedHome({ prefix: "uds-skillpaths-home-" });
   try {
     const out = execFileSync(
       process.execPath,
       [CLI, "init", "--mode", "skills", "--skills-location", "project", "-y"],
-      { cwd: repo, encoding: "utf8", stdio: "pipe", env: { ...process.env, CI: "1" } },
+      { cwd: repo, encoding: "utf8", stdio: "pipe", env: { ...iso.env, CI: "1" } },
     );
     return { ok: true, out };
   } catch (e) {
     const err = e as { stdout?: string; stderr?: string };
     return { ok: false, out: `${err.stdout ?? ""}${err.stderr ?? ""}` };
+  } finally {
+    iso.cleanup();
   }
 }
 

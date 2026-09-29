@@ -146,6 +146,23 @@ run_check() {
 
 # Function to show summary
 show_summary() {
+    # Evaluate the HOME write guard exactly once, on whichever path reaches the summary
+    # (normal end and --fail-fast alike). Its own self-test runs first: a guard that
+    # cannot go red says nothing.
+    if [ "$HOME_GUARD_DONE" = false ]; then
+        HOME_GUARD_DONE=true
+        echo -e "${CYAN}[HOME guard]${NC} Checking this run left the real home untouched | 檢查本次執行未寫入真實 HOME..."
+        guard_output=$(node "$SCRIPT_DIR/check-home-untouched.mjs" --self-test 2>&1 && node "$SCRIPT_DIR/check-home-untouched.mjs" compare "$HOME_GUARD_SNAPSHOT" 2>&1)
+        guard_exit=$?
+        if [ $guard_exit -eq 0 ]; then
+            echo -e "      ${GREEN}✓ Passed${NC}"
+            PASSED=$((PASSED + 1))
+        else
+            echo -e "      ${RED}✗ Failed${NC}"
+            echo "$guard_output" | sed 's/^/      /'
+            FAILED=$((FAILED + 1))
+        fi
+    fi
     echo ""
     echo "=========================================="
     echo "  Summary | 摘要"
@@ -184,6 +201,30 @@ fi
 
 # Change to root directory
 cd "$ROOT_DIR"
+
+# 🔴 HOME write guard (2026-09-29). This script once wrote 54 skill folders and a
+# .manifest.json into the maintainer's REAL ~/.claude/skills — a user-level skill
+# shadows the project-level one, and nothing said so. Every step that runs the UDS
+# CLI must do it under a throwaway HOME (scripts/lib/isolated-home.*). This is the
+# check that they still do: snapshot the places UDS writes under HOME now, compare at
+# the end (show_summary), fail on any addition or modification. Not optional: if it
+# cannot take the snapshot it stops, because a run that cannot be checked is the run
+# that did the damage last time.
+# shellcheck source=lib/isolated-home.sh
+. "$SCRIPT_DIR/lib/isolated-home.sh"
+if ! uds_isolated_home_init; then
+    echo -e "${RED}✗ Could not create an isolated HOME; refusing to run without one.${NC}"
+    exit 1
+fi
+HOME_GUARD_SNAPSHOT="$(mktemp 2>/dev/null || mktemp -t udshomeguard)"
+if ! node "$SCRIPT_DIR/check-home-untouched.mjs" snapshot "$HOME_GUARD_SNAPSHOT"; then
+    echo -e "${RED}✗ HOME write guard could not take its snapshot (exit above). Not running: an unguarded run is how the real home got written.${NC}"
+    rm -f "$HOME_GUARD_SNAPSHOT"
+    uds_isolated_home_cleanup
+    exit 1
+fi
+HOME_GUARD_DONE=false
+trap '_cleanup_null_file; rm -f "$HOME_GUARD_SNAPSHOT"; uds_isolated_home_cleanup' EXIT
 
 # Step 1: Git status
 echo -e "${CYAN}[1/$TOTAL]${NC} Checking git status..."
@@ -544,7 +585,9 @@ echo -e "${CYAN}[23/$TOTAL]${NC} Dogfooding gate — UDS check on itself | 自�
 # (2026-05-19). It has therefore failed on every release since — 5.15.1, 5.17.0,
 # 6.0.0, 6.1.0, 6.1.1 — which trained everyone to read its red as noise. With
 # --force the check runs and exits 0, so the gate measures something again.
-dogfood_output=$(node "$CLI_DIR/bin/uds.js" check --force 2>&1)
+# Under a throwaway HOME: `uds check` writes ~/.uds/update-check.json (measured 2026-09-29),
+# and every CLI call in this script must leave the real home alone (see the HOME guard below).
+dogfood_output=$(run_isolated node "$CLI_DIR/bin/uds.js" check --force 2>&1)
 dogfood_exit=$?
 if [ $dogfood_exit -eq 0 ]; then
     echo -e "      ${GREEN}✓ Dogfooding gate passed — UDS validates itself${NC}"

@@ -77,6 +77,7 @@ import { join, resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { isolatedHome } from '../../scripts/lib/isolated-home.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CLI_ROOT = resolve(HERE, '..');
@@ -346,12 +347,25 @@ function ensureProbeCwd() {
   return PROBE_CWD;
 }
 
+// A temp cwd isolates the project, not the user: the CLI writes ~/.uds (update-check cache) and
+// user-level skills wherever it runs. The probes run under a throwaway HOME.
+// See scripts/lib/isolated-home.mjs (2026-09-29).
+let PROBE_HOME = null;
+function probeEnv() {
+  if (!PROBE_HOME) {
+    PROBE_HOME = isolatedHome({ prefix: 'uds-cmd-existence-home-' });
+    process.on('exit', () => PROBE_HOME.cleanup());
+  }
+  return PROBE_HOME.env;
+}
+
 function runUds(extraArgs) {
   const cwd = ensureProbeCwd();
   const r = spawnSync('node', [UDS_BIN, ...extraArgs], {
     cwd,
     encoding: 'utf8',
     timeout: 10_000,
+    env: probeEnv(),
   });
   if (r.error) fail(`呼叫 uds CLI 失敗（${extraArgs.join(' ')}）：${r.error.message}`);
   return `${r.stdout ?? ''}${r.stderr ?? ''}`;

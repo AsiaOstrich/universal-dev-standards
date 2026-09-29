@@ -91,6 +91,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { isolatedHome } from './lib/isolated-home.mjs';
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -98,6 +99,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 const UDS_BIN = join(ROOT_DIR, 'cli', 'bin', 'uds.js');
+
+// A temp cwd isolates the project, not the user: `uds init -y` writes user-level files
+// (~/.claude/skills, ~/.uds) wherever it runs. So the CLI runs under a throwaway HOME.
+// See scripts/lib/isolated-home.mjs (2026-09-29, pre-release-check wrote into a real home).
+const ISO_HOME = isolatedHome({ prefix: 'uds-adopter-home-' });
+process.on('exit', () => ISO_HOME.cleanup());
 
 const RED = '\x1b[0;31m';
 const GREEN = '\x1b[0;32m';
@@ -245,6 +252,7 @@ async function generateProject(dir: string, args: string[], seedMarkers: boolean
       cwd: dir,
       stdio: 'pipe',
       encoding: 'utf8',
+      env: ISO_HOME.env,
     });
   } catch (e) {
     const err = e as { stdout?: string; stderr?: string; message: string };

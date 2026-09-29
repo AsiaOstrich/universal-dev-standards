@@ -18,6 +18,7 @@
  */
 
 import { execFileSync } from 'child_process';
+import { isolatedHome } from './lib/isolated-home.mjs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -335,9 +336,17 @@ async function scanCliCommands() {
     //      單檔解析永遠看不到。
     // `--help` 是 CLI 對「我有哪些指令」的權威回答，任何註冊寫法都涵蓋得到。
     const mainCommands = [];
-    const helpOut = execFileSync(process.execPath, [path.join(ROOT_DIR, 'cli/bin/uds.js'), '--help'], {
-      encoding: 'utf-8',
-    });
+    // Throwaway HOME: a CLI run must not touch the real one (scripts/lib/isolated-home.mjs, 2026-09-29).
+    const iso = isolatedHome({ prefix: 'uds-usagedocs-home-' });
+    let helpOut;
+    try {
+      helpOut = execFileSync(process.execPath, [path.join(ROOT_DIR, 'cli/bin/uds.js'), '--help'], {
+        encoding: 'utf-8',
+        env: iso.env,
+      });
+    } finally {
+      iso.cleanup();
+    }
     const cmdSection = helpOut.split(/Available subcommands:|Commands:/).pop() || '';
     for (const line of cmdSection.split('\n')) {
       // commander 的格式：兩個空格 + 指令名（可能帶參數）+ 空白 + 說明

@@ -153,6 +153,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
+import { isolatedHome } from './lib/isolated-home.mjs';
 
 import { estimateTokens } from '../cli/src/utils/context-chunker.js';
 import { reason } from './hooks/turn-completion/engine.mjs';
@@ -444,10 +445,18 @@ function buildFixture(shapeKey, shapeDef, workDir) {
   mkdirSync(workDir, { recursive: true });
   writeFileSync(join(workDir, 'package.json'), JSON.stringify({ name: `${shapeKey}-fixture`, version: '1.0.0' }) + '\n');
   shapeDef.setup(workDir);
-  execFileSync('node', [UDS_BIN, 'init', '-y', ...shapeDef.initArgs], {
-    cwd: workDir,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  // A temp cwd isolates the project, not the user: `uds init -y` writes user-level
+  // files (~/.claude/skills, ~/.uds) wherever it runs. See scripts/lib/isolated-home.mjs.
+  const iso = isolatedHome({ prefix: 'uds-footprint-home-' });
+  try {
+    execFileSync('node', [UDS_BIN, 'init', '-y', ...shapeDef.initArgs], {
+      cwd: workDir,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: iso.env,
+    });
+  } finally {
+    iso.cleanup();
+  }
 }
 
 export function buildAndMeasureAllShapes() {

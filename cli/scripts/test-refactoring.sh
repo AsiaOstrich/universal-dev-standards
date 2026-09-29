@@ -26,6 +26,16 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLI_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# The CLI calls below run under a throwaway HOME: `uds` writes ~/.uds (update-check cache)
+# wherever it runs (2026-09-29, see scripts/lib/isolated-home.mjs).
+# shellcheck source=../../scripts/lib/isolated-home.sh
+. "$CLI_DIR/../scripts/lib/isolated-home.sh"
+if ! uds_isolated_home_init; then
+    echo "cannot create an isolated HOME; refusing to run the CLI against the real one" >&2
+    exit 2
+fi
+trap '_cleanup_null_file; uds_isolated_home_cleanup' EXIT
+
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${CYAN}       UDS CLI Core Module Refactoring Verification             ${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
@@ -114,7 +124,7 @@ echo -e "${YELLOW}🖥️  Phase 2: CLI Functionality Verification${NC}"
 echo ""
 
 # Test CLI version
-VERSION=$(node bin/uds.js --version 2>/dev/null || echo "error")
+VERSION=$(run_isolated node bin/uds.js --version 2>/dev/null || echo "error")
 if [ "$VERSION" = "4.1.0" ]; then
     echo -e "  ${GREEN}✓${NC} CLI version: $VERSION"
     ((PASSED++))
@@ -124,7 +134,7 @@ else
 fi
 
 # Test list command
-if node bin/uds.js list 2>&1 | grep -q "Skill (23)"; then
+if run_isolated node bin/uds.js list 2>&1 | grep -q "Skill (23)"; then
     echo -e "  ${GREEN}✓${NC} list command works"
     ((PASSED++))
 else

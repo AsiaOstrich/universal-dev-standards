@@ -31,6 +31,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { tmpdir } from 'os';
 import { parseArgs } from 'util';
+import { isolatedHome } from '../../scripts/lib/isolated-home.mjs';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -54,6 +55,19 @@ const CHAIN_MILESTONES = ['3.0.0', '3.3.0', '3.5.0', '4.0.0', '4.2.0'];
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// 🔴 Every process this script spawns runs under a throwaway HOME (2026-09-29). It runs
+// `uds init` / `uds update` for many versions in temp directories; a temp cwd isolates the
+// project, not the user, and those commands write user-level files (~/.claude/skills, ~/.uds).
+// See scripts/lib/isolated-home.mjs.
+let ISO_HOME = null;
+function homeEnv() {
+  if (!ISO_HOME) {
+    ISO_HOME = isolatedHome({ prefix: 'uds-upgrade-path-home-' });
+    process.on('exit', () => ISO_HOME.cleanup());
+  }
+  return ISO_HOME.env;
+}
 
 function stripAnsi(str) {
   // eslint-disable-next-line no-control-regex
@@ -104,7 +118,7 @@ function execCapture(cmd, args, options = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: { ...homeEnv(), FORCE_COLOR: '0' },
       ...options,
     });
     let stdout = '';
@@ -326,7 +340,7 @@ class TestProject {
 
   _exec(cmd, args) {
     return new Promise((resolve, reject) => {
-      const proc = spawn(cmd, args, { cwd: this.dir, stdio: 'ignore' });
+      const proc = spawn(cmd, args, { cwd: this.dir, stdio: 'ignore', env: homeEnv() });
       proc.on('close', code => {
         if (code === 0) resolve();
         else reject(new Error(`${cmd} exited ${code}`));
@@ -346,7 +360,7 @@ class UpgradeRunner {
       const proc = spawn('node', args, {
         cwd: workDir,
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: { ...process.env, FORCE_COLOR: '0' },
+        env: { ...homeEnv(), FORCE_COLOR: '0' },
       });
 
       let stdout = '';
