@@ -14,7 +14,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execFileSync } from 'child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
@@ -23,6 +23,8 @@ const REPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
 const CODEX_ADAPTER = join(REPO_ROOT, 'scripts/hooks/check-turn-completion-codex.mjs');
 const GEMINI_ADAPTER = join(REPO_ROOT, 'scripts/hooks/check-turn-completion-gemini.mjs');
 const CLAUDE_ADAPTER = join(REPO_ROOT, 'scripts/hooks/check-turn-completion.mjs');
+const AGY_ADAPTER = join(REPO_ROOT, 'scripts/hooks/check-turn-completion-agy.mjs');
+const AGY_FIXTURES = join(import.meta.dirname, '..', '..', 'fixtures', 'agy-stop-hook');
 
 let stateDir;
 
@@ -296,16 +298,184 @@ describe('turn-completion-integrity: Gemini CLI adapter', () => {
   });
 });
 
+describe('turn-completion-integrity: Antigravity CLI (agy) adapter', () => {
+  // Shapes below are the ones a real agy 1.2.12 session produced on
+  // 2026-09-29 (`agy -p`, single turn, no tool calls), de-identified: the
+  // fixtures under tests/fixtures/agy-stop-hook/ are the real stdin payloads
+  // and transcripts with the home directory and conversationId replaced.
+  //   - stdin carries only `transcriptPath` (+ conversationId etc.): no final
+  //     message, no human message
+  //   - transcript is JSONL; the human is source USER_EXPLICIT / type
+  //     USER_INPUT wrapped in <USER_REQUEST> and followed by system blocks;
+  //     the model is source MODEL / type PLANNER_RESPONSE; a `continue`
+  //     reason comes back as source SYSTEM / type SYSTEM_MESSAGE.
+
+  let step;
+  const userRec = (text) => ({
+    step_index: step++, source: 'USER_EXPLICIT', type: 'USER_INPUT', status: 'DONE',
+    created_at: '2026-09-29T07:27:35Z',
+    content: `<USER_REQUEST>\n${text}\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: 2026-09-29T15:27:35+08:00.\n</ADDITIONAL_METADATA>`,
+  });
+  const modelRec = (text) => ({
+    step_index: step++, source: 'MODEL', type: 'PLANNER_RESPONSE', status: 'DONE',
+    created_at: '2026-09-29T07:27:36Z', content: text,
+  });
+  const systemRec = (text) => ({
+    step_index: step++, source: 'SYSTEM', type: 'SYSTEM_MESSAGE', status: 'DONE',
+    created_at: '2026-09-29T07:27:42Z',
+    content: `The following is a <SYSTEM_MESSAGE> not actually sent by the user. It is provided by the system as important information to pay attention to.\n\n<SYSTEM_MESSAGE>\nStop hook blocked termination: ${text}\n</SYSTEM_MESSAGE>`,
+  });
+
+  beforeEach(() => { step = 0; });
+
+  /** Write a transcript from records, run the adapter with agy's real stdin shape. */
+  function runAgy(records, { raw } = {}) {
+    const tp = join(stateDir, 'transcript_full.jsonl');
+    writeFileSync(tp, raw ?? records.map((r) => JSON.stringify(r)).join('\n') + '\n');
+    return runAgyWithStdin({
+      artifactDirectoryPath: '/home/user/.gemini/antigravity-cli/brain/x',
+      conversationId: randomUUID(),
+      error: '', executionNum: 0, fullyIdle: true, modelName: 'test-model',
+      terminationReason: 'NO_TOOL_CALL', transcriptPath: tp, workspacePaths: ['/tmp/agy-probe'],
+    });
+  }
+  function runAgyWithStdin(stdinObj) {
+    return runAdapter(AGY_ADAPTER, stdinObj);
+  }
+
+  const COMMIT = 'The remaining two items I will do next.';
+
+  it('(a) an unkept commitment continues in agy\'s shape ("continue", not "block"/"deny")', () => {
+    const out = runAgy([userRec('please refactor the parser'), modelRec(COMMIT)]);
+    expect(out.decision).toBe('continue');
+    expect(out.reason).toContain('UDS standard turn-completion-integrity (R1)');
+  });
+
+  it('(b) a conditional commitment is allowed, and allow is exactly {}', () => {
+    const out = runAgy([userRec('pick a model for me'), modelRec("Once you pick a model, I'll wire it into the config.")]);
+    expect(out).toEqual({});
+  });
+
+  it('(c) R9: the human asked to stop → allowed even with a real commitment', () => {
+    const out = runAgy([userRec('go ahead and refactor the parser'), modelRec('On it.'),
+      userRec("Let's pause here, I'm heading home."), modelRec(COMMIT)]);
+    expect(out).toEqual({});
+  });
+
+  it('the human\'s stop request counts only from <USER_REQUEST>: the system block after it is not the human', () => {
+    const rec = userRec('go ahead and refactor the parser');
+    rec.content = rec.content.replace('</ADDITIONAL_METADATA>', "Let's pause here, I'm heading home.\n</ADDITIONAL_METADATA>");
+    const out = runAgy([rec, modelRec(COMMIT)]);
+    expect(out.decision).toBe('continue');
+  });
+
+  // The failure R9 + R11 guard against, in agy's own shape: the hook's
+  // `continue` reason comes back as source SYSTEM / type SYSTEM_MESSAGE. Read
+  // "any non-MODEL record" as the human and this message becomes "the human's
+  // last message". Here it carries a stop phrase and NO self-echo marker, so
+  // only the `source` filter (not isSelfEcho) can keep it out — that is what
+  // makes the mutation "read any non-MODEL message" turn this test red.
+  it('a SYSTEM_MESSAGE is never read as the human: a stop phrase inside it does not exempt the turn', () => {
+    const out = runAgy([userRec('go ahead and refactor the parser'), modelRec('Started.'),
+      systemRec("Let's pause here, I'm heading home."), modelRec(COMMIT)]);
+    expect(out.decision).toBe('continue');
+  });
+
+  it('the transcript holding this hook\'s own previous block reason does not void a real stop request', () => {
+    // real human stop request first, then our own reason as SYSTEM_MESSAGE
+    const out = runAgy([userRec("Let's pause here, I'm heading home."), modelRec(COMMIT),
+      systemRec('Your last message stated a next action.\n\nUDS standard turn-completion-integrity (R1): a stated next action is not optional.'),
+      modelRec(COMMIT)]);
+    expect(out).toEqual({});
+  });
+
+  it('the final reply is the LAST MODEL/PLANNER_RESPONSE: an earlier commitment that was then done is not judged', () => {
+    const out = runAgy([userRec('refactor'), modelRec(COMMIT), systemRec('continue'), modelRec('Both are done and the tests pass.')]);
+    expect(out).toEqual({});
+  });
+
+  it('a MODEL record of another type is not the final reply', () => {
+    const rec = modelRec(COMMIT);
+    rec.type = 'TOOL_CALL';
+    const out = runAgy([userRec('refactor'), rec]);
+    expect(out).toEqual({});
+  });
+
+  it('an itemized blocker list (the R2 ending) is allowed', () => {
+    const out = runAgy([userRec('finish up'), modelRec([
+      'Nothing left to decide. Each remaining item and who it waits on:',
+      '  1. Deploy — waits on you running the setup script.',
+      '  2. Credential renewal — waits on you, I cannot type it.',
+    ].join('\n'))]);
+    expect(out).toEqual({});
+  });
+
+  describe('real captured payloads (fixtures/agy-stop-hook)', () => {
+    function runFixture(stdinName, transcriptName) {
+      const tp = join(stateDir, 'transcript_full.jsonl');
+      writeFileSync(tp, readFileSync(join(AGY_FIXTURES, transcriptName), 'utf8'));
+      const stdin = JSON.parse(readFileSync(join(AGY_FIXTURES, stdinName), 'utf8'));
+      return runAgyWithStdin({ ...stdin, conversationId: randomUUID(), transcriptPath: tp });
+    }
+
+    it('first call (transcript ends at the model reply "FIRST") → allowed', () => {
+      expect(runFixture('stdin-1.json', 'transcript-1.jsonl')).toEqual({});
+    });
+
+    it('second call (transcript holds our own SYSTEM_MESSAGE, reply "AGAIN") → allowed, no crash', () => {
+      expect(runFixture('stdin-2.json', 'transcript-2.jsonl')).toEqual({});
+    });
+
+    it('the real shape with the model reply swapped for a commitment → continue', () => {
+      const tp = join(stateDir, 'transcript_full.jsonl');
+      const lines = readFileSync(join(AGY_FIXTURES, 'transcript-1.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+      lines[1].content = COMMIT;
+      writeFileSync(tp, lines.map((l) => JSON.stringify(l)).join('\n') + '\n');
+      const stdin = JSON.parse(readFileSync(join(AGY_FIXTURES, 'stdin-1.json'), 'utf8'));
+      expect(runAgyWithStdin({ ...stdin, conversationId: randomUUID(), transcriptPath: tp }).decision).toBe('continue');
+    });
+  });
+
+  describe('R5: every failure path allows with valid JSON', () => {
+    it('malformed stdin', () => {
+      const stdout = execFileSync(process.execPath, [AGY_ADAPTER], {
+        input: 'not json at all {{{',
+        env: { ...process.env, UDS_TURN_COMPLETION_STATE_DIR: stateDir },
+        encoding: 'utf8',
+      });
+      expect(JSON.parse(stdout)).toEqual({});
+    });
+
+    it('transcriptPath missing from stdin', () => {
+      expect(runAgyWithStdin({ conversationId: randomUUID(), executionNum: 0 })).toEqual({});
+    });
+
+    it('transcriptPath points at a file that does not exist', () => {
+      expect(runAgyWithStdin({ conversationId: randomUUID(), transcriptPath: join(stateDir, 'nope.jsonl') })).toEqual({});
+    });
+
+    it('a transcript with corrupt lines: the good lines still count', () => {
+      const good = JSON.stringify(modelRec(COMMIT));
+      const out = runAgy(null, { raw: `{{{ not json\n${JSON.stringify(userRec('refactor'))}\n${good}\n{"truncated":` });
+      expect(out.decision).toBe('continue');
+    });
+
+    it('an empty transcript', () => {
+      expect(runAgy(null, { raw: '' })).toEqual({});
+    });
+  });
+});
+
 describe('turn-completion-integrity: shared corpus (all adapters read the same packs)', () => {
   it('the packs\' self-test passes for every adapter entrypoint', () => {
-    for (const adapter of [CLAUDE_ADAPTER, CODEX_ADAPTER, GEMINI_ADAPTER]) {
+    for (const adapter of [CLAUDE_ADAPTER, CODEX_ADAPTER, GEMINI_ADAPTER, AGY_ADAPTER]) {
       expect(() => execFileSync(process.execPath, [adapter, '--self-test'], { encoding: 'utf8' }))
         .not.toThrow();
     }
   });
 
   it('every adapter declares its shipped languages (R8)', () => {
-    for (const adapter of [CLAUDE_ADAPTER, CODEX_ADAPTER, GEMINI_ADAPTER]) {
+    for (const adapter of [CLAUDE_ADAPTER, CODEX_ADAPTER, GEMINI_ADAPTER, AGY_ADAPTER]) {
       const out = execFileSync(process.execPath, [adapter, '--languages'], { encoding: 'utf8' });
       expect(out).toContain('en (English)');
       expect(out).toContain('zh-TW');
