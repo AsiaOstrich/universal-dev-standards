@@ -3,7 +3,7 @@ source: ../../../core/open-work-tracking.md
 source_version: 1.1.0
 translation_version: 1.1.0
 last_synced: 2026-09-29
-source_hash: 3ea4d18700d3
+source_hash: 0fcf3df23e12
 status: current
 ---
 
@@ -284,7 +284,7 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 **UDS 不對本標準設任何閘門，而這件事是被記錄的，不是被暗示的。** UDS 陳述一個承載開放工作的地方
 必須滿足的關係；有沒有東西去判定它，依上面的[寫法約束](#本標準的寫法以及為什麼這樣寫)，
 是採用專案的決定——與 [deferred-item-exit](deferred-item-exit.md) 對自己出口劃的界線相同。
-自 1.1.0 起，UDS 為 OWT-017–OWT-019 附上一支**參考判定程序**（`scripts/check-open-work-tracking.mjs`），
+自 1.1.0 起，UDS 為 OWT-017–OWT-019 附上一支**參考判定程序**——npm 安裝包裡的 `uds open-work next-action | revision | separation`（`uds open-work self-test` 只跑檢查器自己的自測臂；在 UDS repo 的副本裡，`node scripts/check-open-work-tracking.mjs` 跑的是同一份程式）——
 作為 OWT-015 意義上的證據——它已被觀察到對違反的樣本回報失敗——供採用者直接執行或自行重做。
 它沒有接進任何 UDS 發版閘門，因為 UDS 本身沒有承載開放工作的地方可供它檢查。
 

@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Added
+
+- **`uds open-work next-action | revision | separation | self-test` —— `open-work-tracking` 1.1.0 的参考检查（OWT-017/018/019）现在随 npm 安装包出货。** 6.14.0-beta.1 的这些检查只在 repo 的 `scripts/` 里，而 npm 安装包不含该目录，采用者不 clone UDS 就跑不了。规则现在只住在一个地方，`cli/src/utils/open-work-tracking.mjs`（在安装包内）；`uds open-work` 与旧的 `node scripts/check-open-work-tracking.mjs`（现在是一个不含规则、只重新导出该模块的薄壳）跑的是同一份，并有测试要求两者输出完全相同。检查本身没有任何改变：退出码相同（0 没有违反、1 有违反、2 判定不了——2 不是通过），检查器仍先跑自己的自测臂，每次运行仍声明覆盖率未知（OWT-011）、词汇未校准（OWT-016）。它仍是作为证据提供的参考判定程序，不是闸门。**每次测试都观察到会红：**新测试复制 CLI，让命令吞掉退出码（永远 0）或让共用规则永远通过，并要求违反的样本对副本变绿；并断言 `npm pack --dry-run` 的清单包含该模块。标准的“什么在执行本标准”一节改为指向该命令，而不是只在 repo 里的路径。
+
 ### Fixed
 
 - **`turn-completion-integrity` 在用户的前提子句超过固定字数时，会把“正在等用户”的一轮拦下——自 6.13 起就存在。** 条件式承诺（“你选好后，我会套用”）的豁免，在英文语言包是 `you` 到逗号之间最多 20 个字符，在 zh-TW 语言包是 `你` 到 `後` 之间 1–6 个字；两个数字都是凭感觉定的。以已发布的 6.14.0-beta.1、真实的 Claude Code Stop hook 输入实测：“Once you choose A, I will apply it.”放行，“Once you choose option A or B, I will apply it.”（21 个字符）被拦，“After you choose option A or B, I will apply it.”同样被拦——决定结果的是子句长度，不是 `once`／`after`。此 hook 只看一轮的**最后**一条消息，所以采用者看到的是：代理明明已经正确地停下来问人，却被逼着继续说话。修正：豁免改为延伸到子句边界（逗号、句末标点或换行），不再是字数，因此“Once you've reviewed the three options above and picked one, I will apply it.”与“你看完上面三個選項並選好一個之後，我會接著套用。”都放行。放宽上限就是让真承诺漏过的方向，所以改用两道规则取代字数：英文的子句内不得含有我自己的承诺（“After you merged it I will follow up, I will push the tag.”仍被拦）；zh-TW 的 `你` 必须是子句的开头、且不能是“你的”（“我看了你的設定檔並判斷需要重構之後，我會接著改。”仍被拦——那里的 `你` 是我自己那句话里的所有格）。“I will apply it once the build finishes.”不是在等用户，仍被拦。**每次测试都观察到会红：**新测试复制 hook 目录、把两个旧上限各自放回去，要求同样那几句话对副本重新被拦（且 `--self-test` 失败）。**已知限制，没有改变：**豁免以段落为单位，含有一个这种条件子句的段落，会连带豁免旁边不相干的无条件承诺（原本就如此）；没有逗号的条件句（“After you merged it I will follow up”）仍会被拦。

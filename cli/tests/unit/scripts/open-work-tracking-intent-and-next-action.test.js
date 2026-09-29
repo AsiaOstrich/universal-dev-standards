@@ -2,8 +2,9 @@
 // intent-vs-progress-borrowing.md): open-work-tracking 1.1.0 adds OWT-017
 // (intent apart from progress), OWT-018 (an edit to intent leaves a record;
 // no approver -> listed at hand-back) and OWT-019 (a next action names an
-// object). scripts/check-open-work-tracking.mjs is the reference decision
-// procedure.
+// object). cli/src/utils/open-work-tracking.mjs is the reference decision
+// procedure; `uds open-work` and scripts/check-open-work-tracking.mjs are two
+// front doors onto it (see open-work-cli.test.js for the doors).
 //
 // Placement: DEC-122 named cli/tests/unit/standards/, a directory that does not
 // exist. Every other test of a root scripts/ file lives in cli/tests/unit/
@@ -35,10 +36,11 @@ import {
   extractNextActions,
   revisionEntries,
   runSelfTest,
-} from '../../../../scripts/check-open-work-tracking.mjs';
+} from '../../../src/utils/open-work-tracking.mjs';
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
-const SCRIPT = join(REPO_ROOT, 'scripts', 'check-open-work-tracking.mjs');
+// The one body of the rules. The mutation block below edits a COPY of this file.
+const SCRIPT = join(REPO_ROOT, 'cli', 'src', 'utils', 'open-work-tracking.mjs');
 
 let dir;
 beforeEach(() => { dir = mkdtempSync(join(tmpdir(), 'uds-owt-')); });

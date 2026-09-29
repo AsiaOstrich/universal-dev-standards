@@ -26,6 +26,7 @@ import { compileStandards } from '../src/commands/compile.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
+import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 import { config } from '../src/utils/config-manager.js';
@@ -454,6 +455,40 @@ aiContextCommand
 
 // MCP command for AI tool integration
 mcpCommand(program);
+
+// Open-work-tracking reference checks (OWT-017/018/019). A group of its own, not
+// a flag on `check`: `check` validates the installed standards and has its own
+// --ci/--json meaning, while these are three checks with different arguments and
+// an exit-code contract in which 2 ("cannot decide") is not a pass.
+const openWorkCommand = program
+  .command('open-work')
+  .description('Reference checks for open-work-tracking (OWT-017/018/019). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
+
+openWorkCommand
+  .command('next-action [files...]')
+  .description('OWT-019: every "next action" field names a file path, test name, command or requirement identifier')
+  .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd)')
+  .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
+  .action(openWorkNextActionCommand);
+
+openWorkCommand
+  .command('revision')
+  .description('OWT-018: a change to acceptance/goal/constraint sections needs a new, complete revision record')
+  .option('--file <path>', 'Carrier file (with --base)')
+  .option('--base <rev>', 'Git revision to compare --file against')
+  .option('--before <file>', 'Earlier version of the carrier (with --after)')
+  .option('--after <file>', 'Later version of the carrier (with --before)')
+  .action(openWorkRevisionCommand);
+
+openWorkCommand
+  .command('separation [files...]')
+  .description('OWT-017: no single carrier holds both an intent section and a progress/next-action section')
+  .action(openWorkSeparationCommand);
+
+openWorkCommand
+  .command('self-test')
+  .description('Run the checker\'s own self-test arms (a checker that fails them decides nothing)')
+  .action(openWorkSelfTestCommand);
 
 // uds run <intent> — language-agnostic command proxy (XSPEC-029)
 program

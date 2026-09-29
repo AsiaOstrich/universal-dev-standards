@@ -232,7 +232,9 @@ standard:
   enforcement:
     automated_gate: false
     reference_check:
-      path: scripts/check-open-work-tracking.mjs
+      command: "uds open-work <next-action|revision|separation|self-test>"   # 隨 npm 安裝包出貨，採用者不需要 clone
+      path: cli/src/utils/open-work-tracking.mjs                              # 規則本體只有這一份
+      repo_entry: scripts/check-open-work-tracking.mjs                        # 只在 UDS repo 副本裡的薄殼，不含規則
       covers: [OWT-017, OWT-018, OWT-019]
       status: "參考判定程序，作為 OWT-015 意義上的證據（已對違反樣本紅過）；不是閘門，未接進任何 UDS 發版閘門，因為 UDS 沒有承載開放工作的地方可供檢查"
     why_not: >
