@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.13.1
-translation_version: 6.13.1
-last_synced: 2026-09-28
+source_version: 6.14.0-beta.1
+translation_version: 6.14.0-beta.1
+last_synced: 2026-09-29
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.1] - 2026-09-29
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **已知限制（2026-09-29 把安装包装进全新项目实测发现）：** Antigravity CLI 的关卡**只有**在“**全新**项目、且已经有 `.agents/AGENTS.md`”时，由 `uds init --with-hooks` 装上（init 靠这个文件判断项目在用 Antigravity）。既有项目执行 `uds update` **不会**补装，而 `uds init` 不能对同一个项目跑第二次。因此这个测试版里，既有项目拿不到 agy 关卡；预计下一版修正。
 
 ### Added
 

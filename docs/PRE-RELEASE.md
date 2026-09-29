@@ -9,53 +9,41 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.13.0-beta.5`
+## Current beta | 目前的測試版：`6.14.0-beta.1`
 
-> **New in beta.5** — **the Claude Code turn-completion hook now actually blocks.** Through beta.4 it ran on every turn and allowed every one: when Claude Code runs the Stop hook, the transcript does not yet hold the final message, so the hook read an empty message (measured in live sessions, 5 of 5 allowed). It now reads the message Claude Code passes it directly. **If you installed beta.1–beta.4, upgrade and run `uds update`.** Codex: the hook only runs after you trust it with `/hooks` (see step 2). Gemini CLI is now marked legacy (Google retired it for personal accounts in favour of Antigravity CLI, which is not yet supported).
-> **beta.5 新增** — **Claude Code 的回合收尾關卡現在真的會擋。** 到 beta.4 為止，它每個回合都有執行、也每個回合都放行：Claude Code 執行 Stop hook 時，逐字稿裡還沒有最後一則回覆，關卡讀到的是空訊息（真實工作階段實測，5 次全放行）。現在改讀 Claude Code 直接交給它的那則回覆。**裝過 beta.1～beta.4 的請升級並執行 `uds update`。** Codex：hook 要先用 `/hooks` 信任才會執行（見步驟 2）。Gemini CLI 標為過時（Google 已對個人帳號停用，改由 Antigravity CLI 取代，後者尚未支援）。
-
-> **New in beta.4** — Windows: the turn-completion hook now actually works (through beta.2 its language packs never loaded on Windows, so it never blocked anything), and hooks written by `uds init` get a shebang so git for Windows can run them (without it every commit failed with `cannot spawn`). **beta.3 was published on GitHub but never reached npm** (a CI failure blocked it); everything listed for beta.3 below ships in beta.4.
-> **beta.4 新增** — Windows：回合完成關卡現在真的會作用（到 beta.2 為止，Windows 上語言包從未載入成功，關卡從未擋下任何東西）；`uds init` 寫的 hook 補上 shebang，git for Windows 才能執行（缺少時每次提交都以 `cannot spawn` 失敗）。**beta.3 在 GitHub 發佈但從未上架 npm**（被 CI 失敗擋下），下方列為 beta.3 的內容都隨 beta.4 出貨。
-
-> **New in beta.3** — `uds init` now makes the pre-commit check actually run (it used to write the hook file and rely on a later `npm install` to wire it, which often never happened); `uds check` warns when a hook file exists but git never runs it, with a fix that also handles the old husky v8 template; the version bump no longer mislabels a beta as "latest stable" in `SECURITY.md`.
-> **beta.3 新增** — `uds init` 會讓提交前檢查真的執行（過去只寫檔、仰賴之後的 `npm install` 才接上，常常從未接上）；`uds check` 在檢查檔存在但 git 不會執行時提出警告，修法也涵蓋舊版 husky v8 範本；升版不再把測試版標成 `SECURITY.md` 的「最新正式版」。
-
-> **New in beta.2** — `uds uninstall` now removes the UDS hook entries from Claude Code, Codex and Gemini CLI settings; the Codex "I asked you to stop" exemption now works (beta.1 read the wrong field); "I'm heading out, let's continue when I'm back" style phrases now count as a stop request (zh-TW and en).
-> **beta.2 新增** — `uds uninstall` 會移除 Claude Code、Codex、Gemini CLI 設定裡的 UDS 關卡；Codex 上「你叫它停就放行」現在生效（beta.1 讀錯欄位）；「我要出門了，等我回來再繼續」這類說法現在算叫停（繁中與英文）。
+> **New in 6.14.0-beta.1** — the turn-completion hook now supports **Antigravity CLI (`agy`)**, on a contract observed in a real agy session; and `open-work-tracking` 1.1.0 adds three requirements: intent kept apart from progress, edits to intent leave a record, and a next action names a concrete object.
+> **6.14.0-beta.1 新增** — 回合收尾關卡支援 **Antigravity CLI（`agy`）**，依真實 agy 工作階段觀察到的契約實作；`open-work-tracking` 1.1.0 新增三條要求：目標與進度分開存放、修改目標要留下紀錄、「下一步」要點名具體對象。
 
 ### What is in it | 這一版有什麼
 
 | Change | What it does | 白話 |
 | :--- | :--- | :--- |
-| **developer-memory 1.2.0** | New `code-reference` staleness check: a memory that cites a file path or symbol that has moved or no longer exists is flagged **before** it is surfaced. Degraded mode (no graph engine) and engine mode (e.g. `egr refs check`). | 記憶裡提到的程式碼被搬走或刪掉了，也算過期；浮出記憶之前先查核 |
-| **turn-completion hook for Codex and Gemini CLI** | Standard `turn-completion-integrity` 1.4.0. Supported: Claude Code, **Codex** (Stop event, written to `.codex/hooks.json`), **Gemini CLI — legacy** (AfterAgent event, written to `.gemini/settings.json`; Google retired Gemini CLI for personal accounts on 2026-06-18 in favour of Antigravity CLI, which is not yet supported — see the standard's *Supported harnesses*). Installed by `uds init --with-hooks` only for the tools you selected. | 「說了要做卻沒做就結束回合」的關卡，從只支援 Claude Code 擴大到 Codex；Gemini CLI 已過時（Google 已改由 Antigravity CLI 取代，後者尚未支援） |
-| **fewer false blocks (zh-TW and en)** | A next step that waits on **your** decision is no longer read as an unkept promise: zh-TW「你＋選定／選好／決定／確認／回覆／點頭＋後，我…」, en "once / after / as soon as you …, I …". | 「你選定後，我會……」這類等使用者決定的句子不再被誤擋 |
+| **turn-completion-integrity 1.5.0 — Antigravity CLI** | `uds init --with-hooks` writes `.agents/hooks.json`. The command is `node ../scripts/hooks/check-turn-completion-agy.mjs` because agy runs hooks with `.agents/` as the working directory (observed with agy 1.2.12). A block is returned as `{"decision":"continue"}`. | 用 agy 的人，說了要做卻沒做也會被擋回去 |
+| **open-work-tracking 1.1.0** | OWT-017 intent and progress in separate carriers; OWT-018 every edit to goal / acceptance criteria / constraints leaves a record, and an edit with no approver is listed at hand-back; OWT-019 a next action names a file, test, command or requirement id. A reference check lives in the UDS repository as `scripts/check-open-work-tracking.mjs` (not in the npm package). | 目標與進度分開；改目標要留痕；「下一步」要寫具體 |
 
 ### What to test | 請幫忙測什麼
 
-1. **Memory staleness** — in a project whose AI memory or `CLAUDE.md`/`AGENTS.md` cites file paths, ask your assistant to review its memories. A path that was moved should be reported as stale, not silently used.
-   記憶查核：在記憶或說明檔有提到檔案路徑的專案裡，請 AI 整理它的記憶；被搬走的路徑應被標成過期，而不是照舊使用。
-2. **Turn-completion on Codex** — run `uds init --with-hooks` and select OpenAI Codex; confirm `.codex/hooks.json` now contains the hook, then **open Codex in the project, trust the project, run `/hooks` and trust this hook — Codex skips it until you do** (silently under `codex exec`). (Gemini CLI is legacy and not part of this test; if you are an enterprise user still on it, reports are welcome.) In a session: (a) let the assistant end a turn with "I'll do the remaining two next" without doing them → it should be sent back to continue; (b) end with "once you pick, I'll write it up" → it should **not** be sent back; (c) ask it to stop ("pause, I'm heading out") → it should not be sent back (on Codex this may still misfire, see limitations).
-   Codex 上的關卡：執行 `uds init --with-hooks` 並勾選 OpenAI Codex，確認 `.codex/hooks.json` 已寫入，接著**在該專案開啟 Codex、信任這個專案、執行 `/hooks` 並信任這一支 hook——沒做這一步 Codex 會略過它**（`codex exec` 底下完全沒有提示）。（Gemini CLI 已過時，不在本次測試範圍；仍在使用它的企業用戶歡迎回報。）在工作階段裡：(a) 讓 AI 說「剩下兩項我繼續做」卻沒做就結束回合 → 應被擋回去；(b) 以「你選定後，我會寫成紀錄」結束 → **不應**被擋；(c) 請它停下（「我要出門了」）→ 不應被擋（Codex 上可能仍誤擋，見已知限制）。
-3. **Pre-commit check actually runs** — in a project where `uds init` wrote `.husky/pre-commit`, run `uds check`; if it warns that git never runs the hook, follow the printed fix in order, then make a commit and confirm the check's output appears.
-   提交前檢查真的會跑：在 `uds init` 寫過 `.husky/pre-commit` 的專案跑 `uds check`；若警告 git 不會執行它，照印出的修法依序做，再提交一次，確認看得到檢查的輸出。
-4. **No regression on Claude Code** — the hook should still block "I'll do X next" when X was not done, and should **not** block when the next step waits on you.
-   Claude Code 不退步：說了要做卻沒做仍會被擋；下一步在等你決定時不會被擋。
+1. **Antigravity CLI** — in a **new** project that has `.agents/AGENTS.md`, run `uds init --with-hooks`; confirm `.agents/hooks.json` exists. In an agy session: (a) have the AI say "I will run the tests next" and end the turn → it should be sent back; (b) a turn that waits on your decision → not blocked; (c) you ask it to stop → not blocked.
+   Antigravity CLI：在**全新**、已有 `.agents/AGENTS.md` 的專案執行 `uds init --with-hooks`，確認 `.agents/hooks.json` 已寫入。在 agy 裡：(a) 讓 AI 說「接下來我會跑測試」就結束 → 應被擋回；(b) 在等你決定的回合 → 不擋；(c) 你叫它停 → 不擋。
+2. **Longer agy sessions** — only a single turn without tool calls was observed. Please report if a multi-turn session or a turn that used tools is judged on the wrong message.
+   agy 較長的工作階段：目前只驗證過「單輪、沒有用工具」。多輪或有用工具的回合若判斷錯訊息，請回報。
+3. **open-work-tracking** — the reference check is **not in the npm package**; from a clone of the UDS repository run `node scripts/check-open-work-tracking.mjs next-action <your work log>` and `revision --file <spec> --base <rev>` on your own files; report false positives (a concrete next action reported as vague) or misses.
+   工作管理檢查：這支參考檢查**不在 npm 安裝包裡**，要從 UDS repo 的副本執行；拿自己的工作紀錄與規格試跑，回報誤判（具體的下一步被判成空洞）或漏判。
+4. **No regression on Claude Code and Codex** — both hooks should behave exactly as in 6.13.1.
+   Claude Code 與 Codex 不退步：行為應與 6.13.1 相同。
 
 ### Known limitations | 已知限制
 
-- Memory staleness covers **file paths and symbol names** only; `file:line` references are not checked (line numbers drift for unrelated reasons).
-  記憶查核只涵蓋檔案路徑與函式／類別名稱，不查 `file:line`。
-- The turn-completion hook reads prose, so it only works in languages that ship a locale pack: **English and 繁體中文**. Other languages: the hook is installed but cannot fire, and `uds init` says so.
-  關卡靠讀文字判斷，只支援英文與繁中；其他語言會明確告知不生效。
-- **Cursor** and other tools are not covered by the turn-completion hook in this beta.
-  Cursor 與其他工具這一版不支援該關卡。
-- **Codex: "I asked you to stop" did not work in 6.13.0-beta.1 — it read the wrong field and never exempted a turn.** The transcript format has now been checked against a real codex-cli 0.156.1 install and the adapter fixed for 6.13.0-beta.2. Please still report any turn that was blocked after you asked to stop.
-  Codex 的「使用者叫停就放行」在 6.13.0-beta.1 沒有生效——讀錯了欄位，從未真的豁免過任何一輪。逐字稿格式已對照真實 codex-cli 0.156.1 安裝核對，並在 6.13.0-beta.2 修正轉接層。仍請回報「已叫停卻被擋」的情況。
-- **From 6.13.0-beta.2, `uds uninstall` also removes the hook entries from `.claude/settings.json`, `.codex/hooks.json` and `.gemini/settings.json`. In 6.13.0-beta.1, remove them by hand** (see *Going back to stable*).
-  從 6.13.0-beta.2 起，`uds uninstall` 會一併移除 `.claude/settings.json`、`.codex/hooks.json`、`.gemini/settings.json` 裡的關卡項目。**6.13.0-beta.1 請手動刪除**（見「退回正式版」）。
-- A zh-TW promise phrased without a recognised action verb (e.g.「改好後，我接著推上去」) is still not caught — this gap predates this beta.
-  沒有用到偵測器認得的動作動詞的承諾（例如「改好後，我接著推上去」）仍不會被擋——這是先前就有的缺口。
+- **Existing projects cannot get the agy hook in this beta.** It is wired only by `uds init --with-hooks` in a new project that already has `.agents/AGENTS.md`; `uds update` does not add it, and `uds init` refuses to run twice. Found by installing this package into a fresh project; a fix is planned for the next beta.
+  **既有專案在這一版拿不到 agy 關卡。** 只有在全新、已有 `.agents/AGENTS.md` 的專案，由 `uds init --with-hooks` 裝上；`uds update` 不會補裝，`uds init` 也不能跑第二次。這是把安裝包裝進全新專案實測時發現的，預計下一版修正。
+- agy: only a single turn without tool calls, in `-p` mode, has been observed; multi-turn, tool-using and interactive sessions are not yet verified.
+  agy 只驗證過 `-p` 模式下的單輪、無工具回合；多輪、有用工具與互動模式尚未驗證。
+- The open-work-tracking check's heading vocabulary, command list and identifier pattern are uncalibrated first judgments (OWT-016); a prose revision note such as "revised 2026-09-29" does not count as a structured record.
+  工作管理檢查的標題詞彙、指令清單、編號樣式都是未校準的初始判斷；「2026-09-29 修訂」這類散文式備註不算結構化紀錄。
+- The turn-completion hook reads prose, so it only works in languages that ship a locale pack: **English and 繁體中文**.
+  關卡靠讀文字判斷，只支援英文與繁中。
+- **Cursor** is not covered by the turn-completion hook.
+  Cursor 不在關卡支援範圍。
 
 ---
 
