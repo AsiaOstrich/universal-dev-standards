@@ -456,3 +456,61 @@ describe('OWT-015: the checks have been observed red', () => {
     expect(() => makeMutant([['this text is not in the script', 'x']])).toThrow(/did not apply exactly once/);
   });
 });
+
+// ── the standard itself, in each place it lives ─────────────────────────────
+
+describe('open-work-tracking 1.1.0 reads the same everywhere', () => {
+  const read = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
+  const core = read('core/open-work-tracking.md');
+  const zh = read('locales/zh-TW/core/open-work-tracking.md');
+  const ai = read('ai/standards/open-work-tracking.ai.yaml');
+
+  it.each(['OWT-017', 'OWT-018', 'OWT-019'])('%s is a numbered requirement in the standard, its zh-TW translation and the .ai.yaml', (id) => {
+    expect(core).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
+    expect(zh).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
+    expect(ai).toMatch(new RegExp(`- id: ${id}\\n`));
+  });
+
+  it('carries version 1.1.0 in all three, and the self-adoption copy is byte-identical', () => {
+    expect(core).toMatch(/\*\*Version\*\*: 1\.1\.0/);
+    expect(zh).toMatch(/source_version: 1\.1\.0/);
+    expect(zh).toMatch(/translation_version: 1\.1\.0/);
+    expect(ai).toMatch(/version: "1\.1\.0"/);
+    expect(read('.standards/open-work-tracking.ai.yaml')).toBe(ai);
+  });
+
+  it('gives each new requirement a severity with a stated reason', () => {
+    expect(ai).toMatch(/id: OWT-017\n\s+rule: .*\n\s+severity: warning\n\s+severity_rationale:/);
+    expect(ai).toMatch(/id: OWT-018\n\s+rule: .*\n\s+severity: error\n\s+severity_rationale:/);
+    expect(ai).toMatch(/id: OWT-019\n\s+rule: .*\n\s+severity: warning\n\s+severity_rationale:/);
+    expect(core).toMatch(/Why these severities/);
+  });
+
+  it('records what it does not adopt, and the provenance of the prompt it borrowed shapes from', () => {
+    expect(core).toMatch(/hand-written state file as the source of truth/i);
+    expect(core).toMatch(/fixed start-of-work ritual/i);
+    expect(core).toMatch(/author and provenance are unknown/);
+    expect(zh).toMatch(/作者與出處不明/);
+    expect(ai).toMatch(/作者與出處不明/);
+  });
+
+  it('marks the reference check as evidence, not a gate, and its vocabulary as uncalibrated (OWT-016)', () => {
+    expect(core).toMatch(/reference decision procedure/);
+    expect(core).toMatch(/not wired into any UDS release gate/);
+    expect(core).toMatch(/uncalibrated, an initial judgment/);
+    expect(ai).toMatch(/automated_gate: false/);
+    expect(ai).toMatch(/uncalibrated_per_owt_016/);
+  });
+
+  it('names no vendor model id in the standard body or the .ai.yaml', () => {
+    const vendor = /claude-(?:opus|sonnet|haiku)-\d|gpt-\d|gemini-\d|\bo[1-9]-(?:mini|preview)\b/i;
+    expect(core).not.toMatch(vendor);
+    expect(zh).not.toMatch(vendor);
+    expect(ai).not.toMatch(vendor);
+  });
+
+  it('the zh-TW source_hash is the current hash of the English source (translation is not stale)', () => {
+    const hash = execFileSync('git', ['hash-object', 'core/open-work-tracking.md'], { cwd: REPO_ROOT, encoding: 'utf8' }).trim().slice(0, 12);
+    expect(zh).toMatch(new RegExp(`source_hash: ${hash}`));
+  });
+});
