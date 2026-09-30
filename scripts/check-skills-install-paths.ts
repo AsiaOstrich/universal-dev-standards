@@ -60,6 +60,12 @@ const { AI_AGENT_PATHS } = (await import(pathToFileURL(join(ROOT, "cli/src/confi
   >;
 };
 
+// The detector itself, imported so a marker can be CONFIRMED by asking it, not only read from its text.
+const detectorModule = (await import(pathToFileURL(join(ROOT, "cli/src/utils/detector.js")).href)) as Record<
+  string,
+  unknown
+> & { detectAITools: (projectPath: string) => Record<string, boolean> };
+
 /**
  * 🔴 The instruction file is checked too, and this arm exists because the gate did
  * not have it. It passed `roo-code` as "no detector marker" while a real init was
@@ -84,9 +90,14 @@ function instructionFileFor(agent: string): string | null {
  * source rather than retyped — a copied list is a second place to forget a tool.
  */
 const DETECTOR_SRC = join(ROOT, "cli/src/utils/detector.js");
+/** The key `detectAITools` uses for a tool: camelCase for two, the table key otherwise. */
+function detectorKeyFor(agent: string): string {
+  return agent === "claude-code" ? "claudeCode" : agent === "gemini-cli" ? "geminiCli" : agent;
+}
+
 function markerFor(agent: string): { path: string; isDir: boolean } | null {
   const src = readFileSync(DETECTOR_SRC, "utf8");
-  const key = agent === "claude-code" ? "claudeCode" : agent === "gemini-cli" ? "geminiCli" : agent;
+  const key = detectorKeyFor(agent);
   // 🔴 The key may be quoted (`'roo-code':`) and the value may span several lines
   // (`existsSync(a) ||\n existsSync(b)`). The first version matched an unquoted key on
   // a single line, so adding Roo Code's two-line entry left the gate still reporting
@@ -95,6 +106,22 @@ function markerFor(agent: string): { path: string; isDir: boolean } | null {
   if (at === -1) return null;
   const span = src.slice(at, at + 600);
   if (/hasAgentsMd/.test(span.split("\n")[0])) return { path: "AGENTS.md", isDir: false };
+  // 🔴 A detector line may DELEGATE: `antigravity: detectAntigravity(projectPath)` (6.14.0-beta.2 widened
+  // agy detection from one file to five markers and moved it into a function). The text of that line holds
+  // no `existsSync(join(...))` to read, so this gate reported the tool as unreachable — which was false:
+  // `uds init` detected it fine. A delegate keeps its marker list as data in an exported constant named
+  // after the function (`detectAntigravity` -> `ANTIGRAVITY_MARKERS`), inside the directory the function
+  // itself checks. That directory is this tool's own skills directory's parent (`.agents/skills/` ->
+  // `.agents`) — not a guess, but it is a convention, so the result is verified below against the real
+  // detector before it is trusted, and anything that does not verify is reported as unreachable.
+  const delegate = span.split("\n")[0].match(/:\s*(detect([A-Za-z]+))\(projectPath\)/);
+  if (delegate) {
+    const list = detectorModule[`${delegate[2].toUpperCase()}_MARKERS`];
+    const skillsProject = AI_AGENT_PATHS[agent]?.skills?.project ?? "";
+    const dir = dirname(skillsProject.replace(/\/+$/, ""));
+    if (!Array.isArray(list) || list.length === 0 || dir === ".") return null;
+    return { path: join(dir, String(list[0])), isDir: false };
+  }
   // Take the args of the FIRST existsSync in the entry — later ones are fallbacks,
   // and seeding one marker is enough to make the tool detected.
   const call = span.match(/existsSync\(join\(projectPath,\s*((?:'[^']+'\s*,?\s*)+)\)\)/);
@@ -197,6 +224,15 @@ for (const [agent, config] of capable) {
     continue;
   }
   const repo = makeRepo(marker);
+  // 🔴 The marker was read from text (or built from a convention). Ask the detector whether it
+  // really makes the tool visible — a marker it does not honour would make the init below a test of
+  // "a tool that was never detected", and the failure would be blamed on the installer.
+  const seen = detectorModule.detectAITools(repo)[detectorKeyFor(agent)];
+  if (seen !== true) {
+    console.error(`  x   ${agent.padEnd(14)} marker ${marker.path} does not make detectAITools see it`);
+    red++;
+    continue;
+  }
   const { ok, out } = runInit(repo);
   const declared = join(repo, config.skills!.project);
   const n = skillCount(declared);

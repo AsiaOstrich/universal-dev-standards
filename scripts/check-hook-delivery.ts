@@ -31,6 +31,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync, readFileSync
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parsePackFiles } from './npm-pack-files.mjs';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 let failures = 0;
@@ -256,8 +257,10 @@ async function main() {
   if (process.argv.includes('--with-pack')) {
     console.log('\n\x1b[34mnpm package contents\x1b[0m');
     console.log('----------------------------------------');
-    const raw = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: join(ROOT, 'cli'), encoding: 'utf8' });
-    const files: string[] = JSON.parse(raw.slice(raw.indexOf('[')))[0].files.map((f: any) => f.path);
+    const raw = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: join(ROOT, 'cli'), encoding: 'utf8', shell: process.platform === 'win32' });
+    // npm's stdout shape changed between versions (array -> object keyed by name) and
+    // lifecycle scripts print before it; see scripts/npm-pack-files.mjs.
+    const files: string[] = parsePackFiles(raw);
     const hooks = files.filter((f) => /(^|\/)hooks\//.test(f));
     if (hooks.length === 0) fail('the tarball contains no hook scripts — adopters installing from npm copy nothing');
     else ok(`${hooks.length} hook file(s) in the tarball`);

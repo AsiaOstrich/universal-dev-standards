@@ -677,7 +677,10 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (r.recognised === 0) { say('[owt] CANNOT DECIDE: no carrier had a recognised intent or progress heading. Exit 2 is not a pass.'); return finish(2); }
       return finish(r.violations.length ? 1 : 0);
     }
-    say('[owt] usage: uds open-work next-action|revision|separation|self-test ...   (or: node scripts/check-open-work-tracking.mjs ... | --self-test)');
+    // The repo shim (its own `--self-test` flag) is named FIRST on purpose: cli/scripts/check-command-existence.mjs
+    // reads a `uds <...>` string up to the closing quote, so a `--self-test` written AFTER `uds open-work`
+    // is judged as a flag of the `uds open-work` command, which has none (it is the subcommand `self-test`).
+    say('[owt] usage: node scripts/check-open-work-tracking.mjs ... | --self-test   (or from the npm package: uds open-work next-action|revision|separation|self-test ...)');
     return finish(2);
   } catch (e) {
     say(`[owt] CANNOT DECIDE: ${e.message.split('\n')[0]}`);

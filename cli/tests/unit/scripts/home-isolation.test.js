@@ -25,7 +25,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync, realpathSync, cpSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
-import { join, relative } from 'node:path';
+import path, { join, relative } from 'node:path';
 
 import { isolatedEnv, isolatedHome, HOME_ENV_KEYS } from '../../../../scripts/lib/isolated-home.mjs';
 
@@ -119,6 +119,14 @@ export function findUnisolatedCliCalls(text, file) {
   return bad;
 }
 
+/**
+ * A repo-relative path with `/` separators on every platform. The lists in this file are
+ * written with `/`; on Windows `relative()` returns `scripts\\check-upgrade-fidelity.sh`, so the
+ * walk "did not reach" a file it had in fact found (windows-latest, 6.14.0-beta.2).
+ * `pathMod` is a parameter only so the Windows behaviour can be exercised on any host.
+ */
+export const posixRel = (from, to, pathMod = path) => pathMod.relative(from, to).split(pathMod.sep).join('/');
+
 const CANDIDATES = walkScripts().filter((p) => {
   const text = readFileSync(p, 'utf8');
   if (p.endsWith('.sh')) return /\bnode\s+["']?[^\n"']*uds\.js|\$CLI_UNDER_TEST|\bnpx\b[^\n]*universal-dev-standards@?/.test(text.split('\n').filter((l) => !l.trim().startsWith('#')).join('\n'));
@@ -127,7 +135,7 @@ const CANDIDATES = walkScripts().filter((p) => {
 
 describe('every script that runs the UDS CLI runs it under an isolated HOME', () => {
   it('the walk finds the call sites (a walk that finds nothing passes everything)', () => {
-    const rels = CANDIDATES.map((p) => relative(REPO_ROOT, p)).sort();
+    const rels = CANDIDATES.map((p) => posixRel(REPO_ROOT, p)).sort();
     // The call sites known on 2026-09-29. New ones are found by the walk, not added here; this
     // list only proves the walk reaches each family (bash, mjs, ts, cli/scripts).
     for (const known of [
@@ -144,7 +152,15 @@ describe('every script that runs the UDS CLI runs it under an isolated HOME', ()
     expect(CANDIDATES.length).toBeGreaterThanOrEqual(9);
   });
 
-  it.each(CANDIDATES.map((p) => [relative(REPO_ROOT, p), p]))('%s', (_rel, p) => {
+  it('compares repo-relative paths with "/" even where the separator is a backslash (Windows)', () => {
+    const win = path.win32;
+    // the premise: this is what `relative()` hands back on Windows, and why the walk missed
+    expect(win.relative('C:\\r', 'C:\\r\\scripts\\check-upgrade-fidelity.sh')).toBe('scripts\\check-upgrade-fidelity.sh');
+    expect(posixRel('C:\\r', 'C:\\r\\scripts\\check-upgrade-fidelity.sh', win)).toBe('scripts/check-upgrade-fidelity.sh');
+    expect(posixRel('/r', '/r/cli/scripts/test-refactoring.sh', path.posix)).toBe('cli/scripts/test-refactoring.sh');
+  });
+
+  it.each(CANDIDATES.map((p) => [posixRel(REPO_ROOT, p), p]))('%s', (_rel, p) => {
     expect(findUnisolatedCliCalls(readFileSync(p, 'utf8'), p)).toEqual([]);
   });
 

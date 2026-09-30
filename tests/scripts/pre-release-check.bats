@@ -69,7 +69,7 @@ setup() {
 # red incidents above was that this file and pre-release-check.sh drift apart
 # when only one of them gets touched.
 @test "TOTAL counter matches the step count the script displays" {
-  run grep "^TOTAL=26" "$SCRIPT"
+  run grep "^TOTAL=29" "$SCRIPT"
   [ "$status" -eq 0 ]
 }
 
@@ -88,5 +88,31 @@ setup() {
 
 @test "--skip-tests does not skip the prompt footprint ratchet" {
   run bash -c "awk '/SKIP_TESTS.*true/,/^fi/' '$SCRIPT' | grep -c 'check-prompt-footprint'"
+  [ "$output" -eq 0 ]
+}
+
+# 6.14.0-beta.2 (2026-09-30): the tag went red on CI while this script was green. Steps 26-28 are the
+# CI gates that were missing; a step that is not gated behind --skip-tests and is present is the claim.
+
+@test "pre-release-check.sh defines Step 26 command existence check" {
+  run grep -c "check-command-existence.mjs --self-test" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "pre-release-check.sh defines Step 27 skills install-path check" {
+  run grep -c "check-skills-install-paths" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "pre-release-check.sh defines Step 28 .ai.yaml parse check" {
+  run grep -c "check-ai-yaml-parses" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "--skip-tests does not skip steps 26-28" {
+  run bash -c "awk '/SKIP_TESTS.*true/,/^fi/' '$SCRIPT' | grep -c 'check-command-existence\|check-skills-install-paths\|check-ai-yaml-parses'"
   [ "$output" -eq 0 ]
 }

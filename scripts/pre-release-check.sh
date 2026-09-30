@@ -74,7 +74,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=26
+TOTAL=29
 
 # `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
 # Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
@@ -93,7 +93,7 @@ else
 fi
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=21
+    TOTAL=24
 fi
 
 # Function to run a check
@@ -629,6 +629,36 @@ run_check "24" "Running upgrade fidelity check | 升級實測檢查" "$SCRIPT_DI
 # unlike step 24. Not gated behind --skip-tests, same rationale as step 24:
 # this check's entire purpose is a gap neither the unit nor E2E suite covers.
 run_check "25" "Running prompt footprint ratchet | 提示詞足跡棘輪" "node $SCRIPT_DIR/check-prompt-footprint.mjs"
+
+# Steps 26-28: three gates that CI runs and this script did not (found 2026-09-30, when the
+# 6.14.0-beta.2 tag went red on CI and the publish job while this script was green). Two of the
+# four failures were exactly these; the other two are environment-dependent, not missing steps —
+# see the note after step 28. Each is local and quick (~22s, ~2s, <1s), so none is gated behind
+# --skip-tests, same rationale as steps 24 and 25.
+#
+# Step 26: every `uds ...` command the repo tells people to run must exist (XSPEC-383 R4).
+# CI runs the self-test first, then the check — a check that has never been seen to fail proves
+# nothing when it passes — and so does this.
+run_check "26" "Running command existence check | 指令存在性檢查" "node $CLI_DIR/scripts/check-command-existence.mjs --self-test && node $CLI_DIR/scripts/check-command-existence.mjs"
+
+# Step 27: skills land where each tool actually reads them (XSPEC-357). Runs a real `uds init` per
+# tool, and fails when a tool in the path table has no detector marker that reaches it.
+run_check "27" "Running skills install-path check | Skills 安裝路徑檢查" "$TSX $SCRIPT_DIR/check-skills-install-paths.ts"
+
+# Step 28: every .ai.yaml parses (XSPEC-367 R1). The publish job runs it; 6.3.4 shipped four that
+# did not parse, and step 3 (standards sync) compares versions, which an unparseable file passes.
+run_check "28" "Running .ai.yaml parse check | .ai.yaml 可解析檢查" "node $SCRIPT_DIR/check-ai-yaml-parses.mjs"
+
+# NOT wired here, and why it matters that this is written down: the other two 6.14.0-beta.2
+# failures (a test that parsed `npm pack --json` output, and a path-separator assumption in the
+# home-isolation walk) live in step 19's unit tests and passed here because of WHAT RAN THEM, not
+# because step 19 was missing: the first breaks only under npm 12 (the publish job runs
+# `npm install -g npm@latest`; this machine had npm 10), the second only on Windows. A green step 19
+# on one npm version on one OS is evidence about that pair and nothing else. CI jobs still not
+# mirrored in this script: script-ratchet (bats tests/scripts/), reachability, effect-boundary,
+# trigger-surface, error-exit, llms-txt, adoption-skills, coverage gate, baseline-claims (the
+# rest of its steps), translation-hash-ratchet, shipped-stamp, bump-roundtrip, reference-only,
+# bundle-parity, docs-check index.
 
 # Show summary
 show_summary

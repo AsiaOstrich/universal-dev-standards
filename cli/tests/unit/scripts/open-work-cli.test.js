@@ -24,6 +24,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, cpSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { parsePackFiles } from '../../../../scripts/npm-pack-files.mjs';
 
 const CLI_ROOT = join(import.meta.dirname, '..', '..', '..');
 const REPO_ROOT = join(CLI_ROOT, '..');
@@ -159,10 +160,14 @@ describe('one body of the rules: the command and the repo shim are the same code
 
 describe('the body is inside the npm package', () => {
   it('`npm pack --dry-run` lists the module and the command', () => {
-    const r = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: CLI_ROOT, encoding: 'utf8', env: ENV, timeout: 60000 });
-    expect(r.status, r.stderr).toBe(0);
-    // npm may print lifecycle noise (a husky banner) before the JSON array.
-    const files = JSON.parse(r.stdout.slice(r.stdout.indexOf('[\n')))[0].files.map((f) => f.path);
+    // `npm` is `npm.cmd` on Windows: without a shell, spawnSync cannot start it
+    // (status null, `error` set), which is how this failed on windows-latest.
+    const r = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: CLI_ROOT, encoding: 'utf8', env: ENV, timeout: 60000, shell: process.platform === 'win32' });
+    expect(r.status, `${r.error ?? ''}${r.stderr}`).toBe(0);
+    // stdout is not just the JSON, and its shape depends on the npm version
+    // (array for npm <= 11, object keyed by package name for npm 12 — what the
+    // publish job installs). parsePackFiles handles both.
+    const files = parsePackFiles(r.stdout);
     expect(files).toContain('src/utils/open-work-tracking.mjs');
     expect(files).toContain('src/commands/open-work.js');
   }, 90000);
