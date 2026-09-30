@@ -8,7 +8,7 @@ standard:
 
   meta:
     version: "1.1.0"
-    updated: "2026-09-29"
+    updated: "2026-09-30"
     source: core/open-work-tracking.md
     description: >
       三種不同的「工作不見了」的方式（沒地方記新想法、等待中沒有解除條件、
