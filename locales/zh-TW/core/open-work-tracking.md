@@ -2,8 +2,8 @@
 source: ../../../core/open-work-tracking.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-09-29
-source_hash: 0fcf3df23e12
+last_synced: 2026-09-30
+source_hash: fb60809a8ff2
 status: current
 ---
 
@@ -286,7 +286,7 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 是採用專案的決定——與 [deferred-item-exit](deferred-item-exit.md) 對自己出口劃的界線相同。
 自 1.1.0 起，UDS 為 OWT-017–OWT-019 附上一支**參考判定程序**——npm 安裝包裡的 `uds open-work next-action | revision | separation`（`uds open-work self-test` 只跑檢查器自己的自測臂；在 UDS repo 的副本裡，`node scripts/check-open-work-tracking.mjs` 跑的是同一份程式）——
 作為 OWT-015 意義上的證據——它已被觀察到對違反的樣本回報失敗——供採用者直接執行或自行重做。
-它沒有接進任何 UDS 發版閘門，因為 UDS 本身沒有承載開放工作的地方可供它檢查。
+它沒有接進任何 UDS 發版閘門，因為 UDS 本身沒有承載開放工作的地方可供它檢查。對 OWT-019，它以同一份詞彙讀三種形狀的「下一步」欄位：小節標題、行內標籤、以及表頭在該詞彙內的表格欄（該欄每一列各算一個欄位）。欄數與表頭不一致的表格列會被列為「判定不了」（不會被當成空白；若別處沒有違反，結束碼是 2，不是通過）；空白、`—`、`-` 或已完成的儲存格只計數、不評估——它不算違反，因為 OWT-019 判斷的是「寫了的下一步有沒有點名對象」，沒寫是另一種失效，它不判定。
 
 本標準做的事，是讓那個決定顯形：OWT-014 保證這裡每一條**能**被判定，OWT-015 固定
 「一次判定要算數需要什麼」，OWT-005／OWT-011 固定「一次不完整的判定容許印出什麼」。

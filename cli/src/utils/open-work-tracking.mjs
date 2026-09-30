@@ -44,6 +44,19 @@
  *                                             could not apply (command, test
  *                                             name, identifier)
  *                            unnamed          VIOLATION — the only failure
+ *                          A field is read in three shapes, all through the one
+ *                          VOCAB.nextAction list: a heading section, an inline
+ *                          "Next action: ..." label, and EVERY ROW of a table column whose
+ *                          header is in that list (each report carries the line and the
+ *                          row's first cell, so it can be found).
+ *                          Not evaluated, counted: an empty cell, `-`, `—`, `n/a`, `none`,
+ *                          `done`. OWT-019 is NOT violated by them: it judges a next action
+ *                          that was written; "no next action written" is another failure
+ *                          this check does not decide (a finished item has none either).
+ *                          Undecidable, listed: a table row whose cell count differs from its
+ *                          header (a stray or missing `|`). It is neither judged nor read as
+ *                          empty. A violation elsewhere still exits 1; otherwise the exit is 2,
+ *                          because "no violation found" would then cover only part of the field.
  *   revision      OWT-018  the acceptance/goal/constraint sections changed
  *                          between two versions of a carrier; a NEW revision
  *                          record (change, approver, reason) must exist. No
@@ -75,8 +88,8 @@
  * (--id-pattern) and read the heading vocabulary as a starting point.
  *
  * Exit codes: 0 no violation · 1 violation · 2 cannot decide (no structure
- * found, git failed, or this script's own self-test arms failed). 2 is NOT a
- * pass.
+ * found, a next-action table row could not be read, git failed, or this
+ * script's own self-test arms failed). 2 is NOT a pass.
  *
  * Usage (`uds` from the npm package, or the repo shim; same arguments):
  *   uds open-work next-action <file...> [--root DIR] [--id-pattern RE]
@@ -97,7 +110,16 @@ import { fileURLToPath } from 'node:url';
 
 export const VOCAB = {
   revision: /revision|change[\s-]?log|amendment|history|修訂|變更紀錄|變更記錄|修改紀錄|修改記錄|異動/i,
-  nextAction: /next[\s-]?(action|step)s?|下一步|下一動/i,
+  // ONE list of "next action" words. It is read three ways and there is no second copy:
+  // a heading (classifyHeading), a table column header (extractNextActions) and an inline
+  // label ("Next action: ...", built from .source below). Keep it free of capture groups:
+  // the label regex embeds it and reads its own group 1.
+  // 回來要做什麼 ("what to do when you come back") is the header the dev-platform worklog's
+  // main table actually uses (DEC-122 H2 baseline carrier); that file describes the column as
+  // 下一動 in prose but the header text drifted. Added because a header outside this list is
+  // invisible to the check, which is the failure DEC-122 measured. Adopter-specific and
+  // UNCALIBRATED (OWT-016); an adopter whose header differs adds its own word here.
+  nextAction: /next[\s-]?(?:action|step)s?|下一步|下一動|回來要做什麼/i,
   progress: /\bprogress\b|\bstate\b|\bblockers?\b|\bblocked\b|進度|現況|卡在/i,
   intent: /acceptance|criteria|\brequirements?\b|\bgoals?\b|objectives?|constraints?|驗收|需求|目標|限制/i,
   // revision-table columns / labelled list fields
@@ -198,14 +220,58 @@ function innermost(stack) {
 
 const norm = (s) => s.replace(/\s+/g, ' ').trim();
 
-function splitRow(line) {
-  let t = line.trim();
-  if (t.startsWith('|')) t = t.slice(1);
-  if (t.endsWith('|')) t = t.slice(0, -1);
-  return t.split(/(?<!\\)\|/).map((c) => norm(c.replace(/\\\|/g, '|')));
+/** A table line may sit inside a Markdown blockquote ("> | a | b |"): drop the quote marker. */
+const unquote = (line) => line.replace(/^\s*(?:>\s?)+/, '');
+
+/** Index of the closing backtick run of exactly `n` backticks at or after `from`, or -1. */
+function closingRun(t, from, n) {
+  let j = from;
+  while (j < t.length) {
+    if (t[j] !== '`') { j++; continue; }
+    let m = 0;
+    while (t[j + m] === '`') m++;
+    if (m === n) return j;
+    j += m;
+  }
+  return -1;
 }
 
-const isSepRow = (line) => /^\s*\|?[\s:|-]+\|?\s*$/.test(line) && /-/.test(line);
+/**
+ * Split one table row into cells. A `|` does NOT split a cell when it is escaped (`\|`) or
+ * sits inside a code span that closes on the same line. The second rule is deliberately
+ * looser than GFM (which splits inside code unless escaped): a hand-written note such as
+ * `tar -tzf \| grep` or `a|b` in backticks means one cell, and splitting it would shift
+ * every later column and misread the next-action cell. An unclosed backtick is literal.
+ */
+function splitRow(line) {
+  let t = unquote(line).trim();
+  if (t.startsWith('|')) t = t.slice(1);
+  const cells = [];
+  let cur = '';
+  let lastDelim = false;
+  let i = 0;
+  while (i < t.length) {
+    const ch = t[i];
+    lastDelim = false;
+    if (ch === '\\' && t[i + 1] === '|') { cur += '|'; i += 2; continue; }
+    if (ch === '`') {
+      let n = 0;
+      while (t[i + n] === '`') n++;
+      const close = closingRun(t, i + n, n);
+      if (close !== -1) { cur += t.slice(i, close + n).replace(/\\\|/g, '|'); i = close + n; continue; }
+      cur += '`'.repeat(n);
+      i += n;
+      continue;
+    }
+    if (ch === '|') { cells.push(cur); cur = ''; lastDelim = true; i++; continue; }
+    cur += ch;
+    i++;
+  }
+  if (!lastDelim) cells.push(cur); // a trailing unescaped `|` closes the row; it opens no cell
+  return cells.map(norm);
+}
+
+const isSepRow = (line) => /^\s*\|?[\s:|-]+\|?\s*$/.test(unquote(line)) && /-/.test(line);
 
 /** Tables among annotated lines: [{header, rows:[{cells, idx}]}] */
 function findTables(lines) {
@@ -213,12 +279,12 @@ function findTables(lines) {
   let k = 0;
   while (k < lines.length) {
     const l = lines[k];
-    if (!l.inFence && !l.fence && !l.front && l.text.trim().startsWith('|') && k + 1 < lines.length
-      && isSepRow(lines[k + 1].text) && lines[k + 1].text.trim().startsWith('|')) {
+    if (!l.inFence && !l.fence && !l.front && unquote(l.text).trim().startsWith('|') && k + 1 < lines.length
+      && isSepRow(lines[k + 1].text) && unquote(lines[k + 1].text).trim().startsWith('|')) {
       const header = splitRow(l.text);
       const rows = [];
       let j = k + 2;
-      while (j < lines.length && lines[j].text.trim().startsWith('|')) {
+      while (j < lines.length && unquote(lines[j].text).trim().startsWith('|')) {
         rows.push({ cells: splitRow(lines[j].text), idx: j });
         j++;
       }
@@ -456,24 +522,45 @@ export function classifyNextAction(text, opts = {}) {
   };
 }
 
-/** Find "next action" fields in a carrier. @returns {{fields:number, items:{text:string,where:string}[]}} */
+const clip = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
+
+/**
+ * Find "next action" fields in a carrier. Three shapes are read, all through the ONE
+ * vocabulary VOCAB.nextAction: a heading section, an inline label, and a table column whose
+ * HEADER is in that vocabulary (every row of that column is one field).
+ *
+ * A table row whose cell count differs from the header's is returned in `ragged`, not in
+ * `items`: after a stray or missing `|` the next-action cell cannot be told from its
+ * neighbour, and reading an absent cell as "empty" would turn a broken row into a quiet
+ * "no next action written". It is neither judged nor dropped: the caller counts and lists it.
+ * @returns {{fields:number, items:{text:string,where:string}[], ragged:{where:string,cells:number,expected:number}[]}}
+ */
 export function extractNextActions(md) {
   const lines = parseDoc(md);
   const items = [];
+  const ragged = [];
   let fields = 0;
   const tableIdx = new Set();
   const headerIdx = new Set();
   const tables = findTables(lines);
 
   for (const t of tables) {
-    const col = t.header.findIndex((c) => VOCAB.nextAction.test(c));
-    const hasCol = col >= 0;
+    // every header cell in the shared vocabulary is a next-action column (usually exactly one)
+    const cols = t.header.map((c, n) => (VOCAB.nextAction.test(c) ? n : -1)).filter((n) => n >= 0); // [mutation-anchor:table-header]
+    const hasCol = cols.length > 0;
     tableIdx.add(t.headerIdx); tableIdx.add(t.headerIdx + 1); headerIdx.add(t.headerIdx);
     t.rows.forEach((r) => tableIdx.add(r.idx));
     if (hasCol) {
       for (const r of t.rows) {
-        fields++;
-        items.push({ text: r.cells[col] || '', where: `table column "${t.header[col]}" (line ${r.idx + 1})` });
+        const who = `row "${clip(r.cells[0].replace(/\*\*|__/g, ''), 40)}"`;
+        if (r.cells.length !== t.header.length) {
+          ragged.push({ idx: r.idx, where: `table row (line ${r.idx + 1}, ${who})`, cells: r.cells.length, expected: t.header.length });
+          continue;
+        }
+        for (const col of cols) {
+          fields++;
+          items.push({ text: r.cells[col], where: `table column "${t.header[col]}" (line ${r.idx + 1}, ${who})` });
+        }
       }
     }
     // rows inside a nextAction-class section are handled by the section walk below
@@ -481,12 +568,16 @@ export function extractNextActions(md) {
   }
 
   // inline labelled  "**Next action**: ..." (outside tables that have their own column)
-  const labelRe = /(?:\*\*|__)?(?:next[\s-]?(?:action|step)s?|下一步|下一動)(?:\*\*|__)?\s*[:：]\s*(.+)$/i;
+  const labelRe = new RegExp(`(?:\\*\\*|__)?(?:${VOCAB.nextAction.source})(?:\\*\\*|__)?\\s*[:：]\\s*(.+)$`, 'i');
   const colTableRows = new Set();
-  for (const t of tables) if (t.hasNextActionColumn) t.rows.forEach((r) => colTableRows.add(r.idx));
+  // Only rows read through the column are exempt from the label scan. A ragged row was not
+  // read, so an inline "Next action: ..." inside it must still be seen (else it goes dark).
+  const raggedIdx = new Set(ragged.map((g) => g.idx));
+  for (const t of tables) if (t.hasNextActionColumn) t.rows.forEach((r) => { if (!raggedIdx.has(r.idx)) colTableRows.add(r.idx); });
   lines.forEach((l, idx) => {
     if (l.front || l.fence || l.inFence || l.heading || l.cls === 'nextAction' || colTableRows.has(idx)) return;
-    const m = labelRe.exec(l.text);
+    // a label inside a table row reads to the end of the row, not into its closing pipe
+    const m = labelRe.exec(unquote(l.text).trim().startsWith('|') ? l.text.replace(/\s*\|\s*$/, '') : l.text);
     if (m && !/^\s*$/.test(m[1])) { fields++; items.push({ text: m[1], where: `label (line ${idx + 1})` }); }
   });
 
@@ -522,14 +613,15 @@ export function extractNextActions(md) {
     if (sec.length === 0) items.push({ text: '', where: `section "${owner.heading}" (empty)` });
     for (const s of sec) items.push({ text: s, where: `section "${owner.heading}"` });
   }
-  return { fields, items };
+  return { fields, items, ragged };
 }
 
 export function checkNextActions(carriers, opts = {}) {
-  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0 }, violations: [], detail: [], noFieldCarriers: [] };
+  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [] };
   for (const c of carriers) {
-    const { fields, items } = extractNextActions(c.content);
-    if (fields === 0) { res.noFieldCarriers.push(c.path); continue; }
+    const { fields, items, ragged } = extractNextActions(c.content);
+    for (const g of ragged) res.undecidable.push({ path: c.path, ...g });
+    if (fields === 0 && ragged.length === 0) { res.noFieldCarriers.push(c.path); continue; }
     for (const it of items) {
       const text = it.text.replace(/\*\*|__/g, '').trim();
       if (EMPTY_FIELD.test(text)) { res.empty++; continue; }
@@ -556,6 +648,11 @@ export function runSelfTest() {
   expect('D2 clean: command', classifyNextAction('run `npm test` again', {}).status !== 'unnamed');
   expect('D2 clean: identifier', classifyNextAction('finish XSPEC-436 R1', {}).status !== 'unnamed');
   expect('D2 clean: test name', classifyNextAction('make the test "a next action that names nothing is reported" pass', {}).status !== 'unnamed');
+
+  // OWT-019, table columns: the header decides which column is read, never the position
+  const tbl = extractNextActions('| item | state | Next action |\n|---|---|---|\n| a | open | keep going |\n');
+  expect('D2 clean: only the header-named column is a next-action field', tbl.fields === 1 && tbl.items[0].text === 'keep going');
+  expect('D2 clean: a table without such a header has no next-action field', extractNextActions('| item | state |\n|---|---|\n| a | open |\n').fields === 0);
 
   // OWT-018
   const spec = (ac, rev) => `# S\n\n## Acceptance criteria\n\n${ac}\n\n## Revisions\n\n${rev}\n`;
@@ -639,12 +736,16 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (!files.length) { say('[owt] next-action: no files given'); return finish(2); }
       const res = checkNextActions(files.map(readCarrier), { root, idPattern });
       say(`[owt] OWT-019 walked ${res.walked} next-action field(s) in ${files.length} carrier(s); ${res.empty} empty/done field(s) not evaluated; ${res.noFieldCarriers.length} carrier(s) had no next-action field`);
-      say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed}`);
+      say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed} undecidable-table-rows=${res.undecidable.length}`);
       for (const d of res.detail) say(`[owt]   ${d.status.padEnd(16)} ${d.path} ${d.where}: ${d.text.slice(0, 80)}${d.kinds.length ? '  <- ' + d.kinds.map((k) => `${k.kind}:${k.value}`).join(', ') : ''}`);
       for (const v of res.violations) say(`[owt] VIOLATION OWT-019: ${v.path} ${v.where} names no file path, test name, command or requirement identifier: "${v.text.slice(0, 80)}"`);
+      for (const u of res.undecidable) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the next-action cell cannot be located, so the row is neither judged nor counted as empty`);
       say(`[owt] ${COVERAGE_NOTE}`);
       say(`[owt] ${UNCALIBRATED_NOTE}`);
       if (res.walked + res.empty === 0) { say('[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.'); return finish(2); }
+      // A violation is a definite answer whatever else is unreadable. Absent one, a row we could
+      // not read means "no violation found" is not "no violation": exit 2, never a green 0.
+      if (!res.violations.length && res.undecidable.length) { say(`[owt] CANNOT DECIDE: ${res.undecidable.length} table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.`); return finish(2); }
       return finish(res.violations.length ? 1 : 0);
     }
     if (cmd === 'revision') {

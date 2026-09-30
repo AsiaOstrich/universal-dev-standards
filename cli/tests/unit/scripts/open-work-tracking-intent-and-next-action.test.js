@@ -104,6 +104,42 @@ const CASES = {
   'an identifier named in prose': {
     args: () => ['next-action', w('i/log.md', '## Next action\n\n- finish XSPEC-436 before the release\n')], code: 0, notOut: /VIOLATION/,
   },
+  // ── table columns: the HEADER names the next-action column ──
+  'a Chinese-header table column: a vague cell violates and says which row': {
+    args: () => ['next-action', w('t1/log.md', '# 工作\n\n| 事情 | 狀態 | 下一動 |\n|---|---|---|\n| 修 widget | 進行中 | 繼續處理 |\n| 修 gadget | 進行中 | 改 scripts/gadget.mjs |\n')], code: 1,
+    out: /walked 2 next-action field[\s\S]*VIOLATION OWT-019: .*table column "下一動" \(line 5, row "修 widget"\)/,
+  },
+  'an English-header table column: a vague cell violates': {
+    args: () => ['next-action', w('t2/log.md', '| item | state | Next step |\n|---|---|---|\n| a | open | edit x.md |\n| b | open | later |\n')], code: 1,
+    out: /VIOLATION OWT-019: .*table column "Next step" \(line 4, row "b"\)/,
+  },
+  'a status column is never read as a next action': {
+    args: () => ['next-action', w('t3/log.md', '| item | state | Next action |\n|---|---|---|\n| widget | in progress | edit x.md |\n')], code: 0, notOut: /VIOLATION|UNDECIDABLE/,
+  },
+  'a table with no next-action header has no next-action field: exit 2, not a pass': {
+    args: () => ['next-action', w('t4/log.md', '| item | state |\n|---|---|\n| widget | in progress |\n')], code: 2, out: /CANNOT DECIDE/,
+  },
+  'an escaped pipe stays inside its cell': {
+    args: () => ['next-action', w('t5/log.md', '| item | note | Next action |\n|---|---|---|\n| a | x \\| y | edit z.md |\n')], code: 0, notOut: /VIOLATION|UNDECIDABLE/,
+  },
+  'a pipe inside a code span stays inside its cell': {
+    args: () => ['next-action', w('t6/log.md', '| item | note | Next action |\n|---|---|---|\n| a | run `x|y` first | edit z.md |\n')], code: 0, notOut: /VIOLATION|UNDECIDABLE/,
+  },
+  'a ragged row is undecidable, not empty: exit 2 when nothing else is wrong': {
+    args: () => ['next-action', w('t7/log.md', '| item | state | Next action |\n|---|---|---|\n| a | open | edit z.md |\n| b | only two |\n')], code: 2,
+    out: /UNDECIDABLE: .*table row \(line 4, row "b"\) has 2 cell\(s\) but its header has 3[\s\S]*CANNOT DECIDE/,
+  },
+  'a ragged row does not hide a violation elsewhere: exit 1 and the row is still listed': {
+    args: () => ['next-action', w('t8/log.md', '| item | state | Next action |\n|---|---|---|\n| a | open | later |\n| b | only two |\n')], code: 1,
+    out: /VIOLATION OWT-019[\s\S]*UNDECIDABLE/,
+  },
+  'empty, dash and hyphen cells are not evaluated and are not violations': {
+    args: () => ['next-action', w('t9/log.md', '| item | state | Next action |\n|---|---|---|\n| a | s | |\n| b | s | — |\n| c | s | - |\n| d | s | edit x.md |\n')], code: 0,
+    out: /walked 1 next-action field\(s\)[^\n]*3 empty\/done field\(s\) not evaluated/, notOut: /VIOLATION/,
+  },
+  'a next-action table inside a blockquote is read': {
+    args: () => ['next-action', w('t10/log.md', '> | item | state | Next action |\n> |---|---|---|\n> | a | open | later |\n')], code: 1, out: /VIOLATION OWT-019: .*\(line 3, row "a"\)/,
+  },
   'intent changed with no record is a violation and is handed back': {
     args: () => ['revision', '--before', w('j/v1.md', V1), '--after', w('j/v2.md', V2_NO_RECORD)], code: 1,
     out: /VIOLATION OWT-018[\s\S]*HAND-BACK[\s\S]*Acceptance criteria/,
@@ -239,6 +275,39 @@ describe('OWT-019: a next action names a concrete object', () => {
     const { fields, items } = extractNextActions(md);
     expect(items.map((i) => i.text).sort()).toEqual(['edit x.md', 'keep going']);
     expect(fields).toBe(2); // the two rows, counted once through the column
+  });
+
+  it('reads the same vocabulary as a table header, an inline label and a heading: one list, not three', () => {
+    for (const word of ['Next action', 'Next step', 'next-steps', '下一步', '下一動', '回來要做什麼']) {
+      const col = extractNextActions(`| item | ${word} |\n|---|---|\n| a | edit x.md |\n`);
+      const label = extractNextActions(`**${word}**: edit x.md\n`);
+      const heading = extractNextActions(`## ${word}\n\n- edit x.md\n`);
+      expect([word, col.fields, label.fields, heading.fields]).toEqual([word, 1, 1, 1]);
+    }
+    // and a word outside it is read by none of them
+    for (const word of ['狀態', 'State', 'Owner']) {
+      expect(extractNextActions(`| item | ${word} |\n|---|---|\n| a | edit x.md |\n`).fields).toBe(0);
+    }
+  });
+
+  it('reads every row of a header-named column, gives each row its first cell, and sets ragged rows aside', () => {
+    const md = '# L\n\n| 事情 | 狀態 | 回來要做什麼 |\n|---|---|---|\n| **A** | ok | edit a.md |\n| B | ok | `npm test` |\n| C | short |\n| D | a | b | c |\n';
+    const { fields, items, ragged } = extractNextActions(md);
+    expect(fields).toBe(2);
+    expect(items.map((i) => i.text)).toEqual(['edit a.md', '`npm test`']);
+    expect(items[0].where).toBe('table column "回來要做什麼" (line 5, row "A")');
+    expect(ragged.map((g) => [g.where, g.cells, g.expected])).toEqual([
+      ['table row (line 7, row "C")', 2, 3],
+      ['table row (line 8, row "D")', 4, 3],
+    ]);
+  });
+
+  it('still sees an inline label inside a ragged row, so a broken row does not make its label go dark', () => {
+    const md = '| item | state | Next action |\n|---|---|---|\n| a | open. Next action: later |\n';
+    const { items, ragged } = extractNextActions(md);
+    expect(ragged).toHaveLength(1);
+    expect(items.map((i) => i.text)).toEqual(['later']);
+    expect(items[0].where).toMatch(/^label /);
   });
 
   it('does not evaluate an empty or done field, and says how many it skipped', () => {
@@ -408,6 +477,15 @@ const MUTANTS = [
   { name: 'OWT-019 prose test arm off', edits: [["push('test', m[1]);", 'void 0;']], red: ['a test name quoted in prose'] },
   { name: 'OWT-019 code-span id arm off', edits: [["if (m && idOk(m[0])) push('id', m[0]);", 'void 0;']], red: ['an identifier only a code span can name'] },
   { name: 'OWT-019 prose id arm off', edits: [["if (idOk(m[0])) push('id', m[0]); // [mutation-anchor:kind-id]", 'void 0;']], red: ['an identifier named in prose'] },
+  // table columns: every one of these edits a decision that has a declared case
+  { name: 'OWT-019 table header recognition off', edits: [['(VOCAB.nextAction.test(c) ? n : -1)', '(false ? n : -1)']], red: ['a Chinese-header table column: a vague cell violates and says which row', 'an English-header table column: a vague cell violates', 'a next-action table inside a blockquote is read'] },
+  { name: 'OWT-019 table header relaxed to any column', edits: [['(VOCAB.nextAction.test(c) ? n : -1)', '(true ? n : -1)']], red: ['a status column is never read as a next action', 'a table with no next-action header has no next-action field: exit 2, not a pass'] },
+  { name: 'OWT-019 table row length is not checked', edits: [['if (!res.violations.length && res.undecidable.length) {', 'if (false) {']], red: ['a ragged row is undecidable, not empty: exit 2 when nothing else is wrong'] },
+  { name: 'OWT-019 ragged rows are dropped without a trace', edits: [['for (const g of ragged) res.undecidable.push({ path: c.path, ...g });', 'void 0;']], red: ['a ragged row is undecidable, not empty: exit 2 when nothing else is wrong', 'a ragged row does not hide a violation elsewhere: exit 1 and the row is still listed'] },
+  { name: 'OWT-019 an escaped pipe splits the cell', edits: [["if (ch === '\\\\' && t[i + 1] === '|') {", 'if (false) {']], red: ['an escaped pipe stays inside its cell'] },
+  { name: 'OWT-019 a pipe in a code span splits the cell', edits: [['if (close !== -1) {', 'if (false) {']], red: ['a pipe inside a code span stays inside its cell'] },
+  { name: 'OWT-019 a blockquote table is invisible', edits: [["const unquote = (line) => line.replace(/^\\s*(?:>\\s?)+/, '');", 'const unquote = (line) => line;']], red: ['a next-action table inside a blockquote is read'] },
+  { name: 'OWT-019 an empty cell is judged like any other', edits: [['if (EMPTY_FIELD.test(text)) { res.empty++; continue; }', 'if (false) { res.empty++; continue; }']], red: ['empty, dash and hyphen cells are not evaluated and are not violations'] },
   { name: 'OWT-018 always passes (never sees a change)', edits: [['const intentChanged = res.changedSections.length > 0;', 'const intentChanged = false;']], red: ['intent changed with no record is a violation and is handed back', 'intent changed, record has no reason: violation'] },
   { name: 'OWT-018 always fails (every version looks changed)', edits: [['const intentChanged = res.changedSections.length > 0;', 'const intentChanged = true;']], red: ['intent unchanged: clean'] },
   { name: 'OWT-018 an old record counts as the new one', edits: [['revisionEntries(after).filter((e) => !beforeKeys.has(e.key))', 'revisionEntries(after)']], red: ['intent changed, only an OLD record exists: still a violation'] },

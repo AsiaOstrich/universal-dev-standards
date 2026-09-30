@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **`uds open-work next-action` now reads a next action written as a Markdown table column, not only as a heading or an inline label.** A column whose header is in the next-action vocabulary (`Next action`, `Next step`, `下一步`, `下一動`, and now `回來要做什麼`) is read on every row, and each report carries the line number and the row's first cell. The vocabulary is still one list: headings, inline labels and table headers all read it. A table inside a blockquote (`> | … |`) is now seen, and a `|` inside a code span or after a backslash no longer splits a cell. A row whose cell count differs from its header is listed as `UNDECIDABLE` and never read as empty; with no violation elsewhere the exit code is 2, because a clean result would cover only part of the field. An empty, `—` or `-` cell is counted and not evaluated, and is not an OWT-019 violation. Found while measuring the DEC-122 H2 baseline on a real work log, where 32 of 80 rows had a different cell count than their header. `回來要做什麼` is the header that work log actually uses (its prose calls the column 下一動) and is UNCALIBRATED (OWT-016). The check's own mutation tests gain eight table mutants; the previous seventeen still go red.
+
 ## [6.14.0-beta.2] - 2026-09-30
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
