@@ -1,6 +1,6 @@
 # Codex CLI 0.145.0 — experiment state
 
-**Status**: ✅ **cross-judged extension complete 2026-09-18** — n=10 per arm; UDS +1.30 (Gemini) / +1.48 (Claude) on 7 defects, carried by defect 8 (tests) with defect 2 (N+1) a new candidate · see `cross-judged/extension-2026-09/README.md`
+**Status**: 🔒 **Closed 2026-09-30 — no further runs.** Nothing is waiting on this directory. ✅ **cross-judged extension complete 2026-09-18** — n=10 per arm; UDS +1.30 (Gemini) / +1.48 (Claude) on 7 defects, carried by defect 8 (tests) with defect 2 (N+1) a new candidate · see `cross-judged/extension-2026-09/README.md`
 
 > The line below was the header until 2026-09-17. It named a resume date and nothing watched it, so
 > "paused" and "forgotten" read the same for 26 days.
@@ -34,9 +34,11 @@ otherwise score as "zero findings", which looks exactly like a real negative res
 | Long-context factorial (outcome) | 12 | ⚠️ inconclusive by design | `longcontext-factorial/` |
 | Category-coverage attempt | 6 | ❌ scoring invalid | `category-coverage-attempt/` |
 | Blind-judged outcome | 6 | ✅ valid | `blind-judged/` |
-| **Cross-judged outcome, 2 judges** | **9** | ✅ **valid, extend when quota returns** | `cross-judged/` |
+| **Cross-judged outcome, 2 judges** | **9 → 10/arm** | ✅ **valid; extended to n=10 on 2026-09-18, closed 2026-09-30** | `cross-judged/`, `cross-judged/extension-2026-09/` |
 
 ## What resuming means
+
+> **Historical (kept for the record).** Both changes below were done by 2026-09-18 and the experiment was closed on 2026-09-30; there is no pending resume.
 
 The measurement method is validated as of 2026-07-24 — transcript boundary, independent blind
 judge, cross-judge agreement at 88% on 7 of 8 defects. **So the 9 runs already banked in
