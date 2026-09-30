@@ -134,4 +134,16 @@ npx lint-staged
 
 # Run unit tests only (excludes E2E tests which take 59+ minutes)
 # E2E tests should be run in CI/CD or manually before PRs
-npm run test:unit
+#
+# Run them WITHOUT the GIT_* variables git sets for a hook (GIT_DIR,
+# GIT_INDEX_FILE, GIT_WORK_TREE, ...). Tests that call `git init` / `git config`
+# / `git commit` in a temp directory otherwise inherit them and act on THIS
+# repository instead. 2026-09-30: one commit from a linked worktree wrote
+# `core.bare = true` and `user.name = test` into the shared .git/config (every
+# checkout then failed with "must be run in a work tree") and added six fixture
+# commits to the branch being committed. The tests pass outside the hook, so
+# the damage was the only symptom.
+(
+    for v in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$v"; done
+    npm run test:unit
+)
