@@ -1281,6 +1281,15 @@ export function checkPreCommitWiring(projectPath, msg) {
   const result = checkPreCommitHookWiring(projectPath);
   if (!result.relevant) return; // 沒有 UDS 管理的 hook
 
+  // 與 wiring 無關的獨立缺陷面：hook 即使已接上，仍可能請 npm 去解析裸名稱 `uds`
+  // ——npm registry 上那個名稱不是本專案。見 git-hooks.js buildPreCommitBlock。
+  if (result.legacyBareUds) {
+    console.log(chalk.yellow((msg.hookBareUdsTitle || '⚠ [pre-commit] {file} asks npm to run the bare name "uds", which on the npm registry is an unrelated package.')
+      .replace('{file}', result.hookFile)));
+    console.log(chalk.gray(msg.hookBareUdsFix || '  Fix: run `uds update`.'));
+    console.log();
+  }
+
   if (result.wired) {
     // 🔴 「已確認會執行」在 POSIX 上為真，在 Windows 上不一定——git for
     // Windows 沒有 POSIX 的 ENOEXEC → /bin/sh 後備機制，缺 shebang 的 hook

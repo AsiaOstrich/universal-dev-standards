@@ -27,7 +27,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, existsSync
 import { execSync } from 'child_process';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { getLocalHooksPathConfig } from '../../src/utils/git-hooks.js';
+import { getLocalHooksPathConfig, BARE_UDS_RUNNER_RE } from '../../src/utils/git-hooks.js';
 
 vi.mock('chalk', () => ({
   default: { bold: (s) => s, gray: (s) => s, green: (s) => s, yellow: (s) => s, red: (s) => s, cyan: (s) => s }
@@ -250,17 +250,20 @@ describe('setupHuskyHook — rewrites a legacy husky v8 template (2026-09-27 reg
     const rewritten = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
     expect(rewritten).not.toMatch(/_\/husky\.sh/);
     expect(rewritten).toContain('npm run lint');
-    expect(rewritten).toContain('npx uds check');
+    // The legacy fixture carried the one-liner older UDS wrote; it is swapped for the
+    // current block, which never asks npm to resolve the bare name `uds`.
+    expect(rewritten).toContain('universal-dev-standards check');
+    expect(rewritten).not.toMatch(BARE_UDS_RUNNER_RE);
 
     // A real commit must succeed — the adopter's own command must not break
     // it either (it's a real, if trivial, command in this fixture project).
-    // The hook runs `npx uds check` (and here the adopter's `npm run lint`). Whether
-    // those resolve depends on the machine (global install, npx cache, network) —
+    // The hook runs the UDS CLI (and here the adopter's `npm run lint`). Whether
+    // those resolve depends on the machine (a global install, npm, network) —
     // measured 2026-09-27: green for the author, red in pre-release-check with
     // "npm error could not determine executable to run". This test is about the
-    // husky.sh line, so npx/npm are stubbed to exit 0 for the duration.
+    // husky.sh line, so the CLI and npm/npx are stubbed to exit 0 for the duration.
     const stubBin = mkdtempSync(join(tmpdir(), 'uds-stubbin-'));
-    for (const n of ['npx', 'npm']) {
+    for (const n of ['universal-dev-standards', 'npx', 'npm']) {
       writeFileSync(join(stubBin, n), '#!/bin/sh\nexit 0\n');
       chmodSync(join(stubBin, n), 0o755);
     }
@@ -286,7 +289,8 @@ describe('setupHuskyHook — rewrites a legacy husky v8 template (2026-09-27 reg
 
     const rewritten = readFileSync(join(dir, '.husky', 'pre-commit'), 'utf-8');
     expect(rewritten).not.toMatch(/_\/husky\.sh/);
-    expect(rewritten.match(/npx uds check/g)).toHaveLength(1);
+    expect(rewritten.match(/^# UDS Standard Check$/gm)).toHaveLength(1);
+    expect(rewritten.match(/universal-dev-standards check/g)).toHaveLength(1);
   });
 });
 

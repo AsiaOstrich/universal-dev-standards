@@ -47,7 +47,8 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
-import { persistRecorder } from '../core/install-records.js';
+import { persistRecorder, mergeRecorderInto } from '../core/install-records.js';
+import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -498,6 +499,13 @@ export async function updateCommand(options) {
   // Mode is now decided first, and scope narrows it instead of replacing it.
   const scopedToSkills = !!options.skills;
   const scopedToCommands = !!options.commands;
+
+  // A pre-commit line an older UDS wrote asks npm for the bare name `uds`, which
+  // is not this project. Fixed here, before any mode below can return early
+  // (an up-to-date adopter still has it). Narrowed runs stay narrowed.
+  if (!options.rollback && !scopedToSkills && !scopedToCommands && !options.standardsOnly) {
+    migrateLegacyPreCommitHook(projectPath, manifest, { plan: !!options.plan });
+  }
 
   // Handle --rollback option (DSR). It restores a whole backup, so a scope
   // flag cannot narrow it — say so rather than appearing to honour it.
@@ -1839,6 +1847,47 @@ async function switchClaudeTarget(projectPath, manifest, target, options) { // e
  * @returns {{success: boolean, updated: string[], errors: string[]}}
  */
 /**
+ * Swap the pre-commit line an older UDS wrote (`npx` + the bare name `uds`) for
+ * the block current UDS writes, and say what was done or why not.
+ *
+ * Runs in every `uds update` mode that is not narrowed to something else, and in
+ * `--with-hooks`, and it runs BEFORE the "already up to date" early return: an
+ * adopter whose standards are current is exactly the one still carrying the old
+ * line. Under `--plan` it reports and writes nothing.
+ *
+ * Only a line UDS can be shown to have written is changed (exact match under
+ * UDS's marker comment — see legacy-hook-migration.js); any other bare-name line
+ * is reported with its line number and left alone.
+ *
+ * @param {string} projectPath
+ * @param {object} manifest - mutated only to carry a refreshed install record
+ * @param {{plan?: boolean}} [opts]
+ * @returns {ReturnType<typeof migrateLegacyHuskyHook>}
+ */
+export function migrateLegacyPreCommitHook(projectPath, manifest, { plan = false } = {}) {
+  const msg = t().commands.update;
+  const r = migrateLegacyHuskyHook(projectPath, { plan, manifest });
+  if (r.state === 'error') {
+    console.log(chalk.yellow(`  ${msg.hookMigrateFailed.replace('{error}', r.error)}`));
+    console.log();
+    return r;
+  }
+  if (r.state === 'migrated') console.log(chalk.green(`  ${msg.hookMigrated}`));
+  if (r.state === 'would-migrate') console.log(chalk.cyan(`  ${msg.hookWouldMigrate}`));
+  for (const k of r.kept) {
+    console.log(chalk.yellow(`  ${msg.hookLegacyKept.replace('{line}', k.line).replace('{text}', k.text)}`));
+  }
+  if (r.state !== 'none') console.log();
+  if (r.recorder) {
+    persistRecorder(projectPath, r.recorder);
+    // The manifest object is written again later in most update paths; without
+    // this the record persisted just above would be overwritten by the older copy.
+    Object.assign(manifest, mergeRecorderInto(manifest, r.recorder));
+  }
+  return r;
+}
+
+/**
  * `uds update --with-hooks [--ai-tool <list>] [--plan] [--force]`
  *
  * Adds the enforcement hooks that are missing; a hook that is already there is not
@@ -1858,6 +1907,9 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
     console.log(chalk.yellow(`  ! --with-hooks does one thing and does not compose; ${ignored.join(', ')} ignored.`));
     console.log();
   }
+
+  // The hook lines UDS wrote in the past belong to this command's subject too.
+  migrateLegacyPreCommitHook(projectPath, manifest, { plan: !!options.plan });
 
   const capable = HOOK_CAPABLE_TOOLS.join(', ');
   const resolved = resolveHookTools(projectPath, manifest, { aiTool: options.aiTool });

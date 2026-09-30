@@ -28,6 +28,7 @@ vi.mock('chalk', () => ({
 }));
 
 const { setupHuskyHook } = await import('../../src/commands/init.js');
+const { BARE_UDS_RUNNER_RE } = await import('../../src/utils/git-hooks.js');
 
 let dir;
 
@@ -102,7 +103,9 @@ describe('setupHuskyHook — the pre-commit hook', () => {
 
     await setupHuskyHook(dir, { allowInTest: true });
 
-    expect(preCommit()).toContain('npx uds check');
+    expect(preCommit()).toContain('universal-dev-standards check');
+    // Never the bare name through a package runner: on the npm registry `uds` is not us.
+    expect(preCommit()).not.toMatch(BARE_UDS_RUNNER_RE);
     // `npm test` came from husky init's template — a gate the adopter never asked for.
     expect(preCommit()).not.toContain('npm test');
   });
@@ -125,7 +128,7 @@ describe('setupHuskyHook — the pre-commit hook', () => {
     await setupHuskyHook(dir, { allowInTest: true });
 
     expect(preCommit()).toContain('npm run lint');
-    expect(preCommit()).toContain('npx uds check');
+    expect(preCommit()).toContain('universal-dev-standards check');
   });
 
   it('does not add the UDS check twice', async () => {
@@ -134,7 +137,8 @@ describe('setupHuskyHook — the pre-commit hook', () => {
     await setupHuskyHook(dir, { allowInTest: true });
     await setupHuskyHook(dir, { allowInTest: true });
 
-    expect(preCommit().match(/npx uds check/g)).toHaveLength(1);
+    expect(preCommit().match(/^# UDS Standard Check$/gm)).toHaveLength(1);
+    expect(preCommit().match(/universal-dev-standards check/g)).toHaveLength(1);
   });
 
   // 2026-09-27: a hook with no shebang has always worked on macOS/Linux
@@ -160,7 +164,7 @@ describe('setupHuskyHook — the pre-commit hook', () => {
     const content = preCommit();
     expect(content.startsWith('#!/bin/sh\n')).toBe(true);
     expect(content).toContain('npm run lint');
-    expect(content).toContain('npx uds check');
+    expect(content).toContain('universal-dev-standards check');
   });
 
   it('does not add a second shebang when one already exists (respects the adopter\'s own interpreter)', async () => {

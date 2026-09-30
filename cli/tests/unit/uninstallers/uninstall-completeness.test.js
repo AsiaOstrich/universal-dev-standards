@@ -389,7 +389,7 @@ describe('uninstall completeness', () => {
       nodeProject();
       writeManifest();
       await setupHuskyHook(dir, { allowInTest: true });
-      expect(read('.husky/pre-commit')).toContain('uds check');
+      expect(read('.husky/pre-commit')).toContain('universal-dev-standards check');
 
       await uninstallCommand({ all: true, yes: true });
 
@@ -407,6 +407,11 @@ describe('uninstall completeness', () => {
 
       expect(read('.husky/pre-commit')).toContain('npm run lint');
       expect(read('.husky/pre-commit')).not.toContain('uds check');
+      // The block is several lines; removing "the lines that mention the command"
+      // would strand its `if`/`fi`/`exit`/`echo` scaffolding in the adopter's file.
+      // Only their own command (and the shebang, blank lines) may be left.
+      const left = read('.husky/pre-commit').split('\n').filter((l) => l.trim());
+      expect(left).toEqual(['#!/bin/sh', 'npm run lint']);
     });
   });
 

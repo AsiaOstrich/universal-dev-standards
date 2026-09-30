@@ -15,7 +15,7 @@ vi.mock('chalk', () => ({
 }));
 
 import { checkPreCommitWiring } from '../../src/commands/check.js';
-import { getLocalHooksPathConfig, wireGitHooksPath } from '../../src/utils/git-hooks.js';
+import { getLocalHooksPathConfig, wireGitHooksPath, buildPreCommitBlock } from '../../src/utils/git-hooks.js';
 import { t } from '../../src/i18n/messages.js';
 
 const msg = t().commands.check; // default language is 'en'
@@ -47,13 +47,13 @@ afterEach(() => {
 // shape use writeHuskyHookNoShebang below instead.
 function writeHuskyHook() {
   mkdirSync(join(dir, '.husky'), { recursive: true });
-  writeFileSync(join(dir, '.husky', 'pre-commit'), '#!/bin/sh\n# UDS Standard Check\nnpx uds check\n');
+  writeFileSync(join(dir, '.husky', 'pre-commit'), `#!/bin/sh\n${buildPreCommitBlock()}`);
   chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
 }
 
 function writeHuskyHookNoShebang() {
   mkdirSync(join(dir, '.husky'), { recursive: true });
-  writeFileSync(join(dir, '.husky', 'pre-commit'), '# UDS Standard Check\nnpx uds check\n');
+  writeFileSync(join(dir, '.husky', 'pre-commit'), buildPreCommitBlock());
   chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
 }
 
@@ -65,6 +65,32 @@ function writeLegacyHuskyHook() {
   );
   chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
 }
+
+describe('checkPreCommitWiring — a hook that asks npm for the bare name `uds`', () => {
+  // The one-line form older UDS versions wrote. The registry package named `uds`
+  // is not this project, so `uds check` must tell the adopter — wired or not.
+  function writeBareNameHook() {
+    mkdirSync(join(dir, '.husky'), { recursive: true });
+    writeFileSync(join(dir, '.husky', 'pre-commit'), '#!/bin/sh\n# UDS Standard Check\nnpx uds check\n');
+    chmodSync(join(dir, '.husky', 'pre-commit'), 0o755);
+  }
+
+  it('warns, and points at `uds update`, when a wired hook still uses the bare name', () => {
+    writeBareNameHook();
+    wireGitHooksPath(dir, '.husky');
+    checkPreCommitWiring(dir, msg);
+    const out = logs.join('\n');
+    expect(out).toContain('bare name "uds"');
+    expect(out).toContain('uds update');
+  });
+
+  it('is silent once the hook is the current block', () => {
+    writeHuskyHook();
+    wireGitHooksPath(dir, '.husky');
+    checkPreCommitWiring(dir, msg);
+    expect(logs.join('\n')).toBe('');
+  });
+});
 
 describe('checkPreCommitWiring', () => {
   it('is silent when nothing UDS-managed is installed', () => {

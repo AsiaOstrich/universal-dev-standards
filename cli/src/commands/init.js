@@ -28,7 +28,8 @@ import { readInstallYaml } from '../utils/config-manager.js';
 import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
 import { newRecorder, mkdirTracked, recordFile, persistRecorder, RECORD_KINDS } from '../core/install-records.js';
-import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang } from '../utils/git-hooks.js';
+import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock } from '../utils/git-hooks.js';
+import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 
 /**
  * Init command - initialize standards in current project
@@ -465,7 +466,6 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
 
     // 4. Add pre-commit hook content
     const preCommitPath = join(huskyDir, 'pre-commit');
-    const udsCmd = 'npx uds check';
 
     // Only a hook file UDS creates from nothing can later be proven to be wholly
     // its own; one that already existed is appended to and stays the adopter's.
@@ -487,6 +487,18 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
       // — cheap, harmless on POSIX, and required on Windows. Existing files
       // are appended to, never rewritten — their contents are the adopter's,
       // not ours; ensureShebang only ever prepends a missing first line.
+      // A hook an older UDS wrote asks npx for the bare name `uds`, which on the
+      // npm registry is an unrelated package (see buildPreCommitBlock). Swap the
+      // line UDS itself wrote for the current block before anything else reads
+      // the file; a line the adopter edited is left alone and reported below.
+      const legacy = existsSync(preCommitPath) ? migrateLegacyHuskyHook(projectPath) : null;
+      if (legacy?.state === 'migrated') {
+        console.log(chalk.green('  ✓ Replaced the pre-commit line an older UDS wrote (it asked npm to resolve the bare name "uds", which is not this project) with one that runs only the installed UDS CLI'));
+      }
+      for (const k of legacy?.kept ?? []) {
+        console.log(chalk.yellow(`  ⚠ .husky/pre-commit line ${k.line} ("${k.text}") asks npm to resolve the bare name "uds", which on the npm registry is an unrelated package. UDS did not write this exact line, so it was left alone — change it to "universal-dev-standards check" (with the CLI installed in this project or on PATH).`));
+      }
+
       let content = existsSync(preCommitPath) ? readFileSync(preCommitPath, 'utf-8') : '';
 
       // A pre-existing file may still carry husky v8's `_/husky.sh` sourcing
@@ -502,10 +514,10 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
       const { content: destripped, removed: hadLegacyLine } = stripLegacyHuskyShLine(content);
       content = destripped;
 
-      const needsAppend = !content.includes('uds check');
+      const needsAppend = !hookRunsUdsCheck(content);
       if (needsAppend) {
         const sep = content && !content.endsWith('\n') ? '\n' : '';
-        content = `${content}${sep}\n# UDS Standard Check\n${udsCmd}\n`;
+        content = `${content}${sep}\n${buildPreCommitBlock()}`;
       }
 
       const { content: shebanged, added: addedShebang } = ensureShebang(content);
@@ -604,7 +616,7 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
 
       if (existsSync(hookPath)) {
         const existingContent = readFileSync(hookPath, 'utf-8');
-        if (existingContent.includes('uds check')) {
+        if (hookRunsUdsCheck(existingContent)) {
           console.log(chalk.gray('  ✓ Pre-commit hook already configured'));
         } else {
           // Never clobber an adopter's own hook (this fix — it used to be

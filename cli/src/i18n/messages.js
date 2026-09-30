@@ -875,7 +875,7 @@ export const messages = {
         // Pre-commit hook wiring (XSPEC: uds init writes a hook but never
         // confirmed git would run it — this reports the gap, read-only)
         hookNotWiredTitle: '⚠ [pre-commit] {file} was installed, but git will not run it.',
-        hookNotWiredOverride: '  git core.hooksPath is set to "{path}" — UDS will not override it. Confirm the hook there also runs `npx uds check`, or switch it yourself: git config --local core.hooksPath .husky',
+        hookNotWiredOverride: '  git core.hooksPath is set to "{path}" — UDS will not override it. Confirm the hook there also runs `universal-dev-standards check` (the installed CLI — not the short name "uds", which on the npm registry is an unrelated package), or switch it yourself: git config --local core.hooksPath .husky',
         hookNotWiredUnwired: '  git core.hooksPath is not set, and {file} is not on git\'s default hook path.',
         hookNotWiredFix: '  Fix (per-clone — not committed, teammates must repeat it): git config --local core.hooksPath .husky',
         hookNotWiredFixNative: '  Fix: point core.hooksPath back to the default (git config --local --unset core.hooksPath), or add `uds check` under "{path}" instead.',
@@ -892,6 +892,8 @@ export const messages = {
         // file or directory". Measured 2026-09-27 in CI (windows-latest).
         hookMissingShebangTitle: '⚠ [pre-commit] {file} has no shebang line — git cannot run it on Windows.',
         hookMissingShebangFix: '  Fix: add a `#!/bin/sh` shebang as the very first line of {file} (a husky-managed hook gets this automatically the next time `uds init` touches it), or re-run `uds init`.',
+        hookBareUdsTitle: '⚠ [pre-commit] {file} asks npm to run the bare name "uds", which on the npm registry is an unrelated package (not this project).',
+        hookBareUdsFix: '  Fix: run `uds update` — it replaces the line UDS itself wrote with one that only runs the installed UDS CLI. A line you wrote or edited yourself is left alone; change it to `universal-dev-standards check`.',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS Status Summary',
@@ -1038,6 +1040,11 @@ export const messages = {
         currentVersion: 'Current version',
         latestVersion: 'Latest version',
         upToDate: '✓ Standards are up to date.',
+        // Pre-commit hook migration (bare-name `uds` on the npm registry is not this project)
+        hookMigrated: '✓ .husky/pre-commit: replaced the line an older UDS wrote (it asked npm to resolve the bare name "uds", which is not this project) with one that runs only the installed UDS CLI.',
+        hookWouldMigrate: '+ .husky/pre-commit: would replace the line an older UDS wrote (it asks npm to resolve the bare name "uds", which is not this project) with one that runs only the installed UDS CLI.',
+        hookLegacyKept: '⚠ .husky/pre-commit line {line} ("{text}") asks npm to resolve the bare name "uds", which on the npm registry is an unrelated package. UDS did not write this exact line, so it was left alone. Change it to "universal-dev-standards check" — it needs the UDS CLI installed in this project or on PATH.',
+        hookMigrateFailed: '⚠ Could not rewrite .husky/pre-commit: {error}. The line that asks npm for the bare name "uds" is still there — change it to "universal-dev-standards check".',
         newerVersion: '(You have a newer version than the registry: {version})',
         updateAvailable: 'Update available: {current} → {latest}',
         // Files
@@ -2139,7 +2146,7 @@ export const messages = {
         missingSkillsHint: '提示：執行 `uds update` 安裝缺少的 Skills/斜線命令',
         // 提交前檢查是否真的會被 git 執行（uds init 寫了檢查檔，卻沒確認 git 會跑它——這裡只回報，不寫入）
         hookNotWiredTitle: '⚠ [pre-commit] {file} 已安裝，但 git 實際不會執行它。',
-        hookNotWiredOverride: '  git core.hooksPath 已設定為「{path}」——UDS 不會覆蓋它。請確認該路徑下的檔案也會執行 `npx uds check`，或自行改用：git config --local core.hooksPath .husky',
+        hookNotWiredOverride: '  git core.hooksPath 已設定為「{path}」——UDS 不會覆蓋它。請確認該路徑下的檔案也會執行 `universal-dev-standards check`（要用已安裝的 CLI——不要用短名稱 uds，它在 npm registry 上是不相干的套件），或自行改用：git config --local core.hooksPath .husky',
         hookNotWiredUnwired: '  git core.hooksPath 未設定，而 {file} 也不在 git 預設會讀取的路徑上。',
         hookNotWiredFix: '  修復方式（僅對此 clone 生效，不會進版控，其他人 clone 後要自己再跑一次）：git config --local core.hooksPath .husky',
         hookNotWiredFixNative: '  修復方式：把 core.hooksPath 改回預設（git config --local --unset core.hooksPath），或改在「{path}」底下也加上 `uds check`。',
@@ -2155,6 +2162,8 @@ export const messages = {
         // 2026-09-27 於 CI（windows-latest）實測。
         hookMissingShebangTitle: '⚠ [pre-commit] {file} 沒有 shebang 行——在 Windows 上 git 無法執行它。',
         hookMissingShebangFix: '  修復方式：在 {file} 的第一行加上 shebang `#!/bin/sh`（由 husky 管理的 hook，下次 `uds init` 動到它時會自動處理），或重新執行 `uds init`。',
+        hookBareUdsTitle: '⚠ [pre-commit] {file} 會請 npm 執行裸名稱 uds，而它在 npm registry 上是不相干的套件（不是本專案）。',
+        hookBareUdsFix: '  修復方式：執行 `uds update`——它會把 UDS 自己寫入的那一行換成只執行已安裝 UDS CLI 的寫法。你自己寫或改過的那一行不會被動，請自行改成 `universal-dev-standards check`。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 狀態摘要',
@@ -2298,6 +2307,11 @@ export const messages = {
         currentVersion: '目前版本',
         latestVersion: '最新版本',
         upToDate: '✓ 標準已是最新版本。',
+        // pre-commit hook 遷移（npm registry 上的裸名稱 uds 不是本專案）
+        hookMigrated: '✓ .husky/pre-commit：已把舊版 UDS 寫入的那一行（它會請 npm 解析裸名稱 uds，而那不是本專案）換成只執行已安裝 UDS CLI 的寫法。',
+        hookWouldMigrate: '+ .husky/pre-commit：將把舊版 UDS 寫入的那一行（它會請 npm 解析裸名稱 uds，而那不是本專案）換成只執行已安裝 UDS CLI 的寫法。',
+        hookLegacyKept: '⚠ .husky/pre-commit 第 {line} 行（「{text}」）會請 npm 解析裸名稱 uds，而它在 npm registry 上是不相干的套件。這一行不是 UDS 寫入的原樣，所以沒有動它。請自行改成 universal-dev-standards check——需要在本專案或 PATH 上已安裝 UDS CLI。',
+        hookMigrateFailed: '⚠ 無法改寫 .husky/pre-commit：{error}。請 npm 解析裸名稱 uds 的那一行仍在，請自行改成 universal-dev-standards check。',
         newerVersion: '（你的版本比登錄庫更新：{version}）',
         updateAvailable: '有可用更新：{current} → {latest}',
         // Files
@@ -3415,7 +3429,7 @@ export const messages = {
         missingSkillsHint: '提示：执行 `uds update` 安装缺少的 Skills/斜线命令',
         // 提交前检查是否真的会被 git 执行（uds init 写了检查文件，却没确认 git 会跑它——这里只回报，不写入）
         hookNotWiredTitle: '⚠ [pre-commit] {file} 已安装，但 git 实际不会执行它。',
-        hookNotWiredOverride: '  git core.hooksPath 已设定为“{path}”——UDS 不会覆盖它。请确认该路径下的文件也会执行 `npx uds check`，或自行改用：git config --local core.hooksPath .husky',
+        hookNotWiredOverride: '  git core.hooksPath 已设定为“{path}”——UDS 不会覆盖它。请确认该路径下的文件也会执行 `universal-dev-standards check`（要用已安装的 CLI——不要用短名称 uds，它在 npm registry 上是不相干的包），或自行改用：git config --local core.hooksPath .husky',
         hookNotWiredUnwired: '  git core.hooksPath 未设定，而 {file} 也不在 git 默认会读取的路径上。',
         hookNotWiredFix: '  修复方式（仅对此 clone 生效，不会进版控，其他人 clone 后要自己再跑一次）：git config --local core.hooksPath .husky',
         hookNotWiredFixNative: '  修复方式：把 core.hooksPath 改回默认（git config --local --unset core.hooksPath），或改在“{path}”下也加上 `uds check`。',
@@ -3427,6 +3441,8 @@ export const messages = {
         // 2026-09-27 于 CI（windows-latest）实测。
         hookMissingShebangTitle: '⚠ [pre-commit] {file} 没有 shebang 行——在 Windows 上 git 无法执行它。',
         hookMissingShebangFix: '  修复方式：在 {file} 的第一行加上 shebang `#!/bin/sh`（由 husky 管理的 hook，下次 `uds init` 动到它时会自动处理），或重新运行 `uds init`。',
+        hookBareUdsTitle: '⚠ [pre-commit] {file} 会请 npm 执行裸名称 uds，而它在 npm registry 上是不相干的包（不是本项目）。',
+        hookBareUdsFix: '  修复方式：运行 `uds update`——它会把 UDS 自己写入的那一行换成只执行已安装 UDS CLI 的写法。你自己写或改过的那一行不会被动，请自行改成 `universal-dev-standards check`。',
         // Summary mode (--summary)
         summary_mode: {
           title: 'UDS 状态摘要',
@@ -3482,6 +3498,11 @@ export const messages = {
         currentVersion: '当前版本',
         latestVersion: '最新版本',
         upToDate: '✓ 标准是最新的。',
+        // pre-commit hook 迁移（npm registry 上的裸名称 uds 不是本项目）
+        hookMigrated: '✓ .husky/pre-commit：已把旧版 UDS 写入的那一行（它会请 npm 解析裸名称 uds，而那不是本项目）换成只执行已安装 UDS CLI 的写法。',
+        hookWouldMigrate: '+ .husky/pre-commit：将把旧版 UDS 写入的那一行（它会请 npm 解析裸名称 uds，而那不是本项目）换成只执行已安装 UDS CLI 的写法。',
+        hookLegacyKept: '⚠ .husky/pre-commit 第 {line} 行（“{text}”）会请 npm 解析裸名称 uds，而它在 npm registry 上是不相干的包。这一行不是 UDS 写入的原样，所以没有动它。请自行改成 universal-dev-standards check——需要在本项目或 PATH 上已安装 UDS CLI。',
+        hookMigrateFailed: '⚠ 无法改写 .husky/pre-commit：{error}。请 npm 解析裸名称 uds 的那一行仍在，请自行改成 universal-dev-standards check。',
         newerVersion: '（您有比注册表更新的版本：{version}）',
         updateAvailable: '有可用更新：{current} → {latest}',
         // Files

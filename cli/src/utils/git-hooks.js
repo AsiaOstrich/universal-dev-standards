@@ -11,6 +11,7 @@
  * adopters (asiaostrich-telemetry-server, asiaostrich-telemetry-client,
  * machine-setup): all three have `.husky/pre-commit` calling `npx uds check`,
  * none has `core.hooksPath` set, and the hook has never once run.
+ * (That `npx uds check` form was itself replaced — see buildPreCommitBlock.)
  *
  * Fix: set `core.hooksPath` directly ourselves. This is exactly what husky's
  * own `index.js` does internally (verified against husky ^9.1.7's source:
@@ -94,7 +95,7 @@ export function wireGitHooksPath(projectPath, targetRelDir) {
     return {
       wired: false,
       reason: `git core.hooksPath is already set to "${configured}"`,
-      hint: `UDS will not override an existing core.hooksPath. Confirm the hook script there also runs \`npx uds check\`, or switch it yourself: git config --local core.hooksPath ${targetRelDir}`
+      hint: `UDS will not override an existing core.hooksPath. Confirm the hook script there also runs \`universal-dev-standards check\` (the installed CLI — not the short name "uds", which on the npm registry is an unrelated package), or switch it yourself: git config --local core.hooksPath ${targetRelDir}`
     };
   }
 
@@ -107,7 +108,7 @@ export function wireGitHooksPath(projectPath, targetRelDir) {
     return {
       wired: false,
       reason: '.git/hooks/pre-commit already exists',
-      hint: 'UDS will not overwrite or bypass an existing .git/hooks/pre-commit. Add "npx uds check" to it manually, or remove it and re-run `uds init`.'
+      hint: 'UDS will not overwrite or bypass an existing .git/hooks/pre-commit. Add a "universal-dev-standards check" line to it manually (it needs the UDS CLI installed in this project or on PATH), or remove it and re-run `uds init`.'
     };
   }
 
@@ -126,10 +127,129 @@ export function wireGitHooksPath(projectPath, targetRelDir) {
   }
 }
 
-/** Does `filePath` contain the marker UDS writes into a hook it manages? */
+// ─────────────────────────────────────────────────────────────────────────────
+// What UDS writes into `.husky/pre-commit`.
+//
+// 🔴 This used to be the single line `npx uds check`. `npx` resolves a bare
+// command name from node_modules/.bin and PATH first, and only when neither has
+// it does it go to the npm registry — and the registry package named `uds` is
+// NOT this project (it is an unrelated package by another maintainer, no
+// `bin`, last published 2022). So a clone with no UDS installed had a commit
+// hook that asked npm for a stranger's package by name. It failed today only
+// because that package has no executable; the day its owner publishes one with a
+// `uds` bin, every adopter's every commit runs the stranger's code.
+//
+// Measured 2026-09-30 against a local fake registry that logs each request
+// (npm 10.9.9, 11.20.0, 12.1.0 — identical): `npx --no-install uds` STILL fetches
+// the package metadata for `uds` (GET /uds), so `--no-install` is not a fix; and
+// `npx --no-install --package=universal-dev-standards uds` does not find a
+// GLOBAL install at all (it goes to the registry for our own name and fails).
+// Neither is usable, so the hook does not involve npm at all: it looks in this
+// project's node_modules/.bin, then on PATH, and it looks for the bin named
+// after the full package name — `universal-dev-standards` is a name only this
+// project can publish, `uds` is a name anyone's package can also claim.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** First line of the block UDS writes (also the marker older UDS versions wrote). */
+export const UDS_HOOK_MARKER = '# UDS Standard Check';
+/** Last line of the block — lets uninstall remove the whole block, not guess line by line. */
+export const UDS_HOOK_END_MARKER = '# End UDS Standard Check';
+/** The bin every UDS release has shipped since the rename; named after the package on purpose. */
+export const UDS_BIN_NAME = 'universal-dev-standards';
+/** A hook line that runs the UDS check — the old short form or the current full-name form. */
+export const UDS_CHECK_COMMAND_RE = /\b(?:uds|universal-dev-standards)\s+check\b/;
+
+/**
+ * Any place a hook script runs the bare name `uds` through a package runner
+ * (npx, bunx, pnpm dlx, yarn dlx, npm exec ...). Broader than the two exact lines UDS
+ * ever wrote (see legacy-hook-migration.js): this finds lines to TELL the
+ * adopter about, not lines UDS may change.
+ */
+export const BARE_UDS_RUNNER_RE = /\b(?:npx|bunx|pnpx|pnpm\s+dlx|yarn\s+dlx|npm\s+exec|npm\s+x)\s+(?:-\S+\s+)*uds\b/;
+
+/** Does this hook script still run the bare name `uds` through a package runner? */
+export function hasBareUdsRunner(content) {
+  return typeof content === 'string' && content.split('\n').some((l) => BARE_UDS_RUNNER_RE.test(l));
+}
+
+/** Does hook script `content` run the UDS check, in either the old or the current form? */
+export function hookRunsUdsCheck(content) {
+  return typeof content === 'string' && UDS_CHECK_COMMAND_RE.test(content);
+}
+
+/**
+ * The block `uds init` appends to `.husky/pre-commit` (and `uds update` swaps in
+ * for the old one-liner). POSIX sh; runs in git-bash on Windows.
+ *
+ * - The subshell keeps the PATH change from leaking into the adopter's own
+ *   commands in the same hook file.
+ * - `|| exit $?` makes both outcomes stop the commit even when the adopter has
+ *   put more commands after this block. Without it the "not installed" branch
+ *   would be a silent skip of the check, which is what this must never be.
+ * - Not installed: say what is missing and how to fix it, exit non-zero. It
+ *   neither skips the check nor downloads anything.
+ *
+ * @param {{args?: string}} [opts] extra arguments to keep on the check command
+ *   (e.g. `--standard checkin-standards`, which older UDS versions wrote).
+ * @returns {string} the block, LF line endings, ending with a newline
+ */
+export function buildPreCommitBlock({ args = '' } = {}) {
+  const cmd = args ? `${UDS_BIN_NAME} check ${args}` : `${UDS_BIN_NAME} check`;
+  return [
+    UDS_HOOK_MARKER,
+    '# Runs the UDS CLI installed in this project (node_modules/.bin) or on PATH.',
+    '# It never asks npm to fetch anything: the short name "uds" on the npm registry',
+    '# belongs to an unrelated package, and npx would download and run it.',
+    '(',
+    '  PATH="$PWD/node_modules/.bin:$PATH"',
+    `  if command -v ${UDS_BIN_NAME} >/dev/null 2>&1; then`,
+    `    ${cmd}`,
+    '    exit $?',
+    '  fi',
+    `  echo "[UDS] Pre-commit check cannot run: the UDS CLI (${UDS_BIN_NAME}) is not installed." >&2`,
+    `  echo "[UDS] Install it:  npm install --save-dev ${UDS_BIN_NAME}   (or: npm install -g ${UDS_BIN_NAME})" >&2`,
+    '  echo "[UDS] This commit is blocked until it is installed, or until you remove this block from .husky/pre-commit." >&2',
+    '  exit 1',
+    ') || exit $?',
+    UDS_HOOK_END_MARKER,
+    ''
+  ].join('\n');
+}
+
+/**
+ * Remove the block buildPreCommitBlock() writes — from the marker line through
+ * the end-marker line, inclusive — and nothing else. A block whose end marker is
+ * gone (the adopter cut into it) is left alone: what remains of it is no longer
+ * provably UDS's, and the caller's line-level fallback deals with the lines it can name.
+ * @returns {{content: string, removed: boolean}}
+ */
+export function stripUdsHookBlock(content) {
+  const lines = content.split('\n');
+  const out = [];
+  let removed = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === UDS_HOOK_MARKER) {
+      let end = -1;
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim() === UDS_HOOK_END_MARKER) { end = j; break; }
+        // Another marker before an end marker means this block is not well-formed.
+        if (lines[j].trim() === UDS_HOOK_MARKER) break;
+      }
+      if (end !== -1) {
+        i = end;
+        removed = true;
+        continue;
+      }
+    }
+    out.push(lines[i]);
+  }
+  return { content: out.join('\n'), removed };
+}
+
+/** Does `filePath` contain a hook line UDS manages (the old one-liner or the current block)? */
 function hasUdsMarker(filePath) {
   try {
-    return readFileSync(filePath, 'utf-8').includes('uds check');
+    return hookRunsUdsCheck(readFileSync(filePath, 'utf-8'));
   } catch {
     return false;
   }
@@ -225,7 +345,7 @@ export function stripLegacyHuskyShLine(content) {
  * @param {string} projectPath
  * @returns {{relevant: boolean, wired?: boolean, hookFile?: string,
  *   configuredHooksPath?: string|null, effectiveHooksDir?: string|null,
- *   legacyV8?: boolean, missingShebang?: boolean}}
+ *   legacyV8?: boolean, missingShebang?: boolean, legacyBareUds?: boolean}}
  *   `relevant: false` means there is nothing UDS-managed to report on (no
  *   hook file, or hooks-dir could not be determined — never guess "unwired"
  *   from a failed lookup).
@@ -252,6 +372,13 @@ export function checkPreCommitHookWiring(projectPath) {
     try { return !hasShebang(readFileSync(managedPath, 'utf-8')); } catch { return false; }
   })();
 
+  // Independent of wiring, like missingShebang: the file can be wired and still ask
+  // npm for the bare name `uds` (see buildPreCommitBlock). Only the husky file is
+  // examined — that is the one UDS wrote the old one-liner into.
+  const legacyBareUds = hasHuskyHook && (() => {
+    try { return hasBareUdsRunner(readFileSync(huskyHookPath, 'utf-8')); } catch { return false; }
+  })();
+
   const effectiveFile = join(effectiveHooksDir, 'pre-commit');
   let wired = false;
   if (existsSync(effectiveFile)) {
@@ -264,7 +391,7 @@ export function checkPreCommitHookWiring(projectPath) {
     }
   }
 
-  if (wired) return { relevant: true, wired: true, hookFile, missingShebang };
+  if (wired) return { relevant: true, wired: true, hookFile, missingShebang, legacyBareUds };
 
   const legacyV8 = hasHuskyHook && (() => {
     try { return hasLegacyHuskyShLine(readFileSync(huskyHookPath, 'utf-8')); } catch { return false; }
@@ -277,6 +404,7 @@ export function checkPreCommitHookWiring(projectPath) {
     configuredHooksPath: getLocalHooksPathConfig(projectPath),
     effectiveHooksDir,
     legacyV8,
-    missingShebang
+    missingShebang,
+    legacyBareUds
   };
 }

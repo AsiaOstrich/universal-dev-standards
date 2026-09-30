@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, rmdirSync } from 'fs';
 import { join, basename } from 'path';
 import { proveUnchanged, RECORD_KINDS, RECORDS_KEY, isRealDirectory } from '../core/install-records.js';
+import { stripUdsHookBlock } from '../utils/git-hooks.js';
 import {
   collectHookConfigs, standardsSourceDir, hooksSourceDir,
   CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT,
@@ -344,7 +345,10 @@ export function uninstallHookScripts(projectPath, manifest, { dryRun = false, bl
   return result;
 }
 
-const UDS_PRECOMMIT_LINE = /uds\s+check|checkin-standards|^#\s*UDS Standard Check\s*$/;
+// Line-level fallback, for the one-line form older UDS wrote and for a block whose
+// end marker an adopter removed. The current block is removed whole, by its markers
+// (stripUdsHookBlock) — its inner lines are not individually matchable.
+const UDS_PRECOMMIT_LINE = /uds\s+check|universal-dev-standards\s+check|checkin-standards|^#\s*UDS Standard Check\s*$/;
 const NATIVE_UDS_LINE = /uds\s+check|checkin-standards|UDS pre-commit hook/;
 
 /** True when nothing is left but a shebang and blank lines. */
@@ -380,7 +384,8 @@ export function uninstallHook(projectPath, options = {}) {
       const content = readFileSync(hookPath, 'utf-8');
       const proof = proveUnchanged(manifest, projectPath, '.husky/pre-commit');
       const lines = content.split('\n');
-      const filteredLines = lines.filter(line => !UDS_PRECOMMIT_LINE.test(line));
+      const filteredLines = stripUdsHookBlock(content).content.split('\n')
+        .filter(line => !UDS_PRECOMMIT_LINE.test(line));
 
       if (proof.state === 'proven') {
         // UDS created this file and nobody has touched it: nothing of the adopter's is in it.
