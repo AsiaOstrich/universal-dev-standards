@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.1
-translation_version: 6.14.0-beta.1
-last_synced: 2026-09-29
+source_version: 6.14.0-beta.2
+translation_version: 6.14.0-beta.2
+last_synced: 2026-09-30
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.2] - 2026-09-30
+
+> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **修正 6.14.0-beta.1 的已知限制：**既有專案現在可以用 `uds update --with-hooks` 補裝 Antigravity CLI 關卡（以及缺少的 Claude Code / Codex / Gemini CLI 關卡）。
 
 ### Added
 

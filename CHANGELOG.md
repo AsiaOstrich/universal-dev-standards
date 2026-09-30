@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.2] - 2026-09-30
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Fixes the known limitation of 6.14.0-beta.1:** an existing project can now get the Antigravity CLI hook (and the Claude Code / Codex / Gemini CLI hooks it is missing) with `uds update --with-hooks`.
+
 ### Added
 
 - **`uds open-work next-action | revision | separation | self-test` — the `open-work-tracking` 1.1.0 reference checks (OWT-017/018/019) now ship in the npm package.** In 6.14.0-beta.1 the checks lived only in the repository's `scripts/`, which the npm package does not contain, so an adopter could not run them without cloning UDS. The rules now live in one place, `cli/src/utils/open-work-tracking.mjs` (inside the package); `uds open-work` and the old `node scripts/check-open-work-tracking.mjs` (now a shim that holds no rules and re-exports the module) both run that one body, and a test requires their output to be identical. Nothing about the checks changed: same exit codes (0 no violation, 1 violation, 2 cannot decide — 2 is not a pass), the checker still runs its own self-test arms first, and every run still states that coverage is unknown (OWT-011) and the vocabulary uncalibrated (OWT-016). It remains a reference decision procedure offered as evidence, not a gate. **Observed red:** the new test copies the CLI, makes the command swallow the exit code (always 0) or the shared rule always-pass, and requires the violating samples to go green for the copy; `npm pack --dry-run` is asserted to list the module. The standard's "What enforces this standard" section now points at the command instead of a repo-only path.
