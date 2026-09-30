@@ -31,12 +31,13 @@
  * @see core/turn-completion-integrity.md
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from 'fs';
-import { join, dirname, basename } from 'path';
+import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'fs';
+import { join, dirname, basename, relative } from 'path';
 import { fileURLToPath } from 'url';
 import { execFileSync } from 'child_process';
 import { load as parseYaml } from 'js-yaml';
 import { detectAITools } from '../utils/detector.js';
+import { newRecorder, mkdirTracked, recordFile, RECORD_KINDS } from '../core/install-records.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -172,7 +173,41 @@ function probeLanguageLimits(hooksDir, scripts) {
   return out;
 }
 
-export function installHooks(projectPath, { overwriteScripts = true } = {}) {
+/**
+ * Copy the shipped hook scripts (recursively — a hook may ship a directory beside
+ * it: locale packs, fixtures) into `<project>/scripts/hooks`, and RECORD every
+ * file this call actually wrote and every directory it had to create.
+ *
+ * `cpSync` did the copy before and returns nothing, which is why `uds uninstall`
+ * had no way to know which of the files under `scripts/hooks/` were UDS's — a
+ * directory an adopter's own hook scripts may share. A file that already exists
+ * and is byte-identical is not recorded (this call did not write it, so it
+ * proves nothing about who did); a file that exists, differs, and is not
+ * overwritten is left alone and not recorded.
+ *
+ * @param {string} srcDir  Shipped hooks directory
+ * @param {string} destDir Destination directory (absolute)
+ * @param {{ overwrite: boolean, recorder: object, projectPath: string }} ctx
+ */
+function copyTreeRecorded(srcDir, destDir, ctx) {
+  mkdirTracked(ctx.recorder, ctx.projectPath, destDir);
+  for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
+    const src = join(srcDir, entry.name);
+    const dest = join(destDir, entry.name);
+    if (entry.isDirectory()) {
+      copyTreeRecorded(src, dest, ctx);
+      continue;
+    }
+    if (existsSync(dest)) {
+      if (!ctx.overwrite) continue;
+      if (readFileSync(src).equals(readFileSync(dest))) continue;
+    }
+    copyFileSync(src, dest);
+    recordFile(ctx.recorder, ctx.projectPath, relative(ctx.projectPath, dest), RECORD_KINDS.HOOK_SCRIPT);
+  }
+}
+
+export function installHooks(projectPath, { overwriteScripts = true, recorder = newRecorder() } = {}) {
   const claudeDir = join(projectPath, '.claude');
   const settingsPath = join(claudeDir, 'settings.json');
   const hooksDir = join(projectPath, 'scripts', 'hooks');
@@ -187,11 +222,8 @@ export function installHooks(projectPath, { overwriteScripts = true } = {}) {
     return { installed: false, scriptsCount: 0, settingsPath, events, skipped };
   }
 
-  if (!existsSync(claudeDir)) mkdirSync(claudeDir, { recursive: true });
-  if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
-
-  // Recursive: a hook may ship a directory beside it (locale packs, fixtures).
-  cpSync(hookDir, hooksDir, { recursive: true, force: overwriteScripts });
+  mkdirTracked(recorder, projectPath, claudeDir);
+  copyTreeRecorded(hookDir, hooksDir, { overwrite: overwriteScripts, recorder, projectPath });
 
   let settings = {};
   if (existsSync(settingsPath)) {
@@ -217,6 +249,7 @@ export function installHooks(projectPath, { overwriteScripts = true } = {}) {
     events,
     skipped,
     languageLimits: probeLanguageLimits(hooksDir, scripts),
+    artifacts: recorder,
   };
 }
 
@@ -264,9 +297,8 @@ export const AGY_HOOK_COMMAND_LEGACY = `node scripts/hooks/${AGY_HOOK_SCRIPT}`;
  * `overwrite: false` keeps a script that already exists (an adopter may have
  * edited it); it is what `uds update --with-hooks` uses unless `--force` is given.
  */
-function copyHookScripts(hookDir, hooksDir, { overwrite = true } = {}) {
-  if (!existsSync(hooksDir)) mkdirSync(hooksDir, { recursive: true });
-  cpSync(hookDir, hooksDir, { recursive: true, force: overwrite });
+function copyHookScripts(hookDir, hooksDir, { overwrite = true, recorder, projectPath } = {}) {
+  copyTreeRecorded(hookDir, hooksDir, { overwrite, recorder, projectPath });
 }
 
 /**
@@ -283,7 +315,7 @@ function copyHookScripts(hookDir, hooksDir, { overwrite = true } = {}) {
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installCodexHooks(projectPath, { overwriteScripts = true } = {}) {
+export function installCodexHooks(projectPath, { overwriteScripts = true, recorder = newRecorder() } = {}) {
   const hooksJsonPath = join(projectPath, '.codex', 'hooks.json');
   const hookDir = hooksSourceDir();
 
@@ -291,9 +323,8 @@ export function installCodexHooks(projectPath, { overwriteScripts = true } = {})
     return { installed: false, settingsPath: hooksJsonPath, reason: `hook script not found: ${CODEX_HOOK_SCRIPT}` };
   }
 
-  const codexDir = join(projectPath, '.codex');
-  if (!existsSync(codexDir)) mkdirSync(codexDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
+  mkdirTracked(recorder, projectPath, join(projectPath, '.codex'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts, recorder, projectPath });
 
   let config = {};
   if (existsSync(hooksJsonPath)) {
@@ -310,7 +341,7 @@ export function installCodexHooks(projectPath, { overwriteScripts = true } = {})
   ]);
 
   writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2) + '\n');
-  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop' };
+  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop', artifacts: recorder };
 }
 
 /**
@@ -323,7 +354,7 @@ export function installCodexHooks(projectPath, { overwriteScripts = true } = {})
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installGeminiHooks(projectPath, { overwriteScripts = true } = {}) {
+export function installGeminiHooks(projectPath, { overwriteScripts = true, recorder = newRecorder() } = {}) {
   const settingsPath = join(projectPath, '.gemini', 'settings.json');
   const hookDir = hooksSourceDir();
 
@@ -331,9 +362,8 @@ export function installGeminiHooks(projectPath, { overwriteScripts = true } = {}
     return { installed: false, settingsPath, reason: `hook script not found: ${GEMINI_HOOK_SCRIPT}` };
   }
 
-  const geminiDir = join(projectPath, '.gemini');
-  if (!existsSync(geminiDir)) mkdirSync(geminiDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
+  mkdirTracked(recorder, projectPath, join(projectPath, '.gemini'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts, recorder, projectPath });
 
   let settings = {};
   if (existsSync(settingsPath)) {
@@ -349,7 +379,7 @@ export function installGeminiHooks(projectPath, { overwriteScripts = true } = {}
   ]);
 
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
-  return { installed: true, settingsPath, event: 'AfterAgent' };
+  return { installed: true, settingsPath, event: 'AfterAgent', artifacts: recorder };
 }
 
 /**
@@ -377,7 +407,7 @@ export function installGeminiHooks(projectPath, { overwriteScripts = true } = {}
  * @param {string} projectPath
  * @returns {{ installed: boolean, settingsPath: string, event?: string, reason?: string }}
  */
-export function installAgyHooks(projectPath, { overwriteScripts = true } = {}) {
+export function installAgyHooks(projectPath, { overwriteScripts = true, recorder = newRecorder() } = {}) {
   const hooksJsonPath = join(projectPath, '.agents', 'hooks.json');
   const hookDir = hooksSourceDir();
 
@@ -397,9 +427,8 @@ export function installAgyHooks(projectPath, { overwriteScripts = true } = {}) {
     }
   }
 
-  const agentsDir = join(projectPath, '.agents');
-  if (!existsSync(agentsDir)) mkdirSync(agentsDir, { recursive: true });
-  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts });
+  mkdirTracked(recorder, projectPath, join(projectPath, '.agents'));
+  copyHookScripts(hookDir, join(projectPath, 'scripts', 'hooks'), { overwrite: overwriteScripts, recorder, projectPath });
 
   const command = AGY_HOOK_COMMAND;
   const entry = config[AGY_HOOK_NAME];
@@ -416,7 +445,7 @@ export function installAgyHooks(projectPath, { overwriteScripts = true } = {}) {
   config[AGY_HOOK_NAME] = { ...mine, Stop: stop };
 
   writeFileSync(hooksJsonPath, JSON.stringify(config, null, 2) + '\n');
-  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop' };
+  return { installed: true, settingsPath: hooksJsonPath, event: 'Stop', artifacts: recorder };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -574,9 +603,11 @@ const INSTALLERS = {
  * @param {string} projectPath
  * @param {string[]} tools
  * @param {{ plan?: boolean, overwriteScripts?: boolean }} [opts]
- * @returns {{ results: Array<{tool:string, outcome:'installed'|'unchanged'|'would-install'|'blocked'|'failed', path:string, why?:string, repaired?:boolean}>, scripts: {added:number, identical:number, kept:string[]} }}
+ * @returns {{ results: Array<{tool:string, outcome:'installed'|'unchanged'|'would-install'|'blocked'|'failed', path:string, why?:string, repaired?:boolean}>, scripts: {added:number, identical:number, kept:string[]}, artifacts: object }}
+ *   `artifacts` is the recorder of what this call wrote (see core/install-records.js);
+ *   the caller persists it into the manifest so `uds uninstall` can remove exactly that.
  */
-export function installMissingHooks(projectPath, tools, { plan = false, overwriteScripts = false } = {}) {
+export function installMissingHooks(projectPath, tools, { plan = false, overwriteScripts = false, recorder = newRecorder() } = {}) {
   // Measured BEFORE anything is copied: afterwards every script would read "identical".
   const scripts = scriptDiff(projectPath);
   const results = [];
@@ -585,9 +616,9 @@ export function installMissingHooks(projectPath, tools, { plan = false, overwrit
     if (st.status === 'present') { results.push({ tool, outcome: 'unchanged', path: st.path }); continue; }
     if (st.status === 'blocked') { results.push({ tool, outcome: 'blocked', path: st.path, why: st.why }); continue; }
     if (plan) { results.push({ tool, outcome: 'would-install', path: st.path, repaired: st.status === 'stale' }); continue; }
-    const r = INSTALLERS[tool](projectPath, { overwriteScripts });
+    const r = INSTALLERS[tool](projectPath, { overwriteScripts, recorder });
     if (r.installed) results.push({ tool, outcome: 'installed', path: r.settingsPath ?? st.path, repaired: st.status === 'stale' });
     else results.push({ tool, outcome: 'failed', path: r.settingsPath ?? st.path, why: r.reason ?? 'no standard produced a usable hook' });
   }
-  return { results, scripts };
+  return { results, scripts, artifacts: recorder };
 }

@@ -1264,7 +1264,11 @@ export const messages = {
         uninstallPartial: '⚠ Uninstall completed with errors.',
         removed: 'Removed',
         skippedLabel: 'Skipped',
-        errorsLabel: 'Errors'
+        errorsLabel: 'Errors',
+        cannotPrompt: 'Cannot ask for confirmation: nothing is attached to answer the prompt (non-interactive shell, CI, or a pipe).',
+        cannotPromptHint: 'Nothing has been changed. Re-run with --yes to confirm up front, or with --dry-run to preview the changes.',
+        promptClosed: 'The prompt was closed before an answer was given. Nothing has been changed.',
+        promptClosedMidRun: 'A prompt was closed part-way through. Steps already completed stay done; run `uds uninstall` again to finish.'
       }
     }
   },
@@ -2520,7 +2524,11 @@ export const messages = {
         uninstallPartial: '⚠ 解除安裝完成但有錯誤。',
         removed: '已移除',
         skippedLabel: '已跳過',
-        errorsLabel: '錯誤'
+        errorsLabel: '錯誤',
+        cannotPrompt: '無法詢問確認：目前沒有可回答提示的終端機（非互動 shell、CI 或管線）。',
+        cannotPromptHint: '尚未變更任何檔案。請加上 --yes 事先確認，或加上 --dry-run 預覽變更。',
+        promptClosed: '提示在回答前被關閉。尚未變更任何檔案。',
+        promptClosedMidRun: '執行途中提示被關閉。已完成的步驟維持完成；請再執行一次 `uds uninstall` 完成其餘部分。'
       }
     }
   },
@@ -3700,7 +3708,11 @@ export const messages = {
         uninstallPartial: '⚠ 卸载完成但有错误。',
         removed: '已移除',
         skippedLabel: '已跳过',
-        errorsLabel: '错误'
+        errorsLabel: '错误',
+        cannotPrompt: '无法询问确认：当前没有可回答提示的终端（非交互 shell、CI 或管道）。',
+        cannotPromptHint: '尚未更改任何文件。请加上 --yes 提前确认，或加上 --dry-run 预览变更。',
+        promptClosed: '提示在回答前被关闭。尚未更改任何文件。',
+        promptClosedMidRun: '执行途中提示被关闭。已完成的步骤保持完成；请再运行一次 `uds uninstall` 完成其余部分。'
       }
     }
   }

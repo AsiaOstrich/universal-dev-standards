@@ -47,6 +47,7 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
+import { persistRecorder } from '../core/install-records.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -1887,10 +1888,15 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
     console.log(chalk.gray(`  ${tool}: ${resolved.sources[tool].join(', ')}`));
   }
 
-  const { results, scripts } = installMissingHooks(projectPath, resolved.tools, {
+  const { results, scripts, artifacts } = installMissingHooks(projectPath, resolved.tools, {
     plan: !!options.plan,
     overwriteScripts: !!options.force,
   });
+
+  // Record what was just written (hook scripts, and folders UDS had to create) in
+  // the manifest, so `uds uninstall` can remove exactly that. Never on --plan: a
+  // plan writes nothing, and the recorder is empty then anyway.
+  if (!options.plan) persistRecorder(projectPath, artifacts);
 
   let failed = false;
   for (const r of results) {

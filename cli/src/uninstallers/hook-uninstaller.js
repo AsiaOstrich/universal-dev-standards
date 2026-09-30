@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, rmdirSync } from 'fs';
 import { join, basename } from 'path';
+import { proveUnchanged, RECORD_KINDS, RECORDS_KEY, isRealDirectory } from '../core/install-records.js';
 import {
   collectHookConfigs, standardsSourceDir, hooksSourceDir,
   CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT,
@@ -88,7 +89,7 @@ function applyHooksMap(config, nextMap) {
  * difference is which file and which key they look at.
  */
 function uninstallHookConfigFile({ configPath, label, dryRun, deleteEmptyFile }) {
-  const result = { removed: [], skipped: [], errors: [] };
+  const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
   if (!existsSync(configPath)) return result; // nothing installed here — nothing to report
 
   let config;
@@ -106,18 +107,21 @@ function uninstallHookConfigFile({ configPath, label, dryRun, deleteEmptyFile })
   }
 
   const entryLabel = `${label} (${removedCount} UDS hook ${removedCount === 1 ? 'entry' : 'entries'})`;
+  const updatedConfig = applyHooksMap(config, nextMap);
+  const willDeleteFile = deleteEmptyFile && Object.keys(updatedConfig).length === 0;
+  // Decided BEFORE the dry-run return: the preview must say the file goes away,
+  // and the folder-cleanup step needs to know the folder will be empty.
   if (dryRun) {
-    result.removed.push(entryLabel);
+    result.removed.push(willDeleteFile ? `${entryLabel}, file removed — created by UDS, now empty` : entryLabel);
+    if (willDeleteFile) result.deletedPaths.push(label);
     return result;
   }
 
-  const updatedConfig = applyHooksMap(config, nextMap);
-  const isNowEmpty = Object.keys(updatedConfig).length === 0;
-
   try {
-    if (deleteEmptyFile && isNowEmpty) {
+    if (willDeleteFile) {
       unlinkSync(configPath);
       result.removed.push(`${entryLabel}, file removed — created by UDS, now empty`);
+      result.deletedPaths.push(label);
     } else {
       writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2) + '\n');
       result.removed.push(entryLabel);
@@ -186,7 +190,7 @@ export function uninstallAgyHooks(projectPath, options = {}) {
   const configPath = join(projectPath, '.agents', 'hooks.json');
   const label = '.agents/hooks.json';
   const dryRun = options.dryRun || false;
-  const result = { removed: [], skipped: [], errors: [] };
+  const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
   if (!existsSync(configPath)) return result;
 
   let config;
@@ -242,14 +246,17 @@ export function uninstallAgyHooks(projectPath, options = {}) {
   }
 
   const entryLabel = `${label} (${removedCount} UDS hook ${removedCount === 1 ? 'entry' : 'entries'})`;
+  const willDeleteFile = Object.keys(next).length === 0;
   if (dryRun) {
-    result.removed.push(entryLabel);
+    result.removed.push(willDeleteFile ? `${entryLabel}, file removed — created by UDS, now empty` : entryLabel);
+    if (willDeleteFile) result.deletedPaths.push(label);
     return result;
   }
   try {
-    if (Object.keys(next).length === 0) {
+    if (willDeleteFile) {
       unlinkSync(configPath);
       result.removed.push(`${entryLabel}, file removed — created by UDS, now empty`);
+      result.deletedPaths.push(label);
     } else {
       writeFileSync(configPath, JSON.stringify(next, null, 2) + '\n');
       result.removed.push(entryLabel);
@@ -260,18 +267,110 @@ export function uninstallAgyHooks(projectPath, options = {}) {
   return result;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Proof of authorship — "only delete what UDS can prove it wrote, unchanged".
+//
+// A record in `manifest.installedArtifacts` (core/install-records.js) says UDS
+// wrote a file; a matching hash says nobody has changed it since. Both are
+// required to delete a whole file. Anything else is KEPT, and the reason is
+// printed, because "not provably ours" is the honest state of a file from an
+// older UDS (no record) or one an adopter has edited (hash differs) — and
+// guessing "probably ours" is how an adopter's own hook script gets deleted.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Relative paths (forward slashes) of every file under `dir`, or [] if it is not there. */
+function listFiles(dir, rel = '') {
+  if (!dir || !existsSync(dir)) return [];
+  const out = [];
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const r = rel ? `${rel}/${e.name}` : e.name;
+    if (e.isDirectory()) out.push(...listFiles(join(dir, e.name), r));
+    else out.push(r);
+  }
+  return out;
+}
+
+/**
+ * Remove the hook scripts UDS copied into `scripts/hooks/`.
+ *
+ * `scripts/hooks/` is a directory UDS scaffolds inside the adopter's project, so
+ * an adopter's own scripts can sit beside ours (a test in hook-uninstaller.test.js
+ * places one there and it must survive). Only files that have an install record
+ * AND still match it are deleted.
+ */
+export function uninstallHookScripts(projectPath, manifest, { dryRun = false, blockedBy = null } = {}) {
+  const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
+  const files = manifest?.[RECORDS_KEY]?.files || {};
+  const recorded = Object.entries(files)
+    .filter(([, rec]) => rec && rec.kind === RECORD_KINDS.HOOK_SCRIPT)
+    .map(([rel]) => rel)
+    .sort();
+
+  for (const rel of recorded) {
+    const abs = join(projectPath, rel);
+    if (!existsSync(abs)) continue; // already gone — nothing to remove, nothing to report
+    if (blockedBy) {
+      result.skipped.push(`${rel} (kept: ${blockedBy})`);
+      continue;
+    }
+    const proof = proveUnchanged(manifest, projectPath, rel);
+    if (proof.state !== 'proven') {
+      result.skipped.push(`${rel} (kept: ${proof.why})`);
+      continue;
+    }
+    try {
+      if (!dryRun) unlinkSync(abs);
+      result.removed.push(`${rel} (deleted — installed by UDS, ${proof.why})`);
+      result.deletedPaths.push(rel);
+    } catch (error) {
+      result.errors.push(`${rel} — ${error.message}`);
+    }
+  }
+
+  // Files that carry the name of a script UDS ships but have no record. Say so once,
+  // so a leftover `scripts/hooks/` is an explained decision and not a silent gap.
+  const recordedSet = new Set(recorded);
+  const shipped = listFiles(hooksSourceDir());
+  const unrecorded = shipped
+    .map((f) => `scripts/hooks/${f}`)
+    .filter((rel) => existsSync(join(projectPath, rel)) && !recordedSet.has(rel));
+  if (unrecorded.length > 0) {
+    result.skipped.push(
+      `scripts/hooks/ (kept: ${unrecorded.length} file${unrecorded.length === 1 ? '' : 's'} carry the name of a UDS hook script, ` +
+      'but the manifest has no record that UDS wrote them — installed by an older UDS, or by hand. ' +
+      'Delete them yourself if you no longer want them)'
+    );
+  }
+  return result;
+}
+
+const UDS_PRECOMMIT_LINE = /uds\s+check|checkin-standards|^#\s*UDS Standard Check\s*$/;
+const NATIVE_UDS_LINE = /uds\s+check|checkin-standards|UDS pre-commit hook/;
+
+/** True when nothing is left but a shebang and blank lines. */
+function nothingButShebang(lines) {
+  return lines.every((l) => !l.trim() || /^#!/.test(l.trim()));
+}
+
 /**
  * Remove UDS-related lines from .husky/pre-commit, the native
  * .git/hooks/pre-commit fallback, and the enforcement-hook entries UDS wrote
  * into .claude/settings.json, .codex/hooks.json, .gemini/settings.json and
- * .agents/hooks.json.
+ * .agents/hooks.json; and the hook scripts copied into scripts/hooks/.
+ *
+ * Whole-file deletion (a hook file, a script) needs proof — see proveUnchanged.
+ * A hook file that is not provably wholly UDS's still has its UDS lines removed
+ * (each is a line UDS wrote, and the rest of the file is untouched) and the
+ * remainder is reported as kept, with the reason.
+ *
  * @param {string} projectPath - Project root path
- * @param {Object} options - { dryRun: boolean }
- * @returns {Object} { removed: string[], skipped: string[], errors: string[] }
+ * @param {Object} options - { dryRun: boolean, manifest: object|null }
+ *   `manifest` must be read BEFORE `.standards/` is removed; it carries the install records.
+ * @returns {Object} { removed: string[], skipped: string[], errors: string[], deletedPaths: string[] }
  */
 export function uninstallHook(projectPath, options = {}) {
-  const { dryRun = false } = options;
-  const result = { removed: [], skipped: [], errors: [] };
+  const { dryRun = false, manifest = null } = options;
+  const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
   const hookPath = join(projectPath, '.husky', 'pre-commit');
 
   if (!existsSync(hookPath)) {
@@ -279,12 +378,22 @@ export function uninstallHook(projectPath, options = {}) {
   } else {
     try {
       const content = readFileSync(hookPath, 'utf-8');
+      const proof = proveUnchanged(manifest, projectPath, '.husky/pre-commit');
       const lines = content.split('\n');
-      const udsPattern = /uds\s+check|checkin-standards/;
-      const filteredLines = lines.filter(line => !udsPattern.test(line));
+      const filteredLines = lines.filter(line => !UDS_PRECOMMIT_LINE.test(line));
 
-      if (filteredLines.length === lines.length) {
+      if (proof.state === 'proven') {
+        // UDS created this file and nobody has touched it: nothing of the adopter's is in it.
+        if (!dryRun) unlinkSync(hookPath);
+        result.removed.push(`.husky/pre-commit (deleted — created by UDS, ${proof.why})`);
+        result.deletedPaths.push('.husky/pre-commit');
+      } else if (filteredLines.length === lines.length) {
         result.skipped.push('.husky/pre-commit (no UDS lines found)');
+      } else if (nothingButShebang(filteredLines)) {
+        // Only UDS's lines (and a shebang) were in it — removing them leaves nothing worth keeping.
+        if (!dryRun) unlinkSync(hookPath);
+        result.removed.push('.husky/pre-commit (UDS check lines; file removed — nothing else was in it)');
+        result.deletedPaths.push('.husky/pre-commit');
       } else if (dryRun) {
         result.removed.push('.husky/pre-commit (UDS check lines)');
       } else {
@@ -301,25 +410,30 @@ export function uninstallHook(projectPath, options = {}) {
   if (existsSync(nativeHookPath)) {
     try {
       const content = readFileSync(nativeHookPath, 'utf-8');
-      const udsPattern = /uds\s+check|checkin-standards|UDS pre-commit hook/;
+      const proof = proveUnchanged(manifest, projectPath, '.git/hooks/pre-commit');
 
-      if (!udsPattern.test(content)) {
+      if (proof.state === 'proven') {
+        // The whole script is what `uds init` wrote — including the parts no line
+        // pattern would ever match (its "Auto-generated by uds init" header, the
+        // linter fallbacks, the closing echo). Deleting only the matching lines
+        // used to leave that body behind, still executable, still claiming
+        // "Pre-commit checks passed".
+        if (!dryRun) unlinkSync(nativeHookPath);
+        result.removed.push(`.git/hooks/pre-commit (UDS native hook, file removed — ${proof.why})`);
+        result.deletedPaths.push('.git/hooks/pre-commit');
+      } else if (!NATIVE_UDS_LINE.test(content)) {
         result.skipped.push('.git/hooks/pre-commit (no UDS lines found)');
-      } else if (dryRun) {
-        result.removed.push('.git/hooks/pre-commit (UDS native hook)');
       } else {
-        // Remove only UDS-related lines, keep other hook content
         const lines = content.split('\n');
-        const filtered = lines.filter(line => !udsPattern.test(line));
-
-        // If only shebang remains, remove the file entirely; otherwise rewrite
-        const nonEmpty = filtered.filter(l => l.trim() && l.trim() !== '#!/bin/sh');
-        if (nonEmpty.length === 0) {
-          unlinkSync(nativeHookPath);
+        const filtered = lines.filter(line => !NATIVE_UDS_LINE.test(line));
+        if (nothingButShebang(filtered)) {
+          if (!dryRun) unlinkSync(nativeHookPath);
           result.removed.push('.git/hooks/pre-commit (UDS native hook, file removed)');
+          result.deletedPaths.push('.git/hooks/pre-commit');
         } else {
-          writeFileSync(nativeHookPath, filtered.join('\n'), 'utf-8');
+          if (!dryRun) writeFileSync(nativeHookPath, filtered.join('\n'), 'utf-8');
           result.removed.push('.git/hooks/pre-commit (UDS lines removed)');
+          result.skipped.push(`.git/hooks/pre-commit (kept: the rest of the script — ${proof.why})`);
         }
       }
     } catch (error) {
@@ -329,16 +443,81 @@ export function uninstallHook(projectPath, options = {}) {
 
   // Enforcement hooks written by installHooks()/installCodexHooks()/installGeminiHooks()
   // — the gap this function used to have entirely (see module doc comment above).
-  for (const sub of [
+  const configResults = [
     uninstallClaudeCodeHooks(projectPath, { dryRun }),
     uninstallCodexHooks(projectPath, { dryRun }),
     uninstallGeminiHooks(projectPath, { dryRun }),
     uninstallAgyHooks(projectPath, { dryRun }),
-  ]) {
+  ];
+  for (const sub of configResults) {
     result.removed.push(...sub.removed);
     result.skipped.push(...sub.skipped);
     result.errors.push(...sub.errors);
+    result.deletedPaths.push(...sub.deletedPaths);
   }
 
+  // The scripts those entries ran. If a config file could not be cleaned (it still
+  // names a script), deleting the script would turn a working hook into a failing one.
+  const configFailed = configResults.some((r) => r.errors.length > 0);
+  const scripts = uninstallHookScripts(projectPath, manifest, {
+    dryRun,
+    blockedBy: configFailed ? 'a hook config file could not be cleaned (see the error above) and still runs this script' : null
+  });
+  result.removed.push(...scripts.removed);
+  result.skipped.push(...scripts.skipped);
+  result.errors.push(...scripts.errors);
+  result.deletedPaths.push(...scripts.deletedPaths);
+
+  return result;
+}
+
+/**
+ * Remove the folders UDS had to create for its files (`.codex/`, `scripts/hooks/`, ...),
+ * once they are empty.
+ *
+ * A folder is removed only if (a) the manifest recorded that UDS created it and
+ * (b) nothing is left in it. An empty `.codex/` that the adopter made themselves is
+ * indistinguishable by looking; the record is the only thing that tells them apart.
+ * A folder that still holds anything — `.agents/rules/style.md` — is kept and
+ * reported, so the adopter sees why it stayed.
+ *
+ * In a dry run nothing has been deleted yet, so `plannedDeletions` (relative paths
+ * the run WOULD delete) stands in for the missing deletions when judging "empty".
+ *
+ * @param {string} projectPath
+ * @param {Object|null} manifest - read before `.standards/` was removed
+ * @param {{ dryRun?: boolean, plannedDeletions?: string[] }} [options]
+ * @returns {{ removed: string[], skipped: string[], errors: string[], deletedPaths: string[] }}
+ */
+export function pruneCreatedDirs(projectPath, manifest, { dryRun = false, plannedDeletions = [] } = {}) {
+  const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
+  const dirs = manifest?.[RECORDS_KEY]?.createdDirs || [];
+  const gone = new Set(plannedDeletions.map((p) => p.replace(/\\/g, '/')));
+  // Deepest first: `scripts/hooks` must go before `scripts` can be seen as empty.
+  const ordered = [...new Set(dirs)]
+    .filter((d) => d && !d.startsWith('..') && !d.startsWith('/'))
+    .sort((a, b) => b.split('/').length - a.split('/').length);
+
+  for (const rel of ordered) {
+    const abs = join(projectPath, rel);
+    if (!existsSync(abs)) continue;
+    if (!isRealDirectory(abs)) {
+      result.skipped.push(`${rel}/ (kept: not a plain directory)`);
+      continue;
+    }
+    try {
+      const left = readdirSync(abs).filter((name) => !gone.has(`${rel}/${name}`));
+      if (left.length > 0) {
+        result.skipped.push(`${rel}/ (kept: created by UDS but not empty — still holds ${left.slice(0, 3).join(', ')}${left.length > 3 ? ', ...' : ''}, which UDS did not write)`);
+        continue;
+      }
+      if (!dryRun) rmdirSync(abs);
+      gone.add(rel);
+      result.removed.push(`${rel}/ (empty folder created by UDS, removed)`);
+      result.deletedPaths.push(rel);
+    } catch (error) {
+      result.errors.push(`${rel}/ — ${error.message}`);
+    }
+  }
   return result;
 }

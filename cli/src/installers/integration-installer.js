@@ -141,6 +141,10 @@ export async function installIntegrations(config, projectPath) {
     if (result.success) {
       results.integrations.push(result.path);
       generatedFiles.add(targetFile);
+      // Files this run created from nothing (not merged into an existing file);
+      // init records them so uninstall can prove they are wholly UDS's. Added only
+      // when there is one, so an empty run keeps its original result shape.
+      if (result.created) (results.createdFiles ||= []).push(result.path);
 
       // Capture integration block hash for tracking UDS content
       if (result.blockHashInfo) {
@@ -310,7 +314,7 @@ export async function generateUniversalAgentsMd(config, integrationResults, proj
 
   if (result.success) {
     spinner.succeed(msg.generatedAgentsMd || 'Generated AGENTS.md (universal summary)');
-    return { path: result.path, error: null, blockHashInfo: result.blockHashInfo };
+    return { path: result.path, error: null, blockHashInfo: result.blockHashInfo, created: result.created };
   } else {
     spinner.warn(msg.couldNotGenerateAgentsMd || 'Could not generate AGENTS.md');
     return { path: null, error: result.error };

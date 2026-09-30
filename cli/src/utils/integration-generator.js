@@ -3202,8 +3202,14 @@ export function writeIntegrationFile(tool, config, projectPath) {
   try {
     let content = generateIntegrationContent({ ...config, tool });
 
+    // Whether this call CREATES the file (as opposed to merging into one that was
+    // already there). Only a file UDS created from nothing can later be proven
+    // to be wholly UDS's — see core/install-records.js. Taken from the existence
+    // check that already gates the merge below, before anything is written.
+    const created = !existsSync(filePath);
+
     // Handle merge if file exists
-    if (existsSync(filePath)) {
+    if (!created) {
       const existingContent = readFileSync(filePath, 'utf-8');
 
       if (config.mergeStrategy) {
@@ -3242,6 +3248,7 @@ export function writeIntegrationFile(tool, config, projectPath) {
       success: true,
       path: fileName, // Return relative path for consistency
       absolutePath: filePath,
+      created,
       blockHashInfo // Contains: blockHash, blockSize, fullHash, fullSize
     };
   } catch (error) {
@@ -3976,12 +3983,14 @@ export function generateAgentsMdSummary(config = {}) {
  */
 export function writeAgentsMdSummary(config, projectPath) {
   const filePath = join(projectPath, 'AGENTS.md');
-
   try {
     let content = generateAgentsMdSummary({ ...config, projectPath });
 
+    // See writeIntegrationFile: true only when this call creates the file.
+    const created = !existsSync(filePath);
+
     // Handle merge if file exists (preserve user content outside markers)
-    if (existsSync(filePath)) {
+    if (!created) {
       const existingContent = readFileSync(filePath, 'utf-8');
       const newParts = extractMarkedContent(content, 'markdown');
       if (newParts.content) {
@@ -3997,6 +4006,7 @@ export function writeAgentsMdSummary(config, projectPath) {
       success: true,
       path: 'AGENTS.md',
       absolutePath: filePath,
+      created,
       blockHashInfo
     };
   } catch (error) {

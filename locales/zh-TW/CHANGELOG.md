@@ -21,6 +21,12 @@ status: current
 
 - **`uds open-work next-action` 現在讀得懂寫成 Markdown 表格欄的「下一步」，不再只認小節標題與行內標籤。** 表頭在「下一步」詞彙內的欄（`Next action`、`Next step`、`下一步`、`下一動`，以及新加的 `回來要做什麼`）每一列都會被讀，回報帶行號與該列第一格內容，方便定位。詞彙仍然只有一份：標題、行內標籤與表頭都讀同一份。放在引用區塊（`> | … |`）裡的表格現在看得見；程式碼片段內或反斜線之後的 `|` 不再切開儲存格。欄數與表頭不一致的列會列為 `UNDECIDABLE`（判定不了），不會被當成空白；別處沒有違反時結束碼為 2，因為乾淨的結果只涵蓋了欄位的一部分。空白、`—`、`-` 的儲存格只計數、不評估，也不算 OWT-019 違反。此事是在真實工作紀錄上量測 DEC-122 H2 基準時發現的：80 列中有 32 列的欄數與表頭不同。`回來要做什麼` 是該工作紀錄實際使用的表頭（它的文字說明把該欄叫作 下一動），屬未校準判斷（OWT-016）。檢查器自己的突變測試新增八個表格突變，原有十七個仍然轉紅。
 
+### 修正
+
+- **`uds uninstall` 不再留下 UDS 自己寫的檔案，也不再移除它無法證明是 UDS 寫的東西。** 走過 `init` → `update --with-hooks` → `uninstall -y` 之後，它回報「已移除 5、已跳過 1、錯誤 0」，卻留下 `scripts/hooks/` 底下 15 個 hook 腳本、一個空的 `.codex/`、一份生成標頭仍指向已刪除 `.standards/` 的 AGENTS.md，以及 `uds init` 寫入的 `.git/hooks/pre-commit` 腳本主體。現在的規則是：整個檔案只有在 manifest 記錄了「UDS 寫的」（`installedArtifacts`，由 `init` 與 `update --with-hooks` 寫入）**而且**內容仍與記錄的雜湊相符時才會刪除。其他一律保留，並在輸出說明原因（`kept: modified since UDS wrote it`、`kept: no install record — ...`）。資料夾只有在 UDS 建立且現已為空時才移除；採用者自己的 `scripts/hooks/*.mjs`、`.agents/rules/*` 與 hook 項目都會保留。由舊版 UDS 安裝的專案沒有記錄，其腳本、AGENTS.md 生成文字與原生 pre-commit 主體會被保留並說明，而不是猜測。每一行「已移除」現在都對應一次真實的刪除或修改，帶著錯誤結束的執行也會以非 0 結束。
+- **`uds uninstall` 在沒有人能回答時不再畫出提示或噴錯誤堆疊，做不了事時也不再以 0 結束。** `--dry-run` 從不提示（它不寫任何東西），並預覽所有類別。沒有 `--yes` 又沒有終端機時，實際執行會以結束碼 2 拒絕，而不是假定「是」；提示被關閉時結束碼為 130；專案未初始化時結束碼為 1。
+- **`uds init --with-hooks` 在 Windows 上不再印出 `'chmod' is not recognized`。** pre-commit hook 原本用 try/catch 包住的 `execSync("chmod +x ...")` 賦予執行權限；catch 對程式碼藏起了失敗，但 `execSync` 已先把 cmd.exe 的錯誤送到終端機。現在改用 `fs.chmodSync`，並在沒有執行位元的 Windows 上略過此步驟。
+
 ## [6.14.0-beta.2] - 2026-09-30
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

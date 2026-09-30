@@ -33,6 +33,9 @@ describe('uninstall command', () => {
       rmSync(testDir, { recursive: true, force: true });
     }
     vi.restoreAllMocks();
+    // uninstall now reports failures through the exit code; a value left set by one
+    // test would be read by vitest as the exit status of the whole worker.
+    process.exitCode = undefined;
   });
 
   /**
@@ -225,6 +228,19 @@ describe('uninstall command', () => {
   });
 
   describe('interactive mode', () => {
+    // These tests model a person at a terminal. uninstall decides "can anything
+    // answer?" from stdin.isTTY before it draws a prompt, and vitest's stdin is a
+    // pipe, so the terminal is stated explicitly. (The no-terminal behaviour has
+    // its own file: uninstall.non-interactive.test.js.)
+    let originalIsTTY;
+    beforeEach(() => {
+      originalIsTTY = process.stdin.isTTY;
+      Object.defineProperty(process.stdin, 'isTTY', { value: true, configurable: true, writable: true });
+    });
+    afterEach(() => {
+      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, configurable: true, writable: true });
+    });
+
     it('should prompt for categories and confirmation', async () => {
       createTestInstallation({ withStandards: true });
 
