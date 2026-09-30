@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.2
-translation_version: 6.14.0-beta.2
+source_version: 6.14.0-beta.3
+translation_version: 6.14.0-beta.3
 last_synced: 2026-09-30
 status: current
 ---
@@ -17,6 +17,12 @@ status: current
 
 ## [Unreleased]
 
+## [6.14.0-beta.3] - 2026-09-30
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **既有采用者：请执行一次 `uds update`。**旧版 `uds init` 写进 pre-commit hook 的是单行 `npx uds check`，它可能请 npm 去拿一个叫 `uds`、但不是本项目的软件包。新安装不再写这一行，而 `uds update` 会替换既有 `.husky/pre-commit` 里 UDS 自己写的那一行。另外：`uds uninstall` 只移除能证明是 UDS 写的东西（早期 UDS 安装的项目会保留一部分文件并说明原因），`uds open-work next-action` 读得懂写成表格列的下一步。
+
 ### 变更
 
 - **`uds open-work next-action` 现在读得懂写成 Markdown 表格列的“下一步”，不再只认小节标题与行内标签。** 表头在“下一步”词汇内的列（`Next action`、`Next step`、`下一步`、`下一動`，以及新增的 `回來要做什麼`）每一行都会被读取，报告附带行号与该行第一格内容，便于定位。词汇仍然只有一份：标题、行内标签与表头都读同一份。放在引用块（`> | … |`）里的表格现在看得见；代码片段内或反斜杠之后的 `|` 不再切开单元格。列数与表头不一致的行会列为 `UNDECIDABLE`（无法判定），不会被当成空白；别处没有违反时退出码为 2，因为干净的结果只涵盖了字段的一部分。空白、`—`、`-` 的单元格只计数、不评估，也不算 OWT-019 违反。此事是在真实工作记录上量测 DEC-122 H2 基准时发现的：80 行中有 32 行的列数与表头不同。`回來要做什麼` 是该工作记录实际使用的表头（其文字说明把该列叫作 下一動），属未校准判断（OWT-016）。检查器自身的突变测试新增八个表格突变，原有十七个仍然转红。
@@ -26,7 +32,7 @@ status: current
 - **`uds uninstall` 不再留下 UDS 自己写的文件，也不再移除它无法证明是 UDS 写的东西。** 走过 `init` → `update --with-hooks` → `uninstall -y` 之后，它报告“已移除 5、已跳过 1、错误 0”，却留下 `scripts/hooks/` 下的 15 个 hook 脚本、一个空的 `.codex/`、一份生成标头仍指向已删除 `.standards/` 的 AGENTS.md，以及 `uds init` 写入的 `.git/hooks/pre-commit` 脚本主体。现在的规则是：整个文件只有在 manifest 记录了“UDS 写的”（`installedArtifacts`，由 `init` 与 `update --with-hooks` 写入）**并且**内容仍与记录的哈希相符时才会删除。其他一律保留，并在输出中说明原因（`kept: modified since UDS wrote it`、`kept: no install record — ...`）。文件夹只有在 UDS 创建且现已为空时才移除；采用者自己的 `scripts/hooks/*.mjs`、`.agents/rules/*` 与 hook 条目都会保留。由旧版 UDS 安装的项目没有记录，其脚本、AGENTS.md 生成文字与原生 pre-commit 主体会被保留并说明，而不是猜测。每一行“已移除”现在都对应一次真实的删除或修改，带着错误结束的运行也会以非 0 结束。
 - **`uds uninstall` 在没有人能回答时不再画出提示或抛出错误堆栈，做不了事时也不再以 0 结束。** `--dry-run` 从不提示（它不写任何东西），并预览所有类别。没有 `--yes` 又没有终端时，实际运行会以退出码 2 拒绝，而不是假定“是”；提示被关闭时退出码为 130；项目未初始化时退出码为 1。
 - **`uds init --with-hooks` 在 Windows 上不再打印 `'chmod' is not recognized`。** pre-commit hook 原本用 try/catch 包住的 `execSync("chmod +x ...")` 赋予执行权限；catch 对代码隐藏了失败，但 `execSync` 已先把 cmd.exe 的错误送到终端。现在改用 `fs.chmodSync`，并在没有执行位的 Windows 上跳过此步骤。
-- **安全性：`uds init` 写入的 pre-commit hook 不再向 npm 要一个叫 `uds`、但不是本项目的包。** 该 hook 原本是单行 `npx uds check`。`npx` 先找 `node_modules/.bin` 与 `PATH`，两处都没有才去 npm registry，而 registry 上的 `uds` 是不相干的项目（维护者 wizawu、`github.com/wizawu/uds`、v0.3.6、2022 年后未更新、目前没有 `bin`）。装了 UDS 的机器不受影响；没装的 clone 则会用名称去抓陌生人的包——目前无害只是因为该包*尚*无可执行文件，对方一旦发布带 `uds` bin 的版本，每位采用者的每次 commit 都会执行它。`--no-install` 不是解法：用会记录每个请求的本机 registry 实测（npm 10.9.9、11.20.0、12.1.0，三者一致），`npx --no-install uds` 仍会发出 `GET /uds`，而 `npx --no-install --package=universal-dev-standards uds` 完全找不到全局安装。hook 现在两者都不用：它在项目的 `node_modules/.bin`、再到 `PATH` 找 `universal-dev-standards`（包本名，只有本项目能发布）并执行 `check`；两处都找不到时打印该装什么并以非 0 退出——不跳过检查、不下载任何东西，而且即使采用者自己的命令排在后面，检查失败也会拦下 commit。`uds uninstall` 依标记整块移除新写法。给人看的文字同样修正：生成的 `CLAUDE.md`/`AGENTS.md` 区块内的警告行与 hook 提示改写为 `npx universal-dev-standards init` / `update`（警告行多了几个 token，所以 `scripts/prompt-footprint-baseline.json` 依实测值各调高 3–6）。**既有采用者：**`uds update`（除了限定 skills／commands／integrations 的模式之外的所有模式，以及 `--with-hooks`；`--plan` 只报告不写入）会替换 `.husky/pre-commit` 中 UDS 自己写的那一行——只认 UDS 曾生成过的两种确切写法（`npx uds check`，以及较早的 `npx uds check --standard checkin-standards`），且必须紧接在 `# UDS Standard Check` 标记下方；你自己写或改过的行不会被动，并会连同行号报告。此步骤在“已是最新版本”的提前返回**之前**执行，所以标准已是最新的采用者也会被处理。`uds check` 现在会警告仍使用裸名称的 hook。新增一个测试遍历 `npm pack` 出货的全部内容，只要有字符串以包运行器（npx、bunx、pnpm dlx、yarn dlx、npm exec）执行裸名称 `uds` 就会失败；非 Node 项目的原生 hook（`uds check`，只从 `PATH` 解析、不经 registry）不受影响，保持原样。
+- **安全性：`uds init` 写入的 pre-commit hook 不再向 npm 要一个叫 `uds`、但不是本项目的包。** 该 hook 原本是单行 `npx uds check`。`npx` 先找 `node_modules/.bin` 与 `PATH`，两处都没有才去 npm registry，而 registry 上的 `uds` 是不相干的项目（维护者 wizawu、`github.com/wizawu/uds`、v0.3.6、2022 年后未更新、目前没有 `bin`）。装了 UDS 的机器不受影响；没装的 clone 则会用名称去抓陌生人的包——目前无害只是因为该包*尚*无可执行文件，对方一旦发布带 `uds` bin 的版本，每位采用者的每次 commit 都会执行它。`--no-install` 不是解法：用会记录每个请求的本机 registry 实测（npm 10.9.9、11.20.0、12.1.0，三者一致），`npx --no-install uds` 仍会发出 `GET /uds`，而 `npx --no-install --package=universal-dev-standards uds` 完全找不到全局安装。hook 现在两者都不用：它在项目的 `node_modules/.bin`、再到 `PATH` 找 `universal-dev-standards`（包本名，只有本项目能发布）并执行 `check`；两处都找不到时打印该装什么并以非 0 退出——不跳过检查、不下载任何东西，而且即使采用者自己的命令排在后面，检查失败也会拦下 commit。`uds uninstall` 依标记整块移除新写法。给人看的文字同样修正：生成的 `CLAUDE.md`/`AGENTS.md` 区块内的警告行与 hook 提示改写为 `npx universal-dev-standards init` / `update`（警告行多了几个 token，所以 `scripts/prompt-footprint-baseline.json` 依实测值各调高 3–6）。**既有采用者：**`uds update`（除了 `--skills`、`--commands`、`--integrations-only`、`--standards-only` 与 `--rollback` 之外的所有模式，以及 `--with-hooks`；`--plan` 只报告不写入）会替换 `.husky/pre-commit` 中 UDS 自己写的那一行——只认 UDS 曾生成过的两种确切写法（`npx uds check`，以及较早的 `npx uds check --standard checkin-standards`），且必须紧接在 `# UDS Standard Check` 标记下方；你自己写或改过的行不会被动，并会连同行号报告。此步骤在“已是最新版本”的提前返回**之前**执行，所以标准已是最新的采用者也会被处理。`uds check` 现在会警告仍使用裸名称的 hook。新增一个测试遍历 `npm pack` 出货的全部内容，只要有字符串以包运行器（npx、bunx、pnpm dlx、yarn dlx、npm exec）执行裸名称 `uds` 就会失败；非 Node 项目的原生 hook（`uds check`，只从 `PATH` 解析、不经 registry）不受影响，保持原样。
 
 ## [6.14.0-beta.2] - 2026-09-30
 
