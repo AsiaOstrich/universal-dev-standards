@@ -81,5 +81,9 @@ integration_points:
 physical_spec:
   type: custom_script
   validator:
-    command: "grep -r 'secrets\\|sast\\|sca\\|dast' .github/workflows/ .gitlab-ci.yml Jenkinsfile 2>/dev/null | head -1 || echo 'no-ci-pipeline'"
+    # Fail-closed (XSPEC-444 R1 class sweep): the old form piped grep into `head -1`
+    # and fell back to `|| echo 'no-ci-pipeline'` — `head` always exits 0, so the
+    # check passed even when no pipeline mentioned any security gate. -q makes grep's
+    # own exit status the verdict: 0 only when a gate keyword is found.
+    command: "grep -rqE 'secrets|sast|sca|dast' .github/workflows/ .gitlab-ci.yml Jenkinsfile 2>/dev/null"
     rule: "security_gates_in_pipeline"

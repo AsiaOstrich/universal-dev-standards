@@ -17,6 +17,12 @@ status: current
 
 ## [Unreleased]
 
+### 修正
+
+- **行為改變——`uds check --standard checkin-standards` 在你的 lint 或測試失敗時現在會失敗；它以前會說「通過」。** 該驗證器原本是 `(npm test --if-present || echo "No test script")`。`--if-present` 本來就處理「沒有測試腳本」的情況；`|| echo` 因此只做了一件事：把失敗的 `npm test` 或 `npm run lint` 變成 exit 0。UDS 自己的 `test-governance` 標準要求閘門 fail-closed，它自己出貨的檢查卻沒做到。現在：lint 或測試腳本失敗會回非 0，並指出是哪一個（`FAILED: npm run test exited with 1`，後面接該腳本自己的輸出）；真的沒有該腳本不算失敗，並且**只有這時**才印 `No lint script`／`No test script`；`npm init` 為 `test` 寫的預設佔位（`echo "Error: no test specified" && exit 1`）視為沒有；沒有 `package.json` 的專案通過，並印出 lint 與測試**沒有**被執行；`package.json` 存在卻無法解析會失敗，不會被當成「沒有腳本」。缺 `CHANGELOG.md` 仍只是提示。**誰會看到差別：**pre-commit hook 執行 `check --standard checkin-standards` 的專案（UDS 在 2026-02-04 至 2026-03-04 寫的 hook，`uds update` 會把它保留成區塊的參數），以及在 CI 或腳本裡執行該指令的人。過去帶著失敗的測試也能提交成功的 commit，現在會被擋下——這正是目的。**怎麼處理：**執行 `npm test`／`npm run lint`，修掉它們回報的問題。沒有測試的專案不受影響。全新的 `uds init` 所寫的 hook 執行的是不帶參數的 `uds check`，它不評估這個驗證器；它該不該評估是另一個決定，本次不變。驗證器現在會執行 `node`，凡是在跑 `uds` CLI 的專案本來就有。
+- **`pipeline-security-gates` 驗證器不再在沒有任何 pipeline 提到安全閘門時通過。**它把 `grep` 接到 `head -1`，再以 `|| echo 'no-ci-pipeline'` 兜底；`head` 永遠回 0，所以兜底從不執行，這個檢查不可能失敗。現在改用 `grep -q`，除非 `.github/workflows/`、`.gitlab-ci.yml` 或 `Jenkinsfile` 提到 `secrets`、`sast`、`sca` 或 `dast`，否則回非 0。只有 `uds check --standard pipeline-security-gates` 會執行它。
+- **`uds init` 為非 Node 專案寫的原生 `.git/hooks/pre-commit` 現在真的能擋下 commit。**它原本把每個 linter 都寫成 `... 2>/dev/null || true`，把 `uds check 2>/dev/null || true` 也是，最後印出「Pre-commit checks passed」——什麼都擋不了，還把自己的錯誤藏起來。現在：已安裝的 linter（`ruff`、`go vet`、`cargo clippy`）失敗會擋下 commit，沒安裝的 linter 則略過；UDS 檢查改用與 husky hook 相同的標記區塊，所以它的結束碼會擋下 commit，而找不到 `universal-dev-standards` CLI 時會說明如何安裝並擋下，不再靜默略過。`uds uninstall` 會整段移除該區塊，連你改過的腳本也一樣。**磁碟上既有的 hook 維持原樣**——UDS 無法證明一個被改過的檔案是自己寫的，這一項也沒有隨本次變更附上遷移。
+
 ## [6.14.0-beta.3] - 2026-09-30
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

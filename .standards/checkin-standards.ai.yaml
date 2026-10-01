@@ -12,8 +12,8 @@ standard:
     - "Documentation: docs updated, CHANGELOG updated"
 
   meta:
-    version: "2.2.0"
-    updated: "2026-07-09"
+    version: "2.2.1"
+    updated: "2026-10-02"
     source: core/checkin-standards.md
     description: Quality gates that must be passed before committing code
 
@@ -167,10 +167,29 @@ standard:
 
 physical_spec:
   type: custom_script
+  # Fail-closed (XSPEC-444 R1): a failing lint or test script fails this check.
+  # A script that is genuinely absent is reported (printed) and does not fail it —
+  # the hint is printed only for that case, never as a fallback for a failure.
+  # Inline Node keeps it portable (sh and cmd.exe) and lets it read package.json
+  # instead of guessing from exit codes. The npm-init placeholder test script
+  # ("no test specified") counts as absent. A package.json that exists but cannot
+  # be read fails the check. No package.json (not an npm project): hint, no failure.
   validator:
     command: >
-      echo "🔍 UDS Check-in Gates:" && 
-      (npm run lint --if-present || echo "ℹ️ No lint script") && 
-      (npm test --if-present || echo "ℹ️ No test script") && 
-      (test -f CHANGELOG.md || echo "ℹ️ No CHANGELOG.md")
+      node -e "
+      const fs=require('fs'),cp=require('child_process');
+      console.log('🔍 UDS Check-in Gates:');
+      let pkg;
+      try{pkg=JSON.parse(fs.readFileSync('package.json','utf8').replace(/^\uFEFF/,''))}
+      catch(e){if(e.code!=='ENOENT'){console.error('package.json cannot be read: '+e.message);process.exit(1)}}
+      if(pkg===undefined){console.log('ℹ️ No package.json - lint and tests were NOT run by this check (not an npm project)')}
+      else{const sc=(pkg&&pkg.scripts)||{};
+      for(const n of ['lint','test']){
+      const s=sc[n];
+      if(!s||(n==='test'&&/no test specified/.test(s))){console.log('ℹ️ No '+n+' script');continue}
+      const r=cp.spawnSync('npm run '+n,{stdio:'inherit',shell:true});
+      if(r.status!==0){console.error('FAILED: npm run '+n+' exited with '+r.status);process.exit(1)}
+      }}
+      if(!fs.existsSync('CHANGELOG.md'))console.log('ℹ️ No CHANGELOG.md');
+      "
     rule: "checkin_gates_passed"

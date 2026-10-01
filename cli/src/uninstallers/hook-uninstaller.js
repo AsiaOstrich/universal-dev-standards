@@ -426,11 +426,13 @@ export function uninstallHook(projectPath, options = {}) {
         if (!dryRun) unlinkSync(nativeHookPath);
         result.removed.push(`.git/hooks/pre-commit (UDS native hook, file removed — ${proof.why})`);
         result.deletedPaths.push('.git/hooks/pre-commit');
-      } else if (!NATIVE_UDS_LINE.test(content)) {
+      } else if (!NATIVE_UDS_LINE.test(content) && !stripUdsHookBlock(content).removed) {
         result.skipped.push('.git/hooks/pre-commit (no UDS lines found)');
       } else {
-        const lines = content.split('\n');
-        const filtered = lines.filter(line => !NATIVE_UDS_LINE.test(line));
+        // The block the native hook carries is removed whole, by its markers — its
+        // inner lines are not individually matchable (same as the husky path above).
+        const filtered = stripUdsHookBlock(content).content.split('\n')
+          .filter(line => !NATIVE_UDS_LINE.test(line));
         if (nothingButShebang(filtered)) {
           if (!dryRun) unlinkSync(nativeHookPath);
           result.removed.push('.git/hooks/pre-commit (UDS native hook, file removed)');

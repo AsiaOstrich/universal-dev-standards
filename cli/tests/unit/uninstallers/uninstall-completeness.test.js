@@ -359,6 +359,24 @@ describe('uninstall completeness', () => {
       expect(printed()).toMatch(/\.git\/hooks\/pre-commit \(kept: the rest of the script — modified since UDS wrote it\)/);
     });
 
+    it('an edited native script loses the whole UDS check block (marker to end marker), not just the lines that name the CLI', async () => {
+      // The native hook now carries the same marked block the husky hook does
+      // (XSPEC-444 R1 class sweep). Its inner lines — PATH=, command -v, the "not
+      // installed" messages — match no line pattern, so removal must go by markers.
+      await installNative();
+      writeFileSync(join(dir, '.git', 'hooks', 'pre-commit'), read('.git/hooks/pre-commit') + '\nmake lint\n');
+
+      await uninstallCommand({ all: true, yes: true });
+
+      const left = read('.git/hooks/pre-commit');
+      expect(left).toContain('make lint');
+      expect(left).not.toContain('# UDS Standard Check');
+      expect(left).not.toContain('# End UDS Standard Check');
+      expect(left).not.toContain('universal-dev-standards');
+      expect(left).not.toContain('command -v universal');
+      expect(left).not.toMatch(/exit 1\n\) \|\| exit/);
+    });
+
     it('a script from before records existed is kept and explained', async () => {
       await installNative();
       dropRecords();

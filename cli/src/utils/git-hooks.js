@@ -189,11 +189,15 @@ export function hookRunsUdsCheck(content) {
  * - Not installed: say what is missing and how to fix it, exit non-zero. It
  *   neither skips the check nor downloads anything.
  *
- * @param {{args?: string}} [opts] extra arguments to keep on the check command
- *   (e.g. `--standard checkin-standards`, which older UDS versions wrote).
+ * @param {{args?: string, hookFile?: string}} [opts]
+ *   args     — extra arguments to keep on the check command
+ *              (e.g. `--standard checkin-standards`, which older UDS versions wrote).
+ *   hookFile — the file the block is written into, named in the "blocked" message so
+ *              it points at the file the adopter actually has (default `.husky/pre-commit`;
+ *              the native hook passes `.git/hooks/pre-commit`).
  * @returns {string} the block, LF line endings, ending with a newline
  */
-export function buildPreCommitBlock({ args = '' } = {}) {
+export function buildPreCommitBlock({ args = '', hookFile = '.husky/pre-commit' } = {}) {
   const cmd = args ? `${UDS_BIN_NAME} check ${args}` : `${UDS_BIN_NAME} check`;
   return [
     UDS_HOOK_MARKER,
@@ -208,7 +212,7 @@ export function buildPreCommitBlock({ args = '' } = {}) {
     '  fi',
     `  echo "[UDS] Pre-commit check cannot run: the UDS CLI (${UDS_BIN_NAME}) is not installed." >&2`,
     `  echo "[UDS] Install it:  npm install --save-dev ${UDS_BIN_NAME}   (or: npm install -g ${UDS_BIN_NAME})" >&2`,
-    '  echo "[UDS] This commit is blocked until it is installed, or until you remove this block from .husky/pre-commit." >&2',
+    `  echo "[UDS] This commit is blocked until it is installed, or until you remove this block from ${hookFile}." >&2`,
     '  exit 1',
     ') || exit $?',
     UDS_HOOK_END_MARKER,
