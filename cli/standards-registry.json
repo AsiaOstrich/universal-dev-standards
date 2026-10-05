@@ -382,6 +382,10 @@
       "skills/brainstorm-assistant/SKILL.md",
       "skills/brainstorm-assistant/guide.md"
     ],
+    "comprehension-ladder": [
+      "skills/comprehension-ladder/SKILL.md",
+      "skills/comprehension-ladder/eval-cases.md"
+    ],
     "bdd-assistant": [
       "skills/bdd-assistant/SKILL.md",
       "skills/bdd-assistant/guide.md",

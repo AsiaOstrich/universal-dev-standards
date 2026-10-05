@@ -8,10 +8,10 @@
   "skillRawNote": "`skillRawCeiling`/`skillRawAbsoluteMax` ratchet the UNCAPPED skill-description sum, independently of `ceiling`/`absoluteMax` on `total`. Needed because the zh-TW/Claude Code shape's own cap (CLAUDE_CODE_SKILL_BUDGET_CAP_TOKENS, 2000) otherwise makes `total` blind to skill-description growth once the cap is already saturated — today's raw sum for that shape (3,490) is already well past the cap, so a skill description could grow arbitrarily and `total` would never move. For the other two shapes the cap does not apply (raw == effective already), so this is largely redundant with `total` there — kept uniform across all three shapes anyway, since `total` growing from a bigger CLAUDE.md/AGENTS.md block does not by itself prove skill descriptions did not also grow.",
   "shapes": {
     "zh-tw-index-claude-code": {
-      "description": "zh-TW display + bilingual commits + content-mode index + Claude Code only (DEC-117 shape a, modeled on asiaostrich-telemetry-server). Skill descriptions are capped at CLAUDE_CODE_SKILL_BUDGET_CAP_TOKENS (2000) per check-prompt-footprint.mjs — see its LIMITATIONS section for what this cap does and does not model. NOTE: raw skill-description tokens (3,490) already exceed DEC-061's own ~2,000-token 1%-of-context reference point BY ITSELF, before any other adopter plugin is counted — see this ratchet's introducing commit report for the plain-language version of this finding.",
+      "description": "zh-TW display + bilingual commits + content-mode index + Claude Code only (DEC-117 shape a, modeled on asiaostrich-telemetry-server). Skill descriptions are capped at CLAUDE_CODE_SKILL_BUDGET_CAP_TOKENS (2000) per check-prompt-footprint.mjs — see its LIMITATIONS section for what this cap does and does not model. NOTE: raw skill-description tokens (3,587) already exceed DEC-061's own ~2,000-token 1%-of-context reference point BY ITSELF, before any other adopter plugin is counted — see this ratchet's introducing commit report for the plain-language version of this finding.",
       "ceiling": 3723,
       "absoluteMax": 8000,
-      "skillRawCeiling": 3490,
+      "skillRawCeiling": 3587,
       "skillRawAbsoluteMax": 7000
     },
     "en-minimal-no-ai-tool": {
@@ -23,9 +23,9 @@
     },
     "codex-opencode-index": {
       "description": "codex/opencode genuinely selected + content-mode index (DEC-117 shape c, control arm). AGENTS.md via the per-tool template, not the universal summary. Skill descriptions here are a direct, uncapped measurement of the 55 SKILL.md files check-prompt-footprint.mjs's own fixture actually installs under .agents/skills/ — no published truncation budget exists for Codex/OpenCode to model a cap against.",
-      "ceiling": 6276,
+      "ceiling": 6465,
       "absoluteMax": 13000,
-      "skillRawCeiling": 5753,
+      "skillRawCeiling": 5942,
       "skillRawAbsoluteMax": 12000
     }
   }

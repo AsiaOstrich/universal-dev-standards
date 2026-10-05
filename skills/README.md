@@ -49,6 +49,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
 | `project-discovery` | `/discover` | [UDS] Assess project health and risks |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] Structured AI-assisted ideation |
+| `comprehension-ladder` | `/comprehend` | [UDS] Re-form a hard-to-follow AI output as controlled text, a Mermaid diagram, or an offline HTML explainer, without changing the facts |
 | `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] Map development phases to UDS commands |
 | `docs-generator` | `/docgen` | [UDS] Generate usage documentation |

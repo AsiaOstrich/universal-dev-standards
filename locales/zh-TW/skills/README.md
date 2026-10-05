@@ -59,6 +59,7 @@ skills/
 | `refactoring-assistant` | `/refactor` | [UDS] 重構指引 |
 | `project-discovery` | `/discover` | [UDS] 評估專案健康度與風險 |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] 結構化 AI 輔助發想 |
+| `comprehension-ladder` | `/comprehend` | [UDS] 把難懂的 AI 輸出換成受控文字、Mermaid 圖或離線 HTML 解說頁，不改變事實 |
 | `changelog-guide` | `/changelog` | [UDS] 產生 changelog 條目 |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] 將開發階段對應到 UDS 命令 |
 | `docs-generator` | `/docgen` | [UDS] 產生使用文件 |

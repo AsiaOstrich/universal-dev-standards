@@ -4,7 +4,7 @@
   "last_updated": "2026-09-30",
   "stats": {
     "core_standards": 153,
-    "skills": 55,
+    "skills": 56,
     "slash_commands": 51,
     "cli_commands": 24
   },
@@ -1094,6 +1094,11 @@
     {
       "id": "knowledge-graph",
       "command": "/knowledge-graph",
+      "category": "documentation"
+    },
+    {
+      "id": "comprehension-ladder",
+      "command": "/comprehend",
       "category": "documentation"
     }
   ],

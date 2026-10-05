@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-09-30 | UDS v6.14.0-beta.3 | 55 skills
+> Last regenerated: 2026-10-05 | UDS v6.14.0-beta.3 | 56 skills
 
 Use skills by typing their command in Claude Code (e.g., `/sdd`, `/tdd`, `/commit`).
 Skills not in Tier 1 are always callable via `/<name>` even if not listed in the context menu.
@@ -34,7 +34,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `tdd-assistant` | `/tdd` | Reference for Test-Driven Development: the Red-Green-Refactor cycle, FIRST principles, and Arrange-Act-Assert structure. |
 | `testing-guide` | `/testing-guide` | Testing pyramid and test writing standards for UT/IT/ST/E2E. |
 
-### Tier 2 — Advanced (28 skills · weekly use · listed by default)
+### Tier 2 — Advanced (29 skills · weekly use · listed by default)
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -46,6 +46,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `audit-assistant` | `/audit` | Diagnose UDS installation health and submit structured feedback upstream. |
 | `changelog-guide` | `/changelog` | Generate and maintain CHANGELOG.md entries in Keep a Changelog format. |
 | `ci-cd-assistant` | `/ci-cd` | Guide CI/CD pipeline design, configuration, and optimization. |
+| `comprehension-ladder` | `/comprehend` | Turn one hard-to-follow AI output into easier forms: controlled text, a Mermaid diagram, a single-file HTML explainer. All forms come from one shared outline, so the form changes and the facts do not. |
 | `contract-test-assistant` | `/contract-test` | Guide contract testing strategy for APIs and microservices. |
 | `database-assistant` | `/database` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | `/deploy` | Guide reliable deployments without CI/CD platforms (GitHub Actions / GitLab CI). |
@@ -147,6 +148,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | Skill | Command | Tier | Description |
 |-------|---------|------|-------------|
 | `changelog-guide` | `/changelog` | T2 | Generate and maintain CHANGELOG.md entries in Keep a Changelog format. |
+| `comprehension-ladder` | `/comprehend` | T2 | Turn one hard-to-follow AI output into easier forms: controlled text, a Mermaid diagram, a single-file HTML explainer. All forms come from one shared outline, so the form changes and the facts do not. |
 | `docs-generator` | `/docgen` | T2 | Generate usage documentation (cheatsheets, references, guides) from project sources. |
 | `documentation-guide` | `/documentation-guide` | T2 | Guide documentation structure, content requirements, and project documentation best practices. |
 | `knowledge-graph` | `/knowledge-graph` | T2 | Trace impact chains across specs, decisions, and code via a knowledge graph, with a Markdown fallback when no engine is present. |
