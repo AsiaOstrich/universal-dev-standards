@@ -23,6 +23,12 @@ status: current
 - **`pipeline-security-gates` 验证器不再在没有任何 pipeline 提到安全闸门时通过。**它把 `grep` 接到 `head -1`，再以 `|| echo 'no-ci-pipeline'` 兜底；`head` 永远返回 0，所以兜底从不执行，这个检查不可能失败。现在改用 `grep -q`，除非 `.github/workflows/`、`.gitlab-ci.yml` 或 `Jenkinsfile` 提到 `secrets`、`sast`、`sca` 或 `dast`，否则返回非 0。只有 `uds check --standard pipeline-security-gates` 会执行它。
 - **`uds init` 为非 Node 项目写的原生 `.git/hooks/pre-commit` 现在真的能拦下 commit。**它原本把每个 linter 都写成 `... 2>/dev/null || true`，把 `uds check 2>/dev/null || true` 也是，最后打印“Pre-commit checks passed”——什么都拦不了，还把自己的错误藏起来。现在：已安装的 linter（`ruff`、`go vet`、`cargo clippy`）失败会拦下 commit，没安装的 linter 则跳过；UDS 检查改用与 husky hook 相同的标记区块，所以它的退出码会拦下 commit，而找不到 `universal-dev-standards` CLI 时会说明如何安装并拦下，不再静默跳过。`uds uninstall` 会整段移除该区块，连你改过的脚本也一样。**磁盘上既有的 hook 维持原样**——UDS 无法证明一个被改过的文件是自己写的，这一项也没有随本次变更附上迁移。
 
+### 新增
+
+- **`ai-response-navigation` 1.3.0 → 1.4.0——R12 受控语言，其中一条为必须。** 把文字简化会让它更好读，而最好读的句子是肯定的句子，所以「简化」会朝肯定的方向漂移：「可能」变成「是」。R12 把答案分成两半。**12.1 属必须**：为非原作者的读者缩短、简化、改写或翻译文字时，要保留写作者的不确定语气（might、could、probably、可能、推断、尚未确认），不可把不确定的论断改成确定的，也不可加入原文没说的事实。只有这一部分的失败会让读者相信不真实的事，而且不需要校准：检查就是拿改写前后比对，任何语言都做得到。**12.2 属可选**，理由已写进标准：以该语言自己的单位计句长（起始范围，按语言校准）、同物同名、主动语态、一步一动作、少用分号、数字带单位。R10 现在指向 R12。
+  - **不附英文词典，并在标准里明说。** 这些原则取自 ASD-STE100，但它的核可词表与时态限制依赖英文，不适用于中文或其他非英文文字。标准只取原则、不附任何词表，并警告：以空白分词的计数器会把一整段中文看成一个词，永远通过。
+  - **一组中文示例**：同一段文字的原文、约 80%、严格三个版本，全部保留不确定语气，外加第四个更短却错误的改写（把「可能」改成直接陈述的原因、把「尚未复现」改成「已确认」）。同步 zh-TW 与 zh-CN、两份 `.ai.yaml`，以及一个读取实际出货文件的测试——必须条款被削弱或删除时它会变红。
+
 ## [6.14.0-beta.3] - 2026-09-30
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

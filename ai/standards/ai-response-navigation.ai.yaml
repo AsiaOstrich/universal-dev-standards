@@ -3,14 +3,17 @@
 
 id: ai-response-navigation
 meta:
-  version: "1.3.0"
-  updated: "2026-08-17"
+  version: "1.4.0"
+  updated: "2026-10-05"
   source: core/ai-response-navigation.md
   description: >
     Every substantive AI response must include contextual next-step suggestions with recommended
     options (rules 1-6, required). Optional rules 7-11 govern the answer itself: lead with the
     finding, restate state across turns, no preamble, plain language as the subject, and a
-    trade-off on every option rather than only the recommended one.
+    trade-off on every option rather than only the recommended one. Rule 12 is controlled
+    language: one required clause (a simplified text keeps the writer's hedges, never turning
+    "might" into "is") and optional language-neutral plain-writing principles. It ships no
+    English dictionary.
 
 rules:
   - id: navigation-footer
@@ -127,6 +130,8 @@ rules:
       Distinct from lead-with-the-finding: that rule orders finding before evidence, this one
       governs register. A response can lead with its finding and still state that finding in
       vocabulary only its author holds; both leave the reader unable to act.
+      Putting a claim in plain words is a rewrite, and a rewrite is where hedges get lost: when
+      the claim was hedged, keep-uncertainty-markers (rule 12.1, required) governs.
     priority: optional
 
   - id: every-option-carries-its-trade-off
@@ -141,6 +146,41 @@ rules:
       downside worth stating, say so explicitly: an empty cell reads as "not analysed" and the
       reader cannot tell those apart. Composes with adaptive-quantity — trade-offs make each option
       costlier to read, so the 1-5 cap matters more, not less.
+    priority: optional
+
+  # ── Rule 12 (v1.4.0): controlled language, split into two entries ──
+  # One rule in the Markdown, two entries here because priority is one value per entry and the
+  # two halves are not the same strength. 12.1 is required: it is the only part whose failure makes
+  # the reader believe something untrue, and it needs no calibration (compare before and after).
+  # 12.2 is optional: its ranges are uncalibrated starting points with no checker, and a required
+  # rule with a threshold nobody can verify produces mechanical compliance.
+  # Takes the principles of ASD-STE100 and none of its English dictionary or tense rules.
+
+  - id: keep-uncertainty-markers
+    trigger: shortening, simplifying, rewriting or translating text for a reader who is not its author
+    instruction: >
+      Keep the writer's hedges (might, could, probably, appears to, not yet confirmed; 可能, 推斷,
+      大概, 尚未確認). Do NOT turn an uncertain claim into a certain one, do NOT drop a hedge to save
+      words, and do NOT add a fact the source did not state (an invented cause, an invented
+      "confirmed"). A shorter sentence is the goal; a more certain one is not allowed. A hedge may go
+      only when the claim has since been verified, and then the verification (what was checked, with
+      what result) takes its place; deleting the hedge alone is not verification.
+    priority: required
+
+  - id: controlled-language
+    trigger: writing for a non-specialist reader who has to judge or approve something from the text
+    instruction: >
+      Apply language-neutral plain-writing principles, each in the unit the language itself uses and
+      with no word list: (1) short sentences, one idea each, counted in the language's own unit —
+      as a starting range not a limit, roughly 15-25 words in English and 25-40 characters in
+      Chinese, calibrated per language and reader; (2) one name per thing for the whole text;
+      (3) a clear subject and the active voice, the passive only when the actor is unknown or
+      irrelevant; (4) one step, one action, as a numbered list; (5) few semicolons; (6) numbers carry
+      units. Do NOT use ASD-STE100's approved dictionary or tense restrictions: they depend on English
+      and do not apply to Chinese or other non-English text. Do NOT gauge non-English text with a
+      counter that splits on whitespace or ASCII; it reads a Chinese paragraph as one word and always
+      passes. Optional because the ranges are uncalibrated and unchecked; keep-uncertainty-markers is
+      the part that does not bend.
     priority: optional
 
 related_standards:
