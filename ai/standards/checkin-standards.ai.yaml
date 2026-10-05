@@ -13,7 +13,7 @@ standard:
 
   meta:
     version: "2.2.1"
-    updated: "2026-10-02"
+    updated: "2026-07-09"
     source: core/checkin-standards.md
     description: Quality gates that must be passed before committing code
 
