@@ -21,7 +21,9 @@ import {
   getAgentConfig,
   getAgentDisplayName
 } from '../utils/github.js';
-import { displayLanguageToLocale } from '../utils/locale.js';
+import { displayLanguageToLocale, normalizeRequestedLocale } from '../utils/locale.js';
+import localeUtils from '../utils/locale.js';
+const LOCALE_MAP_FOR_INIT = localeUtils.LOCALE_MAP;
 import { generateReleaseConfig, RELEASE_MODE_LABELS } from '../utils/release-config.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { readInstallYaml } from '../utils/config-manager.js';
@@ -678,9 +680,16 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   //   CLI --locale > .uds/install.yaml locale: > UDS_LOCALE env > LANG > 'en'
   // detectLanguage() handles UDS_LOCALE + LANG fallback internally (P1-CLI-3).
   const installYaml = readInstallYaml(projectPath);
-  const displayLanguage = options.locale
+  const requestedLanguage = options.locale
     || installYaml.locale
     || detectLanguage(null);
+  // Case-insensitive, and an unsupported value is said out loud instead of silently becoming English
+  // (dev-platform XSPEC-451 follow-up: `--locale zh-CN` used to install English with exit 0).
+  const { displayLanguage: normalizedLanguage, supported } = normalizeRequestedLocale(requestedLanguage);
+  const displayLanguage = supported ? normalizedLanguage : 'en';
+  if (!supported) {
+    console.log(chalk.yellow(`⚠ Unsupported locale "${requestedLanguage}" — installing in English. Supported: ${Object.keys(LOCALE_MAP_FOR_INIT).join(', ')}.`));
+  }
   
   // Determine AI tools
   const detectedAiTools = Object.keys(detected.aiTools).filter(k => detected.aiTools[k]);

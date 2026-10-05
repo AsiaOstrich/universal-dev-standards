@@ -33,6 +33,24 @@ export function displayLanguageToLocale(displayLanguage) {
 }
 
 /**
+ * Normalise a requested display language and say whether it is supported.
+ *
+ * `uds init --locale zh-CN` used to install English and exit 0: the value was compared case-sensitively
+ * further down, so the upper-case spelling silently missed every Chinese branch. An unsupported value such
+ * as `fr` did the same — English, exit 0, nothing said. The caller still falls back to English for an
+ * unsupported value, but now it can say so.
+ * @param {string|undefined|null} requested - what the user, install.yaml or the environment asked for
+ * @returns {{ displayLanguage: string|undefined|null, supported: boolean }}
+ */
+export function normalizeRequestedLocale(requested) {
+  if (typeof requested !== 'string' || requested.trim() === '') {
+    return { displayLanguage: requested, supported: true };
+  }
+  const displayLanguage = requested.trim().toLowerCase();
+  return { displayLanguage, supported: Object.prototype.hasOwnProperty.call(LOCALE_MAP, displayLanguage) };
+}
+
+/**
  * Check if a locale requires localized skill installation.
  * English locale uses the default source, no localization needed.
  * @param {string} locale - Locale directory name (e.g., 'zh-TW', 'en')
@@ -67,6 +85,7 @@ export function detectLocaleFromStandards(projectPath) {
 
 export default {
   displayLanguageToLocale,
+  normalizeRequestedLocale,
   isLocalizedLocale,
   detectLocaleFromStandards,
   LOCALE_MAP

@@ -66,6 +66,9 @@ const SIMPLIFIED_ONLY = [...'体资认证档设错软库户码测试号线与签
 const hits = (text, chars) => chars.filter((c) => text.includes(c));
 
 const installs = {}; // locale id -> { run, project, netLog }
+// Spellings that are not in the declared list on purpose: an upper-case one that must still work, and an
+// unsupported one that must be said out loud (both used to install English silently with exit 0).
+const EXTRA_SPELLINGS = ['zh-CN', 'fr'];
 let sandbox;
 
 /** A runnable copy of the CLI whose sources come from the real repo and which has no bundled/. */
@@ -222,7 +225,7 @@ beforeAll(async () => {
   const cliPath = stageCli(join(sandbox, 'stage'));
   const preload = join(sandbox, 'block-network.cjs');
   writeFileSync(preload, BLOCK_NETWORK);
-  await Promise.all(DECLARED.map(async (id) => {
+  await Promise.all([...DECLARED, ...EXTRA_SPELLINGS].map(async (id) => {
     const home = join(sandbox, 'home-' + id);
     const project = join(sandbox, 'project-' + id);
     const netLog = join(sandbox, `net-${id}.log`);
@@ -271,4 +274,22 @@ it('uds init succeeds for every locale the installer declares and each locale pa
 
   const problems = DECLARED.flatMap((id) => problemsFor(id));
   expect(problems, `locales checked: ${DECLARED.join(', ')}\n${problems.join('\n')}`).toEqual([]);
+});
+
+it('uds init --locale zh-CN in upper case installs the Simplified Chinese pack instead of silently falling back to English (locale-case-insensitive)', () => {
+  const { run, project } = installs['zh-CN'];
+  expect(run.code, run.stderr).toBe(0);
+  const installed = join(project, '.standards', 'zh-cn.md');
+  expect(existsSync(installed), 'the Simplified Chinese locale pack was installed for --locale zh-CN').toBe(true);
+  expect(readFileSync(installed, 'utf-8')).toBe(readFileSync(join(REAL_REPO, 'extensions', 'locales', 'zh-cn.md'), 'utf-8'));
+  expect(run.stdout).not.toMatch(/Unsupported locale/);
+});
+
+it('uds init --locale fr says the locale is unsupported and installs English instead of failing silently (locale-unsupported-said)', () => {
+  const { run, project } = installs['fr'];
+  expect(run.code, run.stderr).toBe(0);
+  expect(run.stdout).toMatch(/Unsupported locale "fr"/);
+  expect(run.stdout).toMatch(/installing in English/);
+  expect(existsSync(join(project, '.standards', 'zh-cn.md'))).toBe(false);
+  expect(existsSync(join(project, '.standards', 'zh-tw.md'))).toBe(false);
 });

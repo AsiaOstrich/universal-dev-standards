@@ -18,6 +18,7 @@ status: current
 ## [Unreleased]
 
 ### 修正
+- **`uds init --locale` 不分大小寫，且不支援的語系會明說**：`--locale zh-CN` 以前會安裝英文並回報成功，現在會裝簡體中文。不支援的值（例如 `fr`）仍改用英文安裝，但會印出警告，不再靜默。（dev-platform XSPEC-451 後續）
 
 - **行為改變——`uds check --standard checkin-standards` 在你的 lint 或測試失敗時現在會失敗；它以前會說「通過」。** 該驗證器原本是 `(npm test --if-present || echo "No test script")`。`--if-present` 本來就處理「沒有測試腳本」的情況；`|| echo` 因此只做了一件事：把失敗的 `npm test` 或 `npm run lint` 變成 exit 0。UDS 自己的 `test-governance` 標準要求閘門 fail-closed，它自己出貨的檢查卻沒做到。現在：lint 或測試腳本失敗會回非 0，並指出是哪一個（`FAILED: npm run test exited with 1`，後面接該腳本自己的輸出）；真的沒有該腳本不算失敗，並且**只有這時**才印 `No lint script`／`No test script`；`npm init` 為 `test` 寫的預設佔位（`echo "Error: no test specified" && exit 1`）視為沒有；沒有 `package.json` 的專案通過，並印出 lint 與測試**沒有**被執行；`package.json` 存在卻無法解析會失敗，不會被當成「沒有腳本」。缺 `CHANGELOG.md` 仍只是提示。**誰會看到差別：**pre-commit hook 執行 `check --standard checkin-standards` 的專案（UDS 在 2026-02-04 至 2026-03-04 寫的 hook，`uds update` 會把它保留成區塊的參數），以及在 CI 或腳本裡執行該指令的人。過去帶著失敗的測試也能提交成功的 commit，現在會被擋下——這正是目的。**怎麼處理：**執行 `npm test`／`npm run lint`，修掉它們回報的問題。沒有測試的專案不受影響。全新的 `uds init` 所寫的 hook 執行的是不帶參數的 `uds check`，它不評估這個驗證器；它該不該評估是另一個決定，本次不變。驗證器現在會執行 `node`，凡是在跑 `uds` CLI 的專案本來就有。
 - **`pipeline-security-gates` 驗證器不再在沒有任何 pipeline 提到安全閘門時通過。**它把 `grep` 接到 `head -1`，再以 `|| echo 'no-ci-pipeline'` 兜底；`head` 永遠回 0，所以兜底從不執行，這個檢查不可能失敗。現在改用 `grep -q`，除非 `.github/workflows/`、`.gitlab-ci.yml` 或 `Jenkinsfile` 提到 `secrets`、`sast`、`sca` 或 `dast`，否則回非 0。只有 `uds check --standard pipeline-security-gates` 會執行它。
