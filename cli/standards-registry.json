@@ -1541,6 +1541,16 @@
       "applicability": "Traditional Chinese speaking teams"
     },
     {
+      "id": "zh-cn-locale",
+      "name": "Simplified Chinese Locale",
+      "nameZh": "简体中文本地化",
+      "source": "extensions/locales/zh-cn.md",
+      "category": "extension",
+      "skillName": null,
+      "description": "Simplified Chinese (Mainland China) localization for all standards",
+      "applicability": "Simplified Chinese speaking teams"
+    },
+    {
       "id": "copilot-integration",
       "name": "GitHub Copilot Instructions",
       "nameZh": "GitHub Copilot 指令",
