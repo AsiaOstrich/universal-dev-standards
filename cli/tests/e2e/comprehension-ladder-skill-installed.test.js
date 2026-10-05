@@ -20,8 +20,8 @@
  *   So this test runs a staged copy of the CLI (cli/bin + cli/src, copied at test time, so a mutation of
  *   the source is what runs) whose repo root is the real repo (symlinks) and which has no bundled/.
  *
- * What is guarded, in plain words (all read back from the INSTALLED files, in English, zh-TW and zh-CN;
- * zh-CN goes through the installer function because `uds init --locale zh-cn` is broken for an unrelated reason):
+ * What is guarded, in plain words (all read back from the INSTALLED files, in English, zh-TW and zh-CN, every one
+ * of them through `uds init`; XSPEC-451 fixed `uds init --locale zh-cn`, which used to fail and roll back):
  *   1. `uds init` exits 0 and reports installing Skills (the entry ran).
  *   2. The skill's SKILL.md and its evaluation companion are on disk, and SKILL.md's body is
  *      byte-identical to the shipped source (a stale or truncated copy shows up here with its own message).
@@ -44,7 +44,6 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
-import { pathToFileURL } from 'url';
 import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
 
 const REAL_CLI_DIR = resolve(import.meta.dirname, '../..');
@@ -79,11 +78,7 @@ const LOCALES = [
   },
   {
     id: 'zh-CN',
-    // `uds init --locale zh-cn` fails today for a reason unrelated to skills (it also copies
-    // extensions/locales/zh-cn.md, which does not exist, and the install rolls back). So zh-CN is read back
-    // from the same installer the CLI calls, with the same staged code and the same cut point — one function
-    // below the CLI entry. Once `uds init --locale zh-cn` works, drop `viaInstaller` so zh-CN goes through the entry too.
-    viaInstaller: true,
+    initArgs: ['--locale', 'zh-cn'],
     sourceFile: (f) => join(REAL_REPO, 'locales', 'zh-CN', 'skills', SKILL, f),
     guardsH2: '三条防护',
     ladderH2: '阶梯',
@@ -199,14 +194,8 @@ beforeAll(async () => {
     // legacy path, which ignores --locale; with it, the unified installer runs (the path adopters use).
     mkdirSync(join(projectDir, '.claude'), { recursive: true });
     const skillDir = join(projectDir, '.claude', 'skills', SKILL);
-    if (loc.viaInstaller) {
-      const installer = await import(pathToFileURL(join(sandbox, 'stage', 'cli', 'src', 'utils', 'skills-installer.js')).href);
-      const result = await installer.installSkillsForAgent('claude-code', 'project', [SKILL], projectDir, loc.id);
-      installs[loc.id] = { run: null, result, skillDir };
-    } else {
-      const run = await runCli(cliPath, ['init', '--yes', '--skills-location', 'project', ...loc.initArgs], projectDir, env);
-      installs[loc.id] = { run, skillDir };
-    }
+    const run = await runCli(cliPath, ['init', '--yes', '--skills-location', 'project', ...loc.initArgs], projectDir, env);
+    installs[loc.id] = { run, skillDir };
   }
 }, 240000);
 
@@ -234,17 +223,12 @@ it('uds installs the comprehension-ladder skill with its three guards: no new fa
   expect(hasVideoRung(videoLadder.slice(0, 3))).toBe(false);
 
   for (const loc of LOCALES) {
-    const { run, result, skillDir } = installs[loc.id];
+    const { run, skillDir } = installs[loc.id];
     const tag = `[${loc.id}] `;
 
     // 1. The entry ran.
-    if (loc.viaInstaller) {
-      expect(result.success, tag + 'the installer reports success').toBe(true);
-      expect(result.installed, tag + 'the installer reports the skill').toContain(SKILL);
-    } else {
-      expect(run.code, tag + 'uds init exit code').toBe(0);
-      expect(run.stdout, tag + 'init reports installing skills').toMatch(/Installed \d+ Skills/);
-    }
+    expect(run.code, tag + 'uds init exit code').toBe(0);
+    expect(run.stdout, tag + 'init reports installing skills').toMatch(/Installed \d+ Skills/);
 
     // 2. Read back what landed in the adopter project.
     const installedPath = join(skillDir, 'SKILL.md');
