@@ -507,6 +507,69 @@ it('uds init records only the skills it installed: the adopter\'s own skill fold
   expect(check.stdout).toMatch(/Project is compliant/);
 }, 300000);
 
+it('uds check --ci ignores command records it cannot vouch for (a retired command, commands installed at user level), and uds update then drops the retired one (XSPEC-454 R2)', async () => {
+  const dir = await newProject('agents-only', { claude: false });
+  ageProject(dir);
+
+  // What an older project can carry: a record for a command UDS no longer ships (its file is long gone),
+  // and records for commands that were installed at user level — the files are in the home directory,
+  // so inside the project they can only ever read "missing".
+  const mPath = join(dir, '.standards', 'manifest.json');
+  const m = readJson(mPath);
+  const rec = { hash: 'sha256:' + '0'.repeat(64), size: 10, installedAt: '2026-01-01T00:00:00.000Z' };
+  m.commandHashes['opencode/retired-command.md'] = rec;
+  m.commandHashes['gemini-cli/commit.toml'] = rec;
+  m.commands.installations = [...m.commands.installations, { agent: 'gemini-cli', level: 'user' }];
+  writeJson(mPath, m);
+
+  const first = await runCli(['check', '--offline', '--ci'], dir);
+  expect(first.code, first.stdout).toBe(0);
+  expect(first.stdout).toMatch(/Project is compliant/);
+  expect(first.stdout).not.toMatch(/retired-command|gemini-cli\/commit\.toml/);
+  expect(first.stdout, 'it says what it set aside').toMatch(/1 command record\(s\) ignored: they describe commands UDS does not ship/);
+  expect(first.stdout).toMatch(/1 command record\(s\) ignored: those commands are installed at user level/);
+
+  const up = await runCli(['update', '--apply', '--yes', '--offline'], dir);
+  expect(up.code, up.stdout + up.stderr).toBe(0);
+  const after = readJson(mPath).commandHashes;
+  expect(Object.keys(after), 'the retired command record is gone for good').not.toContain('opencode/retired-command.md');
+  expect(Object.keys(after).filter((k) => k.startsWith('opencode/')).length, 'the real command records are all still there').toBeGreaterThan(40);
+
+  const second = await runCli(['check', '--offline', '--ci'], dir);
+  expect(second.code, second.stdout).toBe(0);
+  expect(second.stdout).toMatch(/Project is compliant/);
+  expect(second.stdout).not.toMatch(/does not ship/);
+}, 600000);
+
+it('uds check --ci names a deleted command file and an edited one, does not say the project is compliant, exits 1, and passes again after uds update --commands (XSPEC-454 R2)', async () => {
+  const dir = await newProject('agents-only', { claude: false });
+
+  const baseline = await runCli(['check', '--offline', '--ci'], dir);
+  expect(baseline.code, baseline.stdout).toBe(0);
+  expect(baseline.stdout).toMatch(/Project is compliant/);
+
+  rmSync(join(dir, '.opencode', 'command', 'commit.md'));
+  const edited = join(dir, '.opencode', 'command', 'tdd.md');
+  writeFileSync(edited, readFileSync(edited, 'utf-8') + '\nan edit that is not UDS\n');
+
+  const bad = await runCli(['check', '--offline', '--ci'], dir);
+  expect(bad.code, bad.stdout).toBe(1);
+  expect(bad.stdout).toMatch(/opencode\/commit\.md \(missing\)/);
+  expect(bad.stdout).toMatch(/opencode\/tdd\.md \(modified\)/);
+  expect(bad.stdout).not.toMatch(/Project is compliant/);
+  expect(bad.stdout).toMatch(/Some issues detected/);
+  expect(bad.stdout).toMatch(/uds update --apply --commands/);
+
+  const plain = await runCli(['check', '--offline'], dir);
+  expect(plain.stdout).not.toMatch(/Project is compliant/);
+
+  const fix = await runCli(['update', '--apply', '--yes', '--commands', '--offline'], dir);
+  expect(fix.code, fix.stdout + fix.stderr).toBe(0);
+  const good = await runCli(['check', '--offline', '--ci'], dir);
+  expect(good.code, good.stdout).toBe(0);
+  expect(good.stdout).toMatch(/Project is compliant/);
+}, 600000);
+
 // ─────────────────────────── R3 ───────────────────────────
 
 it('uds audit --offline runs to completion and makes no network request, while the same run without --offline does ask the registry (XSPEC-454 R3)', async () => {

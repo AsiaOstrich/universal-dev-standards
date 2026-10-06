@@ -49,6 +49,7 @@ import { checkPreCommitHookWiring } from '../utils/git-hooks.js';
 import { runTestChangeCheck } from '../utils/test-change-check.js';
 import { runTestQualityGates } from '../utils/gate-scripts.js';
 import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-ownership.js';
+import { pruneForeignCommandHashes, projectCommandHashes, commandIssuesOf } from '../utils/command-hash-ownership.js';
 
 /**
  * Display the summary of file integrity status
@@ -431,8 +432,20 @@ export async function checkCommand(options = {}) {
   const skillsIntegrity = checkSkillsIntegrity(manifest, projectPath, msg, ignoredSkillRecords);
   const skillIssues = skillIssuesOf(skillsIntegrity);
 
-  // Check Commands integrity if commandHashes exist
-  checkCommandsIntegrity(manifest, projectPath, msg);
+  // Check Commands integrity if commandHashes exist.
+  //
+  // XSPEC-454 R2, the Commands half, same order as above: first set aside the records this project's
+  // check cannot vouch for (commands UDS does not ship; commands installed at user level, which live
+  // outside the project), then let what is left decide the verdict.
+  const commandRecordsBefore = Object.keys(manifest.commandHashes || {}).length;
+  pruneForeignCommandHashes(manifest);
+  const ignoredCommandRecords = commandRecordsBefore - Object.keys(manifest.commandHashes || {}).length;
+  const projectCommands = projectCommandHashes(manifest);
+  const commandsIntegrity = checkCommandsIntegrity(
+    { ...manifest, commandHashes: projectCommands.hashes }, projectPath, msg,
+    { foreign: ignoredCommandRecords, elsewhere: projectCommands.ignored.length }
+  );
+  const commandIssues = commandIssuesOf(commandsIntegrity);
 
   // XSPEC adopter-report Q3: neither of the two checks above (content-hash
   // integrity) says anything about an installed Skills/Commands version
@@ -538,8 +551,10 @@ export async function checkCommand(options = {}) {
   // XSPEC-444 R2 + R5: this commit changes code but no test; fake tests; empty shells.
   // Warnings by default — a commit is blocked only when the project sets "mode": "block" in
   // .standards/test-policy.json. Both are read-only here (nothing is written to the project).
-  runTestChangeCheck(projectPath);
-  runTestQualityGates(projectPath);
+  // XSPEC-454 R2 (same class): both report whether they blocked; in "block" mode they set the exit code
+  // themselves, but the run still ended "compliant" because the verdict below never read what they said.
+  const testChange = runTestChangeCheck(projectPath);
+  const testGates = runTestQualityGates(projectPath);
 
   // Workflow status
   displayWorkflowStatus(projectPath);
@@ -553,6 +568,9 @@ export async function checkCommand(options = {}) {
   const allGood = fileStatus.missing.length === 0 &&
                   fileStatus.modified.length === 0 &&
                   skillIssues.length === 0 &&
+                  commandIssues.length === 0 &&
+                  !testChange.blocked &&
+                  !testGates.blocked &&
                   integrationBlockStatus.modified.length === 0 &&
                   integrationBlockStatus.missing.length === 0 &&
                   integrationBlockStatus.noMarkers.length === 0 &&
@@ -561,6 +579,9 @@ export async function checkCommand(options = {}) {
     console.log(chalk.green(msg.projectCompliant));
   } else {
     console.log(chalk.yellow(msg.issuesDetected));
+    if (commandIssues.length > 0) {
+      console.log(chalk.gray(msg.commandsIntegrityFix || '  Command files listed above are missing or were changed: run `uds update --apply --commands` to reinstall them.'));
+    }
     if (skillIssues.length > 0) {
       console.log(chalk.gray(msg.skillsIntegrityFix || '  Skill files listed above are missing or were changed: run `uds update --apply --skills` to reinstall them.'));
     }
@@ -2058,7 +2079,7 @@ function checkSkillsIntegrity(manifest, projectPath, msg, ignoredRecords = 0) {
  * @param {Object} msg - Localized messages
  * @returns {Object} Status { unchanged: [], modified: [], missing: [] }
  */
-export function checkCommandsIntegrity(manifest, projectPath, msg) {
+export function checkCommandsIntegrity(manifest, projectPath, msg, ignored = {}) {
   const commandHashes = manifest.commandHashes;
 
   // Skip if no command hashes tracked
@@ -2067,6 +2088,14 @@ export function checkCommandsIntegrity(manifest, projectPath, msg) {
   }
 
   console.log(chalk.cyan(msg.commandsIntegrityCheck || 'Commands File Integrity'));
+  if (ignored.foreign > 0) {
+    console.log(chalk.gray((msg.commandsStaleRecordsIgnored || '  {count} command record(s) ignored: they describe commands UDS does not ship.')
+      .replace('{count}', ignored.foreign)));
+  }
+  if (ignored.elsewhere > 0) {
+    console.log(chalk.gray((msg.commandsElsewhereIgnored || '  {count} command record(s) ignored: those commands are installed at user level, shared by every project.')
+      .replace('{count}', ignored.elsewhere)));
+  }
 
   const status = { unchanged: [], modified: [], missing: [], untracked: [], tracked: true };
 

@@ -866,6 +866,9 @@ export const messages = {
         projectCompliant: '✓ Project is compliant with standards',
         issuesDetected: '⚠ Some issues detected. Review above for details.',
         skillsIntegrityFix: '  Skill files listed above are missing or were changed: run `uds update --apply --skills` to reinstall them.',
+        commandsIntegrityFix: '  Command files listed above are missing or were changed: run `uds update --apply --commands` to reinstall them.',
+        commandsStaleRecordsIgnored: '  {count} command record(s) ignored: they describe commands UDS does not ship.',
+        commandsElsewhereIgnored: '  {count} command record(s) ignored: those commands are installed at user level, shared by every project, so this project\'s check does not vouch for them.',
         skillsStaleRecordsIgnored: '  {count} skill record(s) ignored: they describe files UDS did not install (e.g. your own skills, or folders an old UDS copied in and later removed).',
         // Installation prompts
         offerSkillsInstallation: 'Skills Installation',
@@ -1067,6 +1070,7 @@ export const messages = {
         prunedOrphanedBlockHashes: 'Pruned {count} orphaned integration hash(es): {files}',
         droppedRetiredHashes: 'Dropped {count} manifest record(s) for files UDS no longer ships and that are already gone:',
         droppedForeignSkillHashes: 'Dropped {count} skill record(s) that do not describe files UDS installed.',
+        droppedForeignCommandHashes: 'Dropped {count} command record(s) for commands UDS does not ship.',
         // Success
         updateSuccess: '✓ Standards updated successfully!',
         versionUpdated: 'Version: {current} → {latest}',
@@ -2149,6 +2153,9 @@ export const messages = {
         projectCompliant: '✓ 專案符合標準',
         issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。',
         skillsIntegrityFix: '  上方列出的技能檔遺失或被改過：執行 `uds update --apply --skills` 重新安裝。',
+        commandsIntegrityFix: '  上方列出的斜線命令檔遺失或被改過：執行 `uds update --apply --commands` 重新安裝。',
+        commandsStaleRecordsIgnored: '  已忽略 {count} 筆命令紀錄：它們描述的是 UDS 不出貨的命令。',
+        commandsElsewhereIgnored: '  已忽略 {count} 筆命令紀錄：這些命令裝在使用者層級（所有專案共用），本專案的檢查不為它們背書。',
         skillsStaleRecordsIgnored: '  已忽略 {count} 筆技能紀錄：它們描述的不是 UDS 安裝的檔案（例如你自己的技能，或舊版 UDS 誤拷入、後來已移除的資料夾）。',
         // Installation prompts
         offerSkillsInstallation: 'Skills 安裝',
@@ -2345,6 +2352,7 @@ export const messages = {
         prunedOrphanedBlockHashes: '已清除 {count} 個孤兒整合雜湊：{files}',
         droppedRetiredHashes: '已清掉 {count} 筆 manifest 紀錄——這些檔案 UDS 已不再出貨，而且本來就已經不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 筆技能紀錄——它們描述的不是 UDS 安裝的檔案。',
+        droppedForeignCommandHashes: '已清掉 {count} 筆命令紀錄——UDS 不出貨這些命令。',
         // Success
         updateSuccess: '✓ 標準更新成功！',
         versionUpdated: '版本：{current} → {latest}',
@@ -3441,6 +3449,9 @@ export const messages = {
         projectCompliant: '✓ 项目符合标准',
         issuesDetected: '⚠ 检测到一些问题。详情请查看上文。',
         skillsIntegrityFix: '  上方列出的技能文件缺失或被改过：运行 `uds update --apply --skills` 重新安装。',
+        commandsIntegrityFix: '  上方列出的斜杠命令文件缺失或被改过：运行 `uds update --apply --commands` 重新安装。',
+        commandsStaleRecordsIgnored: '  已忽略 {count} 条命令记录：它们描述的是 UDS 不发布的命令。',
+        commandsElsewhereIgnored: '  已忽略 {count} 条命令记录：这些命令装在用户级（所有项目共用），本项目的检查不为它们背书。',
         skillsStaleRecordsIgnored: '  已忽略 {count} 条技能记录：它们描述的不是 UDS 安装的文件（例如你自己的技能，或旧版 UDS 误拷入、后来已移除的文件夹）。',
         // Installation prompts
         offerSkillsInstallation: 'Skills 安装',
@@ -3545,6 +3556,7 @@ export const messages = {
         prunedOrphanedBlockHashes: '已清除 {count} 个孤儿集成哈希：{files}',
         droppedRetiredHashes: '已清掉 {count} 笔 manifest 记录——这些文件 UDS 已不再发布，而且本来就已经不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 条技能记录——它们描述的不是 UDS 安装的文件。',
+        droppedForeignCommandHashes: '已清掉 {count} 条命令记录——UDS 不发布这些命令。',
         // Success
         updateSuccess: '✓ 标准更新成功！',
         versionUpdated: '版本：{current} → {latest}',

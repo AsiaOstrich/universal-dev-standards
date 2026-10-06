@@ -548,24 +548,26 @@ describe('Check Command', () => {
     it('should correctly check commands file integrity when commandHashes exist', async () => {
       // Regression test: Bug #1 - getCommandsDirForAgent was called without 'level' parameter,
       // causing all commands to report as "missing" instead of "unchanged"
+      // A command UDS ships, with the extension Gemini CLI uses: since XSPEC-454 R2 a record for a name
+      // UDS does not ship is set aside rather than checked.
       const commandsDir = join(TEST_DIR, '.gemini', 'commands');
       mkdirSync(commandsDir, { recursive: true });
       const commandContent = '# Test Command\nSome content here';
-      writeFileSync(join(commandsDir, 'test-command.md'), commandContent);
+      writeFileSync(join(commandsDir, 'commit.toml'), commandContent);
 
       // Compute hash for the command file
       const { computeFileHash } = await import('../../src/utils/hasher.js');
-      const hashInfo = computeFileHash(join(commandsDir, 'test-command.md'));
+      const hashInfo = computeFileHash(join(commandsDir, 'commit.toml'));
 
       const manifest = createValidManifest({
         aiTools: ['gemini-cli'],
         commands: {
           installed: true,
-          names: ['test-command'],
+          names: ['commit'],
           installations: [{ agent: 'gemini-cli', level: 'project' }]
         },
         commandHashes: {
-          'gemini-cli/test-command.md': hashInfo
+          'gemini-cli/commit.toml': hashInfo
         }
       });
 

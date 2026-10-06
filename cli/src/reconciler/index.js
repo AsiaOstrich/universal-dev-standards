@@ -29,6 +29,7 @@ import { computeDiff, createEmptyPlan } from './diff-engine.js';
 import { executePlan } from './plan-executor.js';
 import { rollback } from './backup-manager.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
+import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
 
 /**
  * Full reconciliation pipeline.
@@ -81,12 +82,15 @@ function reconcileFileHashes(manifest, verifiedPristine) {
   // for the adopter to do.
   const skillProbe = { skillHashes: { ...(manifest.skillHashes || {}) } };
   const foreignSkillKeys = pruneForeignSkillHashes(skillProbe);
+  // ...and the same for command records that name a command UDS does not ship.
+  const commandProbe = { commandHashes: { ...(manifest.commandHashes || {}) } };
+  const foreignCommandKeys = pruneForeignCommandHashes(commandProbe);
 
-  if (!verifiedPristine?.length && stale.length === 0 && foreignSkillKeys.length === 0) return null;
+  if (!verifiedPristine?.length && stale.length === 0 && foreignSkillKeys.length === 0 && foreignCommandKeys.length === 0) return null;
 
   const kept = Object.fromEntries(Object.entries(current).filter(([k]) => !stale.includes(k)));
   const corrected = {};
-  let count = stale.length + foreignSkillKeys.length;
+  let count = stale.length + foreignSkillKeys.length + foreignCommandKeys.length;
 
   for (const entry of verifiedPristine || []) {
     const key = entry.path.replace(/\\/g, '/');
@@ -105,7 +109,8 @@ function reconcileFileHashes(manifest, verifiedPristine) {
     manifest: {
       ...manifest,
       fileHashes: { ...kept, ...corrected },
-      ...(foreignSkillKeys.length > 0 ? { skillHashes: skillProbe.skillHashes } : {})
+      ...(foreignSkillKeys.length > 0 ? { skillHashes: skillProbe.skillHashes } : {}),
+      ...(foreignCommandKeys.length > 0 ? { commandHashes: commandProbe.commandHashes } : {})
     },
     count
   };

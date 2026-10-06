@@ -527,6 +527,9 @@ it('with "mode": "block" a code change with no test is refused and git records n
   expect(refused.all).toContain('BLOCKED');
   expect(refused.all).toContain('- src/pay.js');
   expect(commitCount(dir), 'git recorded nothing').toBe(before);
+  // XSPEC-454 R2 (same class): a check that blocks must not also end by calling the project compliant.
+  expect(refused.all).not.toContain('Project is compliant');
+  expect(refused.all).toContain('Some issues detected');
 
   write(dir, 'tests/pay.test.js', "it('pays', () => { expect(pay()).toBe(1); });\n");
   const withTest = commit(dir, ['src/pay.js', 'tests/pay.test.js']);

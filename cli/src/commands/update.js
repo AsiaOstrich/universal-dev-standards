@@ -26,6 +26,7 @@ import {
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
+import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
 import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { config } from '../utils/config-manager.js';
@@ -629,6 +630,7 @@ export async function updateCommand(options) {
     // XSPEC-454 R2: skill records UDS never owned go the same way (an up-to-date adopter is exactly the
     // one who has nothing else to trigger the correction).
     const foreignSkillsOnLatest = pruneForeignSkillHashes(manifest);
+    const foreignCommandsOnLatest = pruneForeignCommandHashes(manifest);
     if (retiredOnLatest.length > 0) {
       console.log();
       console.log(chalk.gray(
@@ -644,7 +646,13 @@ export async function updateCommand(options) {
         `  ${(msg.droppedForeignSkillHashes || 'Dropped {count} skill record(s) that do not describe files UDS installed.').replace('{count}', foreignSkillsOnLatest.length)}`
       ));
     }
-    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0) {
+    if (foreignCommandsOnLatest.length > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedForeignCommandHashes || 'Dropped {count} command record(s) for commands UDS does not ship.').replace('{count}', foreignCommandsOnLatest.length)}`
+      ));
+    }
+    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0) {
       writeManifest(manifest, projectPath);
     }
 
@@ -3053,6 +3061,8 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     if (!manifest.commandHashes) manifest.commandHashes = {};
     replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
   }
+  // XSPEC-454 R2: and forget command records for commands UDS does not ship.
+  pruneForeignCommandHashes(manifest);
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -3630,7 +3640,7 @@ async function handleReconcile(projectPath, options, { force }) {
     // XSPEC-454 R2: nothing to apply, but the manifest may still list skill files UDS never installed
     // (they only ever get corrected by a write, and an up-to-date project has none coming).
     const current = readManifest(projectPath);
-    if (current && pruneForeignSkillHashes(current).length > 0) writeManifest(current, projectPath);
+    if (current && (pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0) writeManifest(current, projectPath);
     console.log(chalk.green('Everything is up to date. No changes needed.'));
     console.log();
     return;
