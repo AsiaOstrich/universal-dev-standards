@@ -8,11 +8,11 @@ standard:
   description: Behavior-completeness full coverage paradigm replacing pyramid thresholds. Enforces anti-fake-test rules, STUB marker protocol, ratchet CI, and @ac traceability.
 
   meta:
-    version: "1.1.0"
-    updated: "2026-06-17"
+    version: "1.2.0"
+    updated: "2026-10-06"
     source: core/full-coverage-testing.md
     replaces: "testing pyramid thresholds (UT≥80%/IT≥70%/E2E happy-path-only)"
-    xspec: "XSPEC-178"
+    xspec: "XSPEC-178, XSPEC-444"
     description: AI-era full coverage paradigm — cost of writing tests equals cost of writing code, so there is no reason to set lower thresholds for any test layer.
 
   rationale: |
@@ -180,6 +180,32 @@ standard:
       trigger: '"// WARNING: STUB" marker found in src/'
       message: "[STUB-WARN] STUB markers found. Must remove before merging to main."
 
+  # XSPEC-444 R2 + R5: what UDS itself ships so these rules are not only prose.
+  # Everything here WARNS by default; `mode: block` in the policy file tightens it.
+  shipped_gates:
+    default_mode: warn
+    policy_file: ".standards/test-policy.json"   # optional; every list adds to the defaults
+    scripts:                                     # written to scripts/ by `uds init`; never overwritten
+      - file: scripts/check-anti-fake-tests.mjs
+        finds: [no-assertion, tautology, all-skipped]
+        exit: "0 clean | 1 findings | 2 could not judge (never a pass)"
+      - file: scripts/check-stubs.mjs
+        finds: [stub-marker, not-implemented, empty-function]
+        exit: "0 clean | 1 findings | 2 could not judge (never a pass)"
+    pre_commit_checks:                           # run by `uds check` on what is staged
+      - id: code-without-test
+        finds: "code files changed and no test file changed in the same commit"
+        exempt: ["pure rename (git R100)", "policy exempt entry WITH a reason"]
+      - id: unclassified-file
+        finds: "a changed file of a type UDS does not recognise — listed, never assumed fine, never blocks"
+    language_coverage:
+      test_files: [javascript, typescript, python, java, kotlin, scala, csharp, go, rust, ruby, elixir, php, swift, dart, lua, cpp]
+      empty_function: [javascript, typescript, python, go, rust, ruby, php]
+      other_languages: "listed as NOT scanned — never counted as clean"
+    not_implemented_yet:
+      - "ratchet on the number of unpaired changes (spec does not define the baseline location or unit)"
+      - "per-commit exemption reason (a pre-commit hook cannot read the commit message)"
+
   migration_from_pyramid:
     deprecated:
       - "UT ≥ 80% coverage threshold"
@@ -225,7 +251,22 @@ standard:
 
 physical_spec:
   type: custom_script
+  # XSPEC-444 R5: this used to check that two scripts EXIST — scripts UDS did not ship.
+  # Now it RUNS them (`uds check --standard full-coverage-testing`); a missing script,
+  # or a scanner that exits non-zero, fails the check. The scanners' findings go to stderr
+  # (`stdio: ['ignore', 2, 2]`) because a failing validator's stdout is not shown. Inline Node
+  # keeps it portable.
   validator:
     command: >
-      test -f scripts/check-stubs.sh && test -f scripts/check-anti-fake-tests.sh
-    rule: "xspec178_enforcement_scripts_present"
+      node -e "
+      const fs=require('fs'),cp=require('child_process');
+      let bad=0;
+      for(const f of ['check-anti-fake-tests.mjs','check-stubs.mjs']){
+      const p='scripts/'+f;
+      if(!fs.existsSync(p)){console.error('MISSING: '+p+' (uds update offers to write it)');bad=1;continue}
+      const r=cp.spawnSync(process.execPath,[p],{stdio:['ignore',2,2]});
+      if(r.status!==0){console.error('FAILED: '+p+' exited with '+r.status);bad=1}
+      }
+      process.exit(bad)
+      "
+    rule: "full_coverage_gate_scripts_clean"

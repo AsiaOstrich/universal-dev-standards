@@ -25,6 +25,15 @@ status: current
 
 - **移除 `extensions/languages/php/`**——兩個沒有任何東西引用的檔（`php-style.md`、`fat-free-patterns.md`，約 37 KB）；安裝器、registry 與文件使用的是 `extensions/languages/php-style.md` 與 `extensions/frameworks/fat-free-patterns.md`，兩者不變。npm 套件因此少了這兩個檔，現在剛好只含安裝器裝得到的 5 個擴充檔；新增的測試會在有未宣告的擴充檔被打包時變紅。`uds init --lang php` 與 `--framework fat-free` 裝的檔與先前相同。落實 dev-platform XSPEC-453 R2。
 
+### 修正
+
+- **健康分數的覆蓋度維度不再回報永遠是 0 的 `has_tests`。**`calculateCoverage` 宣告了 `hasTests = 0` 卻從未改動它，所以 `uds audit --score` 印出一個看起來像「標準有沒有測試」的量測、實際上不會動的數字。它已從加總與 `details` 移除；**任何專案的覆蓋度分數都不變**（分母本來就是每個標準兩份——`check-<id>.sh` 與 `check-<id>-sync.sh`）。（XSPEC-444 R5）
+
+### 新增
+
+- **`uds init` 現在會附上 `full-coverage-testing` 一直要你自己寫的假測試與空殼掃描腳本，`uds check` 會把它們找到的東西以警告印出。**標準一直寫著「新增 `scripts/check-stubs.sh` 與 `scripts/check-anti-fake-tests.sh`」，驗證器也只檢查這兩個檔案存在——但 UDS 兩個都沒附，這條指示根本照做不了。`uds init` 現在會寫入 `scripts/check-anti-fake-tests.mjs`（找**沒有斷言**的測試、唯一的斷言是 `expect(true).toBe(true)` 或 `assert 200 == 200` 這類**恆真式**的測試、**每支測試都被跳過或標 todo** 的測試檔）與 `scripts/check-stubs.mjs`（`// WARNING: STUB` 標記、宣稱**尚未實作**而旁邊沒有標記的函式本體、本體**為空**而旁邊沒有標記的具名函式）。純 Node、零相依、不預設測試框架；它們是你的檔案。單獨執行時，找到東西就以非 0 結束。**`uds check`——pre-commit hook 執行的指令——會執行它們並把找到的東西印成警告；不擋任何東西**，除非你在 `.standards/test-policy.json` 設 `"mode": "block"`。有暫存檔案時掃描那些檔案；沒有暫存任何東西時（CI 執行）掃描整個專案。**測試檔規則涵蓋 JavaScript／TypeScript、Python、Java／Kotlin／Scala／C#、Go、Rust、Ruby、Elixir、PHP、Swift、Dart、Lua 與 C／C++；其他語言的測試檔會被列為「未掃描」，絕不當成乾淨。**它們讀的是文字、不執行你的測試，所以用掃描器認不得的名稱做斷言的輔助函式會被報為「no-assertion」（請命名為 `assert*`／`verify*`／`expect*`，或把樣式列在 `assertionPatterns`）。每次執行都先拿已知的假測試與好測試檢驗自己，失敗就以 `2`（「無法判定」，絕不算通過）結束。已存在的檔案絕不覆寫；`uds uninstall` 只移除 `uds init` 寫入且未被改動的檔案；較早初始化的專案由 `uds update` 詢問是否寫入（提示的預設為否；**`uds update -y` 會直接回答是**，所以升級指令是 `uds update -y` 的專案，下次更新就會多這兩個檔案）。**誰會看到差別：**本版之後每次 `uds init` 會在 `scripts/` 多兩個檔案，每次提交 `uds check` 會多印兩行（或找到的東西）。**怎麼處理：**讀它的發現；想讓某類檔案不再被報，加一份 `test-policy.json`；想強制執行，設 `"mode": "block"` 或在 CI 跑這兩支腳本。`uds check --standard full-coverage-testing` 現在會執行這兩支腳本，不再只檢查它們存在。（XSPEC-444 R5）
+- **`uds check` 在一次提交改了程式碼卻沒動任何測試時發出警告。**有檔案暫存時，`uds check` 會在「改了程式檔、同一次提交沒有測試檔變動」時列出那些程式檔，並列出它不認得類型的變更檔案（絕不當成沒事，也絕不擋）。刪除不需要測試；純重新命名（git `R100`）與符合 `exempt` 條目的路徑可免，輸出會記下理由。哪些路徑是測試、哪些是程式，是附有常見生態預設值的資料——`*.test.*`、`*_test.go`、`test_*.py`、`*Test.java`、`tests/` 等——由 `.standards/test-policy.json`（`testDirs`、`testPatterns`、`sourceExtensions`、`nonCodeExtensions`、`ignore`，以及每筆都必須附 `reason` 否則不生效的 `exempt`）**加進**而不是取代。**它只警告、放行提交。**同一份檔案裡的 `"mode": "block"` 會讓它擋下提交；這是目前提供的唯一收緊步驟。**沒有做，因為規格沒有定義：**未配測試的變更數棘輪（基線放在哪、以什麼計數），以及逐次提交的豁免理由（pre-commit hook 讀不到提交訊息）。（XSPEC-444 R2）
+
 ## [6.14.0-beta.4] - 2026-10-06
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

@@ -47,7 +47,8 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
-import { persistRecorder, mergeRecorderInto } from '../core/install-records.js';
+import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
+import { installGateScripts, gateStandardInstalled, GATE_SCRIPTS } from '../utils/gate-scripts.js';
 import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 import {
   promptSkillsInstallLocation,
@@ -1139,7 +1140,7 @@ export async function updateCommand(options) {
     manifest.options.coverage_model = manifest.options.coverage_model || 'full-coverage';
     console.log();
     console.log(chalk.yellow(msg.testParadigmMigrated || '⚠ Testing paradigm migrated: pyramid thresholds (UT≥80%/IT≥70%) → behavior-completeness full coverage (XSPEC-178)'));
-    console.log(chalk.cyan(msg.testParadigmNote || '  full-coverage-testing.ai.yaml installed. Review scripts/check-stubs.sh and scripts/check-anti-fake-tests.sh in your project.'));
+    console.log(chalk.cyan(msg.testParadigmNote || '  full-coverage-testing.ai.yaml installed. Review scripts/check-stubs.mjs and scripts/check-anti-fake-tests.mjs in your project (`uds update` offers to write them).'));
   }
 
   // Update manifest
@@ -1657,6 +1658,9 @@ export async function updateCommand(options) {
   // 錯誤訊息單一出口閘門：問過才寫，而且從不覆寫。
   await offerErrorExitGate(projectPath, options);
 
+  // 假測試與空殼掃描（XSPEC-444 R5）：同樣問過才寫、從不覆寫。
+  await offerTestQualityGates(projectPath, options);
+
   // Exit explicitly to prevent hanging.
   // T11: a partial update exits non-zero so CI / scripts can detect the failure.
   process.exit(updateIncomplete ? 1 : 0);
@@ -1703,6 +1707,47 @@ async function offerErrorExitGate(projectPath, options) {
   writeFileSync(dest, readFileSync(src, 'utf-8'), 'utf-8');
   console.log(chalk.green('  ✓ 已寫入 scripts/check-error-exit.mjs'));
   console.log(chalk.gray('    下一步：填好檔頭的 CONFIG，然後把它接進你的 CI 或 pre-commit。'));
+  console.log();
+}
+
+/**
+ * Offer the fake-test and stub scanners to an EXISTING installation.
+ * // implements XSPEC-444 R5
+ *
+ * `uds init` writes them for a new project. A project initialised before that has the
+ * full-coverage-testing standard — which asks for these two scripts — but never received them.
+ * Writing files into a repository nobody asked us to touch is a trust problem, so this shows
+ * what is about to be written, asks (default: no), and never overwrites a file that exists.
+ */
+async function offerTestQualityGates(projectPath, options) {
+  if (!gateStandardInstalled(projectPath)) return;
+  const wanted = GATE_SCRIPTS.filter(({ file }) => !existsSync(join(projectPath, 'scripts', file)));
+  if (wanted.length === 0) return;
+  const available = wanted.filter(({ file }) => existsSync(join(getRepoRoot(), 'templates', 'gates', file)));
+  if (available.length === 0) return; // templates not shipped in this package — stay silent, do not pretend
+
+  console.log(chalk.bold('  Fake-test and stub scanners'));
+  console.log(chalk.gray('    The full-coverage-testing standard asks for these scripts; this project does not have them yet:'));
+  for (const { file, what } of available) console.log(chalk.gray(`      - scripts/${file}  (finds ${what})`));
+  console.log(chalk.gray('    Pure Node, no dependencies. `uds check` runs them and prints what they find as a WARNING;'));
+  console.log(chalk.gray('    nothing is blocked unless you set "mode": "block" in .standards/test-policy.json.'));
+  console.log();
+
+  const ok = await confirmOrFail({
+    message: 'Write these scripts into scripts/ ?',
+    defaultValue: false, // silence is not consent
+    options
+  });
+  if (!ok) {
+    console.log(chalk.gray('  Skipped. `uds check` will mention it again, but never writes them on its own.'));
+    console.log();
+    return;
+  }
+  const recorder = newRecorder();
+  const result = installGateScripts(projectPath, recorder);
+  persistRecorder(projectPath, recorder);
+  for (const rel of result.written) console.log(chalk.green(`  ✓ ${rel}`));
+  for (const rel of result.kept) console.log(chalk.gray(`  · ${rel} already exists — kept as is`));
   console.log();
 }
 
