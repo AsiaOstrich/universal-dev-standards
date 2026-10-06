@@ -7,7 +7,7 @@ import {
   getOptionSource,
   findOption
 } from '../utils/registry.js';
-import { copyStandard } from '../utils/copier.js';
+import { copyStandard, copyExtension } from '../utils/copier.js';
 import { t } from '../i18n/messages.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { MANIFEST_OPTION_BINDINGS } from '../core/constants.js';
@@ -115,36 +115,29 @@ export async function installStandards(config, projectPath) {
   if (config.languages.length > 0 || config.frameworks.length > 0 || localeExtension) {
     const extSpinner = createSpinner(msg.copyingExtensions).start();
 
-    for (const lang of config.languages) {
-      if (EXTENSION_MAPPINGS[lang]) {
-        const result = await copyStandard(EXTENSION_MAPPINGS[lang], '.standards', projectPath);
-        if (result.success) {
-          results.extensions.push(EXTENSION_MAPPINGS[lang]);
-        } else {
-          results.errors.push(`${EXTENSION_MAPPINGS[lang]}: ${result.error}`);
-        }
+    // One helper, one copy call. Extension files come from the installed package only:
+    // a declared extension that is missing from it is an error naming that file, never a
+    // download and never a silent skip (XSPEC-452 R2).
+    const installExtension = async (sourcePath) => {
+      const result = await copyExtension(sourcePath, '.standards', projectPath);
+      if (result.success) {
+        results.extensions.push(sourcePath);
+      } else {
+        results.errors.push(`${sourcePath}: ${result.error}`);
       }
+    };
+
+    for (const lang of config.languages) {
+      if (EXTENSION_MAPPINGS[lang]) await installExtension(EXTENSION_MAPPINGS[lang]);
     }
 
     for (const fw of config.frameworks) {
-      if (EXTENSION_MAPPINGS[fw]) {
-        const result = await copyStandard(EXTENSION_MAPPINGS[fw], '.standards', projectPath);
-        if (result.success) {
-          results.extensions.push(EXTENSION_MAPPINGS[fw]);
-        } else {
-          results.errors.push(`${EXTENSION_MAPPINGS[fw]}: ${result.error}`);
-        }
-      }
+      if (EXTENSION_MAPPINGS[fw]) await installExtension(EXTENSION_MAPPINGS[fw]);
     }
 
     // Auto-install locale extension based on display language
     if (localeExtension && EXTENSION_MAPPINGS[localeExtension]) {
-      const result = await copyStandard(EXTENSION_MAPPINGS[localeExtension], '.standards', projectPath);
-      if (result.success) {
-        results.extensions.push(EXTENSION_MAPPINGS[localeExtension]);
-      } else {
-        results.errors.push(`${EXTENSION_MAPPINGS[localeExtension]}: ${result.error}`);
-      }
+      await installExtension(EXTENSION_MAPPINGS[localeExtension]);
     }
 
     extSpinner.succeed(msg.copiedExtensions.replace('{count}', results.extensions.length));

@@ -36,6 +36,9 @@ const CLI_ROOT = join(__dirname, '..');
 const REPO_ROOT = join(CLI_ROOT, '..');
 const SOURCE_DIR = join(REPO_ROOT, '.standards');
 const BUNDLED_AI_DIR = join(CLI_ROOT, 'bundled', 'ai');
+// XSPEC-452 R1: `extensions/` is bundled whole, so it is compared whole — every file, by bytes.
+const EXTENSIONS_SOURCE_DIR = join(REPO_ROOT, 'extensions');
+const BUNDLED_EXTENSIONS_DIR = join(CLI_ROOT, 'bundled', 'extensions');
 const EXCLUDE_CONFIG = join(__dirname, 'bundle-exclude.json');
 
 const args = new Set(process.argv.slice(2));
@@ -65,6 +68,45 @@ function collectAiYaml(root) {
 
   walk(root);
   return results.sort();
+}
+
+/**
+ * Recursively collect every file under `root` (any extension), relative and
+ * forward-slash-normalized. Absent root → empty list.
+ */
+function collectAllFiles(root) {
+  /** @type {string[]} */
+  const results = [];
+  if (!existsSync(root)) return results;
+  (function walk(currentDir) {
+    for (const entry of readdirSync(currentDir)) {
+      const full = join(currentDir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (entry !== '.DS_Store') results.push(relative(root, full).split('\\').join('/')); // OS junk: npm never packs it either
+    }
+  })(root);
+  return results.sort();
+}
+
+/**
+ * XSPEC-452 R1 — `extensions/` ⇄ `cli/bundled/extensions/`, name AND bytes.
+ *
+ * Why a second comparison and not a wider glob on the first: the `.ai.yaml` check above
+ * answers "is every standard installable"; this one answers "does the package carry the
+ * add-on files the installer maps to". Until 2026-10-06 nothing compared them, so the
+ * published package held 0 of 7 and every parity check stayed green.
+ */
+function compareExtensions() {
+  const source = collectAllFiles(EXTENSIONS_SOURCE_DIR);
+  const bundled = collectAllFiles(BUNDLED_EXTENSIONS_DIR);
+  const bundledSet = new Set(bundled);
+  const sourceSet = new Set(source);
+  const missing = source.filter((p) => !bundledSet.has(p));
+  const extra = bundled.filter((p) => !sourceSet.has(p));
+  const drift = source
+    .filter((p) => bundledSet.has(p))
+    .filter((p) => !readFileSync(join(EXTENSIONS_SOURCE_DIR, p)).equals(readFileSync(join(BUNDLED_EXTENSIONS_DIR, p))));
+  return { source_count: source.length, bundled_count: bundled.length, missing, extra, drift };
 }
 
 /**
@@ -161,7 +203,10 @@ function main() {
     })
     .sort();
 
-  const ok = missingFromBundle.length === 0 && missingFromSource.length === 0 && contentDrift.length === 0;
+  const ext = compareExtensions();
+  const extensionsOk = ext.missing.length === 0 && ext.extra.length === 0 && ext.drift.length === 0;
+
+  const ok = missingFromBundle.length === 0 && missingFromSource.length === 0 && contentDrift.length === 0 && extensionsOk;
 
   if (JSON_OUTPUT) {
     const payload = {
@@ -171,13 +216,22 @@ function main() {
       excludes: [...excludes].sort(),
       missing_from_bundle: missingFromBundle,
       missing_from_source: missingFromSource,
-      content_drift: contentDrift
+      content_drift: contentDrift,
+      extensions: {
+        ok: extensionsOk,
+        source_count: ext.source_count,
+        bundled_count: ext.bundled_count,
+        missing_from_bundle: ext.missing,
+        missing_from_source: ext.extra,
+        content_drift: ext.drift
+      }
     };
     console.log(JSON.stringify(payload, null, 2));
     process.exit(ok ? 0 : 1);
   }
 
   console.log(`[check-bundle-parity] source=${sourceFiles.length} bundled=${bundledFiles.length} excludes=${excludes.size}`);
+  console.log(`[check-bundle-parity] extensions: source=${ext.source_count} bundled=${ext.bundled_count}`);
   if (ok) {
     console.log('[check-bundle-parity] OK — bundle parity holds (modulo excludes).');
     process.exit(0);
@@ -197,6 +251,22 @@ function main() {
     console.log('');
     console.log(`[check-bundle-parity] ${contentDrift.length} file(s) present in BOTH but with different content:`);
     for (const p of contentDrift) console.log(`  ~ ${p}`);
+    console.log('  (the bundle is stale — regenerate it with `npm run prepack`)');
+  }
+  if (ext.missing.length > 0) {
+    console.log('');
+    console.log(`[check-bundle-parity] ${ext.missing.length} extension file(s) in extensions/ but NOT in the bundle:`);
+    for (const p of ext.missing) console.log(`  - extensions/${p}`);
+  }
+  if (ext.extra.length > 0) {
+    console.log('');
+    console.log(`[check-bundle-parity] ${ext.extra.length} extension file(s) in the bundle but NOT in extensions/:`);
+    for (const p of ext.extra) console.log(`  - extensions/${p}`);
+  }
+  if (ext.drift.length > 0) {
+    console.log('');
+    console.log(`[check-bundle-parity] ${ext.drift.length} extension file(s) present in BOTH but with different bytes:`);
+    for (const p of ext.drift) console.log(`  ~ extensions/${p}`);
     console.log('  (the bundle is stale — regenerate it with `npm run prepack`)');
   }
   console.log('');
