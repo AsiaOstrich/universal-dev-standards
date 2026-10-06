@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, copyFileSync } from 'fs';
+import { existsSync, mkdirSync, copyFileSync, readFileSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { downloadStandard, downloadIntegration } from './github.js';
@@ -76,6 +76,26 @@ export async function copyExtension(sourcePath, targetDir, projectPath) {
       { sourcePath, targetDir, projectPath }
     );
   }
+}
+
+/**
+ * Read the original of a source path from the installed package — never from the network.
+ *
+ * This is what `uds check --diff` compares an adopter's file against (XSPEC-453 R1). The original
+ * used to be downloaded from GitHub `main`: offline it failed, and whatever UDS had changed on `main`
+ * since the adopter installed was listed as a difference the adopter had made. The package's own copy
+ * is the version that was installed, so a difference against it is the adopter's.
+ *
+ * Returns `null` when the installed package has no such file; the caller says so by name. There is
+ * deliberately no fallback to a download here.
+ *
+ * @param {string} sourcePath - Relative path from repo root (e.g., 'ai/standards/x.ai.yaml', 'extensions/locales/zh-tw.md')
+ * @returns {string|null} File content, or null if the installed package does not contain it
+ */
+export function readPackagedSource(sourcePath) {
+  const source = getSourcePath(sourcePath);
+  if (!source) return null;
+  return readFileSync(source, 'utf-8');
 }
 
 /**

@@ -54,8 +54,8 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
   **`/comprehend` 的效果尚未證明。**評估案例已附上但還沒實跑；請回報是否比較好讀、有沒有違反三條防護。
 - **The HTML rung cannot load the Mermaid library** (it may load nothing from the network), so diagrams inside the HTML explainer are inline SVG or lists.
   HTML 解說頁不能載入 Mermaid 函式庫（不得連網），頁內的圖是內嵌 SVG 或清單。
-- **`uds check --diff` still fetches originals from GitHub `main`**, extension files included, to compare against. Offline it fails for those files.
-  `uds check --diff` 仍從 GitHub `main` 抓原稿比對（含擴充檔），離線時會失敗。
+- **In this beta, `uds check --diff` still fetches originals from GitHub `main`**, extension files included, to compare against. Offline it fails for those files. (Changed after this beta: it will compare against the installed package — see CHANGELOG `[Unreleased]`.)
+  本測試版的 `uds check --diff` 仍從 GitHub `main` 抓原稿比對（含擴充檔），離線時會失敗。（此版之後已改為以所裝套件為原稿，見 CHANGELOG `[Unreleased]`。）
 - **The offline install test unpacks the tarball and links its dependencies**; it does not run a real `npm install <tgz>`. Windows has not run it.
   離線安裝測試是解開套件並連結相依套件，不是真正的 `npm install <tgz>`；Windows 沒有跑過。
 - **Windows: the pre-commit block has not been run**, and **cp950 console** output has not been looked at.

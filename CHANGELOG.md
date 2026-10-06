@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Behavior change — `uds check --diff` now compares your files against the copy inside the UDS package you have installed, not against GitHub `main`.** The diff answers "what did I change in what UDS gave me"; it used to download the original from GitHub `main`, so offline it failed (extension files included), and anything UDS itself had changed on `main` since you installed was listed as a difference you had made. Now the original is read from the installed package — standards, options and extension files alike — and nothing is downloaded. The command prints what it compared against (`installed UDS package (version X)`) and points to `uds update --plan` for what UDS changed since. When the standards in your project were installed from a different UDS version than the package now installed, it says so, because a file UDS changed between the two shows up as a difference. When the installed package has no original for a tracked file, the command says so **by name**, downloads nothing, and exits with code 1; it no longer falls back to GitHub or skips the file in silence. With no modified files, `--diff` now says "nothing to diff" instead of printing nothing. **Who sees a difference:** anyone who runs `uds check --diff` (or presses "view" in the interactive `uds check`): the diff may differ from before wherever `main` and your installed version differ, and a script that read exit code 0 from a package missing an original now gets 1. **What to do:** nothing; to see what is new upstream, run `uds update --plan`. Implements dev-platform XSPEC-453 R1.
+
+### Removed
+
+- **`extensions/languages/php/` is gone** — two files (`php-style.md`, `fat-free-patterns.md`, about 37 KB) that nothing referenced; the installer, the registry and the docs use `extensions/languages/php-style.md` and `extensions/frameworks/fat-free-patterns.md`, which are unchanged. The npm package shrinks by those two files and now carries exactly the 5 extension files the installer can install; a new test fails if an undeclared extension file is packed. `uds init --lang php` and `--framework fat-free` install the same files as before. Implements dev-platform XSPEC-453 R2.
+
 ## [6.14.0-beta.4] - 2026-10-06
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).

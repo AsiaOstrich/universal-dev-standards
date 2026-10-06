@@ -4,7 +4,7 @@ import { createSpinner } from '../utils/spinner.js';
 import { existsSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { execSync } from 'child_process';
-import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration } from '../utils/copier.js';
+import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration, readPackagedSource } from '../utils/copier.js';
 import {
   getAllStandards,
   getRepositoryInfo, isShippedFilename, resolveStandardFilename, resolveStandardSourcePath } from '../utils/registry.js';
@@ -16,7 +16,7 @@ import {
   computeIntegrationBlockHash,
   pruneIntegrationFileHashes
 } from '../utils/hasher.js';
-import { downloadFromGitHub, getMarketplaceSkillsInfo } from '../utils/github.js';
+import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import {
   getInstalledSkillsInfoForAgent,
   getInstalledCommandsForAgent
@@ -465,6 +465,13 @@ export async function checkCommand(options = {}) {
     await showDiff(projectPath, manifest, fileStatus.modified);
     return;
   }
+  if (options.diff) {
+    // Nothing to diff. Say what "nothing" is measured against rather than printing no line at all —
+    // silence reads the same as "the diff step did not run".
+    printDiffBaseline(manifest, msg);
+    console.log(chalk.green(msg.diffNone));
+    console.log();
+  }
 
   // Interactive mode (default when issues detected, only in TTY)
   const hasIssues = fileStatus.modified.length > 0 ||
@@ -592,6 +599,7 @@ async function interactiveMode(projectPath, manifest, fileStatus, msg) {
 
     switch (action) {
       case 'view': {
+        printDiffBaseline(manifest, msg);
         await showSingleFileDiff(projectPath, manifest, issue.file, msg);
         // After viewing, ask again
         const followUp = await select({
@@ -650,7 +658,32 @@ async function interactiveMode(projectPath, manifest, fileStatus, msg) {
 }
 
 /**
+ * Tell the reader what the diff is measured against (XSPEC-453 R1).
+ *
+ * `uds check --diff` answers "what did I change in what UDS gave me". The original is the copy inside
+ * the installed UDS package, so this says that — and where to look for what UDS itself changed since.
+ * When the project's standards were installed from a different version than the package now installed,
+ * a file UDS changed in between shows up as a difference, so that gap is stated rather than left to be
+ * discovered.
+ */
+function printDiffBaseline(manifest, msg) {
+  const packageVersion = getRepositoryInfo().standards.version;
+  console.log(chalk.gray(msg.diffBaseline.replace('{version}', packageVersion)));
+  const installedVersion = manifest?.upstream?.version;
+  if (installedVersion && installedVersion !== packageVersion) {
+    console.log(chalk.yellow(
+      msg.diffBaselineVersionDiffers.replace('{installed}', installedVersion).replace('{version}', packageVersion)
+    ));
+  }
+}
+
+/**
  * Show diff for a single file
+ *
+ * The original is read from the installed UDS package, never downloaded (XSPEC-453 R1).
+ *
+ * @returns {Promise<'shown'|'no-original'|'unreadable'>} What happened; `'no-original'` means the
+ *   installed package has no original for this file (reported by name, not skipped silently).
  */
 async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
   const { readFileSync } = await import('fs');
@@ -662,31 +695,31 @@ async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
     currentContent = readFileSync(fullPath, 'utf-8');
   } catch {
     console.log(chalk.red(msg.couldNotReadFile));
-    return;
+    return 'unreadable';
   }
 
-  // Get original content from GitHub
+  // Get original content from the installed package
   const sourcePath = getSourcePathFromRelative(manifest, relativePath);
   if (!sourcePath) {
     console.log(chalk.red(msg.couldNotDetermineSource2));
-    return;
+    return 'unreadable';
   }
 
-  console.log(chalk.gray(msg.fetchingOriginal));
   let originalContent;
   try {
-    originalContent = await downloadFromGitHub(sourcePath);
+    originalContent = readPackagedSource(sourcePath);
   } catch (error) {
-    if (error.message.includes('429')) {
-      console.log(chalk.red(msg.rateLimited || 'GitHub API rate limit exceeded. Please wait a few minutes and try again.'));
-    } else {
-      console.log(chalk.red(`${msg.couldNotFetchOriginal} (${error.message})`));
-    }
-    return;
+    console.log(chalk.red(`${msg.couldNotReadOriginal.replace('{file}', relativePath)} (${error.message})`));
+    return 'unreadable';
   }
-  if (!originalContent) {
-    console.log(chalk.red(msg.couldNotFetchOriginal));
-    return;
+  if (originalContent === null) {
+    console.log(chalk.red(
+      msg.noOriginalInPackage
+        .replace('{file}', relativePath)
+        .replace('{source}', sourcePath)
+        .replace('{version}', getRepositoryInfo().standards.version)
+    ));
+    return 'no-original';
   }
 
   // Simple diff display
@@ -721,6 +754,7 @@ async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
     }
   }
   console.log();
+  return 'shown';
 }
 
 /**
@@ -728,11 +762,17 @@ async function showSingleFileDiff(projectPath, manifest, relativePath, msg) {
  */
 async function showDiff(projectPath, manifest, modifiedFiles) {
   const msg = t().commands.check;
+  printDiffBaseline(manifest, msg);
+  let missingOriginals = 0;
   for (const file of modifiedFiles) {
     console.log(chalk.cyan(`\n${msg.diffFor.replace('{file}', file)}`));
     console.log(chalk.gray('─'.repeat(50)));
-    await showSingleFileDiff(projectPath, manifest, file, msg);
+    const outcome = await showSingleFileDiff(projectPath, manifest, file, msg);
+    if (outcome === 'no-original') missingOriginals++;
   }
+  // A package that lacks the original of a file it should have shipped is a defect worth a non-zero
+  // exit: scripts must not read "no diff shown" as "no difference".
+  if (missingOriginals > 0) process.exitCode = 1;
 }
 
 /**

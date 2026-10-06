@@ -35,6 +35,11 @@
  * option. `UDS_NO_UPDATE_CHECK=1` keeps the npm-registry version check (a legitimate, unrelated call) out of it.
  * HOME and every XDG_* variable point to a throwaway directory.
  *
+ * XSPEC-453 R2 adds one test here: the tarball carries exactly the declared extension files and no
+ * `extensions/languages/php/` — two never-referenced duplicates (37 KB) that XSPEC-452's whole-directory
+ * bundling had started to ship. Its wire is the same prepack line as R1 (no bundling → nothing to equal the
+ * declared set); the duplicate itself is a file, so the second mutation is putting it back (seen red).
+ *
  * Each `it` builds only what it needs (lazily, once), so each also passes when selected on its own.
  */
 
@@ -305,4 +310,18 @@ it('uds init fails and names the file when the package lacks a declared extensio
     if (existsSync(join(r.project, '.standards', base(o.path)))) problems.push(`${tag}.standards/${base(o.path)} exists although its source is missing`);
   }
   expect(problems, `options checked: ${options.map((o) => o.id).join(', ')}\n${problems.join('\n')}`).toEqual([]);
+}, 600000);
+
+it('the packed tarball carries exactly the declared extension files and no extensions/languages/php/ duplicate (XSPEC-453 R2)', async () => {
+  const pkg = await packAndExtract();
+  const bundled = join(pkg.pkgDir, 'bundled', 'extensions');
+  const packaged = existsSync(bundled) ? filesUnder(bundled) : [];
+  // What the installer can install — read from the installed package, never written here. Every other file
+  // under extensions/ is one nothing can reach: a dead duplicate that ships to every adopter anyway.
+  const declared = pkg.options.map((o) => o.path.replace(/^extensions\//, '')).sort();
+
+  expect(declared.length, 'the installer declares extension options').toBeGreaterThanOrEqual(5);
+  expect(packaged.filter((f) => f.startsWith('languages/php/')), 'extensions/languages/php/ is a retired duplicate').toEqual([]);
+  expect(packaged, `declared=${declared.length} packaged=${packaged.length}`).toEqual(declared);
+  expect(existsSync(join(REAL_REPO, 'extensions', 'languages', 'php')), 'the repo source no longer has extensions/languages/php/').toBe(false);
 }, 600000);

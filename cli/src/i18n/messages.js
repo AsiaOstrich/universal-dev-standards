@@ -781,9 +781,12 @@ export const messages = {
         // Diff display
         couldNotReadFile: 'Could not read current file.',
         couldNotDetermineSource2: 'Could not determine original source path.',
-        fetchingOriginal: 'Fetching original from GitHub...',
-        couldNotFetchOriginal: 'Could not fetch original content.',
-        rateLimited: 'GitHub API rate limit exceeded. Please wait a few minutes and try again.',
+        // XSPEC-453 R1: the original is the copy inside the installed package; nothing is downloaded.
+        diffBaseline: 'Comparing against the original files in the installed UDS package (version {version}); no network is used. To see what UDS itself changed since, run `uds update --plan`.',
+        diffBaselineVersionDiffers: 'Note: these standards were installed from UDS {installed}, but the package now installed is {version}. A file UDS changed between the two shows up below as a difference even if you did not touch it; `uds update --plan` lists those.',
+        diffNone: 'No modified files, so there is nothing to diff.',
+        noOriginalInPackage: 'This version of the package has no original for {file} (expected {source} in UDS {version}), so it cannot be compared. Nothing was downloaded; reinstall or upgrade universal-dev-standards.',
+        couldNotReadOriginal: 'Could not read the packaged original of {file}.',
         diffOriginal: '--- Original',
         diffCurrent: '+++ Current',
         diffTruncated: '... (diff truncated, showing first 20 changes)',
@@ -2053,9 +2056,12 @@ export const messages = {
         // Diff display
         couldNotReadFile: '無法讀取目前檔案。',
         couldNotDetermineSource2: '無法判斷原始來源路徑。',
-        fetchingOriginal: '從 GitHub 取得原始檔案...',
-        couldNotFetchOriginal: '無法取得原始內容。',
-        rateLimited: 'GitHub API 請求頻率超過限制，請稍候幾分鐘後再試。',
+        // XSPEC-453 R1：原稿取自所裝套件內的檔，不下載。
+        diffBaseline: '比對基準：已安裝的 UDS 套件內的原始檔（版本 {version}），不連網。要看 UDS 之後改了什麼，請執行 `uds update --plan`。',
+        diffBaselineVersionDiffers: '注意：這些標準是從 UDS {installed} 安裝的，但目前安裝的套件是 {version}。兩版之間 UDS 自己改過的檔，即使你沒動，也會在下方列成差異；`uds update --plan` 可列出這些。',
+        diffNone: '沒有被修改的檔案，因此沒有差異可顯示。',
+        noOriginalInPackage: '此版本的套件沒有 {file} 的原稿（預期是 UDS {version} 內的 {source}），因此無法比對。未下載任何東西；請重新安裝或升級 universal-dev-standards。',
+        couldNotReadOriginal: '無法讀取 {file} 的套件內原稿。',
         diffOriginal: '--- 原始',
         diffCurrent: '+++ 目前',
         diffTruncated: '...（差異已截斷，僅顯示前 20 個變更）',
@@ -3336,9 +3342,12 @@ export const messages = {
         // Diff display
         couldNotReadFile: '无法读取当前文件。',
         couldNotDetermineSource2: '无法确定原始源路径。',
-        fetchingOriginal: '从 GitHub 获取原始文件...',
-        couldNotFetchOriginal: '无法获取原始内容。',
-        rateLimited: 'GitHub API 请求频率超过限制，请稍候几分钟后再试。',
+        // XSPEC-453 R1：原稿取自所装包内的文件，不下载。
+        diffBaseline: '比对基准：已安装的 UDS 包内的原始文件（版本 {version}），不联网。要查看 UDS 之后改了什么，请执行 `uds update --plan`。',
+        diffBaselineVersionDiffers: '注意：这些标准是从 UDS {installed} 安装的，但当前安装的包是 {version}。两个版本之间 UDS 自己改过的文件，即使你没动，也会在下方列为差异；`uds update --plan` 可列出这些。',
+        diffNone: '没有被修改的文件，因此没有差异可显示。',
+        noOriginalInPackage: '此版本的包没有 {file} 的原稿（预期是 UDS {version} 内的 {source}），因此无法比对。未下载任何内容；请重新安装或升级 universal-dev-standards。',
+        couldNotReadOriginal: '无法读取 {file} 的包内原稿。',
         diffOriginal: '--- 原始',
         diffCurrent: '+++ 当前',
         diffTruncated: '...（差异已截断，显示前 20 处更改）',
