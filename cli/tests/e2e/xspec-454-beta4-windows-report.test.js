@@ -473,6 +473,31 @@ it('uds check --ci names a deleted skill file and an edited one, does not say th
   expect(good.stdout).toMatch(/Project is compliant/);
 }, 600000);
 
+it('uds init records only the skills it installed: the adopter\'s own skill folder and a stray agents/ folder in the skills folder are not tracked, so editing them cannot fail check (XSPEC-454 R2)', async () => {
+  ensureSandbox();
+  const dir = join(sandbox, `project-${++counter}`);
+  mkdirSync(join(dir, '.claude', 'skills', 'my-own-skill'), { recursive: true });
+  mkdirSync(join(dir, '.claude', 'skills', 'agents'), { recursive: true });
+  writeFileSync(join(dir, '.claude', 'skills', 'my-own-skill', 'SKILL.md'), '# mine\n');
+  writeFileSync(join(dir, '.claude', 'skills', 'agents', 'README.md'), '# left by an older tool\n');
+
+  const init = await runCli(['init', '--yes', '--skills-location', 'project'], dir);
+  expect(init.code, init.stdout + init.stderr).toBe(0);
+
+  const shipped = shippedSkills();
+  const keys = Object.keys(readJson(join(dir, '.standards', 'manifest.json')).skillHashes);
+  expect(keys.length, 'skill records were written at all').toBeGreaterThan(100);
+  const foreign = keys.filter((k) => !shipped.has(k.split('/')[2]));
+  expect(foreign, `records that do not describe a shipped skill: ${foreign.join(', ')}`).toEqual([]);
+
+  // Editing what is yours, or what an older tool left, does not turn the project red.
+  writeFileSync(join(dir, '.claude', 'skills', 'my-own-skill', 'SKILL.md'), '# mine, edited\n');
+  rmSync(join(dir, '.claude', 'skills', 'agents'), { recursive: true, force: true });
+  const check = await runCli(['check', '--offline', '--ci'], dir);
+  expect(check.code, check.stdout).toBe(0);
+  expect(check.stdout).toMatch(/Project is compliant/);
+}, 300000);
+
 // ─────────────────────────── R3 ───────────────────────────
 
 it('uds audit --offline runs to completion and makes no network request, while the same run without --offline does ask the registry (XSPEC-454 R3)', async () => {
