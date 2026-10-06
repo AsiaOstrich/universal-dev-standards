@@ -48,6 +48,7 @@ import { resolveIntegrationFile } from '../core/constants.js';
 import { checkPreCommitHookWiring } from '../utils/git-hooks.js';
 import { runTestChangeCheck } from '../utils/test-change-check.js';
 import { runTestQualityGates } from '../utils/gate-scripts.js';
+import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-ownership.js';
 
 /**
  * Display the summary of file integrity status
@@ -415,8 +416,20 @@ export async function checkCommand(options = {}) {
 
   // === Enhanced Integrity Checks (v3.3.0+) ===
 
-  // Check Skills integrity if skillHashes exist
-  checkSkillsIntegrity(manifest, projectPath, msg);
+  // Check Skills integrity if skillHashes exist.
+  //
+  // XSPEC-454 R2, in this order and no other. Step 1: forget the records that were never UDS's to
+  // keep (the adopter's own skills; `agents/`, `workflows/`, `_shared/` folders an old CLI copied
+  // in and a later update removed). In memory only — `check` is read-only — and `uds update`
+  // drops them from the file. Step 2: what is left is a record of a file UDS installed, so a
+  // missing or changed one is a real finding and counts toward the verdict below. Doing step 2
+  // alone would turn every existing project's `check` (and the pre-commit hook that runs it)
+  // red the day it upgrades, for files nobody can restore.
+  const skillRecordsBefore = Object.keys(manifest.skillHashes || {}).length;
+  pruneForeignSkillHashes(manifest);
+  const ignoredSkillRecords = skillRecordsBefore - Object.keys(manifest.skillHashes || {}).length;
+  const skillsIntegrity = checkSkillsIntegrity(manifest, projectPath, msg, ignoredSkillRecords);
+  const skillIssues = skillIssuesOf(skillsIntegrity);
 
   // Check Commands integrity if commandHashes exist
   checkCommandsIntegrity(manifest, projectPath, msg);
@@ -535,8 +548,11 @@ export async function checkCommand(options = {}) {
   // XSPEC-418 R1: integration block problems (UDS markers removed, block
   // modified, or the tracked file missing) now feed the verdict — they used to
   // be checked and printed above, then silently dropped here.
+  // XSPEC-454 R2: the Skills integrity result used to be thrown away (the call above was a bare
+  // statement), so a deleted or edited skill file printed ✗ and still ended in "compliant", exit 0.
   const allGood = fileStatus.missing.length === 0 &&
                   fileStatus.modified.length === 0 &&
+                  skillIssues.length === 0 &&
                   integrationBlockStatus.modified.length === 0 &&
                   integrationBlockStatus.missing.length === 0 &&
                   integrationBlockStatus.noMarkers.length === 0 &&
@@ -545,6 +561,9 @@ export async function checkCommand(options = {}) {
     console.log(chalk.green(msg.projectCompliant));
   } else {
     console.log(chalk.yellow(msg.issuesDetected));
+    if (skillIssues.length > 0) {
+      console.log(chalk.gray(msg.skillsIntegrityFix || '  Skill files listed above are missing or were changed: run `uds update --apply --skills` to reinstall them.'));
+    }
     // Set non-zero exit code in CI mode so pipelines detect failures
     if (options.ci) {
       process.exitCode = 1;
@@ -1964,7 +1983,7 @@ function checkSkillsCommandsVersionStaleness(manifest, projectPath, msg) { // es
  * @param {Object} msg - Localized messages
  * @returns {Object} Status { unchanged: [], modified: [], missing: [] }
  */
-function checkSkillsIntegrity(manifest, projectPath, msg) {
+function checkSkillsIntegrity(manifest, projectPath, msg, ignoredRecords = 0) {
   const skillHashes = manifest.skillHashes;
 
   // Skip if no skill hashes tracked
@@ -1973,6 +1992,10 @@ function checkSkillsIntegrity(manifest, projectPath, msg) {
   }
 
   console.log(chalk.cyan(msg.skillsIntegrityCheck || 'Skills File Integrity'));
+  if (ignoredRecords > 0) {
+    console.log(chalk.gray((msg.skillsStaleRecordsIgnored || '  {count} skill record(s) ignored: they describe files UDS did not install.')
+      .replace('{count}', ignoredRecords)));
+  }
 
   const status = { unchanged: [], modified: [], missing: [], tracked: true };
 

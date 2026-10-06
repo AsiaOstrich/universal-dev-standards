@@ -21,7 +21,8 @@ const TEST_DIR = join(__dirname, '../../temp/command-hash-preservation');
 
 vi.mock('../../../src/reconciler/backup-manager.js', () => ({
   createBackup: vi.fn(() => ({ backupId: null, backupDir: TEST_DIR, backedUp: [], errors: [] })),
-  cleanupBackups: vi.fn(() => ({ removed: [], errors: [] }))
+  cleanupBackups: vi.fn(() => ({ removed: [], errors: [] })),
+  finalizeBackup: vi.fn(() => ({ createdFiles: [], errors: [] }))
 }));
 
 vi.mock('../../../src/utils/skills-installer.js', () => ({

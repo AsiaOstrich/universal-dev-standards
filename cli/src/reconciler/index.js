@@ -28,6 +28,7 @@ import { scanActualState, legacyDiscovery } from './actual-state-scanner.js';
 import { computeDiff, createEmptyPlan } from './diff-engine.js';
 import { executePlan } from './plan-executor.js';
 import { rollback } from './backup-manager.js';
+import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 
 /**
  * Full reconciliation pipeline.
@@ -72,11 +73,20 @@ function reconcileFileHashes(manifest, verifiedPristine) {
     (k) => k.startsWith('.claude/skills/') || k.startsWith('.claude/commands/')
   );
 
-  if (!verifiedPristine?.length && stale.length === 0) return null;
+  // XSPEC-454 R2 step 1: forget skillHashes records that were never UDS's (see
+  // utils/skill-hash-ownership.js). They are not harmless: once `uds check` counts a missing
+  // skill file against the verdict, a record for a folder an older update already removed
+  // would fail the project for a file nobody can restore. This runs on every apply, plan empty
+  // or not, so an existing project is corrected by its next `uds update --apply` with nothing
+  // for the adopter to do.
+  const skillProbe = { skillHashes: { ...(manifest.skillHashes || {}) } };
+  const foreignSkillKeys = pruneForeignSkillHashes(skillProbe);
+
+  if (!verifiedPristine?.length && stale.length === 0 && foreignSkillKeys.length === 0) return null;
 
   const kept = Object.fromEntries(Object.entries(current).filter(([k]) => !stale.includes(k)));
   const corrected = {};
-  let count = stale.length;
+  let count = stale.length + foreignSkillKeys.length;
 
   for (const entry of verifiedPristine || []) {
     const key = entry.path.replace(/\\/g, '/');
@@ -92,7 +102,11 @@ function reconcileFileHashes(manifest, verifiedPristine) {
 
   if (count === 0) return null;
   return {
-    manifest: { ...manifest, fileHashes: { ...kept, ...corrected } },
+    manifest: {
+      ...manifest,
+      fileHashes: { ...kept, ...corrected },
+      ...(foreignSkillKeys.length > 0 ? { skillHashes: skillProbe.skillHashes } : {})
+    },
     count
   };
 }
@@ -133,7 +147,10 @@ export async function reconcile(projectPath, options = {}) {
   // own binding rather than reassigning it.
   const hashFix = reconcileFileHashes(manifest, reconciliationPlan.verifiedPristine);
   const effectiveManifest = hashFix ? hashFix.manifest : manifest;
-  if (hashFix) writeManifest(effectiveManifest, projectPath);
+  // With a non-empty plan the executor writes `effectiveManifest` itself, AFTER it has taken its backup.
+  // Writing it here first would put the hash correction into the backup's "before" copy, so a rollback
+  // could not give back the manifest byte for byte (XSPEC-454 R1).
+  if (hashFix && reconciliationPlan.actions.length === 0) writeManifest(effectiveManifest, projectPath);
 
   // Step 5: Execute plan
   if (reconciliationPlan.actions.length === 0) {
@@ -242,5 +259,5 @@ async function getManifest(projectPath) {
 
 // Re-export for convenience
 export { formatPlan } from './diff-engine.js';
-export { listBackups } from './backup-manager.js';
+export { listBackups, createStepBackup, finalizeBackup, cleanupBackups } from './backup-manager.js';
 export { migrateAndBackfill } from './manifest-migrator.js';

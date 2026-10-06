@@ -181,6 +181,7 @@
 | `--gh` | Force gh CLI for submission |
 | `--format` | Output format (json) |
 | `--quiet` | Summary only |
+| `--offline` | No network access at all: no CLI version check, and --report does not submit |
 | `--score` | Run multi-dimensional health score analysis |
 | `--self` | Self mode: analyze UDS repo itself (use with --score) |
 | `--save` | Save score snapshot for trend tracking (use with --score) |

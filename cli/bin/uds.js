@@ -106,9 +106,13 @@ program
     // Fallback to OS environment variable detection
     setLanguage(detectLanguage(null));
   })
-  .hook('postAction', async (thisCommand) => {
+  .hook('postAction', async (thisCommand, actionCommand) => {
     const cmd = thisCommand.name();
     if (!shouldCheckUpdateForCommand(cmd)) return;
+    // XSPEC-454 R3: --offline promises no network. This hook runs after every command and
+    // asks the npm registry for the latest version; it ignored the flag, so `check --offline`
+    // and `audit --offline` still made that request (whenever the terminal was interactive).
+    if (actionCommand?.opts?.().offline) return;
     await printUpdateNoticeIfAvailable();
   });
 
@@ -253,6 +257,8 @@ program
   .option('--gh', 'Force gh CLI for submission')
   .option('--format <format>', 'Output format (json)')
   .option('--quiet', 'Summary only')
+  // XSPEC-454 R3: `check` and `update` already take --offline; `audit` rejected it with "unknown option".
+  .option('--offline', 'No network access at all: no CLI version check, and --report does not submit')
   .option('--score', 'Run multi-dimensional health score analysis')
   .option('--self', 'Self mode: analyze UDS repo itself (use with --score)')
   .option('--save', 'Save score snapshot for trend tracking (use with --score)')

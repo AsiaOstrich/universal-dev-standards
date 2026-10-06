@@ -248,8 +248,19 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
 
     // Compute file hashes for tracking
     // Key format: agent/level/skillName/filename (e.g., "opencode/project/commit-standards/SKILL.md")
+    //
+    // XSPEC-454 R2: only the skills THIS run installed are recorded. This used to hash the whole
+    // target directory, so everything that happened to sit in `.claude/skills/` — the adopter's own
+    // skills, and the `agents/`, `workflows/`, `_shared/` folders an old CLI copied in by mistake —
+    // became "files UDS installed". `uds update` later (rightly) deleted the old strays but kept their
+    // records, and `uds check` listed 26 of them as missing. A record has to mean "UDS wrote this".
+    // `.manifest.json` is deliberately not recorded either: it is UDS's own bookkeeping, rewritten by
+    // every install, and nothing a user edits — a hash of it could only ever raise a false alarm.
     const baseKey = `${agent}/${level}`;
-    results.fileHashes = computeDirectoryHashes(targetDir, baseKey);
+    results.fileHashes = {};
+    for (const name of results.installed) {
+      Object.assign(results.fileHashes, computeDirectoryHashes(join(targetDir, name), `${baseKey}/${name}`));
+    }
   }
 
   return results;
