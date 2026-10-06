@@ -27,14 +27,71 @@ function getSourcePath(sourcePath) {
 }
 
 /**
+ * Is this source path one of the add-on files under `extensions/`?
+ * @param {string} sourcePath - Relative path from repo root
+ * @returns {boolean}
+ */
+export function isExtensionPath(sourcePath) {
+  return typeof sourcePath === 'string' && sourcePath.replace(/\\/g, '/').startsWith('extensions/');
+}
+
+/**
+ * Copy an extension file (language style guide, framework pattern, locale pack)
+ * into the target project — from the installed package ONLY.
+ *
+ * 🔴 There is deliberately no download fallback here (XSPEC-452 R2). `extensions/`
+ * used to be missing from the npm package, so the copy below fell through to
+ * `raw.githubusercontent.com/.../main`: offline installs failed, an install pulled
+ * whatever `main` held that day instead of the version the adopter had installed,
+ * and a file that did not exist anywhere (`extensions/locales/zh-cn.md`, XSPEC-451)
+ * hid behind that fallback until someone ran the locale. A declared extension that
+ * is not in the package is a packaging defect, so it fails — by name.
+ *
+ * @param {string} sourcePath - Relative path from repo root (e.g., 'extensions/locales/zh-tw.md')
+ * @param {string} targetDir - Target directory (usually '.standards')
+ * @param {string} projectPath - Project root path
+ * @returns {Promise<Object>} Result with success status and copied path
+ */
+export async function copyExtension(sourcePath, targetDir, projectPath) {
+  try {
+    const source = getSourcePath(sourcePath);
+    if (!source) {
+      return failure(
+        `Extension file not found in the installed package: ${sourcePath} (extension files are never downloaded; reinstall or upgrade universal-dev-standards)`,
+        ERROR_CODES.FILE_NOT_FOUND,
+        { sourcePath, targetDir }
+      );
+    }
+    const targetFolder = join(projectPath, targetDir);
+    const targetFile = join(targetFolder, basename(sourcePath));
+    if (!existsSync(targetFolder)) {
+      mkdirSync(targetFolder, { recursive: true });
+    }
+    copyFileSync(source, targetFile);
+    return success(targetFile, { source: 'local', sourcePath, targetFile });
+  } catch (error) {
+    return failure(
+      error.message,
+      ERROR_CODES.FILE_COPY_FAILED,
+      { sourcePath, targetDir, projectPath }
+    );
+  }
+}
+
+/**
  * Copy a standard file to target project
  * Falls back to downloading from GitHub if local file not found
+ * (except for `extensions/` files, which are package-only — see copyExtension)
  * @param {string} sourcePath - Relative path from repo root (e.g., 'core/anti-hallucination.md')
  * @param {string} targetDir - Target directory (usually '.standards')
  * @param {string} projectPath - Project root path
  * @returns {Promise<Object>} Result with success status and copied path
  */
 export async function copyStandard(sourcePath, targetDir, projectPath) {
+  // Extensions never take the GitHub fallback below, whichever caller got here (XSPEC-452 R2).
+  if (isExtensionPath(sourcePath)) {
+    return copyExtension(sourcePath, targetDir, projectPath);
+  }
   try {
     const targetFolder = join(projectPath, targetDir);
     const targetFile = join(targetFolder, basename(sourcePath));

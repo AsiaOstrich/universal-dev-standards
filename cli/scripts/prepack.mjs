@@ -29,7 +29,13 @@ const BUNDLE_DIRS = [
   // installing from npm therefore copied zero hook scripts while
   // `uds init --with-hooks` reported success. Recursive, because a hook may
   // ship a directory beside it (turn-completion/ carries its locale packs).
-  { src: 'scripts/hooks', dest: 'hooks' }
+  { src: 'scripts/hooks', dest: 'hooks' },
+  // 🔴 `extensions/` (language style guides, framework patterns, locale packs) was NOT
+  // bundled until XSPEC-452: the published package held 0 of its files, so `uds init
+  // --lang csharp` / `--locale zh-tw` downloaded them from GitHub `main` at install
+  // time — failing offline, and installing whatever `main` held instead of the file
+  // that belongs to the installed version. Whole directory, recursive, like the rest.
+  { src: 'extensions', dest: 'extensions' }
 ];
 
 console.log('📦 Preparing bundled files for npm package...');

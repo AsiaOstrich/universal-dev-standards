@@ -249,18 +249,17 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
       let targetDir = '.standards';
 
       if (metadata?.extensionSource) {
-        // An entry from `manifest.extensions`. PathResolver cannot resolve these
-        // from an npm install: the published package's `files` list is bin, src,
-        // bundled, standards-registry.json and README.md — no `extensions/`. So
-        // `sourcePath` is null for every adopter who did not install from a
-        // source checkout, and this function answered "No source path available"
-        // for a file it was perfectly able to fetch.
+        // An entry from `manifest.extensions`. It is resolved from the installed
+        // package (`bundled/extensions/`, shipped since XSPEC-452) — never from GitHub.
+        // `copyStandard` hands any `extensions/` path to `copyExtension`, which fails
+        // by name when the package lacks the file, instead of downloading it.
         //
-        // The legacy update path never had the bug because it calls copyStandard
-        // directly (`update.js`, "Update extensions"). The same upgrade therefore
-        // refreshed `.standards/zh-tw.md` under `uds update` and failed under the
-        // reconciler — the two paths disagreed about whether the file was
-        // reachable, and only one of them was right. (XSPEC-343)
+        // History: before XSPEC-452 the published package had no `extensions/`, so
+        // `sourcePath` was null for every adopter who did not install from a source
+        // checkout, and this function answered "No source path available" for a file it
+        // could fetch from GitHub. The legacy update path (`update.js`, "Update
+        // extensions") was the one that worked — only because it fell back to a
+        // download. (XSPEC-343)
         sourceStr = metadata.extensionSource;
       } else if (metadata?.registryEntry) {
         const source = metadata.registryEntry.source;

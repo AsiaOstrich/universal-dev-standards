@@ -4,7 +4,7 @@ import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquir
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join, basename, dirname, relative } from 'path';
-import { readManifest, writeManifest, copyStandard, isInitialized, getRepoRoot } from '../utils/copier.js';
+import { readManifest, writeManifest, copyStandard, copyExtension, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import { AmbiguousMarkerError } from '../utils/marker-locator.js';
@@ -738,7 +738,8 @@ export async function updateCommand(options) {
   // Update extensions (skip non-string entries like custom-domain objects)
   for (const ext of manifest.extensions) {
     if (typeof ext !== 'string') continue;
-    const result = await copyStandard(ext, '.standards', projectPath);
+    // Package-only: an extension is never downloaded (XSPEC-452 R2).
+    const result = await copyExtension(ext, '.standards', projectPath);
     if (result.success) {
       results.updated.push(ext);
       recordWritten(result);

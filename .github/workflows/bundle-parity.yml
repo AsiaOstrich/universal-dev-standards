@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - '.standards/**'
+      - 'extensions/**'
       - 'cli/bundled/**'
       - 'cli/scripts/prepack.mjs'
       - 'cli/scripts/check-bundle-parity.mjs'
@@ -20,6 +21,7 @@ on:
     branches: [main]
     paths:
       - '.standards/**'
+      - 'extensions/**'
       - 'cli/bundled/**'
       - 'cli/scripts/prepack.mjs'
       - 'cli/scripts/check-bundle-parity.mjs'
