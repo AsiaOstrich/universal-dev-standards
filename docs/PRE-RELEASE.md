@@ -9,63 +9,55 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.4`
+## Current beta | 目前的測試版：`6.14.0-beta.5`
 
-> **New in 6.14.0-beta.4** — the `extensions/` packs (language style guides, framework patterns, the zh-TW and zh-CN locale packs) now ship inside the npm package, so installing them needs no network; `uds init --locale zh-cn` installs instead of rolling back, `--locale` is case-insensitive and an unsupported value is said out loud; a new skill `/comprehend` (comprehension ladder); `ai-response-navigation` 1.4.0 Rule 12 (controlled language, with "keep the hedges" required); and three checks that used to pass no matter what can now fail.
-> **6.14.0-beta.4 新增** — `extensions/`（程式語言風格、框架規範、繁中與簡中語系包）打包進 npm 套件，安裝不再需要網路；`uds init --locale zh-cn` 不再回滾，`--locale` 不分大小寫，不支援的值會明說；新技能 `/comprehend`（理解階梯）；`ai-response-navigation` 1.4.0 第 12 條（受控語言，「保留不確定語氣」為必須）；以及三個原本怎樣都會通過的檢查，現在會失敗。
+> **New in 6.14.0-beta.5** — the fixes from the Windows report on beta.4 (one `--rollback` undoes the whole upgrade; `check` no longer says "compliant" over missing skill or command files; `audit --offline`; the command count is no longer printed as a tool count), `check --diff` compares against the package you installed instead of GitHub `main`, and two new commit-time warnings: fake tests and stubs, and code changed with no test changed.
+> **6.14.0-beta.5 新增** — beta.4 Windows 回報的修正（一次 `--rollback` 還原整個升級；技能或命令檔遺失時 `check` 不再說「符合標準」；`audit --offline`；命令數不再印成工具數）；`check --diff` 改以所裝套件為原稿，不再抓 GitHub `main`；以及兩個提交時的警告：假測試與空殼、改了程式卻沒動測試。
 
-**Behavior change — read this first.** `uds check --standard checkin-standards` now fails when your lint or tests fail (it used to say "passed"), and the native pre-commit hook `uds init` writes for non-Node projects can now block a commit. A commit that used to go through with failing tests may now be blocked — that is the point. Hooks already on disk are left as written.
-**行為改變，請先讀。**`uds check --standard checkin-standards` 在 lint 或測試失敗時會失敗（以前會說「通過」）；`uds init` 為非 Node 專案寫入的原生 pre-commit hook 現在擋得住提交。以前測試失敗也能提交的專案，現在可能會被擋——這正是修正的目的。已經在磁碟上的 hook 維持原樣。
+**Behavior changes — read this first.**
+- `uds check` counts a missing or edited skill or command file against its verdict; `uds check --ci` exits 1 for it. Old records UDS cannot vouch for (left by earlier installers) are ignored by `check` and removed by `uds update`, so an existing project does not turn red for them.
+- `uds check --diff` shows what **you** changed relative to the installed package. To see what changed upstream, use `uds update --plan`.
+- `uds init` (and `uds update -y`) writes two scanner scripts into `scripts/`. They only **warn** at commit time; set `"mode": "block"` in `.standards/test-policy.json` to make them block.
 
-Everything in 6.14.0-beta.3 is still here (pre-commit hook security fix, rewritten `uds uninstall`, Windows `chmod` message fix, `uds open-work` table columns).
-6.14.0-beta.3 的內容都還在（pre-commit hook 安全修正、重寫的 `uds uninstall`、Windows `chmod` 訊息修正、`uds open-work` 讀表格欄）。
+**行為改變，請先讀。**
+- 技能或命令檔遺失、被改時，`uds check` 會計入判定，`uds check --ci` 以 1 結束。舊版安裝器留下、UDS 無法擔保的舊紀錄，`check` 會忽略、`uds update` 會清除，既有專案不會因此變紅。
+- `uds check --diff` 顯示的是**你**相對於所裝套件改了什麼；要看上游改了什麼，用 `uds update --plan`。
+- `uds init`（以及 `uds update -y`）會在 `scripts/` 寫入兩支掃描腳本。提交時只**警告**；在 `.standards/test-policy.json` 設 `"mode": "block"` 才會擋。
 
-### What is in it | 這一版有什麼
-
-| Change | What it does | 白話 |
-| :--- | :--- | :--- |
-| **`extensions/` in the package** | The 6.13.1 package held 0 of the 7 extension files, so `--lang csharp`/`php`, `--framework fat-free` and `--locale zh-tw`/`zh-cn` downloaded them from GitHub `main` while installing. They now ship in the package (about 152 KB) and are read from it only; a declared file missing from the package fails the install by name, with no download. | 離線也裝得了中文與程式語言規範，內容和你裝的版本一致 |
-| **`uds init --locale zh-cn`** | The Simplified Chinese locale pack did not exist, so the install rolled back. It now exists, written with mainland terminology (not a character conversion of the Traditional pack). | 簡中安裝修好 |
-| **`--locale` case and unknown values** | `zh-CN` works like `zh-cn`. An unsupported value (e.g. `fr`) installs English and prints a warning. | 大寫也行；不支援會說 |
-| **`/comprehend` skill** | Builds one outline from a hard-to-read AI output, then renders controlled prose, a Mermaid diagram, or a single-file HTML explainer that loads nothing from the network. Three required guards: add no fact the source does not state; keep every hedge; give every item a source pointer and a "not covered" note. | 把看不懂的 AI 輸出換成好讀的形式，事實不變 |
-| **`ai-response-navigation` 1.4.0, Rule 12** | Controlled-language principles. Only "keep hedges" is required. The ASD-STE100 dictionary does not apply to non-English text. | 寫清楚，但不能把「可能」改成「是」 |
-| **`checkin-standards` validator** | A failing lint or test script now fails the check and says which one; a genuinely absent script is not a failure. | 測試失敗不再顯示通過 |
-| **`pipeline-security-gates` validator** | Could not fail before (`grep \| head`); now fails unless a pipeline mentions a security gate. | 這個檢查終於會失敗 |
-| **Native pre-commit hook (non-Node)** | Used to swallow every error and print "passed". An installed linter that fails, or the UDS check, now blocks the commit; a linter that is not installed is skipped. | 非 Node 專案的提交前檢查擋得住了 |
+Everything in 6.14.0-beta.4 is still here (`extensions/` in the package, `zh-cn` install, `/comprehend`, Rule 12, the checks that can now fail).
+6.14.0-beta.4 的內容都還在（`extensions/` 打包進套件、簡中安裝、`/comprehend`、第 12 條、那三個現在會失敗的檢查）。
 
 ### What to test | 請幫忙測什麼（Windows 優先）
 
-1. **Install on Windows, online and offline** — `npm install -g universal-dev-standards@beta`, then in a new project `uds init --locale zh-tw`, and in another `uds init --locale zh-cn`. Then **disconnect the network** and run `uds init --locale zh-tw --lang csharp` in a third project. All three should finish, and the locale pack should be in `.standards/`.
-   在 Windows 安裝測試版，分別用 `zh-tw`、`zh-cn` 初始化；再**拔網路**，在第三個專案用 `zh-tw` 加 `--lang csharp` 初始化。三次都應完成，`.standards/` 裡應有語系包。
-2. **`--locale zh-CN` and `--locale fr`** — the first should install Simplified Chinese; the second should print a warning and install English.
-   大寫 `zh-CN` 應裝成簡中；`fr` 應印出警告並裝成英文。
-3. **`/comprehend`** — in Claude Code (installed with skills), paste a long AI answer you found hard to read and run `/comprehend`. Check: nothing new was added; every "might / 可能" is still there; each item says where it came from and what it does not cover; the HTML file opens with the network off.
-   在 Claude Code 貼一段難讀的 AI 回答，執行 `/comprehend`。檢查：沒有多出原文沒有的內容；「可能」都還在；每一項都標出來源與沒涵蓋什麼；斷網時 HTML 也打得開。
-4. **The checks that can now fail** — in a project with a failing test, run `uds check --standard checkin-standards`; it should fail and name `npm run test`.
-   在測試會失敗的專案執行 `uds check --standard checkin-standards`，應失敗並點名 `npm run test`。
-5. **Still open from beta.3** — the pre-commit block under git-bash on Windows, and messages in a 繁體中文 Windows (cp950) console.
-   beta.3 尚未驗證的兩項：Windows git-bash 下的 pre-commit 區塊、cp950 主控台的中文訊息。
+1. **Re-run your beta.4 report steps** on a copy of the project: `update --apply --yes --offline`, `update --apply --yes --skills --offline`, `update --apply --yes --commands --offline`, then `update --rollback --yes`, then `check --offline`. Every UDS-managed file should match the pre-upgrade copy, the new `comprehension-ladder` folders should be gone, and `check` should pass.
+   在專案副本上重跑 beta.4 回報的步驟：三種 `--apply` 之後 `--rollback`，再 `check`。所有 UDS 管理的檔應與升級前相同，新增的 `comprehension-ladder` 資料夾應消失，`check` 應通過。
+2. **The 26 "missing" entries** — run `uds check --offline` on the real project (read-only): it should say how many old records it ignored and not list them as missing. Then on a copy, `uds update --apply --yes --offline` and `check` again: the records should be gone from the manifest.
+   在真專案唯讀執行 `uds check --offline`：應說明忽略了幾筆舊紀錄，不再列為遺失。再在副本上 `update --apply` 後 `check`，那些紀錄應從 manifest 消失。
+3. **`uds audit --offline`** with the network off, and `uds update --apply --yes --commands --offline` — the message should say 1 tool and N commands.
+   斷網執行 `uds audit --offline`；`update --commands` 的訊息應是「1 個工具、N 個命令」。
+4. **`uds check --diff`** with the network off, after editing one standard file: it should show only your edit and name the installed version as the baseline.
+   斷網、改一個標準檔後執行 `uds check --diff`：只顯示你的修改，並寫出比對基準是所裝版本。
+5. **The commit-time warnings** — commit a test with no assertion, and a code change with no test change: both should be warned about by name, and the commit should go through.
+   提交一支沒有斷言的測試、以及只改程式沒改測試的變更：兩者都應被點名警告，且提交照常完成。
+6. **Still open from beta.4** — `/comprehend`, offline install of `zh-tw`/`zh-cn`, `--locale zh-CN` and `fr`, the pre-commit block under git-bash, a cp950 console.
+   beta.4 尚未測的項目：`/comprehend`、斷網安裝繁中／簡中、`zh-CN` 與 `fr`、git-bash 下的提交前檢查、cp950 主控台。
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 
 ### Known limitations | 已知限制
 
-- **`/comprehend` is not proven to help.** Five evaluation cases ship with it (`skills/comprehension-ladder/eval-cases.md`) but have not been run; please report whether the output was easier to read and whether any guard was broken.
-  **`/comprehend` 的效果尚未證明。**評估案例已附上但還沒實跑；請回報是否比較好讀、有沒有違反三條防護。
-- **The HTML rung cannot load the Mermaid library** (it may load nothing from the network), so diagrams inside the HTML explainer are inline SVG or lists.
-  HTML 解說頁不能載入 Mermaid 函式庫（不得連網），頁內的圖是內嵌 SVG 或清單。
-- **In this beta, `uds check --diff` still fetches originals from GitHub `main`**, extension files included, to compare against. Offline it fails for those files. (Changed after this beta: it will compare against the installed package — see CHANGELOG `[Unreleased]`.)
-  本測試版的 `uds check --diff` 仍從 GitHub `main` 抓原稿比對（含擴充檔），離線時會失敗。（此版之後已改為以所裝套件為原稿，見 CHANGELOG `[Unreleased]`。）
-- **The offline install test unpacks the tarball and links its dependencies**; it does not run a real `npm install <tgz>`. Windows has not run it.
-  離線安裝測試是解開套件並連結相依套件，不是真正的 `npm install <tgz>`；Windows 沒有跑過。
-- **Windows: the pre-commit block has not been run**, and **cp950 console** output has not been looked at.
-  Windows 上 pre-commit 區塊的實際執行、cp950 主控台的輸出都尚未驗證。
-- **A project installed by an older UDS has no install records**, so `uds uninstall` keeps what it cannot prove is UDS's and says so.
-  早期版本安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明是 UDS 寫的東西並說明。
-- The pre-commit block **blocks the commit** when the UDS CLI is not installed (intended; a silent skip would be worse).
-  CLI 沒裝時 pre-commit 區塊會擋下提交（刻意的）。
-- agy: only single, tool-free `-p` turns verified. The turn-completion hook works only in English and 繁體中文, and does not cover Cursor. The open-work-tracking vocabulary is uncalibrated.
-  agy 只驗證過 `-p` 單輪無工具回合；回合收尾關卡只支援英文與繁中，不含 Cursor；工作管理檢查的詞彙尚未校準。
+- **None of the beta.5 fixes has run on Windows.** CI's Windows job runs the unit suite only; the new end-to-end tests run on Linux, and the commit-warning tests show as skipped on Windows.
+  **beta.5 的修正都沒有在 Windows 上實際跑過。**CI 的 Windows 工作只跑單元測試；新的端對端測試在 Linux 跑，提交警告的測試在 Windows 上顯示為略過。
+- **Plain `uds check` (without `--ci`) still exits 0** when it reports problems, as it does for every other kind of problem; so the pre-commit hook, which runs plain `uds check`, does not block on missing skill or command files.
+  **不帶 `--ci` 的 `uds check` 回報問題時仍以 0 結束**，與其他問題一致；所以跑一般 `uds check` 的提交前檢查不會因技能或命令檔遺失而擋下。
+- **`--rollback` chains up to 5 backups** and only across steps whose manifests line up; a hand edit to `.standards/manifest.json` between steps breaks the chain, and rollback then says how many older backups it left. Plain `uds update` (without `--apply`) still makes no backup. User-level skills and commands are not backed up and are listed as "Not restored".
+  `--rollback` 最多串 5 份備份，中間手改 `.standards/manifest.json` 會讓串斷，此時會說明剩下幾份。不帶 `--apply` 的 `uds update` 仍不備份；使用者層級的技能與命令不備份，會列在「Not restored」。
+- **The scanners read text; they do not run your tests.** A smoke test whose only check is "does not throw" is reported as having no assertion. They walk the whole project when nothing is staged (up to 200,000 files, 120 s each).
+  掃描是讀文字，不執行測試；只檢查「不拋例外」的冒煙測試會被報成沒有斷言。沒有暫存檔時會掃整個專案（上限 20 萬檔、各 120 秒）。
+- **`check --diff` after upgrading only the CLI** (without `uds update`) compares against the newer package, so UDS's own changes between the two versions show as differences; it warns in yellow and names both versions.
+  只升級 CLI、沒跑 `uds update` 時，`check --diff` 以新版套件為基準，兩版間 UDS 自己的改動會顯示為差異；會以黃字點名兩個版本。
+- From earlier betas: a project installed by an older UDS has no install records, so `uds uninstall` keeps what it cannot prove is UDS's; the pre-commit block blocks the commit when the UDS CLI is not installed; agy is verified only for single tool-free `-p` turns; the turn-completion hook works only in English and 繁體中文 and does not cover Cursor.
+  先前測試版的限制仍在：舊版安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明的檔；沒裝 CLI 時提交前檢查會擋下；agy 只驗證過單輪無工具回合；回合收尾關卡只支援英文與繁中，不含 Cursor。
 
 
 ---

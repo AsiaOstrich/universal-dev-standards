@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.5] - 2026-10-06
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Behavior changes:** `uds check` counts missing or edited skill and command files (`--ci` exits 1); `uds check --diff` compares against the installed package, not GitHub `main`; `uds init` adds two scanner scripts that warn at commit time.
+
 ### Changed
 
 - **Behavior change — `uds check --diff` now compares your files against the copy inside the UDS package you have installed, not against GitHub `main`.** The diff answers "what did I change in what UDS gave me"; it used to download the original from GitHub `main`, so offline it failed (extension files included), and anything UDS itself had changed on `main` since you installed was listed as a difference you had made. Now the original is read from the installed package — standards, options and extension files alike — and nothing is downloaded. The command prints what it compared against (`installed UDS package (version X)`) and points to `uds update --plan` for what UDS changed since. When the standards in your project were installed from a different UDS version than the package now installed, it says so, because a file UDS changed between the two shows up as a difference. When the installed package has no original for a tracked file, the command says so **by name**, downloads nothing, and exits with code 1; it no longer falls back to GitHub or skips the file in silence. With no modified files, `--diff` now says "nothing to diff" instead of printing nothing. **Who sees a difference:** anyone who runs `uds check --diff` (or presses "view" in the interactive `uds check`): the diff may differ from before wherever `main` and your installed version differ, and a script that read exit code 0 from a package missing an original now gets 1. **What to do:** nothing; to see what is new upstream, run `uds update --plan`. Implements dev-platform XSPEC-453 R1.

@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-09-29
+> Quick reference for all UDS features | Last updated: 2026-10-06
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -110,6 +110,7 @@
 | `ci-cd-assistant` | 引導 CI/CD 管線的設計、設定與最佳化。 |
 | `code-review-assistant` | [UDS] 系統性程式碼審查的參考資料：八大審查類別，以及 BLOCKING/IMPORTANT/SUGGESTION  |
 | `commit-standards` | [UDS] 產生符合 Conventional Commits 規範的 commit message，包含雙語格式。 |
+| `comprehension-ladder` | [UDS] 把一段難懂的 AI 輸出換成較好懂的形式：受控文字、Mermaid 圖、單檔 HTML 解說頁。所有形式都來 |
 | `contract-test-assistant` | [UDS] 引導 API 與微服務的合約測試策略。 |
 | `database-assistant` | 引導資料庫設計、遷移與查詢最佳化。 |
 | `deploy-assistant` | 引導在沒有 CI/CD 平台（GitHub Actions／GitLab CI）的情況下完成可靠部署。 |
@@ -388,6 +389,7 @@
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the on |
+| `npm-pack-files.mjs` | @param {string} stdout @returns {string[]} package |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh scr |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |

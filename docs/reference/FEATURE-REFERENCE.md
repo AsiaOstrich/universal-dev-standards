@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-09-29
+> Auto-generated | Last updated: 2026-10-06
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -11,13 +11,13 @@
 
 1. [CLI Commands](#cli-commands) (24)
 2. [Slash Commands](#slash-commands) (51)
-3. [Skills](#skills) (55)
+3. [Skills](#skills) (56)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (153)
-7. [Scripts](#scripts) (63)
+7. [Scripts](#scripts) (64)
 
-**Total Features: 356**
+**Total Features: 358**
 
 ---
 
@@ -366,6 +366,7 @@
 | `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization. |
 | `code-review-assistant` | [UDS] Reference for systematic code review: eight review categories and BLOCKING/IMPORTANT/SUGGESTION comment prefixes. |
 | `commit-standards` | [UDS] Generate commit messages that follow Conventional Commits, including the bilingual format. |
+| `comprehension-ladder` | [UDS] Turn one hard-to-follow AI output into easier forms: controlled text, a Mermaid diagram, a single-file HTML explainer. All forms come from one shared outline, so the form changes and the facts do not. |
 | `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microservices. |
 | `database-assistant` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub Actions / GitLab CI). |
@@ -449,7 +450,7 @@
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
 | `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
-| `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
+| `ai-response-navigation` | 1.4.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
@@ -652,6 +653,7 @@
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the only copy of the installer |
+| `npm-pack-files.mjs` | @param {string} stdout @returns {string[]} package-relative file paths |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh script. |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |

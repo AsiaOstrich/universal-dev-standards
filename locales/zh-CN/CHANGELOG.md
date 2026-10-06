@@ -1,7 +1,7 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.4
-translation_version: 6.14.0-beta.4
+source_version: 6.14.0-beta.5
+translation_version: 6.14.0-beta.5
 last_synced: 2026-10-06
 status: current
 ---
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.5] - 2026-10-06
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行为改变：**`uds check` 计入技能与命令文件的缺失或修改（`--ci` 以 1 结束）；`uds check --diff` 以所装包为原稿，不再抓取 GitHub `main`；`uds init` 会加入两个在提交时警告的扫描脚本。
 
 ### Changed
 

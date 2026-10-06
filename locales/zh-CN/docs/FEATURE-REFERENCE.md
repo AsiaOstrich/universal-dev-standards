@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-09-29
+> Auto-generated | Last updated: 2026-10-06
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -11,13 +11,13 @@
 
 1. [CLI 指令](#cli-commands) (24)
 2. [斜线命令](#slash-commands) (51)
-3. [技能](#skills) (55)
+3. [技能](#skills) (56)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (153)
-7. [脚本](#scripts) (63)
+7. [脚本](#scripts) (64)
 
-**Total Features: 356**
+**Total Features: 358**
 
 ---
 
@@ -366,6 +366,7 @@
 | `ci-cd-assistant` | 引导 CI/CD 流水线的设计、配置与优化。 |
 | `code-review-assistant` | [UDS] 系统性代码审查的参考资料：八大审查类别，以及 BLOCKING/IMPORTANT/SUGGESTION 评论前缀。 |
 | `commit-standards` | [UDS] 生成符合 Conventional Commits 规范的 commit message，包含双语格式。 |
+| `comprehension-ladder` | [UDS] 把一段难懂的 AI 输出换成较好懂的形式：受控文字、Mermaid 图、单文件 HTML 解说页。所有形式都来自同一份大纲，所以形式会变，事实不会变。 |
 | `contract-test-assistant` | [UDS] 引导 API 与微服务的契约测试策略。 |
 | `database-assistant` | 引导数据库设计、迁移与查询优化。 |
 | `deploy-assistant` | 引导在没有 CI/CD 平台（GitHub Actions／GitLab CI）的情况下完成可靠部署。 |
@@ -449,7 +450,7 @@
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
 | `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
-| `ai-response-navigation` | 1.3.0 | This standard defines navigation behavior for AI responses: every substantive AI |
+| `ai-response-navigation` | 1.4.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
 | `anti-sycophancy-prompting` | 1.0.0 | This standard defines techniques and rules for designing prompts that elicit gen |
@@ -652,6 +653,7 @@
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the only copy of the installer |
+| `npm-pack-files.mjs` | @param {string} stdout @returns {string[]} package-relative file paths |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh script. |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |

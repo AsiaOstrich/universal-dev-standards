@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-09-29
+> Quick reference for all UDS features | Last updated: 2026-10-06
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -110,6 +110,7 @@
 | `ci-cd-assistant` | Guide CI/CD pipeline design, configuration, and optimization |
 | `code-review-assistant` | [UDS] Reference for systematic code review: eight review cat |
 | `commit-standards` | [UDS] Generate commit messages that follow Conventional Comm |
+| `comprehension-ladder` | [UDS] Turn one hard-to-follow AI output into easier forms: c |
 | `contract-test-assistant` | [UDS] Guide contract testing strategy for APIs and microserv |
 | `database-assistant` | Guide database design, migration, and query optimization. |
 | `deploy-assistant` | Guide reliable deployments without CI/CD platforms (GitHub A |
@@ -388,6 +389,7 @@
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |
 | `install-hooks.mjs` | Install Hooks |
 | `install-hooks.sh` | Thin wrapper — scripts/install-hooks.mjs is the on |
+| `npm-pack-files.mjs` | @param {string} stdout @returns {string[]} package |
 | `pre-commit.mjs` | Build a platform-aware shell command for a .sh scr |
 | `pre-release-check.ps1` | Pre Release Check |
 | `pre-release-check.sh` | Pre-release Check Script |
