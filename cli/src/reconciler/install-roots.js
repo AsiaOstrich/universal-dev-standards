@@ -11,6 +11,7 @@
 
 import { relative, isAbsolute } from 'path';
 import { getSkillsDirForAgent, getCommandsDirForAgent } from '../config/ai-agent-paths.js';
+import { getAvailableSkillNames, getAvailableCommandNames } from '../utils/skills-installer.js';
 
 const normalizeInstallation = (inst) =>
   typeof inst === 'string' ? { agent: inst, level: 'project' } : { agent: inst.agent, level: inst.level || 'project' };
@@ -61,4 +62,29 @@ export function bookkeepingFiles(projectPath, manifest, { skills, commands }) {
   if (skills) out.push(...installRoots(projectPath, manifest?.skills?.installations, 'skills').dirs.map((d) => `${d}/.manifest.json`));
   if (commands) out.push(...installRoots(projectPath, manifest?.commands?.installations, 'commands').dirs.map((d) => `${d}/.manifest.json`));
   return out;
+}
+
+/**
+ * What a `--skills` / `--commands` step is going to write, as paths a backup can copy: the skill folders
+ * (or command files) UDS ships, and the bookkeeping file, inside each project-level target.
+ *
+ * Deliberately not the whole target folder. That folder also holds the adopter's own skills and commands;
+ * a backup that copied them would let a rollback write them back — undoing an edit the adopter made
+ * after the update, to a file UDS never touched. A shipped name that is not on disk yet is still listed:
+ * the backup records it as absent, which is what lets a rollback remove it again.
+ *
+ * @param {string} projectPath
+ * @param {Array<string|{agent: string, level?: string}>} installations
+ * @param {'skills'|'commands'} kind
+ * @returns {{ paths: string[], outside: Array<{path: string, reason: string}> }}
+ */
+export function stepWritePaths(projectPath, installations, kind) {
+  const { dirs, outside } = installRoots(projectPath, installations, kind);
+  const names = kind === 'skills' ? getAvailableSkillNames() : getAvailableCommandNames();
+  const paths = [];
+  for (const dir of dirs) {
+    paths.push(`${dir}/.manifest.json`);
+    for (const name of names) paths.push(kind === 'skills' ? `${dir}/${name}` : `${dir}/${name}.md`);
+  }
+  return { paths, outside };
 }

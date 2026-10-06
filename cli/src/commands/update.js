@@ -66,7 +66,7 @@ import {
   finalizeBackup,
   cleanupBackups
 } from '../reconciler/index.js';
-import { installRoots } from '../reconciler/install-roots.js';
+import { stepWritePaths } from '../reconciler/install-roots.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile, SUPPORTED_AI_TOOLS, getToolFormat } from '../core/constants.js';
@@ -2862,8 +2862,9 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     return;
   }
 
-  // XSPEC-454 R1: this step writes outside the reconciler, so it takes its own rollback point — the whole
-  // project-level skills folder (new skills are created, old ones rewritten, `.manifest.json` replaced).
+  // XSPEC-454 R1: this step writes outside the reconciler, so it takes its own rollback point — the skill
+  // folders UDS ships, in each project-level skills folder (new ones are created, old ones rewritten, and
+  // `.manifest.json` replaced), and nothing else: the adopter's own skills are not UDS's to roll back.
   // No backup, no write: an install that cannot be undone must not start.
   const skillsBackup = takeStepBackup(projectPath, 'skills', fileBasedInstallations, 'skills');
   if (!skillsBackup.ok) {
@@ -3472,8 +3473,8 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
  * Prints what it did; `ok: false` means the caller must not write anything.
  */
 function takeStepBackup(projectPath, label, installations, kind) {
-  const { dirs, outside } = installRoots(projectPath, installations, kind);
-  const backup = createStepBackup(projectPath, { label, paths: dirs, notBackedUp: outside });
+  const { paths, outside } = stepWritePaths(projectPath, installations, kind);
+  const backup = createStepBackup(projectPath, { label, paths, notBackedUp: outside });
   if (backup.errors.length > 0) {
     console.log(chalk.red(`Could not take a backup before updating ${label}; nothing was changed.`));
     for (const err of backup.errors) console.log(chalk.red(`  ${err}`));

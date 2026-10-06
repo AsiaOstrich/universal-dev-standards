@@ -320,6 +320,10 @@ const backupDirs = (dir) => readdirSync(dir).filter((n) => n.startsWith('.uds-ba
 it('uds update --rollback undoes --apply, --apply --skills and --apply --commands in one go: every file byte for byte, new skill folders gone, check passes (XSPEC-454 R1)', async () => {
   const dir = await newProject('claude', { claude: true });
   ageProject(dir);
+  // A skill that is the adopter's own, sitting in the same folder as the ones UDS installs.
+  const ownSkill = join(dir, '.claude', 'skills', 'my-own-skill', 'SKILL.md');
+  mkdirSync(join(dir, '.claude', 'skills', 'my-own-skill'), { recursive: true });
+  writeFileSync(ownSkill, '# mine, as I wrote it before the upgrade\n');
 
   // Precondition: the aged project is one `uds check` calls clean, and the three steps have real work.
   const clean = await runCli(['check', '--offline', '--ci'], dir);
@@ -346,6 +350,10 @@ it('uds update --rollback undoes --apply, --apply --skills and --apply --command
   expect(upgraded.some((l) => /changed: \.standards\/manifest\.json/.test(l)), upgraded.join('\n')).toBe(true);
   expect(backupDirs(dir).length, 'one backup per step').toBe(3);
 
+  // The adopter keeps working after the upgrade. The rollback is of what UDS did, so it must not write
+  // an older copy of the adopter's own skill back over that edit.
+  writeFileSync(ownSkill, '# mine, edited after the upgrade\n');
+
   const rb = await runCli(['update', '--rollback', '--yes'], dir);
   expect(rb.code, rb.stdout + rb.stderr).toBe(0);
   expect(rb.stdout).toMatch(/Rollback successful/);
@@ -354,7 +362,8 @@ it('uds update --rollback undoes --apply, --apply --skills and --apply --command
 
   // Read back: the whole project, not the files the old rollback happened to remember.
   const afterRollback = diffTrees(before, snapshotTree(dir));
-  expect(afterRollback, afterRollback.join('\n')).toEqual([]);
+  expect(afterRollback, 'everything UDS changed is back; the only difference is the adopter\'s own edit').toEqual(['changed: .claude/skills/my-own-skill/SKILL.md']);
+  expect(readFileSync(ownSkill, 'utf-8')).toBe('# mine, edited after the upgrade\n');
 
   const after = await runCli(['check', '--offline', '--ci'], dir);
   expect(after.code, after.stdout).toBe(0);
