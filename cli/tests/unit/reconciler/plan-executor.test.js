@@ -16,7 +16,8 @@ vi.mock('../../../src/reconciler/backup-manager.js', () => ({
     backedUp: [],
     errors: []
   })),
-  cleanupBackups: vi.fn(() => ({ removed: [], errors: [] }))
+  cleanupBackups: vi.fn(() => ({ removed: [], errors: [] })),
+  finalizeBackup: vi.fn(() => ({ createdFiles: [], errors: [] }))
 }));
 
 // Mock copier
@@ -172,7 +173,7 @@ describe('PlanExecutor', () => {
 
       await executePlan(TEST_DIR, plan, { fileHashes: {} });
 
-      expect(createBackup).toHaveBeenCalledWith(TEST_DIR, plan);
+      expect(createBackup).toHaveBeenCalledWith(TEST_DIR, plan, expect.objectContaining({ alsoWatch: expect.any(Array) }));
     });
 
     it('should skip backup when backup=false', async () => {

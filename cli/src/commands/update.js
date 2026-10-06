@@ -25,6 +25,9 @@ import {
   getToolFromPath
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
+import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
+import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
+import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { config } from '../utils/config-manager.js';
 import {
@@ -59,8 +62,12 @@ import {
   plan as reconcilerPlan,
   rollbackLast,
   formatPlan,
-  listBackups
+  listBackups,
+  createStepBackup,
+  finalizeBackup,
+  cleanupBackups
 } from '../reconciler/index.js';
+import { stepWritePaths } from '../reconciler/install-roots.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile, SUPPORTED_AI_TOOLS, getToolFormat } from '../core/constants.js';
@@ -620,6 +627,10 @@ export async function updateCommand(options) {
     // definition — telling them to run `uds update --prune` and then returning
     // before anything is examined is how the complaint became unclearable.
     const retiredOnLatest = pruneRetiredHashes(manifest, projectPath);
+    // XSPEC-454 R2: skill records UDS never owned go the same way (an up-to-date adopter is exactly the
+    // one who has nothing else to trigger the correction).
+    const foreignSkillsOnLatest = pruneForeignSkillHashes(manifest);
+    const foreignCommandsOnLatest = pruneForeignCommandHashes(manifest);
     if (retiredOnLatest.length > 0) {
       console.log();
       console.log(chalk.gray(
@@ -628,6 +639,20 @@ export async function updateCommand(options) {
       for (const path of retiredOnLatest) {
         console.log(chalk.gray(`    - ${path}`));
       }
+    }
+    if (foreignSkillsOnLatest.length > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedForeignSkillHashes || 'Dropped {count} skill record(s) that do not describe files UDS installed.').replace('{count}', foreignSkillsOnLatest.length)}`
+      ));
+    }
+    if (foreignCommandsOnLatest.length > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedForeignCommandHashes || 'Dropped {count} command record(s) for commands UDS does not ship.').replace('{count}', foreignCommandsOnLatest.length)}`
+      ));
+    }
+    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0) {
       writeManifest(manifest, projectPath);
     }
 
@@ -2845,6 +2870,16 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     return;
   }
 
+  // XSPEC-454 R1: this step writes outside the reconciler, so it takes its own rollback point — the skill
+  // folders UDS ships, in each project-level skills folder (new ones are created, old ones rewritten, and
+  // `.manifest.json` replaced), and nothing else: the adopter's own skills are not UDS's to roll back.
+  // No backup, no write: an install that cannot be undone must not start.
+  const skillsBackup = takeStepBackup(projectPath, 'skills', fileBasedInstallations, 'skills');
+  if (!skillsBackup.ok) {
+    process.exit(1);
+    return;
+  }
+
   const spinner = createSpinner(msg.installingSkills || 'Installing Skills...').start();
 
   const skillsLocaleForUpdate = resolveLocale(manifest, projectPath, options);
@@ -2890,6 +2925,9 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     if (!manifest.skillHashes) manifest.skillHashes = {};
     Object.assign(manifest.skillHashes, result.allFileHashes);
   }
+  // XSPEC-454 R2: and forget the records that were never UDS's (the manifest this merges into
+  // may come from an installer that hashed the whole skills folder).
+  pruneForeignSkillHashes(manifest);
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -2911,6 +2949,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   freshForSkills.skills = manifest.skills;
   freshForSkills.skillHashes = manifest.skillHashes;
   writeManifest(freshForSkills, projectPath);
+  finishStepBackup(projectPath, skillsBackup);
 
   console.log();
   process.exit(0);
@@ -2969,6 +3008,13 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   }
   console.log();
 
+  // XSPEC-454 R1: same as the Skills step — a rollback point first, and no write without one.
+  const commandsBackup = takeStepBackup(projectPath, 'commands', commandsInstallations, 'commands');
+  if (!commandsBackup.ok) {
+    process.exit(1);
+    return;
+  }
+
   const spinner = createSpinner(msg.installingCommands || 'Installing commands...').start();
 
   const commandsLocale = resolveLocale(manifest, projectPath, options);
@@ -2989,9 +3035,8 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   }).join(', ');
 
   if (result.totalErrors === 0) {
-    spinner.succeed((msg.commandsUpdated || 'Updated {count} commands: {locations}')
-      .replace('{count}', result.totalInstalled)
-      .replace('{locations}', locations));
+    // XSPEC-454 R4: tools and commands are different numbers; see commandsUpdatedMessage.
+    spinner.succeed(commandsUpdatedMessage(msg, commandsInstallations, result, locations));
   } else {
     spinner.warn((msg.commandsUpdatedWithErrors || 'Updated commands with {errors} errors')
       .replace('{errors}', result.totalErrors));
@@ -3016,6 +3061,8 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     if (!manifest.commandHashes) manifest.commandHashes = {};
     replaceCommandHashesForUpdatedAgents(manifest.commandHashes, result.allFileHashes);
   }
+  // XSPEC-454 R2: and forget command records for commands UDS does not ship.
+  pruneForeignCommandHashes(manifest);
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -3039,6 +3086,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   freshForCommands.commands = manifest.commands;
   freshForCommands.commandHashes = manifest.commandHashes;
   writeManifest(freshForCommands, projectPath);
+  finishStepBackup(projectPath, commandsBackup);
 
   console.log();
   process.exit(0);
@@ -3431,7 +3479,47 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
 // ─── DSR (Declarative State Reconciliation) Handlers ─────────────
 
 /**
- * Handle --rollback: restore from the most recent backup.
+ * Take the rollback point for a Skills/Commands step (XSPEC-454 R1).
+ * Prints what it did; `ok: false` means the caller must not write anything.
+ */
+function takeStepBackup(projectPath, label, installations, kind) {
+  const { paths, outside } = stepWritePaths(projectPath, installations, kind);
+  const backup = createStepBackup(projectPath, { label, paths, notBackedUp: outside });
+  if (backup.errors.length > 0) {
+    console.log(chalk.red(`Could not take a backup before updating ${label}; nothing was changed.`));
+    for (const err of backup.errors) console.log(chalk.red(`  ${err}`));
+    console.log();
+    return { ok: false };
+  }
+  cleanupBackupsQuietly(projectPath);
+  return { ok: true, backupId: backup.backupId };
+}
+
+/** The step is over (its last manifest write is done): record what it created, and say how to undo it. */
+function finishStepBackup(projectPath, backup) {
+  finalizeBackup(projectPath, backup.backupId);
+  console.log(chalk.gray(`  Backup: ${backup.backupId}`));
+  console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+}
+
+function cleanupBackupsQuietly(projectPath) {
+  try {
+    cleanupBackups(projectPath);
+  } catch {
+    // an old backup that cannot be removed is not a reason to stop the update
+  }
+}
+
+/** Print up to `limit` paths, then how many more. */
+function printPaths(prefix, paths, limit, colour) {
+  for (const p of paths.slice(0, limit)) console.log(colour(`  ${prefix} ${p}`));
+  if (paths.length > limit) console.log(colour(`  ${prefix} … and ${paths.length - limit} more`));
+}
+
+/**
+ * Handle --rollback: undo the newest backup and every earlier one from the same unbroken series of UDS
+ * updates, then say, item by item, what was restored, what was removed, and what was NOT put back.
+ * It never ends in "successful" while any of those lists is not empty (XSPEC-454 R1).
  */
 async function handleRollback(projectPath) {
   const backups = listBackups(projectPath);
@@ -3442,22 +3530,46 @@ async function handleRollback(projectPath) {
   }
 
   const latest = backups[0];
-  console.log(chalk.cyan(`Rolling back to: ${latest.backupId}`));
+  console.log(chalk.cyan(`Rolling back from: ${latest.backupId}`));
   console.log(chalk.gray(`  Created: ${latest.createdAt}`));
-  console.log(chalk.gray(`  Actions: ${latest.actionCount}`));
   console.log();
 
   const result = rollbackLast(projectPath);
-  if (result.success) {
-    console.log(chalk.green(`Rollback successful. Restored ${result.restored.length} files.`));
-    for (const file of result.restored) {
-      console.log(chalk.gray(`  ← ${file}`));
-    }
-  } else {
-    console.log(chalk.red('Rollback failed:'));
-    for (const err of result.errors) {
-      console.log(chalk.red(`  ${err}`));
-    }
+
+  for (const step of result.steps || []) {
+    console.log(chalk.cyan(`${step.backupId}${step.label ? ` (${step.label})` : ''}`));
+    console.log(chalk.gray(`  Restored ${step.restored.length} file(s), removed ${step.removed.length} file(s) the update had created.`));
+    printPaths('←', step.restored, 12, chalk.gray);
+    printPaths('✕', step.removed, 12, chalk.gray);
+  }
+  if (!result.steps) {
+    // a rollbackLast that predates the step report
+    printPaths('←', result.restored || [], 12, chalk.gray);
+  }
+  console.log();
+
+  if ((result.steps || []).length > 1) {
+    console.log(chalk.gray(`  ${result.steps.length} consecutive updates were undone together (each one started from where the previous one ended).`));
+  }
+  if (result.olderBackups > 0) {
+    console.log(chalk.gray(`  ${result.olderBackups} older backup(s) are not part of that series (something else changed the project in between) and were left alone.`));
+  }
+
+  if (result.errors.length > 0) {
+    process.exitCode = 1;
+    console.log(chalk.red('Rollback did NOT complete. The project may be in a mixed state:'));
+    printPaths('✗', result.errors, 30, chalk.red);
+    console.log(chalk.yellow('  What to do: fix the cause above (permissions, a locked file) and run `uds update --rollback` again —'));
+    console.log(chalk.yellow('  it is safe to repeat. The backups are still in .uds-backup-* if you need to copy files back by hand.'));
+  }
+  if ((result.notRestored || []).length > 0) {
+    console.log(chalk.yellow('Not restored:'));
+    printPaths('!', result.notRestored, 30, chalk.yellow);
+  }
+  if (result.errors.length === 0 && (result.notRestored || []).length === 0) {
+    console.log(chalk.green(`Rollback successful. Restored ${result.restored.length} file(s), removed ${(result.removed || []).length}.`));
+  } else if (result.errors.length === 0) {
+    console.log(chalk.yellow('Rollback finished for everything inside this project, except the items listed above.'));
   }
   console.log();
 }
@@ -3525,6 +3637,10 @@ async function handleReconcile(projectPath, options, { force }) {
   const planResult = await reconcilerPlan(projectPath, { force });
 
   if (planResult.plan.actions.length === 0) {
+    // XSPEC-454 R2: nothing to apply, but the manifest may still list skill files UDS never installed
+    // (they only ever get corrected by a write, and an up-to-date project has none coming).
+    const current = readManifest(projectPath);
+    if (current && (pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0) writeManifest(current, projectPath);
     console.log(chalk.green('Everything is up to date. No changes needed.'));
     console.log();
     return;

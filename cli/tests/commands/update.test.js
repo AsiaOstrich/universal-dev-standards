@@ -133,6 +133,9 @@ vi.mock('../../src/config/ai-agent-paths.js', () => ({
 }));
 
 vi.mock('../../src/utils/skills-installer.js', () => ({
+  // check/update prune skill records against the skills UDS ships (XSPEC-454 R2); none here.
+  getAvailableSkillNames: () => [],
+  getAvailableCommandNames: () => [],
   // Mirrors the real implementation: dedupe by agent, preferring project level.
   // Four manifest writers route appends through this (XSPEC-343 R2).
   deduplicateInstallations: (list) => {
@@ -229,7 +232,10 @@ vi.mock('../../src/reconciler/index.js', () => ({
   })),
   rollbackLast: vi.fn(() => ({ success: true, restored: [], errors: [] })),
   formatPlan: vi.fn(() => '=== Reconciliation Plan ==='),
-  listBackups: vi.fn(() => [])
+  listBackups: vi.fn(() => []),
+  createStepBackup: vi.fn(() => ({ backupId: '.uds-backup-test', backupDir: '', backedUp: [], errors: [] })),
+  finalizeBackup: vi.fn(() => ({ createdFiles: [], errors: [] })),
+  cleanupBackups: vi.fn(() => ({ removed: [], errors: [] }))
 }));
 
 import { readFileSync as realReadFileSync } from 'node:fs';

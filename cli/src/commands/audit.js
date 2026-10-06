@@ -345,6 +345,17 @@ async function handleReport(auditResult, options, msg) {
   const isDryRun = options.dryRun || false;
   const forceGh = options.gh || false;
 
+  // XSPEC-454 R3: submitting means talking to GitHub (the `gh` CLI, or a browser/clipboard
+  // fallback). Offline mode must not do that, and must say so — not fail, not skip silently.
+  // A dry run only prints the report, so it still works offline and is offered as the way out.
+  if (options.offline && !isDryRun) {
+    console.log();
+    console.log(chalk.yellow(msg.offlineNoSubmit || 'Offline mode: the report is not submitted.'));
+    console.log(chalk.gray(msg.offlineDryRunHint || '  Use --dry-run to preview it, or run again without --offline to submit.'));
+    console.log();
+    return;
+  }
+
   // Gather findings for selection
   const findings = [];
 

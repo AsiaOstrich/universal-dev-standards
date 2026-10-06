@@ -28,7 +28,8 @@ import { writeManifest } from '../core/manifest.js';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js';
-import { createBackup, cleanupBackups } from './backup-manager.js';
+import { createBackup, cleanupBackups, finalizeBackup } from './backup-manager.js';
+import { bookkeepingFiles } from './install-roots.js';
 
 /**
  * @typedef {Object} ExecutionResult
@@ -75,7 +76,13 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
 
   // Create backup
   if (backup && !dryRun) {
-    const backupResult = createBackup(projectPath, plan);
+    // XSPEC-454 R1: the Skills and Commands installers also rewrite `.manifest.json` in each target
+    // folder. No plan action names it, so it has to be watched explicitly or a rollback leaves the new one.
+    const bookkeeping = bookkeepingFiles(projectPath, manifest, {
+      skills: plan.actions.some((a) => a.category === 'skill'),
+      commands: plan.actions.some((a) => a.category === 'command')
+    });
+    const backupResult = createBackup(projectPath, plan, { alsoWatch: bookkeeping });
     // Abort if ANY planned path could not be backed up — not only if every one
     // failed.
     //
@@ -197,6 +204,10 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
         error: `Failed to write manifest: ${err.message}`
       });
     }
+    // XSPEC-454 R1: now that the step is over — whether or not that last write worked — record what it
+    // created and what the manifest became. This has to stay after the manifest write: the chain between
+    // consecutive backups is "the manifest this step left == the manifest the next step started from".
+    finalizeBackup(projectPath, backupId);
   }
 
   const summary = {
@@ -421,6 +432,16 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
     try {
       if (existsSync(targetPath)) {
         rmSync(targetPath, { recursive: true, force: true });
+      }
+      // XSPEC-454 R2: a deleted skill folder must also lose its hash records. Commands already
+      // do this (see executeCommandBatch); skills did not, so each folder removed here stayed in
+      // `skillHashes` and `uds check` later called every file in it missing — 26 of them for one project.
+      const meta = action.details?.metadata;
+      if (meta?.agent && meta?.level && meta?.skillName && manifest.skillHashes) {
+        const prefix = `${meta.agent}/${meta.level}/${meta.skillName}/`;
+        for (const key of Object.keys(manifest.skillHashes)) {
+          if (key.startsWith(prefix)) delete manifest.skillHashes[key];
+        }
       }
       results.push({ action, success: true });
     } catch (err) {
