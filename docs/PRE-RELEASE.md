@@ -9,59 +9,63 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.3`
+## Current beta | 目前的測試版：`6.14.0-beta.4`
 
-> **New in 6.14.0-beta.3** — a security fix to the pre-commit hook `uds init` writes (it no longer lets `npx` ask npm for a package named `uds`, which is not this project), a rewritten `uds uninstall` that removes only what it can prove UDS wrote, and `uds open-work next-action` reading a next action written as a table column.
-> **6.14.0-beta.3 新增** — 修正 `uds init` 寫入的 pre-commit hook 的安全問題（不再讓 `npx` 去 npm 找一個叫 `uds`、但不是本專案的套件）、重寫 `uds uninstall`（只移除能證明是 UDS 寫的東西），以及 `uds open-work next-action` 讀得懂寫成表格欄的下一步。
+> **New in 6.14.0-beta.4** — the `extensions/` packs (language style guides, framework patterns, the zh-TW and zh-CN locale packs) now ship inside the npm package, so installing them needs no network; `uds init --locale zh-cn` installs instead of rolling back, `--locale` is case-insensitive and an unsupported value is said out loud; a new skill `/comprehend` (comprehension ladder); `ai-response-navigation` 1.4.0 Rule 12 (controlled language, with "keep the hedges" required); and three checks that used to pass no matter what can now fail.
+> **6.14.0-beta.4 新增** — `extensions/`（程式語言風格、框架規範、繁中與簡中語系包）打包進 npm 套件，安裝不再需要網路；`uds init --locale zh-cn` 不再回滾，`--locale` 不分大小寫，不支援的值會明說；新技能 `/comprehend`（理解階梯）；`ai-response-navigation` 1.4.0 第 12 條（受控語言，「保留不確定語氣」為必須）；以及三個原本怎樣都會通過的檢查，現在會失敗。
 
-**Existing adopters: run `uds update` once.** The pre-commit hook older versions wrote is the single line `npx uds check`; a new install no longer writes it, but a project that already has it keeps it until `uds update` replaces it.
-**既有採用者：請執行一次 `uds update`。**舊版寫進 pre-commit hook 的是單行 `npx uds check`；新安裝不再寫這一行，但已經有這一行的專案要等 `uds update` 才會被換掉。
+**Behavior change — read this first.** `uds check --standard checkin-standards` now fails when your lint or tests fail (it used to say "passed"), and the native pre-commit hook `uds init` writes for non-Node projects can now block a commit. A commit that used to go through with failing tests may now be blocked — that is the point. Hooks already on disk are left as written.
+**行為改變，請先讀。**`uds check --standard checkin-standards` 在 lint 或測試失敗時會失敗（以前會說「通過」）；`uds init` 為非 Node 專案寫入的原生 pre-commit hook 現在擋得住提交。以前測試失敗也能提交的專案，現在可能會被擋——這正是修正的目的。已經在磁碟上的 hook 維持原樣。
 
-Everything in 6.14.0-beta.2 is still here: `uds update --with-hooks`, `uds open-work`, the turn-completion conditional-exemption fix, and the throwaway-HOME release check; and from 6.14.0-beta.1 the turn-completion hook for **Antigravity CLI (`agy`)** and `open-work-tracking` 1.1.0 (OWT-017/018/019).
-6.14.0-beta.2 的內容都還在：`uds update --with-hooks`、`uds open-work`、回合收尾關卡條件式豁免的修正、發版檢查改用拋棄式 HOME；6.14.0-beta.1 的 **Antigravity CLI（`agy`）** 回合收尾關卡與 `open-work-tracking` 1.1.0（OWT-017/018/019）也都還在。
+Everything in 6.14.0-beta.3 is still here (pre-commit hook security fix, rewritten `uds uninstall`, Windows `chmod` message fix, `uds open-work` table columns).
+6.14.0-beta.3 的內容都還在（pre-commit hook 安全修正、重寫的 `uds uninstall`、Windows `chmod` 訊息修正、`uds open-work` 讀表格欄）。
 
 ### What is in it | 這一版有什麼
 
 | Change | What it does | 白話 |
 | :--- | :--- | :--- |
-| **Pre-commit hook no longer runs `npx uds`** | The block `uds init --with-hooks` appends to `.husky/pre-commit` now looks for `universal-dev-standards` (this package's own name) in the project's `node_modules/.bin`, then on `PATH`, and runs `check`. If it is found in neither, the commit is **blocked** with a message saying what to install (`npm install --save-dev universal-dev-standards`, or `-g`); it neither skips the check nor downloads anything. The text in generated `CLAUDE.md`/`AGENTS.md` blocks and in the hook hints now says `npx universal-dev-standards init` / `update`. `uds check` warns about a hook that still runs the bare name. | 別再讓 npm 去抓一個不是我們的 `uds` |
-| **`uds update` replaces the old hook line** | In every `uds update` mode except `--skills`, `--commands`, `--integrations-only`, `--standards-only` and `--rollback` (and in `--with-hooks`), the line UDS itself wrote in `.husky/pre-commit` — only `npx uds check` or `npx uds check --standard checkin-standards`, directly under the `# UDS Standard Check` marker — is replaced with the new block. It runs even when your standards are already up to date. `--plan` reports and writes nothing. A line you wrote or edited yourself is left alone and reported with its line number. Only `.husky/pre-commit` is examined; the native `.git/hooks/pre-commit` that `uds init` writes for non-Node projects calls `uds check` from `PATH` and is unchanged. | 舊專案跑一次 `uds update` 就換掉 |
-| **`uds uninstall` removes only what it can prove UDS wrote** | A whole file is deleted only if the manifest records that UDS wrote it **and** its content still matches the recorded hash; otherwise it is kept and the output says why (`kept: modified since UDS wrote it`, or `kept: no install record — installed by an older UDS or not by UDS, so UDS cannot prove it wrote this`). Folders UDS created are removed once empty. Every "Removed" line is a real deletion or edit; a run that ends with errors exits non-zero. | 不再亂刪、也不再說謊 |
-| **`uds uninstall` never prompts when nobody can answer** | `--dry-run` never prompts and previews every category. Without `--yes` and without a terminal a real run refuses with exit code 2 (nothing is changed); a closed prompt exits 130; a project that was never initialized exits 1. | 排程或腳本裡跑不會卡住 |
-| **`uds init --with-hooks` on Windows** | No longer prints `'chmod' is not recognized`: it calls `fs.chmodSync` and skips the step on Windows. | Windows 少一行誤導的錯誤訊息 |
-| **`uds open-work next-action` reads table columns** | A table column whose header is in the next-action vocabulary (`Next action`, `Next step`, `下一步`, `下一動`, `回來要做什麼`) is read on every row, with the line number. A row whose cell count differs from its header is listed as `UNDECIDABLE` (exit code 2), never read as empty. The vocabulary is still uncalibrated (OWT-016). | 表格式的工作紀錄也能檢查 |
+| **`extensions/` in the package** | The 6.13.1 package held 0 of the 7 extension files, so `--lang csharp`/`php`, `--framework fat-free` and `--locale zh-tw`/`zh-cn` downloaded them from GitHub `main` while installing. They now ship in the package (about 152 KB) and are read from it only; a declared file missing from the package fails the install by name, with no download. | 離線也裝得了中文與程式語言規範，內容和你裝的版本一致 |
+| **`uds init --locale zh-cn`** | The Simplified Chinese locale pack did not exist, so the install rolled back. It now exists, written with mainland terminology (not a character conversion of the Traditional pack). | 簡中安裝修好 |
+| **`--locale` case and unknown values** | `zh-CN` works like `zh-cn`. An unsupported value (e.g. `fr`) installs English and prints a warning. | 大寫也行；不支援會說 |
+| **`/comprehend` skill** | Builds one outline from a hard-to-read AI output, then renders controlled prose, a Mermaid diagram, or a single-file HTML explainer that loads nothing from the network. Three required guards: add no fact the source does not state; keep every hedge; give every item a source pointer and a "not covered" note. | 把看不懂的 AI 輸出換成好讀的形式，事實不變 |
+| **`ai-response-navigation` 1.4.0, Rule 12** | Controlled-language principles. Only "keep hedges" is required. The ASD-STE100 dictionary does not apply to non-English text. | 寫清楚，但不能把「可能」改成「是」 |
+| **`checkin-standards` validator** | A failing lint or test script now fails the check and says which one; a genuinely absent script is not a failure. | 測試失敗不再顯示通過 |
+| **`pipeline-security-gates` validator** | Could not fail before (`grep \| head`); now fails unless a pipeline mentions a security gate. | 這個檢查終於會失敗 |
+| **Native pre-commit hook (non-Node)** | Used to swallow every error and print "passed". An installed linter that fails, or the UDS check, now blocks the commit; a linter that is not installed is skipped. | 非 Node 專案的提交前檢查擋得住了 |
 
-### What to test | 請幫忙測什麼
+### What to test | 請幫忙測什麼（Windows 優先）
 
-1. **The pre-commit fix** — in a project that already has the old hook (`.husky/pre-commit` containing `npx uds check` under `# UDS Standard Check`): `uds update --plan` should say it would replace the line and write nothing; `uds update` should replace it. Then make a commit with the CLI installed (it should run `universal-dev-standards check`), and once with it neither in `node_modules/.bin` nor on `PATH` (the commit should be blocked with the install hint, not skipped). If you edited that line yourself, confirm it is left alone and reported.
-   在已經有舊 hook 的專案：`uds update --plan` 應說明會替換且不寫入；`uds update` 應完成替換。再各 commit 一次——裝了 CLI 時應執行 `universal-dev-standards check`；`node_modules/.bin` 與 `PATH` 都找不到時應被擋下並提示怎麼安裝，而不是被略過。你自己改過那一行時，應原樣保留並回報。
-2. **`uds uninstall`** — (a) on a project you initialized **with this beta**: `uds uninstall --dry-run`, then `uds uninstall --yes`; the hook scripts and the UDS-generated `AGENTS.md` should go, and so should `.husky/pre-commit` if UDS created it and you have not edited it; your own files, your own lines in a hook file and your own hook entries should stay. (b) On a project initialized by an **earlier** version, run with `--yes`: see "Known limitations" below for what is kept and why; report anything kept that has no explanation, or anything deleted that was yours. (c) `uds uninstall` with no `--yes` in a script (no terminal) should exit 2 and change nothing.
-   (a) 用這個測試版初始化的專案：先 `--dry-run` 再 `--yes`，關卡腳本與 UDS 生成的 `AGENTS.md` 應被移除；`.husky/pre-commit` 若是 UDS 建立且你沒改過也應被移除；你自己的檔案、hook 檔裡你自己的行與 hook 項目應保留。(b) 早期版本初始化的專案，加 `--yes` 執行：保留什麼、為什麼，見下方「已知限制」；請回報任何保留卻沒說明原因的東西，或任何被刪掉的你自己的東西。(c) 在沒有終端機的腳本裡不加 `--yes` 應以 2 結束且不改任何東西。
-3. **`uds update --with-hooks`** (from 6.14.0-beta.2, still to be tested) — in a project initialized before these betas: `uds update --with-hooks --plan`, then `uds update --with-hooks`; confirm `.agents/hooks.json` (agy), `.codex/hooks.json`, `.gemini/settings.json` or `.claude/settings.json` appears for the tools you use, that running it twice changes nothing, and that your own hooks are still there. (Codex will not run its hook until you trust the project and the hook in Codex.)
-   在這些測試版之前初始化的專案：先 `--plan` 再實際執行；確認你用的工具的關卡檔出現、重跑一次沒有變化、你自己的 hooks 還在。（Codex 要先在 Codex 裡信任專案與該關卡才會執行。）
-4. **`uds open-work`** — `uds open-work next-action <your work log>` from a **clean directory that has no clone of UDS**, including a work log that keeps its next actions in a table column; report false positives (a concrete next action reported as vague) and misses.
-   在沒有 clone UDS 的乾淨目錄對你的工作紀錄（含把下一步寫在表格欄的）執行；回報誤判與漏判。
-5. **No regression on Claude Code, Codex and Antigravity CLI** — the turn-completion hooks should behave as in 6.14.0-beta.2 (agy: a turn that says "I will run the tests next" is sent back; a turn waiting on your decision, or one where you asked it to stop, is not).
-   Claude Code、Codex 與 Antigravity CLI 不退步：回合收尾關卡行為應與 6.14.0-beta.2 相同。
+1. **Install on Windows, online and offline** — `npm install -g universal-dev-standards@beta`, then in a new project `uds init --locale zh-tw`, and in another `uds init --locale zh-cn`. Then **disconnect the network** and run `uds init --locale zh-tw --lang csharp` in a third project. All three should finish, and the locale pack should be in `.standards/`.
+   在 Windows 安裝測試版，分別用 `zh-tw`、`zh-cn` 初始化；再**拔網路**，在第三個專案用 `zh-tw` 加 `--lang csharp` 初始化。三次都應完成，`.standards/` 裡應有語系包。
+2. **`--locale zh-CN` and `--locale fr`** — the first should install Simplified Chinese; the second should print a warning and install English.
+   大寫 `zh-CN` 應裝成簡中；`fr` 應印出警告並裝成英文。
+3. **`/comprehend`** — in Claude Code (installed with skills), paste a long AI answer you found hard to read and run `/comprehend`. Check: nothing new was added; every "might / 可能" is still there; each item says where it came from and what it does not cover; the HTML file opens with the network off.
+   在 Claude Code 貼一段難讀的 AI 回答，執行 `/comprehend`。檢查：沒有多出原文沒有的內容；「可能」都還在；每一項都標出來源與沒涵蓋什麼；斷網時 HTML 也打得開。
+4. **The checks that can now fail** — in a project with a failing test, run `uds check --standard checkin-standards`; it should fail and name `npm run test`.
+   在測試會失敗的專案執行 `uds check --standard checkin-standards`，應失敗並點名 `npm run test`。
+5. **Still open from beta.3** — the pre-commit block under git-bash on Windows, and messages in a 繁體中文 Windows (cp950) console.
+   beta.3 尚未驗證的兩項：Windows git-bash 下的 pre-commit 區塊、cp950 主控台的中文訊息。
+
+Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 
 ### Known limitations | 已知限制
 
-- **Windows: the new pre-commit block has not been run.** It is POSIX `sh` that is meant to run in git-bash. The test that executes the block is skipped on Windows (CI's Windows job runs the unit suite, but not that test), so what a real `git commit` does there is not known. Please report it. The `chmod` message fix is likewise checked only by a test that asserts the cause (no shell is spawned; the mode change is skipped on `win32`), not on a real Windows console.
-  **Windows 上新的 pre-commit 區塊實際執行尚未驗證。**它是給 git-bash 執行的 POSIX `sh`。執行該區塊的測試在 Windows 上被略過（CI 的 Windows 工作跑的是單元測試套件，但不含那支測試），所以真正的 `git commit` 在那裡會怎樣目前不知道。請回報。`chmod` 訊息的修正同樣只有斷言成因的測試（不啟動 shell、在 `win32` 略過改權限），沒有在真正的 Windows 主控台看過。
-- **繁體中文 Windows (cp950 console) has not been verified.** The messages this beta adds or changes (uninstall reasons, hook hints) have not been looked at in a cp950 console; garbled characters there would be a defect to report.
-  **繁體中文 Windows（cp950 主控台）尚未驗證。**這個測試版新增或修改的訊息（uninstall 的說明、hook 提示）沒有在 cp950 主控台看過；若出現亂碼請回報。
-- **A project installed by an older UDS (including 6.14.0-beta.2 and earlier) has no install records, so `uds uninstall` keeps things it cannot prove are UDS's and says so.** Concretely: the hook scripts under `scripts/hooks/` are kept; with `--yes` the text outside the UDS block in `AGENTS.md` is kept (the block itself is removed; interactively you are asked per file), including a generated header that still points at the removed `.standards/`; in `.husky/pre-commit` and the native `.git/hooks/pre-commit` only the lines that match UDS's are removed and the rest of the script stays, and the file is deleted only when nothing but a shebang is left. Delete what is left yourself if you want it gone. (`uds update --with-hooks` records only the hook scripts and folders it writes itself, so it does not change this for files that are already there.)
-  **早期版本（含 6.14.0-beta.2 與更早）安裝的專案沒有安裝紀錄，所以 `uds uninstall` 會保留它無法證明是 UDS 寫的東西並說明。**具體是：`scripts/hooks/` 底下的關卡腳本保留；`AGENTS.md` 在 UDS 區塊以外的文字在 `--yes` 下保留（區塊本身會移除；互動模式則逐檔詢問），包括仍指向已刪除的 `.standards/` 的生成標頭；`.husky/pre-commit` 與原生 `.git/hooks/pre-commit` 只移除符合 UDS 樣式的行、其餘保留，只有剩下 shebang 時才刪檔。想清乾淨請自行刪除。（`uds update --with-hooks` 只替它自己寫入的關卡腳本與資料夾建立紀錄，對已經存在的檔案沒有幫助。）
-- The pre-commit block **blocks the commit** when the UDS CLI is not installed. That is intended (a silent skip would be worse), but it means a teammate who clones the project without the CLI is stopped until they install it or remove the block.
-  CLI 沒裝時 pre-commit 區塊會**擋下 commit**。這是刻意的（默默略過更糟），但代表沒裝 CLI 就 clone 專案的同事會被擋，直到裝了 CLI 或移除該區塊。
-- agy: only a single turn without tool calls, in `-p` mode, has been observed; multi-turn, tool-using and interactive sessions are not yet verified.
-  agy 只驗證過 `-p` 模式下的單輪、無工具回合；多輪、有用工具與互動模式尚未驗證。
-- The open-work-tracking check's heading vocabulary, command list and identifier pattern are uncalibrated first judgments (OWT-016); a prose revision note such as "revised 2026-09-29" does not count as a structured record.
-  工作管理檢查的標題詞彙、指令清單、編號樣式都是未校準的初始判斷；「2026-09-29 修訂」這類散文式備註不算結構化紀錄。
-- The turn-completion hook reads prose, so it only works in languages that ship a locale pack: **English and 繁體中文**. A conditional with no comma ("After you merged it I will follow up") still fires the block.
-  關卡靠讀文字判斷，只支援英文與繁中；沒有逗號的條件句（「After you merged it I will follow up」）仍會被擋。
-- **Cursor** is not covered by the turn-completion hook.
-  Cursor 不在關卡支援範圍。
+- **`/comprehend` is not proven to help.** Five evaluation cases ship with it (`skills/comprehension-ladder/eval-cases.md`) but have not been run; please report whether the output was easier to read and whether any guard was broken.
+  **`/comprehend` 的效果尚未證明。**評估案例已附上但還沒實跑；請回報是否比較好讀、有沒有違反三條防護。
+- **The HTML rung cannot load the Mermaid library** (it may load nothing from the network), so diagrams inside the HTML explainer are inline SVG or lists.
+  HTML 解說頁不能載入 Mermaid 函式庫（不得連網），頁內的圖是內嵌 SVG 或清單。
+- **`uds check --diff` still fetches originals from GitHub `main`**, extension files included, to compare against. Offline it fails for those files.
+  `uds check --diff` 仍從 GitHub `main` 抓原稿比對（含擴充檔），離線時會失敗。
+- **The offline install test unpacks the tarball and links its dependencies**; it does not run a real `npm install <tgz>`. Windows has not run it.
+  離線安裝測試是解開套件並連結相依套件，不是真正的 `npm install <tgz>`；Windows 沒有跑過。
+- **Windows: the pre-commit block has not been run**, and **cp950 console** output has not been looked at.
+  Windows 上 pre-commit 區塊的實際執行、cp950 主控台的輸出都尚未驗證。
+- **A project installed by an older UDS has no install records**, so `uds uninstall` keeps what it cannot prove is UDS's and says so.
+  早期版本安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明是 UDS 寫的東西並說明。
+- The pre-commit block **blocks the commit** when the UDS CLI is not installed (intended; a silent skip would be worse).
+  CLI 沒裝時 pre-commit 區塊會擋下提交（刻意的）。
+- agy: only single, tool-free `-p` turns verified. The turn-completion hook works only in English and 繁體中文, and does not cover Cursor. The open-work-tracking vocabulary is uncalibrated.
+  agy 只驗證過 `-p` 單輪無工具回合；回合收尾關卡只支援英文與繁中，不含 Cursor；工作管理檢查的詞彙尚未校準。
 
 
 ---

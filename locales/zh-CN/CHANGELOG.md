@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.3
-translation_version: 6.14.0-beta.3
-last_synced: 2026-09-30
+source_version: 6.14.0-beta.4
+translation_version: 6.14.0-beta.4
+last_synced: 2026-10-06
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.4] - 2026-10-06
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行为改变：**`uds check --standard checkin-standards` 在 lint 或测试失败时会失败；非 Node 项目的原生 pre-commit hook 现在能拦住提交。见下方 Fixed 的相关条目。
 
 ### 修复
 - **`extensions/` 现在放进 npm 包，`uds init`、`uds update` 与 reconciler 只从包内安装扩展文件——三者都不再从 GitHub 下载。** 6.13.1 版包里 `extensions/` 下的 7 个文件（语言风格规范、框架模式、繁中与简中语系包）一个都没有，所以 `uds init --lang csharp`、`--lang php`、`--framework fat-free`、`--locale zh-tw`／`zh-cn` 安装时是去 GitHub `main` 下载。后果有两个：离线或公司内网装不了这些扩展；而且拿到的是 `main` 当天的内容，不是你所装版本对应的那个文件。同一个后备也把缺少的 `zh-cn.md` 藏了好几个月。现在 `cli/scripts/prepack.mjs` 会把整个目录打包；包内容一致性检查会逐文件、逐字节比对 `extensions/` 与包（以前只比对 `.ai.yaml` 标准，所以一个扩展文件都没有的包也会显示“bundle parity holds”）；声明的扩展文件若不在包内，安装会**失败并指出该文件**——不下载、也不静默跳过。**谁会看到差别：**从 npm 安装的人多拿到 7 个文件（约 152 KB），且这些文件不再发出任何网络请求；`uds update` 也从包内更新 `manifest.extensions` 的条目。**没有改的：**其他在本地缺文件时仍会尝试 GitHub 的地方（标准、选项、集成文件、技能），以及 `uds check --diff`——它仍会从 GitHub `main` 抓任何追踪文件（含扩展文件）的原稿来比对。这份清单列在规格里，本次不动。新增的测试会运行 `npm pack`、把压缩包装进一次性目录、封锁并记录网络，对已安装包声明的每一个扩展选项运行 `uds init`，再逐字节读回每个已安装的文件；第二个测试从包中移除一个声明的文件，要求安装以该文件的名称失败，且没有任何下载尝试。落实 dev-platform XSPEC-452 的 R1、R2、R3。

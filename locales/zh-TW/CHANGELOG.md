@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.3
-translation_version: 6.14.0-beta.3
-last_synced: 2026-09-30
+source_version: 6.14.0-beta.4
+translation_version: 6.14.0-beta.4
+last_synced: 2026-10-06
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.4] - 2026-10-06
+
+> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行為改變：**`uds check --standard checkin-standards` 在 lint 或測試失敗時會失敗；非 Node 專案的原生 pre-commit hook 現在擋得住提交。見下方 Fixed 的相關條目。
 
 ### 修正
 - **`extensions/` 現在放進 npm 套件，`uds init`、`uds update` 與 reconciler 只從套件內安裝擴充檔——三者都不再從 GitHub 下載。** 6.13.1 版套件裡 `extensions/` 底下的 7 個檔（語言風格規範、框架模式、繁中與簡中語系包）一個都沒有，所以 `uds init --lang csharp`、`--lang php`、`--framework fat-free`、`--locale zh-tw`／`zh-cn` 安裝時是去 GitHub `main` 下載。後果有兩個：離線或公司內網裝不了這些擴充；而且拿到的是 `main` 當天的內容，不是你所裝版本對應的那個檔。同一個備援也把缺少的 `zh-cn.md` 藏了好幾個月。現在 `cli/scripts/prepack.mjs` 會把整個目錄打包；套件內容一致性檢查會逐檔、逐位元比對 `extensions/` 與套件（以前只比對 `.ai.yaml` 標準，所以一個擴充檔都沒有的套件也會顯示「bundle parity holds」）；宣告的擴充檔若不在套件內，安裝會**失敗並點名該檔**——不下載、也不靜默略過。**誰會看到差別：**從 npm 安裝的人多拿到 7 個檔（約 152 KB），且這些檔不再發出任何網路請求；`uds update` 也從套件內更新 `manifest.extensions` 的項目。**沒有改的：**其他在本機缺檔時仍會嘗試 GitHub 的地方（標準、選項、整合檔、技能），以及 `uds check --diff`——它仍會從 GitHub `main` 抓任何追蹤檔（含擴充檔）的原稿來比對。這份清單列在規格裡，本次不動。新增的測試會執行 `npm pack`、把壓縮檔裝進拋棄式目錄、封鎖並記錄網路，對已安裝套件宣告的每一個擴充選項執行 `uds init`，再逐位元讀回每個已安裝的檔；第二支測試從套件移除一個宣告的檔，要求安裝以該檔的名稱失敗，且沒有任何下載嘗試。落實 dev-platform XSPEC-452 的 R1、R2、R3。
