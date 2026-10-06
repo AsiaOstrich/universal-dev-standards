@@ -212,15 +212,6 @@
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/forward-derivation-standards.md` that the shipped date (2026-06-18) is older than the source's real last content change (2026-06-21) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/forward-derivation-standards.md` (or the equivalent scripts/transform run)."
     },
     {
-      "file": "ai/standards/full-coverage-testing.ai.yaml",
-      "source": "core/full-coverage-testing.md",
-      "shippedUpdated": "2026-06-17",
-      "actualUpdated": "2026-06-19",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/full-coverage-testing.md` that the shipped date (2026-06-17) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/full-coverage-testing.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/git-workflow.ai.yaml",
       "source": "core/git-workflow.md",
       "shippedUpdated": "2026-01-24",

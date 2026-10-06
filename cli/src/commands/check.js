@@ -46,6 +46,8 @@ import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } from '../lint/i18n.js';
 import { resolveIntegrationFile } from '../core/constants.js';
 import { checkPreCommitHookWiring } from '../utils/git-hooks.js';
+import { runTestChangeCheck } from '../utils/test-change-check.js';
+import { runTestQualityGates } from '../utils/gate-scripts.js';
 
 /**
  * Display the summary of file integrity status
@@ -519,6 +521,12 @@ export async function checkCommand(options = {}) {
 
   // pre-commit 檢查檔存在，但 git 實際不會執行它（只報告，不寫入 —— 見 checkPreCommitWiring 下方註解）
   checkPreCommitWiring(projectPath, msg);
+
+  // XSPEC-444 R2 + R5: this commit changes code but no test; fake tests; empty shells.
+  // Warnings by default — a commit is blocked only when the project sets "mode": "block" in
+  // .standards/test-policy.json. Both are read-only here (nothing is written to the project).
+  runTestChangeCheck(projectPath);
+  runTestQualityGates(projectPath);
 
   // Workflow status
   displayWorkflowStatus(projectPath);

@@ -303,7 +303,8 @@ export function uninstallHookScripts(projectPath, manifest, { dryRun = false, bl
   const result = { removed: [], skipped: [], errors: [], deletedPaths: [] };
   const files = manifest?.[RECORDS_KEY]?.files || {};
   const recorded = Object.entries(files)
-    .filter(([, rec]) => rec && rec.kind === RECORD_KINDS.HOOK_SCRIPT)
+    // gate-script: the scanners `uds init` writes to scripts/ (XSPEC-444 R5) — same proof rule as a hook script
+    .filter(([, rec]) => rec && (rec.kind === RECORD_KINDS.HOOK_SCRIPT || rec.kind === RECORD_KINDS.GATE_SCRIPT))
     .map(([rel]) => rel)
     .sort();
 

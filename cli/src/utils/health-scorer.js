@@ -177,20 +177,26 @@ export function calculateConsistency(projectPath) {
 }
 
 /**
- * Calculate coverage score
+ * Calculate coverage score — how many of the two check scripts each installed standard can
+ * have (`scripts/check-<id>.sh`, `scripts/check-<id>-sync.sh`) are present.
+ *
+ * XSPEC-444 R5: this used to report `details.has_tests` and add it into the sum, but
+ * `hasTests` was declared as 0 and never incremented anywhere — a number that was always 0 and
+ * looked like a measurement of whether the standards have tests. It is removed rather than
+ * faked. The SCORE is unchanged: the denominator was already two per standard, which is the
+ * two script kinds above, so no project's coverage score moves.
  * @param {string} projectPath
  * @param {string[]} standardIds
  * @returns {{ score: number, details: object }}
  */
 export function calculateCoverage(projectPath, standardIds) {
   if (!standardIds || standardIds.length === 0) {
-    return { score: 0, details: { has_check_script: 0, has_tests: 0, total: 0 } };
+    return { score: 0, details: { has_check_script: 0, total: 0 } };
   }
 
   // Check for check scripts matching standard names
   const scriptsDir = join(projectPath, 'scripts');
   let hasCheckScript = 0;
-  let hasTests = 0;
 
   for (const id of standardIds) {
     const scriptName = `check-${id}.sh`;
@@ -204,16 +210,13 @@ export function calculateCoverage(projectPath, standardIds) {
     }
   }
 
-  const ratio = standardIds.length > 0
-    ? (hasCheckScript + hasTests) / (standardIds.length * 2)
-    : 0;
+  const ratio = hasCheckScript / (standardIds.length * 2);
   const score = Math.round(Math.min(ratio * 100, 100));
 
   return {
     score,
     details: {
       has_check_script: hasCheckScript,
-      has_tests: hasTests,
       total: standardIds.length
     }
   };

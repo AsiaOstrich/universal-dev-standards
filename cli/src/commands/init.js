@@ -32,6 +32,7 @@ import { withFileTransaction } from '../utils/transaction.js';
 import { newRecorder, mkdirTracked, recordFile, persistRecorder, RECORD_KINDS } from '../core/install-records.js';
 import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock } from '../utils/git-hooks.js';
 import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
+import { installGateScripts } from '../utils/gate-scripts.js';
 
 /**
  * Init command - initialize standards in current project
@@ -345,6 +346,21 @@ export async function initCommand(options) {
   // "delete the whole file" provable at uninstall time.
   for (const created of combinedResults.createdIntegrationFiles ?? []) {
     recordFile(installRecorder, projectPath, created, RECORD_KINDS.INTEGRATION_FILE);
+  }
+
+  // 4.8. Ship the fake-test and stub scanners the full-coverage-testing standard asks for
+  // (XSPEC-444 R5). They are written whether or not git is present — the hook step below
+  // needs a repository, the scanners do not — and recorded so `uds uninstall` removes
+  // exactly these files. A file that already exists is the adopter's and is left alone.
+  const gateResult = installGateScripts(projectPath, installRecorder);
+  for (const rel of gateResult.written) {
+    console.log(chalk.green(`  ✓ ${rel} (fake-test / stub scanner — \`uds check\` runs it and warns; edit it freely)`));
+  }
+  for (const rel of gateResult.kept) {
+    console.log(chalk.gray(`  · ${rel} already exists — kept as is`));
+  }
+  for (const file of gateResult.missingTemplate) {
+    console.log(chalk.yellow(`  ⚠ scripts/${file} not installed — the template is missing from this UDS package`));
   }
   persistRecorder(projectPath, installRecorder);
 

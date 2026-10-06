@@ -26,7 +26,7 @@
  *   }
  *
  * `kind` selects what `hash` covers:
- *   'hook-script', 'git-hook'  → whole file (line endings normalized)
+ *   'hook-script', 'gate-script', 'git-hook'  → whole file (line endings normalized)
  *   'integration-file'         → everything outside the UDS marker block
  *
  * @module core/install-records
@@ -41,6 +41,7 @@ export const RECORDS_KEY = 'installedArtifacts';
 
 export const RECORD_KINDS = Object.freeze({
   HOOK_SCRIPT: 'hook-script',
+  GATE_SCRIPT: 'gate-script',
   GIT_HOOK: 'git-hook',
   INTEGRATION_FILE: 'integration-file'
 });

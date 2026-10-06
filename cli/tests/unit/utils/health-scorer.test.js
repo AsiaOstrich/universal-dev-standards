@@ -232,6 +232,24 @@ describe('HealthScorer', () => {
       const result = calculateCoverage(TEST_DIR, []);
       expect(result.score).toBe(0);
     });
+
+    // XSPEC-444 R5: `has_tests` was declared 0 and never incremented — a number that was always 0.
+    it('does not report an always-zero has_tests, and the score is still driven by the two check scripts per standard', () => {
+      setupInitializedProject(TEST_DIR);
+      const empty = calculateCoverage(TEST_DIR, ['testing', 'commit-message']);
+      expect(Object.keys(empty.details).sort()).toEqual(['has_check_script', 'total']);
+      expect(calculateCoverage(TEST_DIR, []).details).not.toHaveProperty('has_tests');
+
+      mkdirSync(join(TEST_DIR, 'scripts'), { recursive: true });
+      for (const id of ['testing', 'commit-message']) {
+        writeFileSync(join(TEST_DIR, 'scripts', `check-${id}.sh`), '#!/bin/sh\n');
+      }
+      expect(calculateCoverage(TEST_DIR, ['testing', 'commit-message']).score).toBe(50);
+      for (const id of ['testing', 'commit-message']) {
+        writeFileSync(join(TEST_DIR, 'scripts', `check-${id}-sync.sh`), '#!/bin/sh\n');
+      }
+      expect(calculateCoverage(TEST_DIR, ['testing', 'commit-message']).score).toBe(100);
+    });
   });
 
   // ========================================
