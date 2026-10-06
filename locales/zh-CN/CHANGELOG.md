@@ -17,6 +17,14 @@ status: current
 
 ## [Unreleased]
 
+### Changed
+
+- **行为改变——`uds check --diff` 现在以你所安装的 UDS 包内的文件为原稿，不再对照 GitHub `main`。** 这个差异回答的是“我改了 UDS 给我的哪些地方”；它过去从 GitHub `main` 下载原稿，所以离线会失败（扩展文件也一样），而且 UDS 在你安装后自己改过的内容，会被列成你改的差异。现在原稿一律从所装包读取——标准、选项、扩展文件皆同——不下载任何内容。命令会打印比对基准（`installed UDS package (version X)`），并提示查看 UDS 之后的变更请用 `uds update --plan`。若项目内的标准是从另一个 UDS 版本安装的、与当前安装的包版本不同，也会明说，因为两个版本之间 UDS 改过的文件会显示成差异。包内找不到某个受追踪文件的原稿时，命令会**点名**该文件、不下载、以退出码 1 结束；不再退回 GitHub，也不再静默跳过。没有被修改的文件时，`--diff` 现在会说“没有差异可显示”，而不是什么都不打印。**谁会看到不同：**执行 `uds check --diff`（或在交互式 `uds check` 中选择“查看”）的人——凡是 `main` 与你所装版本不同之处，差异可能与以往不同；而原本在包缺原稿时读到退出码 0 的脚本，现在会读到 1。**要做什么：**无需任何操作；要查看上游有什么新内容，请执行 `uds update --plan`。落实 dev-platform XSPEC-453 R1。
+
+### Removed
+
+- **移除 `extensions/languages/php/`**——两个没有任何东西引用的文件（`php-style.md`、`fat-free-patterns.md`，约 37 KB）；安装器、registry 与文档使用的是 `extensions/languages/php-style.md` 与 `extensions/frameworks/fat-free-patterns.md`，两者不变。npm 包因此少了这两个文件，现在恰好只含安装器装得到的 5 个扩展文件；新增的测试会在有未声明的扩展文件被打包时变红。`uds init --lang php` 与 `--framework fat-free` 安装的文件与先前相同。落实 dev-platform XSPEC-453 R2。
+
 ## [6.14.0-beta.4] - 2026-10-06
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
