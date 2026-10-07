@@ -50,6 +50,7 @@ import { runTestChangeCheck } from '../utils/test-change-check.js';
 import { runTestQualityGates } from '../utils/gate-scripts.js';
 import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes, projectCommandHashes, commandIssuesOf } from '../utils/command-hash-ownership.js';
+import { printAvailableStandardsCheckLine } from '../utils/available-standards-report.js';
 
 /**
  * Display the summary of file integrity status
@@ -538,6 +539,10 @@ export async function checkCommand(options = {}) {
 
   // Coverage report
   displayCoverageReport(manifest, msg, common, projectPath);
+
+  // XSPEC-458 R5: one line about standards UDS ships that this project does not have. Information only:
+  // it is not part of `allGood` below, so it can change neither the verdict nor the exit code.
+  printAvailableStandardsCheckLine(manifest);
 
   // XSPEC-178: Full coverage compliance check
   checkFullCoverageCompliance(manifest, projectPath);

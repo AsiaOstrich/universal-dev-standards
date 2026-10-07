@@ -298,7 +298,9 @@ function outputTerminal(auditResult, msg) {
   }
 
   // Report hint
-  if (totalFindings > 0 && !auditResult._isReport) {
+  // The available-standards finding is not feedback for UDS (see handleReport), so it alone does not earn the hint.
+  const reportable = totalFindings - (auditResult.frictions || []).filter(f => f.type === 'not-installed').length;
+  if (reportable > 0 && !auditResult._isReport) {
     console.log();
     console.log(chalk.gray('Submit feedback: uds audit --report'));
   }
@@ -382,6 +384,9 @@ async function handleReport(auditResult, options, msg) {
 
   if (auditResult.frictions) {
     for (const friction of auditResult.frictions) {
+      // "N available standards not installed" is this project's choice to make, not a defect in a UDS
+      // standard: it is not feedback for the maintainers, and `--report --yes` would file it as one.
+      if (friction.type === 'not-installed') continue;
       findings.push({
         name: `[Friction] ${friction.standard} — ${friction.type}`,
         value: { type: 'friction', data: friction },
@@ -391,7 +396,9 @@ async function handleReport(auditResult, options, msg) {
   }
 
   if (findings.length === 0) {
-    console.log(chalk.gray(msg.noFindings || 'No findings to report.'));
+    // Not "no issues": the audit above may have listed the available-standards finding, which is not sent.
+    const heldBack = (auditResult.frictions || []).some(f => f.type === 'not-installed');
+    console.log(chalk.gray(heldBack ? t().availableStandards.reportHeldBack : (msg.noFindings || 'No findings to report.')));
     return;
   }
 
