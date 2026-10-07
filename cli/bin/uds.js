@@ -234,6 +234,7 @@ program
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
   .option('--rollback', 'Rollback to the most recent backup')
+  .option('--add-standard <id>', 'With --plan or --apply: also install this standard UDS ships and the project lacks, and record it in the manifest (repeatable; `uds update --plan` lists what is available)', (value, previous) => [...previous, value], [])
   .option('--claude-target <target>', 'Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
   .option('--with-hooks', 'Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; with --plan, writes nothing; --force also overwrites edited hook scripts)')

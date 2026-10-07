@@ -21,7 +21,7 @@
  *   const rollbackResult = rollbackLast(projectPath);
  */
 
-import { readManifest, writeManifest, needsMigration } from '../core/manifest.js';
+import { readManifest, writeManifest, needsMigration, migrateStandardsPathsToIds } from '../core/manifest.js';
 import { migrateAndBackfill } from './manifest-migrator.js';
 import { calculateDesiredState } from './desired-state-calculator.js';
 import { scanActualState, legacyDiscovery } from './actual-state-scanner.js';
@@ -133,12 +133,40 @@ function reconcileFileHashes(manifest, verifiedPristine) {
   };
 }
 
+/**
+ * A copy of `manifest` with extra standards listed (XSPEC-458 R3, `uds update --add-standard`).
+ *
+ * The reconciler treats a file under `.standards/` that the manifest does not list as surplus and
+ * deletes it, so a standard the user picks has to be in the manifest the plan is computed from AND
+ * in the manifest the executor writes back. Both are this copy. The manifest ON DISK is not touched
+ * here: the backup the executor takes holds the old one, which is what lets one `--rollback` take
+ * the standard out again.
+ *
+ * The list is put through the same normalisation `readManifest` applies on every read (registry ids
+ * sorted, option paths after them). That is not tidiness: the integration blocks (CLAUDE.md,
+ * AGENTS.md) are generated from this list, and their text depends on its order. Generated from an
+ * un-normalised copy, the block would differ from what the next run expects of the manifest as
+ * written, and `--plan` would still show "migrate block" after a successful `--apply`.
+ *
+ * @param {Object} manifest
+ * @param {string[]} [ids] - Registry ids to add
+ * @returns {Object}
+ */
+export function withAddedStandards(manifest, ids = []) {
+  if (!manifest || ids.length === 0) return manifest;
+  const listed = new Set(manifest.standards || []);
+  const added = ids.filter(id => !listed.has(id));
+  if (added.length === 0) return manifest;
+  return { ...manifest, standards: migrateStandardsPathsToIds([...(manifest.standards || []), ...added]) };
+}
+
 export async function reconcile(projectPath, options = {}) {
-  const { force = false, backup = true, onAction } = options;
+  const { force = false, backup = true, onAction, addStandards = [] } = options;
   const errors = [];
 
   // Step 1: Get manifest (migrate if needed, or discover from legacy)
-  const { manifest, migrationErrors } = await getManifest(projectPath);
+  const { manifest: diskManifest, migrationErrors } = await getManifest(projectPath);
+  const manifest = withAddedStandards(diskManifest, addStandards);
   if (migrationErrors.length > 0) errors.push(...migrationErrors);
   if (!manifest) {
     return {
@@ -173,6 +201,13 @@ export async function reconcile(projectPath, options = {}) {
   // Writing it here first would put the hash correction into the backup's "before" copy, so a rollback
   // could not give back the manifest byte for byte (XSPEC-454 R1).
   if (hashFix && reconciliationPlan.actions.length === 0) writeManifest(effectiveManifest, projectPath);
+  // XSPEC-458 R3: a chosen standard whose file is already on disk, byte for byte, produces no action —
+  // and with no action the executor never writes the manifest, so the choice would be lost and the next
+  // run would call that file surplus. Record it. (Nothing but the manifest changes, so there is no
+  // file for a backup to protect.)
+  if (addStandards.length > 0 && !hashFix && manifest !== diskManifest && reconciliationPlan.actions.length === 0) {
+    writeManifest(effectiveManifest, projectPath);
+  }
 
   // Step 5: Execute plan
   if (reconciliationPlan.actions.length === 0) {
@@ -217,10 +252,12 @@ export async function reconcile(projectPath, options = {}) {
  * }>}
  */
 export async function plan(projectPath, options = {}) {
-  const { force = false } = options;
+  const { force = false, addStandards = [] } = options;
   const errors = [];
 
-  const { manifest, migrationErrors } = await getManifest(projectPath);
+  const { manifest: diskManifest, migrationErrors } = await getManifest(projectPath);
+  // XSPEC-458 R3: `--plan --add-standard X` plans from the manifest as it would be with X listed.
+  const manifest = withAddedStandards(diskManifest, addStandards);
   if (migrationErrors.length > 0) errors.push(...migrationErrors);
   if (!manifest) {
     return {

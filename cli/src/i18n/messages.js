@@ -22,6 +22,29 @@ export const messages = {
       disableHint: 'Set UDS_NO_UPDATE_CHECK=1 to disable'
     },
 
+    // XSPEC-458: standards UDS ships that this project does not have
+    availableStandards: {
+      title: 'Available upstream, not installed ({count})',
+      none: 'Available upstream, not installed: none. Every standard UDS installs by default is already in this project.',
+      categoryLine: '{category} ({count})',
+      installHint: 'Install one: uds update --apply --add-standard <id>   (repeat the flag for several; add --plan to preview first)',
+      othersLine: 'Not listed above: {count} more standard(s) in categories `uds init` never installs ({breakdown}). Any of them can still be installed by id with --add-standard.',
+      applySummary: '{count} standard(s) UDS ships are not installed in this project (no file was changed for them).',
+      applyHint: 'See them: uds update --plan    Install one: uds update --apply --add-standard <id>',
+      checkLine: '{count} upstream standard(s) not installed — run `uds update --plan` to see them',
+      checkNone: 'Upstream standards not installed: none',
+      addUnknown: 'Unknown standard id "{id}": it is not in the registry. Closest ids:',
+      addAlreadyInstalled: '"{id}" is already installed; nothing to add.',
+      addOtherMeans: '"{id}" is a {category} entry, not a standard file under .standards/; --add-standard does not install it (language, integration and template choices do).',
+      addNoSource: '"{id}" has no source file in this project\'s format ({format}), so it cannot be installed.',
+      addNothingDone: 'Nothing was changed. Run `uds update --plan` to see the rest of the plan.',
+      addNeedsMode: '--add-standard needs --plan or --apply. Example: uds update --apply --add-standard <id>',
+      addCannotCombine: '--add-standard cannot be combined with {flag}.',
+      reportHeldBack: 'Nothing to send: the "available standards" finding above is for you to act on, not feedback for the UDS maintainers.',
+      frictionStandard: '{count} available standard(s) not installed',
+      frictionSuggestion: 'Run `uds update --plan` to see them; install one with `uds update --apply --add-standard <id>`'
+    },
+
     // Sweep Command
     sweep: {
       title: 'Auto-Sweep: Code Cleanup',
@@ -1162,7 +1185,7 @@ export const messages = {
         commandsUpdatedCounts: 'Updated {commands} commands for {tools} AI tool(s): {locations}',
         commandsUpdatedWithErrors: 'Updated Commands with {errors} errors',
         // New standards detection
-        newStandardsFound: '{count} new standard(s) available for your level:',
+        newStandardsFound: '{count} new standard(s) available (upstream has them, this project does not):',
         installNewStandards: 'Install these new standards?',
         installingNewStandards: 'Installing new standards...',
         newStandardsInstalled: 'Installed {count} new standard(s)',
@@ -1316,6 +1339,29 @@ export const messages = {
       header: '有新版本可用',
       command: 'npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
       disableHint: '設定 UDS_NO_UPDATE_CHECK=1 可關閉'
+    },
+
+    // XSPEC-458：UDS 有出貨、這個專案沒有的標準
+    availableStandards: {
+      title: '上游有、專案沒裝（{count} 個）',
+      none: '上游有、專案沒裝：沒有。UDS 預設安裝的標準，這個專案都已經有了。',
+      categoryLine: '{category}（{count}）',
+      installHint: '要裝其中一個：uds update --apply --add-standard <id>（可重複旗標裝多個；先加 --plan 預覽）',
+      othersLine: '上面沒列出的另有 {count} 個標準，屬於 `uds init` 從不安裝的類別（{breakdown}）；它們仍可用 --add-standard 指名安裝。',
+      applySummary: '上游有 {count} 個標準沒裝在這個專案（沒有為它們改動任何檔案）。',
+      applyHint: '查看：uds update --plan    安裝其中一個：uds update --apply --add-standard <id>',
+      checkLine: '上游有 {count} 個標準未安裝 — 執行 `uds update --plan` 查看',
+      checkNone: '上游有、專案沒裝的標準：沒有',
+      addUnknown: '未知的標準 id「{id}」：不在登記表裡。最相近的 id：',
+      addAlreadyInstalled: '「{id}」已安裝，不需要再加。',
+      addOtherMeans: '「{id}」屬於 {category} 類，不是 .standards/ 裡的標準檔，--add-standard 不安裝它（它由語言、整合、範本的選項安裝）。',
+      addNoSource: '「{id}」在這個專案的格式（{format}）下沒有來源檔，無法安裝。',
+      addNothingDone: '沒有改動任何東西。執行 `uds update --plan` 看計畫的其餘部分。',
+      addNeedsMode: '--add-standard 要搭配 --plan 或 --apply。例：uds update --apply --add-standard <id>',
+      addCannotCombine: '--add-standard 不能與 {flag} 同時使用。',
+      reportHeldBack: '沒有要送出的內容：上面「可用標準未安裝」那一項是給你自己處理的，不是給 UDS 維護者的回饋。',
+      frictionStandard: '{count} 個可用標準未安裝',
+      frictionSuggestion: '執行 `uds update --plan` 查看；用 `uds update --apply --add-standard <id>` 安裝其中一個'
     },
 
     // Sweep Command
@@ -2451,7 +2497,7 @@ export const messages = {
         commandsUpdatedCounts: '已為 {tools} 個 AI 工具更新 {commands} 個斜線命令：{locations}',
         commandsUpdatedWithErrors: '更新斜線命令時發生 {errors} 個錯誤',
         // New standards detection
-        newStandardsFound: '有 {count} 個新標準可供您的等級使用：',
+        newStandardsFound: '有 {count} 個新標準可用（上游有、這個專案沒有）：',
         installNewStandards: '是否安裝這些新標準？',
         installingNewStandards: '安裝新標準中...',
         newStandardsInstalled: '已安裝 {count} 個新標準',
@@ -2605,6 +2651,29 @@ export const messages = {
       header: '有新版本可用',
       command: 'npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
       disableHint: '设置 UDS_NO_UPDATE_CHECK=1 可关闭'
+    },
+
+    // XSPEC-458：UDS 有发布、这个项目没有的标准
+    availableStandards: {
+      title: '上游有、项目没装（{count} 个）',
+      none: '上游有、项目没装：没有。UDS 默认安装的标准，这个项目都已经有了。',
+      categoryLine: '{category}（{count}）',
+      installHint: '要装其中一个：uds update --apply --add-standard <id>（可重复该选项装多个；先加 --plan 预览）',
+      othersLine: '上面没列出的另有 {count} 个标准，属于 `uds init` 从不安装的类别（{breakdown}）；它们仍可用 --add-standard 指名安装。',
+      applySummary: '上游有 {count} 个标准没装在这个项目（没有为它们改动任何文件）。',
+      applyHint: '查看：uds update --plan    安装其中一个：uds update --apply --add-standard <id>',
+      checkLine: '上游有 {count} 个标准未安装 — 执行 `uds update --plan` 查看',
+      checkNone: '上游有、项目没装的标准：没有',
+      addUnknown: '未知的标准 id“{id}”：不在登记表里。最相近的 id：',
+      addAlreadyInstalled: '“{id}”已安装，不需要再加。',
+      addOtherMeans: '“{id}”属于 {category} 类，不是 .standards/ 里的标准文件，--add-standard 不安装它（它由语言、集成、模板的选项安装）。',
+      addNoSource: '“{id}”在这个项目的格式（{format}）下没有来源文件，无法安装。',
+      addNothingDone: '没有改动任何东西。执行 `uds update --plan` 查看计划的其余部分。',
+      addNeedsMode: '--add-standard 要搭配 --plan 或 --apply。例：uds update --apply --add-standard <id>',
+      addCannotCombine: '--add-standard 不能与 {flag} 同时使用。',
+      reportHeldBack: '没有要发送的内容：上面“可用标准未安装”那一项是给你自己处理的，不是给 UDS 维护者的反馈。',
+      frictionStandard: '{count} 个可用标准未安装',
+      frictionSuggestion: '执行 `uds update --plan` 查看；用 `uds update --apply --add-standard <id>` 安装其中一个'
     },
 
     // Sweep Command
@@ -3664,7 +3733,7 @@ export const messages = {
         commandsUpdatedCounts: '已为 {tools} 个 AI 工具更新 {commands} 个斜线命令：{locations}',
         commandsUpdatedWithErrors: '更新斜线命令时发生 {errors} 个错误',
         // New standards detection
-        newStandardsFound: '有 {count} 个新标准可用于您的级别：',
+        newStandardsFound: '有 {count} 个新标准可用（上游有、这个项目没有）：',
         installNewStandards: '是否安装这些新标准？',
         installingNewStandards: '正在安装新标准...',
         newStandardsInstalled: '已安装 {count} 个新标准',

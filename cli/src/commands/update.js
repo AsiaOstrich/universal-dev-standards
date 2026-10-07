@@ -6,6 +6,12 @@ import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from '
 import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, copyExtension, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
+import { getAvailableStandards } from '../utils/available-standards.js';
+import {
+  printAvailableStandardsSection,
+  resolveAddStandardRequest,
+  findAddStandardConflict
+} from '../utils/available-standards-report.js';
 import { computeFileHash, planStandardsRemovals, refreshIntegrationBlockHashes, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import { AmbiguousMarkerError } from '../utils/marker-locator.js';
 import {
@@ -323,43 +329,11 @@ async function updateCliAndExit(useBeta = false) {
  * @returns {{newStandards: Array<{source: string, name: string}>, count: number}}
  */
 function checkNewStandards(manifest) {
-  const format = manifest.format || 'ai';
-
-  // Get all standards (level system removed)
-  const registryStandards = getAllStandards();
-
-  // Include all reference and skill standards
-  const eligibleStandards = registryStandards.filter(s => s.category === 'reference' || s.category === 'skill');
-
-  // Get installed standard basenames for comparison.
-  // Handles both legacy path format ("ai/standards/foo.ai.yaml" → basename "foo.ai.yaml")
-  // and v3.4.0 ID format ("foo" → resolve to source path, then get basename).
-  const installedBasenames = new Set();
-  for (const s of (manifest.standards || [])) {
-    if (s.includes('/options/') || s.startsWith('options/')) continue; // Skip option paths
-    if (!s.includes('/') && !s.includes('.')) {
-      // ID format: resolve to actual source filename via registry
-      const entry = registryStandards.find(r => r.id === s);
-      if (entry) {
-        const sourcePath = getStandardSource(entry, format);
-        if (sourcePath) installedBasenames.add(basename(sourcePath));
-      }
-    } else {
-      installedBasenames.add(basename(s));
-    }
-  }
-
-  // Find standards in registry that are not yet installed
-  const newStandards = [];
-  for (const std of eligibleStandards) {
-    const sourcePath = getStandardSource(std, format);
-    if (!sourcePath) continue; // Skip skill-only standards with no source file
-    const fileName = basename(sourcePath);
-    if (!installedBasenames.has(fileName)) {
-      newStandards.push({ source: sourcePath, name: fileName });
-    }
-  }
-
+  // One definition of "available but not installed", shared with `update --plan`, `check` and
+  // `audit --friction` (XSPEC-458 R1). This function used to hold its own copy of that logic, and the
+  // reconciler path (`--plan`/`--apply`) held none — so the two paths disagreed about what was missing.
+  const { offered } = getAvailableStandards(manifest);
+  const newStandards = offered.map(std => ({ source: std.source, name: std.name }));
   return { newStandards, count: newStandards.length };
 }
 
@@ -454,6 +428,28 @@ export async function updateCommand(options) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
+  // XSPEC-458 R3: `--add-standard <id>` (repeatable) picks standards UDS ships and this project lacks.
+  // Judged here, before any mode runs, so an unknown id stops everything instead of being skipped.
+  const addStandardIds = [].concat(options.addStandard || []);
+  let addStandards = [];
+  if (addStandardIds.length > 0) {
+    const conflict = findAddStandardConflict(options);
+    if (conflict) {
+      console.log(chalk.red(conflict));
+      console.log();
+      process.exitCode = 1;
+      return;
+    }
+    const request = resolveAddStandardRequest(manifest, addStandardIds);
+    if (!request.proceed) return;
+    if (request.ids.length === 0) {
+      console.log(chalk.gray(t().availableStandards.addNothingDone));
+      console.log();
+      return;
+    }
+    addStandards = request.ids;
+  }
+
   // Handle --claude-target option (XSPEC-418 R4): switch an EXISTING
   // installation's claude-code integration target between CLAUDE.md and
   // CLAUDE.local.md, without a full reinstall. Standalone, like --sync-refs
@@ -530,7 +526,7 @@ export async function updateCommand(options) {
   // Handle --plan option (DSR dry-run). Nothing below this line writes.
   if (options.plan) {
     if (!scopedToSkills && !scopedToCommands) {
-      await handlePlan(projectPath, options, manifest);
+      await handlePlan(projectPath, options, manifest, addStandards);
     }
     if (scopedToSkills) await planSkills(projectPath, manifest, options);
     if (scopedToCommands) await planCommands(projectPath, manifest, options);
@@ -543,10 +539,10 @@ export async function updateCommand(options) {
   // files only when the manifest records them, so `--skills` is not redundant.
   if (options.apply || options.force) {
     if (!scopedToSkills && !scopedToCommands) {
-      await handleReconcile(projectPath, options, { force: !!options.force });
+      await handleReconcile(projectPath, options, { force: !!options.force, addStandards });
       return;
     }
-    await handleReconcile(projectPath, options, { force: !!options.force });
+    await handleReconcile(projectPath, options, { force: !!options.force, addStandards });
     // These exit the process on completion, so run Skills last.
     if (scopedToCommands) await updateCommandsOnly(projectPath, manifest, options);
     if (scopedToSkills) await updateSkillsOnly(projectPath, manifest, options);
@@ -3618,10 +3614,10 @@ async function handleRollback(projectPath) {
 /**
  * Handle --plan: show what the reconciler would do without executing.
  */
-async function handlePlan(projectPath, options, manifest) {
+async function handlePlan(projectPath, options, manifest, addStandards = []) {
   const spinner = createSpinner('Calculating reconciliation plan...').start();
 
-  const result = await reconcilerPlan(projectPath, { force: false });
+  const result = await reconcilerPlan(projectPath, { force: false, addStandards });
 
   spinner.stop();
 
@@ -3649,10 +3645,17 @@ async function handlePlan(projectPath, options, manifest) {
     // the plan above were silently skipped; the files were still on disk
     // afterwards. Nor is `--force` the answer for "apply what I just read": it
     // recomputes with force:true, a larger plan that rewrites every managed file.
-    console.log(chalk.gray('Run `uds update --apply` to apply exactly these changes.'));
+    // A plan made with --add-standard is only applied exactly by an --apply that names the same standards.
+    const addFlags = addStandards.map(id => ` --add-standard ${id}`).join('');
+    console.log(chalk.gray(`Run \`uds update --apply${addFlags}\` to apply exactly these changes.`));
     console.log(chalk.gray('Run `uds update --force` to rewrite every managed file (a larger plan than the one above).'));
     console.log();
   }
+
+  // XSPEC-458 R2: what UDS ships that this project does not have. Information only — it is printed after
+  // the plan is final and nothing above reads it.
+  printAvailableStandardsSection(result.manifest || manifest, { phase: 'plan' });
+  console.log();
 }
 
 /**
@@ -3666,7 +3669,7 @@ async function handlePlan(projectPath, options, manifest) {
  * @param {Object} options - Command options (uses `yes`)
  * @param {{ force: boolean }} mode
  */
-async function handleReconcile(projectPath, options, { force }) {
+async function handleReconcile(projectPath, options, { force, addStandards = [] }) {
   console.log(chalk.cyan(
     force
       ? 'Running declarative state reconciliation (force mode)...'
@@ -3675,7 +3678,7 @@ async function handleReconcile(projectPath, options, { force }) {
   console.log();
 
   // First show the plan
-  const planResult = await reconcilerPlan(projectPath, { force });
+  const planResult = await reconcilerPlan(projectPath, { force, addStandards });
 
   if (planResult.plan.actions.length === 0) {
     // XSPEC-454 R2: nothing to apply, but the manifest may still list skill files UDS never installed
@@ -3683,6 +3686,8 @@ async function handleReconcile(projectPath, options, { force }) {
     const current = readManifest(projectPath);
     if (current && (pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0) writeManifest(current, projectPath);
     console.log(chalk.green('Everything is up to date. No changes needed.'));
+    // XSPEC-458 R2: "up to date" is about the files UDS manages; say what UDS ships that is not managed here.
+    printAvailableStandardsSection(planResult.manifest, { phase: 'apply' });
     console.log();
     return;
   }
@@ -3709,6 +3714,7 @@ async function handleReconcile(projectPath, options, { force }) {
   const result = await reconcile(projectPath, {
     force,
     backup: true,
+    addStandards,
     onAction: (action, index, total) => {
       spinner.text = `[${index + 1}/${total}] ${action.type} ${action.path || action.category}`;
     }
@@ -3732,5 +3738,7 @@ async function handleReconcile(projectPath, options, { force }) {
     }
   }
 
+  // XSPEC-458 R2: the count of what UDS ships and this project lacks, with the command that installs one.
+  printAvailableStandardsSection(result.manifest || planResult.manifest, { phase: 'apply' });
   console.log();
 }
