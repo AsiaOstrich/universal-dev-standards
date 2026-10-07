@@ -17,6 +17,20 @@ status: current
 
 ## [Unreleased]
 
+> **行為改變：**`uds simulate` 在無法得出結論時以 2（不是 1）結束，而且 `uds simulate -s commit-message` 改為在程序內判定，不再執行 `npx commitlint`；`uds update` 會把 UDS 無法擔保的技能與命令名稱從 `manifest.skills.names` / `commands.names` 移除；`uds run` 以 YAML 讀取 `uds.project.yaml`（不合法的 YAML 現在會失敗，空白後的 `#` 會結束一個值）。
+
+### 修正
+
+- **`uds run` 用手寫的逐行解析器讀 `uds.project.yaml`，行尾註解因此成了指令的一部分（XSPEC-456 R1）。** `test: dotnet test X.csproj  # 90 tests pass` 執行時後面多了 `# 90 tests pass`；POSIX shell 會吃掉未加引號的 `#`，`cmd.exe` 不會。現在改以 YAML（js-yaml）讀取：空白後的 `#` 結束值、加引號的值保留 `#`、以引號參數結尾的指令保留最後的引號。不合法的 YAML 會回報行號；注意 YAML 的雙引號值裡反斜線是跳脫字元，Windows 路徑請不加引號或用單引號。
+- **行為改變——`uds simulate` 不再對根本沒被判定的東西印「Simulation Failed」（XSPEC-456 R2）。** `commit-message` 原本是餵給 `npx commitlint`；專案沒有 commitlint 設定（沒有 package.json 的 .NET 專案）時工具拒絕執行，合規與不合規的訊息得到同一個答案，還先下載了工具。現在依標準本身的規則在程序內判定（標頭 `<type>(<scope>): <subject>`、已安裝選項檔的 type、`scope-lowercase` 與 `subject-max-length` 兩條規則），不呼叫 npx、不連網，輸出會列出沒檢查的項目。結束碼：**0** 通過、**1** 不合規、**2** 沒有結論（沒有定義 simulator、標準未安裝、被委派的工具不能用）——最後一種以前是 1，印「Simulation Failed」。`--json` 帶 `status`（`pass` / `fail` / `cannot-simulate`）。被委派的 simulator 指令不再把輸入貼進 shell 字串。指令說明現在寫明哪些標準有 simulator（目前只有 `commit-message`）。回報中的「失敗卻 exit 0」在 macOS 上沒有重現，不宣稱已修。
+- **`uds skills` 在裝了 56 個技能時只列 27 個，並寫「27 / 30」（XSPEC-456 R3）。** 篩選與分母是 `standards-registry.json` 裡手工維護的 30 個名字。現在改為 UDS 出貨的技能（含 `SKILL.md` 的資料夾），與 `init`、`update`、`check` 用同一份；manifest 記錄的其他 AI 工具的技能也會列出，摘要並說明 `uds check` 為它們追蹤了多少個技能檔案。
+- **行為改變——`uds update` 現在會把 UDS 無法擔保的名稱從 `manifest.skills.names` 與 `manifest.commands.names` 移除（XSPEC-456 R4）。** `update --apply --skills` 移除舊版 CLI 誤拷進技能資料夾的 `_shared`、`agents`、`ai`、`tools`、`workflows` 後，`skillHashes` 乾淨了，名稱清單卻仍有 61 筆（技能只有 56 個）。名稱要同時是 UDS 出貨的技能或命令，且（安裝後）在 manifest 記錄的安裝位置真的存在才保留；市集安裝，以及無法檢查磁碟的情況，不動。既有專案在下一次 `uds update` 自動修正，已是最新版的也一樣。manifest 中記錄名稱的四個欄位是 `skills.names`、`commands.names`、`skillHashes`、`commandHashes`。
+- **`uds spec list` 把完整的 SDD 規格列成 `draft`、標題空白（XSPEC-456 R5）。** 它把每個檔案都當微規格讀並填預設值。現在會讀 SDD 標頭——表格（`| Status | Approved (...) |`）、欄位行（`- **Status**: Archived`）或 front matter——讀不出來的印「格式：SDD（狀態未解析）」，不填預設值。未改動：`spec show`、`confirm`、`archive` 仍會用微規格模板改寫檔案。
+
+### 新增
+
+- **`uds deps --if-present`（XSPEC-456 R6）。** 沒有 `package.json`，或套件沒有宣告執行期相依時，印出不適用、未檢查任何東西，並以 0 結束（`--json`：`notApplicable`）。不加旗標時行為不變：沒有 `package.json` 仍以 1 結束。
+
 ## [6.14.0-beta.5] - 2026-10-06
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
