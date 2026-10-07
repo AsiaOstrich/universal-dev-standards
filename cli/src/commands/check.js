@@ -52,6 +52,7 @@ import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-owne
 import { pruneForeignCommandHashes, projectCommandHashes, commandIssuesOf } from '../utils/command-hash-ownership.js';
 import { printAvailableStandardsCheckLine } from '../utils/available-standards-report.js';
 import { printDoubleInstallWarning } from '../utils/skills-install-paths.js';
+import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
 
 /**
  * Display the summary of file integrity status
@@ -542,6 +543,11 @@ export async function checkCommand(options = {}) {
   // One warning, information only: it is not part of `allGood` below, so it changes neither the verdict nor
   // the exit code. It says nothing when either side is missing or the plugin record cannot be read.
   printDoubleInstallWarning(projectPath, getMarketplaceSkillsInfo());
+
+  // XSPEC-465 R1: a personal skill (~/.claude/skills/) with the same name as a UDS skill in this project wins
+  // silently. One warning, information only (not part of `allGood`): same verdict and exit code with or without
+  // it. It reads the personal folder every run; it cannot see the enterprise level, so no warning is not proof.
+  printSkillNameCollisionWarning(projectPath);
 
   // Coverage report
   displayCoverageReport(manifest, msg, common, projectPath);

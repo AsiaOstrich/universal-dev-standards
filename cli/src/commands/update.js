@@ -55,6 +55,7 @@ import {
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
+import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
 import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
@@ -2958,6 +2959,9 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   finishStepBackup(projectPath, skillsBackup);
 
   console.log();
+  // XSPEC-465 R1: a personal skill with the same name as one of the UDS skills just written wins silently.
+  // Information only: it does not change what was installed or the exit code.
+  printSkillNameCollisionWarning(projectPath);
   process.exit(0);
 }
 

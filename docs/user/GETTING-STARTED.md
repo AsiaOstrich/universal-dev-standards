@@ -84,6 +84,39 @@ project, so there is nothing for `uds check` to compare and no message about it.
 
 `uds skills` lists what is installed and where, and prints the same two ways with their limits.
 
+### When a personal skill has the same name as a UDS skill
+
+Claude Code runs one skill per name and does not tell you when it leaves another one out. Which one runs depends on
+where each came from (Claude Code skills documentation, read 2026-10-07):
+
+| Same name in | Which one runs |
+|---|---|
+| Enterprise (the managed settings directory your organization deploys), personal (`~/.claude/skills/<name>/`) and project (`.claude/skills/<name>/`) | Enterprise over personal, and personal over project |
+| A project skill and a skill in a nested subdirectory | Both load: `/<name>` runs the one at the project root, the nested one is `/<directory>:<name>` |
+| A plugin skill and a skill anywhere above | Both load: plugin skills are `/<plugin>:<name>` |
+| A skill and a `.claude/commands/<name>.md` file | The skill |
+
+A skill's name is the `name:` in its `SKILL.md` frontmatter, or its folder name when there is none; the folder name
+also invokes the skill, so a collision on either counts.
+
+**What this means for UDS.** The skills `uds init --skills-location project` and `uds update --apply --skills` write
+are project skills. If you already have a personal skill with the same name, yours runs, the UDS one never does,
+and nothing says so. Several UDS skills have short, general names (`plan`, `push`, `sweep`, `orchestrate`, and
+`/commit`, whose folder is `commit-standards`), so this can happen to anyone with a personal skill library. UDS does
+not rename them for this: a rename would break every existing call.
+
+**How to see it.** `uds check` compares the UDS skills in the project with the skills in `~/.claude/skills/` and
+prints a warning that names each pair; `uds init` and `uds update --apply --skills` print the same warning at the
+end of the install. It is information only: it changes neither the verdict nor the exit code. It has limits, and
+**no warning does not mean no collision**: it cannot see skills your organization deploys at enterprise level
+(those rank above personal ones), and it cannot see personal skills you add after it ran, so run `uds check` again
+after adding one.
+
+**How to fix it.** Pick one. Keep both: rename your personal skill (its folder name, and `name:` in its `SKILL.md`).
+Keep only yours: delete the UDS skill folder under `.claude/skills/`.
+
+Naming a new UDS skill so that it does not collide is a contributor matter: see `skills/SKILL_NAMING.md`.
+
 ---
 
 ## Step 3 — Your First Spec (`/sdd`)

@@ -14,6 +14,7 @@ import { runInitFlow } from '../flows/init-flow.js';
 import { installStandards } from '../installers/standards-installer.js';
 import { installIntegrations, generateUniversalAgentsMd } from '../installers/integration-installer.js';
 import { installSkills, installCommands } from '../installers/skills-installer.js';
+import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
 import { writeFinalManifest } from '../installers/manifest-installer.js';
 import {
   getInstalledSkillsInfo,
@@ -363,6 +364,13 @@ export async function initCommand(options) {
     console.log(chalk.yellow(`  ⚠ scripts/${file} not installed — the template is missing from this UDS package`));
   }
   persistRecorder(projectPath, installRecorder);
+
+  // 4.9. XSPEC-465 R1: tell the adopter now if a personal skill of theirs has the same name as a UDS skill
+  // that was just installed (the personal one wins, with no error). Information only: it does not change
+  // what was installed or the exit code.
+  if ((combinedResults?.skills?.length ?? 0) > 0) {
+    printSkillNameCollisionWarning(projectPath);
+  }
 
   // 5. Setup Pre-commit Hook
   await setupHuskyHook(projectPath);
