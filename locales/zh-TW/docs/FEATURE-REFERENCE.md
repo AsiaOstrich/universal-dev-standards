@@ -531,7 +531,7 @@
 | `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |
 | `pipeline-integration-standards` | - |  |
-| `pipeline-security-gates` | - |  |
+| `pipeline-security-gates` | 1.1.0 |  |
 | `policy-as-code-testing` | - |  |
 | `postmortem-standards` | 1.0.0 |  |
 | `prd-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |

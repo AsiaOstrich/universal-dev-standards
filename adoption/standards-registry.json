@@ -346,7 +346,7 @@
       "source": "core/pipeline-security-gates.md",
       "category": "core",
       "skillName": null,
-      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior"
+      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan (including the scanner's own output and failure behaviour) with block/warn/log behavior"
     }
   ]
 }

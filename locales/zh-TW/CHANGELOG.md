@@ -26,6 +26,7 @@ status: current
 - **`uds check` 在 UDS 技能裝了兩次時警告（XSPEC-462 R2）。** 專案裡有 UDS 技能（`.claude/skills/`），同時又從 Claude Code 市集裝了 UDS 外掛時，Claude Code 會把每個技能列出兩次（`/commit` 與 `/universal-dev-standards:commit`），而且每個技能的名稱與描述每回合都會放進脈絡。`uds check` 現在會說出這件事，並說明怎麼二擇一。純資訊：不改變判定與結束碼；任何一邊不存在、或讀不到 `~/.claude/plugins/installed_plugins.json` 時不出聲。
 - **CI：外掛設定不得寫錯技能數（XSPEC-462 R3）。** `npm run check:plugin-manifest` 在 `.claude-plugin/plugin.json`、`marketplace.json` 或 `README.md` 的描述寫出的技能數，與 `skills/` 底下含 `SKILL.md` 的資料夾數不同時失敗。描述裡沒有數字則通過。
 - **文件：`docs/user/GETTING-STARTED.md` 新增「技能怎麼裝」（XSPEC-462 R3）。** 並列兩種裝法與各自的限制、為什麼 `uds check` 與 `uds update` 建議 `uds update --apply --skills`、兩者都裝時怎麼辦（英文、繁體中文、簡體中文）。
+- **`pipeline-security-gates` 1.1.0——pre-commit 機密掃描現在寫明掃描器自己的三個行為（PSG-1～PSG-3，XSPEC-463）。** 標準原本寫了閘門掃什麼、阻斷什麼，沒寫掃描器本身必須怎麼表現。第 1.1 節新增：PSG-1（必須）掃描輸出——終端機、CI 紀錄、報告檔——不得含被匹配到的機密值，只能指出檔案、行號與規則名稱；PSG-2（必須）掃描器跑不起來（執行檔不存在、設定檔無法讀取或無效、逾時、非預期的結束）視同閘門失敗並阻斷，不得以 `|| true` 或 `2>/dev/null` 吞掉；PSG-3（建議）團隊自己撰寫的偵測規則，每條都有一個紅樣本與一個綠樣本，且在測試中執行。三條各附採用者在自己的閘門上跑的三行判定程序；PSG-1 的程序第一步要求先證明閘門真的阻斷，所以沒有任何規則匹配的樣本無法讓它通過。工具註記只寫在廠商自己文件讀到的內容：gitleaks 的 README（2026-10-07 讀取）範例輸出在未加 `--redact` 時印出 `Secret:` 一行，且結束碼 1 同時代表「找到洩漏」與「發生錯誤」；detect-secrets 與 trufflehog 標示「採用者須自行確認」。UDS 不出貨掃描器，自己的 CI 與 hook 也沒有，標準本文已寫明。機器可讀：`.ai.yaml` 的 `gate_positions.pre_commit.output_redaction`、`.scanner_failure`、`.custom_rule_samples`；登記表描述與兩個譯本已同步，`meta.updated` 標為 2026-10-07。
 
 ### 變更
 

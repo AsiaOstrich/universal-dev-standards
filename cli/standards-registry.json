@@ -2270,7 +2270,7 @@
         "ai": "ai/standards/pipeline-security-gates.ai.yaml"
       },
       "category": "core",
-      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior"
+      "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan (including the scanner's own output and failure behaviour) with block/warn/log behavior"
     },
     {
       "id": "slo-sli",

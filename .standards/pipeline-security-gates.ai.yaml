@@ -8,7 +8,7 @@
 standard:
   id: pipeline-security-gates
   name: Pipeline Security Gates
-  description: Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan with block/warn/log behavior
+  description: Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan (including the scanner's own output and failure behaviour) with block/warn/log behavior
   guidelines:
     - "Secrets scan at pre-commit — block ALL commits containing secrets"
     - "SAST after build — block Critical/High findings"
@@ -17,10 +17,13 @@ standard:
     - "DAST after staging deploy — warn on findings, require approval for Critical"
     - "Never skip security gates with --force or emergency bypass without audit trail"
     - "Treat security gate failures as pipeline failures, not warnings"
+    - "Secrets-scan output (terminal, CI log, report file) MUST NOT contain the matched secret value — name the file, line and rule only (PSG-1)"
+    - "A secrets scanner that cannot run (missing binary, unreadable or invalid config, timeout, unexpected exit) is a gate failure and MUST block — never swallow it with `|| true` or `2>/dev/null` (PSG-2)"
+    - "SHOULD: every detection rule the team writes itself has one red sample (must match) and one green sample (must not match), run in tests (PSG-3)"
 
   meta:
-    version: "1.0.0"
-    updated: "2026-04-26"
+    version: "1.1.0"
+    updated: "2026-10-07"
     source: core/pipeline-security-gates.md
     complements: security-standards.ai.yaml
 
@@ -31,6 +34,48 @@ gate_positions:
     scope: "staged files"
     block_on: ["any secret pattern match"]
     never_skip: true
+    # Added in 1.1.0 (XSPEC-463): the scanner's own behaviour. UDS ships no scanner —
+    # these are properties the adopter verifies on their own gate, by the procedures below.
+    output_redaction:                      # PSG-1
+      level: must
+      rule: "scan output must not contain the matched secret value; name file, line and rule only"
+      surfaces: ["terminal", "ci log", "report file"]
+      reason: "scan logs get pasted into chat and tickets; printing the value leaks an already-blocked secret a second time"
+      tool_notes:
+        gitleaks: "official README (read 2026-10-07): sample output of `gitleaks git -v` without --redact prints a `Secret:` line with the matched value; --redact is described as 'redact secrets from logs and stdout'; the README does not say whether it also covers --report-path files — adopter must confirm"
+        detect-secrets: "default output behaviour not verified by this standard — adopter must confirm"
+        trufflehog: "default output behaviour not verified by this standard — adopter must confirm"
+      verification:
+        - "stage a file containing a FAKE secret in a format the adopter's own gate matches (FAKE-SECRET-DO-NOT-USE-0000 is notation only; never a valid credential for any real service) and run the gate"
+        - "first confirm the gate really blocked — if it did not, the sample was not matched and step 3 proves nothing"
+        - "search ALL output (terminal, ci log, report file) for the fake string; any hit is non-compliant"
+    scanner_failure:                       # PSG-2
+      level: must
+      treat_as: gate_failure
+      action: block
+      covers: ["executable missing", "config unreadable or invalid", "timeout", "unexpected exit"]
+      forbidden_swallow: ["|| true", "2>/dev/null"]
+      distinguish_cause_by: output         # not by exit code
+      tool_notes:
+        gitleaks: "official README, Exit Codes (read 2026-10-07): `1 - leaks or error encountered` — a finding and an error share exit code 1, so tell them apart by output; --exit-code can rewrite the exit code for findings, never set it to 0"
+        detect-secrets: "exit-code behaviour not verified by this standard — adopter must confirm"
+        trufflehog: "exit-code behaviour not verified by this standard — adopter must confirm"
+      precedent: "UDS native .git/hooks/pre-commit once chained every check with `2>/dev/null || true` and printed 'passed' (fixed in 6.14.0-beta.4, see CHANGELOG)"
+      verification:
+        - "rename or remove the scanner executable, or make its config invalid"
+        - "run the gate on a commit that contains no secret (any block can then only be the scanner failing to run)"
+        - "pass = blocked, non-zero exit, output says the scanner could not run; a commit let through, or output that reads like a pass, is non-compliant"
+    custom_rule_samples:                   # PSG-3
+      level: should
+      applies_to: "detection rules the team wrote itself, including the REQ-003 minimum four (AWS access key, PEM private key header, generic API token, connection string with password); not to teams using only built-in rules"
+      per_rule: ["one red sample that must match", "one green sample that must not match"]
+      samples_run_in_tests: true
+      principle: "OWT-015 — a check never observed red is not evidence"
+      gap_blocks: false                    # SHOULD: a missing sample is a reported gap, not a block
+      verification:
+        - "list every self-written rule"
+        - "find each rule's red and green sample (fake values)"
+        - "confirm the samples really run in tests; a missing one is a gap"
   post_build:
     type: sast
     tools: ["semgrep", "codeql", "sonarqube"]
