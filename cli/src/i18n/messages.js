@@ -721,6 +721,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ Manual installation is deprecated.',
         manualInstallHint: 'Consider migrating to Plugin Marketplace.',
         totalUniqueSkills: 'Total unique skills',
+        skillFilesTracked: '`uds check` tracks {files} skill files for these skills (it counts files across every tool, not skills).',
         recommendation: 'Recommendation: Migrate to Plugin Marketplace',
         benefits: 'Benefits: Automatic updates, better integration',
         migrateCommand: 'To migrate, run:'
@@ -2008,6 +2009,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ 手動安裝已棄用。',
         manualInstallHint: '建議遷移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 總數',
+        skillFilesTracked: '`uds check` 追蹤這些技能的 {files} 個技能檔案（它計的是所有工具的檔案數，不是技能數）。',
         recommendation: '建議：遷移到 Plugin Marketplace',
         benefits: '好處：自動更新、更好的整合',
         migrateCommand: '遷移指令：'
@@ -3304,6 +3306,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ 手动安装已弃用。',
         manualInstallHint: '建议迁移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 总数',
+        skillFilesTracked: '`uds check` 跟踪这些技能的 {files} 个技能文件（它计的是所有工具的文件数，不是技能数）。',
         recommendation: '建议：迁移到 Plugin Marketplace',
         benefits: '好处：自动更新、更好的集成',
         migrateCommand: '迁移指令：'
