@@ -539,23 +539,23 @@ describe('OWT-015: the checks have been observed red', () => {
 
 // ── the standard itself, in each place it lives ─────────────────────────────
 
-describe('open-work-tracking 1.1.0 reads the same everywhere', () => {
+describe('open-work-tracking 1.2.0 reads the same everywhere', () => {
   const read = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
   const ai = read('ai/standards/open-work-tracking.ai.yaml');
 
-  it.each(['OWT-017', 'OWT-018', 'OWT-019'])('%s is a numbered requirement in the standard, its zh-TW translation and the .ai.yaml', (id) => {
+  it.each(['OWT-017', 'OWT-018', 'OWT-019', 'OWT-020', 'OWT-021', 'OWT-022', 'OWT-023', 'OWT-024', 'OWT-025', 'OWT-026'])('%s is a numbered requirement in the standard, its zh-TW translation and the .ai.yaml', (id) => {
     expect(core).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
     expect(zh).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
     expect(ai).toMatch(new RegExp(`- id: ${id}\\n`));
   });
 
-  it('carries version 1.1.0 in all three, and the self-adoption copy is byte-identical', () => {
-    expect(core).toMatch(/\*\*Version\*\*: 1\.1\.0/);
-    expect(zh).toMatch(/source_version: 1\.1\.0/);
-    expect(zh).toMatch(/translation_version: 1\.1\.0/);
-    expect(ai).toMatch(/version: "1\.1\.0"/);
+  it('carries version 1.2.0 in all three, and the self-adoption copy is byte-identical', () => {
+    expect(core).toMatch(/\*\*Version\*\*: 1\.2\.0/);
+    expect(zh).toMatch(/source_version: 1\.2\.0/);
+    expect(zh).toMatch(/translation_version: 1\.2\.0/);
+    expect(ai).toMatch(/version: "1\.2\.0"/);
     expect(read('.standards/open-work-tracking.ai.yaml')).toBe(ai);
   });
 
@@ -564,6 +564,30 @@ describe('open-work-tracking 1.1.0 reads the same everywhere', () => {
     expect(ai).toMatch(/id: OWT-018\n\s+rule: .*\n\s+severity: error\n\s+severity_rationale:/);
     expect(ai).toMatch(/id: OWT-019\n\s+rule: .*\n\s+severity: warning\n\s+severity_rationale:/);
     expect(core).toMatch(/Why these severities/);
+  });
+
+  it('gives each 1.2.0 requirement the severity warning, says the vocabulary is uncalibrated, and says the commands exit 1 on a warning', () => {
+    for (const id of ['OWT-020', 'OWT-021', 'OWT-022', 'OWT-023', 'OWT-024', 'OWT-025', 'OWT-026']) {
+      expect(ai, id).toMatch(new RegExp(`id: ${id}\\n\\s+rule: .*\\n\\s+severity: warning\\n\\s+severity_rationale:`));
+      expect(core, id).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|.*\\| warning \\|`));
+      expect(zh, id).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|.*\\| warning \\|`));
+    }
+    expect(core).toMatch(/Why these severities \(1\.2\.0\)/);
+    expect(core).toMatch(/exit 1 on any violation, `warning` included/);
+    expect(ai).toMatch(/added_in_1_2_0:[\s\S]*uncalibrated_per_owt_016/);
+  });
+
+  it('1.2.0 rewrites the hand-written-state row instead of dropping it: the exception is named with its three conditions', () => {
+    expect(core).toMatch(/hand-written state file as the source of truth for any state a reliable source already determines/);
+    expect(core).toMatch(/Since 1\.2\.0 there is one narrow exception \(OWT-023–OWT-026\)/);
+    expect(zh).toMatch(/自 1\.2\.0 起有一個窄例外（OWT-023–OWT-026）/);
+    expect(ai).toMatch(/自 1\.2\.0 起有一個窄例外/);
+  });
+
+  it('says in plain words that a check cannot decide whether an observation is true', () => {
+    expect(core).toMatch(/cannot decide that `observed-by` names the person who actually looked, or that the value is true/);
+    expect(zh).toMatch(/判定不了 `observed-by` 填的是不是真的去看過的人/);
+    expect(ai).toMatch(/not_decidable_by_a_check:.*observed-by/);
   });
 
   it('records what it does not adopt, and the provenance of the prompt it borrowed shapes from', () => {

@@ -26,7 +26,7 @@ import { compileStandards } from '../src/commands/compile.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
-import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
+import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkWaitingCommand, openWorkObservationsCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
 import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
 import { config } from '../src/utils/config-manager.js';
@@ -466,13 +466,13 @@ aiContextCommand
 // MCP command for AI tool integration
 mcpCommand(program);
 
-// Open-work-tracking reference checks (OWT-017/018/019). A group of its own, not
+// Open-work-tracking reference checks (OWT-017 … OWT-026). A group of its own, not
 // a flag on `check`: `check` validates the installed standards and has its own
-// --ci/--json meaning, while these are three checks with different arguments and
+// --ci/--json meaning, while these are five checks with different arguments and
 // an exit-code contract in which 2 ("cannot decide") is not a pass.
 const openWorkCommand = program
   .command('open-work')
-  .description('Reference checks for open-work-tracking (OWT-017/018/019). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
+  .description('Reference checks for open-work-tracking (OWT-017 to OWT-026). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
 
 openWorkCommand
   .command('next-action [files...]')
@@ -494,6 +494,21 @@ openWorkCommand
   .command('separation [files...]')
   .description('OWT-017: no single carrier holds both an intent section and a progress/next-action section')
   .action(openWorkSeparationCommand);
+
+openWorkCommand
+  .command('waiting [files...]')
+  .description('OWT-020/021/022: a waiting item says whether it was asked; not-yet-asked names its draft; asked-awaiting has asked-at, what it waits for and its release')
+  .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd)')
+  .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
+  .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
+  .action(openWorkWaitingCommand);
+
+openWorkCommand
+  .command('observations [files...]')
+  .description('OWT-023/024/025/026: a hand-written fact the assistant cannot observe carries observed-by, observed-at and yes/no/unknown; unknown and stale are counted apart')
+  .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
+  .option('--stale-after <days>', 'Days after which an observation is reported as stale (default 7, an uncalibrated initial judgment)')
+  .action(openWorkObservationsCommand);
 
 openWorkCommand
   .command('self-test')

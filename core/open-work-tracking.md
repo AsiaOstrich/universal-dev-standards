@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/open-work-tracking.md)
 
-**Version**: 1.1.0
-**Last Updated**: 2026-09-29
+**Version**: 1.2.0
+**Last Updated**: 2026-10-07
 **Applicability**: Any project that carries work across more than one working session and risks losing an item between them
 **Scope**: universal
 
@@ -35,10 +35,10 @@ Three distinct ways work goes missing between sessions are routinely folded into
 | 某項目因等待別的事件而暫停 | 「等待中」若沒有記錄解除條件，與「被忘記」無法分辨 | 與等待一起記錄的解除條件 |
 | 已規劃的項目還沒動工，時間過去 | 沒有時鐘的項目會無聲腐爛——沒有東西會再指向它 | 一個門檻，或一次被迫的定期檢視，讓它重新浮現 |
 
-Each requirement below traces to one row of that table, to one of four failures observed the day this standard's design was drafted, or (OWT-017–OWT-019) to two gaps found in 1.1.0 (see [Evidence and calibration](#evidence-and-calibration)). **None of the mechanisms is prescribed** — per the same constraint [deferred-item-exit](deferred-item-exit.md) states for its own exits, and for the same reason (DEC-049: UDS defines relations that must hold, adoption layers choose what maintains them).
+Each requirement below traces to one row of that table, to one of four failures observed the day this standard's design was drafted, or (OWT-017–OWT-019) to two gaps found in 1.1.0, or (OWT-020–OWT-026) to two states 1.1.0 left unnamed (see [Evidence and calibration](#evidence-and-calibration)). **None of the mechanisms is prescribed** — per the same constraint [deferred-item-exit](deferred-item-exit.md) states for its own exits, and for the same reason (DEC-049: UDS defines relations that must hold, adoption layers choose what maintains them).
 
 下面每一條要求都對應這張表的一列、對應本標準設計當天觀察到的四個失效之一，
-或（OWT-017–OWT-019）對應 1.1.0 補上的兩個缺口
+或（OWT-017–OWT-019）對應 1.1.0 補上的兩個缺口、或（OWT-020–OWT-026）對應 1.1.0 沒有命名的兩個狀態
 （見〈[證據與校準](#evidence-and-calibration)〉）。**沒有任何一個機制被規定**——
 理由與 [deferred-item-exit](deferred-item-exit.md) 對自己出口的約束相同（DEC-049：
 UDS 定義必須成立的關係，維持它的機制由採用層選擇）。
@@ -83,13 +83,13 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 
 ## The invariant
 
-**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, and (7) make every "next action" name something a reader can go and find.**
+**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, (7) make every "next action" name something a reader can go and find, and (8) tell a waiting item nobody has asked about from one awaiting a reply, and give a fact it cannot see a stamped place to live — `unknown` a real value, every observation's age shown.**
 
 **一個承載開放工作的地方，必須：（1）不要求分類就能收下新項目、（2）為每一個標為等待中的項目記下解除條件、
 （3）對任何有可靠來源可推導的欄位改用生成、（4）回報還剩什麼時同時揭露看不到什麼、
 （5）在控制權從 agent 交回人的那一刻被檢視——而且那個檢視不能讓回合失敗、
 （6）把「這份工作為了什麼」與「做到哪了」分開存放，並替前者的每一次修改留下交代、
-（7）讓每一個「下一步」都點名一個讀的人找得到的東西。**
+（7）讓每一個「下一步」都點名一個讀的人找得到的東西、（8）分得出「還沒問」與「已問、等回覆」，並讓看不見的事實有一個帶戳記的存放處——`unknown` 是正式的值、每筆觀察的年齡一律顯示。**
 
 ---
 
@@ -116,6 +116,13 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 | **OWT-017** | A carrier that holds a piece of work's goal, acceptance criteria, or constraints holds none of its progress or next action, and the reverse. This is decided by walking each carrier's structural fields (sections, columns, typed markers), never by file names. A progress update therefore never requires touching the goal | warning |
 | **OWT-018** | Every change to a piece of work's goal, acceptance criteria, or constraints leaves a revision record stating what changed, who approved it, and why. A change with no approver is listed when control returns to a human (OWT-007); it is never silent | error |
 | **OWT-019** | A "next action" field names at least one concrete object: a file path, a test name, a command, or a requirement identifier. A verb alone ("continue", "handle the rest") does not. This judges whether an object is named, never how well the sentence is worded | warning |
+| **OWT-020** | An item marked waiting states which of two states it is in: `not-yet-asked` (the request is drafted or decided and has not been sent) or `asked-awaiting` (it has been sent and nothing has come back). A waiting item in neither is named individually in the open-work summary — never folded into a total, never counted as done | warning |
+| **OWT-021** | An item in `not-yet-asked` names the draft or action whose sending releases it: a file path, a command, a test name or a requirement identifier (the recognition OWT-019 uses) | warning |
+| **OWT-022** | An item in `asked-awaiting` carries `asked-at` (a calendar day with a year, not later than today) and satisfies OWT-002: what it waits for and what event releases it | warning |
+| **OWT-023** | A hand-written row is allowed only for a fact the carrier cannot derive from version control, a spec marker or a CI result — for example whether a message was sent, whether the other side replied, whether something was approved. Each such row carries `observed-by` (who or what saw it), `observed-at` (a calendar day with a year, not later than today) and a value of `yes`, `no` or `unknown`; a row missing any of the three is a violation. A check decides that the fields exist and are well formed — never that the observation is true | warning |
+| **OWT-024** | `unknown` is a value, not a blank: rows valued `unknown` are counted and shown apart in any summary and are never counted as complete. A row marked done whose value is `unknown` is a violation | warning |
+| **OWT-025** | A summary of observations shows each observation's age (days since `observed-at`). An observation older than the declared threshold is reported as stale, counted apart, and never counted as confirmed. A stamp says who saw it and when — never that it still holds | warning |
+| **OWT-026** | The exception in OWT-023 does not reach a field that version control, a spec marker or a CI result determines; OWT-003 stands. A check can only decide this against a word list of such subjects, so its coverage is unknown (OWT-011) | warning |
 
 ---
 
@@ -279,22 +286,62 @@ A check reports three outcomes, never one green: **named and resolved** (the obj
 
 ---
 
+## A waiting item nobody has asked about is not waiting
+
+**OWT-002** asks that a waiting item say what it waits for and what event releases it. Two very different things satisfy that sentence. A message that is **drafted and never sent** waits for "somebody sends it". A message that **was sent** waits for "the other side replies". The carrier cannot tell them apart, and neither can an assistant that cannot see the chat — and the difference is the whole point: nothing will ever arrive for the first until a person acts. **OWT-020** names the two states (`not-yet-asked`, `asked-awaiting`) and requires every waiting item to be in one of them; one that is in neither is named individually, the way OWT-012 names an item left unclassified, and is never counted as done.
+
+Each state then carries what makes it checkable. A `not-yet-asked` item names the draft or action (**OWT-021**) — the same recognition OWT-019 uses, so there is one vocabulary — because "ask legal" with no file or command behind it is a mood, not a draft. An `asked-awaiting` item carries `asked-at` (**OWT-022**), which is what starts a clock: from then on the item has an age, and an item with an age can be surfaced again by a threshold. Both read the carrier's structural status field (OWT-010), never the wording around it. The severity is `warning` and the state words are uncalibrated (OWT-016): the aim is to make the two states nameable, not to turn every existing carrier red on the day the standard is published.
+
+---
+
+## A fact nobody can derive needs a stamp, an honest "unknown", and a visible age
+
+Some facts about open work have no source an assistant can read: whether a message was sent, whether the other side answered, whether something was approved. **OWT-003** allows only generation from a derivable source, and the table below rejects a hand-written state file for good reason — it goes stale, and a stamp newer than stale content is invisible. For these facts there is nothing derivable to generate from; refusing hand-written rows outright leaves them nowhere to live, and they end up in free text where nothing counts them.
+
+1.2.0 therefore admits a **narrow exception** (**OWT-023**–**OWT-026**), on three conditions. The row says **who saw it and when** (`observed-by`, `observed-at`). Its value is `yes`, `no` or **`unknown`**, and `unknown` is a real value, counted and shown apart and never complete (**OWT-024**) — the same reading as OWT-006: what could not be seen is not zero. And the report shows **every observation's age** (**OWT-025**); one older than the declared threshold is reported as stale, counted apart, and never confirmed. The exception does not reach what version control, a spec marker or a CI result already determines (**OWT-026**), because OWT-003 is not relaxed.
+
+What this does not claim is that the whole thing is honest. A stamp says that someone saw it and when; **it does not say it is still so**, and the report is built around that: the age is printed beside the value, so the staleness a stamp would otherwise hide is the first thing a reader sees. And what a check can decide is only what is decidable: that `observed-by` is filled in, that `observed-at` is a real day, that the value is in the domain. **It cannot decide that `observed-by` names the person who actually looked, or that the value is true** — that is a claim about the world, not a relation over artefacts (OWT-014), and this standard does not pretend otherwise. The stale threshold has no measurement behind it (OWT-016).
+
+**Why these severities (1.2.0).** OWT-020 to OWT-026 are all `warning`: the state words, field names and the stale threshold are a first vocabulary with no measurement behind it (OWT-016), and a violation costs a reader time rather than costing the work. A stricter level would turn every carrier that predates the two states red on the day this standard is published; `warning` lets an adopter see the list first. **The commands exit 1 on any violation, `warning` included** — as `uds open-work next-action` already does for OWT-019 — so an adopter who wires one into a gate decides whether a warning blocks.
+
+---
+
+## 一個沒人問過的等待項目，不是在等待
+
+**OWT-002** 要求等待中的項目說明在等什麼、什麼事件算解除。有兩件差別很大的事都滿足這句話。一則**草擬了、從沒送出**的訊息，等的是「有人把它送出去」；一則**已經送出**的訊息，等的是「對方回覆」。承載庫分不出這兩者，看不到聊天的助理也分不出——而差別正是重點：第一種在有人動手之前，永遠不會有任何東西到來。**OWT-020** 為這兩個狀態命名（`not-yet-asked`、`asked-awaiting`），並要求每個等待項目必處於其一；兩者皆非的項目被個別點名——與 OWT-012 點名未分類項目的方式相同——而且絕不算成已完成。
+
+每個狀態再帶上讓它可被檢查的東西。`not-yet-asked` 的項目點名那份草稿或那個動作（**OWT-021**）——沿用 OWT-019 的辨認方式，所以詞彙只有一份——因為只有「問法務」、背後沒有檔案或指令，是一種心情，不是草稿。`asked-awaiting` 的項目帶有 `asked-at`（**OWT-022**），那是讓時鐘開始走的東西：從那一刻起項目有了年齡，有年齡的項目才能被門檻再次浮現。兩者都讀承載庫的結構狀態欄（OWT-010），絕不讀它周圍的措辭。嚴重度是 `warning`、狀態詞彙未校準（OWT-016）：目的是讓這兩個狀態能被命名，不是在標準發布當天讓所有既有載體一次變紅。
+
+---
+
+## 沒有人能推導的事實，需要戳記、誠實的「未知」與看得見的年齡
+
+開放工作裡有些事實，助理沒有任何來源可以讀：訊息是否已寄出、對方是否已回覆、某事是否已核准。**OWT-003** 只允許從可推導的來源生成，而下方的表格拒絕手寫狀態檔是有道理的——它會過期，而比過期內容新的戳是隱形的。這類事實沒有可推導的來源可供生成，把手寫列一律拒絕，就讓它們無處可住，最後流落到沒有任何東西會計數的自由文字裡。
+
+因此 1.2.0 容許一個**窄例外**（**OWT-023**–**OWT-026**），附三個條件。那一列寫明**誰在何時看到**（`observed-by`、`observed-at`）。它的值是 `yes`、`no` 或 **`unknown`**，而 `unknown` 是正式的值，單獨計數、單獨顯示、永遠不算完成（**OWT-024**）——與 OWT-006 同一種讀法：看不到的不是零。而且報告顯示**每筆觀察的年齡**（**OWT-025**）；超過宣告門檻的被回報為「觀察已舊」、另計、不算已確認。這個例外不及於版本控制、規格標記或 CI 結果已能決定的東西（**OWT-026**），因為 OWT-003 沒有被放寬。
+
+這不是在宣稱整件事都誠實。戳只說有人在某時看到；**它不說現在仍然如此**，報告就是圍繞這一點建的：年齡印在值的旁邊，所以戳原本會藏起來的過期，是讀者第一眼看到的東西。而檢查能判定的只有可判定的部分：`observed-by` 有沒有填、`observed-at` 是不是一個真實的日子、值在不在值域內。**它判定不了 `observed-by` 填的是不是真的去看過的人，也判定不了那個值是否為真**——那是關於世界的宣稱，不是 artefact 之間的關係（OWT-014），本標準不假裝做得到。「觀察已舊」的門檻沒有任何量測支持（OWT-016）。
+
+**這些嚴重度的理由（1.2.0）。** OWT-020 到 OWT-026 全是 `warning`：狀態詞、欄位名與「觀察已舊」的門檻是第一版詞彙，沒有任何量測支持（OWT-016），而違反的代價是讀的人的時間，不是工作本身。更嚴的等級，會讓所有早於這兩個狀態存在的載體在標準發布當天變紅；`warning` 讓採用者先看到清單。**但指令對任何違反都回結束碼 1，`warning` 也一樣**——`uds open-work next-action` 對 OWT-019 本來就是如此——所以把其中一支接進閘門的採用者，自己決定警告要不要擋。
+
+---
+
 ## What this standard deliberately does not adopt
 
-The two additions above were prompted by a prompt a user forwarded, **whose author and provenance are unknown and which ships no implementation**. Only its design shapes were borrowed; none of its claims is cited here. The rest of what it proposes was examined and **not** adopted, for reasons about mechanism rather than taste:
+The two 1.1.0 additions (OWT-017–OWT-019: goal apart from progress with a revision record, and a next action that names an object) were prompted by a prompt a user forwarded, **whose author and provenance are unknown and which ships no implementation**. Only its design shapes were borrowed; none of its claims is cited here. The rest of what it proposes was examined and **not** adopted, for reasons about mechanism rather than taste:
 
 | Not adopted | Why (mechanism) |
 |---|---|
-| A hand-written state file as the source of truth | A hand-written state goes stale, and a stamp newer than stale content is invisible (the failure OWT-004 and OWT-005 exist for). Saying "trust version control when they disagree" without a mechanism that reconciles the file with version control adopts a known-stale source. OWT-003 already requires derivable fields to be generated |
+| A hand-written state file as the source of truth for any state a reliable source already determines | A hand-written state goes stale, and a stamp newer than stale content is invisible (the failure OWT-004 and OWT-005 exist for). Saying "trust version control when they disagree" without a mechanism that reconciles the file with version control adopts a known-stale source. OWT-003 already requires derivable fields to be generated. **Since 1.2.0 there is one narrow exception (OWT-023–OWT-026)**: a hand-written row for a fact nothing can derive — whether a message was sent, whether the other side replied. It is admitted only with a stamp of who saw it and when, a value that may honestly be `unknown`, and an age shown in every report, and it never reaches a field version control, a spec marker or a CI result determines. The objection above is answered, not set aside: it was that staleness is invisible, and here the age is printed beside every value |
 | A fixed start-of-work ritual (read the files, then check version control, then verify) | The hand-off points are already governed: OWT-007 at turn end, and [turn-completion-integrity](turn-completion-integrity.md). A start-of-work ritual is configured in each agent tool's own instructions; writing it here yields a requirement no check over an artefact can decide, which OWT-014 excludes |
 
-上面兩項新增，起因是使用者轉貼的一份提示詞——**作者與出處不明，也沒有任何實作**。
+1.1.0 的兩項新增（OWT-017–OWT-019：目標與進度分開並留下修訂紀錄、以及點名對象的下一步），起因是使用者轉貼的一份提示詞——**作者與出處不明，也沒有任何實作**。
 只借了它的設計形狀，本文不引用它的任何宣稱。它提出的其餘部分經過檢視、**沒有**採納，
 理由是機制層的，不是口味：
 
 | 不採納 | 理由（機制層） |
 |---|---|
-| 以手寫狀態檔作為狀態真相 | 手寫狀態會過期，而「戳比過期內容新」是隱形的（OWT-004、OWT-005 存在的起因）。只說「兩者不一致時以版本控制為準」，卻沒有任何機制讓該檔與版本控制對帳，就是採納一個已知會過期的來源。OWT-003 已經要求可推導的欄位改用生成 |
+| 以手寫狀態檔作為任何「已有可靠來源可決定」之狀態的真相 | 手寫狀態會過期，而「戳比過期內容新」是隱形的（OWT-004、OWT-005 存在的起因）。只說「兩者不一致時以版本控制為準」，卻沒有任何機制讓該檔與版本控制對帳，就是採納一個已知會過期的來源。OWT-003 已經要求可推導的欄位改用生成。**自 1.2.0 起有一個窄例外（OWT-023–OWT-026）**：對「沒有任何東西能推導」的事實——訊息是否已寄出、對方是否已回覆——容許一列手寫。它只有在附上誰何時看到的戳記、值可以誠實地是 `unknown`、且每份報告都顯示年齡時才被容許，並且絕不及於版本控制、規格標記或 CI 結果已能決定的欄位。上面的反對理由是被回答了，不是被擱置：那個理由是過期看不見，而這裡年齡就印在每個值旁邊 |
 | 固定的開工儀式（讀檔→查版本控制→驗證） | 交接點已被管住：回合結束有 OWT-007，另有 [turn-completion-integrity](turn-completion-integrity.md)。開工儀式要靠各代理工具自己的指示來設定；寫進這裡只會得到一條沒有任何 artefact 上的檢查判定得了的要求，而那正是 OWT-014 排除的東西 |
 
 ---
@@ -344,8 +391,11 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 | Triage status read only from prose wording | Correct until an item is phrased a way the wording list did not anticipate |
 | An item that silently vanishes from the carrier | Indistinguishable from a bug that lost it |
 | A goal or acceptance criterion edited with no record of who agreed | "Every criterion is met" stays true, of a different set of criteria; the edited goal reads as if it always said that |
-| A hand-written state file treated as the source of truth | Goes stale, and a stamp newer than the stale content cannot be seen |
+| A hand-written state file treated as the source of truth for what version control or CI already knows | Goes stale, and a stamp newer than the stale content cannot be seen |
 | A next action of "continue implementation" or "handle the rest" | Names nothing to start from; indistinguishable from a forgotten item |
+| A waiting item with no record of whether anyone has asked | A draft nobody sent and a request nobody answered look identical; waiting never releases the first |
+| A hand-written "sent / replied / approved" with no name and no date | Cannot be told from a guess, and when it goes stale nothing shows it |
+| An observation nobody could make, counted as "no" or as done | A fact that could not be seen is read as absent or complete; `unknown` is a value, not a zero |
 
 | 反模式 | 為什麼會失敗 |
 |---|---|
@@ -359,8 +409,11 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 | 分類狀態只靠散文措辭判讀 | 正確到某個項目用清單沒預料到的方式寫出來為止 |
 | 項目從承載庫裡無聲消失 | 與一個弄丟它的 bug 無從分辨 |
 | 目標或驗收條件被改了，卻沒有任何「誰同意」的紀錄 | 「每一條驗收都滿足」依然為真，只是針對另一組條件；被改過的目標讀起來像一直這麼寫 |
-| 把手寫的狀態檔當成狀態真相 | 會過期，而比過期內容新的戳看不見 |
+| 把手寫的狀態檔當成版本控制或 CI 早已知道之事的真相 | 會過期，而比過期內容新的戳看不見 |
 | 下一步寫「繼續實作」或「處理剩下的」 | 沒有點名任何可以開始的東西；與被遺忘的項目無從分辨 |
+| 等待項目沒有任何「有沒有人問過」的紀錄 | 沒人送出的草稿與沒人回的請求看起來一模一樣；等待永遠不會讓前者解除 |
+| 手寫的「已寄出／已回覆／已核准」，沒有名字也沒有日期 | 與猜測無從分辨，過期時也沒有任何東西顯示 |
+| 一個沒有人能做的觀察，被算成「否」或已完成 | 看不到的事實被讀成不存在或已完成；`unknown` 是一個值，不是零 |
 
 ---
 
@@ -368,12 +421,16 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 
 **Nothing in UDS gates on it, and that is recorded rather than implied.** UDS states the relations a carrier of open work must satisfy; whether anything decides them is the adopting project's call, per the [writing constraint](#how-this-standard-is-written--and-why-it-is-written-that-way) above — the same boundary [deferred-item-exit](deferred-item-exit.md) draws for its own exits. Since 1.1.0 UDS does ship one **reference decision procedure** for OWT-017–OWT-019 — `uds open-work next-action | revision | separation` from the npm package (`uds open-work self-test` runs the checker's own arms; from a clone of the UDS repository `node scripts/check-open-work-tracking.mjs` runs the same code) — offered as evidence in the OWT-015 sense — it has been observed to fail against violating samples — for an adopter to run or to reimplement. It is not wired into any UDS release gate, because UDS carries no open-work carrier for it to check. For OWT-019 it reads a next-action field in three shapes, all through one vocabulary: a heading section, an inline label, and every row of a table column whose header is in that vocabulary. A table row whose cell count differs from its header is listed as undecidable (never read as empty; with no violation elsewhere the exit code is 2, not a pass), and an empty, `—`, `-` or done cell is counted and not evaluated — not a violation, because OWT-019 judges a next action that was written, and a missing one is a different failure it does not decide.
 
+Since 1.2.0 the same module also ships `uds open-work waiting` (OWT-020–OWT-022) and `uds open-work observations` (OWT-023–OWT-026), with the same exit codes (0 no violation, 1 violation, 2 cannot decide). Today's date is injected (`--now`) and never read inside a rule, so a result does not drift with the day; `--stale-after` declares the threshold. Both read tables and list items through their structural field names, in English and in Chinese. A table with neither an `observed-by` nor an `observed-at` column is not read as an observation carrier, and a waiting item written in words the vocabulary does not hold is read as not waiting — so a clean pass covers only what was recognised, and every run says so (OWT-011). `uds open-work self-test` runs a violating and a satisfying sample for each of OWT-020–OWT-026, and mutation tests show that removing any one detection turns a test or the self-test red (OWT-015). Like the 1.1.0 checks, none of it is wired into a UDS release gate.
+
 **UDS 不對本標準設任何閘門，而這件事是被記錄的，不是被暗示的。** UDS 陳述一個承載開放工作的地方
 必須滿足的關係；有沒有東西去判定它，依上面的[寫法約束](#how-this-standard-is-written--and-why-it-is-written-that-way)，
 是採用專案的決定——與 [deferred-item-exit](deferred-item-exit.md) 對自己出口劃的界線相同。
 自 1.1.0 起，UDS 為 OWT-017–OWT-019 附上一支**參考判定程序**（`scripts/check-open-work-tracking.mjs`），
 作為 OWT-015 意義上的證據——它已被觀察到對違反的樣本回報失敗——供採用者直接執行或自行重做。
 它沒有接進任何 UDS 發版閘門，因為 UDS 本身沒有承載開放工作的地方可供它檢查。
+
+自 1.2.0 起，同一份程式還附上 `uds open-work waiting`（OWT-020–OWT-022）與 `uds open-work observations`（OWT-023–OWT-026），結束碼相同（0 無違反、1 違反、2 判定不了）。今天的日期是被注入的（`--now`），絕不在規則裡讀時鐘，所以結果不會隨日子漂移；`--stale-after` 宣告門檻。兩者都以結構欄位名讀表格與清單項目，中英文皆可。沒有 `observed-by` 也沒有 `observed-at` 欄的表格不被讀成觀察載體；用詞彙裡沒有的字寫成的等待項目，被讀成「不是等待」——所以乾淨的通過只涵蓋被辨認出來的部分，而每次執行都這麼說（OWT-011）。`uds open-work self-test` 對 OWT-020–OWT-026 每一條各跑一個違反的樣本與一個符合的樣本，突變測試顯示拿掉任何一個偵測都會讓某個測試或自測變紅（OWT-015）。與 1.1.0 的檢查相同，它都沒有接進任何 UDS 發版閘門。
 
 What this standard does do is make that call visible: OWT-014 guarantees every requirement here **can** be decided, OWT-015 fixes what it takes for a decision to count, and OWT-005/OWT-011 fix what a partial decision is allowed to print.
 
@@ -396,6 +453,8 @@ This standard's shape comes from one adopting project's observations made and ac
 
 **1.1.0's additions (OWT-017–OWT-019)** come from two gaps found in one adopting project on 2026-09-29 (DEC-122): the standard said nothing about separating a work item's goal from its progress, and an acceptance criterion in one of that project's specifications was revised mid-work with no record of who agreed. The design shapes were borrowed from a prompt a user forwarded, author unknown (see [What this standard deliberately does not adopt](#what-this-standard-deliberately-does-not-adopt)). The reference procedure is hours old, has one author, and has run against constructed samples, not against a real backlog of revisions. Under OWT-016, everything it uses that resembles a threshold is **uncalibrated, an initial judgment**: the heading vocabulary that marks a section as intent, progress, next action, or revision record; the list of command names it recognises; the file-extension list; and the requirement-identifier pattern. None of them was measured against real usage, and a project should pass its own.
 
+**1.2.0's additions (OWT-020–OWT-026)** come from one adopting project's test report of 6.14.0-beta.5 on 2026-10-07 (XSPEC-459): a message drafted and never sent could not be told from one sent and unanswered, and a fact the assistant could not observe had no sanctioned place to be written. The reference procedure is hours old, has one author, and has run against constructed samples, not against a real backlog. Under OWT-016, everything it uses that resembles a threshold is **uncalibrated, an initial judgment**: the state words and field names in English and Chinese, the list of subjects treated as derivable, the 7-day default for "stale", and the reading of dates (a year is required; the time of day is ignored). None of it was measured against real usage, and a project's own words and threshold should replace the defaults.
+
 - **OWT-001 的「不超過兩個欄位」**與**OWT-012 的「過了宣告的門檻」**（在原始觀察中以兩週為例）
   依 OWT-016 是**初始判斷，不是量測結果**——兩個欄位跟三個欄位、兩週跟四週的未分類門檻，
   目前都沒有對照比較過。
@@ -411,6 +470,8 @@ This standard's shape comes from one adopting project's observations made and ac
 或修訂紀錄的標題詞彙；它認得的指令名清單；副檔名清單；需求編號的樣式。
 沒有任何一項對照過真實使用量測，採用專案應傳入自己的。
 
+**1.2.0 的新增（OWT-020–OWT-026）**來自一個採用專案在 2026-10-07 對 6.14.0-beta.5 的測試回報（XSPEC-459）：一則草擬了從沒送出的訊息，與一則已送出、沒人回的訊息分不出來；助理無法觀察的事實，沒有一個被認可的地方可以寫。那支參考判定程序只有幾小時大、只有一位作者，跑過的是人造樣本，不是真實的待辦。依 OWT-016，它用到的一切類似閾值的東西都是**未校準、初始判斷**：中英文的狀態詞與欄位名、被當成「可推導」的主題清單、「觀察已舊」預設的 7 天、以及日期的讀法（必須有年份；時間不看）。沒有任何一項對照過真實使用量測，採用專案應以自己的詞彙與門檻取代預設。
+
 ---
 
 ## Relationship to other standards
@@ -420,6 +481,7 @@ This standard's shape comes from one adopting project's observations made and ac
 - [class-level-fix](class-level-fix.md) — the general form of the wording-list limit OWT-011 discloses, and the source of the non-vacuous-evidence procedure OWT-015 requires.
 - [verification-evidence](verification-evidence.md) — the source of the exit-code and evidence-validity reasoning OWT-015 depends on; also where a partial-coverage exception (OWT-006, OWT-011) is registered rather than merely disclosed once.
 - OWT-018 attaches to the same hand-back point as OWT-007: an edit to intent with no approver is one more thing listed there, and, like everything listed there, never blocks.
+- OWT-020–OWT-022 refine OWT-002 (a waiting item states what it waits for and its release) by saying which kind of wait it is; OWT-023–OWT-026 sit beside OWT-003 and OWT-006 — the first says what may be generated and what may not, the second that what could not be seen is never counted as zero.
 
 - [deferred-item-exit](deferred-item-exit.md) — 同一個形狀的上游一半：DEX 要求延後項目離開文件、
   抵達可追蹤的出口，並刻意不規定出口的載體。本標準接手**出口存在之後**的事，
@@ -434,3 +496,4 @@ This standard's shape comes from one adopting project's observations made and ac
   而不是揭露一次就放著。
 - OWT-018 掛在與 OWT-007 相同的交回點：沒有核可者的意圖修改，是在那裡多列出來的一項，
   而且與列在那裡的一切相同，永不阻斷。
+- OWT-020–OWT-022 細化 OWT-002（等待項目說明在等什麼與解除條件），說明那是哪一種等待；OWT-023–OWT-026 與 OWT-003、OWT-006 並列——前者說什麼可以生成、什麼不可以，後者說看不到的絕不被算成零。
