@@ -3,6 +3,7 @@ source: ../../../docs/AVAILABLE-STANDARDS.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-10-07
+source_hash: a189829f9324
 status: current
 ---
 
