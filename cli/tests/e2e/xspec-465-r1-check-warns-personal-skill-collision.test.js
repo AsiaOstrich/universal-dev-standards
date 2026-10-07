@@ -183,7 +183,10 @@ it('uds check stays quiet and does not fail when there is no personal skills fol
     expect(run.stdout, 'control: the skills section ran').toContain('Skills Status');
     expect(hasWarning(run.stdout), 'unreadable personal folder').toBe(false);
     expect(run.code, run.stdout + run.stderr).toBe(twin.code);
-    expect(run.stdout + run.stderr).not.toMatch(/EACCES|permission denied|TypeError|Error:/i);
+    // Only what the collision check itself could leak: an errno, or an uncaught error printed at the start
+    // of a line. Not a case-insensitive "error:" anywhere: other checks in the same run print notes such as
+    // "(error: unknown option `cached')" when the throwaway project is not a git repo, and that is not this check failing.
+    expect(run.stdout + run.stderr).not.toMatch(/EACCES|EPERM|ENOTDIR|EISDIR|permission denied|^\s*[A-Za-z]*Error: |^\s+at .*skill-name-collision/m);
   } finally {
     chmodSync(locked.skillsDir, 0o755);
   }
