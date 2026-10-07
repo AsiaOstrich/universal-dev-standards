@@ -9,55 +9,61 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.5`
+## Current beta | 目前的測試版：`6.14.0-beta.6`
 
-> **New in 6.14.0-beta.5** — the fixes from the Windows report on beta.4 (one `--rollback` undoes the whole upgrade; `check` no longer says "compliant" over missing skill or command files; `audit --offline`; the command count is no longer printed as a tool count), `check --diff` compares against the package you installed instead of GitHub `main`, and two new commit-time warnings: fake tests and stubs, and code changed with no test changed.
-> **6.14.0-beta.5 新增** — beta.4 Windows 回報的修正（一次 `--rollback` 還原整個升級；技能或命令檔遺失時 `check` 不再說「符合標準」；`audit --offline`；命令數不再印成工具數）；`check --diff` 改以所裝套件為原稿，不再抓 GitHub `main`；以及兩個提交時的警告：假測試與空殼、改了程式卻沒動測試。
+> **New in 6.14.0-beta.6** — the fixes from the Windows report on beta.5 (a .NET project): `uds run` reads `uds.project.yaml` as YAML, so a trailing comment is no longer part of the command; `uds simulate -s commit-message` judges in-process (no `npx`, no network) and tells "fails" from "no verdict"; `uds skills` lists every installed skill (56 of 56, not 27 of 30); `uds update` drops names UDS cannot vouch for from the manifest; `uds spec list` reads SDD headers instead of calling every spec a draft; `uds deps --if-present`; and every `uds update` backup now goes into one folder, `.uds-backups/`.
+> **6.14.0-beta.6 新增** — beta.5 Windows 回報（.NET 專案）的修正：`uds run` 以 YAML 解析 `uds.project.yaml`，行尾註解不再成為指令的一部分；`uds simulate -s commit-message` 在程式內判定（不呼叫 `npx`、不連網），並分得出「不合規」與「沒有結論」；`uds skills` 列出全部已安裝技能（56／56，不再是 27／30）；`uds update` 會從 manifest 移除 UDS 無法擔保的名稱；`uds spec list` 讀 SDD 標頭，不再把每份規格都叫草稿；`uds deps --if-present`；所有 `uds update` 備份集中到單一 `.uds-backups/` 資料夾。
 
 **Behavior changes — read this first.**
-- `uds check` counts a missing or edited skill or command file against its verdict; `uds check --ci` exits 1 for it. Old records UDS cannot vouch for (left by earlier installers) are ignored by `check` and removed by `uds update`, so an existing project does not turn red for them.
-- `uds check --diff` shows what **you** changed relative to the installed package. To see what changed upstream, use `uds update --plan`.
-- `uds init` (and `uds update -y`) writes two scanner scripts into `scripts/`. They only **warn** at commit time; set `"mode": "block"` in `.standards/test-policy.json` to make them block.
+- `uds simulate`: a standard that cannot be simulated now exits **2** (it was 1); **1** means the input failed the standard. A script that treated any non-zero as "failed" needs to tell the two apart.
+- `uds update` now removes from `.standards/manifest.json` the skill and command names UDS does not ship, or whose folder is no longer on disk (`skills.names`, `commands.names`).
+- Backups moved: new ones go to `.uds-backups/<time>-<n>/`. Old `.uds-backup-*` folders in the project root are left where they are, but `--rollback` and the "keep the latest 5" limit count both places. Tools that do not read git (an indexer, an IDE search) should exclude `.uds-backups`; git already ignores it.
+- In `uds.project.yaml`, a double-quoted value now follows YAML: a backslash is an escape character, so `"C:\proj"` is an error — use single quotes or no quotes.
 
 **行為改變，請先讀。**
-- 技能或命令檔遺失、被改時，`uds check` 會計入判定，`uds check --ci` 以 1 結束。舊版安裝器留下、UDS 無法擔保的舊紀錄，`check` 會忽略、`uds update` 會清除，既有專案不會因此變紅。
-- `uds check --diff` 顯示的是**你**相對於所裝套件改了什麼；要看上游改了什麼，用 `uds update --plan`。
-- `uds init`（以及 `uds update -y`）會在 `scripts/` 寫入兩支掃描腳本。提交時只**警告**；在 `.standards/test-policy.json` 設 `"mode": "block"` 才會擋。
+- `uds simulate`：不可模擬的標準現在以 **2** 結束（原本是 1）；**1** 代表輸入不合規。把任何非 0 都當失敗的腳本需要分開處理。
+- `uds update` 會從 `.standards/manifest.json` 移除 UDS 不出貨、或資料夾已不在磁碟上的技能與命令名稱（`skills.names`、`commands.names`）。
+- 備份位置改變：新備份放在 `.uds-backups/<時間>-<n>/`。專案根目錄舊的 `.uds-backup-*` 不搬動，但 `--rollback` 與「保留最近 5 份」兩處合計。不看 git 的工具（索引器、IDE 搜尋）請排除 `.uds-backups`；git 本來就會忽略它。
+- `uds.project.yaml` 內雙引號的值現在依 YAML 解析：反斜線是跳脫字元，`"C:\proj"` 會報錯，請改用單引號或不加引號。
 
-Everything in 6.14.0-beta.4 is still here (`extensions/` in the package, `zh-cn` install, `/comprehend`, Rule 12, the checks that can now fail).
-6.14.0-beta.4 的內容都還在（`extensions/` 打包進套件、簡中安裝、`/comprehend`、第 12 條、那三個現在會失敗的檢查）。
+Everything in 6.14.0-beta.5 is still here (one `--rollback` undoes apply, skills and commands; `check` counts missing skill and command files; `audit --offline`; `check --diff` against the installed package; the commit-time warnings).
+6.14.0-beta.5 的內容都還在（一次 `--rollback` 還原三步；`check` 計入技能與命令檔遺失；`audit --offline`；`check --diff` 以所裝套件為原稿；提交時的警告）。
 
 ### What to test | 請幫忙測什麼（Windows 優先）
 
-1. **Re-run your beta.4 report steps** on a copy of the project: `update --apply --yes --offline`, `update --apply --yes --skills --offline`, `update --apply --yes --commands --offline`, then `update --rollback --yes`, then `check --offline`. Every UDS-managed file should match the pre-upgrade copy, the new `comprehension-ladder` folders should be gone, and `check` should pass.
-   在專案副本上重跑 beta.4 回報的步驟：三種 `--apply` 之後 `--rollback`，再 `check`。所有 UDS 管理的檔應與升級前相同，新增的 `comprehension-ladder` 資料夾應消失，`check` 應通過。
-2. **The 26 "missing" entries** — run `uds check --offline` on the real project (read-only): it should say how many old records it ignored and not list them as missing. Then on a copy, `uds update --apply --yes --offline` and `check` again: the records should be gone from the manifest.
-   在真專案唯讀執行 `uds check --offline`：應說明忽略了幾筆舊紀錄，不再列為遺失。再在副本上 `update --apply` 後 `check`，那些紀錄應從 manifest 消失。
-3. **`uds audit --offline`** with the network off, and `uds update --apply --yes --commands --offline` — the message should say 1 tool and N commands.
-   斷網執行 `uds audit --offline`；`update --commands` 的訊息應是「1 個工具、N 個命令」。
-4. **`uds check --diff`** with the network off, after editing one standard file: it should show only your edit and name the installed version as the baseline.
-   斷網、改一個標準檔後執行 `uds check --diff`：只顯示你的修改，並寫出比對基準是所裝版本。
-5. **The commit-time warnings** — commit a test with no assertion, and a code change with no test change: both should be warned about by name, and the commit should go through.
-   提交一支沒有斷言的測試、以及只改程式沒改測試的變更：兩者都應被點名警告，且提交照常完成。
-6. **Still open from beta.4** — `/comprehend`, offline install of `zh-tw`/`zh-cn`, `--locale zh-CN` and `fr`, the pre-commit block under git-bash, a cp950 console.
-   beta.4 尚未測的項目：`/comprehend`、斷網安裝繁中／簡中、`zh-CN` 與 `fr`、git-bash 下的提交前檢查、cp950 主控台。
+1. **`uds simulate` exit codes — the one beta.5 report item we could not reproduce.** On Windows, run `uds simulate -s anti-hallucination -i "test"` and `uds simulate -s commit-message -i "feat(api): add dept endpoint"`, then `uds simulate -s commit-message -i "add new dept api"`, and print the exit code after each (`echo $?` in Git Bash). Expected: 2, 0, 1. If the first one prints "Simulation Failed" and exits 0 here, that is the bug — please send the command line and the output.
+   在 Windows 上依序執行上面三行並印出結束碼（Git Bash 用 `echo $?`）。預期是 2、0、1。若第一行印「Simulation Failed」卻以 0 結束，那就是上次回報的問題——請貼出指令與輸出。
+2. **`uds run` with a trailing comment** in `uds.project.yaml` (`test: dotnet test X.csproj  # 90 tests pass`): `uds run test --dry-run` should show the command without the comment, and `uds run test` should run it. This is the case where `cmd.exe` would have passed the `#` to the program.
+   `uds.project.yaml` 的指令帶行尾註解時，`uds run test --dry-run` 不應顯示註解，`uds run test` 應能執行。
+3. **`uds skills`** in a project with all 56 skills: it should list 56 of 56 and say how many skill files `uds check` tracks (116).
+   裝了 56 個技能的專案：`uds skills` 應列出 56／56，並說明 `uds check` 追蹤的技能檔數（116）。
+4. **`uds update --apply --yes --skills --offline`** on a project that still has ghost names: afterwards `.standards/manifest.json` `skills.names` should list only skills that exist on disk. Then look at the project root: backups should be in one `.uds-backups/` folder, and `git status` should not list it.
+   在仍有幽靈名稱的專案執行後，`manifest.json` 的 `skills.names` 只應剩磁碟上存在的技能；專案根目錄的備份應只有一個 `.uds-backups/`，`git status` 不應列出它。
+5. **`uds spec list`** on a project whose `specs/` holds SDD specs with a status table: it should show the real status and title, or "format: SDD (status not parsed)" — never `draft` with an empty title.
+   `specs/` 有 SDD 規格的專案：應顯示真實狀態與標題，或「格式：SDD（狀態未解析）」，不應是空標題的 draft。
+6. **`uds deps`** in a project with no `package.json`: still exits 1; **`uds deps --if-present`** exits 0 and says nothing was checked.
+   沒有 `package.json` 的專案：`uds deps` 仍以 1 結束；`uds deps --if-present` 以 0 結束並說明沒有檢查任何東西。
+7. **Still open from beta.5** — `--rollback` after the three `--apply` steps on a real project, the commit-time warnings under git-bash, a 繁體中文 Windows (cp950) console.
+   beta.5 尚未測的項目：真實專案上三種 `--apply` 之後的 `--rollback`、git-bash 下的提交時警告、cp950 主控台。
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 
 ### Known limitations | 已知限制
 
-- **None of the beta.5 fixes has run on Windows.** CI's Windows job runs the unit suite only; the new end-to-end tests run on Linux, and the commit-warning tests show as skipped on Windows.
-  **beta.5 的修正都沒有在 Windows 上實際跑過。**CI 的 Windows 工作只跑單元測試；新的端對端測試在 Linux 跑，提交警告的測試在 Windows 上顯示為略過。
-- **Plain `uds check` (without `--ci`) still exits 0** when it reports problems, as it does for every other kind of problem; so the pre-commit hook, which runs plain `uds check`, does not block on missing skill or command files.
-  **不帶 `--ci` 的 `uds check` 回報問題時仍以 0 結束**，與其他問題一致；所以跑一般 `uds check` 的提交前檢查不會因技能或命令檔遺失而擋下。
-- **`--rollback` chains up to 5 backups** and only across steps whose manifests line up; a hand edit to `.standards/manifest.json` between steps breaks the chain, and rollback then says how many older backups it left. Plain `uds update` (without `--apply`) still makes no backup. User-level skills and commands are not backed up and are listed as "Not restored".
-  `--rollback` 最多串 5 份備份，中間手改 `.standards/manifest.json` 會讓串斷，此時會說明剩下幾份。不帶 `--apply` 的 `uds update` 仍不備份；使用者層級的技能與命令不備份，會列在「Not restored」。
-- **The scanners read text; they do not run your tests.** A smoke test whose only check is "does not throw" is reported as having no assertion. They walk the whole project when nothing is staged (up to 200,000 files, 120 s each).
-  掃描是讀文字，不執行測試；只檢查「不拋例外」的冒煙測試會被報成沒有斷言。沒有暫存檔時會掃整個專案（上限 20 萬檔、各 120 秒）。
-- **`check --diff` after upgrading only the CLI** (without `uds update`) compares against the newer package, so UDS's own changes between the two versions show as differences; it warns in yellow and names both versions.
-  只升級 CLI、沒跑 `uds update` 時，`check --diff` 以新版套件為基準，兩版間 UDS 自己的改動會顯示為差異；會以黃字點名兩個版本。
-- From earlier betas: a project installed by an older UDS has no install records, so `uds uninstall` keeps what it cannot prove is UDS's; the pre-commit block blocks the commit when the UDS CLI is not installed; agy is verified only for single tool-free `-p` turns; the turn-completion hook works only in English and 繁體中文 and does not cover Cursor.
-  先前測試版的限制仍在：舊版安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明的檔；沒裝 CLI 時提交前檢查會擋下；agy 只驗證過單輪無工具回合；回合收尾關卡只支援英文與繁中，不含 Cursor。
+- **None of the beta.6 fixes has run on Windows.** CI's Windows job runs the unit suite only; the end-to-end tests run on Linux and macOS, and the tests that need a POSIX shell show as skipped on Windows.
+  **beta.6 的修正都沒有在 Windows 上實際跑過。**CI 的 Windows 工作只跑單元測試；端對端測試在 Linux 與 macOS 跑，需要 POSIX shell 的測試在 Windows 上顯示為略過。
+- **The `simulate` "failed but exit 0" report is not claimed fixed.** It could not be reproduced on macOS (terminal, pipe, update-notice hook on: always 1); the exit code is now three-valued and pinned by tests that start a real process.
+  **`simulate`「失敗卻以 0 結束」的回報不宣稱已修。**在 macOS 重現不出來；結束碼已分成三種並用真行程測試固定。
+- **The command-line path of `simulate` has no Windows test** (`%VAR%` expansion); only `commit-message` ships a simulator.
+  `simulate` 委派外部工具的路徑沒有 Windows 測試（`%VAR%` 展開）；目前只有 `commit-message` 帶模擬器。
+- **`commit-message` asks for a subject of at most 72 characters**, and UDS's own bilingual commit headers often exceed it, so judging UDS's own messages reports them as non-compliant. That is a contradiction inside the standard, not fixed here.
+  `commit-message` 標準要求主旨 ≤72 字元，而 UDS 自己的雙語提交標頭常超過，所以拿 UDS 自己的訊息來判會被報不合規。這是標準本身的矛盾，這次沒動。
+- **`uds spec show`, `confirm` and `archive` still rewrite an SDD spec with the micro-spec template.** Only `uds spec list` reads SDD headers now. Do not run those three on an SDD spec.
+  `uds spec show`、`confirm`、`archive` 仍會用微規格模板整份改寫 SDD 規格；目前只有 `list` 讀得懂 SDD 標頭。請不要對 SDD 規格執行這三個指令。
+- **Skills install path is undecided**: `uds skills` still says manual installation is deprecated while `check` and `update` recommend `uds update --skills`. The plugin marketplace is Claude Code only, English only, and follows stable releases only (6.13.1).
+  技能安裝的建議路徑尚未決定：`uds skills` 仍說手動安裝已棄用，而 `check`、`update` 建議 `uds update --skills`。外掛市集只支援 Claude Code、只有英文、只跟正式版（6.13.1）。
+- From earlier betas: plain `uds check` (without `--ci`) still exits 0 when it reports problems; `--rollback` chains up to 5 backups and a hand edit to `.standards/manifest.json` breaks the chain; the scanners read text and do not run your tests; a project installed by an older UDS has no install records, so `uds uninstall` keeps what it cannot prove is UDS's.
+  先前測試版的限制仍在：不帶 `--ci` 的 `uds check` 回報問題時仍以 0 結束；`--rollback` 最多串 5 份、手改 manifest 會讓串斷；掃描讀文字、不執行你的測試；舊版安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明的檔。
 
 
 ---

@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.5
-translation_version: 6.14.0-beta.5
-last_synced: 2026-10-06
+source_version: 6.14.0-beta.6
+translation_version: 6.14.0-beta.6
+last_synced: 2026-10-07
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.6] - 2026-10-07
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行为改变：**`uds simulate` 对不可模拟的标准以 2 结束（原为 1）；`uds update` 会从 manifest 移除 UDS 无法担保的名称；备份移到 `.uds-backups/`；`uds.project.yaml` 内双引号的值按 YAML 解析。
 
 > **行为改变：**`uds update` 的备份写到 `.uds-backups/`，不再是项目根目录的 `.uds-backup-*`；`uds simulate` 在无法得出结论时以 2（不是 1）结束，并且 `uds simulate -s commit-message` 改为在进程内判定，不再执行 `npx commitlint`；`uds update` 会把 UDS 无法担保的技能与命令名称从 `manifest.skills.names` / `commands.names` 移除；`uds run` 以 YAML 读取 `uds.project.yaml`（不合法的 YAML 现在会失败，空白后的 `#` 会结束一个值）。
 

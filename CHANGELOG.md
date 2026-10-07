@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.6] - 2026-10-07
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Behavior changes:** `uds simulate` exits 2 (was 1) for a standard that cannot be simulated; `uds update` removes names UDS cannot vouch for from the manifest; backups move to `.uds-backups/`; a double-quoted value in `uds.project.yaml` now follows YAML.
+
 > **Behavior changes:** `uds update` writes its backups to `.uds-backups/` instead of `.uds-backup-*` in the project root; `uds simulate` exits 2 (not 1) when it cannot reach a verdict, and `uds simulate -s commit-message` now judges in-process instead of running `npx commitlint`; `uds update` drops skill and command names UDS cannot vouch for from `manifest.skills.names` / `commands.names`; `uds run` reads `uds.project.yaml` as YAML (a value that is not valid YAML now fails, and `#` after a space ends a value).
 
 ### Changed
