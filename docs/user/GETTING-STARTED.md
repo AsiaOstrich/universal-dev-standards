@@ -50,6 +50,38 @@ CLAUDE.md            ← Updated with UDS guidance (Claude Code)
 
 ---
 
+## How to install skills
+
+`uds init` puts UDS skills into your project. There are two ways to get them, and both are supported. The main
+path is into the project; the Claude Code plugin marketplace is an alternative with limits.
+
+| | Into the project (main path) | Claude Code plugin marketplace (alternative) |
+|---|---|---|
+| Command | New project: `uds init --skills-location project`<br>Existing project: `uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`, then `/plugin install universal-dev-standards@asia-ostrich` |
+| AI tools | Claude Code, OpenCode, Cursor, Codex, Copilot, Windsurf and more | Claude Code only |
+| Language of the skill texts | English, Traditional Chinese, Simplified Chinese (a missing one falls back to English with a warning) | English only: the plugin settings have no language choice |
+| UDS version | The version you installed, beta releases included | Stable releases only |
+| Files in your project | Yes, for example `.claude/skills/`; `uds check` verifies them file by file | None |
+| Updating | You run `uds update --apply --skills` again after upgrading UDS | Claude Code manages the plugin (`/plugin`) |
+
+**Pick one.** Claude Code runs plugin skills as `/<plugin>:<skill>` and project skills as `/<skill>`, so with both
+installed every skill appears twice (for example `/commit` and `/universal-dev-standards:commit`), and each
+skill's name and description is put into context on every turn, so the duplicate takes that space twice.
+`uds check` prints a warning when it finds UDS skills in the project and the UDS plugin installed together; the
+warning is information only and changes neither the verdict nor the exit code. To keep the project copy, run
+`/plugin uninstall universal-dev-standards@asia-ostrich` in Claude Code. To keep the plugin, delete the UDS skill
+folders under `.claude/skills/`.
+
+**Why `uds check` and `uds update` tell you to run `uds update --apply --skills`.** `uds check` says it when a
+skill file in your project is missing or was changed, and `uds update` says it when the installed skills are
+behind. Only skills installed into the project have files that UDS can compare with what it installed and put
+back, so the repair is that command. A plugin keeps no files in your
+project, so there is nothing for `uds check` to compare and no message about it.
+
+`uds skills` lists what is installed and where, and prints the same two ways with their limits.
+
+---
+
 ## Step 3 — Your First Spec (`/sdd`)
 
 Before writing code, create a spec:

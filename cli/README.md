@@ -139,14 +139,14 @@ uds skills
 - Installation location (Plugin Marketplace, User Level, Project Level) | 安裝位置
 - Installed version | 已安裝版本
 - List of installed skills | 已安裝的 Skills 清單
-- Migration recommendations for deprecated installations | 棄用安裝的遷移建議
+- The two ways to install skills, side by side, with what each can and cannot do | 並列兩種安裝方式與各自的限制
 
 **Example Output | 範例輸出:**
 ```
 Universal Dev Standards - Installed Skills
 ──────────────────────────────────────────────────
 
-✓ Plugin Marketplace (recommended)
+✓ Plugin Marketplace
   Version: 3.2.2
   Path: /Users/.../.claude/plugins/universal-dev-standards@...
 
@@ -305,11 +305,21 @@ This CLI works alongside [Claude Code Skills](../skills/):
 - **Reference documents** provide guidelines for manual reference
 - **參考文件**提供手動參考的指南
 
-**Install Skills via Plugin Marketplace | 透過 Plugin Marketplace 安裝 Skills：**
+**Install Skills | 安裝 Skills：** two ways; the main path is into the project (many AI tools, Traditional and Simplified Chinese texts, follows the UDS version you installed, betas included). The Claude Code plugin marketplace is an alternative: Claude Code only, English texts only, stable releases only, no files in the project. See [How to install skills](../docs/user/GETTING-STARTED.md#how-to-install-skills).
+有兩種方式；主要路徑是裝進專案（支援多種 AI 工具、有繁體與簡體中文、跟著你裝的 UDS 版本，含測試版）。Claude Code 外掛市集是替代方式：只支援 Claude Code、只有英文、只跟正式版、專案內不放檔案。
+
 ```bash
+# Into the project (main path) | 裝進專案（主要路徑）
+uds init --skills-location project     # new project | 新專案
+uds update --apply --skills            # existing project | 已設定過的專案
+
+# Claude Code plugin marketplace (alternative) | Claude Code 外掛市集（替代方式）
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
+
+Installing both lists every skill twice in Claude Code; `uds check` warns when it finds both.
+兩種都裝，Claude Code 會把每個技能列出兩次；`uds check` 發現兩者並存時會警告。
 
 **Important | 重要**: For standards with Skills available, use the Skill OR copy the source document — never both.
 對於有可用 Skills 的規範，請使用 Skill 或複製來源文件 — 切勿兩者同時使用。

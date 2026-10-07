@@ -57,6 +57,27 @@ CLAUDE.md            ← 已更新 UDS 指引（Claude Code）
 
 ---
 
+## 技能怎么装
+
+`uds init` 会把 UDS 技能装进你的项目。获取技能有两种方式，两种都受支持。主要路径是装进项目；Claude Code 插件市场是有限制的替代方式。
+
+| | 装进项目（主要路径） | Claude Code 插件市场（替代方式） |
+|---|---|---|
+| 指令 | 新项目：`uds init --skills-location project`<br>已设置过的项目：`uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`，再 `/plugin install universal-dev-standards@asia-ostrich` |
+| AI 工具 | Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等 | 只支持 Claude Code |
+| 技能文本的语言 | 英文、繁体中文、简体中文（缺失的会警告并退回英文） | 只有英文：插件设置没有语言选项 |
+| UDS 版本 | 你装的那个版本，包含测试版 | 只跟正式版 |
+| 项目内的文件 | 有，例如 `.claude/skills/`；`uds check` 会逐文件验证 | 没有 |
+| 更新 | 升级 UDS 后，自己再运行一次 `uds update --apply --skills` | 由 Claude Code 管理插件（`/plugin`） |
+
+**请二选一。** Claude Code 执行插件技能是 `/<插件名>:<技能名>`，执行项目技能是 `/<技能名>`，所以两种都装时每个技能会出现两次（例如 `/commit` 与 `/universal-dev-standards:commit`），而且每个技能的名称与描述每回合都会放进上下文，重复装等于重复占用。`uds check` 发现项目内有 UDS 技能、同时又装了 UDS 插件时，会打印警告；警告只是信息，不改变判定与退出码。要留项目这份，在 Claude Code 执行 `/plugin uninstall universal-dev-standards@asia-ostrich`。要留插件，删掉 `.claude/skills/` 下的 UDS 技能文件夹。
+
+**为什么 `uds check` 与 `uds update` 叫你运行 `uds update --apply --skills`。** `uds check` 在项目里的技能文件缺失或被改过时说这句，`uds update` 在已装的技能版本落后时说这句。只有装进项目的技能有文件，UDS 才能拿它和当初装的内容比对、放回去，所以修法就是那个指令。插件不在你的项目里放文件，`uds check` 没有东西可比对，也就没有这类消息。
+
+`uds skills` 会列出装了什么、装在哪里，并打印同样的两种方式与各自的限制。
+
+---
+
 ## 步骤 3 — 你的第一份 Spec（`/sdd`）
 
 在写代码之前，先创建一份 spec：

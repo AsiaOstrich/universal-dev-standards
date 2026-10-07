@@ -57,6 +57,27 @@ CLAUDE.md            ← 已更新 UDS 指引（Claude Code）
 
 ---
 
+## 技能怎麼裝
+
+`uds init` 會把 UDS 技能裝進你的專案。取得技能有兩種方式，兩種都受支援。主要路徑是裝進專案；Claude Code 外掛市集是有限制的替代方式。
+
+| | 裝進專案（主要路徑） | Claude Code 外掛市集（替代方式） |
+|---|---|---|
+| 指令 | 新專案：`uds init --skills-location project`<br>已設定過的專案：`uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`，再 `/plugin install universal-dev-standards@asia-ostrich` |
+| AI 工具 | Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等 | 只支援 Claude Code |
+| 技能文字的語言 | 英文、繁體中文、簡體中文（缺的會警告並退回英文） | 只有英文：外掛設定沒有語系選擇 |
+| UDS 版本 | 你裝的那個版本，包含測試版 | 只跟正式版 |
+| 專案內的檔案 | 有，例如 `.claude/skills/`；`uds check` 會逐檔驗證 | 沒有 |
+| 更新 | 升級 UDS 後，自己再跑一次 `uds update --apply --skills` | 由 Claude Code 管理外掛（`/plugin`） |
+
+**請二擇一。** Claude Code 執行外掛技能是 `/<外掛名>:<技能名>`，執行專案技能是 `/<技能名>`，所以兩種都裝時每個技能會出現兩次（例如 `/commit` 與 `/universal-dev-standards:commit`），而且每個技能的名稱與描述每回合都會放進脈絡，重複裝等於重複占用。`uds check` 發現專案內有 UDS 技能、同時又裝了 UDS 外掛時，會印出警告；警告只是資訊，不改變判定與結束碼。要留專案這份，在 Claude Code 執行 `/plugin uninstall universal-dev-standards@asia-ostrich`。要留外掛，刪掉 `.claude/skills/` 底下的 UDS 技能資料夾。
+
+**為什麼 `uds check` 與 `uds update` 叫你跑 `uds update --apply --skills`。** `uds check` 在專案裡的技能檔遺失或被改過時說這句，`uds update` 在已裝的技能版本落後時說這句。只有裝進專案的技能有檔案，UDS 才能拿它和當初裝的內容比對、放回去，所以修法就是那個指令。外掛不在你的專案裡放檔案，`uds check` 沒有東西可比對，也就沒有這類訊息。
+
+`uds skills` 會列出裝了什麼、裝在哪裡，並印出同樣的兩種方式與各自的限制。
+
+---
+
 ## 步驟 3 — 你的第一份 Spec（`/sdd`）
 
 在寫程式碼之前，先建立一份 spec：

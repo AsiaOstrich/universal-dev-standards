@@ -23,11 +23,20 @@ status: current
 - **CI：标准孤儿矩阵（XSPEC-458 R4）。** `npm run check:orphan-matrix` 为登记表 163 个标准各记五栏是或否（`uds init` 是否安装、生成的索引是否提到、是否有技能包装、是否有检查、是否被 workflow／hook／技能调用），五栏全空的标准，以及没有任何调用者的 `check-*` 脚本，都会让它失败。第一次运行找到 78 个孤儿标准与 2 个没人调用的检查脚本，已逐项附上理由与处理者列在 `cli/scripts/orphan-matrix-allowlist.json`，该清单于 2026-12-31 到期，条目不再是发现时也会失败。另新增升级测试：用当前的 CLI 对照真正的 6.11.0 写出的 manifest。
 - **`open-work-tracking` 1.2.0——“还没问”与“已问、等回复”成为两个有名字的状态，且对没有任何东西能推导的事实容许手写行（OWT-020～OWT-026，XSPEC-459）。** 草拟了从没送出的消息，与已送出、没人回的消息看起来一模一样；助理无法观察的事实（有没有寄出、对方有没有回、有没有核准）没有被认可的地方可以写。OWT-020～OWT-022 为 `not-yet-asked`（必须点名草稿或动作）与 `asked-awaiting`（必须带 `asked-at`、在等什么、解除事件）命名；两者皆非的等待项目被逐项点名、绝不算成已完成。OWT-023～OWT-026 只对这类事实容许手写行，必须有 `observed-by`、`observed-at` 与 `yes`／`no`／`unknown` 的值——`unknown` 单独计数、单独显示、永远不算完成，每笔观察的年龄都印出来，超过门槛的回报为“观察已旧”且绝不算已确认。这个例外不及于版本控制、规格标记或 CI 结果已能决定的东西。七条要求全是 `warning`；词汇（中英文）与“观察已旧”默认的 7 天都未校准；检查只判定字段存在且格式正确，绝不判定观察为真。“刻意不采纳”表中“手写状态档”那一行已改写成如实描述这件事；OWT-003 不变。
 - **`uds open-work waiting` 与 `uds open-work observations`**——对应的参考检查。`--now` 注入今天的日期（规则绝不读时钟）、`--stale-after` 声明门槛，退出码与其他 `open-work` 指令相同：0 无违反、1 违反（`warning` 等级的违反也是 1，与 OWT-019 相同）、2 判定不了。`uds open-work self-test` 现在对 OWT-020～OWT-026 每一条各跑一个违反与一个符合的样本。`next-action`、`revision`、`separation` 印出的内容与 1.1.0 逐字节相同（21 次执行、16 份载体逐字节比对，含中文表头的表格）。
+- **`uds check` 在 UDS 技能装了两次时警告（XSPEC-462 R2）。** 项目里有 UDS 技能（`.claude/skills/`），同时又从 Claude Code 市场装了 UDS 插件时，Claude Code 会把每个技能列出两次（`/commit` 与 `/universal-dev-standards:commit`），而且每个技能的名称与描述每回合都会放进上下文。`uds check` 现在会说出这件事，并说明怎么二选一。纯信息：不改变判定与退出码；任何一边不存在、或读不到 `~/.claude/plugins/installed_plugins.json` 时不出声。
+- **CI：插件设置不得写错技能数（XSPEC-462 R3）。** `npm run check:plugin-manifest` 在 `.claude-plugin/plugin.json`、`marketplace.json` 或 `README.md` 的描述写出的技能数，与 `skills/` 下含 `SKILL.md` 的文件夹数不同时失败。描述里没有数字则通过。
+- **文档：`docs/user/GETTING-STARTED.md` 新增「技能怎么装」（XSPEC-462 R3）。** 并列两种装法与各自的限制、为什么 `uds check` 与 `uds update` 建议 `uds update --apply --skills`、两者都装时怎么办（英文、繁体中文、简体中文）。
 
 ### 变更
 
 - 旧的 `uds update` 消息“N new standard(s) available for your level”不再提到等级：没有等级规则（manifest 的 `level` 是没有任何程序读取的残值）。
 - `uds audit --report` 不会把“可用标准未安装”这项发现当成给维护者的反馈发送。
+- **行为改变：`uds skills` 的输出文字改了（XSPEC-462 R1）。** 项目层与用户层安装不再标 `(deprecated)`，插件不再标 `(recommended)`，「手动安装已弃用」与「建议：迁移到 Plugin Marketplace」两段也拿掉了。取而代之的是，每次运行都以并列的两种装法收尾：装进项目（`uds init --skills-location project`、`uds update --apply --skills`；支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本，含测试版），以及 Claude Code 插件市场（只支持 Claude Code、只有英文文本、只跟正式版、项目内不放文件）。「已弃用」这个字写于 2026-01，与 `uds check`、`uds update` 一向建议的 `uds update --apply --skills` 互相矛盾。匹配旧文字的脚本需要更新。（英文、繁体中文、简体中文）
+- **`uds update` 的「Skills 有可用更新」提示**，对项目层、用户层与无法判定的安装，现在说 `更新方式：uds update --apply --skills`。它原本称这些安装已弃用、指向一个泛用的插件网址，并建议在技能文件夹里 `git pull`。技能来自插件时，现在写出的市场名是 `asia-ostrich`（`/plugin marketplace update asia-ostrich`），不再是 `anthropic-agent-skills`。
+
+### 修复
+
+- **插件设置里的技能数是错的（XSPEC-462 R3）。** `.claude-plugin/plugin.json` 写「25 comprehensive skills」、`marketplace.json` 写「23 skills」、`.claude-plugin/README.md` 列了 15 个，而插件实际加载 56 个。描述不再带数字，上面那个检查会让它保持这样。
 
 ## [6.14.0-beta.6] - 2026-10-07
 
