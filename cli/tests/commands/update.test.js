@@ -1185,10 +1185,11 @@ describe('Update Command', () => {
       await expect(updateCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      // Should show project-level update instructions (not legacy/unknown)
+      // A project-level install is updated with the project command, not through the plugin marketplace (XSPEC-462 R1)
       expect(output).toContain('Skills update available');
-      // Should contain manual update hint for project level
-      expect(output).toContain('.claude/skills/universal-dev-standards');
+      expect(output).toContain('Update them with: uds update --apply --skills');
+      expect(output).not.toContain('Update via Plugin Marketplace');
+      expect(output).not.toMatch(/deprecat|git pull/i);
     });
 
     it('should fall back to file-system detection when location and installations are missing', async () => {
@@ -1220,8 +1221,10 @@ describe('Update Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('Skills update available');
-      // Should detect project level via file system and show project-level instructions
-      expect(output).toContain('.claude/skills/universal-dev-standards');
+      // Project level found via the file system: the project command, not the plugin marketplace (XSPEC-462 R1)
+      expect(output).toContain('Update them with: uds update --apply --skills');
+      expect(output).not.toContain('Update via Plugin Marketplace');
+      expect(output).not.toMatch(/deprecat|git pull/i);
     });
   });
 

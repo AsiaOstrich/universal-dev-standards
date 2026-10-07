@@ -51,6 +51,7 @@ import { runTestQualityGates } from '../utils/gate-scripts.js';
 import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes, projectCommandHashes, commandIssuesOf } from '../utils/command-hash-ownership.js';
 import { printAvailableStandardsCheckLine } from '../utils/available-standards-report.js';
+import { printDoubleInstallWarning } from '../utils/skills-install-paths.js';
 
 /**
  * Display the summary of file integrity status
@@ -536,6 +537,11 @@ export async function checkCommand(options = {}) {
 
   // Skills status
   const { missingSkills, missingCommands } = displaySkillsStatus(manifest, projectPath, msg);
+
+  // XSPEC-462 R2: the project has UDS skills AND the UDS plugin is installed, so each skill shows up twice.
+  // One warning, information only: it is not part of `allGood` below, so it changes neither the verdict nor
+  // the exit code. It says nothing when either side is missing or the plugin record cannot be read.
+  printDoubleInstallWarning(projectPath, getMarketplaceSkillsInfo());
 
   // Coverage report
   displayCoverageReport(manifest, msg, common, projectPath);

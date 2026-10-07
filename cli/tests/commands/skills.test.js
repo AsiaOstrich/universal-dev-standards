@@ -77,7 +77,7 @@ describe('Skills Command', () => {
       expect(output).toContain('commit-standards');
     });
 
-    it('should show deprecated warning for manual installations', () => {
+    it('should not call project-level installation deprecated, and should name both ways to install (XSPEC-462 R1)', () => {
       // Create project-level skills directory
       const projectSkillsDir = join(TEST_DIR, '.claude', 'skills');
       mkdirSync(join(projectSkillsDir, 'commit-standards'), { recursive: true });
@@ -89,7 +89,8 @@ describe('Skills Command', () => {
       skillsCommand();
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('deprecated');
+      expect(output).not.toMatch(/deprecat/i);
+      expect(output).toContain('Two ways to install UDS skills');
     });
 
     it('should show skill count summary', () => {

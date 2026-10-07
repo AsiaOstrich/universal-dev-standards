@@ -7,14 +7,12 @@
     },
     "noSkills": {
       "message": "No Universal Dev Standards skills installed",
-      "installHint": "Install via Plugin Marketplace"
+      "installHint": "Two ways to install UDS skills"
     },
     "installation": {
       "marketplace": "Plugin Marketplace",
       "userLevel": "User Level",
-      "projectLevel": "Project Level",
-      "recommended": "recommended",
-      "deprecated": "deprecated"
+      "projectLevel": "Project Level"
     },
     "version": {
       "label": "Version",
@@ -24,15 +22,15 @@
       "title": "Skills"
     },
     "warnings": {
-      "legacyMarketplace": "Legacy marketplace detected",
-      "manualInstall": "Manual installation is deprecated"
+      "legacyMarketplace": "Legacy marketplace detected"
     },
     "summary": {
       "totalUniqueSkills": "Total unique skills"
     },
-    "recommendation": {
-      "migrate": "Migrate to Plugin Marketplace",
-      "benefits": "automatic updates"
+    "installPaths": {
+      "title": "Two ways to install UDS skills",
+      "project": "Into the project (the main path)",
+      "plugin": "Claude Code plugin marketplace (an alternative, with limits)"
     }
   }
 }
