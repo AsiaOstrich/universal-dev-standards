@@ -114,9 +114,13 @@ physical_spec:
   validator:
     command: "test -f commitlint.config.js || test -f .commitlintrc.js || test -f .commitlintrc.json"
     rule: "commitlint_config_exists"
+  # XSPEC-456 R2: judged by the CLI itself from this file's own rules (header format, the types in
+  # options/commit-message, rules scope-lowercase and subject-max-length). It used to pipe the message
+  # into `npx commitlint`, which needs the network and a commitlint config, and answered "failed" for a
+  # compliant message when the config was missing.
   simulator:
-    type: command
-    command: 'echo "{input}" | npx commitlint'
+    type: builtin
+    judge: commit-message
 
 enforcement:
   # 🔴 hook_type was "PreCommit" — Claude Code has no such event — and the

@@ -204,7 +204,7 @@ program
 
 program
   .command('simulate')
-  .description('Simulate a standard check with input (Predictive Validation)')
+  .description('Simulate a standard check with input (Predictive Validation). Exit 0 = passes, 1 = does not comply, 2 = no verdict (cannot simulate; not a pass). Only commit-message defines a simulator today')
   .option('-s, --standard <id>', 'Standard to simulate against')
   .option('-i, --input <string>', 'Input string to test')
   .option('--json', 'Output result in JSON format')

@@ -5,6 +5,7 @@ import { exec } from 'child_process';
 import util from 'util';
 import { pathToFileURL } from 'node:url';
 import { readManifest } from './copier.js';
+import { judgeCommitMessage } from './commit-message-judge.js';
 
 const execAsync = util.promisify(exec);
 
@@ -395,51 +396,121 @@ export class StandardValidator {
   }
 
   /**
-   * Run a simulation to predict compliance with a standard
+   * Standards in this project that define a `physical_spec.simulator` (the only ones `uds simulate` can run).
+   * @returns {string[]} Standard ids, sorted
+   */
+  listSimulatableStandards() {
+    const ids = [];
+    let files;
+    try {
+      files = fs.readdirSync(this.standardsDir).filter(f => f.endsWith('.ai.yaml'));
+    } catch {
+      return ids;
+    }
+    for (const file of files) {
+      try {
+        const doc = yaml.load(fs.readFileSync(path.join(this.standardsDir, file), 'utf-8'));
+        if (doc?.physical_spec?.simulator) ids.push(doc?.standard?.id || file.replace(/\.ai\.yaml$/, ''));
+      } catch {
+        // an unreadable standard is not simulatable
+      }
+    }
+    return ids.sort();
+  }
+
+  /**
+   * Run a simulation to predict compliance with a standard.
+   *
+   * XSPEC-456 R2. Three outcomes, never two:
+   *   - `pass`             - the input complies;
+   *   - `fail`             - the input does not comply (the standard's rules say so);
+   *   - `cannot-simulate`  - no verdict was reached: the standard has no simulator, the standard is not
+   *                          installed, or the tool a simulator delegates to is not usable. Reporting that
+   *                          as `fail` told people their input was non-compliant when nothing had judged it.
+   * `success` stays for existing readers and is true only for `pass`.
+   *
    * @param {string} standardId - Standard ID
-   * @param {string} input - Input to test (e.g. commit message)
-   * @returns {Promise<Object>} Simulation result
+   * @param {string} input - Input to test (e.g. a commit message)
+   * @returns {Promise<{ status: 'pass'|'fail'|'cannot-simulate', success: boolean, message: string, details?: string }>}
    */
   async simulate(standardId, input) {
+    const cannot = (message, details) => ({ status: 'cannot-simulate', success: false, message, ...(details ? { details } : {}) });
+
     const standardFile = this.findStandardFile(standardId);
     if (!standardFile) {
-      return { success: false, message: `Standard '${standardId}' not found.` };
+      return cannot(`Standard '${standardId}' not found.`, this._simulatableHint());
     }
 
     let standardConfig;
     try {
       standardConfig = yaml.load(fs.readFileSync(standardFile, 'utf-8'));
     } catch (e) {
-      return { success: false, message: `Failed to parse standard: ${e.message}` };
+      return cannot(`Failed to parse standard: ${e.message}`);
     }
 
-    if (!standardConfig.physical_spec || !standardConfig.physical_spec.simulator) {
-      return { 
-        success: false, 
-        message: `Standard '${standardId}' does not support simulation (no 'simulator' spec defined).` 
-      };
+    const simulator = standardConfig?.physical_spec?.simulator;
+    if (!simulator) {
+      return cannot(
+        `Standard '${standardId}' does not support simulation (no 'simulator' spec defined).`,
+        this._simulatableHint()
+      );
     }
 
-    const { command } = standardConfig.physical_spec.simulator;
-    
-    // Sanitization: Escape double quotes to prevent breaking the echo command
-    // This is a basic implementation. For production, consider using spawn with stdin stream.
-    const sanitizedInput = input.replace(/"/g, '\\"');
-    const finalCommand = command.replace('{input}', sanitizedInput);
+    // In-process judges. A standard names one with `simulator.judge`; copies installed before that field
+    // existed carry `command: echo "{input}" | npx commitlint`, and are routed the same way.
+    const judgeName = simulator.judge
+      || (standardConfig?.standard?.id === 'commit-message' && /commitlint/.test(simulator.command || '') ? 'commit-message' : null);
+    if (judgeName === 'commit-message') {
+      const outcome = judgeCommitMessage(standardConfig, input, { standardsDir: this.standardsDir });
+      const details = [
+        ...outcome.findings.map(f => `- ${f}`),
+        `Checked: ${outcome.checked.join('; ')}`,
+        `Not checked: ${outcome.notChecked.join('; ')}`
+      ].join('\n');
+      return outcome.verdict === 'pass'
+        ? { status: 'pass', success: true, message: 'Simulation passed', details }
+        : { status: 'fail', success: false, message: 'Simulation failed: the input does not comply', details };
+    }
+    if (simulator.judge) {
+      return cannot(`Standard '${standardId}' names an unknown simulator judge '${simulator.judge}'.`);
+    }
+
+    if (typeof simulator.command !== 'string' || simulator.command.trim() === '') {
+      return cannot(`Standard '${standardId}' defines a simulator without a command or a judge.`);
+    }
+    return this._simulateWithCommand(simulator.command, input);
+  }
+
+  /** @private Names the standards that can be simulated, for messages. */
+  _simulatableHint() {
+    const ids = this.listSimulatableStandards();
+    return ids.length > 0
+      ? `Standards that can be simulated in this project: ${ids.join(', ')}.`
+      : 'No installed standard defines a simulator.';
+  }
+
+  /**
+   * @private Delegate to the command a standard gives. The input never becomes part of the shell string:
+   * `{input}` is replaced by a reference to an environment variable, which the shell expands without
+   * re-reading its value (so quotes, `$` and backticks in the input stay data). A tool that is not usable
+   * (not found, not executable) is `cannot-simulate`; a tool that ran and said no is `fail`.
+   */
+  async _simulateWithCommand(command, input) {
+    const ref = process.platform === 'win32' ? '%UDS_SIMULATE_INPUT%' : '$UDS_SIMULATE_INPUT';
+    const finalCommand = command.split('{input}').join(ref);
+    const env = { ...process.env, UDS_SIMULATE_INPUT: String(input) };
 
     try {
-      const { stdout } = await execAsync(finalCommand, { cwd: this.projectPath });
-      return {
-        success: true,
-        message: 'Simulation passed',
-        details: stdout.trim()
-      };
+      const { stdout } = await execAsync(finalCommand, { cwd: this.projectPath, env });
+      return { status: 'pass', success: true, message: 'Simulation passed', details: stdout.trim() };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Simulation failed',
-        details: e.message + (e.stdout ? `\nOutput: ${e.stdout}` : '')
-      };
+      const text = `${e.stderr || ''}`;
+      const notUsable = e.code === 126 || e.code === 127 || e.code === 9009
+        || /command not found|not recognized as an internal or external command|ENOENT/i.test(text);
+      const details = e.message + (e.stdout ? `\nOutput: ${e.stdout}` : '');
+      return notUsable
+        ? { status: 'cannot-simulate', success: false, message: 'Simulation could not run: the tool the standard delegates to is not usable here', details }
+        : { status: 'fail', success: false, message: 'Simulation failed: the input does not comply', details };
     }
   }
 }
