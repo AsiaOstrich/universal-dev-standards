@@ -710,6 +710,12 @@ export const messages = {
         seeGuide: 'See: https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'
       },
 
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: 'Not applicable: there is no package.json, so nothing was checked',
+        notApplicableNoRuntimeDeps: 'Not applicable: this package declares no runtime dependencies, so nothing was checked'
+      },
+
       // skills command
       skills: {
         title: 'Universal Dev Standards - Installed Skills',
@@ -1998,6 +2004,12 @@ export const messages = {
         referenceOnly: '僅參考',
         runInitHint: '執行 `uds init` 在專案中採用標準。',
         seeGuide: '參閱：https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'
+      },
+
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: '不適用：沒有 package.json，未檢查任何東西',
+        notApplicableNoRuntimeDeps: '不適用：這個套件沒有宣告執行期相依，未檢查任何東西'
       },
 
       // skills command
@@ -3297,6 +3309,12 @@ export const messages = {
         addToVcs: '2. 将 .standards/ 添加到版本控制',
         restartAgent: '3. 重启 {tools} 以加载新 Skills',
         runCheck: '执行 `uds check` 验证采用状态'
+      },
+
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: '不适用：没有 package.json，未检查任何东西',
+        notApplicableNoRuntimeDeps: '不适用：这个包没有声明运行时依赖，未检查任何东西'
       },
 
       // skills command

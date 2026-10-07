@@ -279,6 +279,7 @@ program
   .option('--path <dir>', 'Directory containing package.json (default: cwd)')
   .option('--json', 'Output raw JSON')
   .option('--concurrency <n>', 'Parallel registry lookups (default: 8)')
+  .option('--if-present', 'Exit 0 and say that nothing was checked when there is no package.json or no runtime dependency (default: exit 1)')
   .action(depsCommand);
 
 program

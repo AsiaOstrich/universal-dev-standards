@@ -21,6 +21,8 @@
 
 import chalk from 'chalk';
 import { measureResolutionDrift } from '../utils/dependency-resolution.js';
+import { notApplicableReason } from '../utils/deps-applicability.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Render the human-readable report.
@@ -162,6 +164,23 @@ export function render(result) {
 
 export async function depsCommand(options = {}) {
   const root = options.path ?? process.cwd();
+  const msg = t().commands.deps || {};
+
+  // XSPEC-456 R6: `--if-present` is the explicit way to say "this is a shared script and some of the
+  // projects it runs in are not Node projects". Without it nothing changes: no package.json is still
+  // exit 1, because a check that examined nothing must not be able to show a pass. With it the run says
+  // out loud that nothing was checked and exits 0 - the shell `if [ -f package.json ]` that callers
+  // otherwise write around this command, made part of the command and made visible.
+  const skip = notApplicableReason(root, Boolean(options.ifPresent));
+  if (skip === 'no-package-json') {
+    const reason = msg.notApplicableNoPackageJson || 'Not applicable: there is no package.json, so nothing was checked';
+    if (options.json) {
+      console.log(JSON.stringify({ notApplicable: true, examined: 0, reason, root }, null, 2));
+    } else {
+      console.log(chalk.yellow(reason));
+    }
+    return;
+  }
 
   let result;
   try {
@@ -174,14 +193,25 @@ export async function depsCommand(options = {}) {
     return;
   }
 
+  // A package with no runtime dependencies has nothing to compare. `--if-present` accepts that too (the
+  // telemetry SDK publish flow hit exactly this), and says so rather than printing a tick.
+  const noRuntimeDeps = Boolean(options.ifPresent) && result.examined === 0 && !result.clean;
+  if (noRuntimeDeps) {
+    result = { ...result, notApplicable: true };
+  }
+
   if (options.json) {
     console.log(JSON.stringify(result, null, 2));
   } else {
     console.log(render(result));
+    if (noRuntimeDeps) {
+      console.log(chalk.yellow(msg.notApplicableNoRuntimeDeps || 'Not applicable: this package declares no runtime dependencies, so nothing was checked'));
+      console.log();
+    }
   }
 
   // Drift and unverifiable both fail. Drift is a real divergence; unverifiable
   // is an unknown, and a check that exits 0 on "I don't know" is a check that
   // reports success for the case it was built to catch.
-  if (!result.clean) process.exitCode = 1;
+  if (!result.clean && !noRuntimeDeps) process.exitCode = 1;
 }
