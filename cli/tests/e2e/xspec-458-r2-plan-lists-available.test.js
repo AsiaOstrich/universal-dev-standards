@@ -31,7 +31,7 @@ afterAll(() => { h.cleanup(); off.cleanup(); });
 
 const NONE = 'Available upstream, not installed: none.';
 
-it('uds update --plan --offline names open-work-tracking under "Available upstream, not installed", and its plan counts, exit code and text before that section equal a CLI without the section (XSPEC-458 R2)', async () => {
+it('uds update --plan --offline names open-work-tracking under Available upstream, not installed, and its plan counts, exit code and text before that section equal a CLI without the section (XSPEC-458 R2)', async () => {
   const manifest = readFixtureManifest();
   const dir = makeUpgradeProject(h);
   const twinDir = makeUpgradeProject(off);
@@ -64,7 +64,7 @@ it('uds update --plan --offline names open-work-tracking under "Available upstre
   expect(JSON.parse(readFileSync(join(dir, '.standards', 'manifest.json'), 'utf-8')).standards.some((s) => s.includes('open-work-tracking'))).toBe(false);
 });
 
-it('uds update --plan --offline says "none" out loud for a project that has everything UDS installs by default (XSPEC-458 R2)', async () => {
+it('uds update --plan --offline says none out loud for a project that has everything UDS installs by default (XSPEC-458 R2)', async () => {
   const dir = await h.newProject();
   const run = await h.runCli(['update', '--plan', '--offline'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);

@@ -32,7 +32,7 @@ function addCheckScripts(dir) {
 
 const withoutLine = (stdout, pattern) => stdout.split('\n').filter((l) => !pattern.test(l)).join('\n');
 
-it('uds check prints "1 upstream standard(s) not installed" and points at uds update --plan, and its verdict line and exit code equal a CLI without that line, with and without --ci (XSPEC-458 R5)', async () => {
+it('uds check prints 1 upstream standard(s) not installed and points at uds update --plan, and its verdict line and exit code equal a CLI without that line, with and without --ci (XSPEC-458 R5)', async () => {
   const dir = makeUpgradeProject(h);
   const twinDir = makeUpgradeProject(off);
 
@@ -53,7 +53,7 @@ it('uds check prints "1 upstream standard(s) not installed" and points at uds up
   }
 });
 
-it('uds check --ci still ends "compliant" with exit code 0 for a project whose only difference from a clean install is one available standard (XSPEC-458 R5)', async () => {
+it('uds check --ci still ends compliant with exit code 0 for a project whose only difference from a clean install is one available standard (XSPEC-458 R5)', async () => {
   // The 6.11.0 project above already has other findings, so on its own it could not show a verdict that got worse.
   const dir = await h.newProject();
   removeOpenWorkTracking(dir);
@@ -63,14 +63,14 @@ it('uds check --ci still ends "compliant" with exit code 0 for a project whose o
   expect(run.code, run.stdout + run.stderr).toBe(0);
 });
 
-it('uds check says "Upstream standards not installed: none" for a project that has everything, instead of staying silent (XSPEC-458 R5)', async () => {
+it('uds check says Upstream standards not installed: none for a project that has everything, instead of staying silent (XSPEC-458 R5)', async () => {
   const dir = await h.newProject();
   const run = await h.runCli(['check', '--offline'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);
   expect(run.stdout).toContain('Upstream standards not installed: none');
 });
 
-it('uds audit --friction lists one LOW finding "1 available standard(s) not installed" naming open-work-tracking, while uds audit --score is the same as on a CLI without the finding (XSPEC-458 R5)', async () => {
+it('uds audit --friction lists one LOW finding 1 available standard(s) not installed naming open-work-tracking, while uds audit --score is the same as on a CLI without the finding (XSPEC-458 R5)', async () => {
   const dir = makeUpgradeProject(h);
   const twinDir = makeUpgradeProject(off);
   addCheckScripts(dir);
@@ -103,7 +103,7 @@ it('uds audit --friction lists one LOW finding "1 available standard(s) not inst
   expect(a.dimensions).toEqual(b.dimensions);
 });
 
-it('uds audit --report does not offer the "available standards" finding as feedback for UDS maintainers, and says why instead of "no issues" (XSPEC-458 R5)', async () => {
+it('uds audit --report does not offer the available standards finding as feedback for UDS maintainers, and says why instead of no issues (XSPEC-458 R5)', async () => {
   // A project with nothing else wrong: the available-standards finding is the only one the audit has.
   const dir = await h.newProject();
   removeOpenWorkTracking(dir);

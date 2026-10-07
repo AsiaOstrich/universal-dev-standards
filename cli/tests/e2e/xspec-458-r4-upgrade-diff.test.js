@@ -43,7 +43,7 @@ it('the upgrade fixture is the manifest UDS 6.11.0 wrote: stamped 6.11.0 through
   expect(expectedAvailableIds(manifest)).toContain('open-work-tracking');
 });
 
-it('every standard the current registry offers that the 6.11.0 manifest lacks appears in the "Available upstream, not installed" list of uds update --plan --offline (XSPEC-458 R4)', async () => {
+it('every standard the current registry offers that the 6.11.0 manifest lacks appears in the Available upstream, not installed list of uds update --plan --offline (XSPEC-458 R4)', async () => {
   const dir = makeUpgradeProject(h);
   const expected = expectedAvailableIds(readFixtureManifest());
   expect(expected.length, 'control: there is something to find').toBeGreaterThan(0);
