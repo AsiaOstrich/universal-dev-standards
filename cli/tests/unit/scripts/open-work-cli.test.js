@@ -198,7 +198,12 @@ describe('MUTATION: the command is observed red', () => {
   const NEUTRALISE = [BODY_REL, 'const selfTest = runSelfTest();', 'const selfTest = { ok: true, failures: [] };'];
 
   it('a command that swallows the exit code (always exits 0) turns the violating samples green: the tests would catch it', () => {
-    const { bin } = mutantCli([['src/commands/open-work.js', 'process.exitCode = main(argv);', 'main(argv); process.exitCode = 0;']]);
+    // `next-action` and `separation` call the checker on their own lines since 1.3.0 (each carries a declared-word argument list), so the always-exit-0 mutant covers all three call sites
+    const { bin } = mutantCli([
+      ['src/commands/open-work.js', 'process.exitCode = main(argv);', 'main(argv); process.exitCode = 0;'],
+      ['src/commands/open-work.js', 'process.exitCode = main([...argv, ...wordArgv, ...commandArgv, ...files]); // wire:next-action', 'main([...argv, ...wordArgv, ...commandArgv, ...files]); process.exitCode = 0;'],
+      ['src/commands/open-work.js', "process.exitCode = main(['separation', ...wordArgv, ...files]); // wire:separation", "main(['separation', ...wordArgv, ...files]); process.exitCode = 0;"],
+    ]);
     const vague = w('mut/vague.md', VAGUE);
     expect(uds(['next-action', vague]).status).toBe(1); // real
     expect(uds(['next-action', vague], { bin }).status).toBe(0); // mutant: the assertion above would fail for it
@@ -207,7 +212,10 @@ describe('MUTATION: the command is observed red', () => {
   });
 
   it('a command that turns every result into a failure turns the clean samples red', () => {
-    const { bin } = mutantCli([['src/commands/open-work.js', 'process.exitCode = main(argv);', 'main(argv); process.exitCode = 1;']]);
+    const { bin } = mutantCli([
+      ['src/commands/open-work.js', 'process.exitCode = main(argv);', 'main(argv); process.exitCode = 1;'],
+      ['src/commands/open-work.js', 'process.exitCode = main([...argv, ...wordArgv, ...commandArgv, ...files]); // wire:next-action', 'main([...argv, ...wordArgv, ...commandArgv, ...files]); process.exitCode = 1;'],
+    ]);
     expect(uds(['next-action', w('mut/named.md', NAMED)], { bin }).status).toBe(1);
   });
 

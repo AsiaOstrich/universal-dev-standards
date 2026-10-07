@@ -280,11 +280,36 @@ describe('regression: next-action, revision and separation print exactly what 1.
     expect(golden.cases.some((c) => /Chinese table/.test(c.name))).toBe(true);
   });
 
+  // XSPEC-461 R3 changed exactly one thing in these outputs: when no carrier has a next-action field (exit 2),
+  // the text now goes on to say what each carrier showed and which words are recognised. Everything 1.1.0 printed
+  // is still there, byte for byte, as the beginning of the output, and the exit code is unchanged. Every other
+  // case, including every exit 0 and exit 1 one, is compared whole.
+  const EXPLAINED = (c) => c.status === 2 && c.args[0] === 'next-action' && c.out.includes('CANNOT DECIDE: no next-action field found');
+
+  it('exactly the two next-action cases that found no field at all are the ones whose output grew (XSPEC-461 R3)', () => {
+    expect(golden.cases.filter(EXPLAINED).map((c) => c.name)).toEqual(['next-action: a table with no next-action header (exit 2)', 'next-action: no structure (exit 2)']);
+  });
+
   it.each(golden.cases.map((c) => [c.name, c]))('%s', (_n, c) => {
     for (const [name, content] of Object.entries(golden.files)) w(name, content);
     const r = run(SCRIPT, c.args);
     expect(r.status, c.name).toBe(c.status);
-    expect(r.out, c.name).toBe(c.out);
+    // XSPEC-461 R6 ADDED lines to next-action (which root a path is looked up under, and the split of named-unresolved).
+    // They are taken out before comparing, so the comparison is still the whole of what 1.1.0 printed, byte for byte; a
+    // line this filter removes that is not one of the two added kinds would leave the comparison red.
+    const withoutAdded = (text) => text.split('\n').filter((l) => !/^\[owt\]   of the named-unresolved \(\d+\): path-missing=\d+ not-resolvable=\d+$/.test(l) && !/^\[owt\] RESOLUTION: /.test(l)).join('\n');
+    if (c.args[0] === 'next-action') {
+      expect(r.out.split('\n').filter((l) => /RESOLUTION: |of the named-unresolved/.test(l)).length, `${c.name}: next-action adds the resolution lines`).toBeGreaterThanOrEqual(2);
+    } else {
+      expect(withoutAdded(r.out), `${c.name}: other commands print no added lines`).toBe(r.out);
+    }
+    r.out = withoutAdded(r.out);
+    if (EXPLAINED(c)) {
+      expect(r.out.startsWith(c.out), `${c.name}: what 1.1.0 printed is still the beginning of the output`).toBe(true);
+      expect(r.out.slice(c.out.length), c.name).toMatch(/^\[owt\] WHY: no carrier had a next-action field/);
+    } else {
+      expect(r.out, c.name).toBe(c.out);
+    }
   });
 });
 
@@ -299,8 +324,8 @@ const MUTANTS = [
   { name: 'OWT-020 never names an unspecified waiting item', edits: [["const unspecified = state === 'waiting-unspecified';", 'const unspecified = false;']], red: ['waiting: a waiting item that says nothing about being asked is named', 'waiting: a Chinese waiting word with no ask-state is named', 'waiting: list items with status labels are read as records'], arm: 'OWT-020 violating' },
   { name: 'OWT-020 never recognises not-yet-asked', edits: [["if (VOCAB_STATE.notYetAsked.test(t)) return 'not-yet-asked';", '']], red: ['waiting: not-yet-asked with a draft path passes and is counted', 'waiting: Chinese state words and Chinese field names are read'], arm: 'OWT-020 clean' },
   { name: 'OWT-020 never recognises asked-awaiting', edits: [["if (VOCAB_STATE.askedAwaiting.test(t)) return 'asked-awaiting';", '']], red: ['waiting: a complete asked-awaiting passes and shows how long ago it was asked', 'waiting: asked-awaiting with no asked-at is a violation'], arm: 'OWT-020 clean' },
-  { name: 'OWT-021 accepts a draft that names nothing', edits: [["const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern }).status !== 'unnamed';", 'const named = true;']], red: ['waiting: not-yet-asked that names no draft or action is a violation'], arm: 'OWT-021 violating' },
-  { name: 'OWT-021 rejects every draft', edits: [["const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern }).status !== 'unnamed';", 'const named = false;']], red: ['waiting: not-yet-asked with a draft path passes and is counted'], arm: 'OWT-021 clean' },
+  { name: 'OWT-021 accepts a draft that names nothing', edits: [["const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands }).status !== 'unnamed';", 'const named = true;']], red: ['waiting: not-yet-asked that names no draft or action is a violation'], arm: 'OWT-021 violating' },
+  { name: 'OWT-021 rejects every draft', edits: [["const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands }).status !== 'unnamed';", 'const named = false;']], red: ['waiting: not-yet-asked with a draft path passes and is counted'], arm: 'OWT-021 clean' },
   { name: 'OWT-022 does not require asked-at', edits: [["if (day === null) bad('OWT-022', r.f.askedAt === undefined", "if (false) bad('OWT-022', r.f.askedAt === undefined"]], red: ['waiting: asked-awaiting with no asked-at is a violation', 'waiting: an asked-at that is not a dated day is a violation'], arm: 'OWT-022 violating: asked-awaiting has no asked-at' },
   { name: 'OWT-022 does not require what it waits for and its release', edits: [['if (!(hasWhat && hasRelease)) bad(', 'if (false) bad(']], red: ['waiting: asked-awaiting that does not say what releases it is a violation (OWT-002)'], arm: 'OWT-022 violating: asked-awaiting does not say' },
   { name: 'OWT-022 does not look at the future', edits: [['else if (day > now) bad(', 'else if (false) bad(']], red: ['waiting: an asked-at later than today is a violation'] },

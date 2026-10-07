@@ -26,7 +26,7 @@ afterAll(() => { h.cleanup(); rmSync(scratch, { recursive: true, force: true });
 // One removal per requirement: the detection that catches the red sample of that requirement.
 const REMOVALS = [
   ['OWT-020 violating', "const unspecified = state === 'waiting-unspecified';", 'const unspecified = false;'],
-  ['OWT-021 violating', "const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern }).status !== 'unnamed';", 'const named = true;'],
+  ['OWT-021 violating', "const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands }).status !== 'unnamed';", 'const named = true;'],
   ['OWT-022 violating: asked-awaiting has no asked-at', "if (day === null) bad('OWT-022', r.f.askedAt === undefined", "if (false) bad('OWT-022', r.f.askedAt === undefined"],
   ['OWT-023 violating: an observation with no observed-by', 'if (by === undefined || BLANK_FIELD.test(by)) fail(', 'if (false) fail('],
   ['OWT-024 violating: unknown marked done', "if (claimsDone) bad('OWT-024'", "if (false) bad('OWT-024'"],

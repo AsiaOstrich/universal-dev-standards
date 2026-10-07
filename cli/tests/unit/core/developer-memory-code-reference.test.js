@@ -30,7 +30,7 @@ describe('developer-memory code-reference staleness', () => {
     // Arrange — nothing further to arrange; doc parsed in beforeAll.
 
     // Act / Assert — version bumped to 1.2.0 (minor: new review check added)
-    expect(standard.meta.version).toBe('1.2.0');
+    expect(standard.meta.version).toMatch(/^1\.2\.\d+$/); // 1.2.x: the check arrived in 1.2.0; 1.2.1 added only the boundary section (XSPEC-460 R5)
 
     // Assert — review.checks carries a code-reference staleness entry
     expect(codeReferenceCheck).toBeDefined();

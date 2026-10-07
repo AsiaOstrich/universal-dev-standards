@@ -25,7 +25,7 @@ const sh = (script, args = []) => {
   return { status: r.status, out: `${r.stdout}${r.stderr}` };
 };
 
-it('open-work-tracking 1.2.0 carries OWT-020 to OWT-026 at version 1.2.0 in the English text, the zh-TW translation, the .ai.yaml, the registry and the self-adoption copy, and both sync checks exit 0 (XSPEC-459 R4)', () => {
+it('open-work-tracking carries OWT-020 to OWT-026 in the English text, the zh-TW translation, the .ai.yaml, the registry and the self-adoption copy, and both sync checks exit 0 (XSPEC-459 R4)', () => {
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
   const ai = read('ai/standards/open-work-tracking.ai.yaml');
@@ -37,9 +37,10 @@ it('open-work-tracking 1.2.0 carries OWT-020 to OWT-026 at version 1.2.0 in the 
     expect(ai, `${id} in .ai.yaml`).toMatch(new RegExp(`- id: ${id}\\n\\s+rule: .*\\n\\s+severity: warning\\n\\s+severity_rationale:`));
   }
 
-  expect(core).toMatch(/\*\*Version\*\*: 1\.2\.0/);
-  expect(zh).toMatch(/source_version: 1\.2\.0\ntranslation_version: 1\.2\.0/);
-  expect(ai).toMatch(/version: "1\.2\.0"/);
+  // the version moved on to 1.3.0 (XSPEC-460/461); that it is the same 1.3.0 everywhere is read back by the XSPEC-460 R6 test
+  expect(core).toMatch(/\*\*Version\*\*: 1\.3\.0/);
+  expect(zh).toMatch(/source_version: 1\.3\.0\ntranslation_version: 1\.3\.0/);
+  expect(ai).toMatch(/version: "1\.3\.0"/);
   expect(read('.standards/open-work-tracking.ai.yaml'), 'self-adoption copy is byte-identical').toBe(ai);
 
   const entry = registry.standards.find((s) => s.id === 'open-work-tracking');

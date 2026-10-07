@@ -478,8 +478,8 @@ const MUTANTS = [
   { name: 'OWT-019 code-span id arm off', edits: [["if (m && idOk(m[0])) push('id', m[0]);", 'void 0;']], red: ['an identifier only a code span can name'] },
   { name: 'OWT-019 prose id arm off', edits: [["if (idOk(m[0])) push('id', m[0]); // [mutation-anchor:kind-id]", 'void 0;']], red: ['an identifier named in prose'] },
   // table columns: every one of these edits a decision that has a declared case
-  { name: 'OWT-019 table header recognition off', edits: [['(VOCAB.nextAction.test(c) ? n : -1)', '(false ? n : -1)']], red: ['a Chinese-header table column: a vague cell violates and says which row', 'an English-header table column: a vague cell violates', 'a next-action table inside a blockquote is read'] },
-  { name: 'OWT-019 table header relaxed to any column', edits: [['(VOCAB.nextAction.test(c) ? n : -1)', '(true ? n : -1)']], red: ['a status column is never read as a next action', 'a table with no next-action header has no next-action field: exit 2, not a pass'] },
+  { name: 'OWT-019 table header recognition off', edits: [['(nextRe.test(c) ? n : -1)', '(false ? n : -1)']], red: ['a Chinese-header table column: a vague cell violates and says which row', 'an English-header table column: a vague cell violates', 'a next-action table inside a blockquote is read'] },
+  { name: 'OWT-019 table header relaxed to any column', edits: [['(nextRe.test(c) ? n : -1)', '(true ? n : -1)']], red: ['a status column is never read as a next action', 'a table with no next-action header has no next-action field: exit 2, not a pass'] },
   { name: 'OWT-019 table row length is not checked', edits: [['if (!res.violations.length && res.undecidable.length) {', 'if (false) {']], red: ['a ragged row is undecidable, not empty: exit 2 when nothing else is wrong'] },
   { name: 'OWT-019 ragged rows are dropped without a trace', edits: [['for (const g of ragged) res.undecidable.push({ path: c.path, ...g });', 'void 0;']], red: ['a ragged row is undecidable, not empty: exit 2 when nothing else is wrong', 'a ragged row does not hide a violation elsewhere: exit 1 and the row is still listed'] },
   { name: 'OWT-019 an escaped pipe splits the cell', edits: [["if (ch === '\\\\' && t[i + 1] === '|') {", 'if (false) {']], red: ['an escaped pipe stays inside its cell'] },
@@ -539,7 +539,7 @@ describe('OWT-015: the checks have been observed red', () => {
 
 // ── the standard itself, in each place it lives ─────────────────────────────
 
-describe('open-work-tracking 1.2.0 reads the same everywhere', () => {
+describe('open-work-tracking 1.3.0 reads the same everywhere', () => {
   const read = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
@@ -551,11 +551,11 @@ describe('open-work-tracking 1.2.0 reads the same everywhere', () => {
     expect(ai).toMatch(new RegExp(`- id: ${id}\\n`));
   });
 
-  it('carries version 1.2.0 in all three, and the self-adoption copy is byte-identical', () => {
-    expect(core).toMatch(/\*\*Version\*\*: 1\.2\.0/);
-    expect(zh).toMatch(/source_version: 1\.2\.0/);
-    expect(zh).toMatch(/translation_version: 1\.2\.0/);
-    expect(ai).toMatch(/version: "1\.2\.0"/);
+  it('carries version 1.3.0 in all three, and the self-adoption copy is byte-identical', () => {
+    expect(core).toMatch(/\*\*Version\*\*: 1\.3\.0/);
+    expect(zh).toMatch(/source_version: 1\.3\.0/);
+    expect(zh).toMatch(/translation_version: 1\.3\.0/);
+    expect(ai).toMatch(/version: "1\.3\.0"/);
     expect(read('.standards/open-work-tracking.ai.yaml')).toBe(ai);
   });
 

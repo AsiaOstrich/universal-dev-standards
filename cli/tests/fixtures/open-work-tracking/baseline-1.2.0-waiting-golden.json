@@ -1,0 +1,173 @@
+{
+  "note": "Captured from cli/src/utils/open-work-tracking.mjs at commit 4a80ec39 (open-work-tracking 1.2.0), before XSPEC-460 and XSPEC-461 changed it. `uds open-work waiting` on a carrier that names no object in another project must print exactly this.",
+  "files": {
+    "w-mixed.md": "# Worklog\n\n| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| ask legal | not-yet-asked | drafts/legal.md | | | |\n| ask vendor | 已問、等回覆 | | 2026-10-01 | the quote | the reply arrives |\n| ask board | waiting | | | | |\n| ship it | done | | | | |\n",
+    "w-ok.md": "# Worklog\n\n| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| ask legal | not-yet-asked | drafts/legal.md | | | |\n| ask vendor | 已問、等回覆 | | 2026-10-01 | the quote | the reply arrives |\n| ship it | done | | | | |\n",
+    "w-details.md": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| a | not-yet-asked | an email to legal | | | |\n| b | asked-awaiting | | | the quote | the reply arrives |\n| c | asked-awaiting | | 2026-10-01 | the quote | |\n| d | asked-awaiting | | 2099-01-01 | the quote | the reply arrives |\n",
+    "w-ragged.md": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| a | not-yet-asked | drafts/a.md | | | |\n| b | waiting |\n",
+    "w-notes.md": "# Notes\n\nnothing here\n",
+    "w-cn.md": "| 事項 | 狀態 | 草稿 | 詢問時間 | 等什麼 | 解除條件 |\n|---|---|---|---|---|---|\n| 問法務 | 還沒問 | drafts/legal.md | | | |\n| 問廠商 | 已問、等回覆 | | 2026-10-01 | 報價 | 回信到達 |\n| 問董事會 | 等待中 | | | | |\n",
+    "w-list.md": "# Log\n\n- Ask the auditor\n  - status: asked-awaiting\n  - asked-at: 2026-10-02\n  - waiting for: the memo\n  - release: the memo is attached\n- Ask legal\n  - status: blocked on legal\n",
+    "w-release-words.md": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| a | waiting | | | the reply from legal | the legal reply arrives; see notes: later |\n| b | asked-awaiting | | 2026-10-02 | quote | the quote is attached (https://example.com/q) |\n",
+    "o-ok.md": "| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n| mail sent | open | albert | 2026-10-05 | yes |\n| approved | open | albert | 2026-10-05 | unknown |\n"
+  },
+  "cases": [
+    {
+      "name": "waiting: mixed states, one unspecified",
+      "args": [
+        "waiting",
+        "w-mixed.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 4 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=1 done=1 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-mixed.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-mixed.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   waiting-unspecified  w-mixed.md table row (line 7, row \"ask board\"): ask board\n[owt]   done                 w-mixed.md table row (line 8, row \"ship it\"): ship it\n[owt] VIOLATION OWT-020: w-mixed.md table row (line 7, row \"ask board\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: all stated",
+      "args": [
+        "waiting",
+        "w-ok.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-020/021/022 walked 3 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=0 done=1 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-ok.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-ok.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   done                 w-ok.md table row (line 7, row \"ship it\"): ship it\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: details violate OWT-021 and OWT-022",
+      "args": [
+        "waiting",
+        "w-details.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 4 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=3 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-details.md table row (line 3, row \"a\"): a\n[owt]   asked-awaiting       w-details.md table row (line 4, row \"b\"): b\n[owt]   asked-awaiting       w-details.md table row (line 5, row \"c\"): c  (asked 6d ago)\n[owt]   asked-awaiting       w-details.md table row (line 6, row \"d\"): d\n[owt] VIOLATION OWT-021: w-details.md table row (line 3, row \"a\") is not-yet-asked but names no draft or action: no file path, command, test name or requirement identifier\n[owt] VIOLATION OWT-022: w-details.md table row (line 4, row \"b\") is asked-awaiting but has no asked-at\n[owt] VIOLATION OWT-022: w-details.md table row (line 5, row \"c\") is asked-awaiting but does not state what event releases it (OWT-002)\n[owt] VIOLATION OWT-022: w-details.md table row (line 6, row \"d\") has an asked-at (2099-01-01) later than today (2026-10-07)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: a ragged row (exit 2)",
+      "args": [
+        "waiting",
+        "w-ragged.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-020/021/022 walked 1 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=0 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=1\n[owt]   not-yet-asked        w-ragged.md table row (line 3, row \"a\"): a\n[owt] UNDECIDABLE: w-ragged.md table row (line 4, row \"b\") has 2 cell(s) but its header has 6; the status cell cannot be located, so the row is neither judged nor counted as empty\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n[owt] CANNOT DECIDE: 1 table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "waiting: no structure (exit 2)",
+      "args": [
+        "waiting",
+        "w-notes.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-020/021/022 walked 0 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 1 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=0 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=0\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n[owt] CANNOT DECIDE: no record with a status field in any carrier (walked 0). Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "waiting: Chinese carrier",
+      "args": [
+        "waiting",
+        "w-cn.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 3 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=1 done=0 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-cn.md table row (line 3, row \"問法務\"): 問法務\n[owt]   asked-awaiting       w-cn.md table row (line 4, row \"問廠商\"): 問廠商  (asked 6d ago)\n[owt]   waiting-unspecified  w-cn.md table row (line 5, row \"問董事會\"): 問董事會\n[owt] VIOLATION OWT-020: w-cn.md table row (line 5, row \"問董事會\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: list items",
+      "args": [
+        "waiting",
+        "w-list.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 2 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=1 waiting-unspecified=1 done=0 other=0 undecidable-table-rows=0\n[owt]   asked-awaiting       w-list.md list item (line 3, \"Ask the auditor\"): Ask the auditor  (asked 5d ago)\n[owt]   waiting-unspecified  w-list.md list item (line 8, \"Ask legal\"): Ask legal\n[owt] VIOLATION OWT-020: w-list.md list item (line 8, \"Ask legal\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: release words that only look like a reference",
+      "args": [
+        "waiting",
+        "w-release-words.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 2 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=1 waiting-unspecified=1 done=0 other=0 undecidable-table-rows=0\n[owt]   waiting-unspecified  w-release-words.md table row (line 3, row \"a\"): a\n[owt]   asked-awaiting       w-release-words.md table row (line 4, row \"b\"): b  (asked 5d ago)\n[owt] VIOLATION OWT-020: w-release-words.md table row (line 3, row \"a\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: one plain --root, as before",
+      "args": [
+        "waiting",
+        "w-ok.md",
+        "--root",
+        ".",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-020/021/022 walked 3 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=0 done=1 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-ok.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-ok.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   done                 w-ok.md table row (line 7, row \"ship it\"): ship it\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: one plain --root with a violation",
+      "args": [
+        "waiting",
+        "w-mixed.md",
+        "--root",
+        ".",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 4 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=1 done=1 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-mixed.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-mixed.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   waiting-unspecified  w-mixed.md table row (line 7, row \"ask board\"): ask board\n[owt]   done                 w-mixed.md table row (line 8, row \"ship it\"): ship it\n[owt] VIOLATION OWT-020: w-mixed.md table row (line 7, row \"ask board\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: several carriers",
+      "args": [
+        "waiting",
+        "w-ok.md",
+        "w-mixed.md",
+        "w-cn.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-020/021/022 walked 10 record(s) with a status field in 3 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=3 asked-awaiting=3 waiting-unspecified=2 done=2 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-ok.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-ok.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   done                 w-ok.md table row (line 7, row \"ship it\"): ship it\n[owt]   not-yet-asked        w-mixed.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-mixed.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   waiting-unspecified  w-mixed.md table row (line 7, row \"ask board\"): ask board\n[owt]   done                 w-mixed.md table row (line 8, row \"ship it\"): ship it\n[owt]   not-yet-asked        w-cn.md table row (line 3, row \"問法務\"): 問法務\n[owt]   asked-awaiting       w-cn.md table row (line 4, row \"問廠商\"): 問廠商  (asked 6d ago)\n[owt]   waiting-unspecified  w-cn.md table row (line 5, row \"問董事會\"): 問董事會\n[owt] VIOLATION OWT-020: w-mixed.md table row (line 7, row \"ask board\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] VIOLATION OWT-020: w-cn.md table row (line 5, row \"問董事會\") is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "waiting: own id pattern",
+      "args": [
+        "waiting",
+        "w-ok.md",
+        "--id-pattern",
+        "TICKET-\\d+",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-020/021/022 walked 3 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=0 done=1 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        w-ok.md table row (line 5, row \"ask legal\"): ask legal\n[owt]   asked-awaiting       w-ok.md table row (line 6, row \"ask vendor\"): ask vendor  (asked 6d ago)\n[owt]   done                 w-ok.md table row (line 7, row \"ship it\"): ship it\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "observations: unchanged",
+      "args": [
+        "observations",
+        "o-ok.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-023/024/025/026 walked 2 observation(s) in 1 carrier(s) (today 2026-10-07); stale after 7 day(s) (default, UNCALIBRATED); 0 carrier(s) had none\n[owt]   yes=1 no=0 unknown=1 invalid=0 | stale=0 | confirmed=1 (yes, well formed, not stale) | undecidable-table-rows=0\n[owt]   value=yes age=2d by=albert at=2026-10-05  o-ok.md table row (line 3, row \"mail sent\"): mail sent\n[owt]   value=unknown age=2d by=albert at=2026-10-05  o-ok.md table row (line 4, row \"approved\"): approved\n[owt] UNKNOWN (counted apart, never complete): o-ok.md table row (line 4, row \"approved\"): approved\n[owt] LIMIT: the check decides that the fields exist, are well formed, and how old the stamp is. It cannot decide that an observation is true, or that it is still true now (OWT-014): a stamp says who saw it and when, never that it still holds.\n[owt] COVERAGE UNKNOWN (OWT-011): a table is read as an observation carrier only if it has an observed-by or observed-at column (or a list item such a label); the \"derivable subject\" test is a short word list. A clean pass does not mean no hand-written fact is unstamped or derivable.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.\n"
+    },
+    {
+      "name": "self-test",
+      "args": [
+        "--self-test"
+      ],
+      "status": 0,
+      "out": "[owt] self-test: OK\n"
+    }
+  ]
+}
