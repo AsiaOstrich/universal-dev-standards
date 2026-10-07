@@ -17,6 +17,16 @@ status: current
 
 ## [Unreleased]
 
+### 新增
+
+- **`uds update` 現在會說出 UDS 有出貨、專案沒有的標準，`--add-standard <id>` 可以挑著裝（XSPEC-458）。** 用舊版 UDS 設定的專案只保有 manifest 列出的標準，所以 `uds update --apply` 會回報「已是最新」，之後新增的標準（例如 `open-work-tracking`）卻從沒裝上，也沒有任何東西告訴你。現在：`uds update --plan` 結尾會印「上游有、專案沒裝（N 個）」並依類別分組，沒有時印「沒有」；`--apply` 結尾印出數量與指令；`uds check` 印一行「上游有 N 個標準未安裝」；`uds audit --friction` 列出一項低嚴重度發現。這些都不會改變計畫的動作、判定、結束碼或 `uds audit --score`。`uds update --plan|--apply --add-standard <id>`（可重複）會安裝標準並記入 `manifest.standards`，所以下一次 `--apply` 不會把它當多餘而刪；一次 `--rollback` 就能移除。未知的 id 以 1 結束並列出最相近的 id；已安裝的 id 說明後以 0 結束；`extension`、`integration`、`template`（由語言、工具、範本的選項安裝）會被拒絕並說明原因。「可用」的定義是：類別為 `reference` 或 `skill`、在專案格式下有來源檔、manifest 裡沒有同名檔案——舊的 `uds update` 路徑、`--plan`／`--apply`、`check`、`audit` 共用這一個定義。其他類別（`core`、`testing`、`security`、`deployment`、`operations` 等）`uds init` 從沒裝過，只以一行計數、不逐項列出；它們仍可用 id 指名安裝。規則與死欄位（`level`、`profile`）見 [docs/AVAILABLE-STANDARDS.md](../../docs/AVAILABLE-STANDARDS.md)。
+- **CI：標準孤兒矩陣（XSPEC-458 R4）。** `npm run check:orphan-matrix` 替登記表 163 個標準各記五欄是或否（`uds init` 是否安裝、產生的索引是否提到、是否有技能包裝、是否有檢查、是否被 workflow／hook／技能呼叫），五欄全空的標準，以及沒有任何呼叫者的 `check-*` 腳本，都會讓它失敗。第一次執行找到 78 個孤兒標準與 2 個沒人呼叫的檢查腳本，已逐項附上理由與處理者列在 `cli/scripts/orphan-matrix-allowlist.json`，該清單於 2026-12-31 到期，條目不再是發現時也會失敗。另新增升級測試：用目前的 CLI 對照真正的 6.11.0 寫出的 manifest。
+
+### 變更
+
+- 舊的 `uds update` 訊息「N new standard(s) available for your level」不再提到等級：沒有等級規則（manifest 的 `level` 是沒有任何程式讀取的殘值）。
+- `uds audit --report` 不會把「可用標準未安裝」這項發現當成給維護者的回饋送出。
+
 ## [6.14.0-beta.6] - 2026-10-07
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
