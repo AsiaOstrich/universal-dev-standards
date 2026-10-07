@@ -286,7 +286,7 @@ describe('regression: next-action, revision and separation print exactly what 1.
   // case, including every exit 0 and exit 1 one, is compared whole.
   const EXPLAINED = (c) => c.status === 2 && c.args[0] === 'next-action' && c.out.includes('CANNOT DECIDE: no next-action field found');
 
-  it('exactly the two next-action cases that found no field at all are the ones whose output grew (XSPEC-461 R3)', () => {
+  it('exactly the two next-action cases that found no field at all are the ones whose output grew (the 461 explanation)', () => {
     expect(golden.cases.filter(EXPLAINED).map((c) => c.name)).toEqual(['next-action: a table with no next-action header (exit 2)', 'next-action: no structure (exit 2)']);
   });
 
