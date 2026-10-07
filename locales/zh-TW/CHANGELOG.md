@@ -33,6 +33,8 @@ status: current
 - **`developer-memory` 與 `project-context-memory` 的邊界說明（兩者都是 1.2.1，XSPEC-460 R5）。** 個人、跨專案、可識別的資訊（誰負責什麼、怎麼連到某個環境）不是這裡的記憶條目：它們屬於使用者自己的 AI 工具記憶。專案之間的協調（誰在等誰）是開放工作，不是記憶，並指向 `open-work-tracking`。這兩份標準的 zh-TW 與 zh-CN 譯本本來就落後（1.0.0 與 1.1.0），現在仍然落後；只在它們裡面加了這一段。
 - **`uds check` 在個人技能與專案裡裝的 UDS 技能同名時警告（XSPEC-465 R1）。** Claude Code 對同一個名稱只執行一個技能，而且個人層（`~/.claude/skills/`）優先序高於專案層（`.claude/skills/`，`uds init --skills-location project` 與 `uds update --apply --skills` 把 UDS 技能裝在這裡），所以採用者自己的 `plan`、`push` 或 `commit` 會靜默蓋掉 UDS 那個：沒有錯誤、沒有訊息。`uds check` 現在會比對兩個資料夾、點名每一組、說明執行的是個人那個，並說明怎麼解（把你的技能改名，或刪掉 UDS 那個）；`uds init` 與 `uds update --apply --skills` 在安裝結尾印同一則警告。名稱是 `SKILL.md` frontmatter 的 `name:`，沒有就用資料夾名稱，兩者都會比對（資料夾名稱同樣能叫出技能）。只是資訊：有無 `--ci` 都不改變判定與結束碼；個人資料夾不存在、不是資料夾、讀不到或 `SKILL.md` 壞掉時，不印任何東西也不失敗；UDS 自己裝在使用者層的副本（`~/.claude/skills/.manifest.json` 的 source 是 `universal-dev-standards`）與「專案就是家目錄」的情況不列入。**它看不到企業層，也看不到它執行之後才新增的個人技能，文字裡也這樣說：沒有警告不等於沒有撞名。** 外掛技能（`/<外掛名>:<技能名>`）與 `.claude/commands/` 檔不列入。（英文、繁體中文、簡體中文。）
 - **文件：`docs/user/GETTING-STARTED.md` 新增「個人技能與 UDS 技能同名時」，`skills/SKILL_NAMING.md` 新增命名規則 6（XSPEC-465 R3）。** 同一個名稱出現在多處時哪個技能執行（Claude Code 技能文件，2026-10-07 讀取）、這對名稱通用的 UDS 技能（`plan`、`push`、`sweep`、`orchestrate`）意味著什麼、怎麼用 `uds check` 看見、怎麼解。UDS 不為此替已出貨的技能改名（改名會破壞所有既有呼叫）；新技能應避免單一通用單字。（英文、繁體中文、簡體中文；命名規則與該檔一樣是中文。）
+- **`open-work-tracking` 1.4.0——已問、等回覆的項目由 OWT-022 判定，不由 OWT-019 判定（XSPEC-464）。** 一位使用者的 17 個下一步中有 14 個是「等對方回信、等排時間、等撤銷」；`uds open-work waiting` 接受這些列，`uds open-work next-action` 卻拒絕同一批列，因為「等回信」沒有點名任何檔案、指令、測試或編號。現在，處於 `asked-awaiting` 且 OWT-022 認為齊全的列（真的 `asked-at`、不在未來、寫了在等什麼、寫了什麼解除它）是 OWT-019 的第四種結果 `waiting-on-reply`：不是違反、不算已點名、不算完成，在自己的一節裡列出並顯示年齡，超過 `--stale-after`（預設 7 天，未校準）標為 STALE。它不是藏身處：缺三者之一的列、`not-yet-asked` 的列、其他狀態的列、寫成小節標題的下一步、沒有狀態欄的載體，判定與過去完全相同。`next-action` 以 `waiting` 所用的同一個函式讀這一列的狀態，所以兩者不可能對同一列給出相反的結論；一個自測臂與一個涵蓋中英文列的屬性測試守著這件事。`uds open-work next-action` 新增選項 `--now` 與 `--stale-after`；`waiting-on-reply=N` 只在 N 不為 0 時才附在計數行尾。沒有新的要求編號。凍結的 1.1.0 與 1.2.0 輸出仍逐位元組吻合。檢查只判定這三個欄位存在且格式正確，判定不了請求是否真的送出。
+- **`open-work-tracking` 說明 OWT-007 的摘要可以由程式印出、完整版按需取得（XSPEC-465 R2）。** OWT-007 從未說摘要由誰產生、多長。新小節說明便宜的做法（回合結束時由程式印出簡短摘要，完整版在被要求時才產生，模型不花 token）與昂貴的做法（模型在每則回覆裡附一張完整的表，可行但不是要求），第一種仍適用 OWT-008 與 OWT-009，並以「建議」的身分提出摘要的分類詞彙（等決策、等外部回覆、等 CI、固定日期到期、無人看管），直說 UDS 沒有出貨任何產生這種摘要的程式、本標準也沒有東西檢查它存在。沒有新的要求編號，也沒有新的檢查。
 
 ### 變更
 
@@ -40,10 +42,12 @@ status: current
 - `uds audit --report` 不會把「可用標準未安裝」這項發現當成給維護者的回饋送出。
 - **行為改變：`uds skills` 的輸出文字改了（XSPEC-462 R1）。** 專案層與使用者層安裝不再標 `(deprecated)`，外掛不再標 `(recommended)`，「手動安裝已棄用」與「建議：遷移到 Plugin Marketplace」兩段也拿掉了。取而代之的是，每次執行都以並列的兩種裝法收尾：裝進專案（`uds init --skills-location project`、`uds update --apply --skills`；支援多種 AI 工具、有繁體與簡體中文文字、跟著你裝的 UDS 版本走，含測試版），以及 Claude Code 外掛市集（只支援 Claude Code、只有英文文字、只跟正式版、專案內不放檔案）。「已棄用」這個字寫於 2026-01，與 `uds check`、`uds update` 一向建議的 `uds update --apply --skills` 互相矛盾。比對舊文字的腳本需要更新。（英文、繁體中文、簡體中文）
 - **`uds update` 的「Skills 有可用更新」提示**，對專案層、使用者層與無法判定的安裝，現在說 `更新方式：uds update --apply --skills`。它原本稱這些安裝已棄用、指向一個泛用的外掛網址，並建議在技能資料夾裡 `git pull`。技能來自外掛時，現在寫出的市集名是 `asia-ostrich`（`/plugin marketplace update asia-ostrich`），不再是 `anthropic-agent-skills`。
+- **行為變更——對「OWT-019 違反全都是 `asked-awaiting` 且 OWT-022 認為齊全的列」的載體，`uds open-work next-action` 回 0，不再回 1（XSPEC-464）。** 那些列現在是 `waiting-on-reply`。有其他違反的載體仍回 1；沒有狀態欄的載體與 1.3.0 的行為相同。
 
 ### 修正
 
 - **外掛設定裡的技能數是錯的（XSPEC-462 R3）。** `.claude-plugin/plugin.json` 寫「25 comprehensive skills」、`marketplace.json` 寫「23 skills」、`.claude-plugin/README.md` 列了 15 個，而外掛實際載入 56 個。描述不再帶數字，上面那個檢查會讓它維持這樣。
+- **`uds open-work waiting` 把清單項目裡留白的欄位讀成被下面的 `Next action:` 那一行填滿了（做 XSPEC-464 時發現）。** 在清單項目裡，最後一個被認得的標籤的值會一路延伸到項目結尾，所以 `- release:` 留白、接著 `- Next action: wait for the vendor reply`，會被讀成有解除條件，OWT-022 於是放行一個沒寫解除條件的 `asked-awaiting` 項目。現在 `Next action:` 標籤（內建詞）會結束它前面那個值，本身也不再是欄位。缺解除條件、缺在等什麼或缺 `asked-at`、且下面有下一步那一行的清單項目，現在由 `waiting`（OWT-022）回報，`next-action` 也不再免除它；表格不受影響。
 
 ## [6.14.0-beta.6] - 2026-10-07
 

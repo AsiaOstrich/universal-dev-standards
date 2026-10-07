@@ -103,9 +103,11 @@ it('open-work-tracking 1.3.0 carries OWT-027 to OWT-029 at version 1.3.0 in the 
     expect(zh, `${id} in zh-TW`).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|.*\\| warning \\|`));
     expect(ai, `${id} in .ai.yaml`).toMatch(new RegExp(`- id: ${id}\\n\\s+rule: .*\\n\\s+severity: warning\\n\\s+severity_rationale:`));
   }
-  expect(core).toMatch(/\*\*Version\*\*: 1\.3\.0/);
-  expect(zh).toMatch(/source_version: 1\.3\.0\ntranslation_version: 1\.3\.0/);
-  expect(ai).toMatch(/version: "1\.3\.0"/);
+  // the version moved on to 1.4.0 (XSPEC-464): the text of 1.3.0 is all still there, and that the version is the same 1.4.0 in every
+  // place is read back by the XSPEC-464 R4 test
+  expect(core).toMatch(/\*\*Version\*\*: 1\.4\.0/);
+  expect(zh).toMatch(/source_version: 1\.4\.0\ntranslation_version: 1\.4\.0/);
+  expect(ai).toMatch(/version: "1\.4\.0"/);
   const hash = execFileSync('git', ['hash-object', 'core/open-work-tracking.md'], { cwd: REAL_REPO, encoding: 'utf8' }).trim().slice(0, 12);
   expect(zh, 'zh-TW source_hash is the hash of the English source').toMatch(new RegExp(`source_hash: ${hash}\\n`));
   expect(read('.standards/open-work-tracking.ai.yaml'), 'self-adoption copy is byte-identical').toBe(ai);

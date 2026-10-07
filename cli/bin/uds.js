@@ -478,9 +478,11 @@ const openWorkCommand = program
 
 openWorkCommand
   .command('next-action [files...]')
-  .description('OWT-019: every "next action" field names a file path, test name, command or requirement identifier')
+  .description('OWT-019: every "next action" field names a file path, test name, command or requirement identifier; a row that is asked-awaiting and complete under OWT-022 is waiting-on-reply and is listed apart')
   .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd)')
   .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
+  .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so the age of a waiting-on-reply row does not drift with the date')
+  .option('--stale-after <days>', 'A waiting-on-reply row asked more than this many days ago is marked STALE (default 7, an uncalibrated initial judgment)')
   .option('--next-action-word <word>', 'A word that means "next action" in your carriers, as plain text; repeatable (also open_work.next_action_words in uds.project.yaml)', collectOption, [])
   .option('--command-word <word>', 'A program name to read as a command, for example kubectl; repeatable (also open_work.command_words in uds.project.yaml)', collectOption, [])
   .action(openWorkNextActionCommand);

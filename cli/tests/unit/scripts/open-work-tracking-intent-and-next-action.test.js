@@ -539,7 +539,7 @@ describe('OWT-015: the checks have been observed red', () => {
 
 // ── the standard itself, in each place it lives ─────────────────────────────
 
-describe('open-work-tracking 1.3.0 reads the same everywhere', () => {
+describe('open-work-tracking 1.4.0 reads the same everywhere', () => {
   const read = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
@@ -551,11 +551,11 @@ describe('open-work-tracking 1.3.0 reads the same everywhere', () => {
     expect(ai).toMatch(new RegExp(`- id: ${id}\\n`));
   });
 
-  it('carries version 1.3.0 in all three, and the self-adoption copy is byte-identical', () => {
-    expect(core).toMatch(/\*\*Version\*\*: 1\.3\.0/);
-    expect(zh).toMatch(/source_version: 1\.3\.0/);
-    expect(zh).toMatch(/translation_version: 1\.3\.0/);
-    expect(ai).toMatch(/version: "1\.3\.0"/);
+  it('carries version 1.4.0 in all three, and the self-adoption copy is byte-identical', () => {
+    expect(core).toMatch(/\*\*Version\*\*: 1\.4\.0/);
+    expect(zh).toMatch(/source_version: 1\.4\.0/);
+    expect(zh).toMatch(/translation_version: 1\.4\.0/);
+    expect(ai).toMatch(/version: "1\.4\.0"/);
     expect(read('.standards/open-work-tracking.ai.yaml')).toBe(ai);
   });
 

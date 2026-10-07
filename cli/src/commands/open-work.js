@@ -50,13 +50,18 @@ function declarationsOrStop() {
   return declared;
 }
 
-/** uds open-work next-action [files...] [--root DIR] [--id-pattern RE] [--next-action-word WORD ...] [--command-word WORD ...] — OWT-019 */
+/**
+ * uds open-work next-action [files...] [--root DIR] [--id-pattern RE] [--next-action-word WORD ...] [--command-word WORD ...] [--now DATE] [--stale-after DAYS] — OWT-019
+ * `--now` and `--stale-after` are what the fourth outcome (an asked-awaiting row, XSPEC-464) needs to show an age and to mark it old.
+ */
 export function openWorkNextActionCommand(files = [], options = {}) {
   const declared = declarationsOrStop();
   if (!declared) return;
   const argv = ['next-action'];
   withOption(argv, '--root', options.root);
   withOption(argv, '--id-pattern', options.idPattern);
+  withOption(argv, '--now', options.now);
+  withOption(argv, '--stale-after', options.staleAfter);
   const wordArgv = wordArguments(options.nextActionWord, declared.nextActionWords); // wire:next-action-words
   const commandArgv = commandArguments(options.commandWord, declared.commandWords); // wire:next-action-command-words
   process.exitCode = main([...argv, ...wordArgv, ...commandArgv, ...files]); // wire:next-action

@@ -526,7 +526,7 @@
 | `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
-| `open-work-tracking` | 1.3.0 | The deferred-item-exit standard requires that a deferred item leave its document |
+| `open-work-tracking` | 1.4.0 | The deferred-item-exit standard requires that a deferred item leave its document |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
 | `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |

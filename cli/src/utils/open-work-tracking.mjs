@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
  * Open-work-tracking reference checks for OWT-017 … OWT-028.
- * open-work-tracking 1.3.0 參考判定程序（OWT-017～028）。
+ * open-work-tracking 1.4.0 參考判定程序（OWT-017～028）。
  * // implements DEC-122-L1
  * // implements XSPEC-459
  * // implements XSPEC-460
  * // implements XSPEC-461
+ * // implements XSPEC-464
  *
  * ── Where this lives, and why there is exactly one copy ─────────────────────
  * This file is the ONE body of the rules. Two front doors call it and neither
@@ -39,7 +40,7 @@
  * ── Five checks ─────────────────────────────────────────────────────────────
  *   next-action   OWT-019  every "next action" field names a file path, test
  *                          name, command or requirement identifier.
- *                          Three outcomes, never one green:
+ *                          Three outcomes, never one green, and (464) a fourth:
  *                            named-resolved   an object was found (a path exists)
  *                            named-unresolved an object is named but not found
  *                                             (legitimate when the next action
@@ -47,6 +48,13 @@
  *                                             could not apply (command, test
  *                                             name, identifier)
  *                            unnamed          VIOLATION — the only failure
+ *                            waiting-on-reply the row is `asked-awaiting` and `waiting` finds
+ *                                             nothing wrong with it (OWT-020, OWT-022: asked-at,
+ *                                             what it waits for, what releases it), so its next
+ *                                             step IS the reply and OWT-019 is not applied. Not
+ *                                             a violation, not "named", not complete; listed
+ *                                             apart with its age. Decided by the same function
+ *                                             `waiting` runs, never by a second copy.
  *                          A field is read in three shapes, all through the one
  *                          VOCAB.nextAction list: a heading section, an inline
  *                          "Next action: ..." label, and EVERY ROW of a table column whose
@@ -118,7 +126,7 @@
  * script's own self-test arms failed). 2 is NOT a pass.
  *
  * Usage (`uds` from the npm package, or the repo shim; same arguments):
- *   uds open-work next-action <file...> [--root DIR] [--id-pattern RE] [--next-action-word WORD ...]
+ *   uds open-work next-action <file...> [--root DIR] [--id-pattern RE] [--next-action-word WORD ...] [--command-word WORD ...] [--now YYYY-MM-DD] [--stale-after DAYS]
  *   uds open-work revision --file PATH --base GIT_REV
  *   uds open-work revision --before FILE --after FILE
  *   uds open-work separation <file...> [--next-action-word WORD ...]
@@ -631,7 +639,9 @@ const clip = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
  * `items`: after a stray or missing `|` the next-action cell cannot be told from its
  * neighbour, and reading an absent cell as "empty" would turn a broken row into a quiet
  * "no next action written". It is neither judged nor dropped: the caller counts and lists it.
- * @returns {{fields:number, items:{text:string,where:string}[], ragged:{where:string,cells:number,expected:number}[]}}
+ * @returns {{fields:number, items:{text:string,where:string,idx?:number}[], ragged:{where:string,cells:number,expected:number}[]}}
+ * `idx` is the 0-based line of a table row or an inline label; a heading section has none (464: that is how a next-action item
+ * is joined to the record `waiting` read on the same line).
  */
 export function extractNextActions(md, words = []) {
   const nextRe = nextActionRegExp(words);
@@ -658,7 +668,7 @@ export function extractNextActions(md, words = []) {
         }
         for (const col of cols) {
           fields++;
-          items.push({ text: r.cells[col], where: `table column "${t.header[col]}" (line ${r.idx + 1}, ${who})` });
+          items.push({ text: r.cells[col], idx: r.idx, where: `table column "${t.header[col]}" (line ${r.idx + 1}, ${who})` });
         }
       }
     }
@@ -677,7 +687,7 @@ export function extractNextActions(md, words = []) {
     if (l.front || l.fence || l.inFence || l.heading || l.cls === 'nextAction' || colTableRows.has(idx)) return;
     // a label inside a table row reads to the end of the row, not into its closing pipe
     const m = labelRe.exec(unquote(l.text).trim().startsWith('|') ? l.text.replace(/\s*\|\s*$/, '') : l.text);
-    if (m && !/^\s*$/.test(m[1])) { fields++; items.push({ text: m[1], where: `label (line ${idx + 1})` }); }
+    if (m && !/^\s*$/.test(m[1])) { fields++; items.push({ text: m[1], idx, where: `label (line ${idx + 1})` }); }
   });
 
   // heading sections classed nextAction
@@ -715,8 +725,20 @@ export function extractNextActions(md, words = []) {
   return { fields, items, ragged };
 }
 
+/**
+ * OWT-019, and (464) its fourth outcome. Before a next action is judged, the row it belongs to is read by `checkWaiting`, the
+ * very function `uds open-work waiting` runs, with the same date. A row that is `asked-awaiting` and that OWT-020 and OWT-022
+ * raise nothing against is `waiting-on-reply`: its next step is the reply, which OWT-022 already described (when it was asked,
+ * what is waited for, what releases it), so OWT-019 is not applied. It is counted apart, never as named, never as complete, and
+ * listed with its age (`waitingOnReply`). A row `waiting` fails is judged exactly as before. A heading section has no row, so it
+ * is never waived; a carrier with no status field behaves exactly as it always did.
+ */
 export function checkNextActions(carriers, opts = {}) {
-  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0 }, unresolvedSplit: { 'path-missing': 0, 'not-resolvable': 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [] };
+  const now = opts.now ?? todayUtc();
+  const staleAfter = opts.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
+  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0, 'waiting-on-reply': 0 }, unresolvedSplit: { 'path-missing': 0, 'not-resolvable': 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [], waitingOnReply: [], staleAfter };
+  // No project is declared, so no other project is looked up: this call reads the carriers' own rows and nothing else.
+  const rows = checkWaiting(carriers, { now, root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands, projects: new Map() }).records;
   for (const c of carriers) {
     const { fields, items, ragged } = extractNextActions(c.content, opts.words);
     for (const g of ragged) res.undecidable.push({ path: c.path, ...g });
@@ -725,6 +747,13 @@ export function checkNextActions(carriers, opts = {}) {
       const text = it.text.replace(/\*\*|__/g, '').trim();
       if (EMPTY_FIELD.test(text)) { res.empty++; continue; }
       res.walked++;
+      const reply = it.idx === undefined ? undefined : rows.find((w) => w.path === c.path && w.waitingOnReply && it.idx >= w.lineStart && it.idx <= w.lineEnd); // [mutation-anchor:next-action-join]
+      if (reply) { // [mutation-anchor:next-action-exempt]
+        res.counts['waiting-on-reply']++;
+        res.detail.push({ path: c.path, where: it.where, text, status: 'waiting-on-reply', kinds: [], resolution: 'n/a' });
+        res.waitingOnReply.push({ path: c.path, where: it.where, askedDay: reply.askedDay, age: reply.age, awaiting: reply.awaiting, release: reply.release, stale: reply.age !== null && reply.age > staleAfter }); // [mutation-anchor:stale-marked]
+        continue;
+      }
       const r = classifyNextAction(text, opts);
       res.counts[r.status]++;
       if (r.unresolved) res.unresolvedSplit[r.unresolved]++;
@@ -881,6 +910,11 @@ const LABEL_WORDS = [
   ['observedAt', /(?:observed[\s-]?(?:at|on)|seen[\s-]?(?:at|on)|觀察時間|觀察日期)/],
   ['value', /(?:observed[\s-]?value|value|觀察值|觀察結果)/],
   ['subject', /(?:fact|subject|事實|觀察項目)/],
+  // 464: a boundary and nothing else. A "Next action: ..." label ends the value of the label before it (a blank `release:` must not read
+  // as filled by the next-action line below it) and is never itself a field of the record. Without it a row lacking its release was
+  // read as complete in a list, and OWT-022 passed a row it should have failed. It is the built-in list only: a word an adopter declares
+  // is not known to `waiting`, which reads these records for `next-action` too, so the two read a declared word's line the same way.
+  ['nextAction', VOCAB.nextAction],
 ];
 
 function parseRoleLabels(text) {
@@ -899,11 +933,13 @@ function parseRoleLabels(text) {
   const f = {};
   const fr = {}; // the same values with their Markdown kept: a `code span` is how a command or a test name is told from prose
   kept.forEach((h, i) => {
+    if (h.role === 'nextAction') return; // a boundary, not a field (see LABEL_WORDS)
     const next = kept[i + 1] ? kept[i + 1].start : text.length;
     const val = stripMd(text.slice(h.end, next)).replace(/[;；,，|]+$/, '').trim();
     if (f[h.role] === undefined) { f[h.role] = val; fr[h.role] = text.slice(h.end, next).replace(/[;；,，|]+$/, '').trim(); }
   });
-  const title = stripMd(text.slice(0, kept.length ? kept[0].start : text.length)).replace(/[\s;；,，|—–:：-]+$/, '').trim();
+  const firstField = kept.find((h) => h.role !== 'nextAction');
+  const title = stripMd(text.slice(0, firstField ? firstField.start : text.length)).replace(/[\s;；,，|—–:：-]+$/, '').trim();
   return { f, fr, title };
 }
 
@@ -932,7 +968,7 @@ export function extractRecords(md) {
       const f = {};
       const fr = {};
       roles.forEach((rs, n) => rs.forEach((role) => { if (f[role] === undefined) { f[role] = stripMd(r.cells[n]); fr[role] = r.cells[n]; } }));
-      records.push({ where, title, f, fr, columns });
+      records.push({ where, title, f, fr, columns, lineStart: r.idx, lineEnd: r.idx });
     }
   }
   let cur = null;
@@ -941,7 +977,7 @@ export function extractRecords(md) {
       const text = cur.parts.join(' ; ');
       const { f, fr, title } = parseRoleLabels(text);
       if (Object.keys(f).length) {
-        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, fr, columns: new Set(Object.keys(f)) });
+        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, fr, columns: new Set(Object.keys(f)), lineStart: cur.idx, lineEnd: cur.end });
       }
     }
     cur = null;
@@ -949,7 +985,7 @@ export function extractRecords(md) {
   lines.forEach((l, idx) => {
     if (l.front || l.fence || l.inFence || l.heading || inTable.has(idx)) { flush(); return; }
     const li = /^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$/.exec(l.text);
-    if (li && li[1].length === 0) { flush(); cur = { idx, parts: [li[2]] }; } else if (cur && /^\s+\S/.test(l.text)) cur.parts.push(l.text.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, '')); else flush();
+    if (li && li[1].length === 0) { flush(); cur = { idx, end: idx, parts: [li[2]] }; } else if (cur && /^\s+\S/.test(l.text)) { cur.parts.push(l.text.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, '')); cur.end = idx; } else flush();
   });
   flush();
   return { records, ragged };
@@ -1129,6 +1165,9 @@ export function checkWaiting(carriers, opts = {}) {
     walked: 0, counts: { 'not-yet-asked': 0, 'asked-awaiting': 0, 'waiting-unspecified': 0, 'waiting-cross-project': 0, done: 0, other: 0 },
     cross: { found: 0, counts: { released: 0, 'not-yet-released': 0, 'not-visible': 0, 'needs-a-person': 0 }, items: [] },
     violations: [], detail: [], ragged: [], noStateCarriers: [],
+    // 464: one entry per record read, with the lines it covers and whether it is `waiting-on-reply`. `next-action` reads THIS
+    // list to decide which rows OWT-019 does not apply to, so the two commands cannot disagree about a row (R2 by construction).
+    records: [],
   };
   for (const c of carriers) {
     const { records, ragged } = extractRecords(c.content);
@@ -1139,8 +1178,10 @@ export function checkWaiting(carriers, opts = {}) {
       res.walked++;
       let state = classifyState(r.f.status);
       const at = { path: c.path, where: r.where };
-      const bad = (rule, why) => res.violations.push({ rule, ...at, why });
+      const raised = [];
+      const bad = (rule, why) => { raised.push(rule); res.violations.push({ rule, ...at, why }); };
       const note = [];
+      let askedDay = null;
       // OWT-027 / OWT-028: a release condition (or what it waits for) that names an object in another project
       const waitingNow = state === 'not-yet-asked' || state === 'asked-awaiting' || state === 'waiting-unspecified';
       const conditionText = [r.fr.release, r.fr.awaiting].filter((x) => x !== undefined && x !== '').join(' ; ');
@@ -1170,12 +1211,16 @@ export function checkWaiting(carriers, opts = {}) {
         const day = parseDay(r.f.askedAt);
         if (day === null) bad('OWT-022', r.f.askedAt === undefined || BLANK_FIELD.test(r.f.askedAt ?? '') ? 'is asked-awaiting but has no asked-at' : `has an asked-at that is not a date with a year: "${clip(r.f.askedAt, 40)}"`); // [mutation-anchor:asked-at-required]
         else if (day > now) bad('OWT-022', `has an asked-at (${dayString(day)}) later than today (${dayString(now)})`);
-        else note.push(`asked ${ageDays(now, day)}d ago`);
+        else { note.push(`asked ${ageDays(now, day)}d ago`); askedDay = day; }
         const hasWhat = r.f.awaiting !== undefined && !BLANK_FIELD.test(r.f.awaiting);
         const hasRelease = r.f.release !== undefined && !BLANK_FIELD.test(r.f.release);
         if (!(hasWhat && hasRelease)) bad('OWT-022', `is asked-awaiting but does not state ${!hasWhat && !hasRelease ? 'what it waits for and what event releases it' : !hasWhat ? 'what it waits for' : 'what event releases it'} (OWT-002)`); // [mutation-anchor:asked-release-required]
       }
       res.detail.push({ ...at, state, text: r.title, note: note.join(', ') });
+      // 464 R1: `asked-awaiting` and nothing OWT-020 or OWT-022 objects to. Both rules are read from what THIS function just raised
+      // for this record, never recomputed, so a row `waiting` fails is never one `next-action` waives.
+      const waitingOnReply = state === 'asked-awaiting' && !raised.some((rule) => rule === 'OWT-020' || rule === 'OWT-022'); // [mutation-anchor:waiting-on-reply]
+      res.records.push({ ...at, state, waitingOnReply, lineStart: r.lineStart, lineEnd: r.lineEnd, askedDay, age: askedDay === null ? null : ageDays(now, askedDay), awaiting: r.f.awaiting ?? '', release: r.f.release ?? '' });
     }
   }
   return res;
@@ -1233,9 +1278,16 @@ export function checkObservations(carriers, opts = {}) {
 
 // ── Self-test arms (the main path runs these first; a broken checker is exit 2) ─
 
+/** The shape every caller has always had: `{ ok, failures }`. `selfTestArms` is the same run with the names of the arms that were evaluated. */
 export function runSelfTest() {
+  const { ok, failures } = selfTestArms();
+  return { ok, failures };
+}
+
+export function selfTestArms() {
   const failures = [];
-  const expect = (name, cond) => { if (!cond) failures.push(name); };
+  const ran = []; // every arm that was evaluated, passed or not, so a test can tell "passed" from "never ran"
+  const expect = (name, cond) => { ran.push(name); if (!cond) failures.push(name); };
 
   // OWT-019
   expect('D2 violating: verb-only is unnamed', classifyNextAction('Continue implementation', {}).status === 'unnamed');
@@ -1363,7 +1415,42 @@ export function runSelfTest() {
   expect('461 R3 clean: exit-2 text names the headers the carrier showed, the words recognised and how to add one', /"待辦"/.test(why) && /"state"/.test(why) && /built in:/.test(why) && /declared by you: 後續/.test(why) && /--next-action-word/.test(why));
   expect('461 R3 clean: a carrier with a table and one with nothing to read are told apart', /has 1 table\(s\), but no table header matches/.test(why) && /no table and no heading to read/.test(explainNoNextActionField([{ path: 'n.md', content: 'just words\n' }]).join('\n')));
 
-  return { ok: failures.length === 0, failures };
+  // 464 (1.4.0): an `asked-awaiting` row that OWT-022 is satisfied by is `waiting-on-reply` for next-action, and every row
+  // `waiting` fails is still judged by OWT-019. Every arm here builds its carrier from text and reads no path.
+  const reply = (rows, o = {}) => checkNextActions([{ path: 'w.md', content: `| item | status | asked-at | waiting for | release | Next action |\n|---|---|---|---|---|---|\n${rows}` }], { now: NOW, ...o });
+  const REPLY_ROW = (status, askedAt, awaiting, release) => `| vendor quote | ${status} | ${askedAt} | ${awaiting} | ${release} | wait for the vendor reply |\n`;
+  const FULL = REPLY_ROW('asked-awaiting', '2026-10-05', 'the quote', 'the quote arrives');
+  const onlyReply = (res) => res.counts['waiting-on-reply'] === 1 && res.counts.unnamed === 0 && res.violations.length === 0 && res.counts['named-resolved'] + res.counts['named-unresolved'] === 0;
+  const stillUnnamed = (res) => res.counts.unnamed === 1 && res.counts['waiting-on-reply'] === 0 && res.violations.length === 1;
+  expect('OWT-019 clean: an asked-awaiting row with asked-at, what it waits for and its release is waiting-on-reply, not a violation and not named (XSPEC-464 R1)', onlyReply(reply(FULL)));
+  expect('OWT-019 clean: the Chinese state word and the Chinese field names are read the same way (XSPEC-464 R1)', onlyReply(checkNextActions([{ path: 'w.md', content: '| 事情 | 狀態 | 詢問日期 | 等什麼 | 解除條件 | 下一步 |\n|---|---|---|---|---|---|\n| 廠商報價 | 已問、等回覆 | 2026-10-05 | 廠商回信 | 收到報價單 | 等對方回信 |\n' }], { now: NOW })));
+  expect('OWT-019 violating: an asked-awaiting row with no asked-at is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('asked-awaiting', '', 'the quote', 'the quote arrives'))));
+  expect('OWT-019 violating: an asked-awaiting row whose asked-at is in the future is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('asked-awaiting', '2026-10-09', 'the quote', 'the quote arrives'))));
+  expect('OWT-019 violating: an asked-awaiting row that says nothing about what it waits for is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('asked-awaiting', '2026-10-05', '', 'the quote arrives'))));
+  expect('OWT-019 violating: an asked-awaiting row that says nothing about its release is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('asked-awaiting', '2026-10-05', 'the quote', ''))));
+  expect('OWT-019 violating: a not-yet-asked row is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('not-yet-asked', '', '', ''))));
+  expect('OWT-019 violating: a row in any other state is still unnamed (XSPEC-464 R3)', stillUnnamed(reply(REPLY_ROW('in progress', '2026-10-05', 'the quote', 'the quote arrives'))));
+  expect('OWT-019 violating: a table with no status column is read exactly as before (XSPEC-464 R3)', stillUnnamed(checkNextActions([{ path: 'n.md', content: '| item | Next action |\n|---|---|\n| vendor quote | wait for the vendor reply |\n' }], { now: NOW })));
+  const LISTED = (label) => '- vendor quote\n  - status: asked-awaiting\n  - asked-at: 2026-10-05\n  - waiting for: the quote\n  - release: the quote arrives\n  - Next action: wait for the vendor reply\n'.replace(label[0], label[1]);
+  const asList = (label) => checkNextActions([{ path: 'l.md', content: LISTED(label) }], { now: NOW });
+  expect('OWT-019 clean: a list item with every field is waiting-on-reply too (XSPEC-464 R1)', onlyReply(asList(['  - Next action', '  - Next action'])));
+  expect('OWT-019 violating: a list item whose release is blank is not read as filled by the Next action line under it, so it is still unnamed (XSPEC-464 R3)', stillUnnamed(asList(['release: the quote arrives', 'release:'])));
+  expect('OWT-019 violating: a list item whose what-it-waits-for is blank is not read as filled by the lines under it, so it is still unnamed (XSPEC-464 R3)', stillUnnamed(asList(['waiting for: the quote', 'waiting for:'])));
+  expect('OWT-019 violating: a next action that is a heading section is never waived (XSPEC-464 R3)', checkNextActions([{ path: 'n.md', content: '## Next action\n\n- wait for the vendor reply\n' }], { now: NOW }).counts.unnamed === 1);
+  const oldAsk = reply(REPLY_ROW('asked-awaiting', '2026-08-01', 'the quote', 'the quote arrives'));
+  expect('OWT-025 clean: a waiting-on-reply row shows its age and is marked stale past the threshold, still not a violation (XSPEC-464 R1)', onlyReply(oldAsk) && oldAsk.waitingOnReply[0]?.age === 67 && oldAsk.waitingOnReply[0]?.stale === true && reply(FULL).waitingOnReply[0]?.age === 2 && reply(FULL).waitingOnReply[0]?.stale === false);
+  expect('OWT-025 clean: the stale threshold of a waiting-on-reply row is injectable (XSPEC-464 R1)', reply(FULL, { staleAfterDays: 1 }).waitingOnReply[0]?.stale === true && oldAsk.waitingOnReply.length === 1 && reply(REPLY_ROW('asked-awaiting', '2026-08-01', 'the quote', 'the quote arrives'), { staleAfterDays: 100 }).waitingOnReply[0]?.stale === false);
+  const MATRIX = [FULL, REPLY_ROW('asked-awaiting', '', 'the quote', 'the quote arrives'), REPLY_ROW('asked-awaiting', '2026-10-09', 'the quote', 'the quote arrives'), REPLY_ROW('asked-awaiting', '2026-10-05', '', 'the quote arrives'), REPLY_ROW('asked-awaiting', '2026-10-05', 'the quote', ''), REPLY_ROW('asked-awaiting', 'last week', 'the quote', 'the quote arrives'), REPLY_ROW('not-yet-asked', '', '', ''), REPLY_ROW('waiting', '', '', ''), REPLY_ROW('in progress', '2026-10-05', 'the quote', 'the quote arrives'), REPLY_ROW('done', '2026-10-05', 'the quote', 'the quote arrives')];
+  const agree = (row) => {
+    const text = `| item | status | asked-at | waiting for | release | Next action |\n|---|---|---|---|---|---|\n${row}`;
+    const w = checkWaiting([{ path: 'w.md', content: text }], { now: NOW });
+    const n = checkNextActions([{ path: 'w.md', content: text }], { now: NOW });
+    const waitingPasses = w.counts['asked-awaiting'] === 1 && !w.violations.some((v) => v.rule === 'OWT-020' || v.rule === 'OWT-022');
+    return waitingPasses === (n.counts['waiting-on-reply'] === 1) && !(waitingPasses && n.violations.length > 0) && !(w.violations.some((v) => v.rule === 'OWT-022') && n.counts['waiting-on-reply'] > 0);
+  };
+  expect('OWT-019 clean: waiting and next-action never give opposite answers about the same row (XSPEC-464 R2)', MATRIX.every(agree) && MATRIX.length === 10);
+
+  return { ok: failures.length === 0, failures, ran };
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -1433,15 +1520,29 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (declared.error) { say(`[owt] next-action: ${declared.error}`); return finish(2); }
       const commandsDeclared = normaliseDeclaredCommands(flagAll('--command-word'));
       if (commandsDeclared.error) { say(`[owt] next-action: ${commandsDeclared.error}`); return finish(2); }
+      // 464: today and the stale threshold are injected, as they are for `waiting` and `observations`, never read inside a rule.
+      const nowArg = flag('--now');
+      const now = nowArg === undefined ? todayUtc() : parseDay(nowArg);
+      if (now === null) { say(`[owt] next-action: --now must be a date with a year (YYYY-MM-DD), got "${nowArg}"`); return finish(2); }
+      const staleArg = flag('--stale-after');
+      const staleAfterDays = staleArg === undefined ? undefined : Number(staleArg);
+      if (staleAfterDays !== undefined && (!Number.isFinite(staleAfterDays) || staleAfterDays < 0)) { say(`[owt] next-action: --stale-after must be a number of days, got "${staleArg}"`); return finish(2); }
       const files = args;
       if (!files.length) { say('[owt] next-action: no files given'); return finish(2); }
       const carriers = files.map(readCarrier);
-      const res = checkNextActions(carriers, { root, idPattern, words: declared.words, extraCommands: commandsDeclared.words });
+      const res = checkNextActions(carriers, { root, idPattern, words: declared.words, extraCommands: commandsDeclared.words, now, staleAfterDays });
       say(`[owt] OWT-019 walked ${res.walked} next-action field(s) in ${files.length} carrier(s); ${res.empty} empty/done field(s) not evaluated; ${res.noFieldCarriers.length} carrier(s) had no next-action field`);
-      say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed} undecidable-table-rows=${res.undecidable.length}`);
+      // `waiting-on-reply=N` is appended only when N is not 0, as `waiting-cross-project` is: a carrier with no such row prints what it always printed.
+      say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed} undecidable-table-rows=${res.undecidable.length}${res.counts['waiting-on-reply'] ? ` waiting-on-reply=${res.counts['waiting-on-reply']}` : ''}`);
       // 461 R6: the lines below are additions; every line above and below them is what 1.1.0 printed.
       for (const l of explainResolution({ root, rootGiven: rootArg !== undefined, carriers, split: res.unresolvedSplit, unresolved: res.counts['named-unresolved'], commands: commandsDeclared.words })) say(`[owt] ${l}`);
       for (const d of res.detail) say(`[owt]   ${d.status.padEnd(16)} ${d.path} ${d.where}: ${d.text.slice(0, 80)}${d.kinds.length ? '  <- ' + d.kinds.map((k) => `${k.kind}:${k.value}`).join(', ') : ''}`);
+      if (res.waitingOnReply.length) {
+        const stale = res.waitingOnReply.filter((x) => x.stale).length;
+        say(`[owt] WAITING-ON-REPLY ${res.waitingOnReply.length} row(s) are asked-awaiting and carry everything OWT-022 asks for, so OWT-019 is not applied to them (counted apart: not named, not resolved, not complete; ${stale} older than ${res.staleAfter} day(s), UNCALIBRATED):`);
+        for (const x of res.waitingOnReply) say(`[owt]   ${x.path} ${x.where}: asked ${x.age}d ago (${dayString(x.askedDay)})${x.stale ? ` STALE (older than ${res.staleAfter}d)` : ''}; waiting for: ${clip(x.awaiting, 60)}; released by: ${clip(x.release, 60)}`);
+        say('[owt] WAITING-ON-REPLY LIMIT: the check decides that asked-at, what is waited for and the release event are present and well formed (OWT-022). It cannot decide that the request was really sent or that it is still unanswered (OWT-014, as for OWT-023). A row without all of them is judged by OWT-019 as before.');
+      }
       for (const v of res.violations) say(`[owt] VIOLATION OWT-019: ${v.path} ${v.where} names no file path, test name, command or requirement identifier: "${v.text.slice(0, 80)}"`);
       for (const u of res.undecidable) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the next-action cell cannot be located, so the row is neither judged nor counted as empty`);
       say(`[owt] ${COVERAGE_NOTE}`);

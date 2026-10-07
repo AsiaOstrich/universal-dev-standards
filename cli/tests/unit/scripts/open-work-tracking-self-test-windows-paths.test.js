@@ -16,12 +16,22 @@ vi.mock('node:path', async () => {
   return { ...actual.win32, default: actual.win32 };
 });
 
-const { runSelfTest } = await import('../../../src/utils/open-work-tracking.mjs');
+const { runSelfTest, selfTestArms } = await import('../../../src/utils/open-work-tracking.mjs');
 
 describe('open-work-tracking self-test under Windows path rules', () => {
   it('the arm that checks the resolution line passes when the root resolves the Windows way, so uds open-work does not exit 2 on Windows', () => {
     const { failures } = runSelfTest();
     const resolutionArms = failures.filter((name) => name.startsWith('461 R6 clean: the resolution lines say the root'));
     expect(resolutionArms).toEqual([]);
+  });
+
+  // XSPEC-464 added arms that build their carriers from text and look nothing up on disk. They are named here, under the Windows
+  // rules, for two reasons: a failure among them must be visible by name, and "none failed" must not be satisfied by "none ran".
+  it('every self-test arm added for the waiting-on-reply outcome (XSPEC-464) runs and passes when paths resolve the Windows way, so uds open-work does not exit 2 on Windows because of them', () => {
+    const { failures, ran } = selfTestArms();
+    const mine = ran.filter((name) => /\(XSPEC-464 R\d\)$/.test(name));
+    expect(mine.length, 'the arms of XSPEC-464 were evaluated').toBeGreaterThanOrEqual(13);
+    expect(failures.filter((name) => /\(XSPEC-464 R\d\)$/.test(name))).toEqual([]);
+    expect(failures).toEqual([]);
   });
 });

@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/open-work-tracking.md)
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Last Updated**: 2026-10-07
 **Applicability**: Any project that carries work across more than one working session and risks losing an item between them
 **Scope**: universal
@@ -83,13 +83,13 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 
 ## The invariant
 
-**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, (7) make every "next action" name something a reader can go and find, and (8) tell a waiting item nobody has asked about from one awaiting a reply, and give a fact it cannot see a stamped place to live — `unknown` a real value, every observation's age shown, and (9) let a wait name an object in another project by its logical name, say whether this machine can see it, and keep that record where the sessions of every project involved can read it.**
+**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, (7) make every "next action" name something a reader can go and find (or, for an item already asked and awaiting a reply, say when it was asked, what it waits for and what releases it), and (8) tell a waiting item nobody has asked about from one awaiting a reply, and give a fact it cannot see a stamped place to live — `unknown` a real value, every observation's age shown, and (9) let a wait name an object in another project by its logical name, say whether this machine can see it, and keep that record where the sessions of every project involved can read it.**
 
 **一個承載開放工作的地方，必須：（1）不要求分類就能收下新項目、（2）為每一個標為等待中的項目記下解除條件、
 （3）對任何有可靠來源可推導的欄位改用生成、（4）回報還剩什麼時同時揭露看不到什麼、
 （5）在控制權從 agent 交回人的那一刻被檢視——而且那個檢視不能讓回合失敗、
 （6）把「這份工作為了什麼」與「做到哪了」分開存放，並替前者的每一次修改留下交代、
-（7）讓每一個「下一步」都點名一個讀的人找得到的東西、（8）分得出「還沒問」與「已問、等回覆」，並讓看不見的事實有一個帶戳記的存放處——`unknown` 是正式的值、每筆觀察的年齡一律顯示、（9）讓一個等待可以用邏輯名稱點名另一個專案裡的東西、說明這台機器看不看得到它，並把那份紀錄放在每個相關專案的 session 都讀得到的地方。**
+（7）讓每一個「下一步」都點名一個讀的人找得到的東西（對已問、等回覆的項目，則寫明何時問的、在等什麼、什麼事件解除它）、（8）分得出「還沒問」與「已問、等回覆」，並讓看不見的事實有一個帶戳記的存放處——`unknown` 是正式的值、每筆觀察的年齡一律顯示、（9）讓一個等待可以用邏輯名稱點名另一個專案裡的東西、說明這台機器看不看得到它，並把那份紀錄放在每個相關專案的 session 都讀得到的地方。**
 
 ---
 
@@ -115,7 +115,7 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 | **OWT-016** | Any window or threshold this standard's requirements reference carries its provenance, or is marked uncalibrated | warning |
 | **OWT-017** | A carrier that holds a piece of work's goal, acceptance criteria, or constraints holds none of its progress or next action, and the reverse. This is decided by walking each carrier's structural fields (sections, columns, typed markers), never by file names. A progress update therefore never requires touching the goal | warning |
 | **OWT-018** | Every change to a piece of work's goal, acceptance criteria, or constraints leaves a revision record stating what changed, who approved it, and why. A change with no approver is listed when control returns to a human (OWT-007); it is never silent | error |
-| **OWT-019** | A "next action" field names at least one concrete object: a file path, a test name, a command, or a requirement identifier. A verb alone ("continue", "handle the rest") does not. This judges whether an object is named, never how well the sentence is worded | warning |
+| **OWT-019** | A "next action" field names at least one concrete object: a file path, a test name, a command, or a requirement identifier. A verb alone ("continue", "handle the rest") does not. This judges whether an object is named, never how well the sentence is worded. An item in `asked-awaiting` that satisfies OWT-022 is not judged here: its next step may be the reply it waits for, and OWT-022 judges it (when it was asked, what it waits for, what releases it) | warning |
 | **OWT-020** | An item marked waiting states which of two states it is in: `not-yet-asked` (the request is drafted or decided and has not been sent) or `asked-awaiting` (it has been sent and nothing has come back). A waiting item in neither is named individually in the open-work summary — never folded into a total, never counted as done | warning |
 | **OWT-021** | An item in `not-yet-asked` names the draft or action whose sending releases it: a file path, a command, a test name or a requirement identifier (the recognition OWT-019 uses) | warning |
 | **OWT-022** | An item in `asked-awaiting` carries `asked-at` (a calendar day with a year, not later than today) and satisfies OWT-002: what it waits for and what event releases it | warning |
@@ -217,6 +217,24 @@ This is the same failure DEX-006 names for a different artefact, one layer remov
 | 為什麼行為相反 | 它在看的事件本身夠稀少，擋在它上面不會把耐性用完 | TCI 自己的規則已經寫出這裡不能做成閘門的理由：**「一個在每個回合都為真的閘門會被關掉，關掉之後它什麼都不保護」**（TCI R4）。開放工作非空幾乎永遠為真，所以這個確認點被設計成永不保留控制權 |
 | 兩者掛同一事件時的順序 | — | 先回報（OWT-009），所以即使那個回合隨後被 TCI 擋下，它的輸出仍然可見 |
 
+### The summary can be printed by a program; the full list is fetched on demand
+
+OWT-007 says a summary occurs at the point control returns from agent to human. It does **not** say who produces it or how long it is, and the two obvious ways of meeting it differ a great deal in price. **A program prints a short summary when the turn ends**: it is the output of a command run by whatever already sits on the turn-end event, so it costs the model no tokens, and the **full version is produced only when the reader asks for it**. **Or the model writes a complete table into every reply**: that satisfies OWT-007 and is a valid choice, but it is the expensive one, and it is not what this standard requires. Everything OWT-008 and OWT-009 say still holds for the first way: the program reports and never blocks, and its output comes before any blocking check's verdict.
+
+A suggested vocabulary for what a short summary says about each open item (a suggestion, not a requirement): waiting on a person's decision; waiting on an outside party's reply; waiting on CI; due on a fixed date; nobody is looking at it. These line up with what OWT-002 and OWT-020–OWT-022 already let a carrier record (what an item waits for, and whether it was asked); this standard fixes no vocabulary for the summary itself.
+
+One adopting project does it this way: a program prints the short summary at the end of a turn, and the full list is produced when the user calls for it. That project's files are private, so they are not linked here. It is an external example, **not part of the UDS package and not guaranteed to be compatible with it**, and it shows only that the approach is workable.
+
+**An honest note:** UDS ships no program that produces an OWT-007 summary, and nothing in this standard checks that one exists (see [What enforces this standard](#what-enforces-this-standard)). This subsection describes a cheaper way to satisfy a requirement that already exists. It adds no requirement number and no check.
+
+OWT-007 說的是：控制權從 agent 交回人的那一刻要有一份摘要。它**沒有**規定誰產生、多長，而滿足它的兩種明顯做法價格差很多。**由程式在回合結束時印出一份簡短摘要**：那是掛在回合結束事件上的既有機制所執行的一個指令的輸出，所以不消耗模型的 token，而**完整版在讀的人要看時才產生**。**或者由模型在每則回覆裡手工附上一張完整的表**：它滿足 OWT-007，是可行的選擇，但那是昂貴的做法，不是本標準要求的做法。OWT-008 與 OWT-009 對第一種做法照樣成立：程式只回報、永不阻斷，它的輸出排在任何阻斷式檢查的判決之前。
+
+簡短摘要對每個開放項目怎麼分類，這裡建議一組詞彙（建議，不是要求）：等人決策；等外部（對方回覆）；等 CI；固定日期到期；無人看管。它們與 OWT-002、OWT-020–OWT-022 已讓承載庫記錄的東西（在等什麼、有沒有問過）相呼應；本標準不替摘要本身規定任何詞彙。
+
+有一個採用專案是這樣做的：回合結束時由程式印出簡短摘要，完整清單在使用者呼叫時才產生。那個專案的檔案是私有的，所以這裡不放連結。它是一個外部範例，**不屬於 UDS 套件，也不保證與它相容**，只用來說明這個做法可行。
+
+**誠實註記：** UDS 沒有出貨任何產生 OWT-007 摘要的程式，本標準也沒有任何東西檢查這種程式存在（見〈[什麼在執行本標準](#what-enforces-this-standard)〉）。本小節描述的是滿足一條既有要求的較便宜做法，不新增要求編號，也不新增檢查。
+
 ---
 
 ## Anchors: structure, not wording
@@ -280,12 +298,16 @@ agent 正當地會提出修改，禁止只會教它學會靜默地改——但�
 它是**結構**判準（有沒有點名對象），不是措辭好壞的判斷；措辭漂亮但什麼都沒點名的句子照樣不過，
 簡短但點了一個測試名稱的句子照樣過。這讓它留在 OWT-010 與 OWT-014 的範圍之內。
 
-A check reports three outcomes, never one green: **named and resolved** (the object was found — for instance the path exists), **named, unresolved** (an object is named but could not be found — legitimate when the next action is to create it), and **unnamed** (a violation). Recognising *that* a string is a path, a command, a test name, or an identifier is itself a pattern match, so per OWT-011 its coverage is declared unknown: an unrecognised format is reported as unnamed, and a clean pass never means "every next action is specific". The words that mark a field as a next action (`Next action`, `下一步`, `下一個動作`, and so on) are **one list**, read three ways (a heading, a table header, an inline label), and it is uncalibrated (OWT-016): a carrier that heads its column `待辦` or `TODO` is read only once the adopting project declares that word, because the wide words also head columns that are not the next action; and when no field is found at all, the check exits 2 and prints what each carrier showed and which words it knows.
+A check reports three outcomes, never one green: **named and resolved** (the object was found — for instance the path exists), **named, unresolved** (an object is named but could not be found — legitimate when the next action is to create it), and **unnamed** (a violation). Since 1.4.0 there is a fourth outcome for one kind of row, described below. Recognising *that* a string is a path, a command, a test name, or an identifier is itself a pattern match, so per OWT-011 its coverage is declared unknown: an unrecognised format is reported as unnamed, and a clean pass never means "every next action is specific". The words that mark a field as a next action (`Next action`, `下一步`, `下一個動作`, and so on) are **one list**, read three ways (a heading, a table header, an inline label), and it is uncalibrated (OWT-016): a carrier that heads its column `待辦` or `TODO` is read only once the adopting project declares that word, because the wide words also head columns that are not the next action; and when no field is found at all, the check exits 2 and prints what each carrier showed and which words it knows.
 
 檢查回報三種結果，而不是一個綠燈：**點名且已找到**（對象被找到——例如路徑存在）、**點名但未找到**
-（有點名對象但找不到——當下一步就是要建立它時是正當的）、**未點名**（違反）。
+（有點名對象但找不到——當下一步就是要建立它時是正當的）、**未點名**（違反）。自 1.4.0 起，有一種列另有第四種結果，見下面。
 辨認「這串字是路徑、指令、測試名稱還是編號」本身是樣式比對，所以依 OWT-011 其涵蓋率明示為未知：
 認不出的格式會被回報為未點名，而乾淨的通過絕不表示「每個下一步都夠具體」。標示「下一步」欄位的詞（`Next action`、`下一步`、`下一個動作` 等）是**一份清單**，以三種方式讀（標題、表頭、行內標籤），且屬未校準（OWT-016）：欄位標題寫 `待辦` 或 `TODO` 的載體，要等採用專案宣告那個詞才會被讀到，因為範圍太寬的詞也會標在不是下一步的欄位上；而完全找不到欄位時，檢查以 2 結束，並印出每個載體看到了什麼、認得哪些詞。
+
+**A fourth outcome, for a reply (1.4.0).** A next action that is *the reply itself* ("wait for the vendor to answer", "wait for them to propose a time") names no file, command, test or identifier, and used to be reported as unnamed. That judged the wrong thing. For an item that was already asked, the starting point is not a verb with an object; it is the three facts **OWT-022** requires: when it was asked (`asked-at`), what it waits for, and what event releases it. An item in `asked-awaiting` that satisfies OWT-022 is therefore judged by OWT-022 and not by OWT-019, and a check reports it as a fourth outcome, **waiting on reply**. It is not a violation. It is **not counted as named** and **not counted as complete**. It is listed on its own with its **age**, and one older than the declared threshold is marked **stale** (the threshold OWT-025 uses, uncalibrated). The exemption is not a hiding place: it applies only when the item is `asked-awaiting` **and** OWT-022 finds nothing missing. A row with no `asked-at` (or one in the future), nothing stated that it waits for, or no release event is still judged by OWT-019; so is a `not-yet-asked` item (its next step is sending the draft, which OWT-021 requires it to name), an item in any other state, and a next action written as a heading section rather than as a row that has a status. A carrier with no status field is read exactly as before. The two checks read the item through one function, so they cannot give opposite answers about it: a row `uds open-work waiting` accepts is never an OWT-019 violation under `next-action`, and a row `waiting` reports under OWT-022 is never waived. **What this cannot decide:** that the request was really sent, or is still unanswered. The check decides only that the fields exist and are well formed, as OWT-023 does for an observation (OWT-014).
+
+**回覆的第四種結果（1.4.0）。** 下一步就是*那個回覆本身*（「等廠商回信」「等對方排時間」），沒有點名任何檔案、指令、測試或編號，過去被回報為未點名。那判定的是錯的東西：對一個已經問出去的項目，起點不是「動詞加對象」，而是 **OWT-022** 要求的三件事——何時問的（`asked-at`）、在等什麼、什麼事件解除它。所以處於 `asked-awaiting` 並滿足 OWT-022 的項目，由 OWT-022 判定、不由 OWT-019 判定，檢查把它回報為第四種結果：**等待回覆**。它不是違反；它**不算「已點名」**，也**不算完成**；它被單獨列出並顯示**年齡**，超過宣告門檻的標為**已舊**（沿用 OWT-025 用的門檻，未校準）。這個免除不是藏身處：只有項目是 `asked-awaiting` **而且** OWT-022 找不出缺漏時才適用。沒有 `asked-at`（或在未來）、沒有寫在等什麼、或沒有解除事件的列，照舊由 OWT-019 判定；`not-yet-asked` 的項目也一樣（它的下一步是送出那份草稿，OWT-021 要求它點名草稿）；其他狀態的項目，以及寫成小節標題而不是帶狀態欄之列的下一步，也一樣。沒有狀態欄的載體，讀法與過去完全相同。兩個檢查以同一個函式讀這個項目，所以不可能對它給出相反的結論：`uds open-work waiting` 接受的列，在 `next-action` 底下絕不是 OWT-019 違反；`waiting` 以 OWT-022 報違反的列，絕不被免除。**這無法判定的事：**請求是否真的送出、是否仍未回覆。檢查只判定欄位存在且格式正確，與 OWT-023 對一筆觀察所做的相同（OWT-014）。
 
 ---
 
@@ -458,6 +480,8 @@ Since 1.2.0 the same module also ships `uds open-work waiting` (OWT-020–OWT-02
 
 Since 1.3.0 `uds open-work waiting` also resolves a release condition that names another project (OWT-027–OWT-028): `--root NAME=DIR`, repeatable and alongside the single `--root DIR` it always took, or `open_work.projects` in `uds.project.yaml`, says where each project lives, and a project it cannot see is counted apart. `uds open-work next-action` and `separation` take `--next-action-word WORD` (repeatable), or `open_work.next_action_words`, for the words an adopting project's carriers use, and `uds open-work next-action` and `waiting` take `--command-word PROGRAM` (repeatable; `glab` and `dotnet` are built in, `go`, `make` and `sh` deliberately are not) or `open_work.command_words`, for the programs it reads as a command. `next-action` also says which directory a path is looked up under and where that came from, and splits `named-unresolved` into `path-missing` (looked up, not there) and `not-resolvable` (a command, a test name or a requirement identifier, which is never looked up). The checker itself reads no settings file; the `uds` command passes them in, so `node scripts/check-open-work-tracking.mjs` takes the flags only.
 
+Since 1.4.0 `uds open-work next-action` reads each row's state through the same function `waiting` runs, with the same date, and reports a row that is `asked-awaiting` and complete under OWT-022 as `waiting-on-reply`: counted apart (`waiting-on-reply=N` is appended to the counts line only when N is not 0, so a carrier with no such row prints what it always printed), listed in its own section with its age, and not a violation. It takes `--now` (the date, never read inside a rule) and `--stale-after` (default 7 days, uncalibrated). **The exit code of `next-action` changes for a carrier that has such rows: a row that used to make it exit 1 as unnamed no longer does.** A carrier with no status column, or whose rows are in no such state, prints exactly what it printed in 1.3.0. `uds open-work self-test` carries a satisfying sample and violating samples (no `asked-at`, `asked-at` in the future, nothing waited for, no release, `not-yet-asked`, another state, a carrier with no status column, a heading section) for this outcome, and an arm that reads `waiting` and `next-action` over the same rows and requires them to agree.
+
 **UDS 不對本標準設任何閘門，而這件事是被記錄的，不是被暗示的。** UDS 陳述一個承載開放工作的地方
 必須滿足的關係；有沒有東西去判定它，依上面的[寫法約束](#how-this-standard-is-written--and-why-it-is-written-that-way)，
 是採用專案的決定——與 [deferred-item-exit](deferred-item-exit.md) 對自己出口劃的界線相同。
@@ -468,6 +492,8 @@ Since 1.3.0 `uds open-work waiting` also resolves a release condition that names
 自 1.2.0 起，同一份程式還附上 `uds open-work waiting`（OWT-020–OWT-022）與 `uds open-work observations`（OWT-023–OWT-026），結束碼相同（0 無違反、1 違反、2 判定不了）。今天的日期是被注入的（`--now`），絕不在規則裡讀時鐘，所以結果不會隨日子漂移；`--stale-after` 宣告門檻。兩者都以結構欄位名讀表格與清單項目，中英文皆可。沒有 `observed-by` 也沒有 `observed-at` 欄的表格不被讀成觀察載體；用詞彙裡沒有的字寫成的等待項目，被讀成「不是等待」——所以乾淨的通過只涵蓋被辨認出來的部分，而每次執行都這麼說（OWT-011）。`uds open-work self-test` 對 OWT-020–OWT-026 每一條各跑一個違反的樣本與一個符合的樣本，突變測試顯示拿掉任何一個偵測都會讓某個測試或自測變紅（OWT-015）。與 1.1.0 的檢查相同，它都沒有接進任何 UDS 發版閘門。
 
 自 1.3.0 起，`uds open-work waiting` 也會解析點名另一個專案的解除條件（OWT-027–OWT-028）：`--root NAME=DIR`（可重複，並與它一直接受的單一 `--root DIR` 並存），或 `uds.project.yaml` 的 `open_work.projects`，說明每個專案在哪裡；看不到的專案被單獨計數。`uds open-work next-action` 與 `separation` 接受 `--next-action-word WORD`（可重複），或 `open_work.next_action_words`，放採用專案的載體所用的詞；`uds open-work next-action` 與 `waiting` 接受 `--command-word 程式名`（可重複；`glab` 與 `dotnet` 內建，`go`、`make`、`sh` 刻意不內建），或 `open_work.command_words`，放它讀成指令的程式。`next-action` 另外會說路徑是在哪個目錄下查找的、那個目錄從哪來，並把 `named-unresolved` 分成 `path-missing`（查過、不在）與 `not-resolvable`（指令、測試名稱、需求編號，從不查找）。檢查本體不讀任何設定檔，是 `uds` 指令把設定傳進去，所以 `node scripts/check-open-work-tracking.mjs` 只接受旗標。
+
+自 1.4.0 起，`uds open-work next-action` 以 `waiting` 所用的同一個函式、同一個日期讀每一列的狀態，把處於 `asked-awaiting` 且滿足 OWT-022 的列回報為 `waiting-on-reply`：單獨計數（只有在數量不是 0 時才在計數行尾附上 `waiting-on-reply=N`，所以沒有這種列的載體印出的與過去一模一樣）、在自己的一節裡列出並顯示年齡、不算違反。它接受 `--now`（日期，絕不在規則裡讀時鐘）與 `--stale-after`（預設 7 天，未校準）。**對含有這種列的載體，`next-action` 的結束碼會改變：過去因「未點名」而回 1 的列，現在不再讓它回 1。**沒有狀態欄的載體，或列不在這種狀態的載體，印出的與 1.3.0 完全相同。`uds open-work self-test` 對這個結果附上一個符合的樣本與多個違反的樣本（沒有 `asked-at`、`asked-at` 在未來、沒寫在等什麼、沒有解除事件、`not-yet-asked`、其他狀態、沒有狀態欄的載體、小節標題），以及一個同時讀 `waiting` 與 `next-action`、要求兩者一致的自測臂。
 
 What this standard does do is make that call visible: OWT-014 guarantees every requirement here **can** be decided, OWT-015 fixes what it takes for a decision to count, and OWT-005/OWT-011 fix what a partial decision is allowed to print.
 
@@ -494,6 +520,8 @@ This standard's shape comes from one adopting project's observations made and ac
 
 **1.3.0's additions (OWT-027–OWT-029)** come from the same adopting project on 2026-10-07 (XSPEC-460 and XSPEC-461): items in one project wait for what another project produces, and the only record of how was an ad-hoc convention; and a user whose carrier kept one table per status got exit 2 from `next-action` without being told why. Under OWT-016, everything the new look-up uses that resembles a threshold is **uncalibrated, an initial judgment**: the pattern for a logical name, the machine-specific path prefixes, the two object kinds it can look up (a path and a tag), and the next-action words, both the built-in list and its refusal to include `待辦`, `後續`, `Next`, `TODO` and `Action`. None of it was measured against real usage.
 
+**1.4.0's addition (no new requirement identifier)** comes from the same adopting project's test of 6.14.0-beta.5 on 2026-10-07 (XSPEC-464): 14 of its 17 next-action fields were "wait for the other side's reply", "wait to schedule" or "wait to revoke"; `waiting` accepted those rows and `next-action` rejected the same rows; and the project declined to rewrite its carrier only to pass the check. Under OWT-016, what the new outcome uses that resembles a threshold is **uncalibrated, an initial judgment**: the 7-day stale threshold is the default OWT-025 already carries, reused without measurement, and the state words are those OWT-020 reads. The outcome is only as good as the carrier's records: a carrier that states a release condition but no asked date is still judged by OWT-019 until it records the date.
+
 - **OWT-001 的「不超過兩個欄位」**與**OWT-012 的「過了宣告的門檻」**（在原始觀察中以兩週為例）
   依 OWT-016 是**初始判斷，不是量測結果**——兩個欄位跟三個欄位、兩週跟四週的未分類門檻，
   目前都沒有對照比較過。
@@ -513,6 +541,8 @@ This standard's shape comes from one adopting project's observations made and ac
 
 **1.3.0 的新增（OWT-027–OWT-029）**來自同一個採用專案在 2026-10-07 的工作（XSPEC-460 與 XSPEC-461）：一個專案的項目在等另一個專案的產出，而當時唯一的紀錄方式是臨時約定；另有一位使用者的載體一個狀態一張表，`next-action` 回了 2，卻沒有說為什麼。依 OWT-016，新的查找所用到的一切類似閾值的東西都是**未校準、初始判斷**：構成邏輯名稱的樣式、機器專屬的路徑前綴、它能查找的兩種物件（路徑與標籤），以及「下一步」詞——內建清單，與它拒絕收進 `待辦`、`後續`、`Next`、`TODO`、`Action` 的決定。沒有任何一項對照過真實使用量測。
 
+**1.4.0 的新增（沒有新的要求編號）**來自同一個採用專案對 6.14.0-beta.5 的測試（2026-10-07，XSPEC-464）：它的 17 個下一步欄位中有 14 個是「等對方回信」「等排時間」或「等撤銷」；`waiting` 接受這些列、`next-action` 卻拒絕同一批列；而該專案拒絕只為了讓檢查通過而改寫自己的載體。依 OWT-016，新結果用到的一切類似閾值的東西都是**未校準、初始判斷**：「已舊」的 7 天是 OWT-025 本來就帶的預設，未經量測就沿用，而狀態詞就是 OWT-020 讀的那些。這個結果只和載體的紀錄一樣好：只寫了解除條件、沒寫問的日期的載體，在補上日期之前仍由 OWT-019 判定。
+
 ---
 
 ## Relationship to other standards
@@ -524,6 +554,8 @@ This standard's shape comes from one adopting project's observations made and ac
 - OWT-018 attaches to the same hand-back point as OWT-007: an edit to intent with no approver is one more thing listed there, and, like everything listed there, never blocks.
 - OWT-020–OWT-022 refine OWT-002 (a waiting item states what it waits for and its release) by saying which kind of wait it is; OWT-023–OWT-026 sit beside OWT-003 and OWT-006 — the first says what may be generated and what may not, the second that what could not be seen is never counted as zero.
 - OWT-027–OWT-029 extend OWT-002 across a project boundary (a release condition may be another project's object) and OWT-006 with it: a project this machine cannot see is counted apart, never as released and never as zero.
+
+- OWT-019 and OWT-022 meet at one point (1.4.0): an item in `asked-awaiting` that satisfies OWT-022 is judged by OWT-022, and its next step may be the reply it waits for; every other next action is judged by OWT-019 as before.
 
 - [deferred-item-exit](deferred-item-exit.md) — 同一個形狀的上游一半：DEX 要求延後項目離開文件、
   抵達可追蹤的出口，並刻意不規定出口的載體。本標準接手**出口存在之後**的事，
@@ -540,3 +572,5 @@ This standard's shape comes from one adopting project's observations made and ac
   而且與列在那裡的一切相同，永不阻斷。
 - OWT-020–OWT-022 細化 OWT-002（等待項目說明在等什麼與解除條件），說明那是哪一種等待；OWT-023–OWT-026 與 OWT-003、OWT-006 並列——前者說什麼可以生成、什麼不可以，後者說看不到的絕不被算成零。
 - OWT-027–OWT-029 把 OWT-002 延伸過專案的邊界（解除條件可以是另一個專案的物件），並連同 OWT-006：這台機器看不到的專案被單獨計數，絕不算成已解除、也絕不算成零。
+
+- OWT-019 與 OWT-022 在一點上交會（1.4.0）：處於 `asked-awaiting` 並滿足 OWT-022 的項目由 OWT-022 判定，它的下一步可以就是它等的那個回覆；其他每一個下一步照舊由 OWT-019 判定。
