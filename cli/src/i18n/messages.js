@@ -1072,6 +1072,7 @@ export const messages = {
         droppedRetiredHashes: 'Dropped {count} manifest record(s) for files UDS no longer ships and that are already gone:',
         droppedForeignSkillHashes: 'Dropped {count} skill record(s) that do not describe files UDS installed.',
         droppedForeignCommandHashes: 'Dropped {count} command record(s) for commands UDS does not ship.',
+        droppedForeignNames: 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.',
         // Success
         updateSuccess: '✓ Standards updated successfully!',
         versionUpdated: 'Version: {current} → {latest}',
@@ -2355,6 +2356,7 @@ export const messages = {
         droppedRetiredHashes: '已清掉 {count} 筆 manifest 紀錄——這些檔案 UDS 已不再出貨，而且本來就已經不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 筆技能紀錄——它們描述的不是 UDS 安裝的檔案。',
         droppedForeignCommandHashes: '已清掉 {count} 筆命令紀錄——UDS 不出貨這些命令。',
+        droppedForeignNames: '已從 manifest 清掉 {count} 個技能／命令名稱——UDS 不出貨，或並未安裝。',
         // Success
         updateSuccess: '✓ 標準更新成功！',
         versionUpdated: '版本：{current} → {latest}',
@@ -3560,6 +3562,7 @@ export const messages = {
         droppedRetiredHashes: '已清掉 {count} 笔 manifest 记录——这些文件 UDS 已不再发布，而且本来就已经不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 条技能记录——它们描述的不是 UDS 安装的文件。',
         droppedForeignCommandHashes: '已清掉 {count} 条命令记录——UDS 不发布这些命令。',
+        droppedForeignNames: '已从 manifest 清掉 {count} 个技能／命令名称——UDS 不发布，或并未安装。',
         // Success
         updateSuccess: '✓ 标准更新成功！',
         versionUpdated: '版本：{current} → {latest}',

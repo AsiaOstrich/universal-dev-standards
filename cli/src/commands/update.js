@@ -27,6 +27,7 @@ import {
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
+import { pruneForeignSkillNames, pruneForeignCommandNames } from '../utils/installed-names-ownership.js';
 import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { config } from '../utils/config-manager.js';
@@ -631,6 +632,11 @@ export async function updateCommand(options) {
     // one who has nothing else to trigger the correction).
     const foreignSkillsOnLatest = pruneForeignSkillHashes(manifest);
     const foreignCommandsOnLatest = pruneForeignCommandHashes(manifest);
+    // XSPEC-456 R4: and the skill / command NAME lists (same reason).
+    const namesOnLatestBefore = (manifest.skills?.names?.length ?? 0) + (manifest.commands?.names?.length ?? 0);
+    pruneForeignSkillNames(manifest, projectPath);
+    pruneForeignCommandNames(manifest, projectPath);
+    const foreignNamesOnLatest = namesOnLatestBefore - (manifest.skills?.names?.length ?? 0) - (manifest.commands?.names?.length ?? 0);
     if (retiredOnLatest.length > 0) {
       console.log();
       console.log(chalk.gray(
@@ -652,7 +658,14 @@ export async function updateCommand(options) {
         `  ${(msg.droppedForeignCommandHashes || 'Dropped {count} command record(s) for commands UDS does not ship.').replace('{count}', foreignCommandsOnLatest.length)}`
       ));
     }
-    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0) {
+    if (foreignNamesOnLatest > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', foreignNamesOnLatest)}`
+      ));
+    }
+    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0
+      || foreignNamesOnLatest > 0) {
       writeManifest(manifest, projectPath);
     }
 
@@ -2928,6 +2941,15 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // XSPEC-454 R2: and forget the records that were never UDS's (the manifest this merges into
   // may come from an installer that hashed the whole skills folder).
   pruneForeignSkillHashes(manifest);
+  // XSPEC-456 R4: and the names UDS cannot vouch for (not shipped, or not on disk where installed).
+  const skillNamesBefore = manifest.skills.names.length;
+  pruneForeignSkillNames(manifest, projectPath, { checkDisk: true });
+  const droppedSkillNames = skillNamesBefore - manifest.skills.names.length;
+  if (droppedSkillNames > 0) {
+    console.log(chalk.gray(
+      `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', droppedSkillNames)}`
+    ));
+  }
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -3063,6 +3085,15 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   }
   // XSPEC-454 R2: and forget command records for commands UDS does not ship.
   pruneForeignCommandHashes(manifest);
+  // XSPEC-456 R4: same for the command names.
+  const commandNamesBefore = manifest.commands.names.length;
+  pruneForeignCommandNames(manifest, projectPath, { checkDisk: true });
+  const droppedCommandNames = commandNamesBefore - manifest.commands.names.length;
+  if (droppedCommandNames > 0) {
+    console.log(chalk.gray(
+      `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', droppedCommandNames)}`
+    ));
+  }
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
