@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, renameSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { config } from '../utils/config-manager.js';
+import { readSddHeader } from '../utils/sdd-header.js';
 
 /**
  * Micro-spec status values
@@ -364,6 +365,20 @@ export class MicroSpec {
     // Parse confirmed
     const confirmedMatch = content.match(/\*\*Confirmed\*\*: (Yes|No)/);
     if (confirmedMatch) spec.confirmed = confirmedMatch[1] === 'Yes';
+
+    // XSPEC-456 R5: a file that is not in the micro-spec layout is a full SDD spec (or something else
+    // that lives in specs/). Everything above was built for the micro-spec layout, and what it does not
+    // find it fills with defaults - `draft`, an empty title, type `feature` - which `uds spec list`
+    // printed as if they had been read from the file. For these files the header is read as the SDD
+    // layouts write it, and what cannot be read stays unknown (`null`) instead of becoming a default.
+    const isMicro = /^## (?:Micro-)?Spec: /m.test(content) || /\*\*Spec Mode\*\*: /.test(content);
+    spec.format = isMicro ? 'micro' : 'sdd';
+    if (!isMicro) {
+      const header = readSddHeader(content);
+      spec.title = header.title;
+      spec.status = header.status;
+      spec.type = header.type;
+    }
 
     return spec;
   }
