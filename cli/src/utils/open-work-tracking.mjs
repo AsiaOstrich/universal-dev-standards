@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * Open-work-tracking reference checks for OWT-017 / OWT-018 / OWT-019.
- * open-work-tracking 1.1.0 參考判定程序（OWT-017／018／019）。
+ * Open-work-tracking reference checks for OWT-017 … OWT-026.
+ * open-work-tracking 1.2.0 參考判定程序（OWT-017～026）。
  * // implements DEC-122-L1
+ * // implements XSPEC-459
  *
  * ── Where this lives, and why there is exactly one copy ─────────────────────
  * This file is the ONE body of the rules. Two front doors call it and neither
  * holds a copy:
- *   uds open-work <next-action|revision|separation|self-test> ...
+ *   uds open-work <next-action|revision|separation|waiting|observations|self-test> ...
  *       cli/src/commands/open-work.js, shipped in the npm package (`cli/src`
  *       is in package.json `files`), so an adopter can run it without a clone.
  *   node scripts/check-open-work-tracking.mjs ...
@@ -33,7 +34,7 @@
  * nothing relative. The `.mjs` extension is part of that: a copy in a bare temp
  * directory has no package.json, and only `.mjs` is read as an ES module there.
  *
- * ── Three checks ────────────────────────────────────────────────────────────
+ * ── Five checks ─────────────────────────────────────────────────────────────
  *   next-action   OWT-019  every "next action" field names a file path, test
  *                          name, command or requirement identifier.
  *                          Three outcomes, never one green:
@@ -66,6 +67,23 @@
  *                          listing never changes the exit code (OWT-008).
  *   separation    OWT-017  no single carrier holds both an intent section and
  *                          a progress / next-action section.
+ *   waiting       OWT-020  a waiting item says which of two states it is in:
+ *                          not-yet-asked or asked-awaiting. A waiting item that is
+ *                          neither is named one by one, never folded into a total.
+ *                 OWT-021  not-yet-asked names the draft or action (a path, command,
+ *                          test name or identifier; the OWT-019 recognisers).
+ *                 OWT-022  asked-awaiting carries asked-at (a dated day), what it
+ *                          waits for and what event releases it (OWT-002).
+ *   observations  OWT-023  a hand-written row about an external fact the assistant
+ *                          cannot observe carries observed-by, observed-at (a dated
+ *                          day, not in the future) and a value of yes, no or unknown.
+ *                 OWT-024  unknown is counted apart and never complete; a row marked
+ *                          done while unknown is a violation.
+ *                 OWT-025  the age of every observation is shown; one older than the
+ *                          threshold is reported as stale, counted apart, never confirmed.
+ *                 OWT-026  the exception does not reach a subject that version control,
+ *                          a spec marker or a CI result determines (OWT-003 stands).
+ *                 Time is injected (`--now`, `--stale-after`), never read inside a rule.
  *
  * ── What none of them can decide (stated, not implied) ──────────────────────
  *   - Whether a revision record honestly describes the diff (OWT-014: that is
@@ -80,10 +98,16 @@
  *   - Prose revision notes ("2026-09-29 amended R1") are not structural records.
  *     Only table rows and list items inside a section whose heading is a
  *     revision heading are read.
+ *   - Whether an observation is TRUE, or still true now (OWT-014). `observations`
+ *     decides that the fields exist, are well formed and how old the stamp is. A
+ *     stamp says who saw it and when, never that it still holds.
+ *   - A waiting item written in words VOCAB_STATE does not hold is read as "other",
+ *     not as waiting; a table with neither an observed-by nor an observed-at column
+ *     is not an observation carrier. A clean pass covers only what was recognised.
  *
  * ── UNCALIBRATED (OWT-016) ──────────────────────────────────────────────────
- * Everything in VOCAB, COMMANDS, EXTENSIONS, DEFAULT_ID_PATTERN and
- * ID_PREFIX_DENYLIST is an initial judgment. None of it was measured against
+ * Everything in VOCAB, VOCAB_STATE, DEFAULT_STALE_AFTER_DAYS, COMMANDS, EXTENSIONS,
+ * DEFAULT_ID_PATTERN and ID_PREFIX_DENYLIST is an initial judgment. None of it was measured against
  * real usage. Adopters should pass their own identifier pattern
  * (--id-pattern) and read the heading vocabulary as a starting point.
  *
@@ -96,6 +120,8 @@
  *   uds open-work revision --file PATH --base GIT_REV
  *   uds open-work revision --before FILE --after FILE
  *   uds open-work separation <file...>
+ *   uds open-work waiting <file...> [--root DIR] [--id-pattern RE] [--now YYYY-MM-DD]
+ *   uds open-work observations <file...> [--now YYYY-MM-DD] [--stale-after DAYS]
  *   uds open-work self-test
  *   node scripts/check-open-work-tracking.mjs next-action <file...> ...   (repo clone)
  *   node scripts/check-open-work-tracking.mjs --self-test
@@ -635,6 +661,260 @@ export function checkNextActions(carriers, opts = {}) {
   return res;
 }
 
+// ── OWT-020 … OWT-026: two states before a reply, and observed facts ─────────
+// open-work-tracking 1.2.0 (dev-platform XSPEC-459). Everything here is UNCALIBRATED (OWT-016):
+// the state words, the field names and the "derivable subject" list are initial judgments in
+// English and Chinese. A carrier whose words differ is not read, which is reported (coverage
+// unknown, OWT-011), never read as clean.
+
+export const VOCAB_STATE = {
+  // header / label vocabulary: which structural field is which
+  roles: {
+    status: /\bstatus\b|\bstate\b|狀態/i,
+    askedAt: /asked[\s-]?(?:at|on|date)|(?:詢問|發問|送出|寄出|已問)(?:時間|日期)|問於/i,
+    awaiting: /\bwait(?:ing)?[\s-]?(?:for|on)\b|\bawaiting\b|\bblocked[\s-]?on\b|等什麼|等待(?:對象|什麼|內容)|等誰/i,
+    release: /\brelease\b|\bunblock|解除|放行/i,
+    draft: /\bdraft\b|\bto[\s-]?send\b|草稿|待送出|待問/i,
+    observedBy: /observed[\s-]?by|seen[\s-]?by|觀察者|誰看到|觀察人/i,
+    observedAt: /observed[\s-]?(?:at|on|date)|seen[\s-]?(?:at|on)|觀察(?:時間|日期)|何時看到/i,
+    value: /^(?:value|observed[\s-]?value|result|觀察值|觀察結果|值|結果)$/i,
+    subject: /^(?:fact|subject|observation|observed[\s-]?fact|事實|觀察項目|觀察對象|事項)$/i,
+  },
+  notYetAsked: /not[\s-]*(?:yet[\s-]*)?(?:asked|sent)|\bunasked\b|\bunsent\b|還沒問|尚未(?:詢問|送出|提問|發問|問)|未(?:詢問|送出|提問|問)|還沒送出|待問|待送出/i,
+  askedAwaiting: /\b(?:asked|sent)[\s,;&—–-]*(?:and[\s-]*)?(?:awaiting|waiting)\b|已(?:問|詢問|送出|寄出|發問)/i,
+  waiting: /\b(?:waiting|awaiting|blocked[\s-]*on|on[\s-]*hold|pending)\b|等待|等候|待回覆|待回應|卡在/i,
+  // The WHOLE cell must be a done word: "done except X" and "尚未完成" are not done.
+  done: /^[\s\p{P}\p{S}]*(?:done|completed?|closed|resolved|已完成|已結案|完成|結案|✅)[\s\p{P}\p{S}]*$/iu,
+  // The value domain of an observed fact. `unknown` is a real value, never a blank.
+  yes: /^(?:yes|y|true|是|有)$/i,
+  no: /^(?:no|n|false|否|沒有)$/i,
+  unknown: /^(?:unknown|\?|未知|不明|看不到|無法確認|unobserved)$/i,
+  // Subjects that version control, a spec marker or a CI result already determine (OWT-003 stands).
+  derivable: /\b(?:merged|pushed|committed|tagged)\b|\bci\b|\bcontinuous integration\b|\b(?:tests?|build)\s+(?:pass(?:ed|ing)?|green)\b|\bspec\s+(?:status|marker)\b|已合併|已推送|已提交|CI\s*(?:通過|綠|狀態)|測試通過|建置通過|規格(?:狀態|標記)/i,
+};
+
+/** Default age (days) past which an observation is reported as stale. An initial judgment, UNCALIBRATED (OWT-016). */
+export const DEFAULT_STALE_AFTER_DAYS = 7;
+
+const BLANK_FIELD = /^(?:|-+|—|–|n\/?a|none|tbd|\?+|無|待定|未知|unknown)$/i;
+const stripMd = (s) => s.replace(/\*\*|__|`/g, '').trim();
+
+const rolesOf = (header) => Object.entries(VOCAB_STATE.roles).filter(([, re]) => re.test(header)).map(([role]) => role);
+
+// inline labels in a list item: "status: not-yet-asked; draft: drafts/q.md"
+const LABEL_WORDS = [
+  ['status', /(?:status|state|狀態)/],
+  ['askedAt', /(?:asked[\s-]?(?:at|on)|(?:詢問|發問|送出|寄出)(?:時間|日期))/],
+  ['awaiting', /(?:waiting[\s-]?(?:for|on)|awaiting|等什麼|等待對象|等誰)/],
+  ['release', /(?:release|unblock(?:ed)?[\s-]?(?:by|when)|解除條件|解除)/],
+  ['draft', /(?:draft|to[\s-]?send|草稿|待送出)/],
+  ['observedBy', /(?:observed[\s-]?by|seen[\s-]?by|觀察者)/],
+  ['observedAt', /(?:observed[\s-]?(?:at|on)|seen[\s-]?(?:at|on)|觀察時間|觀察日期)/],
+  ['value', /(?:observed[\s-]?value|value|觀察值|觀察結果)/],
+  ['subject', /(?:fact|subject|事實|觀察項目)/],
+];
+
+function parseRoleLabels(text) {
+  const hits = [];
+  for (const [role, word] of LABEL_WORDS) {
+    const re = new RegExp(`(?:^|[;；,，|(（]\\s*|\\s)(${word.source})[\\w\\s-]{0,12}[:：]`, 'gi');
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const start = m.index + m[0].indexOf(m[1]);
+      hits.push({ role, start, end: m.index + m[0].length });
+    }
+  }
+  hits.sort((a, b) => a.start - b.start);
+  const kept = [];
+  for (const h of hits) if (!kept.length || h.start >= kept[kept.length - 1].end) kept.push(h);
+  const f = {};
+  kept.forEach((h, i) => {
+    const next = kept[i + 1] ? kept[i + 1].start : text.length;
+    const val = stripMd(text.slice(h.end, next)).replace(/[;；,，|]+$/, '').trim();
+    if (f[h.role] === undefined) f[h.role] = val;
+  });
+  const title = stripMd(text.slice(0, kept.length ? kept[0].start : text.length)).replace(/[\s;；,，|—–:：-]+$/, '').trim();
+  return { f, title };
+}
+
+/**
+ * The structural records a carrier holds for these checks: every row of a table that has a
+ * recognised field column, and every top-level list item (with its indented lines) that carries
+ * recognised labels. A table row whose cell count differs from its header is returned in
+ * `ragged`, never read as empty (same rule as the next-action table).
+ * @returns {{records:object[], ragged:object[]}}
+ */
+export function extractRecords(md) {
+  const lines = parseDoc(md);
+  const records = [];
+  const ragged = [];
+  const inTable = new Set();
+  for (const t of findTables(lines)) {
+    inTable.add(t.headerIdx); inTable.add(t.headerIdx + 1);
+    t.rows.forEach((r) => inTable.add(r.idx));
+    const roles = t.header.map(rolesOf);
+    const columns = new Set(roles.flat());
+    if (!columns.size) continue;
+    for (const r of t.rows) {
+      const title = stripMd(r.cells[0] || '');
+      const where = `table row (line ${r.idx + 1}, row "${clip(title, 40)}")`;
+      if (r.cells.length !== t.header.length) { ragged.push({ idx: r.idx, where, cells: r.cells.length, expected: t.header.length, columns }); continue; }
+      const f = {};
+      roles.forEach((rs, n) => rs.forEach((role) => { if (f[role] === undefined) f[role] = stripMd(r.cells[n]); }));
+      records.push({ where, title, f, columns });
+    }
+  }
+  let cur = null;
+  const flush = () => {
+    if (cur) {
+      const text = cur.parts.join(' ; ');
+      const { f, title } = parseRoleLabels(text);
+      if (Object.keys(f).length) {
+        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, columns: new Set(Object.keys(f)) });
+      }
+    }
+    cur = null;
+  };
+  lines.forEach((l, idx) => {
+    if (l.front || l.fence || l.inFence || l.heading || inTable.has(idx)) { flush(); return; }
+    const li = /^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$/.exec(l.text);
+    if (li && li[1].length === 0) { flush(); cur = { idx, parts: [li[2]] }; } else if (cur && /^\s+\S/.test(l.text)) cur.parts.push(l.text.trim().replace(/^(?:[-*+]|\d+[.)])\s+/, '')); else flush();
+  });
+  flush();
+  return { records, ragged };
+}
+
+const DATE_IN_TEXT = /(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})/;
+
+/** A calendar day (UTC ms) from the first date in the text, or null. The year is required; the time of day is ignored. */
+export function parseDay(text) {
+  const m = DATE_IN_TEXT.exec(text || '');
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const t = Date.UTC(y, mo - 1, d);
+  const back = new Date(t);
+  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== mo - 1 || back.getUTCDate() !== d) return null;
+  return t;
+}
+
+const DAY_MS = 86400000;
+const dayString = (t) => new Date(t).toISOString().slice(0, 10);
+export const todayUtc = () => { const n = new Date(); return Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()); };
+
+/** The structural state of a record's status field. */
+export function classifyState(statusText) {
+  const t = stripMd(statusText || '');
+  if (VOCAB_STATE.done.test(t)) return 'done';
+  if (VOCAB_STATE.notYetAsked.test(t)) return 'not-yet-asked';
+  if (VOCAB_STATE.askedAwaiting.test(t)) return 'asked-awaiting';
+  if (VOCAB_STATE.waiting.test(t)) return 'waiting-unspecified';
+  return 'other';
+}
+
+/** `{value:'yes'|'no'|'unknown'}` or `{value:null}` for anything outside the domain, including blank. */
+export function classifyValue(text) {
+  const t = stripMd(text || '').replace(/[.。]+$/, '');
+  if (VOCAB_STATE.yes.test(t)) return 'yes';
+  if (VOCAB_STATE.no.test(t)) return 'no';
+  if (VOCAB_STATE.unknown.test(t)) return 'unknown';
+  return null;
+}
+
+const ageDays = (now, day) => Math.floor((now - day) / DAY_MS);
+
+/**
+ * OWT-020 / OWT-021 / OWT-022. Reads every record that has a status field (OWT-010: a structural
+ * field, never prose). `now` is a UTC day (ms); inject it, never read the clock inside a rule.
+ */
+export function checkWaiting(carriers, opts = {}) {
+  const now = opts.now ?? todayUtc();
+  const res = {
+    walked: 0, counts: { 'not-yet-asked': 0, 'asked-awaiting': 0, 'waiting-unspecified': 0, done: 0, other: 0 },
+    violations: [], detail: [], ragged: [], noStateCarriers: [],
+  };
+  for (const c of carriers) {
+    const { records, ragged } = extractRecords(c.content);
+    for (const g of ragged) if (g.columns.has('status')) res.ragged.push({ path: c.path, ...g });
+    const withStatus = records.filter((r) => r.f.status !== undefined);
+    if (!withStatus.length) { res.noStateCarriers.push(c.path); continue; }
+    for (const r of withStatus) {
+      res.walked++;
+      const state = classifyState(r.f.status);
+      res.counts[state]++;
+      const at = { path: c.path, where: r.where };
+      const bad = (rule, why) => res.violations.push({ rule, ...at, why });
+      const note = [];
+      const unspecified = state === 'waiting-unspecified'; // [mutation-anchor:waiting-unspecified]
+      if (unspecified) bad('OWT-020', 'is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)');
+      if (state === 'not-yet-asked') {
+        const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern }).status !== 'unnamed'; // [mutation-anchor:not-yet-asked-names]
+        if (!named) bad('OWT-021', 'is not-yet-asked but names no draft or action: no file path, command, test name or requirement identifier');
+      }
+      if (state === 'asked-awaiting') {
+        const day = parseDay(r.f.askedAt);
+        if (day === null) bad('OWT-022', r.f.askedAt === undefined || BLANK_FIELD.test(r.f.askedAt ?? '') ? 'is asked-awaiting but has no asked-at' : `has an asked-at that is not a date with a year: "${clip(r.f.askedAt, 40)}"`); // [mutation-anchor:asked-at-required]
+        else if (day > now) bad('OWT-022', `has an asked-at (${dayString(day)}) later than today (${dayString(now)})`);
+        else note.push(`asked ${ageDays(now, day)}d ago`);
+        const hasWhat = r.f.awaiting !== undefined && !BLANK_FIELD.test(r.f.awaiting);
+        const hasRelease = r.f.release !== undefined && !BLANK_FIELD.test(r.f.release);
+        if (!(hasWhat && hasRelease)) bad('OWT-022', `is asked-awaiting but does not state ${!hasWhat && !hasRelease ? 'what it waits for and what event releases it' : !hasWhat ? 'what it waits for' : 'what event releases it'} (OWT-002)`); // [mutation-anchor:asked-release-required]
+      }
+      res.detail.push({ ...at, state, text: r.title, note: note.join(', ') });
+    }
+  }
+  return res;
+}
+
+/**
+ * OWT-023 / OWT-024 / OWT-025 / OWT-026. Reads every record of a table or list item that carries an
+ * observed-by or observed-at field. It decides that the fields exist, are well formed, and how old
+ * the stamp is. It cannot decide that the observation is true, or that it still is (OWT-014).
+ */
+export function checkObservations(carriers, opts = {}) {
+  const now = opts.now ?? todayUtc();
+  const staleAfter = opts.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
+  const res = {
+    walked: 0, now, staleAfter, counts: { yes: 0, no: 0, unknown: 0, invalid: 0 }, stale: [], unknown: [], confirmed: 0,
+    violations: [], detail: [], ragged: [], noObservationCarriers: [],
+  };
+  for (const c of carriers) {
+    const { records, ragged } = extractRecords(c.content);
+    for (const g of ragged) if (g.columns.has('observedBy') || g.columns.has('observedAt')) res.ragged.push({ path: c.path, ...g });
+    const obs = records.filter((r) => r.columns.has('observedBy') || r.columns.has('observedAt'));
+    if (!obs.length) { res.noObservationCarriers.push(c.path); continue; }
+    for (const r of obs) {
+      res.walked++;
+      const at = { path: c.path, where: r.where };
+      const bad = (rule, why) => res.violations.push({ rule, ...at, why });
+      let wellFormed = true;
+      const fail = (rule, why) => { wellFormed = false; bad(rule, why); };
+      const by = r.f.observedBy;
+      if (by === undefined || BLANK_FIELD.test(by)) fail('OWT-023', 'has no observed-by: who or what saw this is not recorded'); // [mutation-anchor:observed-by-required]
+      const day = parseDay(r.f.observedAt);
+      let age = null;
+      if (day === null) fail('OWT-023', r.f.observedAt === undefined || BLANK_FIELD.test(r.f.observedAt) ? 'has no observed-at: when it was seen is not recorded' : `has an observed-at that is not a date with a year: "${clip(r.f.observedAt, 40)}"`); // [mutation-anchor:observed-at-required]
+      else if (day > now) fail('OWT-023', `has an observed-at (${dayString(day)}) later than today (${dayString(now)})`);
+      else age = ageDays(now, day);
+      const value = classifyValue(r.f.value);
+      if (value === null) fail('OWT-023', `has no value of yes, no or unknown${r.f.value ? ` (found "${clip(r.f.value, 30)}")` : ''}`); // [mutation-anchor:value-domain]
+      const subject = r.f.subject ?? r.title;
+      if (VOCAB_STATE.derivable.test(subject)) fail('OWT-026', `is a hand-written observation of "${clip(subject, 50)}", which version control, a spec marker or a CI result determines (OWT-003 stands)`); // [mutation-anchor:derivable]
+      if (value === null) res.counts.invalid++; else res.counts[value]++;
+      const isStale = age !== null && age > staleAfter; // [mutation-anchor:stale]
+      const claimsDone = r.f.status !== undefined && classifyState(r.f.status) === 'done';
+      if (value === 'unknown') {
+        res.unknown.push({ ...at, text: r.title });
+        if (claimsDone) bad('OWT-024', 'is marked done while its observation is unknown: unknown never counts as complete'); // [mutation-anchor:unknown-not-done]
+      }
+      if (isStale) res.stale.push({ ...at, text: r.title, age, claimsDone });
+      const confirmed = wellFormed && value === 'yes' && !isStale; // [mutation-anchor:confirmed]
+      if (confirmed) res.confirmed++;
+      res.detail.push({ ...at, text: r.title, value: value ?? '?', age, by: by ?? '', observedAt: r.f.observedAt ?? '' });
+    }
+  }
+  return res;
+}
+
 // ── Self-test arms (the main path runs these first; a broken checker is exit 2) ─
 
 export function runSelfTest() {
@@ -675,6 +955,40 @@ export function runSelfTest() {
   ]);
   expect('D1 clean: carriers apart', apart.violations.length === 0 && apart.recognised === 2);
 
+  // OWT-020 … OWT-026 (1.2.0): every check has a sample built to violate it and one built to satisfy it.
+  const NOW = Date.UTC(2026, 9, 7);
+  const wtab = (rows) => `| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n${rows}`;
+  const waiting = (rows) => checkWaiting([{ path: 'w.md', content: wtab(rows) }], { now: NOW });
+  const ruleOf = (res, rule) => res.violations.filter((v) => v.rule === rule).length;
+  const w0 = waiting('| ask legal | waiting | | | | |\n');
+  expect('OWT-020 violating: a waiting item that does not say whether it was asked', ruleOf(w0, 'OWT-020') === 1 && w0.counts['waiting-unspecified'] === 1);
+  const w1 = waiting('| ask legal | not-yet-asked | drafts/legal.md | | | |\n| ask vendor | 已問、等回覆 | | 2026-10-01 | the quote | the reply arrives |\n');
+  expect('OWT-020 clean: both named states, in English and in Chinese', w1.violations.length === 0 && w1.counts['not-yet-asked'] === 1 && w1.counts['asked-awaiting'] === 1);
+  expect('OWT-021 violating: not-yet-asked names no draft or action', ruleOf(waiting('| ask legal | not-yet-asked | an email | | | |\n'), 'OWT-021') === 1);
+  expect('OWT-021 clean: not-yet-asked names a path', ruleOf(waiting('| ask legal | not-yet-asked | `drafts/legal.md` | | | |\n'), 'OWT-021') === 0);
+  expect('OWT-022 violating: asked-awaiting has no asked-at', ruleOf(waiting('| q | asked-awaiting | | | the quote | the reply arrives |\n'), 'OWT-022') === 1);
+  expect('OWT-022 violating: asked-awaiting does not say what releases it (OWT-002)', ruleOf(waiting('| q | asked-awaiting | | 2026-10-01 | the quote | |\n'), 'OWT-022') === 1);
+  expect('OWT-022 clean: asked-awaiting with asked-at, what it waits for and its release', ruleOf(waiting('| q | asked-awaiting | | 2026-10-01 | the quote | the reply arrives |\n'), 'OWT-022') === 0);
+  expect('OWT-020 clean: a done item is not waiting', waiting('| q | done | | | | |\n').violations.length === 0);
+
+  const otab = (rows) => `| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n${rows}`;
+  const obs = (rows, o = {}) => checkObservations([{ path: 'o.md', content: otab(rows) }], { now: NOW, ...o });
+  expect('OWT-023 violating: an observation with no observed-by', ruleOf(obs('| mail sent | open | | 2026-10-05 | yes |\n'), 'OWT-023') === 1);
+  expect('OWT-023 violating: an observation with no observed-at', ruleOf(obs('| mail sent | open | albert | | yes |\n'), 'OWT-023') === 1);
+  expect('OWT-023 violating: a value outside yes, no, unknown', ruleOf(obs('| mail sent | open | albert | 2026-10-05 | maybe |\n'), 'OWT-023') === 1);
+  const o1 = obs('| mail sent | open | albert | 2026-10-05 | yes |\n');
+  expect('OWT-023 clean: observed-by, observed-at and a value; its age is computed', o1.violations.length === 0 && o1.detail[0].age === 2 && o1.confirmed === 1);
+  const o2 = obs('| approved | done | albert | 2026-10-05 | unknown |\n');
+  expect('OWT-024 violating: unknown marked done', ruleOf(o2, 'OWT-024') === 1);
+  expect('OWT-024 violating: unknown is counted apart and never confirmed', o2.counts.unknown === 1 && o2.unknown.length === 1 && o2.confirmed === 0);
+  expect('OWT-024 clean: unknown not marked done is listed, not a violation', ruleOf(obs('| approved | open | albert | 2026-10-05 | unknown |\n'), 'OWT-024') === 0);
+  const o3 = obs('| mail sent | open | albert | 2026-09-01 | yes |\n');
+  expect('OWT-025 violating: an observation older than the threshold is stale and not confirmed', o3.stale.length === 1 && o3.confirmed === 0);
+  expect('OWT-025 clean: a fresh observation is not stale', o1.stale.length === 0);
+  expect('OWT-025 clean: the threshold is injectable', obs('| mail sent | open | albert | 2026-09-01 | yes |\n', { staleAfterDays: 60 }).stale.length === 0);
+  expect('OWT-026 violating: a hand-written observation of something version control determines', ruleOf(obs('| PR merged | open | albert | 2026-10-05 | yes |\n'), 'OWT-026') === 1);
+  expect('OWT-026 clean: an external fact the assistant cannot see', ruleOf(obs('| legal replied | open | albert | 2026-10-05 | yes |\n'), 'OWT-026') === 0);
+
   return { ok: failures.length === 0, failures };
 }
 
@@ -682,6 +996,7 @@ export function runSelfTest() {
 
 const COVERAGE_NOTE = 'COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.';
 const UNCALIBRATED_NOTE = 'UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.';
+const UNCALIBRATED_STATE_NOTE = 'UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage.';
 
 function readCarrier(p) {
   return { path: p, content: readFileSync(p, 'utf8') };
@@ -778,10 +1093,51 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (r.recognised === 0) { say('[owt] CANNOT DECIDE: no carrier had a recognised intent or progress heading. Exit 2 is not a pass.'); return finish(2); }
       return finish(r.violations.length ? 1 : 0);
     }
+    if (cmd === 'waiting' || cmd === 'observations') {
+      const nowArg = flag('--now');
+      const now = nowArg === undefined ? todayUtc() : parseDay(nowArg);
+      if (now === null) { say(`[owt] ${cmd}: --now must be a date with a year (YYYY-MM-DD), got "${nowArg}"`); return finish(2); }
+      const staleArg = cmd === 'observations' ? flag('--stale-after') : undefined;
+      const staleAfterDays = staleArg === undefined ? undefined : Number(staleArg);
+      if (staleAfterDays !== undefined && (!Number.isFinite(staleAfterDays) || staleAfterDays < 0)) { say(`[owt] observations: --stale-after must be a number of days, got "${staleArg}"`); return finish(2); }
+      const root = cmd === 'waiting' ? (flag('--root') ?? process.cwd()) : undefined;
+      const idPattern = cmd === 'waiting' ? flag('--id-pattern') : undefined;
+      const files = args;
+      if (!files.length) { say(`[owt] ${cmd}: no files given`); return finish(2); }
+      const carriers = files.map(readCarrier);
+      if (cmd === 'waiting') {
+        const res = checkWaiting(carriers, { now, root, idPattern });
+        say(`[owt] OWT-020/021/022 walked ${res.walked} record(s) with a status field in ${carriers.length} carrier(s) (today ${dayString(now)}); ${res.noStateCarriers.length} carrier(s) had none`);
+        say(`[owt]   not-yet-asked=${res.counts['not-yet-asked']} asked-awaiting=${res.counts['asked-awaiting']} waiting-unspecified=${res.counts['waiting-unspecified']} done=${res.counts.done} other=${res.counts.other} undecidable-table-rows=${res.ragged.length}`);
+        for (const d of res.detail) say(`[owt]   ${d.state.padEnd(20)} ${d.path} ${d.where}: ${d.text.slice(0, 60)}${d.note ? `  (${d.note})` : ''}`);
+        for (const v of res.violations) say(`[owt] VIOLATION ${v.rule}: ${v.path} ${v.where} ${v.why}`);
+        for (const u of res.ragged) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the status cell cannot be located, so the row is neither judged nor counted as empty`);
+        say('[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.');
+        say('[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as "other", not as waiting. A clean pass does not mean nothing is waiting unasked.');
+        say(`[owt] ${UNCALIBRATED_STATE_NOTE}`);
+        if (res.walked === 0) { say('[owt] CANNOT DECIDE: no record with a status field in any carrier (walked 0). Exit 2 is not a pass.'); return finish(2); }
+        if (!res.violations.length && res.ragged.length) { say(`[owt] CANNOT DECIDE: ${res.ragged.length} table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.`); return finish(2); }
+        return finish(res.violations.length ? 1 : 0);
+      }
+      const res = checkObservations(carriers, { now, staleAfterDays });
+      say(`[owt] OWT-023/024/025/026 walked ${res.walked} observation(s) in ${carriers.length} carrier(s) (today ${dayString(now)}); stale after ${res.staleAfter} day(s) (${staleArg === undefined ? 'default, ' : ''}UNCALIBRATED); ${res.noObservationCarriers.length} carrier(s) had none`);
+      say(`[owt]   yes=${res.counts.yes} no=${res.counts.no} unknown=${res.counts.unknown} invalid=${res.counts.invalid} | stale=${res.stale.length} | confirmed=${res.confirmed} (yes, well formed, not stale) | undecidable-table-rows=${res.ragged.length}`);
+      for (const d of res.detail) say(`[owt]   value=${d.value} age=${d.age === null ? '?' : `${d.age}d`} by=${d.by || '?'} at=${d.observedAt || '?'}  ${d.path} ${d.where}: ${d.text.slice(0, 60)}`);
+      for (const u of res.unknown) say(`[owt] UNKNOWN (counted apart, never complete): ${u.path} ${u.where}: ${u.text.slice(0, 60)}`);
+      for (const s of res.stale) say(`[owt] STALE (observed ${s.age}d ago, older than ${res.staleAfter}d; counted apart, not confirmed${s.claimsDone ? '; the item claims done on this observation' : ''}): ${s.path} ${s.where}: ${s.text.slice(0, 60)}`);
+      for (const v of res.violations) say(`[owt] VIOLATION ${v.rule}: ${v.path} ${v.where} ${v.why}`);
+      for (const u of res.ragged) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the row is neither judged nor counted as empty`);
+      say('[owt] LIMIT: the check decides that the fields exist, are well formed, and how old the stamp is. It cannot decide that an observation is true, or that it is still true now (OWT-014): a stamp says who saw it and when, never that it still holds.');
+      say('[owt] COVERAGE UNKNOWN (OWT-011): a table is read as an observation carrier only if it has an observed-by or observed-at column (or a list item such a label); the "derivable subject" test is a short word list. A clean pass does not mean no hand-written fact is unstamped or derivable.');
+      say(`[owt] ${UNCALIBRATED_STATE_NOTE}`);
+      if (res.walked === 0) { say('[owt] CANNOT DECIDE: no observation record (no observed-by / observed-at field) in any carrier (walked 0). Exit 2 is not a pass.'); return finish(2); }
+      if (!res.violations.length && res.ragged.length) { say(`[owt] CANNOT DECIDE: ${res.ragged.length} table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.`); return finish(2); }
+      return finish(res.violations.length ? 1 : 0);
+    }
     // The repo shim (its own `--self-test` flag) is named FIRST on purpose: cli/scripts/check-command-existence.mjs
     // reads a `uds <...>` string up to the closing quote, so a `--self-test` written AFTER `uds open-work`
     // is judged as a flag of the `uds open-work` command, which has none (it is the subcommand `self-test`).
-    say('[owt] usage: node scripts/check-open-work-tracking.mjs ... | --self-test   (or from the npm package: uds open-work next-action|revision|separation|self-test ...)');
+    say('[owt] usage: node scripts/check-open-work-tracking.mjs ... | --self-test   (or from the npm package: uds open-work next-action|revision|separation|waiting|observations|self-test ...)');
     return finish(2);
   } catch (e) {
     say(`[owt] CANNOT DECIDE: ${e.message.split('\n')[0]}`);

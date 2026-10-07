@@ -1,0 +1,230 @@
+{
+  "files": {
+    "vague.md": "# Work log\n\n## Next action\n\n- Continue implementation and handle the rest\n",
+    "named.md": "# Work log\n\n## Next action\n\n- Run `npm test` in cli/ and fix src/utils/open-work-tracking.mjs\n",
+    "zh-table.md": "# 工作\n\n| 事情 | 狀態 | 下一動 |\n|---|---|---|\n| 修 widget | 進行中 | 繼續處理 |\n| 修 gadget | 進行中 | 改 scripts/gadget.mjs |\n",
+    "en-table.md": "| item | state | Next step |\n|---|---|---|\n| a | open | edit x.md |\n| b | open | later |\n",
+    "worklog-like.md": "| 事情 | 狀態（2026-10-05） | 回來要做什麼 | 權威來源 |\n|---|---|---|---|\n| UDS | **10-07** main 已更新 | 使用者在 Windows 測 beta.6；要不要發 stable（**卡使用者**） | 各 XSPEC |\n| EGR | 沒動 | 修好 `core.bare`（建議甲） | XSPEC-457 |\n",
+    "status-only.md": "| item | state |\n|---|---|\n| widget | in progress |\n",
+    "ragged.md": "| item | state | Next action |\n|---|---|---|\n| a | open | edit z.md |\n| b | only two |\n",
+    "empties.md": "| item | state | Next action |\n|---|---|---|\n| a | s | |\n| b | s | — |\n| c | s | - |\n| d | s | edit x.md |\n",
+    "custom-id.md": "# L\n\n## Next action\n\n- finish TICKET_42\n",
+    "notes.md": "# Notes\n\nnothing here\n",
+    "both.md": "# X\n\n## Acceptance criteria\n\n- it works\n\n## Next action\n\n- Run `npm test`\n",
+    "intent-only.md": "# X\n\n## Acceptance criteria\n\n- it works\n",
+    "v1.md": "# Spec\n\n## Acceptance criteria\n\n- the export finishes\n\n## Revisions\n\n| Change | Approver | Reason |\n|---|---|---|\n\n",
+    "v2-no-record.md": "# Spec\n\n## Acceptance criteria\n\n- the export finishes\n- the export is idempotent\n\n## Revisions\n\n| Change | Approver | Reason |\n|---|---|---|\n\n",
+    "v2-approved.md": "# Spec\n\n## Acceptance criteria\n\n- the export finishes\n- the export is idempotent\n\n## Revisions\n\n| Change | Approver | Reason |\n|---|---|---|\n| added idempotence | albert | reviewers asked |\n\n",
+    "v2-no-approver.md": "# Spec\n\n## Acceptance criteria\n\n- the export finishes\n- the export is idempotent\n\n## Revisions\n\n| Change | Approver | Reason |\n|---|---|---|\n| added idempotence | | reviewers asked |\n\n"
+  },
+  "cases": [
+    {
+      "name": "next-action: vague",
+      "args": [
+        "next-action",
+        "vague.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=1 undecidable-table-rows=0\n[owt]   unnamed          vague.md section \"Next action\": Continue implementation and handle the rest\n[owt] VIOLATION OWT-019: vague.md section \"Next action\" names no file path, test name, command or requirement identifier: \"Continue implementation and handle the rest\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: named",
+      "args": [
+        "next-action",
+        "named.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   named-unresolved named.md section \"Next action\": Run `npm test` in cli/ and fix src/utils/open-work-tracking.mjs  <- command:npm test, path:src/utils/open-work-tracking.mjs\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: zh table",
+      "args": [
+        "next-action",
+        "zh-table.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 2 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=1 undecidable-table-rows=0\n[owt]   unnamed          zh-table.md table column \"下一動\" (line 5, row \"修 widget\"): 繼續處理\n[owt]   named-unresolved zh-table.md table column \"下一動\" (line 6, row \"修 gadget\"): 改 scripts/gadget.mjs  <- path:scripts/gadget.mjs\n[owt] VIOLATION OWT-019: zh-table.md table column \"下一動\" (line 5, row \"修 widget\") names no file path, test name, command or requirement identifier: \"繼續處理\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: en table",
+      "args": [
+        "next-action",
+        "en-table.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 2 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=1 undecidable-table-rows=0\n[owt]   named-unresolved en-table.md table column \"Next step\" (line 3, row \"a\"): edit x.md  <- path:x.md\n[owt]   unnamed          en-table.md table column \"Next step\" (line 4, row \"b\"): later\n[owt] VIOLATION OWT-019: en-table.md table column \"Next step\" (line 4, row \"b\") names no file path, test name, command or requirement identifier: \"later\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: worklog-like Chinese table",
+      "args": [
+        "next-action",
+        "worklog-like.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 2 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=2 undecidable-table-rows=0\n[owt]   unnamed          worklog-like.md table column \"回來要做什麼\" (line 3, row \"UDS\"): 使用者在 Windows 測 beta.6；要不要發 stable（卡使用者）\n[owt]   unnamed          worklog-like.md table column \"回來要做什麼\" (line 4, row \"EGR\"): 修好 `core.bare`（建議甲）\n[owt] VIOLATION OWT-019: worklog-like.md table column \"回來要做什麼\" (line 3, row \"UDS\") names no file path, test name, command or requirement identifier: \"使用者在 Windows 測 beta.6；要不要發 stable（卡使用者）\"\n[owt] VIOLATION OWT-019: worklog-like.md table column \"回來要做什麼\" (line 4, row \"EGR\") names no file path, test name, command or requirement identifier: \"修好 `core.bare`（建議甲）\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: a table with no next-action header (exit 2)",
+      "args": [
+        "next-action",
+        "status-only.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-019 walked 0 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 1 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=0 undecidable-table-rows=0\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "next-action: ragged row",
+      "args": [
+        "next-action",
+        "ragged.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=1\n[owt]   named-unresolved ragged.md table column \"Next action\" (line 3, row \"a\"): edit z.md  <- path:z.md\n[owt] UNDECIDABLE: ragged.md table row (line 4, row \"b\") has 2 cell(s) but its header has 3; the next-action cell cannot be located, so the row is neither judged nor counted as empty\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n[owt] CANNOT DECIDE: 1 table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "next-action: empty cells",
+      "args": [
+        "next-action",
+        "empties.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 3 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   named-unresolved empties.md table column \"Next action\" (line 6, row \"d\"): edit x.md  <- path:x.md\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: custom id, default pattern",
+      "args": [
+        "next-action",
+        "custom-id.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=1 undecidable-table-rows=0\n[owt]   unnamed          custom-id.md section \"Next action\": finish TICKET_42\n[owt] VIOLATION OWT-019: custom-id.md section \"Next action\" names no file path, test name, command or requirement identifier: \"finish TICKET_42\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: custom id, own pattern",
+      "args": [
+        "next-action",
+        "custom-id.md",
+        "--id-pattern",
+        "TICKET_\\d+"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   named-unresolved custom-id.md section \"Next action\": finish TICKET_42  <- id:TICKET_42\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "next-action: no structure (exit 2)",
+      "args": [
+        "next-action",
+        "notes.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-019 walked 0 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 1 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=0 undecidable-table-rows=0\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "next-action: several carriers",
+      "args": [
+        "next-action",
+        "vague.md",
+        "named.md",
+        "zh-table.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-019 walked 4 next-action field(s) in 3 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=2 unnamed=2 undecidable-table-rows=0\n[owt]   unnamed          vague.md section \"Next action\": Continue implementation and handle the rest\n[owt]   named-unresolved named.md section \"Next action\": Run `npm test` in cli/ and fix src/utils/open-work-tracking.mjs  <- command:npm test, path:src/utils/open-work-tracking.mjs\n[owt]   unnamed          zh-table.md table column \"下一動\" (line 5, row \"修 widget\"): 繼續處理\n[owt]   named-unresolved zh-table.md table column \"下一動\" (line 6, row \"修 gadget\"): 改 scripts/gadget.mjs  <- path:scripts/gadget.mjs\n[owt] VIOLATION OWT-019: vague.md section \"Next action\" names no file path, test name, command or requirement identifier: \"Continue implementation and handle the rest\"\n[owt] VIOLATION OWT-019: zh-table.md table column \"下一動\" (line 5, row \"修 widget\") names no file path, test name, command or requirement identifier: \"繼續處理\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "revision: no record",
+      "args": [
+        "revision",
+        "--before",
+        "v1.md",
+        "--after",
+        "v2-no-record.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-018 v2-no-record.md: changed-no-record (changed: Acceptance criteria)\n[owt] VIOLATION OWT-018: intent changed and no new revision record exists [Acceptance criteria]\n[owt] HAND-BACK (OWT-018 -> OWT-007) — list these when control returns to a human; this listing never blocks (OWT-008):\n[owt]   edit to Acceptance criteria in v2-no-record.md: no approver: there is no revision record at all\n[owt] LIMIT: the check decides that intent changed, that a NEW record exists, that it is complete and whether an approver is filled in. It cannot decide that the record describes the change honestly (OWT-014).\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "revision: approved",
+      "args": [
+        "revision",
+        "--before",
+        "v1.md",
+        "--after",
+        "v2-approved.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-018 v2-approved.md: changed-recorded (changed: Acceptance criteria)\n[owt] LIMIT: the check decides that intent changed, that a NEW record exists, that it is complete and whether an approver is filled in. It cannot decide that the record describes the change honestly (OWT-014).\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "revision: no approver",
+      "args": [
+        "revision",
+        "--before",
+        "v1.md",
+        "--after",
+        "v2-no-approver.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-018 v2-no-approver.md: changed-recorded (changed: Acceptance criteria)\n[owt] HAND-BACK (OWT-018 -> OWT-007) — list these when control returns to a human; this listing never blocks (OWT-008):\n[owt]   edit to Acceptance criteria in v2-no-approver.md: revision record has no approver\n[owt] LIMIT: the check decides that intent changed, that a NEW record exists, that it is complete and whether an approver is filled in. It cannot decide that the record describes the change honestly (OWT-014).\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "revision: unchanged",
+      "args": [
+        "revision",
+        "--before",
+        "v1.md",
+        "--after",
+        "v1.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-018 v1.md: unchanged\n[owt] LIMIT: the check decides that intent changed, that a NEW record exists, that it is complete and whether an approver is filled in. It cannot decide that the record describes the change honestly (OWT-014).\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "revision: no structure (exit 2)",
+      "args": [
+        "revision",
+        "--before",
+        "notes.md",
+        "--after",
+        "notes.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-018 notes.md: undecidable\n[owt] CANNOT DECIDE: no acceptance/goal/constraint section found in either version, so the check cannot see the intent. Exit 2 is not a pass.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "separation: one carrier holds both",
+      "args": [
+        "separation",
+        "both.md"
+      ],
+      "status": 1,
+      "out": "[owt] OWT-017 walked 1 carrier(s); 1 had a recognised intent or progress section\n[owt] VIOLATION OWT-017: both.md holds intent (Acceptance criteria) and progress (Next action) in one carrier\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "separation: carriers apart",
+      "args": [
+        "separation",
+        "intent-only.md",
+        "named.md"
+      ],
+      "status": 0,
+      "out": "[owt] OWT-017 walked 2 carrier(s); 2 had a recognised intent or progress section\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n"
+    },
+    {
+      "name": "separation: nothing recognised (exit 2)",
+      "args": [
+        "separation",
+        "notes.md"
+      ],
+      "status": 2,
+      "out": "[owt] OWT-017 walked 1 carrier(s); 0 had a recognised intent or progress section\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n[owt] CANNOT DECIDE: no carrier had a recognised intent or progress heading. Exit 2 is not a pass.\n"
+    },
+    {
+      "name": "self-test",
+      "args": [
+        "--self-test"
+      ],
+      "status": 0,
+      "out": "[owt] self-test: OK\n"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 /**
- * `uds open-work` — the open-work-tracking reference checks (OWT-017 / 018 / 019)
+ * `uds open-work` — the open-work-tracking reference checks (OWT-017 … OWT-026)
  * as a command, so an adopter can run them from the npm package.
  *
  * This file holds no rules. The one body of them is
@@ -52,6 +52,27 @@ export function openWorkRevisionCommand(options = {}) {
 /** uds open-work separation [files...] — OWT-017 */
 export function openWorkSeparationCommand(files = []) {
   run(['separation', ...files]);
+}
+
+/**
+ * uds open-work waiting [files...] [--root DIR] [--id-pattern RE] [--now DATE] — OWT-020/021/022.
+ * Calls the imported `main` itself rather than the shared `run()`: the line that carries this
+ * command into the checker is then its own, and cutting it silences exactly this command.
+ */
+export function openWorkWaitingCommand(files = [], options = {}) {
+  const argv = ['waiting'];
+  withOption(argv, '--root', options.root);
+  withOption(argv, '--id-pattern', options.idPattern);
+  withOption(argv, '--now', options.now);
+  process.exitCode = main([...argv, ...files]); // wire:waiting
+}
+
+/** uds open-work observations [files...] [--now DATE] [--stale-after DAYS] — OWT-023/024/025/026 (same reason as above) */
+export function openWorkObservationsCommand(files = [], options = {}) {
+  const argv = ['observations'];
+  withOption(argv, '--now', options.now);
+  withOption(argv, '--stale-after', options.staleAfter);
+  process.exitCode = main([...argv, ...files]); // wire:observations
 }
 
 /** uds open-work self-test — run the checker's own arms and nothing else */

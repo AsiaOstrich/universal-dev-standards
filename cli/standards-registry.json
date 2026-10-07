@@ -1813,7 +1813,7 @@
       },
       "category": "reference",
       "skillName": null,
-      "description": "Downstream of deferred-item-exit: once an item has an exit, its carrier must stay trustworthy. Capture costs no more than two fields; a waiting item records its release condition; derivable fields are generated, not hand-written; a coverage figure states what it could not see; a checkpoint at turn end reports open work but never blocks; goal and progress live in different carriers, an edit to the goal leaves a record, and a next action names a file, test, command or requirement"
+      "description": "Downstream of deferred-item-exit: once an item has an exit, its carrier must stay trustworthy. Capture costs no more than two fields; a waiting item records its release condition; derivable fields are generated, not hand-written; a coverage figure states what it could not see; a checkpoint at turn end reports open work but never blocks; goal and progress live in different carriers, an edit to the goal leaves a record, a next action names a file, test, command or requirement, a waiting item says whether it was asked yet, and a fact nobody can derive may be hand-written only with a stamp, an honest unknown and a visible age"
     },
     {
       "id": "verification-evidence",
