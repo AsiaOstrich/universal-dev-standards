@@ -2,12 +2,20 @@
  * Backup Manager
  * Creates backups before reconciliation, enables rollback, and auto-cleans old backups.
  *
- * Backup structure:
- *   .uds-backup-<ISO timestamp>/
- *   ├── backup-manifest.json    # Backup metadata + rollback instructions
- *   ├── .standards/             # Backed up standard files (and manifest.json)
- *   ├── CLAUDE.md               # Backed up integration files
- *   └── .claude/skills/...      # Backed up skill files
+ * Backup structure (XSPEC-456 R7: all backups live under ONE folder in the project root):
+ *   .uds-backups/
+ *   ├── .gitignore                       # `*` - git never sees any backup
+ *   └── <ISO timestamp>-<NNNN>/          # one backup
+ *       ├── backup-manifest.json    # Backup metadata + rollback instructions
+ *       ├── .standards/             # Backed up standard files (and manifest.json)
+ *       ├── CLAUDE.md               # Backed up integration files
+ *       └── .claude/skills/...      # Backed up skill files
+ *
+ * Before 6.14.0 (this change) every backup was its own folder in the project root, `.uds-backup-<ISO timestamp>/`.
+ * Those are NOT moved, and they are still backups: `backupId` is the backup folder's path relative to the
+ * project root (`.uds-backups/<time>-<NNNN>` or `.uds-backup-<time>-<NNNN>`), so every place that builds a
+ * path from it works for both layouts, and listing, chaining, rollback and "keep the 5 most recent" look at
+ * both places and order them together by time.
  *
  * Only the paths a step will touch are backed up (minimal footprint). Keeps the 5 most recent
  * backups; auto-cleans older ones.
@@ -39,12 +47,11 @@ import {
 } from 'fs';
 import { createHash } from 'crypto';
 import { join, dirname, isAbsolute, sep } from 'path';
+import { newBackupId, ensureBackupsDir, sharedBackupIds, addLegacyBackupIds } from './backup-locations.js';
 
 const MAX_BACKUPS = 5;
-const BACKUP_PREFIX = '.uds-backup-';
 const MANIFEST_REL = '.standards/manifest.json';
 const FORMAT_VERSION = 2;
-let _backupCounter = 0;
 
 const toPosix = (p) => p.split(sep).join('/');
 
@@ -127,12 +134,6 @@ function ancestorsOf(rel) {
   return out;
 }
 
-function newBackupId() {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const counter = String(++_backupCounter).padStart(4, '0');
-  return `${BACKUP_PREFIX}${timestamp}-${counter}`;
-}
-
 /**
  * Snapshot `paths` into a new backup directory.
  *
@@ -150,32 +151,12 @@ function snapshot(projectPath, spec) {
   const backedUp = [];
   const errors = [];
 
+  // The shared folder first (with its .gitignore), then this backup inside it.
+  ensureBackupsDir(projectPath, errors);
   try {
     mkdirSync(backupDir, { recursive: true });
   } catch (err) {
     return { backupId, backupDir, backedUp, errors: [`Failed to create backup directory: ${err.message}`] };
-  }
-
-  // Make the backup invisible to git, from inside itself.
-  //
-  // WHY THIS IS NOT A LINE IN THE ADOPTER'S .gitignore. We create this directory
-  // in someone else's repository; making it disappear is our job, but editing
-  // their .gitignore to do it is not — that file is theirs, it may be generated,
-  // and a tool appending to it on every update is a worse trade than the problem.
-  // A `*` here ignores everything in this directory (this file included, which is
-  // fine: git reads .gitignore whether or not it is tracked), so `git status` and
-  // `git add -A` never see the backup at all, and nothing outside is touched.
-  //
-  // WHY IT EXISTS. Nothing ignored these directories, so `git add -A` in two
-  // sibling repos committed them: EngramGraph's 0.8.0 release commit took in 5
-  // backups — 360 files, 73,992 lines — and dev-platform took one. Both were
-  // public. The adopter is not the right place to put this responsibility: they
-  // did not create the directory and have no reason to expect it.
-  try {
-    writeFileSync(join(backupDir, '.gitignore'), '*\n', 'utf8');
-  } catch (err) {
-    // A backup that git can see still beats no backup — record and carry on.
-    errors.push(`Failed to write backup .gitignore: ${err.message}`);
   }
 
   const notBackedUp = [...(spec.notBackedUp || [])];
@@ -547,17 +528,18 @@ export function rollback(projectPath, backupId = null) {
  */
 export function listBackups(projectPath) {
   try {
-    const entries = readdirSync(projectPath, { withFileTypes: true });
     const backups = [];
 
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !entry.name.startsWith(BACKUP_PREFIX)) continue;
+    // Where backups can be: the shared folder (new), and the project root (backups from before R7).
+    const places = [];
+    places.push(...sharedBackupIds(projectPath));
+    addLegacyBackupIds(projectPath, places);
 
-      const backupDir = join(projectPath, entry.name);
-      const manifestPath = join(backupDir, 'backup-manifest.json');
+    for (const backupId of places) {
+      const manifestPath = join(projectPath, backupId, 'backup-manifest.json');
 
       const info = {
-        backupId: entry.name,
+        backupId,
         createdAt: '',
         actionCount: 0,
         label: null,
@@ -580,9 +562,11 @@ export function listBackups(projectPath) {
       backups.push(info);
     }
 
-    // Sort newest first. The id carries a per-process counter after the timestamp, so ties on
-    // `createdAt` (two steps in the same millisecond) still order by creation.
-    backups.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.backupId.localeCompare(a.backupId));
+    // Sort newest first, both places together. The id carries a per-process counter after the timestamp, so
+    // ties on `createdAt` (two steps in the same millisecond) still order by creation - compared on the
+    // folder name, not the whole id, so the two layouts compare with each other.
+    const leaf = (id) => id.slice(id.lastIndexOf('/') + 1).replace(/^\.uds-backup-/, '');
+    backups.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || leaf(b.backupId).localeCompare(leaf(a.backupId)));
     return backups;
   } catch {
     return [];

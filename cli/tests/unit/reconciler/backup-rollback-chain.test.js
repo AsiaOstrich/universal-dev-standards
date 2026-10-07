@@ -154,7 +154,9 @@ describe('backup-manager — rollback gives back what the update changed (XSPEC-
     const b = createBackup(project, planOf([{ type: 'update', category: 'skill', path: '/elsewhere/.claude/skills/demo', reason: 't' }]));
     const bm = JSON.parse(readFileSync(join(project, b.backupId, 'backup-manifest.json'), 'utf8'));
     expect(bm.notBackedUp.map((n) => n.path)).toEqual(['/elsewhere/.claude/skills/demo']);
-    expect(readdirSync(join(project, b.backupId)).sort()).toEqual(['.gitignore', '.standards', 'backup-manifest.json']);
+    expect(readdirSync(join(project, b.backupId)).sort()).toEqual(['.standards', 'backup-manifest.json']);
+    // The hiding is done once, by the shared folder (XSPEC-456 R7), not by each backup.
+    expect(readFileSync(join(project, '.uds-backups', '.gitignore'), 'utf8')).toBe('*\n');
   });
 
   it('records the manifest before and after, which is what chains consecutive backups', () => {

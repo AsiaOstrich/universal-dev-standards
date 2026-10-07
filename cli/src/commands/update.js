@@ -3529,8 +3529,18 @@ function takeStepBackup(projectPath, label, installations, kind) {
 /** The step is over (its last manifest write is done): record what it created, and say how to undo it. */
 function finishStepBackup(projectPath, backup) {
   finalizeBackup(projectPath, backup.backupId);
-  console.log(chalk.gray(`  Backup: ${backup.backupId}`));
+  printBackupLocation(backup.backupId);
+}
+
+/**
+ * Say where the backup is, how to undo, and what to exclude (XSPEC-456 R7). All backups share one folder,
+ * `.uds-backups/`, so a tool that does not read .gitignore (an indexer, IDE search, grep) can be told to
+ * skip a single name.
+ */
+function printBackupLocation(backupId) {
+  console.log(chalk.gray(`  Backup: ${backupId}`));
   console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+  console.log(chalk.gray('  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.'));
 }
 
 function cleanupBackupsQuietly(projectPath) {
@@ -3591,7 +3601,7 @@ async function handleRollback(projectPath) {
     console.log(chalk.red('Rollback did NOT complete. The project may be in a mixed state:'));
     printPaths('✗', result.errors, 30, chalk.red);
     console.log(chalk.yellow('  What to do: fix the cause above (permissions, a locked file) and run `uds update --rollback` again —'));
-    console.log(chalk.yellow('  it is safe to repeat. The backups are still in .uds-backup-* if you need to copy files back by hand.'));
+    console.log(chalk.yellow('  it is safe to repeat. The backups are still in .uds-backups/ (and .uds-backup-* if an older UDS made them) if you need to copy files back by hand.'));
   }
   if ((result.notRestored || []).length > 0) {
     console.log(chalk.yellow('Not restored:'));
@@ -3711,8 +3721,7 @@ async function handleReconcile(projectPath, options, { force }) {
   }
 
   if (result.execution?.backupId) {
-    console.log(chalk.gray(`  Backup: ${result.execution.backupId}`));
-    console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+    printBackupLocation(result.execution.backupId);
   }
 
   if (result.errors.length > 0) {

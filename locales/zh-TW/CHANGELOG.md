@@ -17,7 +17,11 @@ status: current
 
 ## [Unreleased]
 
-> **行為改變：**`uds simulate` 在無法得出結論時以 2（不是 1）結束，而且 `uds simulate -s commit-message` 改為在程序內判定，不再執行 `npx commitlint`；`uds update` 會把 UDS 無法擔保的技能與命令名稱從 `manifest.skills.names` / `commands.names` 移除；`uds run` 以 YAML 讀取 `uds.project.yaml`（不合法的 YAML 現在會失敗，空白後的 `#` 會結束一個值）。
+> **行為改變：**`uds update` 的備份寫到 `.uds-backups/`，不再是專案根目錄的 `.uds-backup-*`；`uds simulate` 在無法得出結論時以 2（不是 1）結束，而且 `uds simulate -s commit-message` 改為在程序內判定，不再執行 `npx commitlint`；`uds update` 會把 UDS 無法擔保的技能與命令名稱從 `manifest.skills.names` / `commands.names` 移除；`uds run` 以 YAML 讀取 `uds.project.yaml`（不合法的 YAML 現在會失敗，空白後的 `#` 會結束一個值）。
+
+### 變更
+
+- **行為改變——`uds update` 的備份現在集中在單一資料夾 `.uds-backups/`，不再是專案根目錄下每一步一個 `.uds-backup-<時間>/`（XSPEC-456 R7）。** git 本來就看不到舊資料夾（每個都自己隱藏），但索引器、IDE 搜尋和 grep 不讀 `.gitignore`，把裡面你檔案的副本算成專案檔案。現在每份備份都是 `.uds-backups/<時間>-<NNNN>/`，`.uds-backups/` 帶一個內容為 `*` 的 `.gitignore`（不會改你自己的 `.gitignore`）。不讀 `.gitignore` 的工具請排除 `.uds-backups`，`uds update` 結束時會提醒。舊版 UDS 留在根目錄的備份不會搬動：`--rollback`、連續步驟之間的串鏈、清理與「最近五份」上限會同時看新舊兩處，依時間由新到舊。`uds uninstall` 仍然不碰備份。
 
 ### 修正
 

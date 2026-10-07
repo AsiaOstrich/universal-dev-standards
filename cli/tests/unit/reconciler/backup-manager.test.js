@@ -45,7 +45,7 @@ describe('BackupManager', () => {
 
       const result = createBackup(TEST_DIR, plan);
 
-      expect(result.backupId).toMatch(/^\.uds-backup-/);
+      expect(result.backupId).toMatch(/^\.uds-backups\/\d{4}-/); // XSPEC-456 R7: one shared folder
       expect(existsSync(result.backupDir)).toBe(true);
       expect(result.backedUp).toContain('.standards/test.yaml');
     });

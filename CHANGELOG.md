@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-> **Behavior changes:** `uds simulate` exits 2 (not 1) when it cannot reach a verdict, and `uds simulate -s commit-message` now judges in-process instead of running `npx commitlint`; `uds update` drops skill and command names UDS cannot vouch for from `manifest.skills.names` / `commands.names`; `uds run` reads `uds.project.yaml` as YAML (a value that is not valid YAML now fails, and `#` after a space ends a value).
+> **Behavior changes:** `uds update` writes its backups to `.uds-backups/` instead of `.uds-backup-*` in the project root; `uds simulate` exits 2 (not 1) when it cannot reach a verdict, and `uds simulate -s commit-message` now judges in-process instead of running `npx commitlint`; `uds update` drops skill and command names UDS cannot vouch for from `manifest.skills.names` / `commands.names`; `uds run` reads `uds.project.yaml` as YAML (a value that is not valid YAML now fails, and `#` after a space ends a value).
+
+### Changed
+
+- **Behavior change — `uds update` backups now live in one folder, `.uds-backups/`, instead of one `.uds-backup-<time>/` folder per step in the project root (XSPEC-456 R7).** Git never showed the old folders (each hid itself), but indexers, IDE search and grep do not read `.gitignore` and counted their copies of your files as project files. Every backup is now `.uds-backups/<time>-<NNNN>/`, and `.uds-backups/` carries one `.gitignore` containing `*` (your own `.gitignore` is never edited). Exclude `.uds-backups` in tools that ignore `.gitignore`; `uds update` says so when it finishes. Backups an older UDS left in the root are not moved: `--rollback`, the chain between consecutive steps, cleanup and the "five most recent" limit read both places together, newest first. `uds uninstall` still does not touch backups.
 
 ### Fixed
 
