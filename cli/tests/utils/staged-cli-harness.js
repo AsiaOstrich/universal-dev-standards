@@ -112,9 +112,12 @@ for (const name of ['exec', 'execFile']) {
 
 /**
  * @param {string} label - Short name used in the sandbox directory
+ * @param {{ overrides?: Object<string, string> }} [opts] - `overrides` maps a path under `cli/` (e.g.
+ *   `src/utils/foo.js`) to the source text that replaces that file in the STAGED copy only. It builds a
+ *   "feature switched off" twin of the CLI: run the same commands on both and the difference is the feature.
  * @returns {{ runCli: Function, newProject: Function, sandbox: Function, cleanup: Function }}
  */
-export function createHarness(label) {
+export function createHarness(label, { overrides = {} } = {}) {
   let sandbox = null;
   let stagedCli = null;
   let preloadPath = null;
@@ -131,6 +134,11 @@ export function createHarness(label) {
     mkdirSync(cli, { recursive: true });
     cpSync(join(REAL_CLI_DIR, 'bin'), join(cli, 'bin'), { recursive: true });
     cpSync(join(REAL_CLI_DIR, 'src'), join(cli, 'src'), { recursive: true });
+    for (const [rel, source] of Object.entries(overrides)) {
+      const target = join(cli, rel);
+      if (!existsSync(target)) throw new Error(`harness override targets a file that is not in the staged CLI: ${rel}`);
+      writeFileSync(target, source);
+    }
     for (const f of ['package.json', 'standards-registry.json']) cpSync(join(REAL_CLI_DIR, f), join(cli, f));
     symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(cli, 'node_modules'), 'dir');
     for (const name of readdirSync(REAL_REPO)) {

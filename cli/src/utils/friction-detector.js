@@ -15,6 +15,8 @@ import { join } from 'path';
 import { compareFileHash, hasFileHashes, computeFileHash } from './hasher.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
 import { getAllStandards, getStandardSource } from './registry.js';
+import { getAvailableStandards } from './available-standards.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Run friction detection on a UDS installation
@@ -39,7 +41,32 @@ export function detectFrictions(projectPath, manifest) {
   const orphaned = detectOrphanedFiles(projectPath, manifest);
   frictions.push(...orphaned);
 
+  // Type 4: Standards UDS ships that this project does not have (LOW severity, XSPEC-458 R5).
+  // One finding, not one per standard. It is information: `audit --score` does not read frictions,
+  // so this cannot move a score.
+  frictions.push(...detectAvailableStandards(manifest));
+
   return frictions;
+}
+
+/**
+ * Standards UDS ships (and `uds init` installs) that this project's manifest does not list.
+ * @param {Object} manifest
+ * @returns {Array}
+ */
+function detectAvailableStandards(manifest) {
+  const { offered } = getAvailableStandards(manifest);
+  if (offered.length === 0) return [];
+
+  const msg = t().availableStandards;
+  const shown = offered.slice(0, 5).map(s => s.id).join(', ');
+  return [{
+    standard: msg.frictionStandard.replace('{count}', offered.length),
+    type: 'not-installed',
+    severity: 'LOW',
+    diff: offered.length > 5 ? `${shown}, …` : shown,
+    suggestion: msg.frictionSuggestion
+  }];
 }
 
 /**
