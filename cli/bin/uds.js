@@ -466,19 +466,23 @@ aiContextCommand
 // MCP command for AI tool integration
 mcpCommand(program);
 
-// Open-work-tracking reference checks (OWT-017 … OWT-026). A group of its own, not
+// Open-work-tracking reference checks (OWT-017 … OWT-028). A group of its own, not
 // a flag on `check`: `check` validates the installed standards and has its own
 // --ci/--json meaning, while these are five checks with different arguments and
 // an exit-code contract in which 2 ("cannot decide") is not a pass.
+// commander keeps the last value of a repeated option; these options repeat and every value counts
+const collectOption = (value, previous) => previous.concat([value]);
 const openWorkCommand = program
   .command('open-work')
-  .description('Reference checks for open-work-tracking (OWT-017 to OWT-026). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
+  .description('Reference checks for open-work-tracking (OWT-017 to OWT-028). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
 
 openWorkCommand
   .command('next-action [files...]')
   .description('OWT-019: every "next action" field names a file path, test name, command or requirement identifier')
   .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd)')
   .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
+  .option('--next-action-word <word>', 'A word that means "next action" in your carriers, as plain text; repeatable (also open_work.next_action_words in uds.project.yaml)', collectOption, [])
+  .option('--command-word <word>', 'A program name to read as a command, for example kubectl; repeatable (also open_work.command_words in uds.project.yaml)', collectOption, [])
   .action(openWorkNextActionCommand);
 
 openWorkCommand
@@ -493,14 +497,16 @@ openWorkCommand
 openWorkCommand
   .command('separation [files...]')
   .description('OWT-017: no single carrier holds both an intent section and a progress/next-action section')
+  .option('--next-action-word <word>', 'A word that means "next action" in your carriers, as plain text; repeatable (also open_work.next_action_words in uds.project.yaml)', collectOption, [])
   .action(openWorkSeparationCommand);
 
 openWorkCommand
   .command('waiting [files...]')
-  .description('OWT-020/021/022: a waiting item says whether it was asked; not-yet-asked names its draft; asked-awaiting has asked-at, what it waits for and its release')
-  .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd)')
+  .description('OWT-020/021/022: a waiting item says whether it was asked; not-yet-asked names its draft; asked-awaiting has asked-at, what it waits for and its release. OWT-027/028: a release condition may name an object in another project, which is looked up on this machine only')
+  .option('--root <dir>', 'Directory relative paths are resolved against (default: cwd); repeat as --root <name>=<dir> to say where another project lives (also open_work.projects in uds.project.yaml)', collectOption, [])
   .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
   .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
+  .option('--command-word <word>', 'A program name to read as a command, for example kubectl; repeatable (also open_work.command_words in uds.project.yaml)', collectOption, [])
   .action(openWorkWaitingCommand);
 
 openWorkCommand

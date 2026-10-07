@@ -283,7 +283,7 @@
 
 ### `uds open-work`
 
-**Description**: Reference checks for open-work-tracking (OWT-017 to OWT-026). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
+**Description**: Reference checks for open-work-tracking (OWT-017 to OWT-028). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
 
 ### `uds run`
 
@@ -488,7 +488,7 @@
 | `deployment-standards` | 1.1.0 | This standard defines guidelines for safely deploying software to production, co |
 | `deprecation-standards` | 1.1.0 |  |
 | `design-document-standards` | 1.0.0 |  |
-| `developer-memory` | 1.2.0 | This standard defines a structured system for capturing, retrieving, and surfaci |
+| `developer-memory` | 1.2.1 | This standard defines a structured system for capturing, retrieving, and surfaci |
 | `disaster-recovery-drill` | - |  |
 | `documentation-lifecycle` | 1.0.0 | This standard defines **when** to update documentation, **when** to check it, an |
 | `documentation-structure` | 1.5.0 | This standard defines a consistent documentation structure for software projects |
@@ -526,7 +526,7 @@
 | `mutation-testing` | 1.1.0 | Mutation testing evaluates test suite effectiveness by injecting artificial bugs |
 | `no-cicd-deployment` | - |  |
 | `observability-standards` | 1.0.0 |  |
-| `open-work-tracking` | 1.2.0 | The deferred-item-exit standard requires that a deferred item leave its document |
+| `open-work-tracking` | 1.3.0 | The deferred-item-exit standard requires that a deferred item leave its document |
 | `packaging-standards` | 1.1.0 | This standard defines a Recipe-based packaging framework that enables user proje |
 | `performance-standards` | 1.2.0 | This standard defines comprehensive guidelines for software performance engineer |
 | `pii-classification` | 1.1.0 | **Status**: Active | **Updated**: 2026-06-19 |  |
@@ -537,7 +537,7 @@
 | `prd-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `privacy-standards` | 1.1.0 |  |
 | `product-metrics-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `project-context-memory` | 1.2.0 | This standard defines a structured system for capturing, retrieving, and enforci |
+| `project-context-memory` | 1.2.1 | This standard defines a structured system for capturing, retrieving, and enforci |
 | `project-structure` | 1.2.0 | This standard defines conventions for project directory structure beyond documen |
 | `prompt-regression` | - |  |
 | `property-based-testing` | - |  |
@@ -621,7 +621,7 @@
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
 | `check-home-untouched.mjs` | check-home-untouched — did this run write anywhere UDS writes under HOME? |
-| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 to OWT-026 — repo entry point. |
+| `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 to OWT-028 — repo entry point. |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
 | `check-prompt-footprint.mjs` | Prompt Footprint Ratchet — DEC-117 D2/L2 |

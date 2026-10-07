@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/developer-memory.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-09-25
+**Version**: 1.2.1
+**Last Updated**: 2026-10-07
 **Applicability**: All software projects using AI assistants
 **Scope**: universal
 **Owning Spec**: XSPEC-291 (developer-memory has no dedicated feature XSPEC; XSPEC-291 owns it)
@@ -641,10 +641,20 @@ A tool without a session-start hook still satisfies this standard through either
 
 ---
 
+## Boundary: What This Standard Does Not Hold
+
+Two kinds of information are outside this standard, and writing them here is a mistake:
+
+- **Personal, cross-project, identifiable facts** (who owns what, how to reach a particular environment). De-identification (see the schema above) would strip exactly these, so they cannot live in a memory entry. They belong in the memory of the user's own AI tool, which is bound to that user and that machine and is not shared.
+- **Coordination between projects** (which piece of work is waiting on which other). That is open work, not memory: see [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.1 | 2026-10-07 | Added: a Boundary section — personal, cross-project, identifiable facts and coordination between projects are not memory entries (XSPEC-460 R5; patch, no behavioral change) |
 | 1.2.0 | 2026-09-25 | Added: `code-reference` staleness check to Review (§3.4) — a memory citing a moved/missing file path or symbol is flagged before surfacing; reuses Knowledge Graph Memory's degraded/engine dual mode instead of inventing a third; `unresolvable` may not be read as present or missing; scope is file paths and symbol names only (`file:line` explicitly out of scope, DEC-115 OQ-1); §11 adds a non-normative Claude Code adoption example (DEC-115-L1) |
 | 1.1.1 | 2026-06-18 | Added: `Owning Spec` header pointing to XSPEC-291 (patch, no behavioral change; XSPEC-291 §11 disposition) |
 | 1.1.0 | 2026-06-18 | Added: rationale column + configurable note to Retirement Suggestions thresholds (XSPEC-292 T8) |

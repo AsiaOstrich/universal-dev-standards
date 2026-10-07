@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * Open-work-tracking reference checks for OWT-017 … OWT-026.
- * open-work-tracking 1.2.0 參考判定程序（OWT-017～026）。
+ * Open-work-tracking reference checks for OWT-017 … OWT-028.
+ * open-work-tracking 1.3.0 參考判定程序（OWT-017～028）。
  * // implements DEC-122-L1
  * // implements XSPEC-459
+ * // implements XSPEC-460
+ * // implements XSPEC-461
  *
  * ── Where this lives, and why there is exactly one copy ─────────────────────
  * This file is the ONE body of the rules. Two front doors call it and neither
@@ -116,36 +118,56 @@
  * script's own self-test arms failed). 2 is NOT a pass.
  *
  * Usage (`uds` from the npm package, or the repo shim; same arguments):
- *   uds open-work next-action <file...> [--root DIR] [--id-pattern RE]
+ *   uds open-work next-action <file...> [--root DIR] [--id-pattern RE] [--next-action-word WORD ...]
  *   uds open-work revision --file PATH --base GIT_REV
  *   uds open-work revision --before FILE --after FILE
- *   uds open-work separation <file...>
- *   uds open-work waiting <file...> [--root DIR] [--id-pattern RE] [--now YYYY-MM-DD]
+ *   uds open-work separation <file...> [--next-action-word WORD ...]
+ *   uds open-work waiting <file...> [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now YYYY-MM-DD]
  *   uds open-work observations <file...> [--now YYYY-MM-DD] [--stale-after DAYS]
  *   uds open-work self-test
  *   node scripts/check-open-work-tracking.mjs next-action <file...> ...   (repo clone)
  *   node scripts/check-open-work-tracking.mjs --self-test
  */
 
-import { readFileSync, existsSync, realpathSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { readFileSync, existsSync, realpathSync, statSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { resolve, dirname, join, isAbsolute, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // ── Vocabulary (UNCALIBRATED, OWT-016) ───────────────────────────────────────
 
+// ONE list of "next action" words (461 R1). It is read three ways and there is no second copy:
+// a heading (classifyHeading), a table column header (extractNextActions) and an inline
+// label ("Next action: ...", built from the same source). Each entry is [regex source, text shown to a
+// reader who asks which words are recognised]. Keep the sources free of capture groups: the
+// label regex embeds them and reads its own group 1.
+//
+// 回來要做什麼 ("what to do when you come back") is the header the dev-platform worklog's
+// main table actually uses (DEC-122 H2 baseline carrier); that file describes the column as
+// 下一動 in prose but the header text drifted. Added because a header outside this list is
+// invisible to the check, which is the failure DEC-122 measured. 下一個動作, 下一個步驟 and
+// 接下來要做什麼 (461 R1) mean "next action" and nothing wider.
+//
+// What is deliberately NOT here, and is pinned by a regression test: 待辦, 後續, Next, TODO,
+// Action, and a bare 接下來. They also head columns that are not the next action (a backlog, a
+// follow-up list, a "next release"), and reading those as next actions would let a violation hide
+// behind a column that was never one. An adopter whose carrier uses one of them declares it
+// (--next-action-word, or open_work.next_action_words in uds.project.yaml).
+//
+// Adopter-specific and UNCALIBRATED (OWT-016).
+export const NEXT_ACTION_WORDS = [
+  ['next[\\s-]?(?:action|step)s?', 'next action, next step (also "next-action", "next steps")'],
+  ['下一步', '下一步'],
+  ['下一動', '下一動'],
+  ['回來要做什麼', '回來要做什麼'],
+  ['下一個動作', '下一個動作'],
+  ['下一個步驟', '下一個步驟'],
+  ['接下來要做什麼', '接下來要做什麼'],
+];
+
 export const VOCAB = {
   revision: /revision|change[\s-]?log|amendment|history|修訂|變更紀錄|變更記錄|修改紀錄|修改記錄|異動/i,
-  // ONE list of "next action" words. It is read three ways and there is no second copy:
-  // a heading (classifyHeading), a table column header (extractNextActions) and an inline
-  // label ("Next action: ...", built from .source below). Keep it free of capture groups:
-  // the label regex embeds it and reads its own group 1.
-  // 回來要做什麼 ("what to do when you come back") is the header the dev-platform worklog's
-  // main table actually uses (DEC-122 H2 baseline carrier); that file describes the column as
-  // 下一動 in prose but the header text drifted. Added because a header outside this list is
-  // invisible to the check, which is the failure DEC-122 measured. Adopter-specific and
-  // UNCALIBRATED (OWT-016); an adopter whose header differs adds its own word here.
-  nextAction: /next[\s-]?(?:action|step)s?|下一步|下一動|回來要做什麼/i,
+  nextAction: new RegExp(NEXT_ACTION_WORDS.map(([source]) => source).join('|'), 'i'),
   progress: /\bprogress\b|\bstate\b|\bblockers?\b|\bblocked\b|進度|現況|卡在/i,
   intent: /acceptance|criteria|\brequirements?\b|\bgoals?\b|objectives?|constraints?|驗收|需求|目標|限制/i,
   // revision-table columns / labelled list fields
@@ -153,6 +175,47 @@ export const VOCAB = {
   colApprover: /approv|核可|核准|批准|同意|確認者/i,
   colReason: /reason|why|理由|原因|為什麼/i,
 };
+
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&');
+
+/**
+ * Words an adopter declares (461 R2), as plain text: not a regular expression (a `.` or `(` in a word is
+ * that character), case-insensitive, matched as a substring like the built-in ones. A blank word is
+ * REFUSED, never dropped: an empty alternative matches every header and would turn the check green.
+ * @returns {{words:string[], error:string|null}}
+ */
+export function normaliseDeclaredWords(raw = []) {
+  const words = [];
+  for (const w of raw) {
+    const word = typeof w === 'string' ? w.replace(/\s+/g, ' ').trim() : '';
+    if (!word) return { words: [], error: 'a declared next-action word is empty or blank; it would match every header, so it is refused (give the exact word, for example --next-action-word 待辦)' }; // [mutation-anchor:blank-word-refused]
+    if (!words.some((x) => x.toLowerCase() === word.toLowerCase())) words.push(word);
+  }
+  return { words, error: null };
+}
+
+/**
+ * Program names an adopter declares (461 R5), under the same rules as the next-action words: plain text, never a
+ * pattern, and a blank one is refused. A command is one program name, so a word with a space in it could never
+ * match the first word of a command and is refused as well, with the reason, instead of being accepted and inert.
+ * @returns {{words:string[], error:string|null}}
+ */
+export function normaliseDeclaredCommands(raw = []) {
+  const words = [];
+  for (const w of raw) {
+    const word = typeof w === 'string' ? w.trim() : '';
+    if (!word) return { words: [], error: 'a declared command word is empty or blank; it would read every sentence as a command, so it is refused (give the program name, for example --command-word kubectl)' }; // [mutation-anchor:blank-command-refused]
+    if (/\s/.test(word)) return { words: [], error: `a declared command word is one program name, and "${word}" has a space in it, so it could never match; give the program name alone (for example --command-word kubectl)` };
+    if (!words.includes(word) && !COMMANDS.includes(word)) words.push(word);
+  }
+  return { words, error: null };
+}
+
+/** The one recognition pattern: the built-in list, plus the declared words when there are any. */
+export function nextActionRegExp(words = []) {
+  if (!words.length) return VOCAB.nextAction;
+  return new RegExp(`${VOCAB.nextAction.source}|${words.map(escapeRegExp).join('|')}`, 'i'); // [mutation-anchor:declared-merged]
+}
 
 const LABELS = [
   ['change', /(?:what(?:\s+changed)?|changed?|改了什麼|修改|變更)\s*[:：]/gi],
@@ -165,9 +228,12 @@ const EMPTY_FIELD = /^(?:|-+|—|–|n\/?a|none|無|done|完成|已完成|✅)$/
 
 // Words that make `word arg` read as a command in prose. Deliberately excludes
 // common English words (go, make, sh): "go through the list" is not a command.
+// glab and dotnet (461 R5) are here because a user's carriers named them (`glab mr merge 486`, a .NET
+// project); every other tool is declared by the adopter (--command-word, or open_work.command_words).
+// A command is matched as an exact program name, case-sensitively, as the built-in ones are.
 export const COMMANDS = [
-  'npm', 'npx', 'pnpm', 'yarn', 'node', 'tsx', 'git', 'gh', 'bash', 'python', 'python3',
-  'pytest', 'vitest', 'docker', 'cargo', 'uds', 'egr',
+  'npm', 'npx', 'pnpm', 'yarn', 'node', 'tsx', 'git', 'gh', 'glab', 'bash', 'python', 'python3',
+  'pytest', 'vitest', 'docker', 'cargo', 'dotnet', 'uds', 'egr',
 ];
 
 export const EXTENSIONS = [
@@ -182,9 +248,9 @@ export const ID_PREFIX_DENYLIST = ['UTF', 'SHA', 'ISO', 'GPT', 'RFC', 'CRC', 'AE
 // ── Markdown structure walk ──────────────────────────────────────────────────
 
 /** @returns {string|null} */
-function classifyHeading(h) {
+function classifyHeading(h, nextRe = VOCAB.nextAction) {
   if (VOCAB.revision.test(h)) return 'revision';
-  if (VOCAB.nextAction.test(h)) return 'nextAction';
+  if (nextRe.test(h)) return 'nextAction';
   if (VOCAB.progress.test(h)) return 'progress';
   if (VOCAB.intent.test(h)) return 'intent';
   return null;
@@ -194,7 +260,7 @@ function classifyHeading(h) {
  * Annotate every line with the class of its innermost classified ancestor
  * heading. Front matter and fenced blocks keep their text but are flagged.
  */
-export function parseDoc(md) {
+export function parseDoc(md, nextRe = VOCAB.nextAction) {
   const raw = md.split(/\r?\n/);
   const lines = [];
   const stack = [];
@@ -226,7 +292,7 @@ export function parseDoc(md) {
       if (h) {
         const level = h[1].length;
         while (stack.length && stack[stack.length - 1].level >= level) stack.pop();
-        const entry = { level, heading: h[2], cls: classifyHeading(h[2]) };
+        const entry = { level, heading: h[2], cls: classifyHeading(h[2], nextRe) };
         stack.push(entry);
         const own = innermost(stack);
         lines.push({ text, cls: own ? own.cls : null, owner: own, heading: entry });
@@ -454,10 +520,11 @@ export function checkIntentRevision({ before, after, path = '(carrier)' }) {
 
 // ── OWT-017: carrier separation ──────────────────────────────────────────────
 
-export function checkSeparation(carriers) {
+export function checkSeparation(carriers, opts = {}) {
   const res = { walked: carriers.length, recognised: 0, violations: [] };
+  const nextRe = nextActionRegExp(opts.words);
   for (const c of carriers) {
-    const lines = parseDoc(c.content);
+    const lines = parseDoc(c.content, nextRe);
     const intent = new Set();
     const progress = new Set();
     for (const l of lines) {
@@ -497,7 +564,7 @@ function pathLike(tok, inCode) {
  */
 export function classifyNextAction(text, opts = {}) {
   const idRe = new RegExp(opts.idPattern || DEFAULT_ID_PATTERN, 'g');
-  const commands = [...COMMANDS, ...(opts.extraCommands || [])];
+  const commands = [...COMMANDS, ...(opts.extraCommands || [])]; // [mutation-anchor:extra-commands]
   const kinds = [];
   const push = (kind, value) => { if (!kinds.some((k) => k.kind === kind && k.value === value)) kinds.push({ kind, value }); };
   const idOk = (v) => !ID_PREFIX_DENYLIST.includes(v.split('-')[0]);
@@ -522,7 +589,7 @@ export function classifyNextAction(text, opts = {}) {
     const p = pathLike(tok, false);
     if (p) push('path', p);
   }
-  const cmdRe = new RegExp(`(?:^|[^\\w-])(${commands.join('|')})\\s+([-@\\w./:]+)`, 'g');
+  const cmdRe = new RegExp(`(?:^|[^\\w-])(${commands.map(escapeRegExp).join('|')})\\s+([-@\\w./:]+)`, 'g');
   let m;
   while ((m = cmdRe.exec(prose)) !== null) push('command', `${m[1]} ${m[2]}`);
   const testRe = /(?:test|測試)\s*[「"“']([^」"”']{6,})[」"”']/gi;
@@ -541,10 +608,15 @@ export function classifyNextAction(text, opts = {}) {
       if (existsSync(isAbsolute(rel) ? rel : join(root, rel))) resolved = true;
     }
   }
+  // Only a PATH is ever looked up. A command, a test name or a requirement identifier is checked for being NAMED and
+  // can never be resolved, so a named-unresolved row is one of two different things (461 R6): a path that was looked
+  // up and is not there, or something that is never looked up. The status stays named-unresolved for both.
+  const lookedUp = !!root && kinds.some((k) => k.kind === 'path');
   return {
     status: resolved ? 'named-resolved' : 'named-unresolved',
     kinds,
     resolution: root ? 'attempted (paths only)' : 'not attempted (no --root)',
+    unresolved: resolved ? null : (lookedUp ? 'path-missing' : 'not-resolvable'), // [mutation-anchor:unresolved-split]
   };
 }
 
@@ -561,8 +633,9 @@ const clip = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
  * "no next action written". It is neither judged nor dropped: the caller counts and lists it.
  * @returns {{fields:number, items:{text:string,where:string}[], ragged:{where:string,cells:number,expected:number}[]}}
  */
-export function extractNextActions(md) {
-  const lines = parseDoc(md);
+export function extractNextActions(md, words = []) {
+  const nextRe = nextActionRegExp(words);
+  const lines = parseDoc(md, nextRe);
   const items = [];
   const ragged = [];
   let fields = 0;
@@ -572,7 +645,7 @@ export function extractNextActions(md) {
 
   for (const t of tables) {
     // every header cell in the shared vocabulary is a next-action column (usually exactly one)
-    const cols = t.header.map((c, n) => (VOCAB.nextAction.test(c) ? n : -1)).filter((n) => n >= 0); // [mutation-anchor:table-header]
+    const cols = t.header.map((c, n) => (nextRe.test(c) ? n : -1)).filter((n) => n >= 0); // [mutation-anchor:table-header]
     const hasCol = cols.length > 0;
     tableIdx.add(t.headerIdx); tableIdx.add(t.headerIdx + 1); headerIdx.add(t.headerIdx);
     t.rows.forEach((r) => tableIdx.add(r.idx));
@@ -594,7 +667,7 @@ export function extractNextActions(md) {
   }
 
   // inline labelled  "**Next action**: ..." (outside tables that have their own column)
-  const labelRe = new RegExp(`(?:\\*\\*|__)?(?:${VOCAB.nextAction.source})(?:\\*\\*|__)?\\s*[:：]\\s*(.+)$`, 'i');
+  const labelRe = new RegExp(`(?:\\*\\*|__)?(?:${nextRe.source})(?:\\*\\*|__)?\\s*[:：]\\s*(.+)$`, 'i');
   const colTableRows = new Set();
   // Only rows read through the column are exempt from the label scan. A ragged row was not
   // read, so an inline "Next action: ..." inside it must still be seen (else it goes dark).
@@ -643,9 +716,9 @@ export function extractNextActions(md) {
 }
 
 export function checkNextActions(carriers, opts = {}) {
-  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [] };
+  const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0 }, unresolvedSplit: { 'path-missing': 0, 'not-resolvable': 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [] };
   for (const c of carriers) {
-    const { fields, items, ragged } = extractNextActions(c.content);
+    const { fields, items, ragged } = extractNextActions(c.content, opts.words);
     for (const g of ragged) res.undecidable.push({ path: c.path, ...g });
     if (fields === 0 && ragged.length === 0) { res.noFieldCarriers.push(c.path); continue; }
     for (const it of items) {
@@ -654,11 +727,107 @@ export function checkNextActions(carriers, opts = {}) {
       res.walked++;
       const r = classifyNextAction(text, opts);
       res.counts[r.status]++;
+      if (r.unresolved) res.unresolvedSplit[r.unresolved]++;
       res.detail.push({ path: c.path, where: it.where, text, ...r });
       if (r.status === 'unnamed') res.violations.push({ rule: 'OWT-019', path: c.path, where: it.where, text });
     }
   }
   return res;
+}
+
+// ── 461 R6: say what "resolved" resolved ─────────────────────────────────────
+// `named-resolved`, `named-unresolved` and `unnamed` do not say against WHAT a path was looked up, and
+// `named-unresolved` reads as a failure although it also holds every command, test name and requirement
+// identifier, which are never looked up at all. These lines are ADDED after the counts line; nothing 1.1.0
+// printed is changed or moved (the frozen capture is compared with these lines taken out).
+
+/** Is this file inside a git working tree? Asked of git, never worked out from the path. */
+function insideGitRepo(file) {
+  try {
+    execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: dirname(resolve(file)), stdio: ['ignore', 'pipe', 'ignore'] });
+    return true;
+  } catch { return false; }
+}
+
+/** The one sentence that says where a lookup starts and where that came from, for a path (next-action) and for a project (waiting) alike. */
+export function lookupSentence(what, dir, source) {
+  return `${what} is looked up under ${resolve(dir)} (${source})`;
+}
+
+/**
+ * @param {{root:string, rootGiven:boolean, carriers:{path:string}[], split:{'path-missing':number,'not-resolvable':number}, unresolved:number, commands:string[]}} a
+ * @returns {string[]} lines, without the `[owt] ` prefix
+ */
+export function explainResolution({ root, rootGiven, carriers, split, unresolved, commands = [] }) {
+  const out = [];
+  out.push(`  of the named-unresolved (${unresolved}): path-missing=${split['path-missing']} not-resolvable=${split['not-resolvable']}`);
+  out.push(`RESOLUTION: ${lookupSentence('a path', root, rootGiven ? 'from --root' : 'the current directory: no --root was given')}. Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.`); // [mutation-anchor:resolution-line]
+  if (!rootGiven) {
+    for (const c of carriers) {
+      if (!insideGitRepo(c.path)) { out.push(`RESOLUTION: ${c.path} is outside any git repository, so its paths are resolved against ${resolve(root)}, not against where the file is; pass --root to say where its paths start`); break; } // [mutation-anchor:outside-repo]
+    }
+  }
+  if (commands.length) out.push(`RESOLUTION: read as commands in addition to the built-in list: ${commands.join(', ')}`);
+  return out;
+}
+
+// ── 461 R3: when no carrier has a next-action field, say what each one showed ─
+// Exit 2 ("cannot decide") says nothing about WHY. A reader cannot tell "this carrier writes the
+// column in words the list does not hold" from "this carrier has no next-action field at all", and
+// those two call for opposite actions (declare a word; or nothing). This reads the same structure the
+// check read (headings and table headers) and says what it saw.
+
+/** How many headings and table headers are listed per carrier before "and N more". About 20, on purpose. */
+export const DIAGNOSTIC_LIST_LIMIT = 20;
+
+/** The headings and table headers a carrier shows, each distinct text once with how many times it occurs. */
+export function describeCarrier(md) {
+  const lines = parseDoc(md);
+  const count = (list) => {
+    const seen = new Map();
+    for (const t of list) { const k = norm(t); if (k) seen.set(k, (seen.get(k) || 0) + 1); }
+    return [...seen].map(([text, n]) => ({ text, n }));
+  };
+  const tables = findTables(lines);
+  return {
+    tables: tables.length,
+    headers: count(tables.flatMap((t) => t.header)),
+    headings: count(lines.filter((l) => l.heading).map((l) => l.heading.heading)),
+  };
+}
+
+/**
+ * The lines printed after "no next-action field found". Pure: carriers and declared words in, text out.
+ * `rowsUnreadable` lists the paths whose next-action column was found but whose rows could not be read.
+ * @returns {string[]}
+ */
+export function explainNoNextActionField(carriers, words = [], rowsUnreadable = []) {
+  const out = [];
+  const quoted = (list) => list.map((x) => `"${x.text}"${x.n > 1 ? ` (x${x.n})` : ''}`).join(', ');
+  out.push('WHY: no carrier had a next-action field. What each one showed:');
+  for (const c of carriers) {
+    const d = describeCarrier(c.content);
+    const unreadable = rowsUnreadable.includes(c.path);
+    let verdict;
+    if (unreadable) verdict = 'has a next-action column, but its table rows could not be read (see UNDECIDABLE above)';
+    else if (d.tables > 0) verdict = `has ${d.tables} table(s), but no table header matches a recognised word; if one of them is your next-action column, declare its word`;
+    else if (d.headings.length > 0) verdict = 'has no table, and no heading matches a recognised word; if one of these headings is your next-action section, declare its word';
+    else verdict = 'has no table and no heading to read; this carrier may have no next-action field at all, and no word would change that';
+    out.push(`  ${c.path}: ${verdict}`);
+    let budget = DIAGNOSTIC_LIST_LIMIT;
+    const show = (label, list) => {
+      if (!list.length) return;
+      const shown = list.slice(0, Math.max(budget, 0));
+      budget -= shown.length;
+      out.push(`    ${label} (${list.length} distinct): ${quoted(shown)}${list.length > shown.length ? `, and ${list.length - shown.length} more` : ''}`); // [mutation-anchor:diagnostic-list]
+    };
+    show('table headers', d.headers);
+    show('headings', d.headings);
+  }
+  out.push(`WORDS RECOGNISED (a heading, a table header or an inline "word: ..." label that contains one of these, any case): built in: ${NEXT_ACTION_WORDS.map(([, shown]) => shown).join(' | ')}`);
+  out.push(words.length ? `  declared by you: ${words.join(' | ')}` : '  declared by you: none');
+  out.push('TO ADD A WORD: pass --next-action-word <word> (repeat it for several), or list it under open_work: next_action_words: in uds.project.yaml. It is plain text, not a pattern, and it is added to the same list for headings, table headers and labels.');
+  return out;
 }
 
 // ── OWT-020 … OWT-026: two states before a reply, and observed facts ─────────
@@ -728,13 +897,14 @@ function parseRoleLabels(text) {
   const kept = [];
   for (const h of hits) if (!kept.length || h.start >= kept[kept.length - 1].end) kept.push(h);
   const f = {};
+  const fr = {}; // the same values with their Markdown kept: a `code span` is how a command or a test name is told from prose
   kept.forEach((h, i) => {
     const next = kept[i + 1] ? kept[i + 1].start : text.length;
     const val = stripMd(text.slice(h.end, next)).replace(/[;；,，|]+$/, '').trim();
-    if (f[h.role] === undefined) f[h.role] = val;
+    if (f[h.role] === undefined) { f[h.role] = val; fr[h.role] = text.slice(h.end, next).replace(/[;；,，|]+$/, '').trim(); }
   });
   const title = stripMd(text.slice(0, kept.length ? kept[0].start : text.length)).replace(/[\s;；,，|—–:：-]+$/, '').trim();
-  return { f, title };
+  return { f, fr, title };
 }
 
 /**
@@ -760,17 +930,18 @@ export function extractRecords(md) {
       const where = `table row (line ${r.idx + 1}, row "${clip(title, 40)}")`;
       if (r.cells.length !== t.header.length) { ragged.push({ idx: r.idx, where, cells: r.cells.length, expected: t.header.length, columns }); continue; }
       const f = {};
-      roles.forEach((rs, n) => rs.forEach((role) => { if (f[role] === undefined) f[role] = stripMd(r.cells[n]); }));
-      records.push({ where, title, f, columns });
+      const fr = {};
+      roles.forEach((rs, n) => rs.forEach((role) => { if (f[role] === undefined) { f[role] = stripMd(r.cells[n]); fr[role] = r.cells[n]; } }));
+      records.push({ where, title, f, fr, columns });
     }
   }
   let cur = null;
   const flush = () => {
     if (cur) {
       const text = cur.parts.join(' ; ');
-      const { f, title } = parseRoleLabels(text);
+      const { f, fr, title } = parseRoleLabels(text);
       if (Object.keys(f).length) {
-        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, columns: new Set(Object.keys(f)) });
+        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, fr, columns: new Set(Object.keys(f)) });
       }
     }
     cur = null;
@@ -822,14 +993,141 @@ export function classifyValue(text) {
 
 const ageDays = (now, day) => Math.floor((now - day) / DAY_MS);
 
+// ── OWT-027 / OWT-028: a release condition that names an object in another project ──
+// open-work-tracking 1.3.0 (dev-platform XSPEC-460). Local only: it reads files and git tags on THIS
+// machine and opens no network connection. The names, the machine-specific path prefixes and the
+// kinds it can resolve are an initial judgment (OWT-016).
+//
+// A project is named by a LOGICAL name (`uds`, `vibeops`), never by a directory: a directory is
+// machine-specific (it leaks a user name and is wrong on the next machine), and two readers of one
+// carrier must mean the same project by one name. Where a name lives on this machine is supplied
+// outside the carrier (`--root NAME=DIR`, or `open_work.projects` in uds.project.yaml).
+
+export const PROJECT_NAME = /^[a-z][a-z0-9_-]{1,31}$/;
+const URL_SCHEMES = new Set(['http', 'https', 'ftp', 'file', 'ssh', 'git', 'mailto', 'tel', 'data', 'javascript', 'ws', 'wss']);
+// <name>:<object>. The name is lower-case and at least two characters (so `C:\` is never a project); the
+// object is one token, or a `code span` for a command or a test name. Not inside a word, a path or a URL.
+const REF_RE = /(?<![\w./@:\\-])([a-z][a-z0-9_-]{1,31}):(?!\/\/)(`[^`\n]+`|[^\s`|;,，；、()（）[\]{}<>"']+)/g;
+// A machine-specific absolute path: a home or volume prefix, a drive letter, `~/`, a UNC share, a file: URL.
+const MACHINE_PATH = /(?:^|[\s"'`(=:])(?:\/(?:Users|home|root|Volumes|mnt|private|var|opt|srv|tmp|etc)\/|[A-Za-z]:[\\/]|~[\\/]|\\\\[\w.$-]+\\)|file:\/\//i;
+const TAG_NAME = /^[A-Za-z0-9][\w.+-]*$/;
+
+const isAbsoluteObject = (o) => /^(?:\/|~[\\/]|[A-Za-z]:[\\/]|\\\\)/.test(o);
+const leavesProject = (o) => /(?:^|[\\/])\.\.(?:[\\/]|$)/.test(o);
+
+/** @returns {{kind:'path'|'tag'|'id'|'command'|'test'|'object'|'absolute'|'outside', value:string}} */
+export function classifyObject(raw, idPattern = DEFAULT_ID_PATTERN, extraCommands = []) {
+  const code = raw.startsWith('`');
+  let obj = code ? raw.slice(1, -1).trim() : raw.replace(/[.:!?]+$/, '');
+  if (!obj) return { kind: 'object', value: raw };
+  if (isAbsoluteObject(obj)) return { kind: 'absolute', value: obj };
+  if (leavesProject(obj)) return { kind: 'outside', value: obj };
+  const idFull = new RegExp(`^(?:${idPattern})$`);
+  const idOk = (v) => idFull.test(v) && !ID_PREFIX_DENYLIST.includes(v.split('-')[0]);
+  if (code) {
+    const first = obj.split(/\s+/)[0].replace(/^\$\s*/, '');
+    if (pathLike(obj, true)) return { kind: 'path', value: obj };
+    if (COMMANDS.includes(first) || extraCommands.includes(first)) return { kind: 'command', value: obj };
+    if (/\.(?:test|spec)\.[cm]?[jt]sx?|(?:^|[\s/])test_\w+|::/.test(obj)) return { kind: 'test', value: obj };
+    if (idOk(obj)) return { kind: 'id', value: obj };
+    return { kind: 'object', value: obj };
+  }
+  if (pathLike(obj, true)) return { kind: 'path', value: obj };
+  if (idOk(obj)) return { kind: 'id', value: obj };
+  if (TAG_NAME.test(obj)) return { kind: 'tag', value: obj };
+  return { kind: 'object', value: obj };
+}
+
+/** Every `<project>:<object>` in a piece of text. */
+export function findReferences(text, idPattern, extraCommands = []) {
+  const refs = [];
+  REF_RE.lastIndex = 0;
+  let m;
+  while ((m = REF_RE.exec(text || '')) !== null) {
+    if (URL_SCHEMES.has(m[1])) continue;
+    const obj = classifyObject(m[2], idPattern, extraCommands);
+    if (!refs.some((r) => r.name === m[1] && r.value === obj.value)) refs.push({ name: m[1], ...obj });
+  }
+  return refs;
+}
+
+/**
+ * `--root` values for `waiting`. A value that looks like NAME=DIR (a name, then `=`, with no path separator
+ * before the `=`) says where project NAME lives; any other value is the single directory relative paths are
+ * resolved against, exactly as before. Directories are resolved against the current directory.
+ * @returns {{plain:string|undefined, named:Map<string,string>, error:string|null}}
+ */
+export function parseRootOptions(values) {
+  const named = new Map();
+  let plain;
+  for (const v of values) {
+    if (typeof v !== 'string' || v === '') return { plain: undefined, named, error: '--root needs a directory, or NAME=DIR' };
+    const m = /^([^\s/\\=]+)=(.*)$/s.exec(v);
+    if (!m) {
+      if (plain !== undefined) return { plain: undefined, named, error: `--root DIR was given more than once ("${plain}" and "${v}"); give one directory, and NAME=DIR for each other project` };
+      plain = v;
+      continue;
+    }
+    if (!PROJECT_NAME.test(m[1])) return { plain: undefined, named, error: `--root ${v}: the project name "${m[1]}" is not a logical name (lower-case letters, digits, "-" and "_", starting with a letter, 2 to 32 characters)` };
+    if (m[2].trim() === '') return { plain: undefined, named, error: `--root ${m[1]}=: the directory is empty` };
+    const dir = resolve(m[2]);
+    if (named.has(m[1]) && named.get(m[1]) !== dir) return { plain: undefined, named, error: `--root names project "${m[1]}" twice with different directories` };
+    named.set(m[1], dir);
+  }
+  return { plain, named, error: null };
+}
+
+/** What can be observed on this machine. Injected in the self-test, so a rule never reads the disk by itself. */
+export const REAL_ENV = {
+  dirExists: (d) => { try { return statSync(d).isDirectory(); } catch { return false; } },
+  pathExists: (p) => existsSync(p),
+  // 'present' | 'absent' | 'unreadable' (not a git repository, git missing, or git failed): never a guess
+  tagState: (dir, tag) => {
+    const env = { ...process.env };
+    for (const k of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_PREFIX', 'GIT_COMMON_DIR', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES']) delete env[k];
+    const r = spawnSync('git', ['-C', dir, 'show-ref', '--verify', '--quiet', `refs/tags/${tag}`], { stdio: 'ignore', env });
+    if (r.error || r.status === null) return 'unreadable';
+    if (r.status === 0) return 'present';
+    if (r.status === 1) return 'absent';
+    return 'unreadable';
+  },
+};
+
+const OBSERVABLE = { path: 'machine-observable', tag: 'machine-observable' };
+
+/**
+ * OWT-028: where does the other project stand? Four answers, never folded into one:
+ *   released          the object exists there now (a path on disk, a version-control tag)
+ *   not-yet-released  the project is visible and the object is not there
+ *   not-visible       this machine cannot see the project, so nothing is known — NOT released, NOT zero
+ *   needs-a-person    the project is visible but this kind of object (a test name, a command, a spec or
+ *                     requirement identifier) has nothing here that can be read; a person confirms it
+ * @param {Map<string,string>} projects logical name -> directory on this machine
+ */
+export function resolveReference(ref, projects, env = REAL_ENV) {
+  const dir = projects.get(ref.name);
+  if (dir === undefined) return { status: 'not-visible', why: `no directory on this machine is declared for project "${ref.name}" (--root ${ref.name}=DIR)` }; // [mutation-anchor:not-visible]
+  if (!env.dirExists(dir)) return { status: 'not-visible', why: `the directory declared for project "${ref.name}" does not exist on this machine` };
+  if (ref.kind === 'path') return env.pathExists(join(dir, ref.value.replace(/^\.\//, ''))) ? { status: 'released', why: 'the path exists there' } : { status: 'not-yet-released', why: 'the path does not exist there'}; // [mutation-anchor:path-exists]
+  if (ref.kind === 'tag') {
+    const t = env.tagState(dir, ref.value);
+    if (t === 'unreadable') return { status: 'not-visible', why: `the tags of project "${ref.name}" cannot be read here (not a git repository, or git failed)` };
+    return t === 'present' ? { status: 'released', why: 'the tag exists there' } : { status: 'not-yet-released', why: 'the tag does not exist there' }; // [mutation-anchor:tag-present]
+  }
+  return { status: 'needs-a-person', why: `a ${ref.kind === 'id' ? 'requirement or specification identifier' : ref.kind === 'object' ? 'free-form object' : ref.kind} in another project has nothing this check can read` }; // [mutation-anchor:needs-a-person]
+}
+
 /**
  * OWT-020 / OWT-021 / OWT-022. Reads every record that has a status field (OWT-010: a structural
  * field, never prose). `now` is a UTC day (ms); inject it, never read the clock inside a rule.
  */
 export function checkWaiting(carriers, opts = {}) {
   const now = opts.now ?? todayUtc();
+  const projects = opts.projects ?? new Map();
+  const env = opts.env ?? REAL_ENV;
   const res = {
-    walked: 0, counts: { 'not-yet-asked': 0, 'asked-awaiting': 0, 'waiting-unspecified': 0, done: 0, other: 0 },
+    walked: 0, counts: { 'not-yet-asked': 0, 'asked-awaiting': 0, 'waiting-unspecified': 0, 'waiting-cross-project': 0, done: 0, other: 0 },
+    cross: { found: 0, counts: { released: 0, 'not-yet-released': 0, 'not-visible': 0, 'needs-a-person': 0 }, items: [] },
     violations: [], detail: [], ragged: [], noStateCarriers: [],
   };
   for (const c of carriers) {
@@ -839,15 +1137,33 @@ export function checkWaiting(carriers, opts = {}) {
     if (!withStatus.length) { res.noStateCarriers.push(c.path); continue; }
     for (const r of withStatus) {
       res.walked++;
-      const state = classifyState(r.f.status);
-      res.counts[state]++;
+      let state = classifyState(r.f.status);
       const at = { path: c.path, where: r.where };
       const bad = (rule, why) => res.violations.push({ rule, ...at, why });
       const note = [];
+      // OWT-027 / OWT-028: a release condition (or what it waits for) that names an object in another project
+      const waitingNow = state === 'not-yet-asked' || state === 'asked-awaiting' || state === 'waiting-unspecified';
+      const conditionText = [r.fr.release, r.fr.awaiting].filter((x) => x !== undefined && x !== '').join(' ; ');
+      const refs = waitingNow ? findReferences(conditionText, opts.idPattern, opts.extraCommands) : [];
+      if (waitingNow && (MACHINE_PATH.test(conditionText) || refs.some((x) => x.kind === 'absolute'))) { // [mutation-anchor:machine-path]
+        bad('OWT-027', `names a machine-specific absolute path in what it waits for or its release ("${clip(conditionText, 60)}"): name the other project by its logical name, <name>:<path inside it>, and keep the directory out of the carrier`);
+      }
+      for (const x of refs) {
+        if (x.kind === 'outside') { bad('OWT-027', `names "${x.name}:${x.value}", a path that leaves project "${x.name}"; give a path inside it`); continue; }
+        if (x.kind === 'absolute') continue; // already a violation above
+        const got = resolveReference(x, projects, env);
+        res.cross.found++;
+        res.cross.counts[got.status]++;
+        res.cross.items.push({ ...at, name: x.name, object: x.value, kind: x.kind, observable: OBSERVABLE[x.kind] ?? 'needs a person', ...got });
+      }
+      // An item that waits for an observable event in another project has no request to have "asked":
+      // OWT-020's two states are about a reply, and this is not one. It is counted on its own line.
+      if (state === 'waiting-unspecified' && refs.some((x) => x.kind !== 'absolute' && x.kind !== 'outside')) state = 'waiting-cross-project'; // [mutation-anchor:cross-project-exempt]
+      res.counts[state]++;
       const unspecified = state === 'waiting-unspecified'; // [mutation-anchor:waiting-unspecified]
       if (unspecified) bad('OWT-020', 'is waiting but does not say whether it has been asked (neither not-yet-asked nor asked-awaiting)');
       if (state === 'not-yet-asked') {
-        const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern }).status !== 'unnamed'; // [mutation-anchor:not-yet-asked-names]
+        const named = classifyNextAction(`${r.f.draft ?? ''} ${r.f.status}`, { root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands }).status !== 'unnamed'; // [mutation-anchor:not-yet-asked-names]
         if (!named) bad('OWT-021', 'is not-yet-asked but names no draft or action: no file path, command, test name or requirement identifier');
       }
       if (state === 'asked-awaiting') {
@@ -989,6 +1305,64 @@ export function runSelfTest() {
   expect('OWT-026 violating: a hand-written observation of something version control determines', ruleOf(obs('| PR merged | open | albert | 2026-10-05 | yes |\n'), 'OWT-026') === 1);
   expect('OWT-026 clean: an external fact the assistant cannot see', ruleOf(obs('| legal replied | open | albert | 2026-10-05 | yes |\n'), 'OWT-026') === 0);
 
+  // OWT-027 / OWT-028 (1.3.0): a release condition naming an object in another project. The disk and git are
+  // replaced by a fake environment, so the arms never touch either (the checker runs them before every command).
+  const FAKE_DIR = join('/fake', 'other');
+  const fakeEnv = {
+    dirExists: (d) => d === FAKE_DIR,
+    pathExists: (p) => p === join(FAKE_DIR, 'docs', 'a.md'),
+    tagState: (_d, tag) => (tag === 'v1.0.0' ? 'present' : 'absent'),
+  };
+  const known = new Map([['other', FAKE_DIR]]);
+  const cross = (release, projects = known, extra = '') => checkWaiting([{ path: 'x.md', content: wtab(`| wait for other | waiting | | | ${extra} | ${release} |\n`) }], { now: NOW, projects, env: fakeEnv });
+  expect('OWT-027 violating: a release condition holding a machine-specific absolute path', ruleOf(cross('/Users/someone/work/other/docs/a.md'), 'OWT-027') === 1);
+  expect('OWT-027 violating: an object that leaves the other project', ruleOf(cross('other:../secret.md'), 'OWT-027') === 1);
+  expect('OWT-027 clean: a logical project name and an object inside it', ruleOf(cross('other:v1.0.0'), 'OWT-027') === 0);
+  expect('OWT-027 violating: a drive letter is an absolute path, not a project name', ruleOf(cross('C:\\work\\other\\a.md'), 'OWT-027') === 1 && cross('C:\\work\\other\\a.md').cross.found === 0);
+  expect('OWT-027 clean: a URL is not a project reference', cross('see https://example.com/a').cross.found === 0 && ruleOf(cross('see https://example.com/a'), 'OWT-027') === 0);
+  expect('OWT-028 clean: a tag that exists there is released, in a project this machine can see', cross('other:v1.0.0').cross.counts.released === 1);
+  expect('OWT-028 clean: a path that exists there is released', cross('other:docs/a.md').cross.counts.released === 1);
+  expect('OWT-028 violating: a tag that is not there is not released', cross('other:v2.0.0').cross.counts['not-yet-released'] === 1 && cross('other:v2.0.0').cross.counts.released === 0);
+  expect('OWT-028 violating: a path that is not there is not released', cross('other:docs/b.md').cross.counts['not-yet-released'] === 1);
+  const unseen = cross('stranger:v1.0.0');
+  expect('OWT-028 violating: a project this machine cannot see is counted apart, never released and never zero', unseen.cross.counts['not-visible'] === 1 && unseen.cross.counts.released === 0 && unseen.cross.found === 1);
+  const person = cross('other:XSPEC-123');
+  expect('OWT-028 violating: an identifier in another project needs a person and is never released', person.cross.counts['needs-a-person'] === 1 && person.cross.counts.released === 0);
+  expect('OWT-028 clean: an unseen project is still listed with its reason', unseen.cross.items[0].status === 'not-visible' && /stranger/.test(unseen.cross.items[0].why));
+  expect('OWT-020 clean: a waiting item that waits for another project is not asked about a reply', cross('other:v1.0.0').violations.length === 0 && cross('other:v1.0.0').counts['waiting-cross-project'] === 1);
+  expect('OWT-020 violating: a plain waiting item is still named', ruleOf(waiting('| ask board | waiting | | | | |\n'), 'OWT-020') === 1);
+  expect('OWT-027 clean: --root NAME=DIR and a plain --root are told apart', (() => { const r = parseRootOptions(['other=/fake/other', '/somewhere']); return r.error === null && r.plain === '/somewhere' && r.named.get('other') === resolve('/fake/other'); })());
+  expect('OWT-027 violating: a project name that is not a logical name is refused', parseRootOptions(['Other=/x']).error !== null && parseRootOptions(['a', 'b']).error !== null);
+
+  // 461 R5 (1.3.0): a command the adopter declares is read by next-action AND by waiting; glab and dotnet are built in.
+  expect('461 R5 clean: glab and dotnet are built-in commands', classifyNextAction('run `glab mr merge 486`', {}).status !== 'unnamed' && classifyNextAction('run `dotnet test X.csproj`', {}).status !== 'unnamed');
+  expect('461 R5 violating: a program that was not declared is not a command', classifyNextAction('run `kubectl apply -f x.yaml`', {}).status === 'unnamed' && classifyNextAction('then go build it, make test, sh run', {}).status === 'unnamed');
+  expect('461 R5 clean: a declared command is read by next-action', classifyNextAction('run `kubectl apply -f x.yaml`', { extraCommands: ['kubectl'] }).status !== 'unnamed');
+  const kubeRow = '| ask ops | not-yet-asked | kubectl rollout restart | | | |\n';
+  expect('461 R5 violating: waiting does not know an undeclared command, so the draft names nothing', ruleOf(waiting(kubeRow), 'OWT-021') === 1);
+  expect('461 R5 clean: the same row under waiting names a draft once the command is declared', ruleOf(checkWaiting([{ path: 'k.md', content: wtab(kubeRow) }], { now: NOW, extraCommands: ['kubectl'] }), 'OWT-021') === 0);
+  expect('461 R5 violating: a blank or spaced command word is refused', normaliseDeclaredCommands(['']).error !== null && normaliseDeclaredCommands(['git lfs']).error !== null && normaliseDeclaredCommands(['kubectl']).error === null);
+  expect('461 R5 clean: a declared command is plain text, not a pattern', classifyNextAction('run `a.b x`', { extraCommands: ['a.b'] }).status !== 'unnamed' && classifyNextAction('run aXb now', { extraCommands: ['a.b'] }).status === 'unnamed');
+
+  // 461 R6 (1.3.0): named-unresolved says whether a path was looked up and missing, or nothing was looked up
+  const split = checkNextActions([{ path: 'n.md', content: '| item | Next action |\n|---|---|\n| a | `glab mr merge 486` |\n| b | edit src/none.js |\n| c | finish XSPEC-12 |\n' }], { root: '/fake/root' });
+  expect('461 R6 clean: a command and an identifier are not-resolvable, a path that is not there is path-missing, and they sum to named-unresolved', split.unresolvedSplit['not-resolvable'] === 2 && split.unresolvedSplit['path-missing'] === 1 && split.counts['named-unresolved'] === 3);
+  expect('461 R6 violating: without a root nothing is looked up, so a path is not-resolvable too', checkNextActions([{ path: 'n.md', content: '| item | Next action |\n|---|---|\n| b | edit src/none.js |\n' }], {}).unresolvedSplit['not-resolvable'] === 1);
+  const explained = explainResolution({ root: '/fake/root', rootGiven: false, carriers: [], split: { 'path-missing': 1, 'not-resolvable': 2 }, unresolved: 3 }).join('\n');
+  expect('461 R6 clean: the resolution lines say the root, where it came from, and that only a path is looked up', /looked up under \/fake\/root \(the current directory: no --root was given\)/.test(explained) && /Only a PATH is looked up/.test(explained) && /path-missing=1 not-resolvable=2/.test(explained) && /from --root/.test(explainResolution({ root: '/r', rootGiven: true, carriers: [], split, unresolved: 3 }).join('\n')));
+
+  // 461 (1.3.0): the one next-action list, the words an adopter declares, and the exit-2 explanation.
+  const table461 = (h) => `| item | state | ${h} |\n|---|---|---|\n| a | open | edit scripts/foo.mjs |\n`;
+  expect('461 R1 clean: 下一個動作, 下一個步驟 and 接下來要做什麼 are read by default', ['下一個動作', '下一個步驟', '接下來要做什麼'].every((h) => extractNextActions(table461(h)).fields === 1));
+  expect('461 R1 violating: 待辦 is not read unless declared (the list is not widened)', extractNextActions(table461('待辦')).fields === 0 && extractNextActions(table461('Next')).fields === 0 && extractNextActions(table461('接下來')).fields === 0);
+  expect('461 R2 clean: a declared word is read as a table header, a heading and an inline label, from one list', extractNextActions(table461('待辦'), ['待辦']).fields === 1 && extractNextActions('## 待辦\n- edit scripts/foo.mjs\n', ['待辦']).fields === 1 && extractNextActions('待辦: edit scripts/foo.mjs\n', ['待辦']).fields === 1);
+  expect('461 R2 violating: the same carrier without the declaration is not read', extractNextActions('## 待辦\n- edit scripts/foo.mjs\n').fields === 0);
+  expect('461 R2 clean: a declared word is plain text, any case, never a pattern', extractNextActions(table461('To.Do'), ['to.do']).fields === 1 && extractNextActions(table461('ToXDo'), ['to.do']).fields === 0);
+  expect('461 R2 violating: a blank declared word is refused, not dropped', normaliseDeclaredWords(['']).error !== null && normaliseDeclaredWords(['  ']).error !== null && normaliseDeclaredWords(['待辦']).error === null);
+  const why = explainNoNextActionField([{ path: 'w.md', content: table461('待辦') }], ['後續']).join('\n');
+  expect('461 R3 clean: exit-2 text names the headers the carrier showed, the words recognised and how to add one', /"待辦"/.test(why) && /"state"/.test(why) && /built in:/.test(why) && /declared by you: 後續/.test(why) && /--next-action-word/.test(why));
+  expect('461 R3 clean: a carrier with a table and one with nothing to read are told apart', /has 1 table\(s\), but no table header matches/.test(why) && /no table and no heading to read/.test(explainNoNextActionField([{ path: 'n.md', content: 'just words\n' }]).join('\n')));
+
   return { ok: failures.length === 0, failures };
 }
 
@@ -1030,6 +1404,13 @@ export function main(argv, io = { log: console.log, err: console.error }) {
     args.splice(i, 2);
     return v;
   };
+  // every occurrence of a repeatable option, in order; a missing value is kept as undefined so the caller can refuse it
+  const flagAll = (name) => {
+    const values = [];
+    let i;
+    while ((i = args.indexOf(name)) !== -1) { values.push(args[i + 1]); args.splice(i, 2); }
+    return values;
+  };
   const finish = (code) => { for (const l of out) (code === 2 ? io.err : io.log)(l); return code; };
 
   const selfTest = runSelfTest();
@@ -1045,19 +1426,31 @@ export function main(argv, io = { log: console.log, err: console.error }) {
   const cmd = args.shift();
   try {
     if (cmd === 'next-action') {
-      const root = flag('--root') ?? process.cwd();
+      const rootArg = flag('--root');
+      const root = rootArg ?? process.cwd();
       const idPattern = flag('--id-pattern');
+      const declared = normaliseDeclaredWords(flagAll('--next-action-word'));
+      if (declared.error) { say(`[owt] next-action: ${declared.error}`); return finish(2); }
+      const commandsDeclared = normaliseDeclaredCommands(flagAll('--command-word'));
+      if (commandsDeclared.error) { say(`[owt] next-action: ${commandsDeclared.error}`); return finish(2); }
       const files = args;
       if (!files.length) { say('[owt] next-action: no files given'); return finish(2); }
-      const res = checkNextActions(files.map(readCarrier), { root, idPattern });
+      const carriers = files.map(readCarrier);
+      const res = checkNextActions(carriers, { root, idPattern, words: declared.words, extraCommands: commandsDeclared.words });
       say(`[owt] OWT-019 walked ${res.walked} next-action field(s) in ${files.length} carrier(s); ${res.empty} empty/done field(s) not evaluated; ${res.noFieldCarriers.length} carrier(s) had no next-action field`);
       say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed} undecidable-table-rows=${res.undecidable.length}`);
+      // 461 R6: the lines below are additions; every line above and below them is what 1.1.0 printed.
+      for (const l of explainResolution({ root, rootGiven: rootArg !== undefined, carriers, split: res.unresolvedSplit, unresolved: res.counts['named-unresolved'], commands: commandsDeclared.words })) say(`[owt] ${l}`);
       for (const d of res.detail) say(`[owt]   ${d.status.padEnd(16)} ${d.path} ${d.where}: ${d.text.slice(0, 80)}${d.kinds.length ? '  <- ' + d.kinds.map((k) => `${k.kind}:${k.value}`).join(', ') : ''}`);
       for (const v of res.violations) say(`[owt] VIOLATION OWT-019: ${v.path} ${v.where} names no file path, test name, command or requirement identifier: "${v.text.slice(0, 80)}"`);
       for (const u of res.undecidable) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the next-action cell cannot be located, so the row is neither judged nor counted as empty`);
       say(`[owt] ${COVERAGE_NOTE}`);
       say(`[owt] ${UNCALIBRATED_NOTE}`);
-      if (res.walked + res.empty === 0) { say('[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.'); return finish(2); }
+      if (res.walked + res.empty === 0) {
+        say('[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.');
+        for (const l of explainNoNextActionField(carriers, declared.words, res.undecidable.map((u) => u.path))) say(`[owt] ${l}`);
+        return finish(2);
+      }
       // A violation is a definite answer whatever else is unreadable. Absent one, a row we could
       // not read means "no violation found" is not "no violation": exit 2, never a green 0.
       if (!res.violations.length && res.undecidable.length) { say(`[owt] CANNOT DECIDE: ${res.undecidable.length} table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.`); return finish(2); }
@@ -1084,9 +1477,11 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       return finish(r.violations.length ? 1 : 0);
     }
     if (cmd === 'separation') {
+      const declared = normaliseDeclaredWords(flagAll('--next-action-word'));
+      if (declared.error) { say(`[owt] separation: ${declared.error}`); return finish(2); }
       const files = args;
       if (!files.length) { say('[owt] separation: no files given'); return finish(2); }
-      const r = checkSeparation(files.map(readCarrier));
+      const r = checkSeparation(files.map(readCarrier), { words: declared.words });
       say(`[owt] OWT-017 walked ${r.walked} carrier(s); ${r.recognised} had a recognised intent or progress section`);
       for (const v of r.violations) say(`[owt] VIOLATION OWT-017: ${v.path} holds intent (${v.intent.join(', ')}) and progress (${v.progress.join(', ')}) in one carrier`);
       say(`[owt] ${UNCALIBRATED_NOTE}`);
@@ -1100,16 +1495,35 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       const staleArg = cmd === 'observations' ? flag('--stale-after') : undefined;
       const staleAfterDays = staleArg === undefined ? undefined : Number(staleArg);
       if (staleAfterDays !== undefined && (!Number.isFinite(staleAfterDays) || staleAfterDays < 0)) { say(`[owt] observations: --stale-after must be a number of days, got "${staleArg}"`); return finish(2); }
-      const root = cmd === 'waiting' ? (flag('--root') ?? process.cwd()) : undefined;
+      let root;
+      const projects = new Map();
+      if (cmd === 'waiting') {
+        // `--root DIR` (one, as before) says what relative paths are resolved against; `--root NAME=DIR`
+        // (repeatable) says where another project lives on this machine (OWT-027 / OWT-028).
+        const given = parseRootOptions(flagAll('--root'));
+        if (given.error) { say(`[owt] waiting: ${given.error}`); return finish(2); }
+        root = given.plain ?? process.cwd();
+        for (const [name, dir] of given.named) projects.set(name, dir);
+      }
       const idPattern = cmd === 'waiting' ? flag('--id-pattern') : undefined;
+      const commandsDeclared = cmd === 'waiting' ? normaliseDeclaredCommands(flagAll('--command-word')) : { words: [], error: null };
+      if (commandsDeclared.error) { say(`[owt] waiting: ${commandsDeclared.error}`); return finish(2); }
       const files = args;
       if (!files.length) { say(`[owt] ${cmd}: no files given`); return finish(2); }
       const carriers = files.map(readCarrier);
       if (cmd === 'waiting') {
-        const res = checkWaiting(carriers, { now, root, idPattern });
+        const res = checkWaiting(carriers, { now, root, idPattern, projects, extraCommands: commandsDeclared.words });
         say(`[owt] OWT-020/021/022 walked ${res.walked} record(s) with a status field in ${carriers.length} carrier(s) (today ${dayString(now)}); ${res.noStateCarriers.length} carrier(s) had none`);
-        say(`[owt]   not-yet-asked=${res.counts['not-yet-asked']} asked-awaiting=${res.counts['asked-awaiting']} waiting-unspecified=${res.counts['waiting-unspecified']} done=${res.counts.done} other=${res.counts.other} undecidable-table-rows=${res.ragged.length}`);
+        say(`[owt]   not-yet-asked=${res.counts['not-yet-asked']} asked-awaiting=${res.counts['asked-awaiting']} waiting-unspecified=${res.counts['waiting-unspecified']} done=${res.counts.done} other=${res.counts.other}${res.counts['waiting-cross-project'] ? ` waiting-cross-project=${res.counts['waiting-cross-project']}` : ''} undecidable-table-rows=${res.ragged.length}`);
         for (const d of res.detail) say(`[owt]   ${d.state.padEnd(20)} ${d.path} ${d.where}: ${d.text.slice(0, 60)}${d.note ? `  (${d.note})` : ''}`);
+        if (res.cross.found > 0) {
+          const k = res.cross.counts;
+          say(`[owt] OWT-027/028 ${res.cross.found} release condition(s) name an object in another project (looked up on this machine only; no network): released=${k.released} not-yet-released=${k['not-yet-released']} not-visible-from-here=${k['not-visible']} needs-a-person=${k['needs-a-person']}`);
+          const label = { released: 'RELEASED', 'not-yet-released': 'NOT YET RELEASED', 'not-visible': 'NOT VISIBLE FROM HERE', 'needs-a-person': 'NEEDS A PERSON' };
+          for (const x of res.cross.items) say(`[owt]   ${label[x.status].padEnd(21)} ${x.name}:${x.object} (${x.kind}, ${x.observable}) ${x.path} ${x.where}: ${x.why}`);
+          for (const name of [...new Set(res.cross.items.map((x) => x.name))]) if (projects.has(name)) say(`[owt] RESOLUTION: ${lookupSentence(`project "${name}"`, projects.get(name), 'from --root NAME=DIR or open_work.projects')}. Only a path or a version-control tag is looked up; nothing leaves this machine.`);
+          say('[owt] NOT VISIBLE FROM HERE is counted apart: it is not released and it is not zero. NEEDS A PERSON is counted apart and is never released. RELEASED says the object exists there now, never that it is the right object (OWT-014).');
+        }
         for (const v of res.violations) say(`[owt] VIOLATION ${v.rule}: ${v.path} ${v.where} ${v.why}`);
         for (const u of res.ragged) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the status cell cannot be located, so the row is neither judged nor counted as empty`);
         say('[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.');

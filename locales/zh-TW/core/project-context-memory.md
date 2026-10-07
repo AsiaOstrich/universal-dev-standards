@@ -72,6 +72,11 @@ proposed → active → deprecated
 3. **提議** — 發現新的隱含慣例時，建議建立新的記憶項目
 4. **衝突** — 如果使用者請求與活躍記憶衝突，必須提醒使用者
 
+## 邊界：本標準不放什麼
+
+- **個人、跨專案、可識別的資訊**（誰負責什麼、怎麼連到某個環境）不是專案情境：這裡的條目放在 repo 裡，會被每個 clone 它的人看到。把它們放在使用者自己的 AI 工具記憶，不要放進 `.project-context/`。
+- **專案之間的協調**（哪件工作在等哪件工作）是開放工作，不是情境：見 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
+
 ## 相關標準
 
 - [情境感知載入](context-aware-loading.md)

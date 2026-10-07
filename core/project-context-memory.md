@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/project-context-memory.md)
 
-**Version**: 1.2.0
-**Last Updated**: 2026-06-18
+**Version**: 1.2.1
+**Last Updated**: 2026-10-07
 **Applicability**: All software projects using AI assistants
 **Scope**: uds-specific
 
@@ -232,10 +232,18 @@ We use **Split-File Storage** (one Markdown file per topic) rather than a single
 
 ---
 
+## Boundary: What This Standard Does Not Hold
+
+- **Personal, cross-project, identifiable facts** (who owns what, how to reach a particular environment) are not project context: entries here live in the repository and are shared with everyone who clones it. Keep them in the user's own AI tool memory, not in `.project-context/`.
+- **Coordination between projects** (which piece of work is waiting on which other) is open work, not context: see [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.1 | 2026-10-07 | Added: a Boundary section — personal, cross-project, identifiable facts and coordination between projects do not belong in the repository's project context (XSPEC-460 R5; patch, no behavioral change) |
 | 1.2.0 | 2026-06-18 | Added: rationale + configurable note for the 7-day staleness threshold (XSPEC-292 T8) |
 | 1.1.0 | 2026-03-16 | Add `workflow-state` type for cross-session state tracking |
 | 1.0.0 | 2026-02-09 | Initial standard definition |

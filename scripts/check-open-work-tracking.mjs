@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Open-work-tracking reference checks for OWT-017 to OWT-026 — repo entry point.
- * open-work-tracking 1.2.0 參考判定程序的 repo 入口。
+ * Open-work-tracking reference checks for OWT-017 to OWT-028 — repo entry point.
+ * open-work-tracking 1.3.0 參考判定程序的 repo 入口。
  *
  * This file holds NO rules. The one body of them is
  * cli/src/utils/open-work-tracking.mjs, which ships in the npm package and is

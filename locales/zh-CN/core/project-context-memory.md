@@ -112,6 +112,11 @@ grep -l "API" .project-context/*.md
 
 ---
 
+## 边界：本标准不放什么
+
+- **个人、跨项目、可识别的信息**（谁负责什么、怎么连到某个环境）不是项目上下文：这里的条目放在仓库里，会被每个 clone 它的人看到。把它们放在用户自己的 AI 工具记忆，不要放进 `.project-context/`。
+- **项目之间的协调**（哪件工作在等哪件工作）是开放工作，不是上下文：见 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
+
 ## 相关标准
 
 - [情境感知加载](context-aware-loading.md)

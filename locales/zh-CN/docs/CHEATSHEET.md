@@ -32,7 +32,7 @@
 | `uds agent` | Manage UDS agents for AI tools |
 | `uds ai-context` | Manage .ai-context.yaml configuration for AI-friendly architecture |
 | `uds mcp` | MCP server commands for AI tool integration |
-| `uds open-work` | Reference checks for open-work-tracking (OWT-017 to OWT-026). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass) |
+| `uds open-work` | Reference checks for open-work-tracking (OWT-017 to OWT-028). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass) |
 | `uds run` | Run a project command by intent (test/lint/build/security) via uds.project.yaml |
 
 ## 💬 斜线命令

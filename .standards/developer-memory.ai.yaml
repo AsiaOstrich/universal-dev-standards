@@ -11,12 +11,22 @@ standard:
     - "Adjust confidence dynamically based on feedback"
     - "De-identify entries before storing (remove secrets, project names)"
     - "Respect noise control levels and cooldown periods"
+    - "Keep personal, cross-project, identifiable facts and cross-project work coordination out of memory entries (see boundary)"
 
   meta:
-    version: "1.2.0"
-    updated: "2026-09-25"
+    version: "1.2.1"
+    updated: "2026-10-07"
     source: core/developer-memory.md
     description: Structured system for capturing, retrieving, and surfacing developer experience insights across conversations and projects
+
+  boundary:
+    not_held_here:
+      - what: "個人、跨專案、可識別的資訊（誰負責什麼、怎麼連到某個環境）"
+        belongs_in: "使用者自己的 AI 工具記憶"
+        why: "去識別化會把它剝掉，所以它不能是一筆記憶條目；那種記憶綁一個使用者、一台機器，不被分享"
+      - what: "跨專案的工作協調（誰在等誰）"
+        belongs_in: "open-work-tracking（OWT-027～OWT-029）"
+        why: "那是開放工作，不是記憶"
 
   schema:
     required:

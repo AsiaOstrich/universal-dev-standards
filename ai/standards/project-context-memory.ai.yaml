@@ -10,12 +10,22 @@ standard:
     - "Inject context proactively during planning and coding phases based on file scope"
     - "Store entries as Markdown files with YAML Frontmatter in .project-context/"
     - "Use identified paths and specific names (unlike Developer Memory)"
+    - "Keep personal, cross-project, identifiable facts and cross-project work coordination out of the repository's project context (see boundary)"
 
   meta:
-    version: "1.2.0"
-    updated: "2026-06-18"
+    version: "1.2.1"
+    updated: "2026-10-07"
     source: core/project-context-memory.md
     description: System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge
+
+  boundary:
+    not_held_here:
+      - what: "個人、跨專案、可識別的資訊（誰負責什麼、怎麼連到某個環境）"
+        belongs_in: "使用者自己的 AI 工具記憶"
+        why: "專案情境在 repo 裡，會被每個 clone 它的人看到；這類資訊不是專案情境"
+      - what: "跨專案的工作協調（誰在等誰）"
+        belongs_in: "open-work-tracking（OWT-027～OWT-029）"
+        why: "那是開放工作，不是情境"
 
   schema:
     format: "Markdown with YAML Frontmatter"

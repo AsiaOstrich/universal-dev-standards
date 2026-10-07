@@ -2,7 +2,7 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/open-work-tracking.md)
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Last Updated**: 2026-10-07
 **Applicability**: Any project that carries work across more than one working session and risks losing an item between them
 **Scope**: universal
@@ -35,10 +35,10 @@ Three distinct ways work goes missing between sessions are routinely folded into
 | 某項目因等待別的事件而暫停 | 「等待中」若沒有記錄解除條件，與「被忘記」無法分辨 | 與等待一起記錄的解除條件 |
 | 已規劃的項目還沒動工，時間過去 | 沒有時鐘的項目會無聲腐爛——沒有東西會再指向它 | 一個門檻，或一次被迫的定期檢視，讓它重新浮現 |
 
-Each requirement below traces to one row of that table, to one of four failures observed the day this standard's design was drafted, or (OWT-017–OWT-019) to two gaps found in 1.1.0, or (OWT-020–OWT-026) to two states 1.1.0 left unnamed (see [Evidence and calibration](#evidence-and-calibration)). **None of the mechanisms is prescribed** — per the same constraint [deferred-item-exit](deferred-item-exit.md) states for its own exits, and for the same reason (DEC-049: UDS defines relations that must hold, adoption layers choose what maintains them).
+Each requirement below traces to one row of that table, to one of four failures observed the day this standard's design was drafted, or (OWT-017–OWT-019) to two gaps found in 1.1.0, or (OWT-020–OWT-026) to two states 1.1.0 left unnamed, or (OWT-027–OWT-029) to work that waits on another project (see [Evidence and calibration](#evidence-and-calibration)). **None of the mechanisms is prescribed** — per the same constraint [deferred-item-exit](deferred-item-exit.md) states for its own exits, and for the same reason (DEC-049: UDS defines relations that must hold, adoption layers choose what maintains them).
 
 下面每一條要求都對應這張表的一列、對應本標準設計當天觀察到的四個失效之一，
-或（OWT-017–OWT-019）對應 1.1.0 補上的兩個缺口、或（OWT-020–OWT-026）對應 1.1.0 沒有命名的兩個狀態
+或（OWT-017–OWT-019）對應 1.1.0 補上的兩個缺口、或（OWT-020–OWT-026）對應 1.1.0 沒有命名的兩個狀態、或（OWT-027–OWT-029）對應等著另一個專案的工作
 （見〈[證據與校準](#evidence-and-calibration)〉）。**沒有任何一個機制被規定**——
 理由與 [deferred-item-exit](deferred-item-exit.md) 對自己出口的約束相同（DEC-049：
 UDS 定義必須成立的關係，維持它的機制由採用層選擇）。
@@ -83,13 +83,13 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 
 ## The invariant
 
-**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, (7) make every "next action" name something a reader can go and find, and (8) tell a waiting item nobody has asked about from one awaiting a reply, and give a fact it cannot see a stamped place to live — `unknown` a real value, every observation's age shown.**
+**A carrier of open work must (1) accept a new item without demanding classification, (2) record a release condition for every item it marks waiting, (3) generate any field a reliable source already determines, (4) disclose what it cannot see whenever it reports what remains, (5) be checked at the moment control returns from agent to human — by something that cannot fail the turn, (6) keep what the work is *for* apart from how far it has got, account for every edit to the former, (7) make every "next action" name something a reader can go and find, and (8) tell a waiting item nobody has asked about from one awaiting a reply, and give a fact it cannot see a stamped place to live — `unknown` a real value, every observation's age shown, and (9) let a wait name an object in another project by its logical name, say whether this machine can see it, and keep that record where the sessions of every project involved can read it.**
 
 **一個承載開放工作的地方，必須：（1）不要求分類就能收下新項目、（2）為每一個標為等待中的項目記下解除條件、
 （3）對任何有可靠來源可推導的欄位改用生成、（4）回報還剩什麼時同時揭露看不到什麼、
 （5）在控制權從 agent 交回人的那一刻被檢視——而且那個檢視不能讓回合失敗、
 （6）把「這份工作為了什麼」與「做到哪了」分開存放，並替前者的每一次修改留下交代、
-（7）讓每一個「下一步」都點名一個讀的人找得到的東西、（8）分得出「還沒問」與「已問、等回覆」，並讓看不見的事實有一個帶戳記的存放處——`unknown` 是正式的值、每筆觀察的年齡一律顯示。**
+（7）讓每一個「下一步」都點名一個讀的人找得到的東西、（8）分得出「還沒問」與「已問、等回覆」，並讓看不見的事實有一個帶戳記的存放處——`unknown` 是正式的值、每筆觀察的年齡一律顯示、（9）讓一個等待可以用邏輯名稱點名另一個專案裡的東西、說明這台機器看不看得到它，並把那份紀錄放在每個相關專案的 session 都讀得到的地方。**
 
 ---
 
@@ -123,6 +123,9 @@ UDS 定義**活動**，採用層負責**編排**（DEC-049）。一份寫成工�
 | **OWT-024** | `unknown` is a value, not a blank: rows valued `unknown` are counted and shown apart in any summary and are never counted as complete. A row marked done whose value is `unknown` is a violation | warning |
 | **OWT-025** | A summary of observations shows each observation's age (days since `observed-at`). An observation older than the declared threshold is reported as stale, counted apart, and never counted as confirmed. A stamp says who saw it and when — never that it still holds | warning |
 | **OWT-026** | The exception in OWT-023 does not reach a field that version control, a spec marker or a CI result determines; OWT-003 stands. A check can only decide this against a word list of such subjects, so its coverage is unknown (OWT-011) | warning |
+| **OWT-027** | The release condition of a waiting item (OWT-002) may name an object in another project, written `<project>:<object>`. The project is a **logical name** (`uds`, `vibeops`), never a directory; the object is a file path, a test name, a command or a requirement identifier (the kinds OWT-019 recognises) or a version-control tag; and the carrier holds **no machine-specific absolute path**. Where a name lives on a given machine is declared outside the carrier. An item that waits for such an object has no request that could have been asked, so the two states of OWT-020 do not apply to it | warning |
+| **OWT-028** | For each such release condition a check says one of four things, counted apart and never folded into one total: **released** (the object exists in the other project now), **not yet released** (the project is visible and the object is not there), **not visible from here** (this machine cannot see the project: not released, and not zero) or **needs a person** (the project is visible but this kind of object, such as a test name, a command or a requirement identifier, has nothing a check can read). The look-up reads this machine's files and version control only and opens no network connection | warning |
+| **OWT-029** | The record of work that waits on another project is a file tracked by version control in a repository the sessions of every project involved can read. It is not held only in a personal AI-tool memory, which is bound to one user and one machine and which another session, or CI, cannot read. Which repository holds it is the adopting project's choice. The reference check does not decide where a carrier is kept | warning |
 
 ---
 
@@ -277,12 +280,12 @@ agent 正當地會提出修改，禁止只會教它學會靜默地改——但�
 它是**結構**判準（有沒有點名對象），不是措辭好壞的判斷；措辭漂亮但什麼都沒點名的句子照樣不過，
 簡短但點了一個測試名稱的句子照樣過。這讓它留在 OWT-010 與 OWT-014 的範圍之內。
 
-A check reports three outcomes, never one green: **named and resolved** (the object was found — for instance the path exists), **named, unresolved** (an object is named but could not be found — legitimate when the next action is to create it), and **unnamed** (a violation). Recognising *that* a string is a path, a command, a test name, or an identifier is itself a pattern match, so per OWT-011 its coverage is declared unknown: an unrecognised format is reported as unnamed, and a clean pass never means "every next action is specific".
+A check reports three outcomes, never one green: **named and resolved** (the object was found — for instance the path exists), **named, unresolved** (an object is named but could not be found — legitimate when the next action is to create it), and **unnamed** (a violation). Recognising *that* a string is a path, a command, a test name, or an identifier is itself a pattern match, so per OWT-011 its coverage is declared unknown: an unrecognised format is reported as unnamed, and a clean pass never means "every next action is specific". The words that mark a field as a next action (`Next action`, `下一步`, `下一個動作`, and so on) are **one list**, read three ways (a heading, a table header, an inline label), and it is uncalibrated (OWT-016): a carrier that heads its column `待辦` or `TODO` is read only once the adopting project declares that word, because the wide words also head columns that are not the next action; and when no field is found at all, the check exits 2 and prints what each carrier showed and which words it knows.
 
 檢查回報三種結果，而不是一個綠燈：**點名且已找到**（對象被找到——例如路徑存在）、**點名但未找到**
 （有點名對象但找不到——當下一步就是要建立它時是正當的）、**未點名**（違反）。
 辨認「這串字是路徑、指令、測試名稱還是編號」本身是樣式比對，所以依 OWT-011 其涵蓋率明示為未知：
-認不出的格式會被回報為未點名，而乾淨的通過絕不表示「每個下一步都夠具體」。
+認不出的格式會被回報為未點名，而乾淨的通過絕不表示「每個下一步都夠具體」。標示「下一步」欄位的詞（`Next action`、`下一步`、`下一個動作` 等）是**一份清單**，以三種方式讀（標題、表頭、行內標籤），且屬未校準（OWT-016）：欄位標題寫 `待辦` 或 `TODO` 的載體，要等採用專案宣告那個詞才會被讀到，因為範圍太寬的詞也會標在不是下一步的欄位上；而完全找不到欄位時，檢查以 2 結束，並印出每個載體看到了什麼、認得哪些詞。
 
 ---
 
@@ -306,6 +309,18 @@ What this does not claim is that the whole thing is honest. A stamp says that so
 
 ---
 
+## A wait on another project names it, and does not locate it
+
+Projects that depend on each other produce a wait OWT-002 was never written for: one project's item waits for something another project produces. 1.3.0 lets the release condition name it, `uds:v6.14.0` or `vibeops:docs/runbook.md`, and says what keeps that from rotting (**OWT-027**). The project is a **logical name**, never a directory. A directory belongs to one machine and one user (it leaks the user's name, and it is wrong on the next machine), and two readers of one carrier must mean the same project by one name. So the carrier holds the name, and the mapping from a name to a directory on a given machine is declared **outside** the carrier (the reference check takes `--root NAME=DIR`, repeatable, or the adopting project's settings). A machine-specific absolute path in a release condition is a violation. An item that waits for another project's object has no request that could have been "asked", so OWT-020's two states do not apply to it; it is still named and counted on its own line.
+
+What a check reports about such a wait is four-way (**OWT-028**), for the same reason OWT-006 exists: **what could not be seen is not zero.** Released; not yet released; **not visible from here**, which means the other project is not on this machine or its version control cannot be read, and which is counted apart and is neither released nor zero; and **needs a person**, which means the project is visible but a test name, a command or a requirement identifier in it has nothing a check can read. A path or a version-control tag is machine-observable: it exists in the other project or it does not. The look-up reads this machine's files and version control and opens no connection, and "released" says the object exists there, never that it is the right object (OWT-014).
+
+**OWT-029** says where such a record lives: in a version-controlled repository that the sessions of every project involved can read, and not only in one person's AI-tool memory. That memory is bound to one user and one machine, is invisible to another session and to CI, and gives a check no named carrier to decide a relation over (OWT-014). Which repository is the adopting project's choice. This version covers the sessions of one person on one machine; how work is shared between people, and whether a shared record needs review before it is trusted, are not decided here.
+
+**Why `warning`, and what is uncalibrated (1.3.0).** OWT-027 to OWT-029 are `warning` for the reasons given above for OWT-020 to OWT-026. The pattern that makes a logical name, the list of machine-specific path prefixes (home and volume directories, drive letters, `~/`), and the two kinds of object a check can look up (a path and a tag) are a first judgment (OWT-016); coverage is unknown (OWT-011), because a path written in a form the list does not hold is not seen as absolute.
+
+---
+
 ## 一個沒人問過的等待項目，不是在等待
 
 **OWT-002** 要求等待中的項目說明在等什麼、什麼事件算解除。有兩件差別很大的事都滿足這句話。一則**草擬了、從沒送出**的訊息，等的是「有人把它送出去」；一則**已經送出**的訊息，等的是「對方回覆」。承載庫分不出這兩者，看不到聊天的助理也分不出——而差別正是重點：第一種在有人動手之前，永遠不會有任何東西到來。**OWT-020** 為這兩個狀態命名（`not-yet-asked`、`asked-awaiting`），並要求每個等待項目必處於其一；兩者皆非的項目被個別點名——與 OWT-012 點名未分類項目的方式相同——而且絕不算成已完成。
@@ -323,6 +338,18 @@ What this does not claim is that the whole thing is honest. A stamp says that so
 這不是在宣稱整件事都誠實。戳只說有人在某時看到；**它不說現在仍然如此**，報告就是圍繞這一點建的：年齡印在值的旁邊，所以戳原本會藏起來的過期，是讀者第一眼看到的東西。而檢查能判定的只有可判定的部分：`observed-by` 有沒有填、`observed-at` 是不是一個真實的日子、值在不在值域內。**它判定不了 `observed-by` 填的是不是真的去看過的人，也判定不了那個值是否為真**——那是關於世界的宣稱，不是 artefact 之間的關係（OWT-014），本標準不假裝做得到。「觀察已舊」的門檻沒有任何量測支持（OWT-016）。
 
 **這些嚴重度的理由（1.2.0）。** OWT-020 到 OWT-026 全是 `warning`：狀態詞、欄位名與「觀察已舊」的門檻是第一版詞彙，沒有任何量測支持（OWT-016），而違反的代價是讀的人的時間，不是工作本身。更嚴的等級，會讓所有早於這兩個狀態存在的載體在標準發布當天變紅；`warning` 讓採用者先看到清單。**但指令對任何違反都回結束碼 1，`warning` 也一樣**——`uds open-work next-action` 對 OWT-019 本來就是如此——所以把其中一支接進閘門的採用者，自己決定警告要不要擋。
+
+---
+
+## 對另一個專案的等待，只點名它，不定位它
+
+彼此相依的專案會產生一種 OWT-002 從未為它而寫的等待：一個專案的項目，在等另一個專案的產出。1.3.0 讓解除條件可以點名它——`uds:v6.14.0` 或 `vibeops:docs/runbook.md`——並說明什麼東西能防止這種紀錄腐壞（**OWT-027**）。專案是**邏輯名稱**，絕不是目錄。目錄屬於一台機器、一個使用者（它會洩漏使用者名稱，換一台機器就是錯的），而同一份載體的兩個讀者，必須用同一個名稱指同一個專案。所以載體裡放的是名稱，「名稱對應到某台機器上的哪個目錄」則宣告在載體**之外**（參考檢查接受可重複的 `--root NAME=DIR`，或採用專案的設定）。解除條件裡出現機器專屬的絕對路徑即違反。一個在等另一個專案之物件的項目，沒有任何「可以被問」的請求，所以 OWT-020 的兩個狀態不適用於它；它仍被點名，並在自己那一行被計數。
+
+檢查對這種等待的回報是四種（**OWT-028**），理由與 OWT-006 相同：**看不到的，不是零。** 已解除；尚未解除；**從這裡看不到**——對方專案不在這台機器上、或讀不到它的版本控制——它單獨計數，既不是已解除也不是零；以及**需要人判斷**——專案看得到，但裡面的測試名稱、指令或需求編號沒有任何檢查讀得到的東西。路徑與版本控制標籤是機器可觀察的：它在對方專案裡存在，或不存在。查找只讀這台機器上的檔案與版本控制、不開任何連線，而「已解除」只說該物件在那邊存在，絕不說它是對的那個物件（OWT-014）。
+
+**OWT-029** 說這種紀錄放在哪裡：放在每個相關專案的 session 都讀得到、受版本控制的 repo 裡，而不是只放在某個人的 AI 工具記憶裡。那種記憶綁一個使用者、一台機器，另一個 session 與 CI 都看不到，也沒有給檢查任何具名的載體去判定關係（OWT-014）。用哪個 repo，是採用專案的選擇。本版涵蓋的是一個人在一台機器上的各個 session；工作如何在人與人之間共享、共享的紀錄要不要先審核才可信，這裡不決定。
+
+**為什麼是 `warning`、什麼未校準（1.3.0）。** OWT-027 到 OWT-029 是 `warning`，理由與上面 OWT-020 到 OWT-026 相同。構成邏輯名稱的樣式、機器專屬路徑前綴的清單（家目錄與磁碟區目錄、磁碟機代號、`~/`），以及檢查能查找的兩種物件（路徑與標籤），都是第一版判斷（OWT-016）；涵蓋率未知（OWT-011），因為用清單裡沒有的形式寫的路徑，不會被認成絕對路徑。
 
 ---
 
@@ -396,6 +423,9 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 | A waiting item with no record of whether anyone has asked | A draft nobody sent and a request nobody answered look identical; waiting never releases the first |
 | A hand-written "sent / replied / approved" with no name and no date | Cannot be told from a guess, and when it goes stale nothing shows it |
 | An observation nobody could make, counted as "no" or as done | A fact that could not be seen is read as absent or complete; `unknown` is a value, not a zero |
+| A wait on another project recorded with a directory of one machine | Wrong on the next machine, leaks the user's name, and two readers of one carrier no longer mean the same project |
+| A project this machine cannot see, counted as released or as zero | What could not be looked at is read as done; "not visible from here" is its own count |
+| Work that waits on another project kept only in one person's AI-tool memory | Another session and CI cannot read it, and no check has a named carrier to decide anything over |
 
 | 反模式 | 為什麼會失敗 |
 |---|---|
@@ -414,6 +444,9 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 | 等待項目沒有任何「有沒有人問過」的紀錄 | 沒人送出的草稿與沒人回的請求看起來一模一樣；等待永遠不會讓前者解除 |
 | 手寫的「已寄出／已回覆／已核准」，沒有名字也沒有日期 | 與猜測無從分辨，過期時也沒有任何東西顯示 |
 | 一個沒有人能做的觀察，被算成「否」或已完成 | 看不到的事實被讀成不存在或已完成；`unknown` 是一個值，不是零 |
+| 對另一個專案的等待，用某一台機器的目錄記下來 | 換一台機器就是錯的、洩漏使用者名稱，同一份載體的兩個讀者也不再指同一個專案 |
+| 這台機器看不到的專案，被算成已解除或零 | 沒看過的被讀成做完了；「從這裡看不到」是它自己的一個計數 |
+| 等著另一個專案的工作，只放在某個人的 AI 工具記憶裡 | 另一個 session 與 CI 讀不到，檢查也沒有任何具名的載體可以判定 |
 
 ---
 
@@ -423,6 +456,8 @@ DEX-003 扮演的角色相同。上面每一條都指名了 artefact 與它們�
 
 Since 1.2.0 the same module also ships `uds open-work waiting` (OWT-020–OWT-022) and `uds open-work observations` (OWT-023–OWT-026), with the same exit codes (0 no violation, 1 violation, 2 cannot decide). Today's date is injected (`--now`) and never read inside a rule, so a result does not drift with the day; `--stale-after` declares the threshold. Both read tables and list items through their structural field names, in English and in Chinese. A table with neither an `observed-by` nor an `observed-at` column is not read as an observation carrier, and a waiting item written in words the vocabulary does not hold is read as not waiting — so a clean pass covers only what was recognised, and every run says so (OWT-011). `uds open-work self-test` runs a violating and a satisfying sample for each of OWT-020–OWT-026, and mutation tests show that removing any one detection turns a test or the self-test red (OWT-015). Like the 1.1.0 checks, none of it is wired into a UDS release gate.
 
+Since 1.3.0 `uds open-work waiting` also resolves a release condition that names another project (OWT-027–OWT-028): `--root NAME=DIR`, repeatable and alongside the single `--root DIR` it always took, or `open_work.projects` in `uds.project.yaml`, says where each project lives, and a project it cannot see is counted apart. `uds open-work next-action` and `separation` take `--next-action-word WORD` (repeatable), or `open_work.next_action_words`, for the words an adopting project's carriers use, and `uds open-work next-action` and `waiting` take `--command-word PROGRAM` (repeatable; `glab` and `dotnet` are built in, `go`, `make` and `sh` deliberately are not) or `open_work.command_words`, for the programs it reads as a command. `next-action` also says which directory a path is looked up under and where that came from, and splits `named-unresolved` into `path-missing` (looked up, not there) and `not-resolvable` (a command, a test name or a requirement identifier, which is never looked up). The checker itself reads no settings file; the `uds` command passes them in, so `node scripts/check-open-work-tracking.mjs` takes the flags only.
+
 **UDS 不對本標準設任何閘門，而這件事是被記錄的，不是被暗示的。** UDS 陳述一個承載開放工作的地方
 必須滿足的關係；有沒有東西去判定它，依上面的[寫法約束](#how-this-standard-is-written--and-why-it-is-written-that-way)，
 是採用專案的決定——與 [deferred-item-exit](deferred-item-exit.md) 對自己出口劃的界線相同。
@@ -431,6 +466,8 @@ Since 1.2.0 the same module also ships `uds open-work waiting` (OWT-020–OWT-02
 它沒有接進任何 UDS 發版閘門，因為 UDS 本身沒有承載開放工作的地方可供它檢查。
 
 自 1.2.0 起，同一份程式還附上 `uds open-work waiting`（OWT-020–OWT-022）與 `uds open-work observations`（OWT-023–OWT-026），結束碼相同（0 無違反、1 違反、2 判定不了）。今天的日期是被注入的（`--now`），絕不在規則裡讀時鐘，所以結果不會隨日子漂移；`--stale-after` 宣告門檻。兩者都以結構欄位名讀表格與清單項目，中英文皆可。沒有 `observed-by` 也沒有 `observed-at` 欄的表格不被讀成觀察載體；用詞彙裡沒有的字寫成的等待項目，被讀成「不是等待」——所以乾淨的通過只涵蓋被辨認出來的部分，而每次執行都這麼說（OWT-011）。`uds open-work self-test` 對 OWT-020–OWT-026 每一條各跑一個違反的樣本與一個符合的樣本，突變測試顯示拿掉任何一個偵測都會讓某個測試或自測變紅（OWT-015）。與 1.1.0 的檢查相同，它都沒有接進任何 UDS 發版閘門。
+
+自 1.3.0 起，`uds open-work waiting` 也會解析點名另一個專案的解除條件（OWT-027–OWT-028）：`--root NAME=DIR`（可重複，並與它一直接受的單一 `--root DIR` 並存），或 `uds.project.yaml` 的 `open_work.projects`，說明每個專案在哪裡；看不到的專案被單獨計數。`uds open-work next-action` 與 `separation` 接受 `--next-action-word WORD`（可重複），或 `open_work.next_action_words`，放採用專案的載體所用的詞；`uds open-work next-action` 與 `waiting` 接受 `--command-word 程式名`（可重複；`glab` 與 `dotnet` 內建，`go`、`make`、`sh` 刻意不內建），或 `open_work.command_words`，放它讀成指令的程式。`next-action` 另外會說路徑是在哪個目錄下查找的、那個目錄從哪來，並把 `named-unresolved` 分成 `path-missing`（查過、不在）與 `not-resolvable`（指令、測試名稱、需求編號，從不查找）。檢查本體不讀任何設定檔，是 `uds` 指令把設定傳進去，所以 `node scripts/check-open-work-tracking.mjs` 只接受旗標。
 
 What this standard does do is make that call visible: OWT-014 guarantees every requirement here **can** be decided, OWT-015 fixes what it takes for a decision to count, and OWT-005/OWT-011 fix what a partial decision is allowed to print.
 
@@ -455,6 +492,8 @@ This standard's shape comes from one adopting project's observations made and ac
 
 **1.2.0's additions (OWT-020–OWT-026)** come from one adopting project's test report of 6.14.0-beta.5 on 2026-10-07 (XSPEC-459): a message drafted and never sent could not be told from one sent and unanswered, and a fact the assistant could not observe had no sanctioned place to be written. The reference procedure is hours old, has one author, and has run against constructed samples, not against a real backlog. Under OWT-016, everything it uses that resembles a threshold is **uncalibrated, an initial judgment**: the state words and field names in English and Chinese, the list of subjects treated as derivable, the 7-day default for "stale", and the reading of dates (a year is required; the time of day is ignored). None of it was measured against real usage, and a project's own words and threshold should replace the defaults.
 
+**1.3.0's additions (OWT-027–OWT-029)** come from the same adopting project on 2026-10-07 (XSPEC-460 and XSPEC-461): items in one project wait for what another project produces, and the only record of how was an ad-hoc convention; and a user whose carrier kept one table per status got exit 2 from `next-action` without being told why. Under OWT-016, everything the new look-up uses that resembles a threshold is **uncalibrated, an initial judgment**: the pattern for a logical name, the machine-specific path prefixes, the two object kinds it can look up (a path and a tag), and the next-action words, both the built-in list and its refusal to include `待辦`, `後續`, `Next`, `TODO` and `Action`. None of it was measured against real usage.
+
 - **OWT-001 的「不超過兩個欄位」**與**OWT-012 的「過了宣告的門檻」**（在原始觀察中以兩週為例）
   依 OWT-016 是**初始判斷，不是量測結果**——兩個欄位跟三個欄位、兩週跟四週的未分類門檻，
   目前都沒有對照比較過。
@@ -472,6 +511,8 @@ This standard's shape comes from one adopting project's observations made and ac
 
 **1.2.0 的新增（OWT-020–OWT-026）**來自一個採用專案在 2026-10-07 對 6.14.0-beta.5 的測試回報（XSPEC-459）：一則草擬了從沒送出的訊息，與一則已送出、沒人回的訊息分不出來；助理無法觀察的事實，沒有一個被認可的地方可以寫。那支參考判定程序只有幾小時大、只有一位作者，跑過的是人造樣本，不是真實的待辦。依 OWT-016，它用到的一切類似閾值的東西都是**未校準、初始判斷**：中英文的狀態詞與欄位名、被當成「可推導」的主題清單、「觀察已舊」預設的 7 天、以及日期的讀法（必須有年份；時間不看）。沒有任何一項對照過真實使用量測，採用專案應以自己的詞彙與門檻取代預設。
 
+**1.3.0 的新增（OWT-027–OWT-029）**來自同一個採用專案在 2026-10-07 的工作（XSPEC-460 與 XSPEC-461）：一個專案的項目在等另一個專案的產出，而當時唯一的紀錄方式是臨時約定；另有一位使用者的載體一個狀態一張表，`next-action` 回了 2，卻沒有說為什麼。依 OWT-016，新的查找所用到的一切類似閾值的東西都是**未校準、初始判斷**：構成邏輯名稱的樣式、機器專屬的路徑前綴、它能查找的兩種物件（路徑與標籤），以及「下一步」詞——內建清單，與它拒絕收進 `待辦`、`後續`、`Next`、`TODO`、`Action` 的決定。沒有任何一項對照過真實使用量測。
+
 ---
 
 ## Relationship to other standards
@@ -482,6 +523,7 @@ This standard's shape comes from one adopting project's observations made and ac
 - [verification-evidence](verification-evidence.md) — the source of the exit-code and evidence-validity reasoning OWT-015 depends on; also where a partial-coverage exception (OWT-006, OWT-011) is registered rather than merely disclosed once.
 - OWT-018 attaches to the same hand-back point as OWT-007: an edit to intent with no approver is one more thing listed there, and, like everything listed there, never blocks.
 - OWT-020–OWT-022 refine OWT-002 (a waiting item states what it waits for and its release) by saying which kind of wait it is; OWT-023–OWT-026 sit beside OWT-003 and OWT-006 — the first says what may be generated and what may not, the second that what could not be seen is never counted as zero.
+- OWT-027–OWT-029 extend OWT-002 across a project boundary (a release condition may be another project's object) and OWT-006 with it: a project this machine cannot see is counted apart, never as released and never as zero.
 
 - [deferred-item-exit](deferred-item-exit.md) — 同一個形狀的上游一半：DEX 要求延後項目離開文件、
   抵達可追蹤的出口，並刻意不規定出口的載體。本標準接手**出口存在之後**的事，
@@ -497,3 +539,4 @@ This standard's shape comes from one adopting project's observations made and ac
 - OWT-018 掛在與 OWT-007 相同的交回點：沒有核可者的意圖修改，是在那裡多列出來的一項，
   而且與列在那裡的一切相同，永不阻斷。
 - OWT-020–OWT-022 細化 OWT-002（等待項目說明在等什麼與解除條件），說明那是哪一種等待；OWT-023–OWT-026 與 OWT-003、OWT-006 並列——前者說什麼可以生成、什麼不可以，後者說看不到的絕不被算成零。
+- OWT-027–OWT-029 把 OWT-002 延伸過專案的邊界（解除條件可以是另一個專案的物件），並連同 OWT-006：這台機器看不到的專案被單獨計數，絕不算成已解除、也絕不算成零。
