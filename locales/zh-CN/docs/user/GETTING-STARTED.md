@@ -59,7 +59,9 @@ CLAUDE.md            ← 已更新 UDS 指引（Claude Code）
 
 ## 技能怎么装
 
-`uds init` 会把 UDS 技能装进你的项目。获取技能有两种方式，两种都受支持。主要路径是装进项目；Claude Code 插件市场是有限制的替代方式。
+获取 UDS 技能有两种方式，两种都受支持。主要路径是装进项目；Claude Code 插件市场是有限制的替代方式。
+
+> **请明说你要哪一种。** 目前不带 `--skills-location` 的 `uds init --yes` 不会安装任何技能文件：它把 Claude Code 的技能留给插件。要装进项目，请加 `--skills-location project`（或之后运行 `uds update --apply --skills`）。
 
 | | 装进项目（主要路径） | Claude Code 插件市场（替代方式） |
 |---|---|---|

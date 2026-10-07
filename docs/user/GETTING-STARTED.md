@@ -52,8 +52,12 @@ CLAUDE.md            ← Updated with UDS guidance (Claude Code)
 
 ## How to install skills
 
-`uds init` puts UDS skills into your project. There are two ways to get them, and both are supported. The main
-path is into the project; the Claude Code plugin marketplace is an alternative with limits.
+There are two ways to get UDS skills, and both are supported. The main path is into the project; the Claude Code
+plugin marketplace is an alternative with limits.
+
+> **Say which one you want.** `uds init --yes` without `--skills-location` installs no skill files today: it
+> leaves the Claude Code skills to the plugin. For the project way, pass `--skills-location project` (or run
+> `uds update --apply --skills` afterwards).
 
 | | Into the project (main path) | Claude Code plugin marketplace (alternative) |
 |---|---|---|
