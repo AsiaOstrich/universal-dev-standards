@@ -30,6 +30,7 @@ import { executePlan } from './plan-executor.js';
 import { rollback } from './backup-manager.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
+import { pruneForeignSkillNames, pruneForeignCommandNames } from '../utils/installed-names-ownership.js';
 
 /**
  * Full reconciliation pipeline.
@@ -86,11 +87,25 @@ function reconcileFileHashes(manifest, verifiedPristine) {
   const commandProbe = { commandHashes: { ...(manifest.commandHashes || {}) } };
   const foreignCommandKeys = pruneForeignCommandHashes(commandProbe);
 
-  if (!verifiedPristine?.length && stale.length === 0 && foreignSkillKeys.length === 0 && foreignCommandKeys.length === 0) return null;
+  // XSPEC-456 R4: and the NAME lists. The hash records above were cleaned and these were not, so a
+  // project could read "56 skills installed, 61 skills named". Ownership test only (no disk test): the
+  // plan below is what installs or removes files, and a name is judged against what UDS ships.
+  const namesProbe = {
+    skills: { names: [...(manifest.skills?.names || [])] },
+    commands: { names: [...(manifest.commands?.names || [])] }
+  };
+  const namesBefore = { skills: namesProbe.skills.names.length, commands: namesProbe.commands.names.length };
+  pruneForeignSkillNames(namesProbe, '');
+  pruneForeignCommandNames(namesProbe, '');
+  const foreignSkillNames = namesBefore.skills - namesProbe.skills.names.length;
+  const foreignCommandNames = namesBefore.commands - namesProbe.commands.names.length;
+
+  if (!verifiedPristine?.length && stale.length === 0 && foreignSkillKeys.length === 0 && foreignCommandKeys.length === 0
+    && foreignSkillNames === 0 && foreignCommandNames === 0) return null;
 
   const kept = Object.fromEntries(Object.entries(current).filter(([k]) => !stale.includes(k)));
   const corrected = {};
-  let count = stale.length + foreignSkillKeys.length + foreignCommandKeys.length;
+  let count = stale.length + foreignSkillKeys.length + foreignCommandKeys.length + foreignSkillNames + foreignCommandNames;
 
   for (const entry of verifiedPristine || []) {
     const key = entry.path.replace(/\\/g, '/');
@@ -110,7 +125,9 @@ function reconcileFileHashes(manifest, verifiedPristine) {
       ...manifest,
       fileHashes: { ...kept, ...corrected },
       ...(foreignSkillKeys.length > 0 ? { skillHashes: skillProbe.skillHashes } : {}),
-      ...(foreignCommandKeys.length > 0 ? { commandHashes: commandProbe.commandHashes } : {})
+      ...(foreignCommandKeys.length > 0 ? { commandHashes: commandProbe.commandHashes } : {}),
+      ...(foreignSkillNames > 0 ? { skills: { ...manifest.skills, names: namesProbe.skills.names } } : {}),
+      ...(foreignCommandNames > 0 ? { commands: { ...manifest.commands, names: namesProbe.commands.names } } : {})
     },
     count
   };

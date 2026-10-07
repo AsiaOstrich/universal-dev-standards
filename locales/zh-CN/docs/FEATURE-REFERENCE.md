@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-10-06
+> Auto-generated | Last updated: 2026-10-07
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -116,7 +116,7 @@
 
 ### `uds simulate`
 
-**说明**: Simulate a standard check with input (Predictive Validation)
+**说明**: Simulate a standard check with input (Predictive Validation). Exit 0 = passes, 1 = does not comply, 2 = no verdict (cannot simulate; not a pass). Only commit-message defines a simulator today
 
 **选项**:
 | Option | 说明 |
@@ -201,6 +201,7 @@
 | `--path` | Directory containing package.json (default: cwd) |
 | `--json` | Output raw JSON |
 | `--concurrency` | Parallel registry lookups (default: 8) |
+| `--if-present` | Exit 0 and say that nothing was checked when there is no package.json or no runtime dependency (default: exit 1) |
 
 ### `uds uninstall`
 

@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-10-06
+> Quick reference for all UDS features | Last updated: 2026-10-07
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 
@@ -17,7 +17,7 @@
 | `uds configure` | Alias for "uds config" — Modify project settings |
 | `uds check` | Check file integrity and adoption status (quick validation). For deep health diagnosis, use "uds audit" |
 | `uds lint` | Check spec dependency validity and size against installed specs (specs/*.md) |
-| `uds simulate` | Simulate a standard check with input (Predictive Validation) |
+| `uds simulate` | Simulate a standard check with input (Predictive Validation). Exit 0 = passes, 1 = does not comply, 2 = no verdict (cannot simulate; not a pass). Only commit-message defines a simulator today |
 | `uds fix` | Auto-fix standard violations (Self-Healing) |
 | `uds update` | Update standards to latest version |
 | `uds skills` | List installed Claude Code skills |

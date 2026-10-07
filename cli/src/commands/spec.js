@@ -131,15 +131,21 @@ export async function specListCommand(options = {}) {
     return;
   }
 
-  // Display specs as a table
-  console.log(chalk.gray('─'.repeat(70)));
+  // Display specs as a table. A status or type the file does not state is shown as unknown, never as a
+  // default (XSPEC-456 R5): an SDD spec whose header could not be read used to be listed as `draft`.
+  const unparsed = t('spec.statusUnparsed', 'format: SDD (status not parsed)');
+  const statusLabel = (spec) => spec.status ?? unparsed;
+  const statusWidth = Math.max(12, ...specs.map((spec) => statusLabel(spec).length + 1));
+  const ruleWidth = 70 + (statusWidth - 12);
+
+  console.log(chalk.gray('─'.repeat(ruleWidth)));
   console.log(
     chalk.bold('ID'.padEnd(35)) +
-    chalk.bold('Status'.padEnd(12)) +
+    chalk.bold('Status'.padEnd(statusWidth)) +
     chalk.bold('Type'.padEnd(10)) +
     chalk.bold('Title')
   );
-  console.log(chalk.gray('─'.repeat(70)));
+  console.log(chalk.gray('─'.repeat(ruleWidth)));
 
   for (const spec of specs) {
     const statusColor = {
@@ -152,13 +158,13 @@ export async function specListCommand(options = {}) {
 
     console.log(
       spec.id.slice(0, 34).padEnd(35) +
-      statusColor(spec.status.padEnd(12)) +
-      spec.type.padEnd(10) +
+      statusColor(statusLabel(spec).padEnd(statusWidth)) +
+      (spec.type ?? '-').padEnd(10) +
       spec.title.slice(0, 25)
     );
   }
 
-  console.log(chalk.gray('─'.repeat(70)));
+  console.log(chalk.gray('─'.repeat(ruleWidth)));
   console.log(chalk.gray(`${t('spec.total', 'Total')}: ${specs.length}`));
 }
 
@@ -333,7 +339,7 @@ export function specSearchCommand(query, options = {}) {
 
   console.log(chalk.bold(`\nFound ${results.length} spec(s) matching "${query}":\n`));
   for (const r of results) {
-    const badge = r.source === 'archive' ? chalk.gray('[archived]') : chalk.green(`[${r.status}]`);
+    const badge = r.source === 'archive' ? chalk.gray('[archived]') : chalk.green(`[${r.status ?? t('spec.statusUnparsed', 'format: SDD (status not parsed)')}]`);
     console.log(`  ${chalk.cyan(r.id)} ${badge} ${r.title}`);
   }
   console.log();

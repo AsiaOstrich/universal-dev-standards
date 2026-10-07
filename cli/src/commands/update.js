@@ -27,6 +27,7 @@ import {
 import { checkForUpdates } from '../utils/npm-registry.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
+import { pruneForeignSkillNames, pruneForeignCommandNames } from '../utils/installed-names-ownership.js';
 import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { config } from '../utils/config-manager.js';
@@ -631,6 +632,11 @@ export async function updateCommand(options) {
     // one who has nothing else to trigger the correction).
     const foreignSkillsOnLatest = pruneForeignSkillHashes(manifest);
     const foreignCommandsOnLatest = pruneForeignCommandHashes(manifest);
+    // XSPEC-456 R4: and the skill / command NAME lists (same reason).
+    const namesOnLatestBefore = (manifest.skills?.names?.length ?? 0) + (manifest.commands?.names?.length ?? 0);
+    pruneForeignSkillNames(manifest, projectPath);
+    pruneForeignCommandNames(manifest, projectPath);
+    const foreignNamesOnLatest = namesOnLatestBefore - (manifest.skills?.names?.length ?? 0) - (manifest.commands?.names?.length ?? 0);
     if (retiredOnLatest.length > 0) {
       console.log();
       console.log(chalk.gray(
@@ -652,7 +658,14 @@ export async function updateCommand(options) {
         `  ${(msg.droppedForeignCommandHashes || 'Dropped {count} command record(s) for commands UDS does not ship.').replace('{count}', foreignCommandsOnLatest.length)}`
       ));
     }
-    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0) {
+    if (foreignNamesOnLatest > 0) {
+      console.log();
+      console.log(chalk.gray(
+        `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', foreignNamesOnLatest)}`
+      ));
+    }
+    if (retiredOnLatest.length > 0 || foreignSkillsOnLatest.length > 0 || foreignCommandsOnLatest.length > 0
+      || foreignNamesOnLatest > 0) {
       writeManifest(manifest, projectPath);
     }
 
@@ -2928,6 +2941,15 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // XSPEC-454 R2: and forget the records that were never UDS's (the manifest this merges into
   // may come from an installer that hashed the whole skills folder).
   pruneForeignSkillHashes(manifest);
+  // XSPEC-456 R4: and the names UDS cannot vouch for (not shipped, or not on disk where installed).
+  const skillNamesBefore = manifest.skills.names.length;
+  pruneForeignSkillNames(manifest, projectPath, { checkDisk: true });
+  const droppedSkillNames = skillNamesBefore - manifest.skills.names.length;
+  if (droppedSkillNames > 0) {
+    console.log(chalk.gray(
+      `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', droppedSkillNames)}`
+    ));
+  }
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -3063,6 +3085,15 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   }
   // XSPEC-454 R2: and forget command records for commands UDS does not ship.
   pruneForeignCommandHashes(manifest);
+  // XSPEC-456 R4: same for the command names.
+  const commandNamesBefore = manifest.commands.names.length;
+  pruneForeignCommandNames(manifest, projectPath, { checkDisk: true });
+  const droppedCommandNames = commandNamesBefore - manifest.commands.names.length;
+  if (droppedCommandNames > 0) {
+    console.log(chalk.gray(
+      `  ${(msg.droppedForeignNames || 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.').replace('{count}', droppedCommandNames)}`
+    ));
+  }
 
   // 🔴 Re-read before writing. `manifest` was loaded at the top of the update
   // command, BEFORE the reconciler ran; the reconciler writes its own copy to
@@ -3498,8 +3529,18 @@ function takeStepBackup(projectPath, label, installations, kind) {
 /** The step is over (its last manifest write is done): record what it created, and say how to undo it. */
 function finishStepBackup(projectPath, backup) {
   finalizeBackup(projectPath, backup.backupId);
-  console.log(chalk.gray(`  Backup: ${backup.backupId}`));
+  printBackupLocation(backup.backupId);
+}
+
+/**
+ * Say where the backup is, how to undo, and what to exclude (XSPEC-456 R7). All backups share one folder,
+ * `.uds-backups/`, so a tool that does not read .gitignore (an indexer, IDE search, grep) can be told to
+ * skip a single name.
+ */
+function printBackupLocation(backupId) {
+  console.log(chalk.gray(`  Backup: ${backupId}`));
   console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+  console.log(chalk.gray('  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.'));
 }
 
 function cleanupBackupsQuietly(projectPath) {
@@ -3560,7 +3601,7 @@ async function handleRollback(projectPath) {
     console.log(chalk.red('Rollback did NOT complete. The project may be in a mixed state:'));
     printPaths('✗', result.errors, 30, chalk.red);
     console.log(chalk.yellow('  What to do: fix the cause above (permissions, a locked file) and run `uds update --rollback` again —'));
-    console.log(chalk.yellow('  it is safe to repeat. The backups are still in .uds-backup-* if you need to copy files back by hand.'));
+    console.log(chalk.yellow('  it is safe to repeat. The backups are still in .uds-backups/ (and .uds-backup-* if an older UDS made them) if you need to copy files back by hand.'));
   }
   if ((result.notRestored || []).length > 0) {
     console.log(chalk.yellow('Not restored:'));
@@ -3680,8 +3721,7 @@ async function handleReconcile(projectPath, options, { force }) {
   }
 
   if (result.execution?.backupId) {
-    console.log(chalk.gray(`  Backup: ${result.execution.backupId}`));
-    console.log(chalk.gray('  Use `uds update --rollback` to undo.'));
+    printBackupLocation(result.execution.backupId);
   }
 
   if (result.errors.length > 0) {

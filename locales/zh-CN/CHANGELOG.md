@@ -17,6 +17,24 @@ status: current
 
 ## [Unreleased]
 
+> **行为改变：**`uds update` 的备份写到 `.uds-backups/`，不再是项目根目录的 `.uds-backup-*`；`uds simulate` 在无法得出结论时以 2（不是 1）结束，并且 `uds simulate -s commit-message` 改为在进程内判定，不再执行 `npx commitlint`；`uds update` 会把 UDS 无法担保的技能与命令名称从 `manifest.skills.names` / `commands.names` 移除；`uds run` 以 YAML 读取 `uds.project.yaml`（不合法的 YAML 现在会失败，空白后的 `#` 会结束一个值）。
+
+### 变更
+
+- **行为改变——`uds update` 的备份现在集中在单一文件夹 `.uds-backups/`，不再是项目根目录下每一步一个 `.uds-backup-<时间>/`（XSPEC-456 R7）。** git 本来就看不到旧文件夹（每个都自己隐藏），但索引器、IDE 搜索和 grep 不读 `.gitignore`，把里面你文件的副本算成项目文件。现在每份备份都是 `.uds-backups/<时间>-<NNNN>/`，`.uds-backups/` 带一个内容为 `*` 的 `.gitignore`（不会改你自己的 `.gitignore`）。不读 `.gitignore` 的工具请排除 `.uds-backups`，`uds update` 结束时会提醒。旧版 UDS 留在根目录的备份不会搬动：`--rollback`、连续步骤之间的链、清理与「最近五份」上限会同时看新旧两处，按时间由新到旧。`uds uninstall` 仍然不碰备份。
+
+### 修复
+
+- **`uds run` 用手写的逐行解析器读 `uds.project.yaml`，行尾注释因此成了命令的一部分（XSPEC-456 R1）。** `test: dotnet test X.csproj  # 90 tests pass` 执行时后面多了 `# 90 tests pass`；POSIX shell 会吃掉未加引号的 `#`，`cmd.exe` 不会。现在改以 YAML（js-yaml）读取：空白后的 `#` 结束值、加引号的值保留 `#`、以引号参数结尾的命令保留最后的引号。不合法的 YAML 会报告行号；注意 YAML 的双引号值里反斜线是转义字符，Windows 路径请不加引号或用单引号。
+- **行为改变——`uds simulate` 不再对根本没被判定的东西打印「Simulation Failed」（XSPEC-456 R2）。** `commit-message` 原本是喂给 `npx commitlint`；项目没有 commitlint 配置（没有 package.json 的 .NET 项目）时工具拒绝运行，合规与不合规的消息得到同一个答案，还先下载了工具。现在依标准本身的规则在进程内判定（标头 `<type>(<scope>): <subject>`、已安装选项文件的 type、`scope-lowercase` 与 `subject-max-length` 两条规则），不调用 npx、不联网，输出会列出没检查的项目。退出码：**0** 通过、**1** 不合规、**2** 没有结论（没有定义 simulator、标准未安装、被委派的工具不能用）——最后一种以前是 1，打印「Simulation Failed」。`--json` 带 `status`（`pass` / `fail` / `cannot-simulate`）。被委派的 simulator 命令不再把输入贴进 shell 字符串。命令说明现在写明哪些标准有 simulator（目前只有 `commit-message`）。报告中的「失败却 exit 0」在 macOS 上没有复现，不声称已修。
+- **`uds skills` 在装了 56 个技能时只列 27 个，并写「27 / 30」（XSPEC-456 R3）。** 筛选与分母是 `standards-registry.json` 里手工维护的 30 个名字。现在改为 UDS 发布的技能（含 `SKILL.md` 的文件夹），与 `init`、`update`、`check` 用同一份；manifest 记录的其他 AI 工具的技能也会列出，摘要并说明 `uds check` 为它们跟踪了多少个技能文件。
+- **行为改变——`uds update` 现在会把 UDS 无法担保的名称从 `manifest.skills.names` 与 `manifest.commands.names` 移除（XSPEC-456 R4）。** `update --apply --skills` 移除旧版 CLI 误拷进技能文件夹的 `_shared`、`agents`、`ai`、`tools`、`workflows` 后，`skillHashes` 干净了，名称列表却仍有 61 项（技能只有 56 个）。名称要同时是 UDS 发布的技能或命令，且（安装后）在 manifest 记录的安装位置真的存在才保留；市场安装，以及无法检查磁盘的情况，不动。既有项目在下一次 `uds update` 自动修正，已是最新版的也一样。manifest 中记录名称的四个字段是 `skills.names`、`commands.names`、`skillHashes`、`commandHashes`。
+- **`uds spec list` 把完整的 SDD 规格列成 `draft`、标题为空（XSPEC-456 R5）。** 它把每个文件都当微规格读并填默认值。现在会读 SDD 标头——表格（`| Status | Approved (...) |`）、字段行（`- **Status**: Archived`）或 front matter——读不出来的打印「格式：SDD（状态未解析）」，不填默认值。未改动：`spec show`、`confirm`、`archive` 仍会用微规格模板改写文件。
+
+### 新增
+
+- **`uds deps --if-present`（XSPEC-456 R6）。** 没有 `package.json`，或包没有声明运行时依赖时，打印不适用、未检查任何东西，并以 0 结束（`--json`：`notApplicable`）。不加开关时行为不变：没有 `package.json` 仍以 1 结束。
+
 ## [6.14.0-beta.5] - 2026-10-06
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

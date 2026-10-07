@@ -3,6 +3,9 @@ import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { getAllSkillNames } from '../utils/registry.js';
+import { getAvailableSkillNames } from '../utils/skills-installer.js';
+import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
+import { getSkillsDirForAgent, getAgentDisplayName } from '../config/ai-agent-paths.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
@@ -111,8 +114,13 @@ export function skillsCommand() {
   console.log(chalk.gray('─'.repeat(50)));
   console.log();
 
-  // Get all known skills from registry
-  const knownSkills = getAllSkillNames();
+  // XSPEC-456 R3: the skills UDS ships are the ones in its skills source tree (what `uds init` and
+  // `uds update` install, and what `uds check` verifies). This used to be the `skillFiles` list of
+  // standards-registry.json, a hand-kept list that stopped at 30 while UDS ships 56, so a project with
+  // all 56 installed read "27 / 30" (27 = the installed ones that happened to be on the stale list).
+  // The registry list is only a fallback for a source tree that did not load.
+  const shipped = getAvailableSkillNames();
+  const knownSkills = shipped.length > 0 ? shipped : getAllSkillNames();
 
   // Check different installation locations
   const installations = [];
@@ -195,6 +203,27 @@ export function skillsCommand() {
     }
   }
 
+  // 4. Other AI tools the manifest says Skills were installed for (Codex, OpenCode, ...). Claude Code's
+  // own two locations were handled above.
+  const manifestForSkills = isInitialized(projectPath) ? readManifest(projectPath) : null;
+  const seenDirs = new Set(installations.map(i => i.path));
+  for (const entry of manifestForSkills?.skills?.installations || []) {
+    const agent = typeof entry === 'string' ? entry : entry?.agent;
+    const level = typeof entry === 'string' ? 'project' : (entry?.level || 'project');
+    if (!agent || agent === 'claude-code') continue;
+    const dir = getSkillsDirForAgent(agent, level, projectPath);
+    if (!dir || seenDirs.has(dir)) continue;
+    seenDirs.add(dir);
+    const udsSkills = listSkillsInDir(dir).filter(s => knownSkills.includes(s));
+    if (udsSkills.length === 0) continue;
+    installations.push({
+      location: `${getAgentDisplayName(agent)} (${level} level)`,
+      path: dir,
+      version: manifestForSkills.skills.version || 'unknown',
+      skills: udsSkills
+    });
+  }
+
   // Display results
   if (installations.length === 0) {
     console.log(chalk.yellow(msg.noSkillsInstalled));
@@ -258,6 +287,17 @@ export function skillsCommand() {
 
   console.log(chalk.gray('─'.repeat(50)));
   console.log(chalk.gray(`${msg.totalUniqueSkills}: ${totalSkills} / ${knownSkills.length}`));
+
+  // The number `uds check` prints is a count of FILES (a skill is one or more files), so say how the two
+  // relate instead of leaving two different numbers side by side. Counted the way `check` counts them.
+  if (manifestForSkills?.skillHashes) {
+    const tracked = structuredClone(manifestForSkills);
+    pruneForeignSkillHashes(tracked, new Set(knownSkills));
+    const files = Object.keys(tracked.skillHashes || {}).length;
+    if (files > 0 && msg.skillFilesTracked) {
+      console.log(chalk.gray(msg.skillFilesTracked.replace('{files}', files)));
+    }
+  }
 
   if (!hasMarketplace && installations.length > 0) {
     console.log();

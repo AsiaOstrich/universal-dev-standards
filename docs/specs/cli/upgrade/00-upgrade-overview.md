@@ -115,7 +115,7 @@ So that I don't need to upgrade through each intermediate version.
 **Given** I run `uds upgrade`
 **When** migration starts
 **Then**:
-- A backup is created at `.uds-backup-{timestamp}/`
+- A backup is created at `.uds-backups/{timestamp}-{counter}/` (before 6.14.0: `.uds-backup-{timestamp}/` in the project root)
 - Backup includes: `.uds/`, `.claude/`, `manifest.json`
 - Backup path is displayed to user
 

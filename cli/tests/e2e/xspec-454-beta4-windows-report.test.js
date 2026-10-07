@@ -240,7 +240,7 @@ const writeJson = (p, v) => writeFileSync(p, JSON.stringify(v, null, 2));
 /** Everything in the project except git and the backups themselves: relative path -> content signature. */
 function snapshotTree(root, rel = '', out = new Map()) {
   for (const e of readdirSync(join(root, rel), { withFileTypes: true })) {
-    if (e.name === '.git' || e.name.startsWith('.uds-backup-')) continue;
+    if (e.name === '.git' || e.name.startsWith('.uds-backup-') || e.name === '.uds-backups') continue;
     const r = rel ? `${rel}/${e.name}` : e.name;
     const abs = join(root, r);
     if (lstatSync(abs).isSymbolicLink()) out.set(r, `link:${readlinkSync(abs)}`);
@@ -313,7 +313,13 @@ function ageProject(dir) {
   writeJson(mPath, m);
 }
 
-const backupDirs = (dir) => readdirSync(dir).filter((n) => n.startsWith('.uds-backup-')).sort();
+// Backups live in `.uds-backups/<id>` (XSPEC-456 R7); the ids returned are relative to the project, like `backupId`.
+const backupDirs = (dir) => [
+  ...readdirSync(dir).filter((n) => n.startsWith('.uds-backup-')),
+  ...(existsSync(join(dir, '.uds-backups'))
+    ? readdirSync(join(dir, '.uds-backups'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => `.uds-backups/${e.name}`)
+    : [])
+].sort();
 
 // ─────────────────────────── R1 ───────────────────────────
 
@@ -339,7 +345,7 @@ it('uds update --rollback undoes --apply, --apply --skills and --apply --command
   ]) {
     const r = await runCli(step, dir);
     expect(r.code, `${step.join(' ')}\n${r.stdout}\n${r.stderr}`).toBe(0);
-    expect(r.stdout, step.join(' ')).toMatch(/Backup: \.uds-backup-/);
+    expect(r.stdout, step.join(' ')).toMatch(/Backup: \.uds-backups\//);
   }
 
   // Control arm: the three steps really changed the project (otherwise "identical afterwards" proves nothing).

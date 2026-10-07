@@ -65,6 +65,7 @@ export const messages = {
       error: 'Failed to generate spec',
       listTitle: 'Micro-Specs',
       noSpecs: 'No micro-specs found.',
+      statusUnparsed: 'format: SDD (status not parsed)',
       createHint: 'Create one with: uds spec create "your intent"',
       total: 'Total',
       noId: 'Error: Please provide a spec ID.',
@@ -709,6 +710,12 @@ export const messages = {
         seeGuide: 'See: https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'
       },
 
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: 'Not applicable: there is no package.json, so nothing was checked',
+        notApplicableNoRuntimeDeps: 'Not applicable: this package declares no runtime dependencies, so nothing was checked'
+      },
+
       // skills command
       skills: {
         title: 'Universal Dev Standards - Installed Skills',
@@ -721,6 +728,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ Manual installation is deprecated.',
         manualInstallHint: 'Consider migrating to Plugin Marketplace.',
         totalUniqueSkills: 'Total unique skills',
+        skillFilesTracked: '`uds check` tracks {files} skill files for these skills (it counts files across every tool, not skills).',
         recommendation: 'Recommendation: Migrate to Plugin Marketplace',
         benefits: 'Benefits: Automatic updates, better integration',
         migrateCommand: 'To migrate, run:'
@@ -1071,6 +1079,7 @@ export const messages = {
         droppedRetiredHashes: 'Dropped {count} manifest record(s) for files UDS no longer ships and that are already gone:',
         droppedForeignSkillHashes: 'Dropped {count} skill record(s) that do not describe files UDS installed.',
         droppedForeignCommandHashes: 'Dropped {count} command record(s) for commands UDS does not ship.',
+        droppedForeignNames: 'Dropped {count} skill/command name(s) from the manifest that UDS does not ship or that are not installed.',
         // Success
         updateSuccess: '✓ Standards updated successfully!',
         versionUpdated: 'Version: {current} → {latest}',
@@ -1352,6 +1361,7 @@ export const messages = {
       error: '生成規格失敗',
       listTitle: '微規格列表',
       noSpecs: '沒有找到微規格。',
+      statusUnparsed: '格式：SDD（狀態未解析）',
       createHint: '使用以下命令建立：uds spec create "您的意圖"',
       total: '總計',
       noId: '錯誤：請提供規格 ID。',
@@ -1996,6 +2006,12 @@ export const messages = {
         seeGuide: '參閱：https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/ADOPTION-GUIDE.md'
       },
 
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: '不適用：沒有 package.json，未檢查任何東西',
+        notApplicableNoRuntimeDeps: '不適用：這個套件沒有宣告執行期相依，未檢查任何東西'
+      },
+
       // skills command
       skills: {
         title: '通用開發標準 - 已安裝的 Skills',
@@ -2008,6 +2024,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ 手動安裝已棄用。',
         manualInstallHint: '建議遷移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 總數',
+        skillFilesTracked: '`uds check` 追蹤這些技能的 {files} 個技能檔案（它計的是所有工具的檔案數，不是技能數）。',
         recommendation: '建議：遷移到 Plugin Marketplace',
         benefits: '好處：自動更新、更好的整合',
         migrateCommand: '遷移指令：'
@@ -2353,6 +2370,7 @@ export const messages = {
         droppedRetiredHashes: '已清掉 {count} 筆 manifest 紀錄——這些檔案 UDS 已不再出貨，而且本來就已經不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 筆技能紀錄——它們描述的不是 UDS 安裝的檔案。',
         droppedForeignCommandHashes: '已清掉 {count} 筆命令紀錄——UDS 不出貨這些命令。',
+        droppedForeignNames: '已從 manifest 清掉 {count} 個技能／命令名稱——UDS 不出貨，或並未安裝。',
         // Success
         updateSuccess: '✓ 標準更新成功！',
         versionUpdated: '版本：{current} → {latest}',
@@ -2632,6 +2650,7 @@ export const messages = {
       error: '生成规格失败',
       listTitle: '微规格列表',
       noSpecs: '没有找到微规格。',
+      statusUnparsed: '格式：SDD（状态未解析）',
       createHint: '使用以下命令创建：uds spec create "您的意图"',
       total: '总计',
       noId: '错误：请提供规格 ID。',
@@ -3292,6 +3311,12 @@ export const messages = {
         runCheck: '执行 `uds check` 验证采用状态'
       },
 
+      // deps command (XSPEC-456 R6)
+      deps: {
+        notApplicableNoPackageJson: '不适用：没有 package.json，未检查任何东西',
+        notApplicableNoRuntimeDeps: '不适用：这个包没有声明运行时依赖，未检查任何东西'
+      },
+
       // skills command
       skills: {
         title: '通用开发标准 - 已安装的 Skills',
@@ -3304,6 +3329,7 @@ export const messages = {
         manualInstallDeprecated: '⚠ 手动安装已弃用。',
         manualInstallHint: '建议迁移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 总数',
+        skillFilesTracked: '`uds check` 跟踪这些技能的 {files} 个技能文件（它计的是所有工具的文件数，不是技能数）。',
         recommendation: '建议：迁移到 Plugin Marketplace',
         benefits: '好处：自动更新、更好的集成',
         migrateCommand: '迁移指令：'
@@ -3557,6 +3583,7 @@ export const messages = {
         droppedRetiredHashes: '已清掉 {count} 笔 manifest 记录——这些文件 UDS 已不再发布，而且本来就已经不在了：',
         droppedForeignSkillHashes: '已清掉 {count} 条技能记录——它们描述的不是 UDS 安装的文件。',
         droppedForeignCommandHashes: '已清掉 {count} 条命令记录——UDS 不发布这些命令。',
+        droppedForeignNames: '已从 manifest 清掉 {count} 个技能／命令名称——UDS 不发布，或并未安装。',
         // Success
         updateSuccess: '✓ 标准更新成功！',
         versionUpdated: '版本：{current} → {latest}',

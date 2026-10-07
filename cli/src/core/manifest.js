@@ -851,11 +851,10 @@ export function areCommandsInstalled(manifest) {
   return manifest.commands?.installed || false;
 }
 
-/**
- * Placeholder stored in `skills.names` when skills come from the Claude Code
- * plugin marketplace rather than being copied into the project.
- */
-export const MARKETPLACE_NAMES_SENTINEL = 'all-via-plugin';
+// Placeholder stored in `skills.names` when skills come from the Claude Code plugin marketplace.
+// It lives in its own module so the name-ownership code can read it without loading this whole module.
+export { MARKETPLACE_NAMES_SENTINEL } from './marketplace-sentinel.js';
+import { MARKETPLACE_NAMES_SENTINEL } from './marketplace-sentinel.js';
 
 /**
  * Merge the names actually installed by a run into a manifest name list.
@@ -872,11 +871,14 @@ export const MARKETPLACE_NAMES_SENTINEL = 'all-via-plugin';
  * update.js and config.js, and a private copy per module is how the writers drift
  * apart again.
  *
- * It only ever adds. A name recorded by an older UDS version that no longer ships
- * (machine-setup still lists `methodology-system`, plus five non-skill directories
- * an old deny-list bug misfiled as skills) stays in the list. Pruning would need
- * to know the name is absent for *every* agent, and over-reporting is harmless
- * now that the reconciler derives desired state from the shipped set instead.
+ * This function only ever adds; removing is a separate step done right after it
+ * (XSPEC-456 R4, `utils/installed-names-ownership.js`). The earlier version of this
+ * comment said pruning was unnecessary because "over-reporting is harmless" - it is
+ * not: after an update removed the five non-skill directories an old deny-list bug
+ * had misfiled as skills (`_shared`, `agents`, `ai`, `tools`, `workflows`), the
+ * manifest still named them as installed skills, next to a `skillHashes` that had
+ * been cleaned. A name that UDS does not ship, or that is not on disk where it was
+ * installed, is dropped by `uds update`.
  *
  * @param {string[]} existing - Current manifest list
  * @param {Object} installResult - Result from installSkills/CommandsToMultipleAgents

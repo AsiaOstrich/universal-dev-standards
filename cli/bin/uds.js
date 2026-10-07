@@ -204,7 +204,7 @@ program
 
 program
   .command('simulate')
-  .description('Simulate a standard check with input (Predictive Validation)')
+  .description('Simulate a standard check with input (Predictive Validation). Exit 0 = passes, 1 = does not comply, 2 = no verdict (cannot simulate; not a pass). Only commit-message defines a simulator today')
   .option('-s, --standard <id>', 'Standard to simulate against')
   .option('-i, --input <string>', 'Input string to test')
   .option('--json', 'Output result in JSON format')
@@ -279,6 +279,7 @@ program
   .option('--path <dir>', 'Directory containing package.json (default: cwd)')
   .option('--json', 'Output raw JSON')
   .option('--concurrency <n>', 'Parallel registry lookups (default: 8)')
+  .option('--if-present', 'Exit 0 and say that nothing was checked when there is no package.json or no runtime dependency (default: exit 1)')
   .action(depsCommand);
 
 program
