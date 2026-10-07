@@ -275,15 +275,6 @@
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): shipped file has no `updated` field at all even though its source (core/performance-standards.md) is a real, git-tracked file. No suspicious value — simply absent, consistent with this .ai.yaml having been hand-authored/edited outside the generator. Fix: regenerate via the transform pipeline to backfill the field."
     },
     {
-      "file": "ai/standards/pipeline-security-gates.ai.yaml",
-      "source": "core/pipeline-security-gates.md",
-      "shippedUpdated": "2026-04-26",
-      "actualUpdated": "2026-06-19",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/pipeline-security-gates.md` that the shipped date (2026-04-26) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/pipeline-security-gates.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/policy-as-code-testing.ai.yaml",
       "source": "core/policy-as-code-testing.md",
       "shippedUpdated": "2026-05-05",
