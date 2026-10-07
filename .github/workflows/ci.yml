@@ -176,6 +176,46 @@ jobs:
       - name: Check module reachability
         run: npm run check:reachability
 
+  # XSPEC-458 R4 — standards orphan matrix.
+  #
+  # A standard in the registry that nothing installs, indexes, wraps in a skill, checks or calls is shipped
+  # and invisible: `open-work-tracking` reached the registry of an upgraded project without reaching the
+  # project, and every command was right about what it was asked, so nothing was red. This job measures it
+  # (a real `uds init --yes` supplies two of the five columns) and fails on a standard with all five
+  # empty, or on a `check-*` script nothing calls, unless the finding is on
+  # cli/scripts/orphan-matrix-allowlist.json with a reason, an owner and an expiry.
+  #
+  # No path filter, for the reason the adopter-instruction-files job gives below: the inputs are the
+  # registry, skills/, ai/standards/, scripts/, hooks and this directory of workflows, and a filter that lists
+  # them is the kind of list that goes stale on exactly the change it should have caught.
+  #
+  # The red and green arms (an injected orphan, a stale or expired allowlist, an uncalled check script, a
+  # weakened check) are tests: cli/tests/e2e/xspec-458-r4-orphan-matrix.test.js.
+  orphan-matrix:
+    name: Standards Orphan Matrix
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      # `uds init` needs cli/node_modules; without it the probe exits 2 (cannot measure), not green.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the standards orphan matrix
+        run: npm run check:orphan-matrix
+
   # XSPEC-383 R4 — 指令存在性閘門。
   #
   # 2026-08-19 實測：UDS 出貨的指引裡有指令是根本不存在的（`uds install`、

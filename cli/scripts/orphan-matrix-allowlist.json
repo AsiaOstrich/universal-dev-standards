@@ -1,0 +1,488 @@
+{
+  "recorded": "2026-10-07",
+  "expires": "2026-12-31",
+  "why": "XSPEC-458 R4 first run: every standard in the registry with none of {installed by init, named by the generated index, wrapped by a skill, checked, called by a workflow/hook/skill}, and every check script nothing calls. A debt register, not an exemption: the test fails on a new orphan, on an entry here that is no longer a finding, on an entry without a reason and owner, and after the expiry date.",
+  "howToShrink": "Wire the standard (install by default, name it in a skill or hook, give it a check) or retire it, then delete its entry. If it stays on purpose, change the expiry and the reason in the same commit.",
+  "standards": [
+    {
+      "id": "governance-layer",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "anti-sycophancy-prompting",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "agent-behavior-discipline",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "llm-output-validation",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "csharp-style",
+      "category": "extension",
+      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "php-style",
+      "category": "extension",
+      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "fat-free-patterns",
+      "category": "extension",
+      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "zh-tw-locale",
+      "category": "extension",
+      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "zh-cn-locale",
+      "category": "extension",
+      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "multi-environment-e2e-testing",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "migration-template",
+      "category": "template",
+      "reason": "A document template for people to copy; neither default init, an index, a skill, a check nor a hook reaches it.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "tech-debt-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "feature-flag-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "environment-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "containerization-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "deprecation-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "knowledge-transfer-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "test-data-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "chaos-engineering-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "supply-chain-security-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "estimation-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "design-document-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "privacy-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "frontend-design-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "dual-phase-output",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "circuit-breaker",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "token-budget",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "security-decision",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "capability-declaration",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "immutability-first",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "failure-source-taxonomy",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "recovery-recipe-registry",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "retry-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "timeout-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "health-check-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "standard-admission-criteria",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "standard-lifecycle-management",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "skill-standard-alignment-check",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "translation-lifecycle-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "slo-sli",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "runbook",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "incident-response",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "license-compliance",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "verification-oracle",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "model-provenance",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "resource-cost-boundary",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "pii-classification",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "audit-trail",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "schema-evolution",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "data-contract",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "data-pipeline",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "iac-design-principles",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "container-image-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "secret-management-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "prd-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "product-metrics-standards",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "user-story-mapping",
+      "category": "core",
+      "reason": "Registered 2026-03-31 or later, after `uds init`'s reference/skill filter (2025-12-24) was written, so init never installs it; no generated index, skill, check or hook names its file. Shipped as a document only.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "secure-op",
+      "category": "security",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "server-ops-security",
+      "category": "security",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "container-security",
+      "category": "security",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "adversarial-test",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "policy-as-code-testing",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "sast-advanced",
+      "category": "security",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "prompt-regression",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "supply-chain-attestation",
+      "category": "security",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "cost-budget-test",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "replay-test",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "smoke-test",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "property-based-testing",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "disaster-recovery-drill",
+      "category": "operations",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "flaky-test-management",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "data-migration-testing",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "chaos-injection-tests",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "release-quality-manifest",
+      "category": "deployment",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "release-readiness-gate",
+      "category": "deployment",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "contract-testing-standards",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "cross-flow-regression",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "id": "browser-compatibility-standards",
+      "category": "testing",
+      "reason": "Same as core: added after init's reference/skill filter, never installed by init, and no index, skill, check or hook names its file.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    }
+  ],
+  "checkCommands": [
+    {
+      "name": "check-external-references",
+      "reason": "Manual maintenance tool (SPEC-SELFDIAG-001): scans core/ and .standards/ for external URLs and needs the network; no workflow, hook, script or skill runs it.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    },
+    {
+      "name": "check-name-mention-classification",
+      "reason": "XSPEC-389 rename-evaluation walker, run by hand when the rename question is reopened; no workflow, hook, script or skill runs it.",
+      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
+    }
+  ]
+}
