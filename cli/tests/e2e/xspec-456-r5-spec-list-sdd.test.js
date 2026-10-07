@@ -30,7 +30,7 @@ function projectWithSpecs(files) {
   return dir;
 }
 
-it('uds spec list shows the status and title of an SDD spec with a header table, and says "not parsed" where it cannot read one, never draft (XSPEC-456 R5)', async () => {
+it('uds spec list shows the status and title of an SDD spec with a header table, and says not parsed where it cannot read one, never draft (XSPEC-456 R5)', async () => {
   const dir = projectWithSpecs({
     // The shape from the report: a header table.
     'SPEC-001-dept-api.md': [
