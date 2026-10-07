@@ -1666,23 +1666,11 @@ export async function updateCommand(options) {
         console.log(chalk.gray(`  ${msg.updateViaMarketplace}`));
         console.log(chalk.gray(`    • ${msg.autoUpdate}`));
         console.log(chalk.gray(`    • ${msg.manualUpdate}`));
-      } else if (location === 'user') {
-        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
-        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
-        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
-        console.log(chalk.gray(`  ${msg.orUpdateManually}`));
-        console.log(chalk.gray('    cd ~/.claude/skills/universal-dev-standards && git pull'));
-      } else if (location === 'project') {
-        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
-        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
-        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
-        console.log(chalk.gray(`  ${msg.orUpdateManually}`));
-        console.log(chalk.gray('    cd .claude/skills/universal-dev-standards && git pull'));
       } else {
-        // Legacy or unknown installation
-        console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
-        console.log(chalk.gray(`  ${msg.recommendedMigrate}`));
-        console.log(chalk.gray('    /plugin add https://github.com/anthropics/claude-code-plugins/blob/main/skills/universal-dev-standards.md'));
+        // XSPEC-462 R1: project level, user level or not known: one way to update them. This used to call
+        // them "deprecated" and point at a generic plugin URL and a `git pull` in the skills folder; neither
+        // is how UDS installs or updates skills (`uds update --apply --skills` is).
+        console.log(chalk.gray(`  ${msg.skillsUpdateCommand}`));
       }
     }
   }

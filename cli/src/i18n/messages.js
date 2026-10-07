@@ -743,18 +743,33 @@ export const messages = {
       skills: {
         title: 'Universal Dev Standards - Installed Skills',
         noSkillsInstalled: 'No Universal Dev Standards skills installed.',
-        installViaMarketplace: 'Install via Plugin Marketplace:',
-        orManually: 'Or install manually:',
-        recommended: '(recommended)',
         legacyMarketplaceWarning: '⚠ Legacy marketplace detected.',
         legacyMarketplaceHint: 'Consider upgrading to Plugin Marketplace for automatic updates.',
-        manualInstallDeprecated: '⚠ Manual installation is deprecated.',
-        manualInstallHint: 'Consider migrating to Plugin Marketplace.',
         totalUniqueSkills: 'Total unique skills',
         skillFilesTracked: '`uds check` tracks {files} skill files for these skills (it counts files across every tool, not skills).',
-        recommendation: 'Recommendation: Migrate to Plugin Marketplace',
-        benefits: 'Benefits: Automatic updates, better integration',
-        migrateCommand: 'To migrate, run:'
+        // XSPEC-462 R1: the two ways to install, side by side, each with its limits.
+        installPaths: {
+          title: 'Two ways to install UDS skills',
+          projectTitle: 'Into the project (the main path)',
+          projectCommands: [
+            'uds init --skills-location project   (new project)',
+            'uds update --apply --skills          (project already set up)'
+          ],
+          projectPoints: [
+            'Works with many AI tools: Claude Code, OpenCode, Cursor, Codex, Copilot, Windsurf and more.',
+            'Has Traditional and Simplified Chinese skill texts (a missing one falls back to English with a warning).',
+            'Follows the UDS version you installed, beta releases included.',
+            'You update it yourself: run the same command again after upgrading UDS.'
+          ],
+          pluginTitle: 'Claude Code plugin marketplace (an alternative, with limits)',
+          pluginPoints: [
+            'Claude Code only.',
+            'English skill texts only: the plugin settings have no language choice.',
+            'Follows stable releases only, so a beta of UDS gets no beta skills.',
+            'Puts no files in the project, so `uds check` cannot compare them file by file.'
+          ],
+          bothNote: 'Installing both lists every skill twice in Claude Code (for example /commit and /universal-dev-standards:commit). Pick one; `uds check` warns when it finds both.'
+        }
       },
 
       // check command
@@ -841,11 +856,7 @@ export const messages = {
         skillsProject: 'Project',
         compatible: 'Compatible',
         openCodeNote: 'Note: OpenCode auto-detects .claude/skills/',
-        considerMigrating: '⚠ Consider migrating to Plugin Marketplace',
-        marketplaceAutoUpdates: 'Marketplace provides automatic updates and easier management.',
-        toMigrate: 'To migrate:',
         skillsMarkedNotFound: '⚠ Skills marked as installed but not found',
-        recommendedInstall: 'Recommended: Install via Plugin Marketplace',
         skillsNotInstalled: 'Skills not installed (using reference documents only)',
         // Coverage
         coverageSummary: 'Coverage Summary:',
@@ -897,6 +908,13 @@ export const messages = {
         projectCompliant: '✓ Project is compliant with standards',
         issuesDetected: '⚠ Some issues detected. Review above for details.',
         skillsIntegrityFix: '  Skill files listed above are missing or were changed: run `uds update --apply --skills` to reinstall them.',
+        // XSPEC-462 R2: project skills and the UDS plugin are both installed. Information only.
+        skillsTwiceTitle: '⚠ UDS skills are installed twice: {count} in this project (.claude/skills/) and the plugin {plugin}.',
+        skillsTwiceNames: 'Claude Code runs plugin skills as /<plugin>:<skill> and project skills as /<skill>, so each skill shows up twice (for example /commit and /universal-dev-standards:commit).',
+        skillsTwiceContext: 'Every skill\'s name and description is put into context on every turn, so the duplicate takes that space twice.',
+        skillsTwiceChoose: 'Keep one:',
+        skillsTwiceKeepProject: 'Keep the project copy: in Claude Code run /plugin uninstall {plugin}',
+        skillsTwiceKeepPlugin: 'Keep the plugin: delete the UDS skill folders under .claude/skills/ (`uds uninstall --skills-only` removes the skills and commands of every tool in this project).',
         commandsIntegrityFix: '  Command files listed above are missing or were changed: run `uds update --apply --commands` to reinstall them.',
         commandsStaleRecordsIgnored: '  {count} command record(s) ignored: they describe commands UDS does not ship.',
         commandsElsewhereIgnored: '  {count} command record(s) ignored: those commands are installed at user level, shared by every project, so this project\'s check does not vouch for them.',
@@ -1114,10 +1132,8 @@ export const messages = {
         skillsLatest: 'Latest',
         updateViaMarketplace: 'Update via Plugin Marketplace:',
         autoUpdate: 'Auto-update: Restart Claude Code (updates on startup)',
-        manualUpdate: 'Manual: Run /plugin marketplace update anthropic-agent-skills',
-        manualInstallDeprecated: '⚠️  Manual installation is deprecated',
-        recommendedMigrate: 'Recommended: Migrate to Plugin Marketplace',
-        orUpdateManually: 'Or update manually:',
+        manualUpdate: 'Manual: Run /plugin marketplace update asia-ostrich',
+        skillsUpdateCommand: 'Update them with: uds update --apply --skills',
         // Integrations only
         updatingIntegrationsOnly: 'Updating integration files only...',
         noAiToolsConfigured: '⚠ No AI tools configured in manifest.',
@@ -2062,18 +2078,33 @@ export const messages = {
       skills: {
         title: '通用開發標準 - 已安裝的 Skills',
         noSkillsInstalled: '未安裝任何通用開發標準 Skills。',
-        installViaMarketplace: '透過 Plugin Marketplace 安裝：',
-        orManually: '或手動安裝：',
-        recommended: '（推薦）',
         legacyMarketplaceWarning: '⚠ 偵測到舊版 marketplace。',
         legacyMarketplaceHint: '建議升級到 Plugin Marketplace 以獲得自動更新。',
-        manualInstallDeprecated: '⚠ 手動安裝已棄用。',
-        manualInstallHint: '建議遷移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 總數',
         skillFilesTracked: '`uds check` 追蹤這些技能的 {files} 個技能檔案（它計的是所有工具的檔案數，不是技能數）。',
-        recommendation: '建議：遷移到 Plugin Marketplace',
-        benefits: '好處：自動更新、更好的整合',
-        migrateCommand: '遷移指令：'
+        // XSPEC-462 R1：兩種裝法並列，各自寫明限制。
+        installPaths: {
+          title: '安裝 UDS 技能的兩種方式',
+          projectTitle: '裝進專案（主要路徑）',
+          projectCommands: [
+            'uds init --skills-location project   （新專案）',
+            'uds update --apply --skills          （已設定過的專案）'
+          ],
+          projectPoints: [
+            '支援多種 AI 工具：Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等。',
+            '有繁體中文與簡體中文的技能文字（缺的會警告並退回英文）。',
+            '跟著你裝的 UDS 版本走，包含測試版。',
+            '由你自己更新：升級 UDS 後再跑一次同一個指令。'
+          ],
+          pluginTitle: 'Claude Code 外掛市集（替代方式，有限制）',
+          pluginPoints: [
+            '只支援 Claude Code。',
+            '只有英文技能文字：外掛設定沒有語系選擇。',
+            '只跟正式版：UDS 的測試版不會有測試版技能。',
+            '專案內不放檔案，所以 `uds check` 無法逐檔比對。'
+          ],
+          bothNote: '兩種都裝，Claude Code 會把每個技能列出兩次（例如 /commit 與 /universal-dev-standards:commit）。請擇一；`uds check` 發現兩者並存時會警告。'
+        }
       },
 
       // check command
@@ -2160,11 +2191,7 @@ export const messages = {
         skillsProject: '專案',
         compatible: '相容',
         openCodeNote: '注意：OpenCode 自動偵測 .claude/skills/',
-        considerMigrating: '⚠ 建議遷移到 Plugin Marketplace',
-        marketplaceAutoUpdates: 'Marketplace 提供自動更新和更簡易的管理。',
-        toMigrate: '遷移步驟：',
         skillsMarkedNotFound: '⚠ Skills 標記為已安裝但找不到',
-        recommendedInstall: '建議：透過 Plugin Marketplace 安裝',
         skillsNotInstalled: 'Skills 未安裝（僅使用參考文件）',
         // Coverage
         coverageSummary: '覆蓋率摘要：',
@@ -2216,6 +2243,13 @@ export const messages = {
         projectCompliant: '✓ 專案符合標準',
         issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。',
         skillsIntegrityFix: '  上方列出的技能檔遺失或被改過：執行 `uds update --apply --skills` 重新安裝。',
+        // XSPEC-462 R2：專案層與 UDS 外掛都裝了。純資訊。
+        skillsTwiceTitle: '⚠ UDS 技能裝了兩次：本專案（.claude/skills/）有 {count} 個，外掛 {plugin} 也已安裝。',
+        skillsTwiceNames: 'Claude Code 執行外掛技能是 /<外掛名>:<技能名>，執行專案技能是 /<技能名>，所以每個技能會出現兩次（例如 /commit 與 /universal-dev-standards:commit）。',
+        skillsTwiceContext: '每個技能的名稱與描述每回合都會放進脈絡，重複裝等於重複占用。',
+        skillsTwiceChoose: '二擇一：',
+        skillsTwiceKeepProject: '留專案這份：在 Claude Code 執行 /plugin uninstall {plugin}',
+        skillsTwiceKeepPlugin: '留外掛：刪掉 .claude/skills/ 底下的 UDS 技能資料夾（`uds uninstall --skills-only` 會移除本專案所有工具的技能與命令）。',
         commandsIntegrityFix: '  上方列出的斜線命令檔遺失或被改過：執行 `uds update --apply --commands` 重新安裝。',
         commandsStaleRecordsIgnored: '  已忽略 {count} 筆命令紀錄：它們描述的是 UDS 不出貨的命令。',
         commandsElsewhereIgnored: '  已忽略 {count} 筆命令紀錄：這些命令裝在使用者層級（所有專案共用），本專案的檢查不為它們背書。',
@@ -2428,10 +2462,8 @@ export const messages = {
         skillsLatest: '最新',
         updateViaMarketplace: '透過 Plugin Marketplace 更新：',
         autoUpdate: '自動更新：重新啟動 Claude Code（啟動時更新）',
-        manualUpdate: '手動：執行 /plugin marketplace update anthropic-agent-skills',
-        manualInstallDeprecated: '⚠️  手動安裝已棄用',
-        recommendedMigrate: '建議：遷移到 Plugin Marketplace',
-        orUpdateManually: '或手動更新：',
+        manualUpdate: '手動：執行 /plugin marketplace update asia-ostrich',
+        skillsUpdateCommand: '更新方式：uds update --apply --skills',
         // Integrations only
         updatingIntegrationsOnly: '僅更新整合檔案中...',
         noAiToolsConfigured: '⚠ manifest 中未設定任何 AI 工具。',
@@ -3390,18 +3422,33 @@ export const messages = {
       skills: {
         title: '通用开发标准 - 已安装的 Skills',
         noSkillsInstalled: '未安装任何通用开发标准 Skills。',
-        installViaMarketplace: '通过 Plugin Marketplace 安装：',
-        orManually: '或手动安装：',
-        recommended: '（推荐）',
         legacyMarketplaceWarning: '⚠ 检测到旧版 marketplace。',
         legacyMarketplaceHint: '建议升级到 Plugin Marketplace 获得自动更新。',
-        manualInstallDeprecated: '⚠ 手动安装已弃用。',
-        manualInstallHint: '建议迁移到 Plugin Marketplace。',
         totalUniqueSkills: '唯一 Skills 总数',
         skillFilesTracked: '`uds check` 跟踪这些技能的 {files} 个技能文件（它计的是所有工具的文件数，不是技能数）。',
-        recommendation: '建议：迁移到 Plugin Marketplace',
-        benefits: '好处：自动更新、更好的集成',
-        migrateCommand: '迁移指令：'
+        // XSPEC-462 R1：两种装法并列，各自写明限制。
+        installPaths: {
+          title: '安装 UDS 技能的两种方式',
+          projectTitle: '装进项目（主要路径）',
+          projectCommands: [
+            'uds init --skills-location project   （新项目）',
+            'uds update --apply --skills          （已设置过的项目）'
+          ],
+          projectPoints: [
+            '支持多种 AI 工具：Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等。',
+            '有繁体中文与简体中文的技能文本（缺失的会警告并退回英文）。',
+            '跟随你安装的 UDS 版本，包含测试版。',
+            '由你自己更新：升级 UDS 后再运行一次同一个指令。'
+          ],
+          pluginTitle: 'Claude Code 插件市场（替代方式，有限制）',
+          pluginPoints: [
+            '只支持 Claude Code。',
+            '只有英文技能文本：插件设置没有语言选项。',
+            '只跟正式版：UDS 的测试版不会有测试版技能。',
+            '项目内不放文件，所以 `uds check` 无法逐文件比对。'
+          ],
+          bothNote: '两种都装，Claude Code 会把每个技能列出两次（例如 /commit 与 /universal-dev-standards:commit）。请择一；`uds check` 发现两者并存时会警告。'
+        }
       },
 
       // check command
@@ -3488,11 +3535,7 @@ export const messages = {
         skillsProject: '项目',
         compatible: '兼容',
         openCodeNote: '注意：OpenCode 自动检测 .claude/skills/',
-        considerMigrating: '⚠ 考虑迁移到 Plugin Marketplace',
-        marketplaceAutoUpdates: 'Marketplace 提供自动更新和更简便的管理。',
-        toMigrate: '要迁移：',
         skillsMarkedNotFound: '⚠ Skills 标记为已安装但未找到',
-        recommendedInstall: '建议：通过 Plugin Marketplace 安装',
         skillsNotInstalled: 'Skills 未安装（仅使用参考文档）',
         // Coverage
         coverageSummary: '覆盖率摘要：',
@@ -3544,6 +3587,13 @@ export const messages = {
         projectCompliant: '✓ 项目符合标准',
         issuesDetected: '⚠ 检测到一些问题。详情请查看上文。',
         skillsIntegrityFix: '  上方列出的技能文件缺失或被改过：运行 `uds update --apply --skills` 重新安装。',
+        // XSPEC-462 R2：项目层与 UDS 插件都装了。纯信息。
+        skillsTwiceTitle: '⚠ UDS 技能装了两次：本项目（.claude/skills/）有 {count} 个，插件 {plugin} 也已安装。',
+        skillsTwiceNames: 'Claude Code 执行插件技能是 /<插件名>:<技能名>，执行项目技能是 /<技能名>，所以每个技能会出现两次（例如 /commit 与 /universal-dev-standards:commit）。',
+        skillsTwiceContext: '每个技能的名称与描述每回合都会放进上下文，重复装等于重复占用。',
+        skillsTwiceChoose: '二选一：',
+        skillsTwiceKeepProject: '留项目这份：在 Claude Code 执行 /plugin uninstall {plugin}',
+        skillsTwiceKeepPlugin: '留插件：删掉 .claude/skills/ 下的 UDS 技能文件夹（`uds uninstall --skills-only` 会移除本项目所有工具的技能与命令）。',
         commandsIntegrityFix: '  上方列出的斜杠命令文件缺失或被改过：运行 `uds update --apply --commands` 重新安装。',
         commandsStaleRecordsIgnored: '  已忽略 {count} 条命令记录：它们描述的是 UDS 不发布的命令。',
         commandsElsewhereIgnored: '  已忽略 {count} 条命令记录：这些命令装在用户级（所有项目共用），本项目的检查不为它们背书。',
@@ -3664,10 +3714,8 @@ export const messages = {
         skillsLatest: '最新',
         updateViaMarketplace: '通过 Plugin Marketplace 更新：',
         autoUpdate: '自动更新：重启 Claude Code（启动时更新）',
-        manualUpdate: '手动：运行 /plugin marketplace update anthropic-agent-skills',
-        manualInstallDeprecated: '⚠️  手动安装已弃用',
-        recommendedMigrate: '建议：迁移到 Plugin Marketplace',
-        orUpdateManually: '或手动更新：',
+        manualUpdate: '手动：运行 /plugin marketplace update asia-ostrich',
+        skillsUpdateCommand: '更新方式：uds update --apply --skills',
         // Integrations only
         updatingIntegrationsOnly: '仅更新集成文件...',
         noAiToolsConfigured: '⚠ manifest 中未配置 AI 工具。',

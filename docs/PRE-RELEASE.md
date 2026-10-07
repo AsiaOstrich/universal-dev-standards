@@ -60,8 +60,8 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
   `commit-message` 標準要求主旨 ≤72 字元，而 UDS 自己的雙語提交標頭常超過，所以拿 UDS 自己的訊息來判會被報不合規。這是標準本身的矛盾，這次沒動。
 - **`uds spec show`, `confirm` and `archive` still rewrite an SDD spec with the micro-spec template.** Only `uds spec list` reads SDD headers now. Do not run those three on an SDD spec.
   `uds spec show`、`confirm`、`archive` 仍會用微規格模板整份改寫 SDD 規格；目前只有 `list` 讀得懂 SDD 標頭。請不要對 SDD 規格執行這三個指令。
-- **Skills install path is undecided**: `uds skills` still says manual installation is deprecated while `check` and `update` recommend `uds update --skills`. The plugin marketplace is Claude Code only, English only, and follows stable releases only (6.13.1).
-  技能安裝的建議路徑尚未決定：`uds skills` 仍說手動安裝已棄用，而 `check`、`update` 建議 `uds update --skills`。外掛市集只支援 Claude Code、只有英文、只跟正式版（6.13.1）。
+- **Skills install path is undecided**: `uds skills` still says manual installation is deprecated while `check` and `update` recommend `uds update --skills`. The plugin marketplace is Claude Code only, English only, and follows stable releases only (6.13.1). Settled on `main` after this beta: the project way is the main path and `uds skills` no longer says deprecated (CHANGELOG, Unreleased; XSPEC-462).
+  技能安裝的建議路徑尚未決定：`uds skills` 仍說手動安裝已棄用，而 `check`、`update` 建議 `uds update --skills`。外掛市集只支援 Claude Code、只有英文、只跟正式版（6.13.1）。此測試版之後已在 `main` 定案：主要路徑是裝進專案，`uds skills` 不再說已棄用（變更日誌 Unreleased；XSPEC-462）。
 - From earlier betas: plain `uds check` (without `--ci`) still exits 0 when it reports problems; `--rollback` chains up to 5 backups and a hand edit to `.standards/manifest.json` breaks the chain; the scanners read text and do not run your tests; a project installed by an older UDS has no install records, so `uds uninstall` keeps what it cannot prove is UDS's.
   先前測試版的限制仍在：不帶 `--ci` 的 `uds check` 回報問題時仍以 0 結束；`--rollback` 最多串 5 份、手改 manifest 會讓串斷；掃描讀文字、不執行你的測試；舊版安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明的檔。
 

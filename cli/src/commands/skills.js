@@ -8,6 +8,7 @@ import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 import { getSkillsDirForAgent, getAgentDisplayName } from '../config/ai-agent-paths.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
+import { printInstallPathComparison } from '../utils/skills-install-paths.js';
 
 // Known skill directories (non-skill items to exclude)
 const NON_SKILL_ITEMS = [
@@ -122,6 +123,11 @@ export function skillsCommand() {
   const shipped = getAvailableSkillNames();
   const knownSkills = shipped.length > 0 ? shipped : getAllSkillNames();
 
+  // XSPEC-462 R1: one place that prints the two ways to install (an empty result and a full one both end with it).
+  const sayBothWays = () => {
+    printInstallPathComparison();
+  };
+
   // Check different installation locations
   const installations = [];
 
@@ -139,7 +145,7 @@ export function skillsCommand() {
         path: udsPlugin.installPath,
         version: udsPlugin.version || 'unknown',
         skills,
-        recommended: !udsPlugin.isLegacyMarketplace,
+        isPlugin: true,
         legacyMarketplace: udsPlugin.isLegacyMarketplace
       });
     }
@@ -165,11 +171,10 @@ export function skillsCommand() {
       }
 
       installations.push({
-        location: 'User Level (deprecated)',
+        location: 'User Level',
         path: userSkillsDir,
         version,
-        skills: udsSkills,
-        deprecated: true
+        skills: udsSkills
       });
     }
   }
@@ -194,11 +199,10 @@ export function skillsCommand() {
       }
 
       installations.push({
-        location: 'Project Level (deprecated)',
+        location: 'Project Level',
         path: projectSkillsDir,
         version,
-        skills: udsSkills,
-        deprecated: true
+        skills: udsSkills
       });
     }
   }
@@ -228,22 +232,18 @@ export function skillsCommand() {
   if (installations.length === 0) {
     console.log(chalk.yellow(msg.noSkillsInstalled));
     console.log();
-    console.log(chalk.gray(msg.installViaMarketplace));
-    console.log(chalk.cyan('  /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-    console.log(chalk.cyan('  /plugin install universal-dev-standards@asia-ostrich'));
-    console.log();
+    // XSPEC-462 R1: say both ways and what each one can and cannot do, not only the plugin.
+    sayBothWays();
     return;
   }
 
   // Show each installation
   for (const install of installations) {
     // Header
-    if (install.recommended) {
-      console.log(chalk.green(`✓ ${install.location}`) + chalk.gray(` ${msg.recommended}`));
-    } else if (install.legacyMarketplace) {
+    if (install.legacyMarketplace) {
       console.log(chalk.yellow(`⚠ ${install.location}`));
-    } else if (install.deprecated) {
-      console.log(chalk.yellow(`⚠ ${install.location}`));
+    } else if (install.isPlugin) {
+      console.log(chalk.green(`✓ ${install.location}`));
     } else {
       console.log(chalk.blue(`● ${install.location}`));
     }
@@ -255,7 +255,7 @@ export function skillsCommand() {
     // Skills list
     console.log(chalk.gray(`  Skills (${install.skills.length}):`));
     for (const skill of install.skills) {
-      const icon = (install.deprecated || install.legacyMarketplace)
+      const icon = install.legacyMarketplace
         ? chalk.yellow('○')
         : chalk.green('✓');
       console.log(`    ${icon} ${skill}`);
@@ -270,20 +270,10 @@ export function skillsCommand() {
       console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
       console.log();
     }
-
-    // Deprecation warning
-    if (install.deprecated) {
-      console.log(chalk.yellow(`  ${msg.manualInstallDeprecated}`));
-      console.log(chalk.gray(`  ${msg.manualInstallHint}`));
-      console.log(chalk.cyan('    /plugin marketplace add AsiaOstrich/universal-dev-standards'));
-      console.log(chalk.cyan('    /plugin install universal-dev-standards@asia-ostrich'));
-      console.log();
-    }
   }
 
   // Summary
   const totalSkills = new Set(installations.flatMap(i => i.skills)).size;
-  const hasMarketplace = installations.some(i => i.recommended);
 
   console.log(chalk.gray('─'.repeat(50)));
   console.log(chalk.gray(`${msg.totalUniqueSkills}: ${totalSkills} / ${knownSkills.length}`));
@@ -299,13 +289,9 @@ export function skillsCommand() {
     }
   }
 
-  if (!hasMarketplace && installations.length > 0) {
-    console.log();
-    console.log(chalk.yellow(msg.recommendation));
-    console.log(chalk.gray(`  ${msg.benefits}`));
-  }
-
+  // XSPEC-462 R1: the two ways, side by side, with their limits.
   console.log();
+  sayBothWays();
 }
 
 // Export for testing

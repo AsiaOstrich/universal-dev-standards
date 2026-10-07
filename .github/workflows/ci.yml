@@ -216,6 +216,37 @@ jobs:
       - name: Check the standards orphan matrix
         run: npm run check:orphan-matrix
 
+  # XSPEC-462 R3 — the Claude Code plugin settings must not claim a number of skills that is not true.
+  #
+  # `.claude-plugin/plugin.json` said "25 comprehensive skills" and `marketplace.json` said "23 skills" while
+  # the plugin loads 56 (folders under skills/ that hold a SKILL.md). A number in a description is a claim
+  # nothing keeps true, so this job fails when a description (or .claude-plugin/README.md) names a count that
+  # differs from the folders. No number in the text passes. It reads only files and needs no dependencies.
+  #
+  # No path filter, for the reason the orphan-matrix job gives above: the inputs are skills/ and
+  # .claude-plugin/, and a filter that lists them is the kind of list that goes stale.
+  #
+  # The red and green arms (a wrong number in each of the three files, a right number, an unreadable file, a
+  # folder without a SKILL.md) are tests: cli/tests/e2e/xspec-462-r3-plugin-manifest.test.js.
+  plugin-manifest:
+    name: Plugin Manifest Skill Count
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Check the plugin settings against the skills UDS ships
+        run: node scripts/check-plugin-manifest.mjs
+
   # XSPEC-383 R4 — 指令存在性閘門。
   #
   # 2026-08-19 實測：UDS 出貨的指引裡有指令是根本不存在的（`uds install`、

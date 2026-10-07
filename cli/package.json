@@ -59,6 +59,7 @@
     "prepack": "node scripts/prepack.mjs",
     "check:reachability": "node scripts/check-module-reachability.mjs",
     "check:orphan-matrix": "node scripts/check-standards-orphan-matrix.mjs",
+    "check:plugin-manifest": "node scripts/check-plugin-manifest.mjs",
     "check:command-existence": "node scripts/check-command-existence.mjs",
     "check:effect-boundary": "node scripts/check-effect-boundary.mjs",
     "check:effect-boundary:self-test": "node scripts/check-effect-boundary.mjs --self-test"
