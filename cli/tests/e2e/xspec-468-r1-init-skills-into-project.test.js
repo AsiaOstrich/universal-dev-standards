@@ -21,7 +21,7 @@
 import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, readdirSync, readFileSync, existsSync, rmSync, statSync } from 'fs';
 import { join } from 'path';
-import { createHarness, REAL_REPO } from '../utils/staged-cli-harness.js';
+import { createHarness, REAL_REPO, stripAnsi } from '../utils/staged-cli-harness.js';
 import { pluginHome } from '../utils/xspec-462.js';
 
 const h = createHarness('xspec468-r1');
@@ -58,7 +58,7 @@ function snapshot(root, rel = '') {
 }
 
 /** Text with terminal codes and all whitespace removed (prompt text is wrapped at the terminal width). */
-const squash = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '').replace(/\s+/g, '');
+const squash = (text) => stripAnsi(text).replace(/\s+/g, '');
 const screenHas = (run, sentence) => squash(run.stdout).includes(squash(sentence));
 
 const SKILLS_TWICE = /UDS skills are installed twice/;

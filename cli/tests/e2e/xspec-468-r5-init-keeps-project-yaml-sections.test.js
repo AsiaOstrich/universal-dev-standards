@@ -19,7 +19,7 @@
 import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { createHarness } from '../utils/staged-cli-harness.js';
+import { createHarness, stripAnsi } from '../utils/staged-cli-harness.js';
 
 const h = createHarness('xspec468-r5');
 afterAll(() => h.cleanup());
@@ -29,7 +29,7 @@ afterAll(() => h.cleanup());
  * at the terminal width (even in the middle of a word) and redrawn with cursor codes, so a sentence is not
  * found as written; compared this way it is found wherever the wrap fell.
  */
-const squash = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '').replace(/\s+/g, '');
+const squash = (text) => stripAnsi(text).replace(/\s+/g, '');
 const screenHas = (run, sentence) => squash(run.stdout).includes(squash(sentence));
 
 const ORIGINAL = [

@@ -27,6 +27,9 @@ import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
 export const REAL_CLI_DIR = resolve(import.meta.dirname, '../..');
 export const REAL_REPO = resolve(REAL_CLI_DIR, '..');
 
+/** Text without the terminal control codes (colours, cursor moves) a prompt library prints. */
+export const stripAnsi = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
+
 const PRELOAD = `
 const https = require('https');
 const http = require('http');
@@ -188,7 +191,6 @@ export function createHarness(label, { overrides = {} } = {}) {
       let screen = '';
       let sends = 0;
       let idle = null;
-      const stripAnsi = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
       // Quiet is not enough: on a slow machine the CLI can be quiet while it is still working, and a key typed
       // before the question is drawn waits in the input buffer and answers the NEXT question (the update question
       // of the uds.project.yaml wizard would get the default, no). So a key is typed only when the screen ends
