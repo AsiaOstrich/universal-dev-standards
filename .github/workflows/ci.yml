@@ -6,9 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+# A pull request run is cancelled when a newer commit is pushed to the same branch (as before). A run for a push to
+# main is NOT: XSPEC-469 R4 wants the three end-to-end jobs to have really run for the commit that was pushed, and
+# this repository commits straight to main, often, so a cancelled run is as little a pass as a skipped one. A newer
+# push waits behind the running one (GitHub keeps one pending run per group).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Detect which paths changed to conditionally run expensive jobs

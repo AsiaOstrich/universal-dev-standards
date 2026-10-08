@@ -150,6 +150,12 @@ it('ci.yml is valid YAML and its e2e job runs on all three systems for a push an
   expect(ci.jobs.test.strategy.matrix.include.some((m) => m.os === 'windows-latest')).toBe(true);
 });
 
+it('a run for a push to main is not cancelled by the next push, while a pull request run still is (XSPEC-469 R4)', () => {
+  const ci = workflow();
+  expect(ci.concurrency.group).toBe('${{ github.workflow }}-${{ github.ref }}');
+  expect(ci.concurrency['cancel-in-progress']).toBe("${{ github.event_name == 'pull_request' }}");
+});
+
 it('the e2e job writes a JSON result and a final step that always runs turns it into a count of ran, passed, failed and skipped tests (XSPEC-469 R4)', () => {
   const steps = workflow().jobs.e2e.steps;
   const run = steps.find((s) => s.name === 'Run E2E tests');
