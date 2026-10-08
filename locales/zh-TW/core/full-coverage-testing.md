@@ -3,7 +3,7 @@ source: ../../../core/full-coverage-testing.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-10-08
-source_hash: e8b78ceb60ce
+source_hash: 929c119d54e4
 status: current
 ---
 
@@ -99,10 +99,10 @@ expect(countInstalled({ standards: [{ id: 'a', installed: true }, { id: 'b', ins
 
 | 形狀 | 範例 | 回報條件 |
 |------|------|----------|
-| **同一個呼叫（same call）** | `expect(total(items)).toBe(total(items))` | 兩側是同一個函式、同樣的參數（呼叫裡沒有另一個呼叫），寫在同一個敘述裡，且測試名稱不是在講「比較兩次呼叫」（決定性、冪等、快取、同一性） |
-| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被測呼叫吃一個輸入，預期值把同一個輸入（就是引數本身，如 `items.reduce`，不是它的某個欄位）送進 `reduce`、`map`、`flatMap` 或 `filter`，且回呼只用到自己的參數、不含任何字面值（直接寫，或經由同一支測試裡先設定的 `const`） |
+| **同一個呼叫（same call）** | `expect(total(items)).toBe(total(items))` | 兩側是同一個函式、同樣的參數（呼叫裡沒有另一個呼叫或 `new`），寫在同一個敘述裡，且測試名稱不是在講「比較兩次呼叫」（決定性、冪等、快取、同一性） |
+| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被測呼叫吃一個輸入，預期值把同一個輸入（就是引數本身，如 `items.reduce`，不是它的某個欄位）送進 `reduce`、`map`、`flatMap` 或 `filter`，且回呼只用到自己的參數（外加 `Math`、`Number`、`String` 這類純內建）、不含任何字面值、真的做了運算（不是只回傳參數的 `(x) => x`）；被測呼叫是單一呼叫，裡面沒有別的呼叫或 `new`，後面也沒有接 `.length` 之類的屬性存取（直接寫，或經由同一支測試裡先設定的 `const`） |
 
-下列看起來相似的寫法**刻意放過**，因為光看文字分不出它們和正當測試的差別：`expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))`（預期值查寫死的價目表，是獨立來源）；`expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))`（字面值是測試作者提供的知識）；`expect(render(now())).toBe(render(now()))`（兩次 `now()` 是兩個值，兩側不一定相等）。原則是：拿不準寧可漏抓，不可誤報。
+下列看起來相似的寫法**刻意放過**，因為光看文字分不出它們和正當測試的差別：`expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))`（預期值查寫死的價目表，是獨立來源）；`expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))`（字面值是測試作者提供的知識）；`expect(render(now())).toBe(render(now()))`（兩次 `now()` 是兩個值，兩側不一定相等）；`expect(parse(serialize(rows))).toEqual(rows.map(r => r))`（往返測試：被測呼叫裡還有呼叫）；`expect(clone(input)).toEqual(input.map(x => x))`（只把參數原樣回傳的回呼沒有做任何運算）；`expect(sortUsers(users).length).toBe(users.filter(u => u.name).length)`（被測的值是結果的屬性，哪一側才對光看文字判不出）。原則是：拿不準寧可漏抓，不可誤報。
 
 與 `expect(true).toBe(true)` 相同，只有在測試的**所有**斷言都不是真斷言時才回報；自我比較旁邊還有一個對字面值的斷言，就留給審查者。文字判不了的，掃描腳本保持沉默——會亂叫的掃描腳本遲早被關掉。
 

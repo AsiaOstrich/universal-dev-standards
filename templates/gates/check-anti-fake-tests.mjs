@@ -830,12 +830,16 @@ const countMatches = (re, s) => {
 //   recomputed  expect(total(items)).toBe(items.reduce(...)) expected value is built from the same
 //                                                            input with reduce / map / flatMap / filter
 //                                                            by a callback that uses nothing but its own
-//                                                            parameters and holds no literal
+//                                                            parameters (and pure built-ins), holds no
+//                                                            literal and is not just `(x) => x`
 //
 // Left alone on purpose, because they cannot be told from a sound test by reading the text:
 //   a lookup in a fixed table      expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id]))
 //   a pick by a literal            expect(activeOf(users)).toEqual(users.filter((u) => u.id === 2))
 //   a call inside the call         expect(render(now())).toBe(render(now()))     (two now() are two values)
+//                                  expect(parse(serialize(rows))).toEqual(rows.map((r) => r))   (a round trip)
+//   a property of the result       expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length)
+//   a callback that only returns   expect(clone(input)).toEqual(input.map((x) => x))             (no logic in it)
 // Everything else (a hand-rolled loop, a helper that re-derives the answer, a snapshot taken from
 // the implementation's own output) is a reviewer's question, not this script's: when it cannot be
 // decided from the text, it is NOT reported. A false alarm teaches people to switch the scanner off.
@@ -920,15 +924,17 @@ const callsWithArguments = (expr) => !/^new\b/.test(expr) && /[A-Za-z_$][\w$]*\(
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** If `ns` (canonical, strings blanked) is `callee(args)` plus optional member access, the identifier paths used in args. */
+/** If `ns` (canonical, strings blanked) is exactly `callee(args)` (nothing after it), the identifier paths used in args. */
 function callInputs(ns) {
   const m = /^([A-Za-z_$][\w$.]*)\(/.exec(ns);
   if (!m || /^new\b/.test(ns)) return null;
   const open = m[0].length - 1;
   const close = matchClose(ns, open);
   if (close === -1) return null;
-  const rest = ns.slice(close + 1);
-  if (rest !== '' && !/^(?:\.[A-Za-z_$][\w$]*|\[[^\]]*\])+$/.test(rest)) return null; // something more than the call: not judged
+  // Something after the call (`.length`, `.name`, `[0]`) means the value under test is a property of the result,
+  // not the result: the expected value on the other side is then not "the same computation", and which of the
+  // two is right cannot be read from the text. Not judged.
+  if (ns.slice(close + 1) !== '') return null;
   const args = ns.slice(open + 1, close);
   const paths = new Set();
   const re = /(?<![\w$.])([A-Za-z_$][\w$]*(?:(?:\?\.|\.)[A-Za-z_$][\w$]*)*)(?!\w|\$)(?!\()/g;
@@ -969,6 +975,12 @@ function isSelfContainedCallback(arg) {
     return false; // a named function, or a shape not understood: not judged
   }
   if (params.includes('=')) return false; // default values can call anything
+  // A callback that only hands its parameter back (`(r) => r`, `x => { return x; }`) computes nothing, so
+  // there is no logic in it that could be "the same as the implementation".
+  if (!/[{[]/.test(params)) {
+    const only = body.replace(/^\s*return\b/, '').replace(/[;\s]+$/g, '').replace(/^\s*\(\s*|\s*\)\s*$/g, '').trim();
+    if (/^[A-Za-z_$][\w$]*$/.test(only) && new RegExp(`(?<![\\w$])${escapeRe(only)}(?![\\w$])`).test(params)) return false;
+  }
   if (/['"`]/.test(body)) return false; // a string literal (their contents are blanked, their quotes are not)
   if (/(?<![\w$.])\d|(?<=\.)\d/.test(body)) return false; // a number literal
   if (/(?:^|[(,=:[!&|?{};>+\-*%<~^]|\breturn\b)\s*\//.test(body)) return false; // a regex literal
@@ -1026,6 +1038,9 @@ export function findNonIndependentExpectations(ncBody, nsBody, testName = '') {
     }
     const l = resolveOnce(rawL, canonicalExpr(nsBody.slice(lhsFrom, lhsTo)), constants);
     const r = resolveOnce(rawR, canonicalExpr(nsBody.slice(rhsFrom, rhsTo)), constants);
+    // Same guard as same-call: another call (or `new`) inside the call under test (`parse(serialize(rows))`) is a
+    // round trip or a pipeline, not the implementation's own arithmetic typed again. Not judged.
+    if ((l.ns.match(/[A-Za-z_$][\w$]*\(/g) || []).length > 1 || /\bnew\b/.test(l.ns)) return;
     const inputs = callInputs(l.ns);
     if (inputs && inputs.some((x) => recomputesFrom(r.ns, x))) hits.push({ form: 'recomputed', offset });
   };
@@ -1149,6 +1164,21 @@ const SELF_TEST = [
   { ext: 'js', rules: [], text: "it('prices', () => { expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id])); });\n" },
   { ext: 'js', rules: [], text: "it('active', () => { expect(activeOf(users)).toEqual(users.filter((u) => u.id === 2)); });\n" },
   { ext: 'js', rules: [], text: "it('renders', () => { expect(render(now())).toBe(render(now())); });\n" },
+  // XSPEC-470: the second review's false alarms, and the neighbours of both rounds (all must stay silent).
+  { ext: 'js', rules: [], text: "it('round trip', () => { expect(parse(serialize(rows))).toEqual(rows.map((r) => r)); });\n" },
+  { ext: 'js', rules: [], text: "it('round trip, callback computes', () => { expect(parse(serialize(rows))).toEqual(rows.map((r) => r.id)); });\n" },
+  { ext: 'js', rules: [], text: "it('identity callback', () => { expect(clone(input)).toEqual(input.map((x) => x)); });\n" },
+  { ext: 'js', rules: [], text: "it('property of the result', () => { expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length); });\n" },
+  { ext: 'js', rules: [], text: "it('helper outside the callback', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + priceOf(i), 0)); });\n" },
+  { ext: 'js', rules: [], text: "it('literal in the callback', () => { expect(doubled(xs)).toEqual(xs.map((x) => x * 2)); });\n" },
+  { ext: 'js', rules: [], text: "it('constant outside the callback', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price * TAX_RATE, 0)); });\n" },
+  { ext: 'js', rules: [], text: "it('new inside the call', () => { expect(render(new Date())).toBe(render(new Date())); });\n" },
+  // ...and what must still be named after the narrowing.
+  { ext: 'js', rules: ['tautology'], text: "it('active', () => { assert.deepStrictEqual(activeOf(accounts), accounts.filter((a) => a.active)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('names', () => { expect(namesOf(users)).toEqual(users.map(({ name }) => name)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('destructured reduce', () => { expect(calculateTotal(items)).toBe(items.reduce((s, { price }) => s + price, 0)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('function expression', () => { expect(calculateTotal(items)).toBe(items.reduce(function (s, i) { return s + i.price; }, 0)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('block arrow', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => { return s + i.qty * i.price; }, 0)); });\n" },
   { ext: 'py', rules: ['no-assertion'], text: "def test_nothing():\n    x = 1\n    pass\n" },
   { ext: 'py', rules: ['tautology'], text: "def test_true():\n    assert True\n" },
   { ext: 'py', rules: [], text: "def test_ok():\n    assert add(1, 2) == 3\n\n\ndef test_raises():\n    with pytest.raises(ValueError):\n        f()\n" },

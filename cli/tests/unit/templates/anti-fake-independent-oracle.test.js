@@ -53,6 +53,10 @@ const RED = {
   'red: expected value is a map over the same input': "expect(namesOf(users)).toEqual(users.map((u) => u.name));",
   'red: the reduce is held in a constant first': "const expected = items.reduce((sum, item) => sum + item.price, 0);\n  expect(calculateTotal(items)).toBe(expected);",
   'red: node assert with a filter over the same input': "assert.deepStrictEqual(activeOf(accounts), accounts.filter((a) => a.active));",
+  'red: a destructured parameter in a map': "expect(namesOf(users)).toEqual(users.map(({ name }) => name));",
+  'red: a destructured parameter in a reduce': "expect(calculateTotal(items)).toBe(items.reduce((sum, { price }) => sum + price, 0));",
+  'red: a function expression as the callback': "expect(calculateTotal(items)).toBe(items.reduce(function (sum, item) { return sum + item.price; }, 0));",
+  'red: a block-bodied arrow as the callback': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => { return sum + item.qty * item.price; }, 0));",
   'red: the call is split over several lines': "expect(\n    calculateTotal(items),\n  ).toBe(\n    calculateTotal(items),\n  );"
 };
 
@@ -75,14 +79,25 @@ const GREEN = {
   'green: the callback calls a helper that lives outside it': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + priceOf(item), 0));",
   'green: the callback holds a literal': "expect(doubled(xs)).toEqual(xs.map((x) => x * 2));",
   'green: the callback uses a constant from outside it': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + item.price * TAX_RATE, 0));",
-  'green: a new object inside the call on both sides': "expect(render(new Date())).toBe(render(new Date()));"
+  'green: a new object inside the call on both sides': "expect(render(new Date())).toBe(render(new Date()));",
+  // The three false alarms the second review measured.
+  'green: a round trip, a call inside the call under test': "expect(parse(serialize(rows))).toEqual(rows.map((r) => r));",
+  'green: a callback that only returns its parameter': "expect(clone(input)).toEqual(input.map((x) => x));",
+  'green: the value under test is a property of the result': "expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length);",
+  // Neighbours of those three.
+  'green: a round trip whose callback computes something': "expect(parse(serialize(rows))).toEqual(rows.map((r) => r.id));",
+  'green: a block-bodied callback that only returns its parameter': "expect(clone(input)).toEqual(input.map((x) => { return x; }));",
+  'green: a new object inside the call under test': "expect(totalOf(new Cart(items))).toBe(items.reduce((s, i) => s + i.price, 0));"
 };
 
 /** The three false alarms the first review measured, and the textbook example that must still be named. */
 const FALSE_ALARMS = {
   'green: the expected value is looked up in a fixed table': GREEN['green: the expected value is looked up in a fixed table'],
   'green: the callback picks by a literal': GREEN['green: the callback picks by a literal'],
-  'green: a call inside the call on both sides': GREEN['green: a call inside the call on both sides']
+  'green: a call inside the call on both sides': GREEN['green: a call inside the call on both sides'],
+  'green: a round trip, a call inside the call under test': GREEN['green: a round trip, a call inside the call under test'],
+  'green: a callback that only returns its parameter': GREEN['green: a callback that only returns its parameter'],
+  'green: the value under test is a property of the result': GREEN['green: the value under test is a property of the result']
 };
 const TEXTBOOK = 'expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0));';
 
@@ -204,6 +219,18 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
       "callCount <= 1 && !hasNew && ",
       "",
       'green', 'a look-alike is wrongly named', ['green: a call inside the call on both sides', 'green: a new object inside the call on both sides']],
+    ['a call inside the call under test is still judged as recomputed (the round-trip false alarm comes back)',
+      "if ((l.ns.match(/[A-Za-z_$][\\w$]*\\(/g) || []).length > 1 || /\\bnew\\b/.test(l.ns)) return;",
+      "",
+      'green', 'a look-alike is wrongly named', ['green: a round trip whose callback computes something', 'green: a new object inside the call under test']],
+    ['a callback that only returns its parameter is judged like any other (the identity false alarm comes back)',
+      "if (/^[A-Za-z_$][\\w$]*$/.test(only) && ",
+      "if (/^[A-Za-z_$][\\w$]*$/.test(only) && false && ",
+      'green', 'a look-alike is wrongly named', ['green: a callback that only returns its parameter', 'green: a block-bodied callback that only returns its parameter']],
+    ['a property of the result is judged like the result (the .length false alarm comes back)',
+      "if (ns.slice(close + 1) !== '') return null;",
+      "",
+      'green', 'a look-alike is wrongly named', ['green: the value under test is a property of the result']],
     ['the callback is never examined (the whole narrowing is bypassed)',
       "isSelfContainedCallback(rhs.slice(callback[0], callback[1]))",
       "true",
