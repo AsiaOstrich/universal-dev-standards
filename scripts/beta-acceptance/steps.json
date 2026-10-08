@@ -1435,6 +1435,119 @@
     },
     {
       "platform": "all",
+      "id": "commit-warning-init",
+      "workspace": "commit-warning",
+      "title": "uds init sets up a project with the git pre-commit hook",
+      "titleZh": "uds init 建立含 git pre-commit hook 的專案",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit",
+            "contains": [
+              "UDS pre-commit hook"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "commit-warning-hook",
+      "workspace": "commit-warning",
+      "title": "A commit that changes code and no test prints the test-change warning from the git hook and still goes through",
+      "titleZh": "只改程式、沒改測試的提交：git hook 印出 test-change 警告，提交照常完成",
+      "changelog": [
+        "uds check warns when a commit changes code and touches no test"
+      ],
+      "prepare": [
+        {
+          "writeFile": "node_modules/.bin/universal-dev-standards",
+          "executable": true,
+          "content": "#!/bin/sh\nexec \"{nodePosix}\" \"{binPosix}\" \"$@\"\n"
+        },
+        {
+          "writeFile": "src/app.js",
+          "content": "module.exports = 1;\n"
+        },
+        {
+          "git": [
+            "add",
+            "src/app.js"
+          ]
+        }
+      ],
+      "run": [
+        "git",
+        "commit",
+        "-m",
+        "feat: add app"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "[test-change] This commit changes 1 code file(s) and touches no test file",
+          "Warning only — the commit is not blocked",
+          "Pre-commit checks passed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-commit-warning-display",
+      "workspace": "commit-warning",
+      "title": "The commit-time warning reads correctly in this shell (Git Bash on Windows: no garbled characters)",
+      "titleZh": "提交時的警告在這個殼層裡能正常閱讀（Windows 的 Git Bash：沒有亂碼）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "src/second.js",
+          "content": "module.exports = 2;\n"
+        },
+        {
+          "git": [
+            "add",
+            "src/second.js"
+          ]
+        }
+      ],
+      "run": [
+        "git",
+        "commit",
+        "-m",
+        "feat: add a second file"
+      ],
+      "expect": {
+        "exit": 0
+      },
+      "human": {
+        "inherit": true,
+        "prompt": "Look at the warning printed above, the one that starts with \"test-change\". Is it readable, with the warning sign and the dash showing, not question marks or boxes? Run this in the shell you normally commit from (Git Bash on Windows).",
+        "promptZh": "請看上面印出的警告（以 test-change 開頭的那一段）：警告符號與破折號是否正常顯示，而不是問號或方框？請在你平常提交用的殼層（Windows 上的 Git Bash）執行。"
+      }
+    },
+    {
+      "platform": "all",
       "id": "human-chinese-display",
       "title": "Traditional Chinese text is readable in this console (no ???? or empty boxes)",
       "titleZh": "這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）",

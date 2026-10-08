@@ -15,7 +15,6 @@
 
 import { entryMatchesAnchor } from './changelog.mjs';
 import { displayCommand } from './execute.mjs';
-import { platformName } from './steps.mjs';
 
 export const TEST_BLOCK = 'BETA-ACCEPTANCE-TEST';
 export const VERIFIED_BLOCK = 'BETA-ACCEPTANCE-VERIFIED';
@@ -152,5 +151,3 @@ export function generateDocument({ text, doc, blocks, reports, version }) {
   return { text: next, missing };
 }
 
-/** `platformName` re-exported so callers need one import. */
-export { platformName };

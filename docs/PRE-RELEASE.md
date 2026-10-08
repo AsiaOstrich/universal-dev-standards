@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.6
 It installs the published 6.14.0-beta.6 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.6 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 52 steps (51 checked by the program, 1 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 52 步（51 步由程式判定、1 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 55 steps (53 checked by the program, 2 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 55 步（53 步由程式判定、2 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -198,7 +198,16 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 52 steps (51 c
 51. `beta6-deps-if-present` — uds deps --if-present exits 0 and says nothing was checked.
    uds deps --if-present 以 0 結束並說明沒有檢查任何東西。
    `uds deps --if-present` → exit 0; output has "Not applicable: there is no package.json, so nothing was checked"
-52. `human-chinese-display` (needs a person 需人眼) — Traditional Chinese text is readable in this console (no ???? or empty boxes).
+52. `commit-warning-init` — uds init sets up a project with the git pre-commit hook.
+   uds init 建立含 git pre-commit hook 的專案。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+53. `commit-warning-hook` — A commit that changes code and no test prints the test-change warning from the git hook and still goes through.
+   只改程式、沒改測試的提交：git hook 印出 test-change 警告，提交照常完成。
+   `git commit -m "feat: add app"` → exit 0; output has "[test-change] This commit changes 1 code file(s) and touches no test file", "Warning only — the commit is not blocked" (+1)
+54. `human-commit-warning-display` (needs a person 需人眼) — The commit-time warning reads correctly in this shell (Git Bash on Windows: no garbled characters).
+   提交時的警告在這個殼層裡能正常閱讀（Windows 的 Git Bash：沒有亂碼）。
+   `git commit -m "feat: add a second file"` → exit 0
+55. `human-chinese-display` (needs a person 需人眼) — Traditional Chinese text is readable in this console (no ???? or empty boxes).
    這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）。
    `uds --ui-lang zh-tw skills` → exit 0; output has "/[\u4e00-\u9fff]/"
 <!-- BETA-ACCEPTANCE-TEST:END -->

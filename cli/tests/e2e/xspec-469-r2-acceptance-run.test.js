@@ -211,6 +211,48 @@ it('every step runs in its own folder with its own throwaway home: the command s
   expect(existsSync(sandboxLine[1].trim()), 'the throwaway folder is gone').toBe(false);
 });
 
+it('the prepare operations of a step do what they say, and one that points outside the step folder fails the step instead of writing there (XSPEC-469 R2)', () => {
+  const manifest = JSON.stringify({ upstream: { version: '1' }, skills: { names: ['a'] }, standards: ['ai/standards/foo.ai.yaml', 'ai/standards/bar.ai.yaml'], fileHashes: { '.standards/foo.ai.yaml': {}, '.standards/bar.ai.yaml': {} } });
+  const steps = writeSteps(tmp.next('steps.json'), [
+    {
+      id: 'ops', title: 'the operations are applied in order', run: ['git', 'status', '--porcelain'],
+      prepare: [
+        { writeFile: '.standards/manifest.json', content: manifest },
+        { writeFile: '.standards/foo.ai.yaml', content: 'x' },
+        { forgetStandard: 'foo' },
+        { setManifest: { 'upstream.version': '2' } },
+        { manifestPush: { 'skills.names': ['b'] } },
+        { gitInit: true },
+        { writeFile: 'src/app.js', content: 'module.exports = 1;\n' },
+        { git: ['add', 'src/app.js'] },
+        { mkdir: 'empty-folder' },
+        { writeFile: 'tool.sh', content: '#!/bin/sh\n', executable: true },
+        { removeFile: 'tool.sh' },
+      ],
+      expect: {
+        exit: 0,
+        contains: ['A  src/app.js'],
+        files: [
+          { path: '.standards/manifest.json', contains: ['"version": "2"', '"b"', 'bar.ai.yaml'], notContains: ['foo.ai.yaml'] },
+          { path: '.standards/foo.ai.yaml', exists: false },
+          { path: 'empty-folder', exists: true },
+          { path: 'tool.sh', exists: false },
+        ],
+      },
+    },
+    { id: 'escapes', title: 'a path that leaves the folder', run: ['git', '--version'], prepare: [{ writeFile: '../escaped.txt', content: 'no' }], expect: { exit: 0, contains: ['git version'] } },
+    { id: 'forgets-what-is-not-there', title: 'forgetting a standard the manifest does not list', run: ['git', '--version'], prepare: [{ writeFile: '.standards/manifest.json', content: manifest }, { forgetStandard: 'nope' }], expect: { exit: 0, contains: ['git version'] } },
+  ]);
+  const r = runAcceptance(['--installer', installer(), '--steps', steps, '--non-interactive'], { outDir: tmp.next('out') });
+  expect(r.code, r.out).toBe(1);
+  const byId = Object.fromEntries(r.reports()[0].json.steps.map((x) => [x.id, x]));
+  expect(byId.ops.failures, byId.ops.output).toEqual([]);
+  expect(byId.ops.status).toBe('pass');
+  expect(byId.escapes.status).toBe('fail');
+  expect(byId.escapes.failures[0]).toContain('path leaves its folder');
+  expect(byId['forgets-what-is-not-there'].failures[0]).toContain('the manifest does not list "nope"');
+});
+
 it('the program installs the package through real npm from a folder (offline) and starts both the bin file and the uds command npm put on the path, on this OS (XSPEC-469 R2)', () => {
   const pkg = writeFakePackage(tmp.next('fake-package'), '2.0.0-test.1');
   const steps = writeSteps(tmp.next('steps.json'), [

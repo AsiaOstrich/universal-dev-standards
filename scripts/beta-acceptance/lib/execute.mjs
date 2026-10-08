@@ -26,12 +26,13 @@ const GIT_LEAK_KEYS = ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_PREFIX
 const toPosix = (p) => p.split(sep).join('/');
 
 /**
- * `{node}` `{bin}` `{pkg}` `{work}` `{workPosix}` `{home}` `{homePosix}` `{sandbox}`, and `{shipped}`: the folder that
+ * `{node}` `{bin}` `{pkg}` `{work}` `{home}` `{sandbox}` (and `{nodePosix}` `{binPosix}` `{workPosix}` `{homePosix}`: the same with
+ * forward slashes, for text a POSIX shell or a YAML file will read), and `{shipped}`: the folder that
  * holds the standards, skills and locale docs the package ships (`<pkg>/bundled` in a published package; the
  * repository root when the package under test is a source checkout).
  */
 export function expandTokens(text, tokens) {
-  return String(text).replace(/\{(node|bin|pkg|shipped|work|workPosix|home|homePosix|sandbox)\}/g, (_, k) => tokens[k]);
+  return String(text).replace(/\{(node|nodePosix|bin|binPosix|pkg|shipped|work|workPosix|home|homePosix|sandbox)\}/g, (_, k) => tokens[k]);
 }
 
 const isInside = (base, target) => {
@@ -92,11 +93,15 @@ export function applyPrepare(ops, tokens) {
       const base = op.in === 'home' ? tokens.home : tokens.work;
       const file = safeJoin(base, op.writeFile);
       mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, expandTokens(op.content ?? '', tokens), 'utf-8');
+      writeFileSync(file, expandTokens(op.content ?? '', tokens), { encoding: 'utf-8', mode: op.executable ? 0o755 : 0o644 });
     } else if (typeof op.removeFile === 'string') {
       rmSync(safeJoin(op.in === 'home' ? tokens.home : tokens.work, op.removeFile), { recursive: true, force: true });
     } else if (typeof op.mkdir === 'string') {
       mkdirSync(safeJoin(op.in === 'home' ? tokens.home : tokens.work, op.mkdir), { recursive: true });
+    } else if (Array.isArray(op.git) && op.git.length) {
+      // run git in the step's folder (stage a file, for example); a failure stops the step with git's own message
+      const r = spawnSync('git', op.git.map((a) => expandTokens(a, tokens)), { cwd: tokens.work, env: stepEnv({ home: tokens.home }), encoding: 'utf-8', windowsHide: true });
+      if (r.status !== 0) throw new Error(`git ${op.git.join(' ')} failed (${r.error ? r.error.message : r.stderr.trim() || `exit ${r.status}`})`);
     } else if (op.gitInit === true) {
       // a repository for steps that need one (no commit is made); same environment as the steps
       const r = spawnSync('git', ['init', '-q'], { cwd: tokens.work, env: stepEnv({ home: tokens.home }), encoding: 'utf-8', windowsHide: true });
@@ -250,7 +255,7 @@ export async function runSteps({ steps, sandbox, binPath, pkgDir, shimPath = nul
     const wsName = step.workspace || step.id;
     if (!wsCache.has(wsName)) wsCache.set(wsName, ensureWorkspace(sandbox, wsName));
     const { work, home } = wsCache.get(wsName);
-    const tokens = { node: process.execPath, bin: binPath, pkg: pkgDir, shipped: shippedDir(pkgDir), work, workPosix: toPosix(work), home, homePosix: toPosix(home), sandbox };
+    const tokens = { node: process.execPath, nodePosix: toPosix(process.execPath), bin: binPath, binPosix: toPosix(binPath), pkg: pkgDir, shipped: shippedDir(pkgDir), work, workPosix: toPosix(work), home, homePosix: toPosix(home), sandbox };
     const scrub = [...scrubBase, [work, '<work>'], [home, '<home>']];
     if (failedWorkspaces.has(wsName)) {
       results.push({ ...base, ran: false, status: 'fail', failures: [`an earlier step of the same workspace (${failedWorkspaces.get(wsName)}) failed, so this one could not run`], exitCode: null, durationMs: 0, output: '' });
