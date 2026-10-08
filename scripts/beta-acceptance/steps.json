@@ -1,0 +1,1460 @@
+{
+  "schema": 1,
+  "exemptions": [
+    {
+      "changelog": "CI: a standards orphan matrix",
+      "reason": "A CI gate that reads the repository's own registry and scripts (npm run check:orphan-matrix); it runs in the repository, ships nothing in the npm package and changes no command a user runs."
+    },
+    {
+      "changelog": "CI: the plugin settings may not claim",
+      "reason": "A CI gate over .claude-plugin/ in the repository (npm run check:plugin-manifest); those files and the script are not part of the npm package, so no installed command shows it."
+    },
+    {
+      "changelog": "Beta acceptance: one program runs the acceptance steps",
+      "reason": "Maintainer tooling under scripts/beta-acceptance/, started from a clone of the repository; it is not part of the npm package and adds no command to the installed uds. Its own behaviour is tested by cli/tests/e2e/xspec-469-r2-acceptance-run.test.js and xspec-469-r3-manual-items.test.js."
+    },
+    {
+      "changelog": "CI: every [Unreleased] entry needs an acceptance step",
+      "reason": "A CI job and a generator for docs/PRE-RELEASE.md in the repository; nothing of it is in the npm package or visible in an installed command. Tested by xspec-469-r1-changelog-coverage.test.js and xspec-469-r5-pre-release-doc.test.js."
+    },
+    {
+      "changelog": "CI: the end-to-end tests run on ubuntu, windows and macos",
+      "reason": "A change to .github/workflows/ci.yml and a helper script in the repository; it changes what CI runs, not what an installed uds does. Tested as far as a test can reach it by xspec-469-r4-ci-matrix.test.js; the three real runs are only visible on GitHub."
+    },
+    {
+      "changelog": "The plugin settings carried skill counts that were wrong",
+      "reason": "The wrong skill counts were in .claude-plugin/plugin.json, marketplace.json and README.md, which live in the repository and the Claude Code marketplace listing, not in the npm package; the CI gate above keeps them right."
+    }
+  ],
+  "steps": [
+    {
+      "platform": "all",
+      "id": "smoke-version",
+      "title": "The installed uds command starts and prints its version",
+      "titleZh": "已安裝的 uds 指令能啟動並印出版本",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "--version"
+      ],
+      "expect": {
+        "matches": [
+          "^\\d+\\.\\d+\\.\\d+"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "smoke-shim",
+      "title": "The `uds` command that npm put on the path (uds.cmd on Windows) starts",
+      "titleZh": "npm 放進 PATH 的 `uds` 指令（Windows 上是 uds.cmd）能啟動",
+      "smoke": true,
+      "changelog": [],
+      "shim": [
+        "--version"
+      ],
+      "expect": {
+        "matches": [
+          "^\\d+\\.\\d+\\.\\d+"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-init",
+      "workspace": "available",
+      "title": "uds init sets up a project (the project the next steps use)",
+      "titleZh": "uds init 建立專案（後續步驟使用）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "open-work-tracking"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-open-work-states",
+      "workspace": "available",
+      "title": "The installed open-work-tracking standard defines the two waiting states and the hand-written-fact rules (OWT-020 to OWT-026)",
+      "titleZh": "安裝後的 open-work-tracking 標準含兩個等待狀態與手寫事實規則（OWT-020～OWT-026）",
+      "changelog": [
+        "open-work-tracking 1.2.0"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "id: OWT-020",
+              "id: OWT-026",
+              "not-yet-asked",
+              "asked-awaiting",
+              "observed-by"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-open-work-cross-project",
+      "workspace": "available",
+      "title": "The installed open-work-tracking standard lets a wait name an object in another project (OWT-027 to OWT-029)",
+      "titleZh": "安裝後的 open-work-tracking 標準允許等待項目點名另一個專案的物件（OWT-027～OWT-029）",
+      "changelog": [
+        "open-work-tracking 1.3.0"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "id: OWT-027",
+              "id: OWT-028",
+              "id: OWT-029"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-open-work-waiting-on-reply",
+      "workspace": "available",
+      "title": "The installed open-work-tracking standard is 1.4.0 and names waiting-on-reply",
+      "titleZh": "安裝後的 open-work-tracking 標準是 1.4.0，並提到 waiting-on-reply",
+      "changelog": [
+        "open-work-tracking 1.4.0"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "version: \"1.4.0\"",
+              "waiting-on-reply"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-open-work-summary",
+      "workspace": "available",
+      "title": "The installed open-work-tracking standard explains who produces the OWT-007 summary",
+      "titleZh": "安裝後的 open-work-tracking 標準說明 OWT-007 摘要由誰產生",
+      "changelog": [
+        "open-work-tracking explains that the OWT-007 summary"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "expensive_way",
+              "honest_note"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-memory-boundary",
+      "workspace": "available",
+      "title": "The installed developer-memory and project-context-memory standards carry the boundary section",
+      "titleZh": "安裝後的 developer-memory 與 project-context-memory 標準含邊界段",
+      "changelog": [
+        "Boundary notes in developer-memory and project-context-memory"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/developer-memory.ai.yaml",
+            "contains": [
+              "boundary:",
+              "belongs_in: \"open-work-tracking",
+              "version: \"1.2.1\""
+            ]
+          },
+          {
+            "path": ".standards/project-context-memory.ai.yaml",
+            "contains": [
+              "boundary:",
+              "belongs_in: \"open-work-tracking",
+              "version: \"1.2.1\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-check-line",
+      "workspace": "available",
+      "title": "uds check prints one line when UDS ships a standard the project does not have",
+      "titleZh": "UDS 出貨而專案沒有某標準時，uds check 印一行說明",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "prepare": [
+        {
+          "forgetStandard": "open-work-tracking"
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "1 upstream standard(s) not installed — run `uds update --plan` to see them"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-audit-friction",
+      "workspace": "available",
+      "title": "uds audit --friction lists the missing standard as one low-severity finding",
+      "titleZh": "uds audit --friction 把沒裝的標準列為一筆低嚴重度發現",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "audit",
+        "--friction",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "[LOW] 1 available standard(s) not installed",
+          "open-work-tracking"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-audit-report-held-back",
+      "workspace": "available",
+      "title": "uds audit --report does not send the missing-standard finding to the maintainers",
+      "titleZh": "uds audit --report 不會把「沒裝的標準」當成回饋送給維護者",
+      "changelog": [
+        "uds audit --report does not put the"
+      ],
+      "uds": [
+        "audit",
+        "--report",
+        "--yes",
+        "--dry-run",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Nothing to send: the \"available standards\" finding above is for you to act on"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-plan",
+      "workspace": "available",
+      "title": "uds update --plan ends with the standards available upstream and not installed",
+      "titleZh": "uds update --plan 結尾列出上游有而專案沒裝的標準",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Available upstream, not installed (1)",
+          "open-work-tracking",
+          "uds update --apply --add-standard <id>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-unknown-id",
+      "workspace": "available",
+      "title": "uds update --add-standard with an unknown id exits 1 and offers the nearest ids",
+      "titleZh": "uds update --add-standard 給不存在的 id 時以 1 結束並列出最接近的 id",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline",
+        "--add-standard",
+        "no-such-standard-xyz"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Unknown standard id \"no-such-standard-xyz\"",
+          "Closest ids:"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-add-standard",
+      "workspace": "available",
+      "title": "uds update --apply --add-standard installs the standard and records it in the manifest",
+      "titleZh": "uds update --apply --add-standard 安裝該標準並記入 manifest",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline",
+        "--add-standard",
+        "open-work-tracking"
+      ],
+      "expect": {
+        "contains": [
+          "Reconciliation complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "id: OWT-020"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "open-work-tracking.ai.yaml"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-clean-after-add",
+      "workspace": "available",
+      "title": "uds check --ci then reports nothing left to install, and the standard survives the next apply",
+      "titleZh": "安裝後 uds check --ci 回報沒有未裝的標準",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Project is compliant with standards",
+          "Upstream standards not installed: none"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "available-rollback",
+      "workspace": "available",
+      "title": "One uds update --rollback takes the added standard out again",
+      "titleZh": "一次 uds update --rollback 就把剛加的標準移除",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "uds": [
+        "update",
+        "--rollback",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Rollback successful"
+        ],
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "psg-add-standard",
+      "workspace": "available",
+      "title": "pipeline-security-gates 1.1.0 installs with the scanner behaviours PSG-1 to PSG-3",
+      "titleZh": "pipeline-security-gates 1.1.0 可安裝，並含掃描器行為 PSG-1～PSG-3",
+      "changelog": [
+        "pipeline-security-gates 1.1.0"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline",
+        "--add-standard",
+        "pipeline-security-gates"
+      ],
+      "expect": {
+        "contains": [
+          "Reconciliation complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/pipeline-security-gates.ai.yaml",
+            "contains": [
+              "PSG-1",
+              "PSG-2",
+              "PSG-3",
+              "output_redaction",
+              "scanner_failure",
+              "custom_rule_samples"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "legacy-update-init",
+      "workspace": "legacy-update",
+      "title": "uds init sets up a project (the project the next step uses)",
+      "titleZh": "uds init 建立專案（下一步使用）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "legacy-update-messages",
+      "workspace": "legacy-update",
+      "title": "uds update on a project from an older UDS says \"upstream has them, this project does not\" (no \"level\"), and tells how to update skills",
+      "titleZh": "舊版 UDS 建立的專案執行 uds update：訊息不再提「等級」，並說明如何更新技能",
+      "changelog": [
+        "The older uds update message",
+        "uds update's \"Skills update available\" reminder"
+      ],
+      "prepare": [
+        {
+          "forgetStandard": "open-work-tracking"
+        },
+        {
+          "setManifest": {
+            "upstream.version": "6.0.0",
+            "skills.version": "0.0.1"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "1 new standard(s) available (upstream has them, this project does not):",
+          "Skills update available:",
+          "Update them with: uds update --apply --skills"
+        ],
+        "notContains": [
+          "for your level",
+          "(deprecated)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "skills-two-ways",
+      "title": "uds skills ends with the two ways to install UDS skills side by side and calls neither deprecated",
+      "titleZh": "uds skills 結尾並列兩種安裝技能的方式，且不再說任何一種「已棄用」",
+      "changelog": [
+        "Behavior change — uds skills output text changed"
+      ],
+      "uds": [
+        "skills"
+      ],
+      "expect": {
+        "contains": [
+          "Two ways to install UDS skills",
+          "Into the project (the main path)",
+          "Claude Code plugin marketplace (an alternative, with limits)"
+        ],
+        "notContains": [
+          "(deprecated)",
+          "Manual installation is deprecated",
+          "Recommendation: Migrate to Plugin Marketplace"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "personal-skill-init",
+      "workspace": "personal-skill",
+      "title": "uds init --skills-location project ends by naming a personal skill that covers a UDS skill",
+      "titleZh": "uds init --skills-location project 結尾點名「蓋掉 UDS 技能」的個人技能",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "writeFile": ".claude/skills/plan/SKILL.md",
+          "in": "home",
+          "content": "---\nname: plan\ndescription: my own plan skill\n---\n# my plan\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "share a name with a personal skill",
+          "/plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "personal-skill-check",
+      "workspace": "personal-skill",
+      "title": "uds check names the same collision, says how to fix it, and still reports the project as compliant",
+      "titleZh": "uds check 點名同樣的撞名、說明怎麼修，且專案判定不變",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "share a name with a personal skill",
+          "/plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/",
+          "Keep both: rename your personal skill",
+          "Project is compliant with standards"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "personal-skill-update",
+      "workspace": "personal-skill",
+      "title": "uds update --apply --skills ends with the same warning",
+      "titleZh": "uds update --apply --skills 結尾印同樣的警告",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline",
+        "--skills"
+      ],
+      "expect": {
+        "contains": [
+          "share a name with a personal skill",
+          "/plan: your ~/.claude/skills/plan/"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "double-install-init",
+      "workspace": "double-install",
+      "title": "uds init sets up a project with the UDS skills in it",
+      "titleZh": "uds init 建立含 UDS 技能的專案",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "contains": [
+              "name:"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "double-install-check",
+      "workspace": "double-install",
+      "title": "uds check warns that the UDS skills are installed twice (project and plugin) without changing the verdict",
+      "titleZh": "uds check 警告 UDS 技能裝了兩次（專案與外掛），且不改變判定",
+      "changelog": [
+        "uds check warns when UDS skills are installed twice"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude/plugins/cache/asia-ostrich/universal-dev-standards/6.13.1",
+          "in": "home"
+        },
+        {
+          "writeFile": ".claude/plugins/installed_plugins.json",
+          "in": "home",
+          "content": "{\n  \"version\": 2,\n  \"plugins\": {\n    \"universal-dev-standards@asia-ostrich\": [\n      { \"scope\": \"user\", \"installPath\": \"{homePosix}/.claude/plugins/cache/asia-ostrich/universal-dev-standards/6.13.1\", \"version\": \"6.13.1\", \"installedAt\": \"2026-10-01T00:00:00.000Z\", \"lastUpdated\": \"2026-10-01T00:00:00.000Z\" }\n    ]\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "UDS skills are installed twice",
+          "the plugin universal-dev-standards@asia-ostrich",
+          "/commit and /universal-dev-standards:commit",
+          "Project is compliant with standards"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "docs-install-skills",
+      "title": "The shipped Traditional Chinese getting-started guide has the \"how to install skills\" section",
+      "titleZh": "套件附的繁體中文入門指南含「技能怎麼裝」一節",
+      "changelog": [
+        "Docs: \"How to install skills\""
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": "{shipped}/locales/zh-TW/docs/user/GETTING-STARTED.md",
+            "contains": [
+              "## 技能怎麼裝",
+              "`uds update --apply --skills`"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "docs-personal-skill",
+      "title": "The shipped guide and the skill naming rules explain which skill runs when two share a name",
+      "titleZh": "套件附的指南與技能命名規則說明同名時誰會執行",
+      "changelog": [
+        "Docs: \"When a personal skill has the same name as a UDS skill\""
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": "{shipped}/locales/zh-TW/docs/user/GETTING-STARTED.md",
+            "contains": [
+              "### 個人技能與 UDS 技能同名時"
+            ]
+          },
+          {
+            "path": "{shipped}/skills/SKILL_NAMING.md",
+            "contains": [
+              "Claude Code 對同名技能只執行一個"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-self-test",
+      "title": "uds open-work self-test passes (its own red and green samples)",
+      "titleZh": "uds open-work self-test 通過（內建的紅綠樣本）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "open-work",
+        "self-test"
+      ],
+      "expect": {
+        "contains": [
+          "self-test: OK"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-waiting-states",
+      "title": "uds open-work waiting tells \"not yet asked\" from \"asked, awaiting a reply\" and shows the age",
+      "titleZh": "uds open-work waiting 分得出「尚未詢問」與「已問、等回覆」並顯示年齡",
+      "changelog": [
+        "open-work-tracking 1.2.0",
+        "uds open-work waiting and uds open-work observations"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| quote | asked-awaiting | | 2026-01-10 | the vendor quote | the quote arrives |\n| mail | not-yet-asked | drafts/mail.txt | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "contains": [
+          "not-yet-asked=1 asked-awaiting=1",
+          "asked-awaiting       w.md table row (line 3, row \"quote\"): quote  (asked 2d ago)"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-waiting-violation",
+      "title": "uds open-work waiting exits 1 for a not-yet-asked item that names no draft",
+      "titleZh": "uds open-work waiting 對「沒點名草稿的尚未詢問項目」以 1 結束",
+      "changelog": [
+        "open-work-tracking 1.2.0"
+      ],
+      "prepare": [
+        {
+          "writeFile": "bad.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| mail | not-yet-asked | | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "bad.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-021: bad.md table row (line 3, row \"mail\") is not-yet-asked but names no draft or action"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-observations",
+      "title": "uds open-work observations counts unknown apart, shows every age and marks an old observation stale",
+      "titleZh": "uds open-work observations 把 unknown 另計、顯示每筆年齡、標出過舊的觀察",
+      "changelog": [
+        "open-work-tracking 1.2.0",
+        "uds open-work waiting and uds open-work observations"
+      ],
+      "prepare": [
+        {
+          "writeFile": "facts.md",
+          "content": "# Facts\n\n| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n| mail sent | open | albert | 2026-10-05 | yes |\n| legal replied | open | albert | 2026-09-01 | yes |\n| approved | open | albert | 2026-10-06 | unknown |\n| quote accepted | open | albert | 2026-10-04 | no |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "observations",
+        "facts.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "expect": {
+        "contains": [
+          "yes=2 no=1 unknown=1 invalid=0 | stale=1 | confirmed=1",
+          "UNKNOWN (counted apart, never complete)",
+          "STALE (observed 36d ago, older than 7d"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-cross-project-root",
+      "title": "uds open-work waiting --root NAME=DIR reads a wait on another project: released, or not yet released",
+      "titleZh": "uds open-work waiting --root NAME=DIR 判讀「等另一個專案的物件」：已解除或尚未解除",
+      "changelog": [
+        "open-work-tracking 1.3.0",
+        "uds open-work waiting --root NAME=DIR"
+      ],
+      "prepare": [
+        {
+          "writeFile": "other/docs/a.md",
+          "content": "# a\n"
+        },
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| wait a | waiting | | | | other:docs/a.md |\n| wait b | waiting | | | | other:docs/b.md |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07",
+        "--root",
+        "other={workPosix}/other"
+      ],
+      "expect": {
+        "contains": [
+          "released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0",
+          "RELEASED              other:docs/a.md",
+          "NOT YET RELEASED      other:docs/b.md"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-cross-project-config",
+      "title": "open_work.projects in uds.project.yaml says where the other project lives, without --root",
+      "titleZh": "uds.project.yaml 的 open_work.projects 不必打 --root 也能指出另一個專案在哪",
+      "changelog": [
+        "uds open-work waiting --root NAME=DIR"
+      ],
+      "prepare": [
+        {
+          "writeFile": "other/docs/a.md",
+          "content": "# a\n"
+        },
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| wait a | waiting | | | | other:docs/a.md |\n| wait b | waiting | | | | other:docs/b.md |\n"
+        },
+        {
+          "writeFile": "uds.project.yaml",
+          "content": "version: \"1\"\nopen_work:\n  projects:\n    other: ./other\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "expect": {
+        "contains": [
+          "released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-next-action-words",
+      "title": "uds open-work next-action reads the column headed 下一個動作",
+      "titleZh": "uds open-work next-action 讀得懂標題為「下一個動作」的欄",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | 下一個動作 |\n|---|---|\n| a | run npm test |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "contains": [
+          "walked 1 next-action field(s)"
+        ],
+        "notContains": [
+          "unnamed=1"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-next-action-declared-word",
+      "title": "uds open-work next-action --next-action-word adds a word of your own",
+      "titleZh": "uds open-work next-action --next-action-word 可加入自己的欄位用詞",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | 待辦 |\n|---|---|\n| a | run npm test |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md",
+        "--next-action-word",
+        "待辦"
+      ],
+      "expect": {
+        "contains": [
+          "walked 1 next-action field(s)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-next-action-exit-2-explains",
+      "title": "uds open-work next-action exits 2 and says why when no field was found",
+      "titleZh": "找不到下一步欄位時 uds open-work next-action 以 2 結束並說明原因",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | 待辦 |\n|---|---|\n| a | run npm test |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "CANNOT DECIDE: no next-action field found in any carrier",
+          "WHY: no carrier had a next-action field",
+          "TO ADD A WORD: pass --next-action-word <word>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-next-action-glab",
+      "title": "uds open-work next-action reads `glab mr merge 486` as a command",
+      "titleZh": "uds open-work next-action 把 `glab mr merge 486` 當成指令",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | glab mr merge 486 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "contains": [
+          "walked 1 next-action field(s)",
+          "not-resolvable=1"
+        ],
+        "notContains": [
+          "unnamed=1"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-waiting-on-reply",
+      "title": "uds open-work next-action accepts a complete asked-awaiting row as waiting-on-reply and exits 0",
+      "titleZh": "uds open-work next-action 把「已問、等回覆」且齊全的列算成 waiting-on-reply，並以 0 結束",
+      "changelog": [
+        "open-work-tracking 1.4.0",
+        "Behavior change — uds open-work next-action exits 0, not 1"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | asked-at | waiting for | release | Next action |\n|---|---|---|---|---|---|\n| vendor quote | asked-awaiting | 2026-01-10 | the quote | the quote arrives | wait for the vendor reply |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "w.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "waiting-on-reply=1",
+          "WAITING-ON-REPLY 1 row(s) are asked-awaiting"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-blank-field-waiting",
+      "title": "uds open-work waiting does not read a blank release as filled by the Next action line under it",
+      "titleZh": "空白的「解除條件」不會被下一行的 Next action 補成有值（waiting）",
+      "changelog": [
+        "uds open-work waiting read a blank field of a list item"
+      ],
+      "prepare": [
+        {
+          "writeFile": "bad.md",
+          "content": "- vendor quote\n  - status: asked-awaiting\n  - asked-at: 2026-01-10\n  - waiting for: the quote\n  - release:\n  - Next action: wait for the vendor reply\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "bad.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-022: bad.md list item (line 1, \"vendor quote\") is asked-awaiting but does not state what event releases it"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-blank-field-next-action",
+      "title": "The same list item is still a violation for uds open-work next-action (exit 1)",
+      "titleZh": "同一個清單項目對 uds open-work next-action 仍是違規（以 1 結束）",
+      "changelog": [
+        "uds open-work waiting read a blank field of a list item"
+      ],
+      "prepare": [
+        {
+          "writeFile": "bad.md",
+          "content": "- vendor quote\n  - status: asked-awaiting\n  - asked-at: 2026-01-10\n  - waiting for: the quote\n  - release:\n  - Next action: wait for the vendor reply\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "bad.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-019"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-init",
+      "workspace": "beta6",
+      "title": "uds init sets up a project (the project the next steps use)",
+      "titleZh": "uds init 建立專案（後續步驟使用）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-simulate-no-verdict",
+      "workspace": "beta6",
+      "title": "uds simulate -s anti-hallucination: no simulator, exit 2, and not called \"Simulation Failed\"",
+      "titleZh": "uds simulate -s anti-hallucination：沒有模擬器，以 2 結束，且不再印「Simulation Failed」",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "anti-hallucination",
+        "-i",
+        "test"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "Cannot simulate: no verdict was reached"
+        ],
+        "notContains": [
+          "Simulation Failed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-simulate-pass",
+      "workspace": "beta6",
+      "title": "uds simulate -s commit-message on a compliant message exits 0",
+      "titleZh": "uds simulate -s commit-message 對合規訊息以 0 結束",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(api): add dept endpoint"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Simulation Passed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-simulate-fail",
+      "workspace": "beta6",
+      "title": "uds simulate -s commit-message on a non-compliant message exits 1 and says what is wrong",
+      "titleZh": "uds simulate -s commit-message 對不合規訊息以 1 結束並說明哪裡不對",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "add new dept api"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "does not comply",
+          "<type>(<scope>): <subject>"
+        ],
+        "notContains": [
+          "Cannot simulate"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-skills-all",
+      "workspace": "beta6",
+      "title": "uds skills lists every installed skill: the two numbers in \"N / N\" are equal",
+      "titleZh": "uds skills 列出全部已安裝技能：「N / N」兩個數字相等",
+      "changelog": [
+        "uds skills listed 27 of 56 installed skills"
+      ],
+      "uds": [
+        "skills"
+      ],
+      "expect": {
+        "matches": [
+          "Total unique skills: (\\d+) / \\1\\b"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-update-drops-ghost-names",
+      "workspace": "beta6",
+      "title": "uds update --apply removes skill and command names UDS cannot vouch for from the manifest, and keeps its backup in the one .uds-backups folder",
+      "titleZh": "uds update --apply 會從 manifest 移除 UDS 無法擔保的技能與命令名稱，且備份放在單一 .uds-backups 資料夾",
+      "changelog": [
+        "Behavior change — uds update now removes names UDS cannot vouch for",
+        "Behavior change — uds update backups now live in one folder"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "6.9.0"
+          }
+        },
+        {
+          "manifestPush": {
+            "skills.names": [
+              "_shared",
+              "retired-skill-469"
+            ],
+            "commands.names": [
+              "retired-command-469"
+            ]
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Backup: .uds-backups/"
+        ],
+        "files": [
+          {
+            "path": ".uds-backups",
+            "exists": true
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"names\""
+            ],
+            "notContains": [
+              "\"_shared\"",
+              "retired-skill-469",
+              "retired-command-469"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-run-trailing-comment",
+      "title": "uds run test shows and runs the command without the trailing \"# comment\" of uds.project.yaml",
+      "titleZh": "uds run test 顯示並執行的指令不含 uds.project.yaml 行尾的「# 註解」",
+      "changelog": [
+        "uds run read uds.project.yaml with a hand-written line parser"
+      ],
+      "prepare": [
+        {
+          "writeFile": "probe.js",
+          "content": "require('fs').writeFileSync(process.argv[2], JSON.stringify(process.argv.slice(3)));\n"
+        },
+        {
+          "writeFile": "uds.project.yaml",
+          "content": "version: \"1\"\ncommands:\n  test: node \"{workPosix}/probe.js\" \"{workPosix}/received.json\" Tests.csproj  # 90 tests pass\n"
+        }
+      ],
+      "uds": [
+        "run",
+        "test"
+      ],
+      "expect": {
+        "exit": 0,
+        "files": [
+          {
+            "path": "received.json",
+            "contains": [
+              "[\"Tests.csproj\"]"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-run-dry-run",
+      "workspace": "beta6-run-trailing-comment",
+      "title": "uds run test --dry-run prints the command without the comment",
+      "titleZh": "uds run test --dry-run 印出的指令不含註解",
+      "changelog": [
+        "uds run read uds.project.yaml with a hand-written line parser"
+      ],
+      "uds": [
+        "run",
+        "test",
+        "--dry-run"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Tests.csproj"
+        ],
+        "notContains": [
+          "90 tests pass"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-spec-list-sdd",
+      "title": "uds spec list reads the status and title of an SDD spec instead of calling it a draft with an empty title",
+      "titleZh": "uds spec list 讀得出 SDD 規格的狀態與標題，不再把它叫成標題為空的 draft",
+      "changelog": [
+        "uds spec list listed full SDD specs as draft"
+      ],
+      "prepare": [
+        {
+          "writeFile": "specs/SPEC-001-dept-api.md",
+          "content": "# Department API Specification\n\n| Field | Value |\n|-------|-------|\n| Status | Approved (2026-09-30) |\n| Author | someone |\n\n## Overview\n\nBody text.\n"
+        },
+        {
+          "writeFile": "specs/SPEC-004-bare.md",
+          "content": "# Bare Spec\n\nNo header fields at all.\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "list"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^SPEC-001-dept-api\\s+approved\\s+-\\s+Department API Specificat",
+          "^SPEC-004-bare\\s+format: SDD \\(status not parsed\\)\\s+-\\s+Bare Spec"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-deps-needs-package-json",
+      "title": "uds deps with no package.json still exits 1",
+      "titleZh": "沒有 package.json 時 uds deps 仍以 1 結束",
+      "changelog": [
+        "uds deps --if-present"
+      ],
+      "uds": [
+        "deps"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "no package.json"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta6-deps-if-present",
+      "workspace": "beta6-deps-needs-package-json",
+      "title": "uds deps --if-present exits 0 and says nothing was checked",
+      "titleZh": "uds deps --if-present 以 0 結束並說明沒有檢查任何東西",
+      "changelog": [
+        "uds deps --if-present"
+      ],
+      "uds": [
+        "deps",
+        "--if-present"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Not applicable: there is no package.json, so nothing was checked"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-chinese-display",
+      "title": "Traditional Chinese text is readable in this console (no ???? or empty boxes)",
+      "titleZh": "這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "--ui-lang",
+        "zh-tw",
+        "skills"
+      ],
+      "expect": {
+        "matches": [
+          "[\\u4e00-\\u9fff]"
+        ]
+      },
+      "human": {
+        "inherit": true,
+        "prompt": "Look at the text above. Is the Chinese readable (not ???? or boxes)? On a Traditional Chinese Windows console (code page 950) this is the line that breaks.",
+        "promptZh": "請看上面的文字：中文是否正常顯示（不是 ???? 或方框）？繁體中文 Windows 主控台（字碼頁 950）最容易在這裡出問題。"
+      }
+    }
+  ]
+}
