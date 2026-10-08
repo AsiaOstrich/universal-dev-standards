@@ -843,6 +843,8 @@ const countMatches = (re, s) => {
 //   a property of the result       expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length)
 //   a callback that only returns   expect(clone(input)).toEqual(input.map((x) => x))             (a copy, no logic)
 //   or shallow-copies its input    expect(clone(users)).toEqual(users.map((u) => ({ ...u })))
+//   or rebuilds a destructured     expect(clone(pairs)).toEqual(pairs.map(([k, v]) => [k, v]))
+//   parameter in the same shape
 //   a name set on an earlier line  const before = items.map((i) => i.price); freezeCart(items);
 //                                  expect(pricesOf(items)).toEqual(before)                       (before / after)
 // Everything else (a hand-rolled loop, a helper that re-derives the answer, a snapshot taken from
@@ -939,8 +941,11 @@ function isSelfContainedCallback(arg) {
   if (params.includes('=')) return false; // default values can call anything
   // A callback that only hands its parameter back (`(r) => r`, `x => { return x; }`) computes nothing, so
   // there is no logic in it that could be "the same as the implementation".
+  const only = body.replace(/^\s*return\b/, '').replace(/[;\s]+$/g, '').replace(/^\s*\(\s*|\s*\)\s*$/g, '').trim();
+  // A destructured parameter put straight back into the same shape (`([k, v]) => [k, v]`, `({ a, b }) => ({ a, b })`)
+  // is a copy as well: the body is the parameter list itself.
+  if (/[{[]/.test(params) && only.replace(/\s+/g, '') === params.replace(/\s+/g, '')) return false;
   if (!/[{[]/.test(params)) {
-    const only = body.replace(/^\s*return\b/, '').replace(/[;\s]+$/g, '').replace(/^\s*\(\s*|\s*\)\s*$/g, '').trim();
     // A shallow copy of the parameter (`{ ...u }`, `[...u]`) is a copy, not logic: the same family as the identity callback.
     const copied = /^[{[]\s*\.\.\.\s*([A-Za-z_$][\w$]*)\s*[}\]]$/.exec(only);
     if (copied && new RegExp(`(?<![\\w$])${escapeRe(copied[1])}(?![\\w$])`).test(params)) return false;
@@ -1139,6 +1144,10 @@ const SELF_TEST = [
   { ext: 'js', rules: [], text: "it('round trip, callback computes', () => { expect(parse(serialize(rows))).toEqual(rows.map((r) => r.id)); });\n" },
   { ext: 'js', rules: [], text: "it('identity callback', () => { expect(clone(input)).toEqual(input.map((x) => x)); });\n" },
   { ext: 'js', rules: [], text: "it('shallow copy callback', () => { expect(clone(users)).toEqual(users.map((u) => ({ ...u }))); });\n" },
+  { ext: 'js', rules: [], text: "it('pairs put back', () => { expect(clone(pairs)).toEqual(pairs.map(([k, v]) => [k, v])); });\n" },
+  { ext: 'js', rules: [], text: "it('rows put back', () => { expect(clone(rows)).toEqual(rows.map(({ a, b }) => ({ a, b }))); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('expected value wrapped', () => { expect(total(items)).toBe(Number(items.reduce((s, i) => s + i.price, 0))); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('pairs swapped', () => { expect(flip(pairs)).toEqual(pairs.map(([k, v]) => [v, k])); });\n" },
   { ext: 'js', rules: [], text: "it('shallow copy callback, block', () => { expect(clone(users)).toEqual(users.map((u) => { return { ...u }; })); });\n" },
   { ext: 'js', rules: [], text: "it('property of the result', () => { expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length); });\n" },
   { ext: 'js', rules: [], text: "it('helper outside the callback', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + priceOf(i), 0)); });\n" },

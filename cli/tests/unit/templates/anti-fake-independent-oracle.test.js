@@ -56,6 +56,8 @@ const RED = {
   'red: a destructured parameter in a reduce': "expect(calculateTotal(items)).toBe(items.reduce((sum, { price }) => sum + price, 0));",
   'red: a function expression as the callback': "expect(calculateTotal(items)).toBe(items.reduce(function (sum, item) { return sum + item.price; }, 0));",
   'red: a block-bodied arrow as the callback': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => { return sum + item.qty * item.price; }, 0));",
+  'red: a destructured parameter put back in another order': "expect(flip(pairs)).toEqual(pairs.map(([k, v]) => [v, k]));",
+  'red: a destructured parameter of which only one part is kept': "expect(keysOf(pairs)).toEqual(pairs.map(([k, v]) => k));",
   'red: the call is split over several lines': "expect(\n    calculateTotal(items),\n  ).toBe(\n    calculateTotal(items),\n  );"
 };
 
@@ -87,6 +89,10 @@ const GREEN = {
   'green: a value saved before an action, compared after it (prices)': "const before = items.map((i) => i.price);\n  freezeCart(items);\n  expect(pricesOf(items)).toEqual(before);",
   'green: a value saved before an action, compared after it (names)': "const result = users.map((u) => u.name);\n  users.push(extra);\n  expect(namesOf(users)).toEqual(result);",
   'green: a callback that shallow-copies its parameter': "expect(clone(users)).toEqual(users.map((u) => ({ ...u })));",
+  // A destructured parameter put straight back into the same shape is a copy too (the fourth review).
+  'green: a destructured array parameter put back as it was': "expect(clone(pairs)).toEqual(pairs.map(([k, v]) => [k, v]));",
+  'green: a destructured array parameter put back, block body': "expect(clone(pairs)).toEqual(pairs.map(([k, v]) => { return [k, v]; }));",
+  'green: a destructured object parameter put back as it was': "expect(clone(rows)).toEqual(rows.map(({ a, b }) => ({ a, b })));",
   // Neighbours of those three.
   'green: a name set earlier is not looked through, even without an action in between': "const expected = items.reduce((sum, item) => sum + item.price, 0);\n  expect(calculateTotal(items)).toBe(expected);",
   'green: a block-bodied callback that shallow-copies its parameter': "expect(clone(users)).toEqual(users.map((u) => { return { ...u }; }));",
@@ -106,7 +112,8 @@ const FALSE_ALARMS = {
   'green: the value under test is a property of the result': GREEN['green: the value under test is a property of the result'],
   'green: a value saved before an action, compared after it (prices)': GREEN['green: a value saved before an action, compared after it (prices)'],
   'green: a value saved before an action, compared after it (names)': GREEN['green: a value saved before an action, compared after it (names)'],
-  'green: a callback that shallow-copies its parameter': GREEN['green: a callback that shallow-copies its parameter']
+  'green: a callback that shallow-copies its parameter': GREEN['green: a callback that shallow-copies its parameter'],
+  'green: a destructured array parameter put back as it was': GREEN['green: a destructured array parameter put back as it was']
 };
 const TEXTBOOK = 'expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0));';
 
@@ -171,6 +178,34 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
     expect(r.status, r.stdout).toBe(1);
     expect(r.json.findings).toHaveLength(1);
     expect(r.json.findings[0]).toMatchObject({ rule: 'tautology', name: 'textbook: total against a reduce over the same items', forms: ['recomputed'] });
+  });
+
+  // The standard says how easy the rule is to get around. These two tests pin what it says (XSPEC-470 R1):
+  // wrapping the EXPECTED value changes nothing, wrapping the VALUE UNDER TEST makes the scanner miss it.
+  const EXPECTED_SIDE_WRAPPED = {
+    'expected value wrapped in Number(...)': 'expect(calculateTotal(items)).toBe(Number(items.reduce((s, i) => s + i.price, 0)));',
+    'expected value followed by .valueOf()': 'expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0).valueOf());',
+    'expected value put in an array and read back with [0]': 'expect(calculateTotal(items)).toBe([items.reduce((s, i) => s + i.price, 0)][0]);'
+  };
+  const UNDER_TEST_SIDE_WRAPPED = {
+    'value under test wrapped in Number(...)': 'expect(Number(calculateTotal(items))).toBe(items.reduce((s, i) => s + i.price, 0));',
+    'value under test followed by .valueOf()': 'expect(calculateTotal(items).valueOf()).toBe(items.reduce((s, i) => s + i.price, 0));',
+    'value under test read with [0]': 'expect(calculateTotal(items)[0]).toBe(items.reduce((s, i) => s + i.price, 0));',
+    'the argument changed to items.slice()': 'expect(calculateTotal(items.slice())).toBe(items.reduce((s, i) => s + i.price, 0));'
+  };
+
+  it('wrapping the EXPECTED value in Number(...), .valueOf() or [0] does not get past the scanner: each is still named (XSPEC-470 R1)', () => {
+    const r = run(project({ 'tests/wrapped-expected.test.js': body([EXPECTED_SIDE_WRAPPED]) }));
+    expect(r.status, r.stdout).toBe(1);
+    expect(r.json.findings.map((f) => f.name).sort()).toEqual(Object.keys(EXPECTED_SIDE_WRAPPED).sort());
+    for (const f of r.json.findings) expect(f.forms).toEqual(['recomputed']);
+  });
+
+  it('wrapping the VALUE UNDER TEST in Number(...), .valueOf() or [0], or passing items.slice(), does get past the scanner: nothing is named (XSPEC-470 R1, an accepted cost)', () => {
+    const r = run(project({ 'tests/wrapped-under-test.test.js': body([UNDER_TEST_SIDE_WRAPPED]) }));
+    expect(r.status, r.stdout).toBe(0);
+    expect(r.json.findings).toEqual([]);
+    expect(r.json.cases).toBe(Object.keys(UNDER_TEST_SIDE_WRAPPED).length);
   });
 
   it('the old rule still holds beside the new ones: expect(true).toBe(true) is named with its old reason (XSPEC-470 R1)', () => {
@@ -247,6 +282,10 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
       "if (copied && new RegExp(",
       "if (false && copied && new RegExp(",
       'green', 'a look-alike is wrongly named', ['green: a callback that shallow-copies its parameter', 'green: a block-bodied callback that shallow-copies its parameter', 'green: an array spread of the parameter']],
+    ['a destructured parameter put back as it was is judged like any other callback (the [k, v] => [k, v] false alarm comes back)',
+      "if (/[{[]/.test(params) && only.replace(",
+      "if (false && /[{[]/.test(params) && only.replace(",
+      'green', 'a look-alike is wrongly named', ['green: a destructured array parameter put back as it was', 'green: a destructured array parameter put back, block body', 'green: a destructured object parameter put back as it was']],
     ['the callback is never examined (the whole narrowing is bypassed)',
       "isSelfContainedCallback(rhs.slice(callback[0], callback[1]))",
       "true",

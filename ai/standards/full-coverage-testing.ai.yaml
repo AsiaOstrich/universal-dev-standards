@@ -113,13 +113,13 @@ standard:
         undecidable: "stays silent; left to the reviewer (when in doubt, miss it rather than accuse it)"
         accepted_costs:
           - "Differential tests are named: expect(fastTotal(items)).toBe(items.reduce(...)) with a reference implementation as oracle looks like the textbook example. Settle it with one assertion against a hand-computed literal in the same test, or list the file under `ignore` in .standards/test-policy.json (whole file, no reason field). A test name does not exempt it and the `exempt` list does not apply to this scanner."
-          - "Easy to get around: Number(...), .valueOf(), [0], items.slice() each stop the scanner from seeing it. It is a prompt for the reviewer, not a gate against deliberate avoidance (an AI agent writing the test included); a clean scan is not evidence that expected values are independent."
+          - "Easy to get around: wrapping the VALUE UNDER TEST in Number(...), adding .valueOf() or [0] to it, or passing items.slice() each stop the scanner from seeing it (doing the same to the EXPECTED value changes nothing: it is still named). It is a prompt for the reviewer, not a gate against deliberate avoidance (an AI agent writing the test included); a clean scan is not evidence that expected values are independent."
         left_alone_on_purpose:
           - "expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))  // lookup in a fixed table is an independent source"
           - "expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))  // a literal in the callback is knowledge the test author supplied"
           - "expect(render(now())).toBe(render(now()))  // a call inside the call: two now() are two values"
           - "expect(parse(serialize(rows))).toEqual(rows.map(r => r))  // a call inside the call under test: a round trip"
-          - "expect(clone(input)).toEqual(input.map(x => x))  // a callback that only returns its parameter, or shallow-copies it (u => ({ ...u })), is a copy; filter(x => x) selects by truthiness (logic) but is left alone with them"
+          - "expect(clone(input)).toEqual(input.map(x => x))  // a callback that only returns its parameter, shallow-copies it (u => ({ ...u })) or puts a destructured parameter back in the same shape (([k, v]) => [k, v]), is a copy; filter(x => x) selects by truthiness (logic) but is left alone with them"
           - "const before = items.map(i => i.price); freezeCart(items); expect(pricesOf(items)).toEqual(before)  // a name set on an earlier line is a value from an earlier moment; never looked through"
           - "expect(sortUsers(users).length).toBe(users.filter(u => u.name).length)  // the value under test is a property of the result"
           - "expect(countInstalled(manifest)).toBe(manifest.standards.filter(...).length)  // input reached through a field: reviewer's call, not matched"
