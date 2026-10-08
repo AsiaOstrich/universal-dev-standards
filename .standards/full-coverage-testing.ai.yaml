@@ -9,7 +9,7 @@ standard:
 
   meta:
     version: "1.3.0"
-    updated: "2026-10-08"
+    updated: "2026-10-09"
     source: core/full-coverage-testing.md
     replaces: "testing pyramid thresholds (UT≥80%/IT≥70%/E2E happy-path-only)"
     xspec: "XSPEC-178, XSPEC-444, XSPEC-470"
