@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.6
 It installs the published 6.14.0-beta.6 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.6 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 63 steps (59 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 63 步（59 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 65 steps (61 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 65 步（61 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -234,6 +234,12 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 63 steps (59 c
 63. `human-init-keeps-open-work` (needs a person 需人眼; **new 新**) — uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was.
    uds init 更新既有的 uds.project.yaml 時，open_work 區段原封不動。
    `uds init --help` → exit 0; output has "--skills-location"
+64. `transient-lock-copy-retries` (**new 新**) — uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact.
+   uds init 遇到檔案被短暫鎖住（連兩次 EBUSY 之後放開）仍能完成：複製會重試，檔案完整寫入。
+   `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 0; output has "Standards initialized successfully"
+65. `transient-lock-gives-up-in-plain-words` (**new 新**) — uds init stops after ten tries when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
+   檔案一直被鎖住時，uds init 試十次後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
+   `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+3)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

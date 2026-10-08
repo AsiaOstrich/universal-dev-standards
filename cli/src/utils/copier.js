@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, copyFileSync, readFileSync } from 'fs';
+import { copyFileSyncRetrying } from './transient-fs.js';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { downloadStandard, downloadIntegration } from './github.js';
@@ -54,8 +55,8 @@ export function isExtensionPath(sourcePath) {
  */
 export async function copyExtension(sourcePath, targetDir, projectPath) {
   try {
-    const source = getSourcePath(sourcePath);
-    if (!source) {
+    const packagedSource = getSourcePath(sourcePath);
+    if (!packagedSource) {
       return failure(
         `Extension file not found in the installed package: ${sourcePath} (extension files are never downloaded; reinstall or upgrade universal-dev-standards)`,
         ERROR_CODES.FILE_NOT_FOUND,
@@ -67,7 +68,7 @@ export async function copyExtension(sourcePath, targetDir, projectPath) {
     if (!existsSync(targetFolder)) {
       mkdirSync(targetFolder, { recursive: true });
     }
-    copyFileSync(source, targetFile);
+    copyFileSyncRetrying(packagedSource, targetFile);
     return success(targetFile, { source: 'local', sourcePath, targetFile });
   } catch (error) {
     return failure(
@@ -124,7 +125,7 @@ export async function copyStandard(sourcePath, targetDir, projectPath) {
     // Try local copy first (bundled or repo)
     const source = getSourcePath(sourcePath);
     if (source) {
-      copyFileSync(source, targetFile);
+      copyFileSyncRetrying(source, targetFile);
       return success(targetFile, { 
         source: 'local',
         sourcePath,

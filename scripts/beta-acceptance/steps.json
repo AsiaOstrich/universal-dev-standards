@@ -1797,6 +1797,121 @@
         "prompt": "In a NEW empty folder with a .claude folder, create uds.project.yaml with exactly these lines: `version: \"1\"`, `open_work:`, `  roots:`, `    other: ../other   # sibling checkout`, `commands:`, `  test: old-test`. Run `uds init` and press Enter at every question, EXCEPT: answer \"y\" at \"Update the commands (test, lint, build, security) in the existing uds.project.yaml?\" (the question lists the sections that are kept; open_work must be one of them) and type `npm run my-test` for the test command. Afterwards: is `test: npm run my-test` there, and are the open_work lines (including the comment) unchanged? Also run `uds init` again in a copy of the file and answer Enter at that question: the file must not change.",
         "promptZh": "在一個全新、含 .claude 資料夾的空資料夾，建立 uds.project.yaml，內容恰好是這幾行：`version: \"1\"`、`open_work:`、`  roots:`、`    other: ../other   # sibling checkout`、`commands:`、`  test: old-test`。執行 `uds init`，每一題都按 Enter，只有兩處例外：「Update the commands (test, lint, build, security) in the existing uds.project.yaml?」答 y（問題必須寫出保留的區段名稱，包含 open_work），測試指令輸入 `npm run my-test`。結束後：`test: npm run my-test` 是否已寫入，open_work 的幾行（含註解）是否原封不動？另外在檔案的副本上再執行一次 `uds init`，那一題直接按 Enter：檔案不得有任何變動。"
       }
+    },
+    {
+      "platform": "all",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "lock-copy.cjs",
+          "content": "const fs = require('fs'), path = require('path');\n// Makes the copy of ONE standard fail the way a file held by antivirus fails: EBUSY, a set number of times.\nconst real = fs.copyFileSync;\nconst failTimes = process.env.UDS_FAKE_LOCK_FAIL_TIMES === 'always' ? Infinity : Number(process.env.UDS_FAKE_LOCK_FAIL_TIMES);\nfs.copyFileSync = function (src, dest, ...rest) {\n  if (path.basename(String(dest)) === 'error-codes.ai.yaml') {\n    const log = process.env.UDS_FAKE_LOCK_LOG;\n    const tries = (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\\n').filter(Boolean).length : 0) + 1;\n    fs.appendFileSync(log, 'try ' + tries + '\\n');\n    if (tries <= failTimes) {\n      const err = new Error('EBUSY: resource busy or locked, copyfile');\n      err.code = 'EBUSY'; err.syscall = 'copyfile';\n      throw err;\n    }\n  }\n  return real.call(this, src, dest, ...rest);\n};\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/lock-copy.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "transient-lock-copy-retries",
+      "title": "uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact",
+      "titleZh": "uds init 遇到檔案被短暫鎖住（連兩次 EBUSY 之後放開）仍能完成：複製會重試，檔案完整寫入",
+      "changelog": [
+        "uds init and uds update retry a file copy that fails because the file is locked"
+      ],
+      "env": {
+        "UDS_FAKE_LOCK_FAIL_TIMES": "2",
+        "UDS_FAKE_LOCK_LOG": "{workPosix}/lock.log"
+      },
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "notContains": [
+          "rolled back"
+        ],
+        "files": [
+          {
+            "path": ".standards/error-codes.ai.yaml",
+            "contains": [
+              "error"
+            ]
+          },
+          {
+            "path": "lock.log",
+            "contains": [
+              "try 3"
+            ],
+            "notContains": [
+              "try 4"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "lock-copy.cjs",
+          "content": "const fs = require('fs'), path = require('path');\n// Makes the copy of ONE standard fail the way a file held by antivirus fails: EBUSY, a set number of times.\nconst real = fs.copyFileSync;\nconst failTimes = process.env.UDS_FAKE_LOCK_FAIL_TIMES === 'always' ? Infinity : Number(process.env.UDS_FAKE_LOCK_FAIL_TIMES);\nfs.copyFileSync = function (src, dest, ...rest) {\n  if (path.basename(String(dest)) === 'error-codes.ai.yaml') {\n    const log = process.env.UDS_FAKE_LOCK_LOG;\n    const tries = (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\\n').filter(Boolean).length : 0) + 1;\n    fs.appendFileSync(log, 'try ' + tries + '\\n');\n    if (tries <= failTimes) {\n      const err = new Error('EBUSY: resource busy or locked, copyfile');\n      err.code = 'EBUSY'; err.syscall = 'copyfile';\n      throw err;\n    }\n  }\n  return real.call(this, src, dest, ...rest);\n};\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/lock-copy.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "transient-lock-gives-up-in-plain-words",
+      "title": "uds init stops after ten tries when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do",
+      "titleZh": "檔案一直被鎖住時，uds init 試十次後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦",
+      "changelog": [
+        "uds init and uds update retry a file copy that fails because the file is locked"
+      ],
+      "env": {
+        "UDS_FAKE_LOCK_FAIL_TIMES": "always",
+        "UDS_FAKE_LOCK_LOG": "{workPosix}/lock.log"
+      },
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "rolled back",
+          "error-codes.ai.yaml",
+          "locked by another program",
+          "antivirus",
+          "run the command again"
+        ],
+        "files": [
+          {
+            "path": "lock.log",
+            "contains": [
+              "try 10"
+            ],
+            "notContains": [
+              "try 11"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
     }
   ]
 }

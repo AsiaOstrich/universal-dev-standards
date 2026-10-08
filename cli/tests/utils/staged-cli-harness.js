@@ -177,8 +177,9 @@ export function createHarness(label, { overrides = {} } = {}) {
   /**
    * One CLI run: { code, stdout, stderr, netLog: string[], procLog: string[] }.
    * `ui` pins the output language; it defaults to English so assertions do not depend on the machine's LANG.
+   * `preloads` is a list of extra CommonJS files loaded with `--require` after the harness's own (a test's fault injector).
    */
-  function runCli(args, cwd, { ui = 'en', env: extraEnv = {}, drive = null, idleMs = 700, maxSends = 80 } = {}) {
+  function runCli(args, cwd, { ui = 'en', env: extraEnv = {}, preloads = [], drive = null, idleMs = 700, maxSends = 80 } = {}) {
     ensureSandbox();
     const id = ++counter;
     const home = join(sandbox, `home-${id}`);
@@ -191,7 +192,7 @@ export function createHarness(label, { overrides = {} } = {}) {
       UDS_NO_UPDATE_CHECK: '1',
       UDS_TEST_NET_LOG: netFile,
       UDS_TEST_PROC_LOG: procFile,
-      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--require=${preloadPath}`].filter(Boolean).join(' '),
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, `--require=${preloadPath}`, ...preloads.map((p) => `--require=${p}`)].filter(Boolean).join(' '),
       ...extraEnv
     };
     const full = [...(ui ? ['--ui-lang', ui] : []), ...args];
