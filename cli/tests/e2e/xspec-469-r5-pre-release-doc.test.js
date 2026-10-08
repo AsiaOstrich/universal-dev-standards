@@ -197,3 +197,9 @@ it('weakening the generator turns the property red: counting a local-bin report 
   weaken(join(anyPlatform, 'lib', 'pre-release-doc.mjs'), ".filter(({ report }) => report.environment.platform === key)", ".filter(({ report }) => Boolean(report.environment.platform))");
   expect(holds(anyPlatform), 'a report fills every platform').toBe(false);
 });
+
+it('the folder run.mjs writes its reports to by default is ignored by git, and the folder where kept reports go is not (XSPEC-469 R5)', () => {
+  const ignored = (path) => spawnSync('git', ['check-ignore', '-q', path], { cwd: REPO, encoding: 'utf-8' }).status;
+  expect(ignored('uds-beta-acceptance-reports/uds-beta-acceptance-1.0.0-windows-20261009-101500.md'), 'a report written where the person ran it').toBe(0);
+  expect(ignored(`scripts/beta-acceptance/reports/${VERSION}/windows.json`), 'a report kept for the release record').toBe(1);
+});

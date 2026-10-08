@@ -68,3 +68,7 @@ NULL
 
 # Python linter cache
 .ruff_cache/
+
+# Reports that scripts/beta-acceptance/run.mjs writes into the folder it is started in (XSPEC-469).
+# The reports that are kept go in scripts/beta-acceptance/reports/<version>/ and are NOT ignored.
+uds-beta-acceptance-reports/
