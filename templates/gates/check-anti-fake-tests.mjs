@@ -831,7 +831,9 @@ const countMatches = (re, s) => {
 //                                                            input with reduce / map / flatMap / filter
 //                                                            by a callback that uses nothing but its own
 //                                                            parameters (and pure built-ins), holds no
-//                                                            literal and is not just `(x) => x`
+//                                                            literal and is not just `(x) => x` / `({ ...x })`.
+//                                                            Only the text of the assertion is read: a name set
+//                                                            on an earlier line is not looked through.
 //
 // Left alone on purpose, because they cannot be told from a sound test by reading the text:
 //   a lookup in a fixed table      expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id]))
@@ -839,7 +841,10 @@ const countMatches = (re, s) => {
 //   a call inside the call         expect(render(now())).toBe(render(now()))     (two now() are two values)
 //                                  expect(parse(serialize(rows))).toEqual(rows.map((r) => r))   (a round trip)
 //   a property of the result       expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length)
-//   a callback that only returns   expect(clone(input)).toEqual(input.map((x) => x))             (no logic in it)
+//   a callback that only returns   expect(clone(input)).toEqual(input.map((x) => x))             (a copy, no logic)
+//   or shallow-copies its input    expect(clone(users)).toEqual(users.map((u) => ({ ...u })))
+//   a name set on an earlier line  const before = items.map((i) => i.price); freezeCart(items);
+//                                  expect(pricesOf(items)).toEqual(before)                       (before / after)
 // Everything else (a hand-rolled loop, a helper that re-derives the answer, a snapshot taken from
 // the implementation's own output) is a reviewer's question, not this script's: when it cannot be
 // decided from the text, it is NOT reported. A false alarm teaches people to switch the scanner off.
@@ -851,25 +856,6 @@ const countMatches = (re, s) => {
 const DELIBERATE_COMPARISON_NAME = /determinis|idempot|\bsame\b|identical|\bstable\b|stability|consisten|\bcach(?:e|es|ed|ing)\b|memo|singleton|twice|repeat|\bagain\b|reuse|reference|identity|\bpure\b|決定|確定性|相同|一致|同一|冪等|快取|重複|兩次|不變/i;
 
 const SKIP_WORDS = new Set(['true', 'false', 'null', 'undefined', 'this', 'new', 'typeof', 'void', 'await', 'async', 'function', 'return']);
-
-/** Index just past the end of the statement/expression that starts at `start` in the string-blanked text `ns`. */
-function expressionEnd(ns, start) {
-  let depth = 0;
-  for (let i = start; i < ns.length; i++) {
-    const ch = ns[i];
-    if (ch === '(' || ch === '[' || ch === '{') depth++;
-    else if (ch === ')' || ch === ']' || ch === '}') { if (depth === 0) return i; depth--; }
-    else if (depth === 0 && ch === ';') return i;
-    else if (depth === 0 && ch === '\n') {
-      const prev = ns.slice(start, i).trimEnd().slice(-1);
-      const next = /^\s*(\S)/.exec(ns.slice(i + 1));
-      if (!next) return ns.length;
-      if (/[.?:+\-*/%&|,<>=!]/.test(next[1]) || /[+\-*/%&|,<>=!?:.]/.test(prev)) continue; // the expression goes on
-      return i;
-    }
-  }
-  return ns.length;
-}
 
 /** Top-level (bracket-depth 0) comma-separated pieces of `ns[from, to)`, as [start, end) pairs. */
 function topLevelPieces(ns, from, to) {
@@ -894,30 +880,6 @@ const canonicalExpr = (s) => s
   .replace(/,\)/g, ')')
   .trim()
   .replace(/,$/, '');
-
-/** `const NAME = <expr>` declared once in the test body: NAME → canonical <expr>. A name declared twice is dropped. */
-function constantsOf(ncBody, nsBody) {
-  const seen = new Map();
-  const re = /\bconst\s+([A-Za-z_$][\w$]*)\s*(?::[^=;\n]+)?=(?![=>])\s*/g;
-  let m;
-  while ((m = re.exec(nsBody)) !== null) {
-    const from = m.index + m[0].length;
-    const to = expressionEnd(nsBody, from);
-    const expr = canonicalExpr(ncBody.slice(from, to));
-    seen.set(m[1], seen.has(m[1]) ? null : { expr, ns: canonicalExpr(nsBody.slice(from, to)) });
-    re.lastIndex = Math.max(re.lastIndex, to);
-  }
-  for (const [k, v] of seen) if (v === null) seen.delete(k);
-  return seen;
-}
-
-/** One hop: a bare name (or name.member.chain) declared by `const` in this test becomes what it was set to. */
-function resolveOnce(expr, ns, constants) {
-  const m = /^([A-Za-z_$][\w$]*)((?:\.[A-Za-z_$][\w$]*)*)$/.exec(expr);
-  if (!m || !constants.has(m[1])) return { expr, ns };
-  const c = constants.get(m[1]);
-  return { expr: c.expr + m[2], ns: c.ns + m[2] };
-}
 
 /** Does this canonical expression call something with at least one argument (and is not a `new` expression)? */
 const callsWithArguments = (expr) => !/^new\b/.test(expr) && /[A-Za-z_$][\w$]*\(['"`\w$\[{(-]/.test(expr);
@@ -979,6 +941,9 @@ function isSelfContainedCallback(arg) {
   // there is no logic in it that could be "the same as the implementation".
   if (!/[{[]/.test(params)) {
     const only = body.replace(/^\s*return\b/, '').replace(/[;\s]+$/g, '').replace(/^\s*\(\s*|\s*\)\s*$/g, '').trim();
+    // A shallow copy of the parameter (`{ ...u }`, `[...u]`) is a copy, not logic: the same family as the identity callback.
+    const copied = /^[{[]\s*\.\.\.\s*([A-Za-z_$][\w$]*)\s*[}\]]$/.exec(only);
+    if (copied && new RegExp(`(?<![\\w$])${escapeRe(copied[1])}(?![\\w$])`).test(params)) return false;
     if (/^[A-Za-z_$][\w$]*$/.test(only) && new RegExp(`(?<![\\w$])${escapeRe(only)}(?![\\w$])`).test(params)) return false;
   }
   if (/['"`]/.test(body)) return false; // a string literal (their contents are blanked, their quotes are not)
@@ -1020,7 +985,6 @@ function recomputesFrom(rhs, x) {
  */
 export function findNonIndependentExpectations(ncBody, nsBody, testName = '') {
   const hits = [];
-  const constants = constantsOf(ncBody, nsBody);
   const judge = (lhsFrom, lhsTo, rhsFrom, rhsTo, offset) => {
     const rawL = canonicalExpr(ncBody.slice(lhsFrom, lhsTo));
     const rawR = canonicalExpr(ncBody.slice(rhsFrom, rhsTo));
@@ -1036,8 +1000,11 @@ export function findNonIndependentExpectations(ncBody, nsBody, testName = '') {
       if (callCount <= 1 && !hasNew && !DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });
       return;
     }
-    const l = resolveOnce(rawL, canonicalExpr(nsBody.slice(lhsFrom, lhsTo)), constants);
-    const r = resolveOnce(rawR, canonicalExpr(nsBody.slice(rhsFrom, rhsTo)), constants);
+    // Only the text of the assertion itself is read. A name set on an earlier line (`const before = items.map(...)`)
+    // holds a value from an EARLIER moment, and what happened in between (`freezeCart(items)`, `users.push(x)`)
+    // is exactly what such a test is asking about, so a name is never expanded here (same-call reads it the same way).
+    const l = { ns: canonicalExpr(nsBody.slice(lhsFrom, lhsTo)) };
+    const r = { ns: canonicalExpr(nsBody.slice(rhsFrom, rhsTo)) };
     // Same guard as same-call: another call (or `new`) inside the call under test (`parse(serialize(rows))`) is a
     // round trip or a pipeline, not the implementation's own arithmetic typed again. Not judged.
     if ((l.ns.match(/[A-Za-z_$][\w$]*\(/g) || []).length > 1 || /\bnew\b/.test(l.ns)) return;
@@ -1152,7 +1119,10 @@ const SELF_TEST = [
   { ext: 'js', rules: ['tautology'], text: "it('totals', () => { expect(calculateTotal(items)).toBe(calculateTotal(items)); });\n" },
   { ext: 'js', rules: ['tautology'], text: "it('totals', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0)); });\n" },
   { ext: 'js', rules: ['tautology'], text: "it('names', () => { expect(namesOf(users)).toEqual(users.map((u) => u.name)); });\n" },
-  { ext: 'js', rules: ['tautology'], text: "it('totals', () => {\n  const expected = items.reduce((s, i) => s + i.price, 0);\n  expect(calculateTotal(items)).toBe(expected);\n});\n" },
+  // A name set on an earlier line is a value from an earlier moment: never looked through (XSPEC-470, third review).
+  { ext: 'js', rules: [], text: "it('totals', () => {\n  const expected = items.reduce((s, i) => s + i.price, 0);\n  expect(calculateTotal(items)).toBe(expected);\n});\n" },
+  { ext: 'js', rules: [], text: "it('freezing changes no price', () => {\n  const before = items.map((i) => i.price);\n  freezeCart(items);\n  expect(pricesOf(items)).toEqual(before);\n});\n" },
+  { ext: 'js', rules: [], text: "it('pushing a user keeps the old names', () => {\n  const result = users.map((u) => u.name);\n  users.push(extra);\n  expect(namesOf(users)).toEqual(result);\n});\n" },
   { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15); });\n" },
   { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(a)).toBe(calculateTotal(b)); });\n" },
   { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(cart)).toBe(items.reduce((s, i) => s + i.price, 0)); });\n" },
@@ -1168,6 +1138,8 @@ const SELF_TEST = [
   { ext: 'js', rules: [], text: "it('round trip', () => { expect(parse(serialize(rows))).toEqual(rows.map((r) => r)); });\n" },
   { ext: 'js', rules: [], text: "it('round trip, callback computes', () => { expect(parse(serialize(rows))).toEqual(rows.map((r) => r.id)); });\n" },
   { ext: 'js', rules: [], text: "it('identity callback', () => { expect(clone(input)).toEqual(input.map((x) => x)); });\n" },
+  { ext: 'js', rules: [], text: "it('shallow copy callback', () => { expect(clone(users)).toEqual(users.map((u) => ({ ...u }))); });\n" },
+  { ext: 'js', rules: [], text: "it('shallow copy callback, block', () => { expect(clone(users)).toEqual(users.map((u) => { return { ...u }; })); });\n" },
   { ext: 'js', rules: [], text: "it('property of the result', () => { expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length); });\n" },
   { ext: 'js', rules: [], text: "it('helper outside the callback', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + priceOf(i), 0)); });\n" },
   { ext: 'js', rules: [], text: "it('literal in the callback', () => { expect(doubled(xs)).toEqual(xs.map((x) => x * 2)); });\n" },

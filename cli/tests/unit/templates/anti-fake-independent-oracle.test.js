@@ -51,7 +51,6 @@ const RED = {
   'red: both sides call total with items': "expect(calculateTotal(items)).toBe(calculateTotal(items));",
   'red: expected value is a reduce over the same input': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + item.price, 0));",
   'red: expected value is a map over the same input': "expect(namesOf(users)).toEqual(users.map((u) => u.name));",
-  'red: the reduce is held in a constant first': "const expected = items.reduce((sum, item) => sum + item.price, 0);\n  expect(calculateTotal(items)).toBe(expected);",
   'red: node assert with a filter over the same input': "assert.deepStrictEqual(activeOf(accounts), accounts.filter((a) => a.active));",
   'red: a destructured parameter in a map': "expect(namesOf(users)).toEqual(users.map(({ name }) => name));",
   'red: a destructured parameter in a reduce': "expect(calculateTotal(items)).toBe(items.reduce((sum, { price }) => sum + price, 0));",
@@ -84,7 +83,14 @@ const GREEN = {
   'green: a round trip, a call inside the call under test': "expect(parse(serialize(rows))).toEqual(rows.map((r) => r));",
   'green: a callback that only returns its parameter': "expect(clone(input)).toEqual(input.map((x) => x));",
   'green: the value under test is a property of the result': "expect(sortUsers(users).length).toBe(users.filter((u) => u.name).length);",
+  // The third review: a name set on an earlier line is a value from an earlier moment, and a shallow copy is a copy.
+  'green: a value saved before an action, compared after it (prices)': "const before = items.map((i) => i.price);\n  freezeCart(items);\n  expect(pricesOf(items)).toEqual(before);",
+  'green: a value saved before an action, compared after it (names)': "const result = users.map((u) => u.name);\n  users.push(extra);\n  expect(namesOf(users)).toEqual(result);",
+  'green: a callback that shallow-copies its parameter': "expect(clone(users)).toEqual(users.map((u) => ({ ...u })));",
   // Neighbours of those three.
+  'green: a name set earlier is not looked through, even without an action in between': "const expected = items.reduce((sum, item) => sum + item.price, 0);\n  expect(calculateTotal(items)).toBe(expected);",
+  'green: a block-bodied callback that shallow-copies its parameter': "expect(clone(users)).toEqual(users.map((u) => { return { ...u }; }));",
+  'green: an array spread of the parameter': "expect(clone(rows)).toEqual(rows.map((r) => [...r]));",
   'green: a round trip whose callback computes something': "expect(parse(serialize(rows))).toEqual(rows.map((r) => r.id));",
   'green: a block-bodied callback that only returns its parameter': "expect(clone(input)).toEqual(input.map((x) => { return x; }));",
   'green: a new object inside the call under test': "expect(totalOf(new Cart(items))).toBe(items.reduce((s, i) => s + i.price, 0));"
@@ -97,7 +103,10 @@ const FALSE_ALARMS = {
   'green: a call inside the call on both sides': GREEN['green: a call inside the call on both sides'],
   'green: a round trip, a call inside the call under test': GREEN['green: a round trip, a call inside the call under test'],
   'green: a callback that only returns its parameter': GREEN['green: a callback that only returns its parameter'],
-  'green: the value under test is a property of the result': GREEN['green: the value under test is a property of the result']
+  'green: the value under test is a property of the result': GREEN['green: the value under test is a property of the result'],
+  'green: a value saved before an action, compared after it (prices)': GREEN['green: a value saved before an action, compared after it (prices)'],
+  'green: a value saved before an action, compared after it (names)': GREEN['green: a value saved before an action, compared after it (names)'],
+  'green: a callback that shallow-copies its parameter': GREEN['green: a callback that shallow-copies its parameter']
 };
 const TEXTBOOK = 'expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0));';
 
@@ -128,7 +137,6 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
     const form = (name) => r.json.findings.find((f) => f.name === name).forms;
     expect(form('red: both sides call total with items')).toEqual(['same-call']);
     expect(form('red: expected value is a reduce over the same input')).toEqual(['recomputed']);
-    expect(form('red: the reduce is held in a constant first')).toEqual(['recomputed']);
   });
 
   it('the text a developer sees names the test and the reason, and the look-alikes are silent (XSPEC-470 R1)', () => {
@@ -193,7 +201,7 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
       'green', 'a look-alike is wrongly named', ['green: one function with different arguments']],
     ['a name set earlier is trusted as "the same call" (the before/after mistake the first measurement found)',
       "if (rawL === rawR && callsWithArguments(rawL)) {",
-      "const lr = resolveOnce(rawL, rawL, constants).expr; const rr = resolveOnce(rawR, rawR, constants).expr; if (lr === rr && callsWithArguments(lr)) {",
+      "const rawRc = /^[A-Za-z_$][\\w$]*$/.test(rawR) ? ((m) => (m ? canonicalExpr(m[1]) : rawR))(new RegExp('\\\\bconst\\\\s+' + rawR + '\\\\s*=([^;]*);').exec(ncBody)) : rawR; if (rawL === rawRc && callsWithArguments(rawL)) {",
       'green', 'a look-alike is wrongly named', ['green: nothing changed after the action']],
     ['only reduce is recognised (map, flatMap and filter are missed)',
       "(?:reduce|reduceRight|map|flatMap|filter)",
@@ -231,6 +239,14 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
       "if (ns.slice(close + 1) !== '') return null;",
       "",
       'green', 'a look-alike is wrongly named', ['green: the value under test is a property of the result']],
+    ['the recomputed rule looks through a name set on an earlier line (the before/after false alarm comes back)',
+      "const r = { ns: canonicalExpr(nsBody.slice(rhsFrom, rhsTo)) };",
+      "const r0 = canonicalExpr(nsBody.slice(rhsFrom, rhsTo)); const r = { ns: /^[A-Za-z_$][\\w$]*$/.test(r0) ? ((m) => (m ? canonicalExpr(m[1]) : r0))(new RegExp('\\\\bconst\\\\s+' + r0 + '\\\\s*=([^;]*);').exec(nsBody)) : r0 };",
+      'green', 'a look-alike is wrongly named', ['green: a value saved before an action, compared after it (prices)', 'green: a value saved before an action, compared after it (names)', 'green: a name set earlier is not looked through, even without an action in between']],
+    ['a shallow copy of the parameter is judged like any other callback (the {...u} false alarm comes back)',
+      "if (copied && new RegExp(",
+      "if (false && copied && new RegExp(",
+      'green', 'a look-alike is wrongly named', ['green: a callback that shallow-copies its parameter', 'green: a block-bodied callback that shallow-copies its parameter', 'green: an array spread of the parameter']],
     ['the callback is never examined (the whole narrowing is bypassed)',
       "isSelfContainedCallback(rhs.slice(callback[0], callback[1]))",
       "true",
@@ -238,7 +254,7 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
     ['no callback is ever accepted (the textbook reduce is no longer named)',
       "if (callback && isSelfContainedCallback(",
       "if (callback && false && isSelfContainedCallback(",
-      'red', 'a red sample is missed', ['red: expected value is a reduce over the same input', 'red: expected value is a map over the same input', 'red: the reduce is held in a constant first', 'red: node assert with a filter over the same input']],
+      'red', 'a red sample is missed', ['red: expected value is a reduce over the same input', 'red: expected value is a map over the same input', 'red: node assert with a filter over the same input']],
     ['the detector is never consulted (the wiring is cut)',
       "taut += detectors.count(family, ncBody, nsBody, c.name);",
       "",

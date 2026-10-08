@@ -3,7 +3,7 @@ source: ../../../core/full-coverage-testing.md
 source_version: 1.3.0
 translation_version: 1.3.0
 last_synced: 2026-10-08
-source_hash: 929c119d54e4
+source_hash: 9f46a428ef8d
 status: current
 ---
 
@@ -100,9 +100,14 @@ expect(countInstalled({ standards: [{ id: 'a', installed: true }, { id: 'b', ins
 | 形狀 | 範例 | 回報條件 |
 |------|------|----------|
 | **同一個呼叫（same call）** | `expect(total(items)).toBe(total(items))` | 兩側是同一個函式、同樣的參數（呼叫裡沒有另一個呼叫或 `new`），寫在同一個敘述裡，且測試名稱不是在講「比較兩次呼叫」（決定性、冪等、快取、同一性） |
-| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被測呼叫吃一個輸入，預期值把同一個輸入（就是引數本身，如 `items.reduce`，不是它的某個欄位）送進 `reduce`、`map`、`flatMap` 或 `filter`，且回呼只用到自己的參數（外加 `Math`、`Number`、`String` 這類純內建）、不含任何字面值、真的做了運算（不是只回傳參數的 `(x) => x`）；被測呼叫是單一呼叫，裡面沒有別的呼叫或 `new`，後面也沒有接 `.length` 之類的屬性存取（直接寫，或經由同一支測試裡先設定的 `const`） |
+| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被測呼叫吃一個輸入，預期值把同一個輸入（就是引數本身，如 `items.reduce`，不是它的某個欄位）送進 `reduce`、`map`、`flatMap` 或 `filter`，且回呼只用到自己的參數（外加 `Math`、`Number`、`String` 這類純內建）、不含任何字面值、不是單純的複製（`(x) => x`、`(x) => ({ ...x })`）；被測呼叫是單一呼叫，裡面沒有別的呼叫或 `new`，後面也沒有接 `.length` 之類的屬性存取。只讀斷言本身的文字：前面幾行設定過的名稱一律不展開 |
 
-下列看起來相似的寫法**刻意放過**，因為光看文字分不出它們和正當測試的差別：`expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))`（預期值查寫死的價目表，是獨立來源）；`expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))`（字面值是測試作者提供的知識）；`expect(render(now())).toBe(render(now()))`（兩次 `now()` 是兩個值，兩側不一定相等）；`expect(parse(serialize(rows))).toEqual(rows.map(r => r))`（往返測試：被測呼叫裡還有呼叫）；`expect(clone(input)).toEqual(input.map(x => x))`（只把參數原樣回傳的回呼沒有做任何運算）；`expect(sortUsers(users).length).toBe(users.filter(u => u.name).length)`（被測的值是結果的屬性，哪一側才對光看文字判不出）。原則是：拿不準寧可漏抓，不可誤報。
+下列看起來相似的寫法**刻意放過**，因為光看文字分不出它們和正當測試的差別：`expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))`（預期值查寫死的價目表，是獨立來源）；`expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))`（字面值是測試作者提供的知識）；`expect(render(now())).toBe(render(now()))`（兩次 `now()` 是兩個值，兩側不一定相等）；`expect(parse(serialize(rows))).toEqual(rows.map(r => r))`（往返測試：被測呼叫裡還有呼叫）；`expect(clone(input)).toEqual(input.map(x => x))`（只把參數原樣回傳、或把參數淺複製的回呼，如 `u => ({ ...u })`，是複製而不是邏輯；`filter(x => x)` 依真假值篩選，是有邏輯的，但光看文字分不出它和複製的差別，所以一併放過）；`expect(sortUsers(users).length).toBe(users.filter(u => u.name).length)`（被測的值是結果的屬性，哪一側才對光看文字判不出）。`const before = items.map(i => i.price); freezeCart(items); expect(pricesOf(items)).toEqual(before)`（前面幾行設定的名稱存的是較早時刻的值，中間發生的事正是這支測試要問的；「同一呼叫」也是這樣讀的）。原則是：拿不準寧可漏抓，不可誤報。
+
+**兩個已接受、不隱瞞的代價。**
+
+1. **差分測試會被點名。** 拿參考實作當預期值的測試，`expect(fastTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0))`，文字上和教科書例一模一樣，所以掃描腳本會點名它。這種測試是正當的（見上表「預言是另一份獨立寫成的實作」）；處理方式有二：在同一支測試裡另外加一個對手算字面值的斷言（只有在測試的所有斷言都不是真斷言時才回報），或把該檔列進 `.standards/test-policy.json` 的 `ignore`（這會讓整個檔案不再被這支腳本的任何檢查看到，且 `ignore` 不收理由，請在註解寫明）。測試名稱寫「與參考實作一致」**不能**豁免，`exempt` 清單也不適用於這支腳本（它屬於「改了程式碼卻沒有測試」的檢查）。
+2. **這條規則很容易被繞過。** 把預期值包進 `Number(...)`、接 `.valueOf()` 或 `[0]`、把引數改成 `items.slice()`，掃描腳本就看不到了。它是提醒審查者的線索，不是擋得住刻意規避的閘門，寫測試的是 AI 代理時尤其如此：掃描乾淨不能當成預期值獨立的證據。下面審查者的問題才是控制手段，腳本只指出最容易判的情形。
 
 與 `expect(true).toBe(true)` 相同，只有在測試的**所有**斷言都不是真斷言時才回報；自我比較旁邊還有一個對字面值的斷言，就留給審查者。文字判不了的，掃描腳本保持沉默——會亂叫的掃描腳本遲早被關掉。
 
