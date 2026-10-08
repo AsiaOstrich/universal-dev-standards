@@ -829,7 +829,13 @@ const countMatches = (re, s) => {
 //   same-call   expect(total(items)).toBe(total(items))      same function, same arguments, both sides
 //   recomputed  expect(total(items)).toBe(items.reduce(...)) expected value is built from the same
 //                                                            input with reduce / map / flatMap / filter
+//                                                            by a callback that uses nothing but its own
+//                                                            parameters and holds no literal
 //
+// Left alone on purpose, because they cannot be told from a sound test by reading the text:
+//   a lookup in a fixed table      expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id]))
+//   a pick by a literal            expect(activeOf(users)).toEqual(users.filter((u) => u.id === 2))
+//   a call inside the call         expect(render(now())).toBe(render(now()))     (two now() are two values)
 // Everything else (a hand-rolled loop, a helper that re-derives the answer, a snapshot taken from
 // the implementation's own output) is a reviewer's question, not this script's: when it cannot be
 // decided from the text, it is NOT reported. A false alarm teaches people to switch the scanner off.
@@ -931,12 +937,66 @@ function callInputs(ns) {
   return [...paths];
 }
 
-/** Is `rhs` the input `x` run through reduce / map / flatMap / filter? */
+/** Words that can appear in a callback body without naming anything outside it. */
+const CALLBACK_KEYWORDS = new Set(['return', 'if', 'else', 'typeof', 'void', 'in', 'of', 'instanceof', 'const', 'let', 'var', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'default']);
+/** Built-ins that compute from their arguments only, so using them does not bring in anything from outside the callback. */
+const CALLBACK_GLOBALS = new Set(['Math', 'Number', 'String', 'Boolean', 'Array', 'Object', 'JSON', 'Infinity', 'NaN', 'parseInt', 'parseFloat']);
+
+/**
+ * Is this callback "the same logic re-typed in the test"? Only when it is self-contained: it uses nothing but
+ * its own parameters (so it cannot be looking an answer up in a table, a constant or a helper the test brings in)
+ * and it holds no literal (a literal inside the callback is knowledge the test author supplied: `u.id === 2`,
+ * `x * 2`, `'abc'`, `/re/`). Anything else is not decidable from text, and what is not decidable is not reported.
+ * @param {string} arg  the callback as written (strings blanked), e.g. `(s, i) => s + i.price`
+ */
+function isSelfContainedCallback(arg) {
+  let params;
+  let body;
+  const arrow = /^(?:async\s*)?(?:\(([^()]*)\)|([A-Za-z_$][\w$]*))\s*=>\s*([\s\S]*)$/.exec(arg.trim());
+  const fn = /^(?:async\s*)?function\s*[A-Za-z_$]*\s*\(([^()]*)\)\s*\{([\s\S]*)\}$/.exec(arg.trim());
+  if (arrow) {
+    params = arrow[1] ?? arrow[2];
+    body = arrow[3].trim();
+    if (body.startsWith('{')) {
+      const close = matchClose(body, 0);
+      if (close !== body.length - 1) return false;
+      body = body.slice(1, close);
+    }
+  } else if (fn) {
+    params = fn[1];
+    body = fn[2];
+  } else {
+    return false; // a named function, or a shape not understood: not judged
+  }
+  if (params.includes('=')) return false; // default values can call anything
+  if (/['"`]/.test(body)) return false; // a string literal (their contents are blanked, their quotes are not)
+  if (/(?<![\w$.])\d|(?<=\.)\d/.test(body)) return false; // a number literal
+  if (/(?:^|[(,=:[!&|?{};>+\-*%<~^]|\breturn\b)\s*\//.test(body)) return false; // a regex literal
+  if (/\b(?:true|false|null|undefined)\b/.test(body)) return false; // a keyword literal
+  if (/\b(?:this|arguments|new|await|yield|function)\b|=>/.test(body)) return false; // outside state, or a nested function
+  const known = new Set([...params.matchAll(/[A-Za-z_$][\w$]*/g)].map((m) => m[0]));
+  for (const d of body.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g)) known.add(d[1]);
+  for (const id of body.matchAll(/(?<![\w$.])(?<!\?\.)([A-Za-z_$][\w$]*)/g)) {
+    const name = id[1];
+    if (!known.has(name) && !CALLBACK_KEYWORDS.has(name) && !CALLBACK_GLOBALS.has(name)) return false; // something from outside the callback
+  }
+  return true;
+}
+
+/** Is `rhs` the input `x` run through reduce / map / flatMap / filter by a callback that re-types the logic (see above)? */
 function recomputesFrom(rhs, x) {
   const X = escapeRe(x).replace(/\\\./g, '(?:\\?\\.|\\.)');
   const source = `(?:${X}|\\[\\.\\.\\.${X}\\]|Object\\.(?:values|keys|entries)\\(${X}\\)|Array\\.from\\(${X}\\))`;
   const verb = '(?:reduce|reduceRight|map|flatMap|filter)(?:<[^>()]*>)?\\(';
-  return new RegExp(`(?<![\\w$.])${source}(?:\\?\\.|\\.)${verb}`).test(rhs);
+  const re = new RegExp(`(?<![\\w$.])${source}(?:\\?\\.|\\.)${verb}`, 'g');
+  for (const m of rhs.matchAll(re)) {
+    const open = m.index + m[0].length - 1;
+    const close = matchClose(rhs, open);
+    if (close === -1) continue;
+    const [callback] = topLevelPieces(rhs, open + 1, close);
+    if (callback && isSelfContainedCallback(rhs.slice(callback[0], callback[1]))) return true;
+  }
+  return false;
 }
 
 /**
@@ -957,7 +1017,11 @@ export function findNonIndependentExpectations(ncBody, nsBody, testName = '') {
     // value from an EARLIER moment: `expect(snapshot(x)).toEqual(before)` after an action asks "did it change?",
     // which is a real question. Only two calls inside one statement cannot differ in time.
     if (rawL === rawR && callsWithArguments(rawL)) {
-      if (!DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });
+      // Another call inside the expression (`render(now())`, `total(load())`) may return something different the
+      // second time, so the two sides are not known to be the same value: not judged.
+      const callCount = (canonicalExpr(nsBody.slice(lhsFrom, lhsTo)).match(/[A-Za-z_$][\w$]*\(/g) || []).length;
+      const hasNew = /\bnew\b/.test(canonicalExpr(nsBody.slice(lhsFrom, lhsTo)));
+      if (callCount <= 1 && !hasNew && !DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });
       return;
     }
     const l = resolveOnce(rawL, canonicalExpr(nsBody.slice(lhsFrom, lhsTo)), constants);
@@ -1006,7 +1070,7 @@ export const INDEPENDENCE_DETECTORS = Object.freeze({
 
 const FORM_DETAIL = {
   'same-call': 'the expected value is the same call as the code under test (same function, same arguments)',
-  recomputed: 'the expected value is recomputed from the same input as the code under test (reduce/map/filter), so it is not an independent oracle'
+  recomputed: 'the expected value is recomputed from the same input as the code under test (reduce/map/filter with a callback that uses only its own parameters), so it is not an independent oracle'
 };
 
 /**
@@ -1081,6 +1145,10 @@ const SELF_TEST = [
   { ext: 'js', rules: [], text: "it('changes nothing', () => {\n  const before = snapshot(dir);\n  preview(dir);\n  expect(snapshot(dir)).toEqual(before);\n});\n" },
   { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(items)).toBe(calculateTotal(items)); expect(calculateTotal([])).toBe(0); });\n" },
   { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(first)).not.toBe(calculateTotal(first)); });\n" },
+  // XSPEC-470: look-alikes the rule must let through (the false alarms the first review measured).
+  { ext: 'js', rules: [], text: "it('prices', () => { expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id])); });\n" },
+  { ext: 'js', rules: [], text: "it('active', () => { expect(activeOf(users)).toEqual(users.filter((u) => u.id === 2)); });\n" },
+  { ext: 'js', rules: [], text: "it('renders', () => { expect(render(now())).toBe(render(now())); });\n" },
   { ext: 'py', rules: ['no-assertion'], text: "def test_nothing():\n    x = 1\n    pass\n" },
   { ext: 'py', rules: ['tautology'], text: "def test_true():\n    assert True\n" },
   { ext: 'py', rules: [], text: "def test_ok():\n    assert add(1, 2) == 3\n\n\ndef test_raises():\n    with pytest.raises(ValueError):\n        f()\n" },

@@ -1,8 +1,10 @@
 /**
  * XSPEC-470 R1: the shipped anti-fake-test scanner names a test whose expected value is not independent
  * of the code under test (the same call on both sides; an expected value recomputed from the same input
- * with reduce/map/filter), and spares the look-alikes (a literal expected value, a different input, a
- * comparison the test is named for, a before/after check).
+ * with reduce/map/filter by a callback that uses only its own parameters), and spares the look-alikes (a literal
+ * expected value, a different input, a comparison the test is named for, a before/after check, and — added after the
+ * first review measured them as false alarms — a lookup in a fixed table, a pick by a literal, a call inside the call).
+ * The rule is: when the text cannot decide, miss it rather than accuse it.
  *
  * Every test here runs the REAL script as a process, from a throwaway project, and reads its report back
  * (`--json`, plus the text a developer sees) — the way an adopter or `uds check` runs it. None of them relies
@@ -64,8 +66,25 @@ const GREEN = {
   'green: a literal assertion sits beside the self-comparison': "expect(calculateTotal(items)).toBe(calculateTotal(items));\n  expect(calculateTotal([])).toBe(0);",
   'green: negated': "expect(calculateTotal(first)).not.toBe(calculateTotal(first));",
   'green: two constructor calls compared as value objects': "expect(new Money(5)).toEqual(new Money(5));",
-  'green: a call with no argument has no input to recompute from': "expect(getInstance()).toBe(getInstance());"
+  'green: a call with no argument has no input to recompute from': "expect(getInstance()).toBe(getInstance());",
+  // The three false alarms the first review measured (XSPEC-470 R1, "no false alarm first").
+  'green: the expected value is looked up in a fixed table': "expect(priceOf(ids)).toEqual(ids.map((id) => KNOWN_PRICES[id]));",
+  'green: the callback picks by a literal': "expect(activeOf(users)).toEqual(users.filter((u) => u.id === 2));",
+  'green: a call inside the call on both sides': "expect(render(now())).toBe(render(now()));",
+  // Neighbours of those three: same family, same reason.
+  'green: the callback calls a helper that lives outside it': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + priceOf(item), 0));",
+  'green: the callback holds a literal': "expect(doubled(xs)).toEqual(xs.map((x) => x * 2));",
+  'green: the callback uses a constant from outside it': "expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + item.price * TAX_RATE, 0));",
+  'green: a new object inside the call on both sides': "expect(render(new Date())).toBe(render(new Date()));"
 };
+
+/** The three false alarms the first review measured, and the textbook example that must still be named. */
+const FALSE_ALARMS = {
+  'green: the expected value is looked up in a fixed table': GREEN['green: the expected value is looked up in a fixed table'],
+  'green: the callback picks by a literal': GREEN['green: the callback picks by a literal'],
+  'green: a call inside the call on both sides': GREEN['green: a call inside the call on both sides']
+};
+const TEXTBOOK = 'expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0));';
 
 const body = (sets) => sets.map((set) => Object.entries(set).map(([name, code]) => `it(${JSON.stringify(name)}, () => {\n  ${code}\n});\n`).join('\n')).join('\n');
 const redProject = () => project({ 'tests/red.test.js': body([RED]) });
@@ -88,8 +107,8 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
     // read-back: the assertion lines point into the file, at the assertion
     const lines = readFileSync(join(dir, 'tests/red.test.js'), 'utf8').split('\n');
     for (const f of r.json.findings) {
-      expect(f.assertions.length).toBeGreaterThan(0);
-      for (const a of f.assertions) expect(lines[a.line - 1], `${f.name}: line ${a.line}`).toMatch(/expect|assert/);
+      expect(f.assertions, `${f.name}: each red sample holds exactly one assertion`).toHaveLength(1);
+      for (const a of f.assertions) expect(lines[a.line - 1], `${f.name}: line ${a.line}`).toMatch(/^\s*(?:expect\(|assert\.\w+\()/);
     }
     const form = (name) => r.json.findings.find((f) => f.name === name).forms;
     expect(form('red: both sides call total with items')).toEqual(['same-call']);
@@ -102,7 +121,7 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
     expect(red.status).toBe(1);
     expect(red.stdout).toContain('tautology  "red: both sides call total with items"');
     expect(red.stdout).toContain('the expected value is the same call as the code under test (same function, same arguments)');
-    expect(red.stdout).toContain('recomputed from the same input as the code under test (reduce/map/filter)');
+    expect(red.stdout).toContain('recomputed from the same input as the code under test (reduce/map/filter with a callback that uses only its own parameters)');
     const green = run(greenProject(), GATE, []);
     expect(green.status, green.stdout).toBe(0);
     expect(green.stdout).toContain('RESULT: no fake tests found among the files scanned');
@@ -113,6 +132,22 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
     expect(r.status, r.stdout).toBe(0);
     expect(r.json.findings).toEqual([]);
     expect(r.json.cases).toBe(Object.keys(GREEN).length);
+  });
+
+  for (const [name, code] of Object.entries(FALSE_ALARMS)) {
+    it(`${name} — run alone, the real script says nothing and exits 0 (XSPEC-470 R1, no false alarm first)`, () => {
+      const r = run(project({ 'tests/one.test.js': body([{ [name]: code }]) }));
+      expect(r.status, r.stdout).toBe(0);
+      expect(r.json.findings).toEqual([]);
+      expect(r.json.cases).toBe(1);
+    });
+  }
+
+  it('the textbook example is still named after the narrowing: the expected value is a reduce over the same input (XSPEC-470 R1)', () => {
+    const r = run(project({ 'tests/textbook.test.js': body([{ 'textbook: total against a reduce over the same items': TEXTBOOK }]) }));
+    expect(r.status, r.stdout).toBe(1);
+    expect(r.json.findings).toHaveLength(1);
+    expect(r.json.findings[0]).toMatchObject({ rule: 'tautology', name: 'textbook: total against a reduce over the same items', forms: ['recomputed'] });
   });
 
   it('the old rule still holds beside the new ones: expect(true).toBe(true) is named with its old reason (XSPEC-470 R1)', () => {
@@ -135,32 +170,52 @@ describe('check-anti-fake-tests (XSPEC-470 R1): an expected value that is not in
 });
 
 describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened copy of the scanner is caught', () => {
-  /** [label, exact text in the script, replacement, which project shows it with the self-test off, what must differ] */
+  /** [label, exact text in the script, replacement, which project shows it with the self-test off, what must differ, the sample names that must flip] */
   const MUTANTS = [
     ['arguments are not compared (only the function name)',
       "if (rawL === rawR && callsWithArguments(rawL)) {",
       "if (rawL.split('(')[0] === rawR.split('(')[0] && callsWithArguments(rawL)) {",
-      'green', 'a look-alike is wrongly named'],
+      'green', 'a look-alike is wrongly named', ['green: one function with different arguments']],
     ['a name set earlier is trusted as "the same call" (the before/after mistake the first measurement found)',
       "if (rawL === rawR && callsWithArguments(rawL)) {",
       "const lr = resolveOnce(rawL, rawL, constants).expr; const rr = resolveOnce(rawR, rawR, constants).expr; if (lr === rr && callsWithArguments(lr)) {",
-      'green', 'a look-alike is wrongly named'],
+      'green', 'a look-alike is wrongly named', ['green: nothing changed after the action']],
     ['only reduce is recognised (map, flatMap and filter are missed)',
       "(?:reduce|reduceRight|map|flatMap|filter)",
       "(?:reduce|reduceRight)",
-      'red', 'a red sample is missed'],
+      'red', 'a red sample is missed', ['red: expected value is a map over the same input', 'red: node assert with a filter over the same input']],
     ['the deliberate-comparison name is ignored',
-      "if (!DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });",
-      "hits.push({ form: 'same-call', offset });",
-      'green', 'a look-alike is wrongly named'],
+      " && !DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });",
+      ") hits.push({ form: 'same-call', offset });",
+      'green', 'a look-alike is wrongly named', ['green: a test named for comparing two calls is deterministic']],
     ['a negated matcher is judged like a plain one',
       "/^\\s*\\.\\s*(?:(?:toBe|toEqual|toStrictEqual)|to",
       "/^\\s*\\.\\s*(?:not\\s*\\.\\s*)?(?:(?:toBe|toEqual|toStrictEqual)|to",
-      'green', 'a look-alike is wrongly named'],
+      'green', 'a look-alike is wrongly named', ['green: negated']],
+    ['the callback may look things up outside itself (the fixed-table false alarm comes back)',
+      "if (!known.has(name) && !CALLBACK_KEYWORDS.has(name) && !CALLBACK_GLOBALS.has(name)) return false;",
+      "",
+      'green', 'a look-alike is wrongly named', ['green: the expected value is looked up in a fixed table', 'green: the callback calls a helper that lives outside it', 'green: the callback uses a constant from outside it']],
+    ['the callback may hold a number literal (the pick-by-a-literal false alarm comes back)',
+      "if (/(?<![\\w$.])\\d|(?<=\\.)\\d/.test(body)) return false;",
+      "",
+      'green', 'a look-alike is wrongly named', ['green: the callback picks by a literal', 'green: the callback holds a literal']],
+    ['a call inside the call is still judged as the same call (the render(now()) false alarm comes back)',
+      "callCount <= 1 && !hasNew && ",
+      "",
+      'green', 'a look-alike is wrongly named', ['green: a call inside the call on both sides', 'green: a new object inside the call on both sides']],
+    ['the callback is never examined (the whole narrowing is bypassed)',
+      "isSelfContainedCallback(rhs.slice(callback[0], callback[1]))",
+      "true",
+      'green', 'a look-alike is wrongly named', ['green: the expected value is looked up in a fixed table', 'green: the callback picks by a literal']],
+    ['no callback is ever accepted (the textbook reduce is no longer named)',
+      "if (callback && isSelfContainedCallback(",
+      "if (callback && false && isSelfContainedCallback(",
+      'red', 'a red sample is missed', ['red: expected value is a reduce over the same input', 'red: expected value is a map over the same input', 'red: the reduce is held in a constant first', 'red: node assert with a filter over the same input']],
     ['the detector is never consulted (the wiring is cut)',
       "taut += detectors.count(family, ncBody, nsBody, c.name);",
       "",
-      'red', 'a red sample is missed']
+      'red', 'a red sample is missed', Object.keys(RED)]
   ];
   const SELF_TEST_OFF = ['const bad = selfTest();', 'const bad = [];'];
 
@@ -184,7 +239,7 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
     expect(run(greenProject()).json.findings).toHaveLength(0);
   });
 
-  for (const [label, from, to, shows, differs] of MUTANTS) {
+  for (const [label, from, to, shows, differs, flips] of MUTANTS) {
     it(`weakened — ${label} — is stopped by the scanner's own self-test`, () => {
       const file = mutate(label, from, to);
       const r = run(redProject(), file);
@@ -197,11 +252,12 @@ describe('check-anti-fake-tests (XSPEC-470 R1): mutation arms — a weakened cop
       if (shows === 'green') {
         const r = run(greenProject(), file);
         expect(r.status, 'the look-alikes must now be reported, otherwise the samples do not guard this rule').toBe(1);
-        expect(r.json.findings.length).toBeGreaterThan(0);
+        const named = r.json.findings.map((f) => f.name);
+        for (const name of flips) expect(named, `the mutant must wrongly name "${name}"`).toContain(name);
       } else {
         const r = run(redProject(), file);
         const named = (r.json ? r.json.findings : []).map((f) => f.name);
-        expect(named.length, 'the mutant must miss at least one red sample').toBeLessThan(Object.keys(RED).length);
+        for (const name of flips) expect(named, `the mutant must miss "${name}"`).not.toContain(name);
       }
     });
   }

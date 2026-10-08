@@ -108,9 +108,14 @@ standard:
         languages: [javascript, typescript]
         shapes:
           same-call: "both sides are the same call with the same arguments in one statement; test not named for comparing two calls"
-          recomputed: "expected value runs the call's own input through reduce/map/flatMap/filter (directly or via a const in the same test)"
+          recomputed: "expected value runs the call's own input through reduce/map/flatMap/filter, with a callback that uses only its own parameters and holds no literal (directly or via a const in the same test)"
         reported_when: "none of the test's assertions is a real one (same rule as expect(true).toBe(true))"
-        undecidable: "stays silent; left to the reviewer"
+        undecidable: "stays silent; left to the reviewer (when in doubt, miss it rather than accuse it)"
+        left_alone_on_purpose:
+          - "expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))  // lookup in a fixed table is an independent source"
+          - "expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))  // a literal in the callback is knowledge the test author supplied"
+          - "expect(render(now())).toBe(render(now()))  // a call inside the call: two now() are two values"
+          - "expect(countInstalled(manifest)).toBe(manifest.standards.filter(...).length)  // input reached through a field: reviewer's call, not matched"
       reviewer_questions:
         - "Where did this expected value come from? Could it be produced by running the code under test?"
         - "Would this test still pass if the implementation were wrong in the way the test's own arithmetic is wrong?"

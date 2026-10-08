@@ -65,6 +65,7 @@ expect(result).toBeDefined()  // without specific value
 // ❌ FORBIDDEN — the oracle is the implementation
 expect(countInstalled(manifest)).toBe(countInstalled(manifest))                    // the same call on both sides
 expect(countInstalled(manifest)).toBe(manifest.standards.filter(s => s.installed).length)  // the same logic, typed again
+//   ^ a reviewer's call: the scanner catches only the subset listed under "What the shipped scanner decides" below, and this one is not in it
 
 // ✅ REQUIRED — a value that was decided before the code ran
 expect(result).toBe(90)
@@ -87,8 +88,10 @@ Not every comparison of two computed values is a tautology. These are fine, and 
 
 | Shape | Example | Reported when |
 |-------|---------|---------------|
-| **same call** | `expect(total(items)).toBe(total(items))` | both sides are the same call with the same arguments, written in one statement, and the test is not named for comparing two calls (determinism, idempotence, caching, identity) |
-| **recomputed** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | the call under test takes an input, and the expected value runs that same input through `reduce`, `map`, `flatMap` or `filter` (directly, or through a `const` set earlier in the same test) |
+| **same call** | `expect(total(items)).toBe(total(items))` | both sides are the same call with the same arguments (and no other call inside the call), written in one statement, and the test is not named for comparing two calls (determinism, idempotence, caching, identity) |
+| **recomputed** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | the call under test takes an input, and the expected value runs that same input (named as the argument itself, e.g. `items.reduce`, not a field of it) through `reduce`, `map`, `flatMap` or `filter` with a callback that uses nothing but its own parameters and holds no literal (directly, or through a `const` set earlier in the same test) |
+
+These look similar and are **left alone on purpose**, because the text cannot tell them from a sound test: `expect(priceOf(ids)).toEqual(ids.map(id => KNOWN_PRICES[id]))` (the expected value is read from a fixed table, an independent source); `expect(activeOf(users)).toEqual(users.filter(u => u.id === 2))` (the literal is knowledge the test author supplied); `expect(render(now())).toBe(render(now()))` (two calls to `now()` are two values, so the two sides are not known to be equal). The rule is: when in doubt, miss it rather than accuse it.
 
 As with `expect(true).toBe(true)`, a test is reported only when **none** of its assertions is a real one; a self-comparison next to an assertion against a literal is left to the reviewer. When the text cannot decide, the scanner stays silent — a scanner that cries wolf is switched off.
 
