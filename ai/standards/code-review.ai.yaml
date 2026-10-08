@@ -12,8 +12,8 @@ standard:
     - "Be constructive and explain 'why'"
 
   meta:
-    version: "2.2.0"
-    updated: "2026-08-24"
+    version: "2.3.0"
+    updated: "2026-10-08"
     source: core/code-review-checklist.md
     description: Systematic checklist for reviewing code quality and security
 
@@ -59,6 +59,10 @@ standard:
       - item: Unit tests are included
       - item: Tests cover edge cases
       - item: Tests are meaningful (not just for coverage)
+      - item: Expected values are independent of the code under test (a literal, a hand-computed example or the spec; not the same call repeated or the same arithmetic typed again)
+    merge_danger:
+      - item: "The change states its door (two-way: easy to take back after merge; one-way: irreversible or hard to take back — data migration, deletion, changed default behavior, changed exit code, renamed public interface) and its blast radius in one word"
+      - item: A one-way door is known to the decision-maker before the merge
     documentation:
       - item: Public APIs are documented
       - item: Complex logic has comments
@@ -107,6 +111,15 @@ standard:
       trigger: finding good code
       instruction: Acknowledge and praise good implementations
       priority: recommended
+    - id: merge-danger-known
+      trigger: reviewing or merging a change
+      instruction: |
+        Read the Merge Danger field (door and blast radius). A one-way door (a data migration,
+        a deletion, a changed default behavior, a changed exit code, a renamed public interface)
+        must be made known to whoever decides to merge BEFORE the merge, in the PR description
+        or the hand-off report. If the field is missing, ask for it; do not infer the door from
+        the diff alone.
+      priority: required
     - id: timely-review
       trigger: assigned for review
       instruction: Complete review within 24 hours

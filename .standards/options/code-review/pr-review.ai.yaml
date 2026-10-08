@@ -4,7 +4,7 @@
 id: pr-review
 meta:
   parent: code-review
-  version: "1.0.0"
+  version: "1.1.0"
   description: Traditional pull request code review process
 
 best_for:
@@ -21,6 +21,7 @@ workflow:
         - Write clear description
         - Link related issues
         - Request reviewers
+        - State the Merge Danger (door and blast radius)
 
     - name: Review
       actor: Reviewer
@@ -114,6 +115,15 @@ rules:
     instruction: At least one approval required
     priority: required
 
+  - id: merge-danger-declared
+    trigger: opening or merging PR
+    instruction: |
+      The PR states its door (two-way: easy to take back after merge; one-way: irreversible or
+      hard to take back - data migration, deletion, changed default behavior, changed exit code,
+      renamed public interface) and its blast radius in one word. A one-way door is made known to
+      whoever decides to merge BEFORE the merge.
+    priority: required
+
 pr_template: |
   ## Summary
   Brief description of changes
@@ -127,6 +137,15 @@ pr_template: |
   ## Testing
   - [ ] Unit tests added/updated
   - [ ] Manual testing performed
+
+  ## Merge Danger
+  Door (tick one):
+  - [ ] Two-way door: after merging, it can be taken back easily
+  - [ ] One-way door: irreversible or hard to take back (data migration, deletion, changed default behavior, changed exit code, renamed public interface)
+
+  Blast radius (one word, e.g. docs, cli, adopters):
+
+  A one-way door must be made known to whoever decides to merge before the merge.
 
   ## Checklist
   - [ ] Code follows project style guidelines

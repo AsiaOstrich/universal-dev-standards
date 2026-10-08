@@ -7,7 +7,11 @@
 //
 // What it finds, in the test files of any project (no test framework is assumed):
 //   no-assertion  a test whose body contains nothing that can fail
-//   tautology     a test whose only assertions can never fail (expect(true).toBe(true))
+//   tautology     a test whose only assertions can never fail (expect(true).toBe(true)), or whose
+//                 expected value is not independent of the code under test (XSPEC-470): the
+//                 assertion calls the same function with the same arguments on both sides, or
+//                 recomputes the expected value from the same input with reduce/map/filter.
+//                 (JavaScript/TypeScript only; other languages are a reviewer's judgment call.)
 //   all-skipped   a test file in which every test is skipped or marked todo
 //
 // Written into your project by `uds init` (XSPEC-444 R5). It is YOURS: edit it, or replace
@@ -814,12 +818,203 @@ const countMatches = (re, s) => {
   return n;
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Expected values that are not independent of the code under test (XSPEC-470 R1)
+//
+// An oracle is the source that says what the right answer is (UDS `verification-oracle`).
+// A test whose expected value is produced by the code under test — or by the same logic re-typed
+// in the test — has the implementation as its own oracle, so it cannot disagree with it. Two
+// shapes are mechanical enough to judge from text, and they are the only ones judged here:
+//
+//   same-call   expect(total(items)).toBe(total(items))      same function, same arguments, both sides
+//   recomputed  expect(total(items)).toBe(items.reduce(...)) expected value is built from the same
+//                                                            input with reduce / map / flatMap / filter
+//
+// Everything else (a hand-rolled loop, a helper that re-derives the answer, a snapshot taken from
+// the implementation's own output) is a reviewer's question, not this script's: when it cannot be
+// decided from the text, it is NOT reported. A false alarm teaches people to switch the scanner off.
+// Deliberately narrow: JavaScript/TypeScript matchers toBe / toEqual / toStrictEqual, chai
+// to.equal / to.eql, node assert.equal / strictEqual / deepEqual / deepStrictEqual.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** A test named like this compares two calls ON PURPOSE (determinism, caching, identity): not judged. */
+const DELIBERATE_COMPARISON_NAME = /determinis|idempot|\bsame\b|identical|\bstable\b|stability|consisten|\bcach(?:e|es|ed|ing)\b|memo|singleton|twice|repeat|\bagain\b|reuse|reference|identity|\bpure\b|決定|確定性|相同|一致|同一|冪等|快取|重複|兩次|不變/i;
+
+const SKIP_WORDS = new Set(['true', 'false', 'null', 'undefined', 'this', 'new', 'typeof', 'void', 'await', 'async', 'function', 'return']);
+
+/** Index just past the end of the statement/expression that starts at `start` in the string-blanked text `ns`. */
+function expressionEnd(ns, start) {
+  let depth = 0;
+  for (let i = start; i < ns.length; i++) {
+    const ch = ns[i];
+    if (ch === '(' || ch === '[' || ch === '{') depth++;
+    else if (ch === ')' || ch === ']' || ch === '}') { if (depth === 0) return i; depth--; }
+    else if (depth === 0 && ch === ';') return i;
+    else if (depth === 0 && ch === '\n') {
+      const prev = ns.slice(start, i).trimEnd().slice(-1);
+      const next = /^\s*(\S)/.exec(ns.slice(i + 1));
+      if (!next) return ns.length;
+      if (/[.?:+\-*/%&|,<>=!]/.test(next[1]) || /[+\-*/%&|,<>=!?:.]/.test(prev)) continue; // the expression goes on
+      return i;
+    }
+  }
+  return ns.length;
+}
+
+/** Top-level (bracket-depth 0) comma-separated pieces of `ns[from, to)`, as [start, end) pairs. */
+function topLevelPieces(ns, from, to) {
+  const out = [];
+  let depth = 0;
+  let begin = from;
+  for (let i = from; i < to; i++) {
+    const ch = ns[i];
+    if (ch === '(' || ch === '[' || ch === '{') depth++;
+    else if (ch === ')' || ch === ']' || ch === '}') depth--;
+    else if (ch === ',' && depth === 0) { out.push([begin, i]); begin = i + 1; }
+  }
+  out.push([begin, to]);
+  return out.filter(([a, b]) => ns.slice(a, b).trim() !== '');
+}
+
+/** Canonical form for "is this the same expression?": no `await`, no spacing, no trailing comma. */
+const canonicalExpr = (s) => s
+  .replace(/^\s*await\s+/, '')
+  .replace(/\s+/g, ' ')
+  .replace(/\s*([(),.\[\]])\s*/g, '$1')
+  .replace(/,\)/g, ')')
+  .trim()
+  .replace(/,$/, '');
+
+/** `const NAME = <expr>` declared once in the test body: NAME → canonical <expr>. A name declared twice is dropped. */
+function constantsOf(ncBody, nsBody) {
+  const seen = new Map();
+  const re = /\bconst\s+([A-Za-z_$][\w$]*)\s*(?::[^=;\n]+)?=(?![=>])\s*/g;
+  let m;
+  while ((m = re.exec(nsBody)) !== null) {
+    const from = m.index + m[0].length;
+    const to = expressionEnd(nsBody, from);
+    const expr = canonicalExpr(ncBody.slice(from, to));
+    seen.set(m[1], seen.has(m[1]) ? null : { expr, ns: canonicalExpr(nsBody.slice(from, to)) });
+    re.lastIndex = Math.max(re.lastIndex, to);
+  }
+  for (const [k, v] of seen) if (v === null) seen.delete(k);
+  return seen;
+}
+
+/** One hop: a bare name (or name.member.chain) declared by `const` in this test becomes what it was set to. */
+function resolveOnce(expr, ns, constants) {
+  const m = /^([A-Za-z_$][\w$]*)((?:\.[A-Za-z_$][\w$]*)*)$/.exec(expr);
+  if (!m || !constants.has(m[1])) return { expr, ns };
+  const c = constants.get(m[1]);
+  return { expr: c.expr + m[2], ns: c.ns + m[2] };
+}
+
+/** Does this canonical expression call something with at least one argument (and is not a `new` expression)? */
+const callsWithArguments = (expr) => !/^new\b/.test(expr) && /[A-Za-z_$][\w$]*\(['"`\w$\[{(-]/.test(expr);
+
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** If `ns` (canonical, strings blanked) is `callee(args)` plus optional member access, the identifier paths used in args. */
+function callInputs(ns) {
+  const m = /^([A-Za-z_$][\w$.]*)\(/.exec(ns);
+  if (!m || /^new\b/.test(ns)) return null;
+  const open = m[0].length - 1;
+  const close = matchClose(ns, open);
+  if (close === -1) return null;
+  const rest = ns.slice(close + 1);
+  if (rest !== '' && !/^(?:\.[A-Za-z_$][\w$]*|\[[^\]]*\])+$/.test(rest)) return null; // something more than the call: not judged
+  const args = ns.slice(open + 1, close);
+  const paths = new Set();
+  const re = /(?<![\w$.])([A-Za-z_$][\w$]*(?:(?:\?\.|\.)[A-Za-z_$][\w$]*)*)(?!\w|\$)(?!\()/g;
+  let p;
+  while ((p = re.exec(args)) !== null) if (!SKIP_WORDS.has(p[1])) paths.add(p[1]);
+  return [...paths];
+}
+
+/** Is `rhs` the input `x` run through reduce / map / flatMap / filter? */
+function recomputesFrom(rhs, x) {
+  const X = escapeRe(x).replace(/\\\./g, '(?:\\?\\.|\\.)');
+  const source = `(?:${X}|\\[\\.\\.\\.${X}\\]|Object\\.(?:values|keys|entries)\\(${X}\\)|Array\\.from\\(${X}\\))`;
+  const verb = '(?:reduce|reduceRight|map|flatMap|filter)(?:<[^>()]*>)?\\(';
+  return new RegExp(`(?<![\\w$.])${source}(?:\\?\\.|\\.)${verb}`).test(rhs);
+}
+
+/**
+ * The assertions in one test body whose expected value is not independent.
+ * @param {string} ncBody  the body with comments blanked (strings intact)
+ * @param {string} nsBody  the same body with comments AND string contents blanked (same offsets)
+ * @param {string} testName
+ * @returns {{ form: 'same-call'|'recomputed', offset: number }[]}
+ */
+export function findNonIndependentExpectations(ncBody, nsBody, testName = '') {
+  const hits = [];
+  const constants = constantsOf(ncBody, nsBody);
+  const judge = (lhsFrom, lhsTo, rhsFrom, rhsTo, offset) => {
+    const rawL = canonicalExpr(ncBody.slice(lhsFrom, lhsTo));
+    const rawR = canonicalExpr(ncBody.slice(rhsFrom, rhsTo));
+    if (rawL === rawR && !callsWithArguments(rawL)) return; // `x` against `x`: the literal rule above counts it
+    // same-call is judged on the text as written. A name set earlier (`const before = snapshot(x)`) holds the
+    // value from an EARLIER moment: `expect(snapshot(x)).toEqual(before)` after an action asks "did it change?",
+    // which is a real question. Only two calls inside one statement cannot differ in time.
+    if (rawL === rawR && callsWithArguments(rawL)) {
+      if (!DELIBERATE_COMPARISON_NAME.test(testName)) hits.push({ form: 'same-call', offset });
+      return;
+    }
+    const l = resolveOnce(rawL, canonicalExpr(nsBody.slice(lhsFrom, lhsTo)), constants);
+    const r = resolveOnce(rawR, canonicalExpr(nsBody.slice(rhsFrom, rhsTo)), constants);
+    const inputs = callInputs(l.ns);
+    if (inputs && inputs.some((x) => recomputesFrom(r.ns, x))) hits.push({ form: 'recomputed', offset });
+  };
+
+  const expectRe = /(?<![.\w$])expect\s*\(/g;
+  let m;
+  while ((m = expectRe.exec(nsBody)) !== null) {
+    const open = m.index + m[0].length - 1;
+    const close = matchClose(nsBody, open);
+    if (close === -1) continue;
+    const after = /^\s*\.\s*(?:(?:toBe|toEqual|toStrictEqual)|to\s*\.\s*(?:deep\s*\.\s*)?(?:equal|equals|eql))\s*\(/.exec(nsBody.slice(close + 1, close + 60));
+    if (!after) continue; // `.not.`, `.resolves`, `.toThrow`, ... are not judged
+    const mOpen = close + 1 + after[0].length - 1;
+    const mClose = matchClose(nsBody, mOpen);
+    if (mClose === -1) continue;
+    const [first] = topLevelPieces(nsBody, mOpen + 1, mClose);
+    if (!first) continue;
+    judge(open + 1, close, first[0], first[1], m.index);
+  }
+
+  const assertRe = /(?<![.\w$])assert\s*\.\s*(?:equal|strictEqual|deepEqual|deepStrictEqual)\s*\(/g;
+  while ((m = assertRe.exec(nsBody)) !== null) {
+    const open = m.index + m[0].length - 1;
+    const close = matchClose(nsBody, open);
+    if (close === -1) continue;
+    const pieces = topLevelPieces(nsBody, open + 1, close);
+    if (pieces.length < 2) continue;
+    judge(pieces[0][0], pieces[0][1], pieces[1][0], pieces[1][1], m.index);
+  }
+  return hits;
+}
+
+/**
+ * The independence detectors, by language family. `count` is what analyzeTestText subtracts from the
+ * assertions it credits; `find` says which assertions and why. Passed in (not read from a global) so a
+ * test can hand the scanner a weakened set and watch the self-test and the samples catch it.
+ */
+export const INDEPENDENCE_DETECTORS = Object.freeze({
+  count: (family, ncBody, nsBody, testName) => (family === 'js' ? findNonIndependentExpectations(ncBody, nsBody, testName).length : 0),
+  find: (family, ncBody, nsBody, testName) => (family === 'js' ? findNonIndependentExpectations(ncBody, nsBody, testName) : [])
+});
+
+const FORM_DETAIL = {
+  'same-call': 'the expected value is the same call as the code under test (same function, same arguments)',
+  recomputed: 'the expected value is recomputed from the same input as the code under test (reduce/map/filter), so it is not an independent oracle'
+};
+
 /**
  * Analyze one test file's text.
  * @returns {{ family: string|null, cases: number, skipped: number, unparsed: number,
  *             findings: { rule: string, line: number|null, name: string, detail: string }[] }}
  */
-export function analyzeTestText(text, ext, extraAssertion = []) {
+export function analyzeTestText(text, ext, extraAssertion = [], detectors = INDEPENDENCE_DETECTORS) {
   const family = FAMILY_BY_EXT[ext] || null;
   const rules = family && FAMILY_RULES[family];
   if (!rules) return { family: null, cases: 0, skipped: 0, unparsed: 0, findings: [] };
@@ -836,11 +1031,25 @@ export function analyzeTestText(text, ext, extraAssertion = []) {
     for (const re of extraAssertion) tokens += countMatches(re, nsBody);
     let taut = 0;
     for (const re of rules.taut) taut += countMatches(re, ncBody);
+    const regexTaut = taut;
+    taut += detectors.count(family, ncBody, nsBody, c.name);
     const real = Math.max(0, tokens - taut) + c.credit;
     if (real > 0) continue;
-    findings.push(taut > 0
-      ? { rule: 'tautology', line: lineOf(c.idx), name: c.name, detail: 'its only assertion(s) can never fail' }
-      : { rule: 'no-assertion', line: lineOf(c.idx), name: c.name, detail: 'the body contains nothing that can fail an assertion' });
+    if (taut === 0) {
+      findings.push({ rule: 'no-assertion', line: lineOf(c.idx), name: c.name, detail: 'the body contains nothing that can fail an assertion' });
+      continue;
+    }
+    const hits = detectors.find(family, ncBody, nsBody, c.name);
+    const forms = [...new Set(hits.map((h) => h.form))];
+    const finding = { rule: 'tautology', line: lineOf(c.idx), name: c.name, detail: 'its only assertion(s) can never fail' };
+    if (forms.length > 0) {
+      const parts = forms.map((f) => FORM_DETAIL[f]);
+      if (regexTaut > 0) parts.unshift('an assertion that can never fail');
+      finding.detail = `its only assertion(s) are not independent of the code under test: ${parts.join('; ')} (see verification-oracle)`;
+      finding.forms = forms;
+      finding.assertions = hits.map((h) => ({ line: lineOf(c.bodyStart + h.offset), form: h.form }));
+    }
+    findings.push(finding);
   }
   if (cases.length > 0 && skipped === cases.length) {
     findings.push({ rule: 'all-skipped', line: null, name: '(file)', detail: `every test in this file is skipped or todo (${skipped})` });
@@ -860,6 +1069,18 @@ const SELF_TEST = [
   { ext: 'js', rules: [], text: "it('adds', () => { expect(add(1, 2)).toBe(3); });\ntest('t', async () => { await expect(f()).rejects.toThrow(); });\n" },
   { ext: 'js', rules: ['all-skipped'], text: "it.skip('a', () => { expect(1).toBe(2); });\nit.todo('b');\n" },
   { ext: 'js', rules: ['no-assertion'], text: "it('commented out', () => {\n  // expect(a).toBe(b);\n  const s = \"expect(a).toBe(b)\";\n});\n" },
+  // XSPEC-470: an expected value that is not independent of the code under test.
+  { ext: 'js', rules: ['tautology'], text: "it('totals', () => { expect(calculateTotal(items)).toBe(calculateTotal(items)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('totals', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => s + i.price, 0)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('names', () => { expect(namesOf(users)).toEqual(users.map((u) => u.name)); });\n" },
+  { ext: 'js', rules: ['tautology'], text: "it('totals', () => {\n  const expected = items.reduce((s, i) => s + i.price, 0);\n  expect(calculateTotal(items)).toBe(expected);\n});\n" },
+  { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15); });\n" },
+  { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(a)).toBe(calculateTotal(b)); });\n" },
+  { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(cart)).toBe(items.reduce((s, i) => s + i.price, 0)); });\n" },
+  { ext: 'js', rules: [], text: "it('is deterministic', () => { expect(calculateTotal(items)).toBe(calculateTotal(items)); });\n" },
+  { ext: 'js', rules: [], text: "it('changes nothing', () => {\n  const before = snapshot(dir);\n  preview(dir);\n  expect(snapshot(dir)).toEqual(before);\n});\n" },
+  { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(items)).toBe(calculateTotal(items)); expect(calculateTotal([])).toBe(0); });\n" },
+  { ext: 'js', rules: [], text: "it('totals', () => { expect(calculateTotal(first)).not.toBe(calculateTotal(first)); });\n" },
   { ext: 'py', rules: ['no-assertion'], text: "def test_nothing():\n    x = 1\n    pass\n" },
   { ext: 'py', rules: ['tautology'], text: "def test_true():\n    assert True\n" },
   { ext: 'py', rules: [], text: "def test_ok():\n    assert add(1, 2) == 3\n\n\ndef test_raises():\n    with pytest.raises(ValueError):\n        f()\n" },

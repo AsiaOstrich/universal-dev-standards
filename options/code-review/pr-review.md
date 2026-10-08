@@ -28,6 +28,7 @@ Pull Request (PR) review is the traditional asynchronous code review process whe
 - Link related issues
 - Request appropriate reviewers
 - Ensure CI checks pass
+- State the Merge Danger: door (two-way or one-way) and blast radius in one word; a one-way door is told to the decision-maker before merge
 
 ### 2. Review
 
@@ -115,6 +116,15 @@ Brief description of changes
 ## Testing
 - [ ] Unit tests added/updated
 - [ ] Manual testing performed
+
+## Merge Danger
+Door (tick one):
+- [ ] Two-way door: after merging, it can be taken back easily
+- [ ] One-way door: irreversible or hard to take back (data migration, deletion, changed default behavior, changed exit code, renamed public interface)
+
+Blast radius (one word, e.g. docs, cli, adopters):
+
+A one-way door must be made known to whoever decides to merge before the merge.
 
 ## Checklist
 - [ ] Code follows project style guidelines

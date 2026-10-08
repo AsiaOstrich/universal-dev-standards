@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.6
 It installs the published 6.14.0-beta.6 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.6 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 65 steps (61 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 65 步（61 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 68 步（64 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -240,6 +240,15 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 65 steps (61 c
 65. `transient-lock-gives-up-in-plain-words` (**new 新**) — uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
    檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
    `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+4)
+66. `tautology-init` — uds init sets up a project with the fake-test scanner in scripts/.
+   uds init 建立專案，並把假測試掃描腳本放進 scripts/。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+67. `tautology-scan` (**new 新**) — The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone.
+   掃描腳本點名「預期值是同一個呼叫」或「從同一個輸入重算」的測試，手算例則不動。
+   `{node} scripts/check-anti-fake-tests.mjs` → exit 1; output has "tautology "totals: one call written on both sides"", "tautology "totals: the expected value re-adds the items"" (+1)
+68. `std-merge-danger` (**new 新**) — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
+   安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

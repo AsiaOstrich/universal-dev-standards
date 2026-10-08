@@ -146,6 +146,7 @@ status: stale
   - Test names describe scenarios
   - Assertions are clear
   - No flaky tests
+  - 预期值独立于被测代码：字面值、手算例或规格——不是同一个调用再写一次，也不是同一套算式再敲一遍（见[禁止：恒真断言](full-coverage-testing.md)）
 
 - [ ] **测试覆盖率维持**
   - Coverage not decreased
@@ -252,6 +253,19 @@ status: stale
 
 ---
 
+### 11. 合并风险（可逆性）
+
+- [ ] **变更写明了它的门与影响范围**
+  - **双向门**：合并后能轻松退回
+  - **单向门**：无法退回或很难退回——数据迁移、删除、默认行为改变、退出码改变、对外接口改名
+  - **影响范围**：用一个词说明波及多远（例如 `docs`、`cli`、`adopters`）
+
+- [ ] **单向门在合并前已让决策者知情**
+  - 决定要不要合并的人，已在 PR 描述或交付报告中被告知这个变更无法轻易退回
+  - 字段缺漏时，请对方补上；不要只凭差异内容推测是哪一种门
+
+---
+
 ## 审查评论类型
 
 Use these prefixes to clarify comment intent:
@@ -323,6 +337,7 @@ Is there a specific reason for this approach?
 1. Read PR description and linked issues
 2. Understand WHY the change is needed
 3. Review design/spec documents if linked
+4. 阅读“合并风险”字段（门与影响范围）；若是单向门，确认决策者在合并前已知情
 
 #### Step 2: 高层级审查
 
@@ -360,6 +375,7 @@ Is there a specific reason for this approach?
 2. **本地执行测试**
 3. **检查 CI 状态**
 4. **撰写清楚的 PR 描述**
+5. **写明合并风险**——门（双向或单向）与影响范围，一个词
 
 #### 审查期间
 
@@ -646,6 +662,7 @@ All PRs must pass:
 │ ✓ Errors - Properly handled?           │
 │ ✓ Docs - Updated?                      │
 │ ✓ Dependencies - Necessary?            │
+│ ✓ Merge danger - One-way door told?    │
 └─────────────────────────────────────────┘
 
 Comment Prefixes:

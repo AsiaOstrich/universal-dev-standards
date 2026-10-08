@@ -1,9 +1,9 @@
 ---
 source: ../../../core/full-coverage-testing.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-10-06
-source_hash: 1fe2966d8684
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-10-08
+source_hash: 980f455d1475
 status: current
 ---
 
@@ -12,7 +12,7 @@ status: current
 > **Language**: [English](../../../core/full-coverage-testing.md) | 繁體中文
 
 > **AI 最佳化版本**: `ai/standards/full-coverage-testing.ai.yaml`
-> **XSPEC**: XSPEC-178、XSPEC-444（R2、R5——提交前警告與隨附閘門腳本）
+> **XSPEC**: XSPEC-178、XSPEC-444（R2、R5——提交前警告與隨附閘門腳本）、XSPEC-470（R1——恆真式＝預期值不獨立）
 > **取代**: 金字塔門檻模型（UT≥80%、IT≥70%、E2E 僅 happy-path）
 
 ## 概述
@@ -61,17 +61,49 @@ Coverage improved: 91.3% → 92.0%. New baseline set.
 
 ### 禁止：恆真斷言（Tautology Assertions）
 
-無論行為如何都會通過的斷言，提供的是虛假覆蓋率。
+斷言若不可能與實作產生分歧，提供的就是虛假覆蓋率。恆真斷言有兩種：
+
+1. **恆為真**——不管程式做什麼都會通過：`expect(true).toBe(true)`、`assert 200 == 200`。
+2. **預期值不獨立**——預期值由被測的程式碼產生，或由測試裡再寫一遍的同一套邏輯產生。實作正確時它會通過；實作與那份複本以同樣方式出錯時，它照樣通過。
+
+第二種用 [`verification-oracle`](verification-oracle.md) 的詞彙定義：斷言的**預言（oracle）**是「說明正確答案是什麼」的來源，恆真式就是**預言本身就是被測實作**的斷言。本標準不另立第二套「獨立真值」定義，直接採用該標準的：登錄的真值案例、已知的字面值、手算例，或規格（見其 *Oracle-ability Spectrum*）。
 
 ```typescript
 // ❌ FORBIDDEN — always passes, tests nothing
 expect(true).toBe(true)
 expect(result).toBeDefined()  // without specific value
 
-// ✅ REQUIRED — verifies actual behavior
+// ❌ FORBIDDEN — the oracle is the implementation
+expect(countInstalled(manifest)).toBe(countInstalled(manifest))                    // the same call on both sides
+expect(countInstalled(manifest)).toBe(manifest.standards.filter(s => s.installed).length)  // the same logic, typed again
+
+// ✅ REQUIRED — a value that was decided before the code ran
 expect(result).toBe(90)
 expect(result).toEqual({ discount: 10, total: 90 })
+expect(countInstalled({ standards: [{ id: 'a', installed: true }, { id: 'b', installed: false }] })).toBe(1)
 ```
+
+並非每個「兩個算出來的值互相比較」都是恆真式。下列是正常測試，**不會**被回報：
+
+| 看起來相似 | 為什麼它是真測試 |
+|------------|------------------|
+| 動作之後 `expect(snapshot(dir)).toEqual(before)` | 問的是「有沒有任何東西變動？」——兩個值取自不同時間點 |
+| `expect(parse(a)).toEqual(parseWithOldEngine(a))` | 預言是另一份獨立寫成的實作 |
+| 名稱就是在講決定性的測試裡 `expect(hash(x)).toBe(hash(x))` | 比較兩次呼叫正是這支測試的目的 |
+| `report` 與 `rows` 來自不同資料路徑時的 `expect(report.total).toBe(rows.reduce(...))` | 兩個來源之間的對帳 |
+
+#### 隨附掃描腳本判定什麼、哪些留給審查者
+
+`scripts/check-anti-fake-tests.mjs`（見下方〈兩支掃描腳本〉）只點名光看文字就能判定的兩種形狀。它讀 **JavaScript/TypeScript**（`toBe`、`toEqual`、`toStrictEqual`、chai 的 `to.equal`/`to.eql`、node 的 `assert.equal`/`strictEqual`/`deepEqual`/`deepStrictEqual`）：
+
+| 形狀 | 範例 | 回報條件 |
+|------|------|----------|
+| **同一個呼叫（same call）** | `expect(total(items)).toBe(total(items))` | 兩側是同一個函式、同樣的參數，寫在同一個敘述裡，且測試名稱不是在講「比較兩次呼叫」（決定性、冪等、快取、同一性） |
+| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被測呼叫吃一個輸入，預期值把同一個輸入送進 `reduce`、`map`、`flatMap` 或 `filter`（直接寫，或經由同一支測試裡先設定的 `const`） |
+
+與 `expect(true).toBe(true)` 相同，只有在測試的**所有**斷言都不是真斷言時才回報；自我比較旁邊還有一個對字面值的斷言，就留給審查者。文字判不了的，掃描腳本保持沉默——會亂叫的掃描腳本遲早被關掉。
+
+其餘一律是**審查者的判斷題**，在程式碼審查時問（見[程式碼審查檢查清單](code-review-checklist.md)）：這個預期值從哪裡來？能不能靠執行被測程式碼得到？如果實作錯得跟測試自己的算式一樣，這支測試還會過嗎？掃描腳本不判的典型情形：手寫迴圈重新推導答案、包著實作的輔助函式、拿實作第一次的輸出當快照，以及 JavaScript/TypeScript 以外的所有語言。
 
 ### 禁止：Mock 核心業務邏輯
 
@@ -241,7 +273,7 @@ legacy 降級模式（外部服務失敗時的 fallback、重試、部分結果�
 
 | 腳本 | 找什麼 |
 |------|--------|
-| `scripts/check-anti-fake-tests.mjs` | **沒有斷言**的測試；唯一的斷言是**恆真式**的測試（`expect(true).toBe(true)`、`assert 200 == 200`）；**每一支測試都被跳過或標為 todo** 的測試檔 |
+| `scripts/check-anti-fake-tests.mjs` | **沒有斷言**的測試；唯一的斷言是**恆真式**的測試（`expect(true).toBe(true)`、`assert 200 == 200`；JavaScript/TypeScript 另含「預期值就是被測的同一個呼叫」或「以同一個輸入經 `reduce`/`map`/`filter` 重算而得」，見〈禁止：恆真斷言〉）；**每一支測試都被跳過或標為 todo** 的測試檔 |
 | `scripts/check-stubs.mjs` | `// WARNING: STUB` 標記；宣稱**尚未實作**的函式本體（`raise NotImplementedError`、`todo!()`、`TODO()` 等）而旁邊沒有標記；本體**為空**的具名函式而旁邊沒有標記 |
 
 - 純 Node、零相依、不預設任何測試框架。它們是**你的檔案**：可以改、可以接進 CI。單獨執行時，找到東西就以非 0 結束——`node scripts/check-stubs.mjs` 就是本標準部署閘門所說的 pre-push／部署閘門。

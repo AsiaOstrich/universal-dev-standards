@@ -34,6 +34,21 @@ Describe how you tested these changes:
 - [ ] Ran `npm run lint` in `cli/` directory | 在 `cli/` 目錄執行 `npm run lint`
 - [ ] Tested manually | 手動測試
 
+## Merge Danger | 合併風險
+
+Can this be taken back after it is merged? Tick one door and name the blast radius in one word.
+
+合併之後能不能退回？勾一個門，並用一個詞寫出影響範圍。
+
+- [ ] **Two-way door | 雙向門** — after merging, it can be taken back easily | 合併後能輕鬆退回
+- [ ] **One-way door | 單向門** — it cannot be undone, or only with difficulty: a data migration, a deletion, a changed default behavior, a changed exit code, a renamed public interface | 不可逆或難以退回：資料遷移、刪除、預設行為改變、結束碼改變、對外介面改名
+
+**Blast radius | 影響範圍** (one word, e.g. `docs`, `cli`, `adopters` | 一個詞，例如 `docs`、`cli`、`adopters`):
+
+> A one-way door must be made known to whoever decides to merge **before** the merge. Say so here, and say what the decision-maker needs to know.
+>
+> 單向門必須在合併**之前**讓決定合併的人知情。請在此說明，並寫出決策者需要知道的事。
+
 ## Checklist | 檢查清單
 
 ### Code Quality | 程式碼品質

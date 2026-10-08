@@ -1,7 +1,7 @@
 # Full Coverage Testing Standards
 
 > **AI-optimized version**: `ai/standards/full-coverage-testing.ai.yaml`
-> **XSPEC**: XSPEC-178, XSPEC-444 (R2, R5 — pre-commit warnings and shipped gate scripts)
+> **XSPEC**: XSPEC-178, XSPEC-444 (R2, R5 — pre-commit warnings and shipped gate scripts), XSPEC-470 (R1 — tautology means "expected value not independent")
 > **Replaces**: Pyramid threshold model (UT≥80%, IT≥70%, E2E happy-path-only)
 
 ## Overview
@@ -50,17 +50,49 @@ Coverage improved: 91.3% → 92.0%. New baseline set.
 
 ### Forbidden: Tautology Assertions
 
-Assertions that always pass regardless of behavior provide false coverage.
+An assertion that cannot disagree with the implementation provides false coverage. There are two kinds:
+
+1. **Always true** — it passes whatever the code does: `expect(true).toBe(true)`, `assert 200 == 200`.
+2. **Not independent** — the expected value is produced by the code under test, or by the same logic written a second time inside the test. It passes when the implementation is right, and it passes just as well when the implementation and the copy are wrong in the same way.
+
+The second kind is defined with the vocabulary of [`verification-oracle`](verification-oracle.md): an assertion's **oracle** is the source that says what the right answer is, and a tautology is an assertion whose oracle *is the implementation itself*. This standard does not define "independent source of truth" a second time; it uses that standard's: a registered ground-truth case, a known literal, a hand-computed example, or the specification (see its *Oracle-ability Spectrum*).
 
 ```typescript
 // ❌ FORBIDDEN — always passes, tests nothing
 expect(true).toBe(true)
 expect(result).toBeDefined()  // without specific value
 
-// ✅ REQUIRED — verifies actual behavior
+// ❌ FORBIDDEN — the oracle is the implementation
+expect(countInstalled(manifest)).toBe(countInstalled(manifest))                    // the same call on both sides
+expect(countInstalled(manifest)).toBe(manifest.standards.filter(s => s.installed).length)  // the same logic, typed again
+
+// ✅ REQUIRED — a value that was decided before the code ran
 expect(result).toBe(90)
 expect(result).toEqual({ discount: 10, total: 90 })
+expect(countInstalled({ standards: [{ id: 'a', installed: true }, { id: 'b', installed: false }] })).toBe(1)
 ```
+
+Not every comparison of two computed values is a tautology. These are fine, and are **not** reported:
+
+| Looks similar | Why it is a real test |
+|---------------|-----------------------|
+| `expect(snapshot(dir)).toEqual(before)` after an action | Asks "did anything change?" — the two values are taken at different moments |
+| `expect(parse(a)).toEqual(parseWithOldEngine(a))` | A second, independently written implementation is the oracle |
+| `expect(hash(x)).toBe(hash(x))` in a test named for determinism | Comparing two calls is the point of the test |
+| `expect(report.total).toBe(rows.reduce(...))` where `report` comes from a different data path than `rows` | A reconciliation between two sources |
+
+#### What the shipped scanner decides, and what stays a reviewer's question
+
+`scripts/check-anti-fake-tests.mjs` (see "The two scanners" below) names the two shapes that can be decided from the text alone. It reads **JavaScript/TypeScript** (`toBe`, `toEqual`, `toStrictEqual`, chai `to.equal`/`to.eql`, node `assert.equal`/`strictEqual`/`deepEqual`/`deepStrictEqual`):
+
+| Shape | Example | Reported when |
+|-------|---------|---------------|
+| **same call** | `expect(total(items)).toBe(total(items))` | both sides are the same call with the same arguments, written in one statement, and the test is not named for comparing two calls (determinism, idempotence, caching, identity) |
+| **recomputed** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | the call under test takes an input, and the expected value runs that same input through `reduce`, `map`, `flatMap` or `filter` (directly, or through a `const` set earlier in the same test) |
+
+As with `expect(true).toBe(true)`, a test is reported only when **none** of its assertions is a real one; a self-comparison next to an assertion against a literal is left to the reviewer. When the text cannot decide, the scanner stays silent — a scanner that cries wolf is switched off.
+
+Everything else is a **reviewer's question**, asked in code review (see [Code Review Checklist](code-review-checklist.md)): Where did this expected value come from? Could it be produced by running the code under test? Would the test still pass if the implementation were wrong in the way the test's own arithmetic is wrong? Typical cases the scanner does not judge: a hand-written loop that re-derives the answer, a helper that wraps the implementation, a snapshot generated from the implementation's own first output, and every language other than JavaScript/TypeScript.
 
 ### Forbidden: Mocking Core Business Logic
 
@@ -236,7 +268,7 @@ The rules above used to depend on scripts the standard told you to write yoursel
 
 | Script | Finds |
 |--------|-------|
-| `scripts/check-anti-fake-tests.mjs` | a test with **no assertion**; a test whose only assertions are **tautologies** (`expect(true).toBe(true)`, `assert 200 == 200`); a test file in which **every test is skipped or todo** |
+| `scripts/check-anti-fake-tests.mjs` | a test with **no assertion**; a test whose only assertions are **tautologies** (`expect(true).toBe(true)`, `assert 200 == 200`; in JavaScript/TypeScript also an expected value that is the same call as the code under test, or is recomputed from the same input with `reduce`/`map`/`filter` — see "Forbidden: Tautology Assertions"); a test file in which **every test is skipped or todo** |
 | `scripts/check-stubs.mjs` | `// WARNING: STUB` markers; a body that says it is **not implemented** (`raise NotImplementedError`, `todo!()`, `TODO()` ...) with no marker beside it; a named function whose body is **empty** with no marker beside it |
 
 - Pure Node, no dependencies, no test framework assumed. They are **your files**: edit them, wire them into CI. Run on its own, each exits non-zero when it finds something — `node scripts/check-stubs.mjs` is the pre-push/deploy gate this standard's deployment gates describe.

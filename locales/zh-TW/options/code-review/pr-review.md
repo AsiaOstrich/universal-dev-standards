@@ -1,7 +1,8 @@
 ---
 source: options/code-review/pr-review.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.1.0
+translation_version: 1.1.0
+source_hash: 3fafa7b1a9c3
 status: current
 ---
 
@@ -35,6 +36,7 @@ Pull Request（PR）審查是傳統的非同步程式碼審查流程，在合併
 - 連結相關 issue
 - 指派適當的 reviewer
 - 確保 CI 檢查通過
+- 寫明合併風險：門（雙向或單向）與影響範圍，一個詞；單向門要在合併前讓決策者知情
 
 ### 2. 審查
 
@@ -126,6 +128,15 @@ Brief description of changes
 ## Testing
 - [ ] Unit tests added/updated
 - [ ] Manual testing performed
+
+## Merge Danger
+Door (tick one):
+- [ ] Two-way door: after merging, it can be taken back easily
+- [ ] One-way door: irreversible or hard to take back (data migration, deletion, changed default behavior, changed exit code, renamed public interface)
+
+Blast radius (one word, e.g. docs, cli, adopters):
+
+A one-way door must be made known to whoever decides to merge before the merge.
 
 ## Checklist
 - [ ] Code follows project style guidelines

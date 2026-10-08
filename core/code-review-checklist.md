@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/code-review-checklist.md)
 
-**Version**: 1.5.0
-**Last Updated**: 2026-08-24
+**Version**: 1.6.0
+**Last Updated**: 2026-10-08
 **Applicability**: All software projects with code review processes
 **Scope**: universal
 **Industry Standards**: SWEBOK v4.0 Chapter 10
@@ -141,6 +141,7 @@ This standard provides a comprehensive checklist for reviewing code changes, ens
   - Test names describe scenarios
   - Assertions are clear
   - No flaky tests
+  - Expected values are independent of the code under test: a literal, a hand-computed example or the spec — not the same call repeated, not the same arithmetic typed again (see [Forbidden: Tautology Assertions](full-coverage-testing.md))
 
 - [ ] **Test coverage maintained**
   - Coverage not decreased
@@ -247,6 +248,19 @@ This standard provides a comprehensive checklist for reviewing code changes, ens
 
 ---
 
+### 11. Merge Danger (Reversibility)
+
+- [ ] **The change states its door and its blast radius**
+  - **Two-way door**: after merging, it can be taken back easily
+  - **One-way door**: it cannot be undone, or only with difficulty — a data migration, a deletion, a changed default behavior, a changed exit code, a renamed public interface
+  - **Blast radius**: one word for how far it reaches (for example `docs`, `cli`, `adopters`)
+
+- [ ] **A one-way door is known to the decision-maker before the merge**
+  - Whoever decides to merge has been told, in the PR description or the hand-off report, that this change cannot be easily undone
+  - If the field is missing, ask for it; do not infer the door from the diff alone
+
+---
+
 ## Review Comment Types
 
 Use these prefixes to clarify comment intent:
@@ -320,6 +334,7 @@ For teams preferring plain text labels without emojis:
 1. Read PR description and linked issues
 2. Understand WHY the change is needed
 3. Review design/spec documents if linked
+4. Read the Merge Danger field (door and blast radius); for a one-way door, confirm the decision-maker knows before merging
 
 #### Step 2: High-Level Review
 
@@ -357,6 +372,7 @@ For teams preferring plain text labels without emojis:
 2. **Run tests locally**
 3. **Check CI status**
 4. **Write clear PR description**
+5. **State the Merge Danger** — door (two-way or one-way) and blast radius, in one word
 
 #### During Review
 
@@ -650,6 +666,7 @@ All PRs must pass:
 │ ✓ Errors - Properly handled?           │
 │ ✓ Docs - Updated?                      │
 │ ✓ Dependencies - Necessary?            │
+│ ✓ Merge danger - One-way door told?    │
 └─────────────────────────────────────────┘
 
 Comment Prefixes:
@@ -666,6 +683,7 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.6.0 | 2026-10-08 | Added: Merge Danger (door and blast radius) as checklist item 11 and in the reviewer/author steps — a one-way door must be known to the decision-maker before merge; added to "Tests are good quality" that expected values are independent of the code under test (XSPEC-470 R1, R2) |
 | 1.5.0 | 2026-08-24 | Added: pointer to `deferred-item-exit` for non-blocking comments accepted without a change (XSPEC-391 R5) |
 | 1.4.0 | 2026-06-18 | Added: source + configurability note for PR-size/response-time thresholds (SmartBear/Cisco study, Google practices) + bulk-change exception (XSPEC-292 T8) |
 | 1.3.0 | 2026-01-12 | Added: Comprehensive Refactoring PRs section with pre-review checklist, review focus areas, large refactoring guidelines, red flags, and best practices |

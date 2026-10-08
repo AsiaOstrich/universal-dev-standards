@@ -146,6 +146,7 @@ status: stale
   - Test names describe scenarios
   - Assertions are clear
   - No flaky tests
+  - 預期值獨立於被測程式碼：字面值、手算例或規格——不是同一個呼叫再寫一次，也不是同一套算式再打一遍（見[禁止：恆真斷言](full-coverage-testing.md)）
 
 - [ ] **測試覆蓋率維持**
   - Coverage not decreased
@@ -252,6 +253,19 @@ status: stale
 
 ---
 
+### 11. 合併風險（可逆性）
+
+- [ ] **變更寫明了它的門與影響範圍**
+  - **雙向門**：合併後能輕鬆退回
+  - **單向門**：無法退回或很難退回——資料遷移、刪除、預設行為改變、結束碼改變、對外介面改名
+  - **影響範圍**：用一個詞說明波及多遠（例如 `docs`、`cli`、`adopters`）
+
+- [ ] **單向門在合併前已讓決策者知情**
+  - 決定要不要合併的人，已在 PR 描述或交件報告中被告知這個變更無法輕易退回
+  - 欄位缺漏時，請對方補上；不要只憑差異內容推測是哪一種門
+
+---
+
 ## 審查評論類型
 
 Use these prefixes to clarify comment intent:
@@ -325,6 +339,7 @@ Is there a specific reason for this approach?
 1. Read PR description and linked issues
 2. Understand WHY the change is needed
 3. Review design/spec documents if linked
+4. 閱讀「合併風險」欄（門與影響範圍）；若是單向門，確認決策者在合併前已知情
 
 #### Step 2: 高層級審查
 
@@ -362,6 +377,7 @@ Is there a specific reason for this approach?
 2. **本地執行測試**
 3. **檢查 CI 狀態**
 4. **撰寫清楚的 PR 描述**
+5. **寫明合併風險**——門（雙向或單向）與影響範圍，一個詞
 
 #### 審查期間
 
@@ -648,6 +664,7 @@ All PRs must pass:
 │ ✓ Errors - Properly handled?           │
 │ ✓ Docs - Updated?                      │
 │ ✓ Dependencies - Necessary?            │
+│ ✓ Merge danger - One-way door told?    │
 └─────────────────────────────────────────┘
 
 Comment Prefixes:

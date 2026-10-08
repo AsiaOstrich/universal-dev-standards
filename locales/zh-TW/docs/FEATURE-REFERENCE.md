@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (153)
-7. [腳本](#scripts) (64)
+7. [腳本](#scripts) (65)
 
-**Total Features: 358**
+**Total Features: 359**
 
 ---
 
@@ -471,7 +471,7 @@
 | `checkin-standards` | 1.8.0 | This standard defines quality gates that MUST be passed before committing code t |
 | `circuit-breaker` | - |  |
 | `class-level-fix` | 1.1.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
-| `code-review-checklist` | 1.5.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
+| `code-review-checklist` | 1.6.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
 | `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `container-security` | - |  |
@@ -644,6 +644,7 @@
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
 | `check-workflow-compliance.sh` | Thin wrapper — scripts/check-workflow-compliance.ts is the only copy of the |
+| `ci-vitest-summary.mjs` | ci-vitest-summary — say how many tests ran, passed, failed and were skipped (dev-platform XSPEC-469 R4). |
 | `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint rules enforcing the |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |

@@ -1,9 +1,9 @@
 ---
 source: ../../../core/full-coverage-testing.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-10-06
-source_hash: 1fe2966d8684
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-10-08
+source_hash: 980f455d1475
 status: current
 ---
 
@@ -12,7 +12,7 @@ status: current
 > **Language**: [English](../../../core/full-coverage-testing.md) | [繁體中文](../../zh-TW/core/full-coverage-testing.md) | 简体中文
 
 > **AI 最优化版本**: `ai/standards/full-coverage-testing.ai.yaml`
-> **XSPEC**: XSPEC-178、XSPEC-444（R2、R5——提交前警告与随附闸门脚本）
+> **XSPEC**: XSPEC-178、XSPEC-444（R2、R5——提交前警告与随附闸门脚本）、XSPEC-470（R1——恒真式＝预期值不独立）
 > **取代**: 金字塔门槛模型（UT≥80%、IT≥70%、E2E 仅 happy-path）
 
 ## 概述
@@ -61,17 +61,49 @@ Coverage improved: 91.3% → 92.0%. New baseline set.
 
 ### 禁止：恒真断言（Tautology Assertions）
 
-无论行为如何都会通过的断言，提供的是虚假覆盖率。
+断言若不可能与实现产生分歧，提供的就是虚假覆盖率。恒真断言有两种：
+
+1. **恒为真**——不管程序做什么都会通过：`expect(true).toBe(true)`、`assert 200 == 200`。
+2. **预期值不独立**——预期值由被测的代码产生，或由测试里再写一遍的同一套逻辑产生。实现正确时它会通过；实现与那份副本以同样方式出错时，它照样通过。
+
+第二种用 [`verification-oracle`](verification-oracle.md) 的词汇定义：断言的**预言（oracle）**是“说明正确答案是什么”的来源，恒真式就是**预言本身就是被测实现**的断言。本标准不另立第二套“独立真值”定义，直接采用该标准的：登记的真值案例、已知的字面值、手算例，或规格（见其 *Oracle-ability Spectrum*）。
 
 ```typescript
 // ❌ FORBIDDEN — always passes, tests nothing
 expect(true).toBe(true)
 expect(result).toBeDefined()  // without specific value
 
-// ✅ REQUIRED — verifies actual behavior
+// ❌ FORBIDDEN — the oracle is the implementation
+expect(countInstalled(manifest)).toBe(countInstalled(manifest))                    // the same call on both sides
+expect(countInstalled(manifest)).toBe(manifest.standards.filter(s => s.installed).length)  // the same logic, typed again
+
+// ✅ REQUIRED — a value that was decided before the code ran
 expect(result).toBe(90)
 expect(result).toEqual({ discount: 10, total: 90 })
+expect(countInstalled({ standards: [{ id: 'a', installed: true }, { id: 'b', installed: false }] })).toBe(1)
 ```
+
+并非每个“两个算出来的值互相比较”都是恒真式。下列是正常测试，**不会**被报告：
+
+| 看起来相似 | 为什么它是真测试 |
+|------------|------------------|
+| 动作之后 `expect(snapshot(dir)).toEqual(before)` | 问的是“有没有任何东西变动？”——两个值取自不同时间点 |
+| `expect(parse(a)).toEqual(parseWithOldEngine(a))` | 预言是另一份独立写成的实现 |
+| 名称就是在讲确定性的测试里 `expect(hash(x)).toBe(hash(x))` | 比较两次调用正是这个测试的目的 |
+| `report` 与 `rows` 来自不同数据路径时的 `expect(report.total).toBe(rows.reduce(...))` | 两个来源之间的对账 |
+
+#### 随附扫描脚本判定什么、哪些留给审查者
+
+`scripts/check-anti-fake-tests.mjs`（见下方《两个扫描脚本》）只点名光看文本就能判定的两种形状。它读 **JavaScript/TypeScript**（`toBe`、`toEqual`、`toStrictEqual`、chai 的 `to.equal`/`to.eql`、node 的 `assert.equal`/`strictEqual`/`deepEqual`/`deepStrictEqual`）：
+
+| 形状 | 示例 | 报告条件 |
+|------|------|----------|
+| **同一个调用（same call）** | `expect(total(items)).toBe(total(items))` | 两侧是同一个函数、同样的参数，写在同一条语句里，且测试名称不是在讲“比较两次调用”（确定性、幂等、缓存、同一性） |
+| **重算（recomputed）** | `expect(total(items)).toBe(items.reduce((s, i) => s + i.price, 0))` | 被测调用吃一个输入，预期值把同一个输入送进 `reduce`、`map`、`flatMap` 或 `filter`（直接写，或经由同一个测试里先设定的 `const`） |
+
+与 `expect(true).toBe(true)` 相同，只有在测试的**所有**断言都不是真断言时才报告；自我比较旁边还有一个对字面值的断言，就留给审查者。文本判不了的，扫描脚本保持沉默——会乱叫的扫描脚本迟早被关掉。
+
+其余一律是**审查者的判断题**，在代码审查时问（见[代码审查检查清单](code-review-checklist.md)）：这个预期值从哪里来？能不能靠运行被测代码得到？如果实现错得跟测试自己的算式一样，这个测试还会过吗？扫描脚本不判的典型情形：手写循环重新推导答案、包着实现的辅助函数、拿实现第一次的输出当快照，以及 JavaScript/TypeScript 以外的所有语言。
 
 ### 禁止：Mock 核心业务逻辑
 
@@ -247,7 +279,7 @@ legacy 降级模式（外部服务失败时的 fallback、重试、部分结果�
 
 | 脚本 | 找什么 |
 |------|--------|
-| `scripts/check-anti-fake-tests.mjs` | **没有断言**的测试；唯一的断言是**恒真式**的测试（`expect(true).toBe(true)`、`assert 200 == 200`）；**每个测试都被跳过或标为 todo** 的测试文件 |
+| `scripts/check-anti-fake-tests.mjs` | **没有断言**的测试；唯一的断言是**恒真式**的测试（`expect(true).toBe(true)`、`assert 200 == 200`；JavaScript/TypeScript 另含“预期值就是被测的同一个调用”或“以同一个输入经 `reduce`/`map`/`filter` 重算而得”，见《禁止：恒真断言》）；**每个测试都被跳过或标为 todo** 的测试文件 |
 | `scripts/check-stubs.mjs` | `// WARNING: STUB` 标记；声称**尚未实现**的函数体（`raise NotImplementedError`、`todo!()`、`TODO()` 等）而旁边没有标记；函数体**为空**的具名函数而旁边没有标记 |
 
 - 纯 Node、零依赖、不预设任何测试框架。它们是**你的文件**：可以改、可以接入 CI。单独运行时，找到东西就以非 0 退出——`node scripts/check-stubs.mjs` 就是本标准部署闸门所说的 pre-push／部署闸门。

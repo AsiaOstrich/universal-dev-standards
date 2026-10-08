@@ -378,6 +378,7 @@
 | `check-version-sync.ps1` | Check Version Sync |
 | `check-version-sync.sh` | Version Sync Checker |
 | `check-workflow-compliance.sh` | Thin wrapper — scripts/check-workflow-compliance.t |
+| `ci-vitest-summary.mjs` | ci-vitest-summary — say how many tests ran, passed |
 | `commitlint-bilingual-rule.mjs` | commitlint-bilingual-rule.mjs — custom commitlint  |
 | `convert-md-to-yaml.mjs` | Markdown to AI-YAML Conversion Script |
 | `fix-manifest-paths.ps1` | Fix Manifest Paths |

@@ -1913,6 +1913,97 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "tautology-init",
+      "workspace": "tautology",
+      "title": "uds init sets up a project with the fake-test scanner in scripts/",
+      "titleZh": "uds init 建立專案，並把假測試掃描腳本放進 scripts/",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/check-anti-fake-tests.mjs",
+            "contains": [
+              "findNonIndependentExpectations"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "tautology-scan",
+      "workspace": "tautology",
+      "title": "The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone",
+      "titleZh": "掃描腳本點名「預期值是同一個呼叫」或「從同一個輸入重算」的測試，手算例則不動",
+      "changelog": [
+        "check-anti-fake-tests also names a test whose expected value"
+      ],
+      "prepare": [
+        {
+          "writeFile": "tests/cart.test.js",
+          "content": "it('totals: one call written on both sides', () => {\n  expect(calculateTotal(items)).toBe(calculateTotal(items));\n});\nit('totals: the expected value re-adds the items', () => {\n  expect(calculateTotal(items)).toBe(items.reduce((sum, item) => sum + item.price, 0));\n});\nit('totals: a hand-computed example', () => {\n  expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15);\n});\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "scripts/check-anti-fake-tests.mjs"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "tautology  \"totals: one call written on both sides\"",
+          "tautology  \"totals: the expected value re-adds the items\"",
+          "not independent of the code under test"
+        ],
+        "notContains": [
+          "\"totals: a hand-computed example\""
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-merge-danger",
+      "workspace": "tautology",
+      "title": "The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule",
+      "titleZh": "安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則",
+      "changelog": [
+        "code-review-checklist 1.6.0 and the PR templates ask every change"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/code-review.ai.yaml",
+            "contains": [
+              "version: \"2.3.0\"",
+              "id: merge-danger-known",
+              "one-way door"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
