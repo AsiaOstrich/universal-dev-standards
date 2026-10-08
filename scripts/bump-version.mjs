@@ -339,6 +339,23 @@ for (const [script, what] of [
   }
 }
 
+// ── docs/PRE-RELEASE.md carries the version too (XSPEC-469 R5) ──────────────
+// The "What to test" and "Verified on" blocks are generated from cli/package.json's version (just bumped above), so
+// after a bump `generate-pre-release.mjs --check` (CI job "Beta Acceptance Coverage") stays red until the document is
+// regenerated. Done here so a release never depends on someone remembering it. It rewrites only the two marked
+// blocks; the "Current beta" narrative around them is still written by hand at release time.
+console.log('');
+console.log('── Regenerating docs/PRE-RELEASE.md (generated blocks) ───────────────────');
+console.log('');
+try {
+  execSync('node scripts/beta-acceptance/generate-pre-release.mjs', { cwd: ROOT_DIR, stdio: 'inherit' });
+  console.log(`  ${GREEN}[OK]${NC} docs/PRE-RELEASE.md generated blocks regenerated`);
+} catch {
+  console.log('');
+  console.error(`${RED}generate-pre-release.mjs FAILED — docs/PRE-RELEASE.md still names the previous version.${NC}`);
+  process.exit(1);
+}
+
 // ── Verify with check-version-sync (platform-aware) ───────────────────────
 console.log('');
 console.log('── Running version sync verification ────────────────────────────────────');
