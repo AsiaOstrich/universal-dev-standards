@@ -15,7 +15,6 @@
 import { it, expect, afterAll } from 'vitest';
 import { spawnSync } from 'child_process';
 import { existsSync, writeFileSync } from 'fs';
-import { homedir } from 'os';
 import { join } from 'path';
 import { copyProgram, otherPlatform, runAcceptance, scratch, strings, weaken, writeFakePackage, writeInstaller, writeSteps } from '../utils/xspec-469.js';
 import { detectShell, readCodePage, UNKNOWN } from '../../../scripts/beta-acceptance/lib/env-info.mjs';
@@ -195,10 +194,11 @@ it('the code page, the shell and npm are worked out by pure rules: a Windows chc
 });
 
 it('every step runs in its own folder with its own throwaway home: the command sees a HOME that is not the real one, and a file it writes is read back from that folder (XSPEC-469 R2)', () => {
-  const real = homedir();
   const steps = writeSteps(tmp.next('steps.json'), [
-    { id: 'home-is-not-real', title: 'HOME is a throwaway folder', uds: ['env', 'HOME'], expect: { contains: ['uds-beta-acceptance-'], notContains: [real] } },
-    { id: 'userprofile-too', title: 'USERPROFILE is a throwaway folder', uds: ['env', 'USERPROFILE'], expect: { contains: ['uds-beta-acceptance-'], notContains: [real] } },
+    // The home is <sandbox>/home/<step id>: a regular expression on the tail of the path, because the real home folder can
+    // be a prefix of the sandbox's own path (a temp folder inside the user profile on Windows).
+    { id: 'home-is-not-real', title: 'HOME is a throwaway folder', uds: ['env', 'HOME'], expect: { matches: ['uds-beta-acceptance-[^\\\\/]+[\\\\/]home[\\\\/]home-is-not-real\\s*$'] } },
+    { id: 'userprofile-too', title: 'USERPROFILE is a throwaway folder', uds: ['env', 'USERPROFILE'], expect: { matches: ['uds-beta-acceptance-[^\\\\/]+[\\\\/]home[\\\\/]userprofile-too\\s*$'] } },
     { id: 'writes-a-file', title: 'the file the command wrote is there', uds: ['write', 'out.txt', 'written by the step'], expect: { contains: ['wrote out.txt'], files: [{ path: 'out.txt', contains: ['written by the step'] }] } },
     { id: 'does-not-see-it', title: 'another step does not see that file', uds: ['echo', 'x'], expect: { contains: ['x'], files: [{ path: 'out.txt', exists: false }] } },
   ]);
