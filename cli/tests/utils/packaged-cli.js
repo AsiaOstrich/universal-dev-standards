@@ -27,8 +27,9 @@ import {
   writeFileSync
 } from 'fs';
 import { tmpdir } from 'os';
-import { join, resolve } from 'path';
+import { join, resolve, relative } from 'path';
 import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
+import { resolveNpm } from '../../../scripts/beta-acceptance/lib/install.mjs';
 
 export const REAL_CLI_DIR = resolve(import.meta.dirname, '../..');
 export const REAL_REPO = resolve(REAL_CLI_DIR, '..');
@@ -36,6 +37,12 @@ export const REAL_REPO = resolve(REAL_CLI_DIR, '..');
 // Real directories of the repo that prepack bundles (see cli/scripts/prepack.mjs) — copied, never symlinked:
 // cpSync would copy a symlink as a symlink and npm never packs symlinks.
 const REPO_DIRS_FOR_PREPACK = ['ai', 'core', 'locales', 'skills', 'templates', 'extensions'];
+
+/**
+ * Directory link type. 'junction' needs no privilege on Windows (a 'dir' symlink needs Developer Mode or an
+ * elevated user); POSIX ignores the argument and makes an ordinary symlink.
+ */
+export const LINK_TYPE = 'junction';
 
 /** The line a fake "GitHub main" adds to every file it serves — never part of any installed file. */
 export const UPSTREAM_ONLY_LINE = 'UPSTREAM-ONLY-LINE-THAT-GITHUB-MAIN-ADDED-AFTER-YOU-INSTALLED';
@@ -82,9 +89,9 @@ for (const m of [https, http]) { m.get = blocked; m.request = blocked; }
 globalThis.fetch = async (url) => { note(url); const e = new Error('network blocked by the test'); e.code = 'UDS_TEST_NETWORK_BLOCKED'; throw e; };
 `;
 
-export function run(cmd, args, cwd, env, timeoutMs = 120000) {
+export function run(cmd, args, cwd, env, timeoutMs = 120000, { shell = false } = {}) {
   return new Promise((done) => {
-    const proc = spawn(cmd, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    const proc = spawn(cmd, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'], shell });
     let stdout = '';
     let stderr = '';
     proc.stdout.on('data', (d) => { stdout += d.toString(); });
@@ -133,7 +140,11 @@ export function createPackagedWorld(prefix) {
 
     const dest = join(root, 'tarball');
     mkdirSync(dest, { recursive: true });
-    const packed = await run('npm', ['pack', '--pack-destination', dest], cli, baseEnv(home), 300000);
+    // `npm` is `npm.cmd` on Windows and Node cannot start a .cmd without a shell (spawn npm ENOENT, which is how
+    // this failed on windows-latest). resolveNpm starts npm-cli.js with node itself, and only falls back to
+    // `npm.cmd` through a shell when it cannot find it.
+    const npm = resolveNpm({ env: process.env });
+    const packed = await run(npm.file, [...npm.prefixArgs, 'pack', '--pack-destination', dest], cli, baseEnv(home), 300000, { shell: npm.shell });
     const tgz = existsSync(dest) ? readdirSync(dest).find((f) => f.endsWith('.tgz')) : null;
     if (packed.code !== 0 || !tgz) {
       throw new Error(`npm pack failed (exit ${packed.code}): ${packed.stdout.slice(-400)}\n${packed.stderr.slice(-400)}`);
@@ -141,10 +152,12 @@ export function createPackagedWorld(prefix) {
 
     const pkgParent = join(root, 'installed');
     mkdirSync(pkgParent, { recursive: true });
-    const untar = await run('tar', ['-xzf', join(dest, tgz), '-C', pkgParent], root, baseEnv(home));
+    // Relative names, run from `dest`: GNU tar (the one Git for Windows puts first on PATH) reads `D:\...` as
+    // "host D, file ..." and fails; a bare file name and a relative -C mean the same to GNU tar and bsdtar.
+    const untar = await run('tar', ['-xzf', tgz, '-C', relative(dest, pkgParent)], dest, baseEnv(home));
     if (untar.code !== 0) throw new Error(`tar failed: ${untar.stderr}`);
     const pkgDir = join(pkgParent, 'package'); // npm tarballs always unpack to package/
-    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(pkgDir, 'node_modules'), 'dir');
+    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(pkgDir, 'node_modules'), LINK_TYPE);
 
     const mappings = await readExtensionMappings(pkgDir, home);
     const version = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf-8')).version;
@@ -158,7 +171,7 @@ export function createPackagedWorld(prefix) {
     mkdirSync(copyRoot, { recursive: true });
     const copyDir = join(copyRoot, 'package');
     cpSync(pkg.pkgDir, copyDir, { recursive: true, filter: (src) => !src.endsWith('node_modules') });
-    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(copyDir, 'node_modules'), 'dir');
+    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(copyDir, 'node_modules'), LINK_TYPE);
     return copyDir;
   };
 

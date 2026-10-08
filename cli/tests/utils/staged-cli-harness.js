@@ -18,7 +18,7 @@
 import { spawn } from 'child_process';
 import {
   mkdtempSync, mkdirSync, cpSync, symlinkSync, readdirSync, existsSync, readFileSync, rmSync,
-  realpathSync, writeFileSync
+  realpathSync, writeFileSync, statSync
 } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
@@ -26,6 +26,20 @@ import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
 
 export const REAL_CLI_DIR = resolve(import.meta.dirname, '../..');
 export const REAL_REPO = resolve(REAL_CLI_DIR, '..');
+
+/**
+ * Put `target` (a directory or a file of the repo) at `link` inside the staged tree.
+ * Windows (windows-latest, XSPEC-469 R4): a 'dir' symlink and any file symlink need a privilege the user may
+ * not have, and a symlink created without a type to a directory becomes a file-type link. So a directory gets
+ * a 'junction' (no privilege, absolute target) and a file is copied; POSIX keeps the plain symlink.
+ * `platform` and `symlink` are parameters so the Windows choice can be checked on any system.
+ */
+export function linkRepoEntry(link, target, { platform = process.platform, symlink = symlinkSync } = {}) {
+  const isDirectory = statSync(target).isDirectory();
+  if (platform !== 'win32') return symlink(target, link);
+  if (isDirectory) return symlink(target, link, 'junction');
+  return cpSync(target, link);
+}
 
 /** Text without the terminal control codes (colours, cursor moves) a prompt library prints. */
 export const stripAnsi = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
@@ -143,10 +157,10 @@ export function createHarness(label, { overrides = {} } = {}) {
       writeFileSync(target, source);
     }
     for (const f of ['package.json', 'standards-registry.json']) cpSync(join(REAL_CLI_DIR, f), join(cli, f));
-    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(cli, 'node_modules'), 'dir');
+    symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(cli, 'node_modules'), 'junction'); // a 'dir' symlink needs a privilege on Windows
     for (const name of readdirSync(REAL_REPO)) {
       if (['cli', '.git', 'node_modules'].includes(name)) continue;
-      symlinkSync(join(REAL_REPO, name), join(root, name));
+      linkRepoEntry(join(root, name), join(REAL_REPO, name));
     }
     stagedCli = join(cli, 'bin', 'uds.js');
     return sandbox;

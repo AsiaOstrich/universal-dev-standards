@@ -4,7 +4,7 @@
  */
 
 import { spawn } from 'child_process';
-import { join, dirname } from 'path';
+import { join, dirname, sep as PATH_SEP } from 'path';
 import { fileURLToPath } from 'url';
 import { mkdtemp, rm, mkdir, writeFile, readFile, access } from 'fs/promises';
 import { tmpdir } from 'os';
@@ -27,6 +27,17 @@ mkdirSync(TEST_HOME_DIR, { recursive: true });
 export function stripAnsi(str) {
   // eslint-disable-next-line no-control-regex
   return str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
+}
+
+/**
+ * A path as the tests write it: forward slashes. `path.join` returns backslashes on Windows, so a test that
+ * asked for `f.path.includes('.standards/')` never matched there (init-flow Scenario C failed on windows-latest
+ * for exactly that reason). `sep` is a parameter so the Windows case can be checked on any platform.
+ * @param {string} p
+ * @param {string} [sep]
+ */
+export function toPosix(p, sep = PATH_SEP) {
+  return sep === '/' ? p : p.split(sep).join('/');
 }
 
 /**
@@ -290,6 +301,86 @@ export async function runInteractive(inputs, cliOptions = {}, workDir, timeout =
 }
 
 /**
+ * The prompt that is waiting for an answer, as text (its question line and its choices), or null.
+ * Looks at the LAST marker only: an inquirer prompt line starts with `?`; once answered it is rewritten as
+ * `✔` (`√` where the terminal has no unicode: inquirer's Windows fallback). "Last marker is `?`" = waiting; "last marker is `✔`" = the previous answer is being echoed and the next
+ * prompt is not drawn yet. Only this block is matched against rules, so the echo of the previous prompt
+ * ("✔ Which AI tools ...") can never be taken for the current question.
+ * @param {string} screen - ANSI-stripped output since the last answer
+ * @returns {string|null}
+ */
+export function currentPrompt(screen) {
+  const markers = [...screen.matchAll(/(?:^|\n)[ \t]*\?[ \t]|[✔√]/g)];
+  if (markers.length === 0) return null;
+  const last = markers[markers.length - 1];
+  return /[✔√]/.test(last[0]) ? null : screen.slice(last.index).replace(/^\n/, '');
+}
+
+/**
+ * Run `uds init` interactively, answering each prompt by WHAT IT ASKS rather than by how many chunks came
+ * before it (XSPEC-469 R4: the position-based `runInteractive` answered the wrong question whenever stdout
+ * was split differently — which it is on a slower machine — and the "cancel" test then installed instead).
+ *
+ * A prompt is answered only when the output has been quiet for `idleMs` AND the last thing on screen is a
+ * prompt that has not been answered (see currentPrompt). The first rule whose `when` matches that prompt
+ * wins; no match → `defaultKeys` (Enter = take the default). Keys go out as one write.
+ *
+ * @param {Array<{when: RegExp, keys: string}>} rules
+ * @param {string} workDir
+ * @param {{timeout?: number, idleMs?: number, defaultKeys?: string, maxAnswers?: number, args?: string[]}} [opts]
+ * @returns {Promise<{stdout: string, stderr: string, exitCode: number|null, timedOut: boolean, answers: Array<{prompt: string, keys: string, rule: number}>, files: Array}>}
+ */
+export async function runPrompted(rules, workDir, { timeout = 90000, idleMs = 400, defaultKeys = '\r', maxAnswers = 60, args = [] } = {}) {
+  return new Promise((resolve) => {
+    const proc = spawn('node', [CLI_PATH, 'init', ...args], {
+      cwd: workDir,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR }
+    });
+    let stdout = '';
+    let stderr = '';
+    let screen = '';
+    let idle = null;
+    const answers = [];
+    let closed = false;
+
+    const answer = () => {
+      const prompt = currentPrompt(screen);
+      if (closed || answers.length >= maxAnswers || prompt === null) return;
+      const ruleIndex = rules.findIndex((r) => r.when.test(prompt));
+      const keys = ruleIndex === -1 ? defaultKeys : rules[ruleIndex].keys;
+      answers.push({ prompt: prompt.trim().split('\n')[0], keys, rule: ruleIndex });
+      screen = '';
+      proc.stdin.write(keys);
+    };
+
+    proc.stdout.on('data', (data) => {
+      const text = stripAnsi(data.toString());
+      stdout += text;
+      screen += text;
+      clearTimeout(idle);
+      idle = setTimeout(answer, idleMs);
+    });
+    proc.stderr.on('data', (data) => { stderr += data.toString(); });
+    proc.stdin.on('error', () => { /* the process ended while a key was being written */ });
+
+    const timer = setTimeout(() => {
+      closed = true;
+      clearTimeout(idle);
+      proc.kill('SIGTERM');
+      resolve({ stdout, stderr: stripAnsi(stderr), exitCode: -1, timedOut: true, answers, files: [] });
+    }, timeout);
+
+    proc.on('close', async (code) => {
+      closed = true;
+      clearTimeout(timer);
+      clearTimeout(idle);
+      resolve({ stdout, stderr: stripAnsi(stderr), exitCode: code, timedOut: false, answers, files: await collectGeneratedFiles(workDir) });
+    });
+  });
+}
+
+/**
  * Determine if we should send the next input based on output
  * @param {string} output - Current output chunk
  * @param {number} inputIndex - Current input index
@@ -357,7 +448,7 @@ async function collectGeneratedFiles(workDir) {
       const entries = await readdir(standardsDir, { withFileTypes: true, recursive: true });
       for (const entry of entries) {
         if (entry.isFile()) {
-          const relativePath = join('.standards', entry.name);
+          const relativePath = toPosix(join('.standards', entry.name));
           if (!files.some(f => f.path === relativePath)) {
             const fullPath = join(standardsDir, entry.name);
             const content = await readFileSafe(fullPath);

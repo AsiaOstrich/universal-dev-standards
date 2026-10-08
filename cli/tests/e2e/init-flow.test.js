@@ -10,6 +10,7 @@ import { readFile, writeFile, mkdir } from 'fs/promises';
 import {
   runNonInteractive,
   runInteractive,
+  runPrompted,
   createTempDir,
   cleanupTempDir,
   setupTestDir,
@@ -763,38 +764,19 @@ describe('E2E: uds init', () => {
     it('should allow cancelling installation', async () => {
       await setupTestDir(testDir, {});
 
-      const inputs = [
-        // Display Language: English (first option)
-        '\r',
-        // AI Tools: Claude Code
-        { type: 'checkbox', selections: [{ toggle: true }] },
-        // AGENTS.md prompt: Yes
-        'Y',
-        // Skills Location: Plugin Marketplace
-        '\r',
-        // Commands: accept defaults
-        '\r',
-        // Standards Scope: Lean
-        '\r',
-        // Format: Compact
-        '\r',
-        // Standard Options
-        '\r', '\r', '\r', '\r',
-        // Locale: No
-        'n',
-        // Content Mode: Standard
-        '\r',
-        // Final Confirm: NO - Cancel installation
-        'n'
-      ];
-
-      const result = await runInteractive(inputs, {}, testDir, 90000);
+      // Answered by what each prompt asks, not by position: every prompt takes its default (Enter) except
+      // the two named here. The old position-based script no longer matched the prompts that `uds init`
+      // asks (git workflow, output language, release mode, ... were added), so on a machine that split
+      // stdout differently its final "n" landed on another prompt and the installation went ahead.
+      const result = await runPrompted([
+        { when: /Which AI tools/i, keys: ' \r' }, // select the first tool (Claude Code); Enter alone selects none
+        { when: /Proceed with installation/i, keys: 'n\r' } // the final confirmation: NO
+      ], testDir, { timeout: 100000 });
 
       recordScenarioResult('Interactive Cancel', {
         steps: [
-          { step: 1, name: 'Cancelled message or no .standards', matched:
-            result.stdout.includes('cancelled') ||
-            result.stdout.includes('Cancelled') ||
+          { step: 1, name: 'Cancelled message and no .standards', matched:
+            result.stdout.includes('Installation cancelled') &&
             !(await fileExists(join(testDir, '.standards/manifest.json')))
           }
         ],
@@ -802,13 +784,16 @@ describe('E2E: uds init', () => {
         files: result.files
       });
 
-      // Verify installation was cancelled
-      if (!result.timedOut && result.stdout.length > 100) {
-        // Should show cancellation message or not create .standards directory
-        const hasCancelMessage = result.stdout.toLowerCase().includes('cancel');
-        const noManifest = !(await fileExists(join(testDir, '.standards/manifest.json')));
-        expect(hasCancelMessage || noManifest).toBe(true);
-      }
+      expect(result.timedOut, `the prompts did not finish. answered: ${JSON.stringify(result.answers.map((a) => a.prompt))}`).toBe(false);
+      // The answer to the final question really was "n" ...
+      const last = result.answers[result.answers.length - 1];
+      expect(last.prompt).toMatch(/Proceed with installation/i);
+      expect(last.keys).toBe('n\r');
+      // ... and its effect: the CLI says so, exits cleanly, and wrote nothing.
+      expect(result.stdout).toContain('Installation cancelled');
+      expect(result.exitCode).toBe(0);
+      expect(await fileExists(join(testDir, '.standards/manifest.json'))).toBe(false);
+      expect(result.stdout).not.toContain('Standards initialized successfully');
     }, 120000);
   });
 });
