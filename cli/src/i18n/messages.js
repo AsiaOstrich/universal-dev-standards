@@ -388,7 +388,7 @@ export const messages = {
       installCount: 'Will install Skills to {count} location(s)',
       gitSharingHint: 'Tip: Commit .claude/skills/ to Git to share with your team',
       choices: {
-        marketplace: 'Auto-updates, easy version management',
+        marketplace: 'Skills then come from the plugin and none are written to this project',
         userLevel: 'User Level',
         projectLevel: 'Project Level',
         user: 'Shared across all projects',
@@ -396,7 +396,7 @@ export const messages = {
         none: 'No Skills installation'
       },
       explanations: {
-        marketplace: '  → Automatic updates when new versions are released\n  → Easy install/uninstall via Claude Code Plugin system\n  → Run: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → Claude Code only, English skill texts only, stable releases only\n  → Puts no files in the project\n  → Run: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills available in all your projects',
         project: '  → Consider adding .claude/skills/ to .gitignore',
         none: '  → Full standards will be copied to .standards/'
@@ -408,7 +408,7 @@ export const messages = {
 
     // Marketplace Installation Guide
     marketplaceInstall: {
-      claudeCodeTip: 'Claude Code can be installed via Marketplace:',
+      claudeCodeTip: 'Pre-selected below: install the skills into this project (the main path). Claude Code also has a plugin, an alternative with limits (Claude Code only, English skill texts only, stable releases only, no files in the project). To use the plugin, deselect everything below, then run:',
       guide: 'Please run the following command in Claude Code:',
       note: 'After installation, Skills will auto-load and stay updated.',
       alreadyInstalled: 'Marketplace plugin already installed.',
@@ -696,6 +696,11 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        localePackMissingTitle: 'The {locale} skill texts are not in this copy of UDS, so the skills were installed in English.',
+        localePackMissingLines: [
+          'The Traditional and Simplified Chinese texts ship inside the UDS npm package (the locales/ folder), so this is not about your network: this copy of UDS is incomplete or damaged.',
+          'To get the {locale} texts, reinstall UDS (npm install -g universal-dev-standards), then run: uds update --apply --skills --locale {localeLower}'
+        ],
         notInitialized: '✗ Standards not initialized in this project.',
         runInit: 'Run `uds init` to initialize.',
         couldNotReadManifest: '✗ Could not read manifest file.',
@@ -1032,6 +1037,13 @@ export const messages = {
         integrations: 'Generated Configs',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace (managed by Claude Code)',
+        skillsFromPluginTitle: 'Skills: provided by the Claude Code plugin (no skill file was written to this project).',
+        skillsSkippedTitle: 'Skills: none will be installed into this project.',
+        skillsFromPluginLines: [
+          'Install the plugin in Claude Code: /plugin marketplace add AsiaOstrich/universal-dev-standards, then /plugin install universal-dev-standards@asia-ostrich',
+          'The plugin works in Claude Code only, loads English skill texts only, follows stable releases only, and puts no files in the project.',
+          'To put the skills into this project instead (many AI tools, Chinese texts): uds config --type skills --ai-tool claude-code --skills-location project --yes'
+        ],
         skillsInstallTo: 'install/update to {location}',
         skillsUsingExisting: 'using existing ({location})',
         skillsInstalledToCount: '{count} locations',
@@ -1731,7 +1743,7 @@ export const messages = {
       installCount: '將安裝 Skills 到 {count} 個位置',
       gitSharingHint: '提示：將 .claude/skills/ 加入版控，即可與團隊共享',
       choices: {
-        marketplace: '自動更新、輕鬆管理版本',
+        marketplace: '技能改由外掛提供，這個專案不會寫入任何技能檔',
         userLevel: '使用者層級',
         projectLevel: '專案層級',
         user: '跨專案共享',
@@ -1739,7 +1751,7 @@ export const messages = {
         none: '不安裝 Skills'
       },
       explanations: {
-        marketplace: '  → 新版本發布時自動更新\n  → 透過 Claude Code 外掛系統輕鬆安裝/移除\n  → 執行: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → 只支援 Claude Code、只有英文技能文字、只跟正式版\n  → 專案內不放檔案\n  → 執行: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills 可在所有專案中使用',
         project: '  → 建議將 .claude/skills/ 加入 .gitignore',
         none: '  → 完整標準將複製到 .standards/'
@@ -1751,7 +1763,7 @@ export const messages = {
 
     // Marketplace Installation Guide
     marketplaceInstall: {
-      claudeCodeTip: 'Claude Code 可透過 Marketplace 安裝：',
+      claudeCodeTip: '下方已預先勾選：把技能裝進這個專案（主要路徑）。Claude Code 另有外掛，是有限制的替代方式（只支援 Claude Code、只有英文技能文字、只跟正式版、專案內不放檔案）。要用外掛，請取消下方所有勾選，再執行：',
       guide: '請在 Claude Code 中執行以下指令：',
       note: '安裝完成後，Skills 將自動載入並保持更新。',
       alreadyInstalled: 'Marketplace 外掛已安裝。',
@@ -2039,6 +2051,11 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        localePackMissingTitle: '這份 UDS 裡沒有 {locale} 的技能文字，所以技能裝的是英文版。',
+        localePackMissingLines: [
+          '繁體與簡體中文文字都放在 UDS 的 npm 套件內（locales/ 資料夾），所以這不是網路問題：這份 UDS 不完整或已損毀。',
+          '要取得 {locale} 文字，請重新安裝 UDS（npm install -g universal-dev-standards），再執行：uds update --apply --skills --locale {localeLower}'
+        ],
         notInitialized: '✗ 此專案尚未初始化標準。',
         runInit: '執行 `uds init` 進行初始化。',
         couldNotReadManifest: '✗ 無法讀取 manifest 檔案。',
@@ -2373,6 +2390,13 @@ export const messages = {
         integrations: '整合配置檔',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
+        skillsFromPluginTitle: '技能：由 Claude Code 外掛提供（這個專案沒有寫入任何技能檔）。',
+        skillsSkippedTitle: '技能：不會把任何技能裝進這個專案。',
+        skillsFromPluginLines: [
+          '在 Claude Code 安裝外掛：/plugin marketplace add AsiaOstrich/universal-dev-standards，再執行 /plugin install universal-dev-standards@asia-ostrich',
+          '外掛只支援 Claude Code，只載入英文技能文字，只跟正式版，專案內不放檔案。',
+          '想改成把技能裝進這個專案（多種 AI 工具、有中文文字）：uds config --type skills --ai-tool claude-code --skills-location project --yes'
+        ],
         skillsInstallTo: '安裝/更新到 {location}',
         skillsUsingExisting: '使用現有（{location}）',
         skillsInstalledToCount: '已安裝到 {count} 個位置',
@@ -3067,7 +3091,7 @@ export const messages = {
       installCount: '将安装 Skills 到 {count} 个位置',
       gitSharingHint: '提示：将 .claude/skills/ 加入版本控制，即可与团队共享',
       choices: {
-        marketplace: '自动更新、轻松管理版本',
+        marketplace: '技能改由插件提供，这个项目不会写入任何技能文件',
         userLevel: '用户层级',
         projectLevel: '项目层级',
         user: '跨项目共享',
@@ -3075,7 +3099,7 @@ export const messages = {
         none: '不安装 Skills'
       },
       explanations: {
-        marketplace: '  → 新版本发布时自动更新\n  → 通过 Claude Code 插件系统轻松安装/移除\n  → 执行: /plugin install universal-dev-standards@asia-ostrich',
+        marketplace: '  → 只支持 Claude Code、只有英文技能文本、只跟正式版\n  → 项目内不放文件\n  → 执行: /plugin install universal-dev-standards@asia-ostrich',
         user: '  → Skills 可在所有项目中使用',
         project: '  → 建议将 .claude/skills/ 加入 .gitignore',
         none: '  → 完整标准将复制到 .standards/'
@@ -3087,7 +3111,7 @@ export const messages = {
 
     // Marketplace Installation Guide
     marketplaceInstall: {
-      claudeCodeTip: 'Claude Code 可通过 Marketplace 安装：',
+      claudeCodeTip: '下方已预先勾选：把技能装进这个项目（主要路径）。Claude Code 另有插件，是有限制的替代方式（只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件）。要用插件，请取消下方所有勾选，再执行：',
       guide: '请在 Claude Code 中执行以下指令：',
       note: '安装完成后，Skills 将自动加载并保持更新。',
       alreadyInstalled: 'Marketplace 插件已安装。',
@@ -3304,6 +3328,11 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        localePackMissingTitle: '这份 UDS 里没有 {locale} 的技能文本，所以技能装的是英文版。',
+        localePackMissingLines: [
+          '繁体与简体中文文本都放在 UDS 的 npm 包内（locales/ 文件夹），所以这不是网络问题：这份 UDS 不完整或已损坏。',
+          '要获取 {locale} 文本，请重新安装 UDS（npm install -g universal-dev-standards），再执行：uds update --apply --skills --locale {localeLower}'
+        ],
         notInitialized: '✗ 此项目尚未初始化标准。',
         runInit: '执行 `uds init` 进行初始化。',
         couldNotReadManifest: '✗ 无法读取 manifest 文件。',
@@ -3379,6 +3408,13 @@ export const messages = {
         integrations: '集成配置文件',
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
+        skillsFromPluginTitle: '技能：由 Claude Code 插件提供（这个项目没有写入任何技能文件）。',
+        skillsSkippedTitle: '技能：不会把任何技能装进这个项目。',
+        skillsFromPluginLines: [
+          '在 Claude Code 安装插件：/plugin marketplace add AsiaOstrich/universal-dev-standards，再执行 /plugin install universal-dev-standards@asia-ostrich',
+          '插件只支持 Claude Code，只加载英文技能文本，只跟正式版，项目内不放文件。',
+          '想改成把技能装进这个项目（多种 AI 工具、有中文文本）：uds config --type skills --ai-tool claude-code --skills-location project --yes'
+        ],
         skillsInstallTo: '安装/更新到 {location}',
         skillsUsingExisting: '使用现有（{location}）',
         skillsInstalledToCount: '已安装到 {count} 个位置',

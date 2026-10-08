@@ -35,7 +35,7 @@ status: current
 
 **配置方式**：
 - 安裝時選擇 `standardsScope: minimal`
-- Skills 位置：Plugin Marketplace（推薦）
+- Skills 位置：裝進專案（`--skills-location project`，預設）；外掛市集是有限制的替代方式（只支援 Claude Code、只有英文技能文字、只跟正式版）
 - 最小化規範文件複製到專案
 
 **包含內容**：
@@ -147,7 +147,7 @@ status: current
 | 團隊同步 | 需各自安裝 | Git 同步 | 混合 |
 
 **說明**：
-- Skills 在 Plugin Marketplace 集中管理，但無法版本控制
+- 裝進專案的 Skills（預設）可以提交到 Git；來自外掛市集的 Skills 由 Claude Code 管理，不在專案內
 - 規範文件可放入 Git，團隊自動同步
 - 自訂規則需要修改規範文件
 
@@ -180,7 +180,7 @@ status: current
 
 **配置方式**：
 ```bash
-uds init -y --skills-location marketplace
+uds init -y --skills-location project
 # standardsScope 將自動設為 minimal
 ```
 
@@ -195,7 +195,7 @@ uds init -y --skills-location marketplace
 
 **配置方式**：
 ```bash
-uds init -y --skills-location marketplace --content-mode index
+uds init -y --skills-location project --content-mode index
 # 在互動提示中選擇多個 AI 工具
 ```
 
@@ -296,11 +296,11 @@ uds init -y --skills-location none --content-mode index
 ```
 個人開發者 + Claude Code
   └─ 推薦：僅 Skills（模式 A）
-     └─ 配置：standardsScope: minimal + Plugin Marketplace
+     └─ 配置：standardsScope: minimal + 技能裝進專案
 
 團隊開發 + 混合工具
   └─ 推薦：Skills + 規範文件（模式 C）
-     └─ 配置：standardsScope: full + Plugin Marketplace
+     └─ 配置：standardsScope: full + 技能裝進專案
      └─ 規範文件納入 Git 管理
 
 企業環境 + 合規要求

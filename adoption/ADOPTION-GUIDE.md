@@ -66,7 +66,7 @@ These 10 standards are **triggered by keywords** and loaded on demand:
 | documentation-guide | docs, README |
 | requirement-assistant | spec, SDD, 新功能 |
 
-**Deployment**: Install as Skills via Plugin Marketplace or manual copy.
+**Deployment**: Install as Skills into the project (the main path), through the Claude Code plugin marketplace (an alternative, with limits), or by manual copy.
 
 > See [STATIC-DYNAMIC-GUIDE.md](STATIC-DYNAMIC-GUIDE.md) for detailed classification.
 
@@ -78,10 +78,13 @@ These 10 standards are **triggered by keywords** and loaded on demand:
 
 Standards implemented as Claude Code Skills for interactive AI assistance.
 
-**Adoption Method**: Install via Plugin Marketplace (recommended) or manual copy
+**Adoption Method**: Install into the project (the main path), through the Claude Code plugin marketplace (an alternative, with limits: Claude Code only, English skill texts only, stable releases only, no files in the project), or by manual copy
 
 ```bash
-# Plugin Marketplace (Recommended)
+# Into the project (the main path)
+npx universal-dev-standards init
+
+# Plugin marketplace (an alternative, with limits)
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 
@@ -190,7 +193,13 @@ This installs all available standards, skills, and integrations for your project
 
 ### Step 2: Install Skills
 
-**Recommended: Plugin Marketplace**
+**Main path: into the project** (many AI tools, Traditional and Simplified Chinese texts, follows the UDS version you installed)
+```bash
+npx universal-dev-standards init                      # new project
+npx universal-dev-standards update --apply --skills   # project already set up
+```
+
+**Alternative, with limits: Claude Code plugin marketplace** (Claude Code only, English skill texts only, stable releases only, no files in the project)
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich

@@ -74,7 +74,7 @@ status: current
 | documentation-guide | docs, README |
 | requirement-assistant | spec, SDD, 新功能 |
 
-**部署方式**：通过 Plugin Marketplace 或手动复制安装为 Skills。
+**部署方式**：装进项目（主要路径）、通过 Claude Code 插件市场（替代方式，有限制）或手动复制，安装为 Skills。
 
 > 详细分类请参阅 [STATIC-DYNAMIC-GUIDE.md](../../../adoption/STATIC-DYNAMIC-GUIDE.md)。
 
@@ -86,10 +86,13 @@ status: current
 
 已制作为 Claude Code Skills 的规范，提供互动式 AI 辅助。
 
-**采用方式**：通过 Plugin Marketplace（推荐）或手动复制安装
+**采用方式**：装进项目（主要路径）、通过 Claude Code 插件市场（替代方式，有限制：只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件），或手动复制安装
 
 ```bash
-# Plugin Marketplace（推荐）
+# 装进项目（主要路径）
+npx universal-dev-standards init
+
+# 插件市场（替代方式，有限制）
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 
@@ -237,7 +240,13 @@ Copy-Item <source-file> .standards\
 
 ### 步骤二：安装 Skills
 
-**推荐：Plugin Marketplace**
+**主要路径：装进项目**（支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本）
+```bash
+npx universal-dev-standards init                      # 新项目
+npx universal-dev-standards update --apply --skills   # 已设置好的项目
+```
+
+**替代方式（有限制）：Claude Code 插件市场**（只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件）
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich

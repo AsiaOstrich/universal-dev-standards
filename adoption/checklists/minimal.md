@@ -19,7 +19,17 @@
 
 ## Skills Installation
 
-### Option A: Plugin Marketplace (Recommended)
+### Option A: Into the project (the main path)
+
+Many AI tools, Traditional and Simplified Chinese texts, follows the UDS version you installed.
+
+```bash
+npx universal-dev-standards init
+```
+
+### Option B: Plugin Marketplace (an alternative, with limits)
+
+Claude Code only, English skill texts only, stable releases only, no files in the project.
 
 ```bash
 # In Claude Code
@@ -27,7 +37,7 @@
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-### Option B: Manual Copy (macOS / Linux)
+### Option C: Manual Copy (macOS / Linux)
 
 ```bash
 # Copy only Level 1 skills
@@ -35,7 +45,7 @@ cp -r universal-dev-skills/skills/ai-collaboration-standards ~/.claude/skills/
 cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
 ```
 
-### Option C: Manual Copy (Windows PowerShell)
+### Option D: Manual Copy (Windows PowerShell)
 
 ```powershell
 # Copy only Level 1 skills

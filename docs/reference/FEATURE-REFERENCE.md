@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-10-07
+> Auto-generated | Last updated: 2026-10-08
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -48,7 +48,7 @@
 | `--lang` | Language extension (csharp, php) |
 | `--framework` | Framework extension (fat-free) |
 | `--locale` | Locale extension (zh-tw) |
-| `--skills-location` | Skills location (marketplace, user, project, none) [default: marketplace] |
+| `--skills-location` | Skills location (project, user, marketplace, none) [default: project] |
 | `--content-mode` | Content mode for integration files (minimal, index) [default: index]; full is retired and resolves to index |
 | `--agents-md` | Generate AGENTS.md universal summary |
 | `--no-agents-md` | Skip AGENTS.md generation |

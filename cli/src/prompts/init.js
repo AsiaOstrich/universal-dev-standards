@@ -3,6 +3,7 @@ import { existsSync, readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import chalk from 'chalk';
 import os from 'os';
+import * as yaml from 'js-yaml';
 import { t, setLanguage, detectLanguage } from '../i18n/messages.js';
 import {
   getAgentConfig,
@@ -169,7 +170,7 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
   // Show Marketplace info for Claude Code (not as a selectable option)
   if (hasClaudeCode) {
     console.log();
-    console.log(chalk.yellow(`  💡 ${marketplaceMsg.claudeCodeTip || 'Claude Code can be installed via Marketplace:'}`));
+    console.log(chalk.yellow(`  💡 ${marketplaceMsg.claudeCodeTip}`));
     console.log(chalk.white('     /plugin install universal-dev-standards@asia-ostrich'));
     console.log(chalk.gray(`     → ${msg.choices.marketplace}`));
   }
@@ -195,10 +196,12 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
       value: `${tool}:user`
     });
 
-    // Project level option
+    // Project level option. Pre-selected (XSPEC-468 R1): the project way is the main path, so pressing Enter
+    // installs the skills into the project. Deselect everything to skip them (for example, to use the plugin).
     choices.push({
       name: `${chalk.blue(displayName)} - ${msg.choices.projectLevel} ${chalk.gray(`(${config.skills.project})`)}`,
-      value: `${tool}:project`
+      value: `${tool}:project`,
+      checked: true
     });
   }
 
@@ -1428,7 +1431,21 @@ export function suggestCommands(projectPath) {
 }
 
 /**
+ * A command as it is written after `key: ` in YAML. Plain when plain is safe; single-quoted (the form that
+ * has no escape sequences, so a Windows path survives) when the text would otherwise change meaning.
+ * @param {string} command
+ * @returns {string}
+ */
+function yamlCommandScalar(command) {
+  const text = command.trim();
+  const needsQuotes = /^[\s'"[\]{}&*!|>%@`,?#-]|: | #|:$/.test(text);
+  return needsQuotes ? `'${text.replaceAll("'", "''")}'` : text;
+}
+
+/**
  * Generate uds.project.yaml content from a commands map.
+ * This writes a NEW file. To change the commands of an existing file without losing its other sections,
+ * use `mergeProjectConfigYaml`.
  * @param {{ test?: string, lint?: string, build?: string, security?: string }} commands
  * @returns {string}
  */
@@ -1436,10 +1453,109 @@ export function generateProjectConfigYaml(commands) {
   const lines = ['version: "1"', '', 'commands:'];
   for (const [intent, cmd] of Object.entries(commands)) {
     if (cmd && cmd.trim()) {
-      lines.push(`  ${intent}: ${cmd.trim()}`);
+      lines.push(`  ${intent}: ${yamlCommandScalar(cmd)}`);
     }
   }
   return lines.join('\n') + '\n';
+}
+
+/**
+ * What an existing uds.project.yaml holds, as far as the wizard needs it: the names of its top-level sections
+ * and the commands it already declares. `readable: false` means the text is not YAML (or not a mapping), so
+ * nothing in it can be kept apart from the whole file.
+ *
+ * @param {string} text
+ * @returns {{ readable: boolean, sections: string[], commands: Record<string, string> }}
+ */
+export function describeProjectConfig(text) {
+  let doc;
+  try {
+    doc = yaml.load(text);
+  } catch {
+    return { readable: false, sections: [], commands: {} };
+  }
+  if (doc === null || doc === undefined) return { readable: true, sections: [], commands: {} };
+  if (typeof doc !== 'object' || Array.isArray(doc)) return { readable: false, sections: [], commands: {} };
+  const commands = {};
+  if (doc.commands && typeof doc.commands === 'object' && !Array.isArray(doc.commands)) {
+    for (const [k, v] of Object.entries(doc.commands)) commands[k] = v === null || v === undefined ? '' : String(v);
+  }
+  return { readable: true, sections: Object.keys(doc), commands };
+}
+
+/**
+ * Change the command keys of an existing uds.project.yaml and leave every other byte of it alone
+ * (XSPEC-468 R5). The wizard used to rewrite the whole file from `generateProjectConfigYaml`, which dropped
+ * `open_work:` (the place an adopter declares what `uds open-work` needs, XSPEC-460/461), `custom:`, comments,
+ * and anything else the wizard does not ask about.
+ *
+ * Works on the text, not on a parsed copy: a parse-and-dump would keep the data and lose the comments, the
+ * order and the quoting. Only lines of the top-level `commands:` block that name one of the given intents
+ * are replaced (with their indented continuation lines); an intent that is not there yet is added at the end
+ * of that block; with no `commands:` block at all one is appended to the end of the file. An intent whose
+ * value already equals the new one is not touched. Blank commands are skipped.
+ *
+ * @param {string} existing - current file text
+ * @param {Record<string, string>} commands - intent -> command
+ * @returns {string} the new file text
+ */
+export function mergeProjectConfigYaml(existing, commands) {
+  const eol = existing.includes('\r\n') ? '\r\n' : '\n';
+  const endsWithNewline = /\n$/.test(existing);
+  const lines = existing.split(/\r?\n/);
+  if (endsWithNewline) lines.pop();
+  const current = describeProjectConfig(existing).commands;
+  const wanted = Object.entries(commands)
+    .filter(([, cmd]) => cmd && cmd.trim())
+    .filter(([intent, cmd]) => current[intent] !== cmd.trim());
+  if (wanted.length === 0) return existing;
+
+  const entryLine = (indent, intent, cmd) => `${indent}${intent}: ${yamlCommandScalar(cmd)}`;
+  const headIdx = lines.findIndex(l => /^commands\s*:/.test(l));
+
+  if (headIdx === -1) {
+    if (lines.length > 0 && lines[lines.length - 1].trim() !== '') lines.push('');
+    lines.push('commands:');
+    for (const [intent, cmd] of wanted) lines.push(entryLine('  ', intent, cmd));
+    return lines.join(eol) + eol;
+  }
+
+  const inlineValue = lines[headIdx].replace(/^commands\s*:/, '').replace(/\s+#.*$/, '').trim();
+  if (inlineValue) {
+    // `commands: {test: x}` written on one line: turn it into a block that keeps the keys it had.
+    const merged = { ...current };
+    for (const [intent, cmd] of wanted) merged[intent] = cmd.trim();
+    const block = ['commands:', ...Object.entries(merged).filter(([, c]) => c).map(([i, c]) => entryLine('  ', i, c))];
+    lines.splice(headIdx, 1, ...block);
+    return lines.join(eol) + eol;
+  }
+
+  // The block runs until the next line that starts in column 0 (a section, or a comment about one).
+  let end = headIdx + 1;
+  while (end < lines.length && (lines[end].trim() === '' || /^\s/.test(lines[end]))) end++;
+  while (end > headIdx + 1 && lines[end - 1].trim() === '') end--; // blank lines after the block are not in it
+
+  const firstKey = lines.slice(headIdx + 1, end).find(l => l.trim() !== '' && !l.trim().startsWith('#'));
+  const indent = firstKey ? firstKey.match(/^\s*/)[0] : '  ';
+
+  for (const [intent, cmd] of wanted) {
+    const keyLine = new RegExp(`^${indent}${intent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`);
+    let at = -1;
+    for (let i = headIdx + 1; i < end; i++) {
+      if (keyLine.test(lines[i])) { at = i; break; }
+    }
+    if (at === -1) {
+      lines.splice(end, 0, entryLine(indent, intent, cmd));
+      end += 1;
+      continue;
+    }
+    // The old value may continue on deeper-indented lines (a block scalar): they go with it.
+    let stop = at + 1;
+    while (stop < end && (lines[stop].trim() === '' ? false : lines[stop].match(/^\s*/)[0].length > indent.length)) stop++;
+    lines.splice(at, stop - at, entryLine(indent, intent, cmd));
+    end -= (stop - at) - 1;
+  }
+  return lines.join(eol) + eol;
 }
 
 /**
@@ -1475,15 +1591,28 @@ export async function promptProjectContractStep(projectPath) {
 export async function promptProjectCommandContract(projectPath) {
   const contractPath = join(projectPath, 'uds.project.yaml');
 
-  // If already exists, ask whether to overwrite
+  // If it already exists, ask before touching it. XSPEC-468 R5: the question says exactly what will change.
+  // The wizard only manages the command keys; every other section (`open_work:`, `custom:`, ...) stays.
+  let existingText = null;
+  let existing = null;
   if (existsSync(contractPath)) {
+    existingText = readFileSync(contractPath, 'utf-8');
+    existing = describeProjectConfig(existingText);
+
     console.log();
     console.log(chalk.yellow('  uds.project.yaml already exists.'));
 
-    const overwrite = await inquirerConfirm({
-      message: 'Overwrite existing uds.project.yaml?',
-      default: false
-    });
+    const kept = existing.sections.filter(name => name !== 'commands');
+    const message = existing.readable
+      ? 'Update the commands (test, lint, build, security) in the existing uds.project.yaml? ' +
+        (kept.length > 0
+          ? `These sections are kept exactly as they are: ${kept.join(', ')}.`
+          : 'It has no other sections.')
+      // Not YAML: nothing in it can be kept, so the question names the loss instead of hiding it.
+      : 'The existing uds.project.yaml cannot be read as YAML, so none of its content can be kept. ' +
+        'Replace the whole file?';
+
+    const overwrite = await inquirerConfirm({ message, default: false });
 
     if (!overwrite) {
       console.log(chalk.gray('  Skipped — keeping existing uds.project.yaml'));
@@ -1512,7 +1641,8 @@ export async function promptProjectCommandContract(projectPath) {
   const commands = {};
 
   for (const intent of intents) {
-    const defaultVal = suggestions[intent] || '';
+    // A command the file already declares is the default, so Enter keeps it; the ecosystem guess only fills gaps.
+    const defaultVal = existing?.commands?.[intent] || suggestions[intent] || '';
     const answer = await input({
       message: `  ${intent} command${defaultVal ? ` (default: ${defaultVal})` : ' (optional)'}:`,
       default: defaultVal
@@ -1526,11 +1656,16 @@ export async function promptProjectCommandContract(projectPath) {
     return false;
   }
 
-  const yaml = generateProjectConfigYaml(commands);
-  writeFileSync(contractPath, yaml, 'utf-8');
+  // An existing, readable file is edited in place (XSPEC-468 R5); a new file, or one that is not YAML at all
+  // and that the user agreed to replace, is written whole.
+  const merging = existing?.readable === true;
+  const content = merging
+    ? mergeProjectConfigYaml(existingText, commands)
+    : generateProjectConfigYaml(commands);
+  writeFileSync(contractPath, content, 'utf-8');
 
   console.log();
-  console.log(chalk.green('  ✔ uds.project.yaml created'));
+  console.log(chalk.green(merging ? '  ✔ uds.project.yaml updated (other sections kept as they were)' : '  ✔ uds.project.yaml created'));
   console.log(chalk.gray(`    Path: ${contractPath}`));
   return true;
 }

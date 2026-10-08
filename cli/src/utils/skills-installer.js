@@ -10,6 +10,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync, statSync, rmSync, unlinkSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { createHash } from 'crypto';
+import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import {
   getAgentConfig,
@@ -22,6 +23,7 @@ import {
 import { computeDirectoryHashes, computeFileHash, normalizeLineEndings } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
+import { t } from '../i18n/messages.js';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -33,16 +35,21 @@ const BUNDLED_DIR = join(CLI_ROOT, 'bundled');
 // Its previous private copy here was the half that worked; the copy in github.js was not.
 
 /**
- * Get the localized Skills source directory for a given locale.
- * Falls back to the English source directory if the localized path does not exist.
- * @param {string} locale - Locale identifier (e.g., 'zh-TW', 'zh-CN', 'en')
- * @returns {string} Path to skills source directory for the locale
+ * Where this copy of UDS keeps the skill texts of a locale, or `null` when it keeps none.
+ *
+ * `null` is the answer that matters (XSPEC-468 R3). This lookup used to fall back to the English directory
+ * on its own, so a copy of UDS without the locale pack installed English skills for `--locale zh-tw`, exit
+ * code 0, and not one word about it: the same shape as `zh-CN` becoming English in XSPEC-451. Whoever asks
+ * now learns the pack is absent and says so.
+ *
+ * The pack is part of the npm package (`cli/scripts/prepack.mjs` bundles `locales/` into
+ * `bundled/locales/`), so an absent pack means an incomplete or damaged copy, not a missing network.
+ *
+ * @param {string} locale - e.g. 'zh-TW', 'zh-CN'
+ * @returns {string|null}
  */
-function getLocalizedSkillsSourceDir(locale) {
-  const enDir = getSkillsSourceDir();
-  if (!isLocalizedLocale(locale)) {
-    return enDir;
-  }
+export function findLocalePackSkillsDir(locale) {
+  if (!isLocalizedLocale(locale)) return null;
 
   // Try bundled path first (npm install)
   const bundledPath = join(BUNDLED_DIR, 'locales', locale, 'skills');
@@ -56,8 +63,16 @@ function getLocalizedSkillsSourceDir(locale) {
     return devPath;
   }
 
-  // Locale directory not found, fall back to English
-  return enDir;
+  return null;
+}
+
+/**
+ * Whether the skill texts of `locale` are in this copy of UDS. Always true for English.
+ * @param {string} locale
+ * @returns {boolean}
+ */
+export function isLocalePackAvailable(locale) {
+  return !isLocalizedLocale(locale) || findLocalePackSkillsDir(locale) !== null;
 }
 
 /**
@@ -450,8 +465,9 @@ export function resolveSkillFiles(skillName, locale = 'en') {
   let fallbackToEn = false;
 
   if (isLocalizedLocale(locale)) {
-    const localizedSkillDir = join(getLocalizedSkillsSourceDir(locale), skillName);
-    if (existsSync(localizedSkillDir)) {
+    const packDir = findLocalePackSkillsDir(locale);
+    const localizedSkillDir = packDir ? join(packDir, skillName) : null;
+    if (localizedSkillDir && existsSync(localizedSkillDir)) {
       sourceDir = localizedSkillDir;
       needsFrontmatterMerge = true;
     } else {
@@ -1129,6 +1145,25 @@ export function deduplicateInstallations(installations) {
 }
 
 /**
+ * Tell the adopter the locale pack is not in this copy of UDS and that English was installed instead.
+ * Not an error, not silence: the install goes on in English, the message says why and how to get the texts.
+ * @param {string} locale
+ */
+const localePackMissingTold = new Set();
+function printLocalePackMissing(locale) {
+  // Skills and commands both go through here; once per run is enough.
+  if (localePackMissingTold.has(locale)) return;
+  localePackMissingTold.add(locale);
+  const msg = t().commands.common;
+  const fill = (text) => text.replaceAll('{locale}', locale).replaceAll('{localeLower}', String(locale).toLowerCase());
+  console.log();
+  console.log(chalk.yellow(`⚠ ${fill(msg.localePackMissingTitle)}`));
+  for (const line of msg.localePackMissingLines) {
+    console.log(chalk.gray(`    ${fill(line)}`));
+  }
+}
+
+/**
  * Install skills to multiple agents at once
  * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
  * @param {string[]} skillNames - Skills to install (null = all)
@@ -1152,6 +1187,13 @@ export async function installSkillsToMultipleAgents(installations, skillNames = 
   };
 
   const fallbackSet = new Set();
+
+  // XSPEC-468 R3: every skills install (init, update, the reconciler's plan) goes through here, so this is the
+  // one place that can say "the texts you asked for are not in this copy of UDS" for all of them.
+  if (uniqueInstallations.length > 0 && !isLocalePackAvailable(locale)) {
+    results.localePackMissing = true;
+    printLocalePackMissing(locale);
+  }
 
   for (const { agent, level } of uniqueInstallations) {
     const result = await installSkillsForAgent(agent, level, skillNames, projectPath, locale);
@@ -1204,6 +1246,10 @@ export async function installCommandsToMultipleAgents(installations, commandName
     totalErrors: 0,
     allFileHashes: {} // New: combined file hashes from all installations
   };
+
+  if (uniqueInstallations.length > 0 && !isLocalePackAvailable(locale)) {
+    printLocalePackMissing(locale);
+  }
 
   for (const item of uniqueInstallations) {
     const agent = item.agent;

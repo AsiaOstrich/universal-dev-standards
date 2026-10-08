@@ -15,10 +15,12 @@ import { installStandards } from '../installers/standards-installer.js';
 import { installIntegrations, generateUniversalAgentsMd } from '../installers/integration-installer.js';
 import { installSkills, installCommands } from '../installers/skills-installer.js';
 import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
+import { printDoubleInstallWarning } from '../utils/skills-install-paths.js';
 import { writeFinalManifest } from '../installers/manifest-installer.js';
 import {
   getInstalledSkillsInfo,
   getProjectInstalledSkillsInfo,
+  getMarketplaceSkillsInfo,
   getAgentConfig,
   getAgentDisplayName
 } from '../utils/github.js';
@@ -369,7 +371,22 @@ export async function initCommand(options) {
   // that was just installed (the personal one wins, with no error). Information only: it does not change
   // what was installed or the exit code.
   if ((combinedResults?.skills?.length ?? 0) > 0) {
+    // XSPEC-468 R1: skills now go into the project by default, so a project whose owner already has the UDS
+    // plugin would list every skill twice. Same warning `uds check` prints (XSPEC-462 R2); information only,
+    // it changes neither what was installed nor the exit code.
+    printDoubleInstallWarning(projectPath, getMarketplaceSkillsInfo());
     printSkillNameCollisionWarning(projectPath);
+  }
+
+  // 4.95. XSPEC-468 R1: the adopter asked for the plugin by name, so no skill file was written. Say so at the
+  // end, where they look for the skills, and say where they come from and what the other way would do.
+  if (config.skillsConfig.location === 'marketplace') {
+    console.log();
+    console.log(chalk.cyan(msg.skillsFromPluginTitle));
+    for (const line of msg.skillsFromPluginLines) {
+      console.log(chalk.gray(`  ${line}`));
+    }
+    console.log();
   }
 
   // 5. Setup Pre-commit Hook
@@ -749,30 +766,21 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     return Boolean(config?.supportsSkills && config?.skills);
   });
   const hasSkillsCompatibleTool = skillsCapableTools.length > 0;
-  // Marketplace is Claude Code's. A tool reaches it either by having one
-  // (`supportsMarketplace`) or by reading Claude's directory (`fallbackSkillsPath`).
-  // ⚠️ Those fallback claims are NOT all verified — `opencode`'s carries the bare
-  // comment "Can read Claude skills" and no evidence. It is preserved here rather
-  // than flipped, because changing behaviour on an unverified field in either
-  // direction is a guess. Codex's identical claim WAS measured, and falsified, so
-  // its field is now null (see `ai-agent-paths.js`) and it drops out here by data.
-  // 🔴 The marketplace is all-or-nothing for a repo: it installs into Claude's
-  // directory, so it serves a tool only if that tool has a marketplace of its own or
-  // declares Claude's directory as its fallback. If ANY detected tool is not served
-  // by it, file installs are used instead — every tool then gets its own path, and
-  // nobody is left with a successful init and an empty directory.
-  const reachesMarketplace = t => {
-    const c = getAgentConfig(t);
-    return Boolean(c?.supportsMarketplace || c?.fallbackSkillsPath);
-  };
-  const onlySkillsCompatibleTools =
-    hasSkillsCompatibleTool && aiToolsNormalized.every(reachesMarketplace);
+  // XSPEC-468 R1: with no --skills-location, skills go INTO THE PROJECT (the main path, XSPEC-462).
+  // This used to pick 'marketplace' whenever every detected tool could reach Claude's plugin, which left
+  // `uds init --yes` with no `.claude/skills/` at all and told a new user to go and install a plugin: the
+  // opposite of the recommendation printed by `uds skills`. The plugin is still there for anyone who asks
+  // for it by name (`--skills-location marketplace`), and the plugin's limits are printed, not hidden.
+  //
+  // Two cases keep their old answer, and they are knowledge, not default:
+  //   - tools were detected and none of them can take skills -> 'none' (nothing to install, said below);
+  //   - nothing was detected at all -> 'project' with Claude Code's own project folder (the historical
+  //     guess; see `noToolDetected` below).
+  const noToolDetected = aiToolsNormalized.length === 0;
 
   let skillsLocationFlag = options.skillsLocation;
   if (!skillsLocationFlag) {
-    skillsLocationFlag = hasSkillsCompatibleTool
-      ? (onlySkillsCompatibleTools ? 'marketplace' : 'project')
-      : 'none';
+    skillsLocationFlag = (noToolDetected || hasSkillsCompatibleTool) ? 'project' : 'none';
   }
 
   // A detected tool that can take skills and is getting none must SAY SO. The worst
@@ -847,6 +855,10 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     // `installSkills()` takes its legacy branch, and every tool's skills land in
     // `.claude/skills/` — see the block above for what that measured.
     skillsInstallationsForYes = skillsCapableTools.map(agent => ({ agent, level: location }));
+    // Nothing detected: name Claude Code's folder explicitly. Leaving the list empty sent the install down
+    // the legacy branch of `installSkills()`, which does not take the locale (so `--locale zh-tw` in a
+    // project with no tool marker would have installed English and said nothing).
+    if (noToolDetected) skillsInstallationsForYes = [{ agent: 'claude-code', level: location }];
 
     // 🔴 Detected tools, none of which can take skills, is NOT the same as "no tools
     // detected". The first is knowledge — install nothing and say why. The second is

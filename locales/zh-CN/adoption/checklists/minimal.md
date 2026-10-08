@@ -25,14 +25,24 @@ status: current
 
 ## Skills 安装
 
-### 选项 A：Plugin Marketplace（推荐）
+### 选项 A：装进项目（主要路径）
+
+支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本。
+
+```bash
+npx universal-dev-standards init
+```
+
+### 选项 B：Plugin Marketplace（替代方式，有限制）
+
+只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件。
 
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
-### 选项 B：手动复制（macOS / Linux）
+### 选项 C：手动复制（macOS / Linux）
 
 ```bash
 # Copy only Level 1 skills
@@ -40,7 +50,7 @@ cp -r universal-dev-skills/skills/ai-collaboration-standards ~/.claude/skills/
 cp -r universal-dev-skills/skills/commit-standards ~/.claude/skills/
 ```
 
-### 选项 C：手动复制（Windows PowerShell）
+### 选项 D：手动复制（Windows PowerShell）
 
 ```powershell
 # Copy only Level 1 skills

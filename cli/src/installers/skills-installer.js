@@ -164,7 +164,9 @@ export async function installSkills(skillsConfig, projectPath, messages, results
     // P1-CLI-1: Emit a single locale-fallback WARN after the install loop when
     // adopters requested a localized variant but some skills only ship in English.
     // The aggregated list is built in installSkillsToMultipleAgents (deduped).
-    if (Array.isArray(installResult.localeFallbacks) && installResult.localeFallbacks.length > 0) {
+    // (When the whole pack is missing, `installSkillsToMultipleAgents` already said so once; listing all 56
+    // names as well would bury that message.)
+    if (!installResult.localePackMissing && Array.isArray(installResult.localeFallbacks) && installResult.localeFallbacks.length > 0) {
       // `messages` is a flat command-scope bundle (e.g. t().commands.init);
       // the WARN helper looks for localeFallbackTitle/Hint keys directly on it.
       printLocaleFallbackWarning(installResult.localeFallbacks, skillsConfig.locale, messages);

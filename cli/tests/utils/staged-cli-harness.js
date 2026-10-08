@@ -161,7 +161,7 @@ export function createHarness(label, { overrides = {} } = {}) {
    * One CLI run: { code, stdout, stderr, netLog: string[], procLog: string[] }.
    * `ui` pins the output language; it defaults to English so assertions do not depend on the machine's LANG.
    */
-  function runCli(args, cwd, { ui = 'en', env: extraEnv = {} } = {}) {
+  function runCli(args, cwd, { ui = 'en', env: extraEnv = {}, drive = null, idleMs = 700, maxSends = 80 } = {}) {
     ensureSandbox();
     const id = ++counter;
     const home = join(sandbox, `home-${id}`);
@@ -179,14 +179,44 @@ export function createHarness(label, { overrides = {} } = {}) {
     };
     const full = [...(ui ? ['--ui-lang', ui] : []), ...args];
     return new Promise((done) => {
-      const proc = spawn('node', [stagedCli, ...full], { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
+      const proc = spawn('node', [stagedCli, ...full], { cwd, env, stdio: [drive ? 'pipe' : 'ignore', 'pipe', 'pipe'] });
       let stdout = '';
       let stderr = '';
-      proc.stdout.on('data', (d) => { stdout += d.toString(); });
+      // `drive` answers prompts: when the CLI has been quiet for `idleMs` and the screen ends like a question,
+      // `drive(textPrintedSinceLastAnswer)` returns what to type (or null to keep waiting). The screen text
+      // is ANSI-stripped. `maxSends` stops a loop that never ends.
+      let screen = '';
+      let sends = 0;
+      let idle = null;
+      const stripAnsi = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
+      // Quiet is not enough: on a slow machine the CLI can be quiet while it is still working, and a key typed
+      // before the question is drawn waits in the input buffer and answers the NEXT question (the update question
+      // of the uds.project.yaml wizard would get the default, no). So a key is typed only when the screen ends
+      // the way a question ends: a select or checkbox footer, a (Y/n) confirm, or a text input ending in a colon (with its default, in parentheses, after it).
+      // (Whitespace is dropped first: the library wraps a long question at the terminal width, even inside "(y/N)".)
+      const endsLikeAQuestion = (text) => /(⏎(select|submit)|\(Y\/n\)|\(y\/N\)|:(\([^()]*\))?)$/.test(text.replace(/\s+/g, ''));
+      const armIdle = () => {
+        if (!drive) return;
+        clearTimeout(idle);
+        idle = setTimeout(() => {
+          if (proc.exitCode !== null || sends >= maxSends) return;
+          const plain = stripAnsi(screen);
+          const answer = endsLikeAQuestion(plain) ? drive(plain) : null;
+          if (answer !== null && answer !== undefined) {
+            sends += 1;
+            screen = '';
+            proc.stdin.write(answer);
+          }
+          armIdle();
+        }, idleMs);
+      };
+      proc.stdout.on('data', (d) => { stdout += d.toString(); screen += d.toString(); armIdle(); });
       proc.stderr.on('data', (d) => { stderr += d.toString(); });
+      if (drive) { proc.stdin.on('error', () => {}); armIdle(); }
       const timer = setTimeout(() => proc.kill('SIGTERM'), 150000);
       proc.on('close', (code) => {
         clearTimeout(timer);
+        clearTimeout(idle);
         const lines = (f) => (existsSync(f) ? readFileSync(f, 'utf-8').split('\n').filter(Boolean) : []);
         done({ code, stdout, stderr, netLog: lines(netFile), procLog: lines(procFile) });
       });

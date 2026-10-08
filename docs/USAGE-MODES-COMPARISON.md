@@ -27,7 +27,7 @@ This document compares the effectiveness of three usage modes after installing U
 
 **Configuration**:
 - Select `standardsScope: minimal` during installation
-- Skills Location: Plugin Marketplace (recommended)
+- Skills Location: into the project (`--skills-location project`, the default); the plugin marketplace is an alternative with limits (Claude Code only, English skill texts only, stable releases only)
 - Minimal standards files copied to project
 
 **Includes**:
@@ -139,7 +139,7 @@ This document compares the effectiveness of three usage modes after installing U
 | Team sync | Individual install | Git sync | Mixed |
 
 **Notes**:
-- Skills are managed centrally in Plugin Marketplace but cannot be version controlled
+- Skills installed into the project (the default) can be committed to Git; skills from the plugin marketplace are managed by Claude Code and are not in the project
 - Standards files can be committed to Git for team synchronization
 - Custom rules require modifying standards files
 
@@ -172,7 +172,7 @@ This document compares the effectiveness of three usage modes after installing U
 
 **Configuration**:
 ```bash
-uds init -y --skills-location marketplace
+uds init -y --skills-location project
 # standardsScope will be set to minimal
 ```
 
@@ -187,7 +187,7 @@ uds init -y --skills-location marketplace
 
 **Configuration**:
 ```bash
-uds init -y --skills-location marketplace --content-mode index
+uds init -y --skills-location project --content-mode index
 # Select multiple AI tools during prompts
 ```
 
@@ -288,11 +288,11 @@ uds init -y --skills-location none --content-mode index
 ```
 Individual Developer + Claude Code
   └─ Recommended: Skills Only (Mode A)
-     └─ Config: standardsScope: minimal + Plugin Marketplace
+     └─ Config: standardsScope: minimal + skills in the project
 
 Team Development + Mixed Tools
   └─ Recommended: Skills + Standards (Mode C)
-     └─ Config: standardsScope: full + Plugin Marketplace
+     └─ Config: standardsScope: full + skills in the project
      └─ Commit standards files to Git
 
 Enterprise + Compliance Requirements

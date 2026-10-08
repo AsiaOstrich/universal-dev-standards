@@ -53,7 +53,13 @@ npm link
 
 ## Installing Claude Code Skills
 
-**Recommended: Plugin Marketplace**
+**Main path: into the project** (many AI tools, Traditional and Simplified Chinese texts, follows the UDS version you installed)
+```bash
+npx universal-dev-standards init                      # new project
+npx universal-dev-standards update --apply --skills   # project already set up
+```
+
+**Alternative, with limits: Claude Code plugin marketplace** (Claude Code only, English skill texts only, stable releases only, no files in the project)
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich

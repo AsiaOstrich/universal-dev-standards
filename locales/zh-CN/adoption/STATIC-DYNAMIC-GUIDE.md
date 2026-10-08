@@ -168,7 +168,13 @@ status: current
 
 安装为 Claude Code Skills：
 
-**推荐：Plugin Marketplace**
+**主要路径：装进项目**（支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本）
+```bash
+npx universal-dev-standards init                      # 新项目
+npx universal-dev-standards update --apply --skills   # 已设置好的项目
+```
+
+**替代方式（有限制）：Claude Code 插件市场**（只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件）
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich

@@ -139,6 +139,16 @@ export async function runInitFlow(options, detected, projectPath) {
 
     const installations = await promptSkillsInstallLocation(aiTools);
 
+    // XSPEC-468 R1: the project way is pre-selected, so an empty answer was a deliberate "no". Say what that
+    // means (nothing is written to the project) and where the skills can come from instead.
+    if (installations.length === 0) {
+      console.log();
+      console.log(chalk.yellow(msgAfterLang.skillsSkippedTitle));
+      for (const line of msgAfterLang.skillsFromPluginLines) {
+        console.log(chalk.gray(`  ${line}`));
+      }
+    }
+
     if (installations.length > 0) {
       const isMarketplace = installations.some(i => i.level === 'marketplace');
 

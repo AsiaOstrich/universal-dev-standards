@@ -104,9 +104,8 @@ Select the AI coding assistants you use in your project. The CLI will generate c
 ```
 ? Select AI agents to install Skills for:
   ── Claude Code ──
-❯ ◉ Claude Code (Plugin Marketplace) - Auto-managed (Recommended)
   ◯ Claude Code (User Level) - ~/.claude/skills/
-  ◯ Claude Code (Project Level) - .claude/skills/
+❯ ◉ Claude Code (Project Level) - .claude/skills/   (pre-selected: the main path)
   ── OpenCode ──
   ◯ OpenCode (User Level) - ~/.config/opencode/skill/
   ◯ OpenCode (Project Level) - .opencode/skill/
@@ -140,22 +139,26 @@ Select which AI agents to install Skills for. **v3.5.0 supports installing Skill
 
 ### Detailed Explanation
 
-#### Plugin Marketplace (Recommended)
+#### Plugin Marketplace (an alternative, with limits)
+
+Not a choice in the prompt. It is Claude Code's own plugin system; to use it, deselect everything in the prompt (or pass `--skills-location marketplace`) and run this inside Claude Code:
 
 ```bash
-# If not yet installed, run:
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
 **Pros**:
-- Automatic updates to latest version
-- No manual management needed
-- All 15 Skills installed at once
+- Claude Code updates it; no command to run
+- Puts no files in the project
 
-**Cons**:
-- Cannot lock to specific version
-- Requires network connection
+**Limits**:
+- Claude Code only
+- English skill texts only (the plugin has no language choice)
+- Follows stable releases only: a beta of UDS gets no beta skills, and you cannot lock a specific version
+- Requires a network connection
+- `uds check` cannot compare its skill files one by one
+- With the skills also in the project, Claude Code lists every skill twice; `uds check` warns
 
 #### User Level
 
@@ -176,7 +179,10 @@ Select which AI agents to install Skills for. **v3.5.0 supports installing Skill
 - Requires manual updates
 - Not version controlled with project
 
-#### Project Level
+#### Project Level (the main path, and the default of `uds init --yes`)
+
+The Traditional and Simplified Chinese skill texts are part of the npm package (`--locale zh-tw` or `zh-cn`), so installing them needs no network. If a copy of UDS lacks them, UDS says so and installs the English texts.
+
 
 ```
 your-project/
@@ -200,19 +206,15 @@ your-project/
 ### Decision Flow
 
 ```
-Using Claude Code?
+Which AI tools do you use?
     │
-    ├─ No → Select None
+    ├─ Any tool that reads SKILL.md (Claude Code, OpenCode, Codex, Copilot, ...)
+    │     → Project Level (the main path, pre-selected)
+    │         └─ Want the skills in every project on this machine too? → add User Level
     │
-    └─ Yes → Need automatic updates?
-              │
-              ├─ Yes → Plugin Marketplace
-              │
-              └─ No → Need team sharing?
-                        │
-                        ├─ Yes → Project Level
-                        │
-                        └─ No → User Level
+    └─ Claude Code only, and English texts, stable releases only and
+       no files in the project are fine?
+          → Plugin Marketplace (--skills-location marketplace)
 ```
 
 ---
@@ -807,7 +809,7 @@ uds init --experimental
 | Option | Interactive Prompt | CLI Parameter | Default |
 |--------|-------------------|---------------|---------|
 | AI Tools | `promptAITools()` | - (detected) | Auto-detect |
-| Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `marketplace` |
+| Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `project` |
 | Standards Scope | `promptStandardsScope()` | - | Depends on Skills |
 | Format | `promptFormat()` | `-f, --format` | `ai` |
 | Git Workflow | `promptGitWorkflow()` | `--workflow` | `github-flow` |
@@ -980,7 +982,7 @@ uds init -y
 # Specify all options
 uds init -y \
   --format ai \
-  --skills-location marketplace \
+  --skills-location project \
   --workflow github-flow \
   --merge-strategy squash \
   --output-lang english \

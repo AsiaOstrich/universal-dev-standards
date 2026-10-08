@@ -59,7 +59,13 @@ npm link
 
 ## 安裝 Claude Code Skills
 
-**推薦：Plugin Marketplace**
+**主要路徑：裝進專案**（支援多種 AI 工具、有繁體與簡體中文文字、跟著你裝的 UDS 版本）
+```bash
+npx universal-dev-standards init                      # 新專案
+npx universal-dev-standards update --apply --skills   # 已設定好的專案
+```
+
+**替代方式（有限制）：Claude Code 外掛市集**（只支援 Claude Code、只有英文技能文字、只跟正式版、專案內不放檔案）
 ```bash
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich

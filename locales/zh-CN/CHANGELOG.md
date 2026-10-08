@@ -46,11 +46,15 @@ status: current
 - **行为改变：`uds skills` 的输出文字改了（XSPEC-462 R1）。** 项目层与用户层安装不再标 `(deprecated)`，插件不再标 `(recommended)`，「手动安装已弃用」与「建议：迁移到 Plugin Marketplace」两段也拿掉了。取而代之的是，每次运行都以并列的两种装法收尾：装进项目（`uds init --skills-location project`、`uds update --apply --skills`；支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本，含测试版），以及 Claude Code 插件市场（只支持 Claude Code、只有英文文本、只跟正式版、项目内不放文件）。「已弃用」这个字写于 2026-01，与 `uds check`、`uds update` 一向建议的 `uds update --apply --skills` 互相矛盾。匹配旧文字的脚本需要更新。（英文、繁体中文、简体中文）
 - **`uds update` 的「Skills 有可用更新」提示**，对项目层、用户层与无法判定的安装，现在说 `更新方式：uds update --apply --skills`。它原本称这些安装已弃用、指向一个泛用的插件网址，并建议在技能文件夹里 `git pull`。技能来自插件时，现在写出的市场名是 `asia-ostrich`（`/plugin marketplace update asia-ostrich`），不再是 `anthropic-agent-skills`。
 - **行为变更——对“OWT-019 违反全都是 `asked-awaiting` 且 OWT-022 认为齐全的行”的载体，`uds open-work next-action` 回 0，不再回 1（XSPEC-464）。** 那些行现在是 `waiting-on-reply`。有其他违反的载体仍回 1；没有状态列的载体与 1.3.0 的行为相同。
+- **行为改变：`uds init` 与 `uds init --yes` 现在会把 UDS 技能装进项目（XSPEC-462 之后的 XSPEC-468 R1）。** XSPEC-462 把「装进项目」定为主要路径，但 `uds init --yes` 检测到 Claude Code 时仍选插件、不写任何技能文件；在没有 AI 工具标记的文件夹则一个都不装。既有脚本运行 `uds init --yes`，现在会多出 `.claude/skills/`（Claude Code；其他检测到的工具各有自己的文件夹），`git status` 也会变长。交互提示预先勾选项目层，直接按 Enter 就会安装。要保持旧结果，请明说：`uds init --yes --skills-location marketplace`（插件：项目内不写入任何技能文件，安装结尾会说明技能从哪里来、插件做不到什么、怎么改装进项目）或 `--skills-location none`。交互提示中，取消所有勾选即为跳过。若已安装 UDS 插件，安装结尾会打印与 `uds check` 相同的「技能装了两次」警告。`uds init --help` 中 `--skills-location` 的默认值现在是 `project`。
+- **行为改变：`uds init` 的命令契约步骤不再整份重写 `uds.project.yaml`（XSPEC-468 R5）。** 文件已存在、你同意覆盖时，向导原本以它询问的四个命令整份重写，其余全部消失：`open_work:`（`uds open-work` 读取的设置）、`custom:`、注释。现在问题会列出会保留的区段，默认答案仍是否；答是时只改 `commands:` 底下的 `test`、`lint`、`build`、`security` 几行（各题的默认值是文件内现有的值，留空就不动那一行），文件其余字节原样保留。不是合法 YAML 的文件无法只留一部分，所以问题会明说，并询问是否整份替换。
+- **文档与提示不再推荐插件市场（XSPEC-468 R2）。** `docs/CLI-INIT-OPTIONS.md`、`docs/WINDOWS-GUIDE.md`、`docs/USAGE-MODES-COMPARISON.md`、采用指南与检查清单、`uds init` 的提示文字与较旧的设计笔记，现在写的是 XSPEC-462 的决定：装进项目是主要路径，插件是替代方式，限制写在旁边（只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件）。三语一致。3.2.x 的发行说明与本变更日志仍照原样引用当时的说法。`npm test` 现在会在 Markdown 文件或 CLI 自己的文字又推荐插件时失败，并指出文件名与行号。
 
 ### 修复
 
 - **插件设置里的技能数是错的（XSPEC-462 R3）。** `.claude-plugin/plugin.json` 写「25 comprehensive skills」、`marketplace.json` 写「23 skills」、`.claude-plugin/README.md` 列了 15 个，而插件实际加载 56 个。描述不再带数字，上面那个检查会让它保持这样。
 - **`uds open-work waiting` 把列表条目里留空的字段读成被下面的 `Next action:` 那一行填满了（做 XSPEC-464 时发现）。** 在列表条目里，最后一个被认得的标签的值会一路延伸到条目结尾，所以 `- release:` 留空、接着 `- Next action: wait for the vendor reply`，会被读成有解除条件，OWT-022 于是放行一个没写解除条件的 `asked-awaiting` 条目。现在 `Next action:` 标签（内置词）会结束它前面那个值，本身也不再是字段。缺解除条件、缺在等什么或缺 `asked-at`、且下面有下一步那一行的列表条目，现在由 `waiting`（OWT-022）报告，`next-action` 也不再免除它；表格不受影响。
+- **缺少中文技能文本的 UDS 会默默装英文版（XSPEC-468 R3）。** `--locale zh-tw` 或 `zh-cn` 从包内的 `locales/` 文件夹取技能文本；那个文件夹不在时，原本一声不响地复制英文技能并以 0 结束，与 XSPEC-451 的 `zh-CN` 变英文同一形态。现在 `uds init` 与 `uds update` 会说「这份 UDS 里没有 zh-TW 的技能文本，所以技能装的是英文版」，说明原因是这份 UDS 不完整或已损坏而不是网络，并给出补救命令。安装仍以英文继续，不算错误。这些文本在 npm 包内（zh-TW 约 4.6 MB、zh-CN 约 4.1 MB，由打包后的 tarball 量得），所以安装它们不需要网络：安装说明三语都写了这一点。
 
 ## [6.14.0-beta.6] - 2026-10-07
 

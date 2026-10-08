@@ -55,15 +55,16 @@ CLAUDE.md            ← Updated with UDS guidance (Claude Code)
 There are two ways to get UDS skills, and both are supported. The main path is into the project; the Claude Code
 plugin marketplace is an alternative with limits.
 
-> **Say which one you want.** `uds init --yes` without `--skills-location` installs no skill files today: it
-> leaves the Claude Code skills to the plugin. For the project way, pass `--skills-location project` (or run
-> `uds update --apply --skills` afterwards).
+> **The default is the project way.** `uds init` and `uds init --yes` without `--skills-location` install the
+> skills into the project (`.claude/skills/` for Claude Code). Before 6.14 they installed none and left the Claude
+> Code skills to the plugin. To use the plugin instead, pass `--skills-location marketplace`: no skill file is
+> written to the project, and the end of the install says where the skills come from.
 
 | | Into the project (main path) | Claude Code plugin marketplace (alternative) |
 |---|---|---|
-| Command | New project: `uds init --skills-location project`<br>Existing project: `uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`, then `/plugin install universal-dev-standards@asia-ostrich` |
+| Command | New project: `uds init` (this is the default)<br>Existing project: `uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`, then `/plugin install universal-dev-standards@asia-ostrich` |
 | AI tools | Claude Code, OpenCode, Cursor, Codex, Copilot, Windsurf and more | Claude Code only |
-| Language of the skill texts | English, Traditional Chinese, Simplified Chinese (a missing one falls back to English with a warning) | English only: the plugin settings have no language choice |
+| Language of the skill texts | English, Traditional Chinese, Simplified Chinese. The Chinese texts are inside the npm package, so installing them needs no network. A copy of UDS that lacks them installs English and says so | English only: the plugin settings have no language choice |
 | UDS version | The version you installed, beta releases included | Stable releases only |
 | Files in your project | Yes, for example `.claude/skills/`; `uds check` verifies them file by file | None |
 | Updating | You run `uds update --apply --skills` again after upgrading UDS | Claude Code manages the plugin (`/plugin`) |

@@ -134,7 +134,7 @@ program
   .option('--lang <language>', 'Language extension (csharp, php)')
   .option('--framework <framework>', 'Framework extension (fat-free)')
   .option('--locale <locale>', 'Locale extension (zh-tw)')
-  .option('--skills-location <location>', 'Skills location (marketplace, user, project, none) [default: marketplace]')
+  .option('--skills-location <location>', 'Skills location (project, user, marketplace, none) [default: project]')
   // No double quotes in this description: generate-usage-docs.mjs parses the
   // option table out of this file and truncates at the first one, which turned
   // the retirement note into a dangling semicolon in three locales.

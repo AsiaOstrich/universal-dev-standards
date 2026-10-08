@@ -353,9 +353,10 @@ describe('Init Command', () => {
       await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      // When only OpenCode is detected with --yes, skills should be offered
-      // Default is marketplace for skills-compatible tools
-      expect(output).toContain('Plugin Marketplace');
+      // When only OpenCode is detected with --yes, skills should be offered.
+      // XSPEC-468 R1: the default is the project (the main path), not the plugin.
+      expect(output).toContain('install/update to project');
+      expect(output).not.toContain('Plugin Marketplace');
     });
 
     it('should offer skills when both Claude Code and OpenCode are selected', async () => {
@@ -371,8 +372,10 @@ describe('Init Command', () => {
       await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
 
       const output = consoleLogs.join('\n');
-      // Both tools support skills, so skills should be offered
-      expect(output).toContain('Plugin Marketplace');
+      // Both tools support skills, so skills should be offered.
+      // XSPEC-468 R1: the default is the project (the main path), not the plugin.
+      expect(output).toContain('install/update to project');
+      expect(output).not.toContain('Plugin Marketplace');
     });
 
     it('should NOT offer skills when OpenCode is selected with non-skills tools', async () => {

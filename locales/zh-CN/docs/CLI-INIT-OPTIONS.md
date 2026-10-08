@@ -112,9 +112,8 @@ status: current
 ```
 ? Select AI agents to install Skills for:
   ── Claude Code ──
-❯ ◉ Claude Code (Plugin Marketplace) - Auto-managed (Recommended)
   ◯ Claude Code (User Level) - ~/.claude/skills/
-  ◯ Claude Code (Project Level) - .claude/skills/
+❯ ◉ Claude Code (Project Level) - .claude/skills/   （预先勾选：主要路径）
   ── OpenCode ──
   ◯ OpenCode (User Level) - ~/.config/opencode/skill/
   ◯ OpenCode (Project Level) - .opencode/skill/
@@ -148,22 +147,26 @@ status: current
 
 ### 详细说明
 
-#### Plugin Marketplace (推荐)
+#### Plugin Marketplace（替代方式，有限制）
+
+它不是提示里的选项，而是 Claude Code 自己的插件系统。要用它，请取消提示中的所有勾选（或加 `--skills-location marketplace`），再在 Claude Code 内执行：
 
 ```bash
-# 如果尚未安装，执行：
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
 
 **优点**：
-- 自动更新到最新版本
-- 无需手动管理
-- 所有 15 个 Skills 一次安装
+- 由 Claude Code 更新，不用自己下命令
+- 项目内不放文件
 
-**缺点**：
-- 无法锁定特定版本
+**限制**：
+- 只支持 Claude Code
+- 只有英文技能文本（插件设置没有语言选择）
+- 只跟正式版：UDS 的测试版不会有测试版技能，也无法锁定特定版本
 - 需要网络连接
+- `uds check` 无法逐文件比对它的技能文件
+- 项目内也装了技能时，Claude Code 会把每个技能列两次；`uds check` 会警告
 
 #### User Level
 
@@ -184,7 +187,10 @@ status: current
 - 需要手动更新
 - 不会随项目版本控制
 
-#### Project Level
+#### Project Level（主要路径，也是 `uds init --yes` 的默认）
+
+繁体与简体中文技能文本都放在 npm 包内（`--locale zh-tw` 或 `zh-cn`），所以安装它们不需要网络。如果某份 UDS 缺少这些文本，UDS 会明说，并改装英文版。
+
 
 ```
 your-project/
@@ -208,19 +214,15 @@ your-project/
 ### 决策流程
 
 ```
-是否使用 Claude Code？
+你用哪些 AI 工具？
     │
-    ├─ 否 → 选择 None
+    ├─ 任何读 SKILL.md 的工具（Claude Code、OpenCode、Codex、Copilot……）
+    │     → Project Level（主要路径，预先勾选）
+    │         └─ 也想让这台机器上每个项目都有技能？ → 再加 User Level
     │
-    └─ 是 → 是否需要自动更新？
-              │
-              ├─ 是 → Plugin Marketplace
-              │
-              └─ 否 → 是否需要团队共享？
-                        │
-                        ├─ 是 → Project Level
-                        │
-                        └─ 否 → User Level
+    └─ 只用 Claude Code，且英文文本、只跟正式版、
+       项目内不放文件都可以？
+          → Plugin Marketplace（--skills-location marketplace）
 ```
 
 ---
@@ -812,7 +814,7 @@ uds init --experimental
 | 选项 | 交互式提示 | CLI 参数 | 默认值 |
 |------|------------|----------|--------|
 | AI Tools | `promptAITools()` | - (检测) | 自动检测 |
-| Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `marketplace` |
+| Skills Location | `promptSkillsInstallLocation()` | `--skills-location` | `project` |
 | Standards Scope | `promptStandardsScope()` | - | 依 Skills 决定 |
 | Format | `promptFormat()` | `-f, --format` | `ai` |
 | Git Workflow | `promptGitWorkflow()` | `--workflow` | `github-flow` |
@@ -962,7 +964,7 @@ uds init -y
 # 指定所有选项
 uds init -y \
   --format ai \
-  --skills-location marketplace \
+  --skills-location project \
   --workflow github-flow \
   --merge-strategy squash \
   --output-lang english \

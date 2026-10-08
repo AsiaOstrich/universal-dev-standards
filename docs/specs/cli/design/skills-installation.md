@@ -23,20 +23,20 @@ UDS Skills 提供開發任務的即時 AI 輔助。本規格記錄安裝機制�
 
 ### Installation Methods / 安裝方法
 
-#### Method 1: Plugin Marketplace (Recommended)
+#### Method 1: Plugin Marketplace (an alternative, with limits)
 
-Claude Code Plugin Marketplace provides automatic installation and updates.
+Claude Code Plugin Marketplace installs and updates through Claude Code. Limits (XSPEC-462, XSPEC-468): Claude Code only, English skill texts only, stable releases only, no files in the project. The main path is Method 2.
 
 ```
 Plugin ID: universal-development-standards
 Registry: https://github.com/anthropics/claude-code-plugins
 ```
 
-#### Method 2: CLI Installation
+#### Method 2: CLI Installation (the main path, into the project)
 
 ```bash
-# Initialize with Skills
-uds init --skills-location user
+# Initialize with Skills (the default of `uds init --yes` is the project level)
+uds init --skills-location project
 
 # Or configure later
 uds configure --type skills

@@ -61,13 +61,13 @@ CLAUDE.md            ← 已更新 UDS 指引（Claude Code）
 
 获取 UDS 技能有两种方式，两种都受支持。主要路径是装进项目；Claude Code 插件市场是有限制的替代方式。
 
-> **请明说你要哪一种。** 目前不带 `--skills-location` 的 `uds init --yes` 不会安装任何技能文件：它把 Claude Code 的技能留给插件。要装进项目，请加 `--skills-location project`（或之后运行 `uds update --apply --skills`）。
+> **默认是装进项目。** `uds init` 与不带 `--skills-location` 的 `uds init --yes` 会把技能装进项目（Claude Code 是 `.claude/skills/`）。6.14 之前它们一个技能文件都不装，把 Claude Code 的技能留给插件。要改用插件，请加 `--skills-location marketplace`：项目内不会写入任何技能文件，安装结尾会说明技能从哪里来。
 
 | | 装进项目（主要路径） | Claude Code 插件市场（替代方式） |
 |---|---|---|
-| 指令 | 新项目：`uds init --skills-location project`<br>已设置过的项目：`uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`，再 `/plugin install universal-dev-standards@asia-ostrich` |
+| 指令 | 新项目：`uds init`（这是默认）<br>已设置过的项目：`uds update --apply --skills` | `/plugin marketplace add AsiaOstrich/universal-dev-standards`，再 `/plugin install universal-dev-standards@asia-ostrich` |
 | AI 工具 | Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等 | 只支持 Claude Code |
-| 技能文本的语言 | 英文、繁体中文、简体中文（缺失的会警告并退回英文） | 只有英文：插件设置没有语言选项 |
+| 技能文本的语言 | 英文、繁体中文、简体中文。中文文本放在 npm 包内，所以安装它们不需要网络；缺少这些文本的 UDS 会改装英文并明说 | 只有英文：插件设置没有语言选项 |
 | UDS 版本 | 你装的那个版本，包含测试版 | 只跟正式版 |
 | 项目内的文件 | 有，例如 `.claude/skills/`；`uds check` 会逐文件验证 | 没有 |
 | 更新 | 升级 UDS 后，自己再运行一次 `uds update --apply --skills` | 由 Claude Code 管理插件（`/plugin`） |

@@ -41,10 +41,9 @@
     "step5_skills_location": {
       "prompt": "Where would you like to install Skills?",
       "options": [
-        "Plugin Marketplace (Recommended)",
         "User level (~/.claude/skills/)",
-        "Project level (.claude/skills/)",
-        "Skip Skills installation"
+        "Project level (.claude/skills/) - pre-selected, the main path",
+        "Skip Skills installation (deselect everything)"
       ]
     },
     "step6_standards_scope": {
