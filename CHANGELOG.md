@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.7] - 2026-10-08
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Behavior changes:** `uds init` and `uds init --yes` install the UDS skills into the project; the command-contract step of `uds init` keeps the rest of `uds.project.yaml`; `uds skills` output text changed; `uds open-work next-action` exits 0 (was 1) when the only violations were "asked, awaiting a reply" rows that OWT-022 finds complete.
+
 ### Added
 
 - **`uds update` now says which standards UDS ships and the project does not have, and `--add-standard <id>` installs them (XSPEC-458).** A project set up by an older UDS only keeps what its manifest lists, so `uds update --apply` reported "up to date" while a standard added since (for example `open-work-tracking`) was never installed — and nothing said so. Now: `uds update --plan` ends with "Available upstream, not installed (N)", grouped by category, or says "none"; `--apply` ends with the count and the command; `uds check` prints one line, "N upstream standard(s) not installed"; `uds audit --friction` lists one low-severity finding. None of these changes a plan's actions, a verdict, an exit code or `uds audit --score`. `uds update --plan|--apply --add-standard <id>` (repeatable) installs a standard and records it in `manifest.standards`, so it is not deleted as surplus by the next `--apply`; one `--rollback` removes it again. An unknown id exits 1 and lists the nearest ids; an installed id says so and exits 0; `extension`, `integration` and `template` entries (installed through language, tool and template choices) are refused with the reason. "Available" means a `reference` or `skill` standard with a source file in the project's format and no file of that name in the manifest — one definition shared by the older `uds update` path, `--plan`/`--apply`, `check` and `audit`. Standards in the other categories (`core`, `testing`, `security`, `deployment`, `operations`, …) were never installed by `uds init` and are counted in a line, not listed; they can still be chosen by id. Rules and the dead manifest fields (`level`, `profile`) are in [docs/AVAILABLE-STANDARDS.md](docs/AVAILABLE-STANDARDS.md).

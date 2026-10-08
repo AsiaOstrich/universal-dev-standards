@@ -9,25 +9,25 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.6`
+## Current beta | 目前的測試版：`6.14.0-beta.7`
 
-> **New in 6.14.0-beta.6** — the fixes from the Windows report on beta.5 (a .NET project): `uds run` reads `uds.project.yaml` as YAML, so a trailing comment is no longer part of the command; `uds simulate -s commit-message` judges in-process (no `npx`, no network) and tells "fails" from "no verdict"; `uds skills` lists every installed skill (56 of 56, not 27 of 30); `uds update` drops names UDS cannot vouch for from the manifest; `uds spec list` reads SDD headers instead of calling every spec a draft; `uds deps --if-present`; and every `uds update` backup now goes into one folder, `.uds-backups/`.
-> **6.14.0-beta.6 新增** — beta.5 Windows 回報（.NET 專案）的修正：`uds run` 以 YAML 解析 `uds.project.yaml`，行尾註解不再成為指令的一部分；`uds simulate -s commit-message` 在程式內判定（不呼叫 `npx`、不連網），並分得出「不合規」與「沒有結論」；`uds skills` 列出全部已安裝技能（56／56，不再是 27／30）；`uds update` 會從 manifest 移除 UDS 無法擔保的名稱；`uds spec list` 讀 SDD 標頭，不再把每份規格都叫草稿；`uds deps --if-present`；所有 `uds update` 備份集中到單一 `.uds-backups/` 資料夾。
+> **New in 6.14.0-beta.7** — `uds init` (and `uds init --yes`) now installs the UDS skills into the project; `uds update` names the standards UDS ships that your project does not have, and `--add-standard <id>` installs them; `uds check` warns when UDS skills are installed twice, or when a personal skill has the same name as a UDS skill; `open-work-tracking` 1.2.0–1.4.0 (asked-and-awaiting a reply is its own state, a wait can name another project, more ways to write "next action"); a copy of UDS without the Chinese skill texts now says so instead of quietly installing English; file copies retry when Windows holds a file for a moment; and `check-anti-fake-tests` also names a test whose expected value is recomputed from the code under test. This is also the first beta checked by one program on each machine against the published package — see "What to test".
+> **6.14.0-beta.7 新增** — `uds init`（含 `uds init --yes`）改為把 UDS 技能裝進專案；`uds update` 會列出 UDS 有出貨而專案沒有的標準，並可用 `--add-standard <id>` 安裝；`uds check` 會在 UDS 技能裝了兩份、或個人技能與 UDS 技能同名時警告；`open-work-tracking` 1.2.0–1.4.0（「已詢問、等回覆」成為獨立狀態、等待可指向另一個專案、「下一個動作」接受更多寫法）；缺中文技能文字的 UDS 複本會明說，不再默默裝英文；Windows 暫時鎖住檔案時複製會重試；`check-anti-fake-tests` 也會點名預期值照抄被測程式的測試。這也是第一個由同一支程式在每台機器上、對已發布套件做驗收的測試版——見「請幫忙測什麼」。
 
 **Behavior changes — read this first.**
-- `uds simulate`: a standard that cannot be simulated now exits **2** (it was 1); **1** means the input failed the standard. A script that treated any non-zero as "failed" needs to tell the two apart.
-- `uds update` now removes from `.standards/manifest.json` the skill and command names UDS does not ship, or whose folder is no longer on disk (`skills.names`, `commands.names`).
-- Backups moved: new ones go to `.uds-backups/<time>-<n>/`. Old `.uds-backup-*` folders in the project root are left where they are, but `--rollback` and the "keep the latest 5" limit count both places. Tools that do not read git (an indexer, an IDE search) should exclude `.uds-backups`; git already ignores it.
-- In `uds.project.yaml`, a double-quoted value now follows YAML: a backslash is an escape character, so `"C:\proj"` is an error — use single quotes or no quotes.
+- `uds init` and `uds init --yes` install the UDS skills into the project (`.claude/skills/`). They used to pick the Claude Code plugin when Claude Code was detected and write no skill file, or none at all in a folder with no AI tool. To keep the old behaviour, pass `--skills-location` explicitly.
+- The command-contract step of `uds init` no longer rewrites the whole `uds.project.yaml`: it changes only the commands it asks about and keeps `open_work:`, `custom:` and everything else.
+- `uds skills` output text changed: project-level and user-level installations are no longer labeled deprecated, and the plugin is no longer labeled recommended. Scripts that match on that text need updating.
+- `uds open-work next-action` exits **0**, not 1, for a carrier whose only violations were "asked, awaiting a reply" rows that OWT-022 finds complete.
 
 **行為改變，請先讀。**
-- `uds simulate`：不可模擬的標準現在以 **2** 結束（原本是 1）；**1** 代表輸入不合規。把任何非 0 都當失敗的腳本需要分開處理。
-- `uds update` 會從 `.standards/manifest.json` 移除 UDS 不出貨、或資料夾已不在磁碟上的技能與命令名稱（`skills.names`、`commands.names`）。
-- 備份位置改變：新備份放在 `.uds-backups/<時間>-<n>/`。專案根目錄舊的 `.uds-backup-*` 不搬動，但 `--rollback` 與「保留最近 5 份」兩處合計。不看 git 的工具（索引器、IDE 搜尋）請排除 `.uds-backups`；git 本來就會忽略它。
-- `uds.project.yaml` 內雙引號的值現在依 YAML 解析：反斜線是跳脫字元，`"C:\proj"` 會報錯，請改用單引號或不加引號。
+- `uds init` 與 `uds init --yes` 會把 UDS 技能裝進專案（`.claude/skills/`）。以前偵測到 Claude Code 就選外掛、不寫任何技能檔；資料夾裡沒有 AI 工具時則什麼都不裝。要維持舊行為，請明確帶 `--skills-location`。
+- `uds init` 的命令約定步驟不再整份改寫 `uds.project.yaml`：只改它詢問的那幾個命令，保留 `open_work:`、`custom:` 與其他內容。
+- `uds skills` 的輸出文字改變：專案層與使用者層的安裝不再標為已棄用，外掛也不再標為推薦。比對這段文字的腳本需要更新。
+- `uds open-work next-action` 對「唯一的違規是 OWT-022 判定完整的『已詢問、等回覆』列」的追蹤檔，改以 **0** 結束（原本是 1）。
 
-Everything in 6.14.0-beta.5 is still here (one `--rollback` undoes apply, skills and commands; `check` counts missing skill and command files; `audit --offline`; `check --diff` against the installed package; the commit-time warnings).
-6.14.0-beta.5 的內容都還在（一次 `--rollback` 還原三步；`check` 計入技能與命令檔遺失；`audit --offline`；`check --diff` 以所裝套件為原稿；提交時的警告）。
+Everything in 6.14.0-beta.6 is still here (`uds simulate` exits 2 for a standard that cannot be simulated; backups in `.uds-backups/`; `uds.project.yaml` read as YAML; `uds skills` lists every installed skill).
+6.14.0-beta.6 的內容都還在（`uds simulate` 對不可模擬的標準以 2 結束；備份集中在 `.uds-backups/`；`uds.project.yaml` 以 YAML 解析；`uds skills` 列出全部已安裝技能）。
 
 ### What to test | 請幫忙測什麼（Windows 優先）
 
@@ -36,11 +36,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.6
+node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
 ```
 
-It installs the published 6.14.0-beta.6 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.0-beta.6 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 68 步（64 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -54,115 +54,115 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 c
 3. `available-init` — uds init sets up a project (the project the next steps use).
    uds init 建立專案（後續步驟使用）。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-4. `std-open-work-states` (**new 新**) — The installed open-work-tracking standard defines the two waiting states and the hand-written-fact rules (OWT-020 to OWT-026).
+4. `std-open-work-states` — The installed open-work-tracking standard defines the two waiting states and the hand-written-fact rules (OWT-020 to OWT-026).
    安裝後的 open-work-tracking 標準含兩個等待狀態與手寫事實規則（OWT-020～OWT-026）。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/open-work-tracking.ai.yaml`
-5. `std-open-work-cross-project` (**new 新**) — The installed open-work-tracking standard lets a wait name an object in another project (OWT-027 to OWT-029).
+5. `std-open-work-cross-project` — The installed open-work-tracking standard lets a wait name an object in another project (OWT-027 to OWT-029).
    安裝後的 open-work-tracking 標準允許等待項目點名另一個專案的物件（OWT-027～OWT-029）。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/open-work-tracking.ai.yaml`
-6. `std-open-work-waiting-on-reply` (**new 新**) — The installed open-work-tracking standard is 1.4.0 and names waiting-on-reply.
+6. `std-open-work-waiting-on-reply` — The installed open-work-tracking standard is 1.4.0 and names waiting-on-reply.
    安裝後的 open-work-tracking 標準是 1.4.0，並提到 waiting-on-reply。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/open-work-tracking.ai.yaml`
-7. `std-open-work-summary` (**new 新**) — The installed open-work-tracking standard explains who produces the OWT-007 summary.
+7. `std-open-work-summary` — The installed open-work-tracking standard explains who produces the OWT-007 summary.
    安裝後的 open-work-tracking 標準說明 OWT-007 摘要由誰產生。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/open-work-tracking.ai.yaml`
-8. `std-memory-boundary` (**new 新**) — The installed developer-memory and project-context-memory standards carry the boundary section.
+8. `std-memory-boundary` — The installed developer-memory and project-context-memory standards carry the boundary section.
    安裝後的 developer-memory 與 project-context-memory 標準含邊界段。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/developer-memory.ai.yaml`, `.standards/project-context-memory.ai.yaml`
-9. `available-check-line` (**new 新**) — uds check prints one line when UDS ships a standard the project does not have.
+9. `available-check-line` — uds check prints one line when UDS ships a standard the project does not have.
    UDS 出貨而專案沒有某標準時，uds check 印一行說明。
    `uds check --offline` → exit 0; output has "1 upstream standard(s) not installed — run `uds update --plan` to see them"
-10. `available-audit-friction` (**new 新**) — uds audit --friction lists the missing standard as one low-severity finding.
+10. `available-audit-friction` — uds audit --friction lists the missing standard as one low-severity finding.
    uds audit --friction 把沒裝的標準列為一筆低嚴重度發現。
    `uds audit --friction --offline` → exit 0; output has "[LOW] 1 available standard(s) not installed", "open-work-tracking"
-11. `available-audit-report-held-back` (**new 新**) — uds audit --report does not send the missing-standard finding to the maintainers.
+11. `available-audit-report-held-back` — uds audit --report does not send the missing-standard finding to the maintainers.
    uds audit --report 不會把「沒裝的標準」當成回饋送給維護者。
    `uds audit --report --yes --dry-run --offline` → exit 0; output has "Nothing to send: the "available standards" finding above is for you to act on"
-12. `available-plan` (**new 新**) — uds update --plan ends with the standards available upstream and not installed.
+12. `available-plan` — uds update --plan ends with the standards available upstream and not installed.
    uds update --plan 結尾列出上游有而專案沒裝的標準。
    `uds update --plan --offline` → exit 0; output has "Available upstream, not installed (1)", "open-work-tracking" (+1)
-13. `available-unknown-id` (**new 新**) — uds update --add-standard with an unknown id exits 1 and offers the nearest ids.
+13. `available-unknown-id` — uds update --add-standard with an unknown id exits 1 and offers the nearest ids.
    uds update --add-standard 給不存在的 id 時以 1 結束並列出最接近的 id。
    `uds update --plan --offline --add-standard no-such-standard-xyz` → exit 1; output has "Unknown standard id "no-such-standard-xyz"", "Closest ids:"
-14. `available-add-standard` (**new 新**) — uds update --apply --add-standard installs the standard and records it in the manifest.
+14. `available-add-standard` — uds update --apply --add-standard installs the standard and records it in the manifest.
    uds update --apply --add-standard 安裝該標準並記入 manifest。
    `uds update --apply --yes --offline --add-standard open-work-tracking` → exit 0; output has "Reconciliation complete"
-15. `available-clean-after-add` (**new 新**) — uds check --ci then reports nothing left to install, and the standard survives the next apply.
+15. `available-clean-after-add` — uds check --ci then reports nothing left to install, and the standard survives the next apply.
    安裝後 uds check --ci 回報沒有未裝的標準。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards", "Upstream standards not installed: none"
-16. `available-rollback` (**new 新**) — One uds update --rollback takes the added standard out again.
+16. `available-rollback` — One uds update --rollback takes the added standard out again.
    一次 uds update --rollback 就把剛加的標準移除。
    `uds update --rollback --yes` → exit 0; output has "Rollback successful"
-17. `psg-add-standard` (**new 新**) — pipeline-security-gates 1.1.0 installs with the scanner behaviours PSG-1 to PSG-3.
+17. `psg-add-standard` — pipeline-security-gates 1.1.0 installs with the scanner behaviours PSG-1 to PSG-3.
    pipeline-security-gates 1.1.0 可安裝，並含掃描器行為 PSG-1～PSG-3。
    `uds update --apply --yes --offline --add-standard pipeline-security-gates` → exit 0; output has "Reconciliation complete"
 18. `legacy-update-init` — uds init sets up a project (the project the next step uses).
    uds init 建立專案（下一步使用）。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-19. `legacy-update-messages` (**new 新**) — uds update on a project from an older UDS says "upstream has them, this project does not" (no "level"), and tells how to update skills.
+19. `legacy-update-messages` — uds update on a project from an older UDS says "upstream has them, this project does not" (no "level"), and tells how to update skills.
    舊版 UDS 建立的專案執行 uds update：訊息不再提「等級」，並說明如何更新技能。
    `uds update --yes --offline` → exit 0; output has "1 new standard(s) available (upstream has them, this project does not):", "Skills update available:" (+1)
-20. `skills-two-ways` (**new 新**) — uds skills ends with the two ways to install UDS skills side by side and calls neither deprecated.
+20. `skills-two-ways` — uds skills ends with the two ways to install UDS skills side by side and calls neither deprecated.
    uds skills 結尾並列兩種安裝技能的方式，且不再說任何一種「已棄用」。
    `uds skills` → exit 0; output has "Two ways to install UDS skills", "Into the project (the main path)" (+1)
-21. `personal-skill-init` (**new 新**) — uds init --skills-location project ends by naming a personal skill that covers a UDS skill.
+21. `personal-skill-init` — uds init --skills-location project ends by naming a personal skill that covers a UDS skill.
    uds init --skills-location project 結尾點名「蓋掉 UDS 技能」的個人技能。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "share a name with a personal skill", "/plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/"
-22. `personal-skill-check` (**new 新**) — uds check names the same collision, says how to fix it, and still reports the project as compliant.
+22. `personal-skill-check` — uds check names the same collision, says how to fix it, and still reports the project as compliant.
    uds check 點名同樣的撞名、說明怎麼修，且專案判定不變。
    `uds check --offline` → exit 0; output has "share a name with a personal skill", "/plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/" (+2)
-23. `personal-skill-update` (**new 新**) — uds update --apply --skills ends with the same warning.
+23. `personal-skill-update` — uds update --apply --skills ends with the same warning.
    uds update --apply --skills 結尾印同樣的警告。
    `uds update --apply --yes --offline --skills` → exit 0; output has "share a name with a personal skill", "/plan: your ~/.claude/skills/plan/"
 24. `double-install-init` — uds init sets up a project with the UDS skills in it.
    uds init 建立含 UDS 技能的專案。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-25. `double-install-check` (**new 新**) — uds check warns that the UDS skills are installed twice (project and plugin) without changing the verdict.
+25. `double-install-check` — uds check warns that the UDS skills are installed twice (project and plugin) without changing the verdict.
    uds check 警告 UDS 技能裝了兩次（專案與外掛），且不改變判定。
    `uds check --offline` → exit 0; output has "UDS skills are installed twice", "the plugin universal-dev-standards@asia-ostrich" (+2)
-26. `docs-install-skills` (**new 新**) — The shipped Traditional Chinese getting-started guide has the "how to install skills" section.
+26. `docs-install-skills` — The shipped Traditional Chinese getting-started guide has the "how to install skills" section.
    套件附的繁體中文入門指南含「技能怎麼裝」一節。
    `(read the files; no command | 讀檔，不執行指令)` → reads `{shipped}/locales/zh-TW/docs/user/GETTING-STARTED.md`
-27. `docs-personal-skill` (**new 新**) — The shipped guide and the skill naming rules explain which skill runs when two share a name.
+27. `docs-personal-skill` — The shipped guide and the skill naming rules explain which skill runs when two share a name.
    套件附的指南與技能命名規則說明同名時誰會執行。
    `(read the files; no command | 讀檔，不執行指令)` → reads `{shipped}/locales/zh-TW/docs/user/GETTING-STARTED.md`, `{shipped}/skills/SKILL_NAMING.md`
 28. `owt-self-test` — uds open-work self-test passes (its own red and green samples).
    uds open-work self-test 通過（內建的紅綠樣本）。
    `uds open-work self-test` → exit 0; output has "self-test: OK"
-29. `owt-waiting-states` (**new 新**) — uds open-work waiting tells "not yet asked" from "asked, awaiting a reply" and shows the age.
+29. `owt-waiting-states` — uds open-work waiting tells "not yet asked" from "asked, awaiting a reply" and shows the age.
    uds open-work waiting 分得出「尚未詢問」與「已問、等回覆」並顯示年齡。
    `uds open-work waiting w.md --now 2026-01-12` → exit 0; output has "not-yet-asked=1 asked-awaiting=1", "asked-awaiting w.md table row (line 3, row "quote"): quote (asked 2d ago)"
-30. `owt-waiting-violation` (**new 新**) — uds open-work waiting exits 1 for a not-yet-asked item that names no draft.
+30. `owt-waiting-violation` — uds open-work waiting exits 1 for a not-yet-asked item that names no draft.
    uds open-work waiting 對「沒點名草稿的尚未詢問項目」以 1 結束。
    `uds open-work waiting bad.md --now 2026-01-12` → exit 1; output has "VIOLATION OWT-021: bad.md table row (line 3, row "mail") is not-yet-asked but names no draft or action"
-31. `owt-observations` (**new 新**) — uds open-work observations counts unknown apart, shows every age and marks an old observation stale.
+31. `owt-observations` — uds open-work observations counts unknown apart, shows every age and marks an old observation stale.
    uds open-work observations 把 unknown 另計、顯示每筆年齡、標出過舊的觀察。
    `uds open-work observations facts.md --now 2026-10-07` → exit 0; output has "yes=2 no=1 unknown=1 invalid=0 | stale=1 | confirmed=1", "UNKNOWN (counted apart, never complete)" (+1)
-32. `owt-cross-project-root` (**new 新**) — uds open-work waiting --root NAME=DIR reads a wait on another project: released, or not yet released.
+32. `owt-cross-project-root` — uds open-work waiting --root NAME=DIR reads a wait on another project: released, or not yet released.
    uds open-work waiting --root NAME=DIR 判讀「等另一個專案的物件」：已解除或尚未解除。
    `uds open-work waiting w.md --now 2026-10-07 --root other={workPosix}/other` → exit 0; output has "released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0", "RELEASED other:docs/a.md" (+1)
-33. `owt-cross-project-config` (**new 新**) — open_work.projects in uds.project.yaml says where the other project lives, without --root.
+33. `owt-cross-project-config` — open_work.projects in uds.project.yaml says where the other project lives, without --root.
    uds.project.yaml 的 open_work.projects 不必打 --root 也能指出另一個專案在哪。
    `uds open-work waiting w.md --now 2026-10-07` → exit 0; output has "released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0"
-34. `owt-next-action-words` (**new 新**) — uds open-work next-action reads the column headed 下一個動作.
+34. `owt-next-action-words` — uds open-work next-action reads the column headed 下一個動作.
    uds open-work next-action 讀得懂標題為「下一個動作」的欄。
    `uds open-work next-action n.md` → exit 0; output has "walked 1 next-action field(s)"
-35. `owt-next-action-declared-word` (**new 新**) — uds open-work next-action --next-action-word adds a word of your own.
+35. `owt-next-action-declared-word` — uds open-work next-action --next-action-word adds a word of your own.
    uds open-work next-action --next-action-word 可加入自己的欄位用詞。
    `uds open-work next-action n.md --next-action-word 待辦` → exit 0; output has "walked 1 next-action field(s)"
-36. `owt-next-action-exit-2-explains` (**new 新**) — uds open-work next-action exits 2 and says why when no field was found.
+36. `owt-next-action-exit-2-explains` — uds open-work next-action exits 2 and says why when no field was found.
    找不到下一步欄位時 uds open-work next-action 以 2 結束並說明原因。
    `uds open-work next-action n.md` → exit 2; output has "CANNOT DECIDE: no next-action field found in any carrier", "WHY: no carrier had a next-action field" (+1)
-37. `owt-next-action-glab` (**new 新**) — uds open-work next-action reads `glab mr merge 486` as a command.
+37. `owt-next-action-glab` — uds open-work next-action reads `glab mr merge 486` as a command.
    uds open-work next-action 把 `glab mr merge 486` 當成指令。
    `uds open-work next-action n.md` → exit 0; output has "walked 1 next-action field(s)", "not-resolvable=1"
-38. `owt-waiting-on-reply` (**new 新**) — uds open-work next-action accepts a complete asked-awaiting row as waiting-on-reply and exits 0.
+38. `owt-waiting-on-reply` — uds open-work next-action accepts a complete asked-awaiting row as waiting-on-reply and exits 0.
    uds open-work next-action 把「已問、等回覆」且齊全的列算成 waiting-on-reply，並以 0 結束。
    `uds open-work next-action w.md --now 2026-01-12` → exit 0; output has "waiting-on-reply=1", "WAITING-ON-REPLY 1 row(s) are asked-awaiting"
-39. `owt-blank-field-waiting` (**new 新**) — uds open-work waiting does not read a blank release as filled by the Next action line under it.
+39. `owt-blank-field-waiting` — uds open-work waiting does not read a blank release as filled by the Next action line under it.
    空白的「解除條件」不會被下一行的 Next action 補成有值（waiting）。
    `uds open-work waiting bad.md --now 2026-01-12` → exit 1; output has "VIOLATION OWT-022: bad.md list item (line 1, "vendor quote") is asked-awaiting but does not state what event releases it"
-40. `owt-blank-field-next-action` (**new 新**) — The same list item is still a violation for uds open-work next-action (exit 1).
+40. `owt-blank-field-next-action` — The same list item is still a violation for uds open-work next-action (exit 1).
    同一個清單項目對 uds open-work next-action 仍是違規（以 1 結束）。
    `uds open-work next-action bad.md --now 2026-01-12` → exit 1; output has "VIOLATION OWT-019"
 41. `beta6-init` — uds init sets up a project (the project the next steps use).
@@ -210,43 +210,43 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 c
 55. `human-chinese-display` (needs a person 需人眼) — Traditional Chinese text is readable in this console (no ???? or empty boxes).
    這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）。
    `uds --ui-lang zh-tw skills` → exit 0; output has "/[\u4e00-\u9fff]/"
-56. `init-default-skills-into-project` (**new 新**) — uds init --yes installs the UDS skills into the project (.claude/skills) by default, with no word of the plugin as the way.
+56. `init-default-skills-into-project` — uds init --yes installs the UDS skills into the project (.claude/skills) by default, with no word of the plugin as the way.
    uds init --yes 預設把 UDS 技能裝進專案（.claude/skills），不再把外掛當作預設。
    `uds init --yes` → exit 0; output has "Skills installed to Claude Code"
-57. `init-default-skills-check` (**new 新**) — uds check --ci finds the skill files that uds init --yes installed intact.
+57. `init-default-skills-check` — uds check --ci finds the skill files that uds init --yes installed intact.
    uds check --ci 認為 uds init --yes 裝進專案的技能檔完整。
    `uds check --ci` → exit 0; output has "All skill files intact"
-58. `init-plugin-writes-no-skill-files` (**new 新**) — uds init --yes --skills-location marketplace writes no skill file and says the skills come from the plugin and how to move them into the project.
+58. `init-plugin-writes-no-skill-files` — uds init --yes --skills-location marketplace writes no skill file and says the skills come from the plugin and how to move them into the project.
    uds init --yes --skills-location marketplace 不寫任何技能檔，並說明技能由外掛提供、怎麼改裝進專案。
    `uds init --yes --skills-location marketplace` → exit 0; output has "Skills: provided by the Claude Code plugin (no skill file was written to this project).", "/plugin install universal-dev-standards@asia-ostrich" (+2)
-59. `init-chinese-skill-texts-no-tool-marker` (**new 新**) — uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Chinese skill texts from the package, with no locale warning.
+59. `init-chinese-skill-texts-no-tool-marker` — uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Chinese skill texts from the package, with no locale warning.
    uds init --yes --locale zh-tw 在沒有 AI 工具標記的資料夾，從套件內裝進中文技能文字，且沒有語系警告。
    `uds init --yes --locale zh-tw` → exit 0; output has "Skills installed to Claude Code"
-60. `init-help-default-is-project` (**new 新**) — uds init --help names the project as the default of --skills-location.
+60. `init-help-default-is-project` — uds init --help names the project as the default of --skills-location.
    uds init --help 把專案列為 --skills-location 的預設。
    `uds init --help` → exit 0; output has "/Skills\s+location\s+\(project,\s+user,\s+marketplace,\s+none\)\s+\[default:\s+project\]/"
-61. `init-locale-pack-missing-is-said` (**new 新**) — A copy of UDS without the zh-TW skill texts installs English for --locale zh-tw and says so, names the fix, and does not blame the network.
+61. `init-locale-pack-missing-is-said` — A copy of UDS without the zh-TW skill texts installs English for --locale zh-tw and says so, names the fix, and does not blame the network.
    缺少 zh-TW 技能文字的 UDS 在 --locale zh-tw 時裝英文版並明說原因與補救方式，不歸咎網路。
    `{node} without-zh-tw.cjs {pkg} {work}` → exit 0; output has "The zh-TW skill texts are not in this copy of UDS, so the skills were installed in English.", "this is not about your network" (+2)
-62. `human-init-enter-installs-skills` (needs a person 需人眼; **new 新**) — Run uds init in your own terminal and press Enter at every question: the skills end up in the project.
+62. `human-init-enter-installs-skills` (needs a person 需人眼) — Run uds init in your own terminal and press Enter at every question: the skills end up in the project.
    在你自己的終端機執行 uds init、每一題都只按 Enter：技能會裝進專案。
    `uds init --help` → exit 0; output has "--skills-location"
-63. `human-init-keeps-open-work` (needs a person 需人眼; **new 新**) — uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was.
+63. `human-init-keeps-open-work` (needs a person 需人眼) — uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was.
    uds init 更新既有的 uds.project.yaml 時，open_work 區段原封不動。
    `uds init --help` → exit 0; output has "--skills-location"
-64. `transient-lock-copy-retries` (**new 新**) — uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact.
+64. `transient-lock-copy-retries` — uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact.
    uds init 遇到檔案被短暫鎖住（連兩次 EBUSY 之後放開）仍能完成：複製會重試，檔案完整寫入。
    `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 0; output has "Standards initialized successfully"
-65. `transient-lock-gives-up-in-plain-words` (**new 新**) — uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
+65. `transient-lock-gives-up-in-plain-words` — uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
    檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
    `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+4)
 66. `tautology-init` — uds init sets up a project with the fake-test scanner in scripts/.
    uds init 建立專案，並把假測試掃描腳本放進 scripts/。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-67. `tautology-scan` (**new 新**) — The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone.
+67. `tautology-scan` — The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone.
    掃描腳本點名「預期值是同一個呼叫」或「從同一個輸入重算」的測試，手算例則不動。
    `{node} scripts/check-anti-fake-tests.mjs` → exit 1; output has "tautology "totals: one call written on both sides"", "tautology "totals: the expected value re-adds the items"" (+1)
-68. `std-merge-danger` (**new 新**) — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
+68. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
    安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -256,20 +256,20 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.6/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.0-beta.6/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.7/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.14.0-beta.7/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.6 沒有 6.14.0-beta.6 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.6 沒有 6.14.0-beta.6 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.6 沒有 6.14.0-beta.6 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
 
-- **None of the beta.6 fixes has run on Windows.** CI's Windows job runs the unit suite only; the end-to-end tests run on Linux and macOS, and the tests that need a POSIX shell show as skipped on Windows.
-  **beta.6 的修正都沒有在 Windows 上實際跑過。**CI 的 Windows 工作只跑單元測試；端對端測試在 Linux 與 macOS 跑，需要 POSIX shell 的測試在 Windows 上顯示為略過。
+- **CI now runs the end-to-end tests on Windows, macOS and Linux when `main` is pushed, and all three passed for this beta** — but CI installs from the repository, not from npm. Only the acceptance reports above say whether the *published* package works on your machine.
+  **CI 在 `main` 推送時於 Windows、macOS、Linux 跑端對端測試，這一版三個平台都通過**——但 CI 是從 repository 安裝，不是從 npm。已發布的套件在你的機器上能不能用，只看上方的驗收報告。
 - **The `simulate` "failed but exit 0" report is not claimed fixed.** It could not be reproduced on macOS (terminal, pipe, update-notice hook on: always 1); the exit code is now three-valued and pinned by tests that start a real process.
   **`simulate`「失敗卻以 0 結束」的回報不宣稱已修。**在 macOS 重現不出來；結束碼已分成三種並用真行程測試固定。
 - **The command-line path of `simulate` has no Windows test** (`%VAR%` expansion); only `commit-message` ships a simulator.
@@ -278,8 +278,10 @@ Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14
   `commit-message` 標準要求主旨 ≤72 字元，而 UDS 自己的雙語提交標頭常超過，所以拿 UDS 自己的訊息來判會被報不合規。這是標準本身的矛盾，這次沒動。
 - **`uds spec show`, `confirm` and `archive` still rewrite an SDD spec with the micro-spec template.** Only `uds spec list` reads SDD headers now. Do not run those three on an SDD spec.
   `uds spec show`、`confirm`、`archive` 仍會用微規格模板整份改寫 SDD 規格；目前只有 `list` 讀得懂 SDD 標頭。請不要對 SDD 規格執行這三個指令。
-- **Skills install path is undecided**: `uds skills` still says manual installation is deprecated while `check` and `update` recommend `uds update --skills`. The plugin marketplace is Claude Code only, English only, and follows stable releases only (6.13.1). Settled on `main` after this beta: the project way is the main path and `uds skills` no longer says deprecated (CHANGELOG, Unreleased; XSPEC-462).
-  技能安裝的建議路徑尚未決定：`uds skills` 仍說手動安裝已棄用，而 `check`、`update` 建議 `uds update --skills`。外掛市集只支援 Claude Code、只有英文、只跟正式版（6.13.1）。此測試版之後已在 `main` 定案：主要路徑是裝進專案，`uds skills` 不再說已棄用（變更日誌 Unreleased；XSPEC-462）。
+- **The new "expected value recomputed from the code under test" rule in `check-anti-fake-tests` is a hint for the reviewer, not a gate.** It is easy to get around (wrap the value under test in `Number(...)`, or pass `items.slice()`), a differential test against a reference implementation is always named, and there is no way to excuse one test — only a whole file through `ignore`.
+  `check-anti-fake-tests` 新增的「預期值照抄被測程式」規則是給審查者的線索，不是閘門：很容易繞過（把被測值包進 `Number(...)`，或傳 `items.slice()`）；拿參考實作比對的差分測試一定會被點名；而且無法只豁免一支測試，只能用 `ignore` 排除整個檔案。
+- **`check-anti-fake-tests` stops walking at 200,000 files and does not say so.** In a large repository it can look at only a few test files and still report a clean result. It scans the folder you run it in, so until this is fixed run it from inside the folder that holds your tests (measured on a large repository: 4 test files from the root, 1,091 from its `src` folder).
+  `check-anti-fake-tests` 走到 200,000 個檔案就停下，而且不會告知。大型 repository 可能只看了幾個測試檔就回報乾淨。它掃描「執行時所在的資料夾」，所以修好之前，請進到放測試的資料夾裡執行（大型 repository 實測：在根目錄只看到 4 個測試檔，在 `src` 資料夾看到 1,091 個）。
 - From earlier betas: plain `uds check` (without `--ci`) still exits 0 when it reports problems; `--rollback` chains up to 5 backups and a hand edit to `.standards/manifest.json` breaks the chain; the scanners read text and do not run your tests; a project installed by an older UDS has no install records, so `uds uninstall` keeps what it cannot prove is UDS's.
   先前測試版的限制仍在：不帶 `--ci` 的 `uds check` 回報問題時仍以 0 結束；`--rollback` 最多串 5 份、手改 manifest 會讓串斷；掃描讀文字、不執行你的測試；舊版安裝的專案沒有安裝紀錄，`uds uninstall` 會保留無法證明的檔。
 

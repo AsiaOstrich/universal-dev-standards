@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.6
-translation_version: 6.14.0-beta.6
-last_synced: 2026-10-07
+source_version: 6.14.0-beta.7
+translation_version: 6.14.0-beta.7
+last_synced: 2026-10-08
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.7] - 2026-10-08
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行为改变：**`uds init` 与 `uds init --yes` 会把 UDS 技能装进项目；`uds init` 的命令约定步骤保留 `uds.project.yaml` 其余内容；`uds skills` 输出文字改变；`uds open-work next-action` 在唯一的违规是 OWT-022 判定完整的「已询问、等回复」行时以 0 结束（原为 1）。
 
 ### 新增
 
