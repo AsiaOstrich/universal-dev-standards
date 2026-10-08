@@ -14,7 +14,7 @@ import { it, expect, afterAll } from 'vitest';
 import { spawnSync } from 'child_process';
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { ACCEPT_DIR, REPO, copyProgram, scratch, weaken } from '../utils/xspec-469.js';
+import { ACCEPT_DIR, REPO, buildChangelog, copyProgram, entryFor, scratch, weaken, writeSteps } from '../utils/xspec-469.js';
 
 const tmp = scratch('uds-xspec469-r5-');
 afterAll(() => tmp.cleanup());
@@ -149,21 +149,42 @@ it('a document without the markers is refused with exit 2 and nothing is written
   expect(readFileSync(ws.doc, 'utf-8')).toBe(plain);
 });
 
-it('the "what to test" list marks the steps that test unreleased CHANGELOG entries as new, and is derived from the steps: adding a step adds an item (XSPEC-469 R5)', () => {
+it('the "what to test" list marks the steps that test Unreleased CHANGELOG entries as new, marks none right after a release (when Unreleased is empty), and is derived from the steps: adding a step adds an item (XSPEC-469 R5)', () => {
+  // Both the steps and the CHANGELOG are written here: this repository's own CHANGELOG has entries under Unreleased while a version is
+  // developed and none right after a release, and a test that reads it can only be right in one of those two states.
+  const FRESH = 'A made-up change that only main has';
+  const SHIPPED = 'A made-up change the published beta already has';
+  const step = (id, changelog) => ({ id, title: `Step ${id}`, changelog, uds: ['--version'], expect: { contains: ['x'] } });
+  const steps = [step('fresh-step', [FRESH]), step('shipped-step', [SHIPPED]), { ...step('smoke-step', []), smoke: true }];
   const ws = workspace();
-  const steps = JSON.parse(readFileSync(join(ACCEPT_DIR, 'steps.json'), 'utf-8'));
-  expect(generate(ws).code).toBe(0);
-  const before = readFileSync(ws.doc, 'utf-8');
-  const itemsBefore = before.match(/^\d+\. `[a-z0-9-]+`/gm).length;
-  expect(itemsBefore).toBe(steps.steps.length);
-  expect(before).toMatch(/^\d+\. `owt-waiting-states` \(\*\*new 新\*\*\)/m);
-  expect(before, 'a step for a released entry is not marked new').toMatch(/^\d+\. `beta6-simulate-pass` — /m);
+  const stepsFile = writeSteps(join(ws.dir, 'steps.json'), steps);
+  const list = (changelog, extraSteps = stepsFile) => {
+    const file = tmp.next('CHANGELOG.md');
+    writeFileSync(file, changelog);
+    expect(generate(ws, ['--steps', extraSteps, '--changelog', file]).code).toBe(0);
+    return readFileSync(ws.doc, 'utf-8');
+  };
+  const tagged = (doc) => doc.match(/^\d+\. `[a-z0-9-]+`.*\*\*new 新\*\*/gm) || [];
 
-  steps.steps.push({ id: 'added-later', platform: 'all', title: 'A step added later', titleZh: '後來加的步驟', smoke: true, changelog: [], uds: ['--version'], expect: { contains: ['x'] } });
-  const stepsFile = join(ws.dir, 'steps.json');
-  writeFileSync(stepsFile, JSON.stringify(steps));
-  expect(generate(ws, ['--steps', stepsFile]).code).toBe(0);
-  const after = readFileSync(ws.doc, 'utf-8');
+  // while a version is developed: the step whose entry is under Unreleased is new, the one whose entry is in a release is not
+  const developing = list(buildChangelog({ unreleased: { Added: [entryFor(FRESH)] }, released: { Added: [entryFor(SHIPPED)] } }));
+  expect(developing).toMatch(/^\d+\. `fresh-step` \(\*\*new 新\*\*\) — /m);
+  expect(developing).toMatch(/^\d+\. `shipped-step` — /m);
+  expect(developing).toMatch(/^\d+\. `smoke-step` — /m);
+  expect(tagged(developing)).toHaveLength(1);
+
+  // right after a release: the same entries are all under a release heading and Unreleased is empty, so nothing is new. The beta that was
+  // just published has them, which is what "new" is defined against in the text of the list.
+  const justReleased = list(buildChangelog({ released: { Added: [entryFor(FRESH), entryFor(SHIPPED)] } }));
+  expect(justReleased).toMatch(/^\d+\. `fresh-step` — /m);
+  expect(tagged(justReleased)).toEqual([]);
+  expect(justReleased.match(/^\d+\. `[a-z0-9-]+`/gm)).toHaveLength(steps.length);
+
+  // the list is derived from the steps: one more step, one more item
+  const itemsBefore = developing.match(/^\d+\. `[a-z0-9-]+`/gm).length;
+  expect(itemsBefore).toBe(steps.length);
+  const moreFile = writeSteps(join(ws.dir, 'more-steps.json'), [...steps, { ...step('added-later', []), smoke: true }]);
+  const after = list(buildChangelog({ unreleased: { Added: [entryFor(FRESH)] }, released: { Added: [entryFor(SHIPPED)] } }), moreFile);
   expect(after.match(/^\d+\. `[a-z0-9-]+`/gm).length).toBe(itemsBefore + 1);
   expect(after).toContain('`added-later`');
 });

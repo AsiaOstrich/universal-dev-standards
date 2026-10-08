@@ -78,6 +78,28 @@ function summaryProblems({ core, zh, ai }) {
   return problems;
 }
 
+/**
+ * The `## [...]` block of a CHANGELOG that holds `needle`, or null. Which block that is depends on where the version is in its life:
+ * `## [Unreleased]` while it is developed, the release heading (`## [6.14.0-beta.7]`, ...) it went out under after that, and a later
+ * one after the next release. The entry is meant to be written down in a CHANGELOG, not to be in one particular block of it, so the
+ * reading finds the block and then asks for the other two statements in THAT block (a mention of XSPEC-464 in some other release does not count).
+ */
+function blockHolding(log, needle) {
+  return log.split(/^(?=## \[)/m).filter((b) => b.startsWith('## [')).find((b) => b.includes(needle)) ?? null;
+}
+
+/** What one CHANGELOG must say about open-work-tracking 1.4.0: the entry, the requirement it answers and the exit-code change, all in the block that holds the entry. */
+function changelogProblems(file, log, entryNeedle, changedNeedle) {
+  const block = blockHolding(log, entryNeedle);
+  if (block === null) return [`${file}: no Unreleased or release block has the 1.4.0 entry`];
+  const problems = [];
+  if (!block.includes('XSPEC-464')) problems.push(`${file}: the block with the 1.4.0 entry does not name XSPEC-464`);
+  if (!block.includes(changedNeedle)) problems.push(`${file}: the block with the 1.4.0 entry does not say the exit code changed`);
+  return problems;
+}
+
+const CHANGELOGS = [['CHANGELOG.md', 'open-work-tracking` 1.4.0', 'exits 0, not 1'], ['locales/zh-TW/CHANGELOG.md', 'open-work-tracking` 1.4.0', '回 0，不再回 1'], ['locales/zh-CN/CHANGELOG.md', 'open-work-tracking` 1.4.0', '回 0，不再回 1']];
+
 const texts = () => ({ core: read('core/open-work-tracking.md'), zh: read('locales/zh-TW/core/open-work-tracking.md'), ai: read('ai/standards/open-work-tracking.ai.yaml') });
 
 it('open-work-tracking 1.4.0 says in the English text, the zh-TW translation with a current source_hash, the .ai.yaml, the registry and the self-adoption copy that an asked-awaiting item complete under OWT-022 is waiting-on-reply and not judged by OWT-019, names it in three CHANGELOGs with the exit-code change, agrees with what next-action prints, and both sync checks exit 0 (XSPEC-464 R4)', async (ctx) => {
@@ -99,14 +121,8 @@ it('open-work-tracking 1.4.0 says in the English text, the zh-TW translation wit
   expect(entry.description).toMatch(/an item that was asked and is awaiting a reply is judged by when it was asked and what it waits for, not by what its next step names/);
   expect(entry.description, 'the 1.3.0 wording is still there').toMatch(/a wait may name an object in another project by its logical name, with a project this machine cannot see counted apart/);
 
-  // three CHANGELOGs: the entry, the requirement it answers, and the exit-code change in the Changed section
-  for (const [file, entryNeedle, changedNeedle] of [['CHANGELOG.md', 'open-work-tracking` 1.4.0', 'exits 0, not 1'], ['locales/zh-TW/CHANGELOG.md', 'open-work-tracking` 1.4.0', '回 0，不再回 1'], ['locales/zh-CN/CHANGELOG.md', 'open-work-tracking` 1.4.0', '回 0，不再回 1']]) {
-    const log = read(file);
-    const unreleased = log.slice(log.indexOf('## [Unreleased]'), log.indexOf('\n## [', log.indexOf('## [Unreleased]') + 5));
-    expect(unreleased, `${file}: Unreleased has the 1.4.0 entry`).toContain(entryNeedle);
-    expect(unreleased, `${file}: and names XSPEC-464`).toContain('XSPEC-464');
-    expect(unreleased, `${file}: and says the exit code changed`).toContain(changedNeedle);
-  }
+  // three CHANGELOGs: the entry, the requirement it answers, and the exit-code change in the Changed section (in Unreleased or in the release it went out in)
+  for (const [file, entryNeedle, changedNeedle] of CHANGELOGS) expect(changelogProblems(file, read(file), entryNeedle, changedNeedle)).toEqual([]);
 
   // what the text says is what the command does: the same row, read both ways
   const dir = h.makeDir('r4-agree');
@@ -146,6 +162,26 @@ it('open-work-tracking: removing the waiting-on-reply statement from any text, o
   for (const [what, mutated] of mutants) {
     expect(mutated, `${what}: the mutation must change the text`).not.toEqual(t);
     expect(replyProblems(mutated).length, `${what}: the reading must notice`).toBeGreaterThan(0);
+  }
+
+  // the CHANGELOG reading, on the real CHANGELOG.md and on the two ways a release rearranges it
+  const [file, entryNeedle, changedNeedle] = CHANGELOGS[0];
+  const log = read(file);
+  expect(changelogProblems(file, log, entryNeedle, changedNeedle), 'control: the real CHANGELOG passes').toEqual([]);
+  const withoutLinesHaving = (text, needle) => text.split('\n').filter((l) => !l.includes(needle)).join('\n');
+  const linesHaving = (needle) => log.split('\n').filter((l) => l.includes(needle));
+  expect(linesHaving(entryNeedle), 'control: the entry is in the real CHANGELOG').not.toHaveLength(0);
+  expect(linesHaving(changedNeedle), 'control: the exit-code statement is in the real CHANGELOG').not.toHaveLength(0);
+  const logMutants = [
+    ['the entry is gone from every block', withoutLinesHaving(log, entryNeedle)],
+    ['the exit-code statement is gone', withoutLinesHaving(log, changedNeedle)],
+    ['XSPEC-464 is named nowhere', log.replaceAll('XSPEC-464', 'XSPEC-000')],
+    // a release moves a block down as a whole; the exit-code statement left behind in the oldest block, with the entry in a newer one, is the half-moved state the reading must refuse
+    ['the exit-code statement is in another block than the entry', `${withoutLinesHaving(log, changedNeedle)}\n${linesHaving(changedNeedle).join('\n')}\n`],
+  ];
+  for (const [what, mutated] of logMutants) {
+    expect(mutated, `${what}: the mutation must change the text`).not.toEqual(log);
+    expect(changelogProblems(file, mutated, entryNeedle, changedNeedle).length, `${what}: the reading must notice`).toBeGreaterThan(0);
   }
 }, 60000);
 

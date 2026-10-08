@@ -129,3 +129,35 @@ export function* strings(value, path = '$') {
   else if (Array.isArray(value)) for (const [i, v] of value.entries()) yield* strings(v, `${path}[${i}]`);
   else if (value && typeof value === 'object') for (const [k, v] of Object.entries(value)) yield* strings(v, `${path}.${k}`);
 }
+
+/**
+ * A CHANGELOG the test writes, for a test of what a PROGRAM does with a CHANGELOG (check-steps, generate-pre-release).
+ *
+ * This repository's own CHANGELOG is the wrong input for those tests: the day after a release its `## [Unreleased]` block is empty
+ * (a release moves the entries into `## [x.y.z]` and leaves the heading and nothing under it), so a test that inserts into the
+ * "Unreleased `### Added`", or counts on there being more than ten entries, passes while a version is being developed and fails after
+ * every release. Here the test says what Unreleased holds, and every section heading it needs is written by this function.
+ *
+ * @param {{ unreleased?: Record<string, string[]>, released?: Record<string, string[]> }} blocks  section name -> entry texts (each becomes one top-level bullet).
+ *   `released` goes into one `## [1.0.0] - 2026-01-01` block under Unreleased. A section with no entries gets no heading.
+ */
+export function buildChangelog({ unreleased = {}, released = {} } = {}) {
+  const block = (heading, sections) => [
+    heading,
+    '',
+    ...Object.entries(sections).filter(([, texts]) => texts.length).flatMap(([name, texts]) => [`### ${name}`, '', ...texts.map((t) => `- ${t}`), '']),
+  ];
+  return ['# Changelog', '', ...block('## [Unreleased]', unreleased), ...(Object.values(released).some((t) => t.length) ? block('## [1.0.0] - 2026-01-01', released) : [])].join('\n');
+}
+
+/**
+ * One made-up CHANGELOG entry for an anchor of the steps file: it starts with exactly the words the anchor quotes, so the entry
+ * matches that anchor and no other (no two anchors of the real steps file are the start of one another).
+ */
+export const entryFor = (anchor) => `**${anchor}.** A made-up entry that stands in for a real one; only the way it begins matters.`;
+
+/** The anchors (CHANGELOG entry starts) a steps file points at, steps first and then exemptions, each once, in file order. */
+export function anchorsOf(doc) {
+  const all = [...doc.steps.flatMap((s) => s.changelog || []), ...(doc.exemptions || []).map((x) => x.changelog)];
+  return [...new Set(all)];
+}
