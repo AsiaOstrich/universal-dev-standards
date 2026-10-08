@@ -39,7 +39,12 @@ it('uds open-work waiting with a single --root DIR, or none, prints on a carrier
   const dir = h.makeDir('r4-golden');
   for (const [name, content] of Object.entries(GOLDEN.files)) writeFileSync(join(dir, name), content);
   for (const c of GOLDEN.cases) {
-    const r = await h.runCli(asCli(c.args), dir);
+    // The capture ran on a real day and printed it ("today 2026-10-07"). A case captured without --now is
+    // replayed with that same day injected, so the comparison stays byte for byte and does not go red the
+    // next morning (it did, 2026-10-08). The day is read from the capture itself, not typed here.
+    const captured = /\(today (\d{4}-\d{2}-\d{2})\)/.exec(c.out);
+    const args = c.args[0] === 'waiting' && !c.args.includes('--now') && captured ? [...c.args, '--now', captured[1]] : c.args;
+    const r = await h.runCli(asCli(args), dir);
     expect(r.code, c.name).toBe(c.status);
     expect(r.stdout + r.stderr, c.name).toBe(c.out);
   }
