@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.6
 It installs the published 6.14.0-beta.6 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.6 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 55 steps (53 checked by the program, 2 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 55 步（53 步由程式判定、2 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 63 steps (59 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 63 步（59 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -210,6 +210,30 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 55 steps (53 c
 55. `human-chinese-display` (needs a person 需人眼) — Traditional Chinese text is readable in this console (no ???? or empty boxes).
    這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）。
    `uds --ui-lang zh-tw skills` → exit 0; output has "/[\u4e00-\u9fff]/"
+56. `init-default-skills-into-project` (**new 新**) — uds init --yes installs the UDS skills into the project (.claude/skills) by default, with no word of the plugin as the way.
+   uds init --yes 預設把 UDS 技能裝進專案（.claude/skills），不再把外掛當作預設。
+   `uds init --yes` → exit 0; output has "Skills installed to Claude Code"
+57. `init-default-skills-check` (**new 新**) — uds check --ci finds the skill files that uds init --yes installed intact.
+   uds check --ci 認為 uds init --yes 裝進專案的技能檔完整。
+   `uds check --ci` → exit 0; output has "All skill files intact"
+58. `init-plugin-writes-no-skill-files` (**new 新**) — uds init --yes --skills-location marketplace writes no skill file and says the skills come from the plugin and how to move them into the project.
+   uds init --yes --skills-location marketplace 不寫任何技能檔，並說明技能由外掛提供、怎麼改裝進專案。
+   `uds init --yes --skills-location marketplace` → exit 0; output has "Skills: provided by the Claude Code plugin (no skill file was written to this project).", "/plugin install universal-dev-standards@asia-ostrich" (+2)
+59. `init-chinese-skill-texts-no-tool-marker` (**new 新**) — uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Chinese skill texts from the package, with no locale warning.
+   uds init --yes --locale zh-tw 在沒有 AI 工具標記的資料夾，從套件內裝進中文技能文字，且沒有語系警告。
+   `uds init --yes --locale zh-tw` → exit 0; output has "Skills installed to Claude Code"
+60. `init-help-default-is-project` (**new 新**) — uds init --help names the project as the default of --skills-location.
+   uds init --help 把專案列為 --skills-location 的預設。
+   `uds init --help` → exit 0; output has "/Skills\s+location\s+\(project,\s+user,\s+marketplace,\s+none\)\s+\[default:\s+project\]/"
+61. `init-locale-pack-missing-is-said` (**new 新**) — A copy of UDS without the zh-TW skill texts installs English for --locale zh-tw and says so, names the fix, and does not blame the network.
+   缺少 zh-TW 技能文字的 UDS 在 --locale zh-tw 時裝英文版並明說原因與補救方式，不歸咎網路。
+   `{node} without-zh-tw.cjs {pkg} {work}` → exit 0; output has "The zh-TW skill texts are not in this copy of UDS, so the skills were installed in English.", "this is not about your network" (+2)
+62. `human-init-enter-installs-skills` (needs a person 需人眼; **new 新**) — Run uds init in your own terminal and press Enter at every question: the skills end up in the project.
+   在你自己的終端機執行 uds init、每一題都只按 Enter：技能會裝進專案。
+   `uds init --help` → exit 0; output has "--skills-location"
+63. `human-init-keeps-open-work` (needs a person 需人眼; **new 新**) — uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was.
+   uds init 更新既有的 uds.project.yaml 時，open_work 區段原封不動。
+   `uds init --help` → exit 0; output has "--skills-location"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

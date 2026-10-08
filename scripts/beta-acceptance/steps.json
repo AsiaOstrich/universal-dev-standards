@@ -1568,6 +1568,235 @@
         "prompt": "Look at the text above. Is the Chinese readable (not ???? or boxes)? On a Traditional Chinese Windows console (code page 950) this is the line that breaks.",
         "promptZh": "請看上面的文字：中文是否正常顯示（不是 ???? 或方框）？繁體中文 Windows 主控台（字碼頁 950）最容易在這裡出問題。"
       }
+    },
+    {
+      "platform": "all",
+      "id": "init-default-skills-into-project",
+      "workspace": "init-default",
+      "title": "uds init --yes installs the UDS skills into the project (.claude/skills) by default, with no word of the plugin as the way",
+      "titleZh": "uds init --yes 預設把 UDS 技能裝進專案（.claude/skills），不再把外掛當作預設",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Skills installed to Claude Code"
+        ],
+        "notContains": [
+          "Using Plugin Marketplace",
+          "Plugin Marketplace (managed by Claude Code)"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".claude/skills/tdd-assistant/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-default-skills-check",
+      "workspace": "init-default",
+      "title": "uds check --ci finds the skill files that uds init --yes installed intact",
+      "titleZh": "uds check --ci 認為 uds init --yes 裝進專案的技能檔完整",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "uds": [
+        "check",
+        "--ci"
+      ],
+      "expect": {
+        "contains": [
+          "All skill files intact"
+        ],
+        "notContains": [
+          "skill files missing"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-plugin-writes-no-skill-files",
+      "workspace": "init-plugin",
+      "title": "uds init --yes --skills-location marketplace writes no skill file and says the skills come from the plugin and how to move them into the project",
+      "titleZh": "uds init --yes --skills-location marketplace 不寫任何技能檔，並說明技能由外掛提供、怎麼改裝進專案",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--skills-location",
+        "marketplace"
+      ],
+      "expect": {
+        "contains": [
+          "Skills: provided by the Claude Code plugin (no skill file was written to this project).",
+          "/plugin install universal-dev-standards@asia-ostrich",
+          "English skill texts only",
+          "uds config --type skills --ai-tool claude-code --skills-location project --yes"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": ".claude/skills",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-chinese-skill-texts-no-tool-marker",
+      "workspace": "init-zh-tw",
+      "title": "uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Chinese skill texts from the package, with no locale warning",
+      "titleZh": "uds init --yes --locale zh-tw 在沒有 AI 工具標記的資料夾，從套件內裝進中文技能文字，且沒有語系警告",
+      "changelog": [
+        "A copy of UDS without the Chinese skill texts installed English"
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--locale",
+        "zh-tw"
+      ],
+      "expect": {
+        "contains": [
+          "Skills installed to Claude Code"
+        ],
+        "notContains": [
+          "skill texts are not in this copy of UDS",
+          "Locale fallback"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "contains": [
+              "# Commit Message 助手"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-help-default-is-project",
+      "title": "uds init --help names the project as the default of --skills-location",
+      "titleZh": "uds init --help 把專案列為 --skills-location 的預設",
+      "changelog": [
+        "Docs and prompts no longer recommend the plugin marketplace"
+      ],
+      "uds": [
+        "init",
+        "--help"
+      ],
+      "expect": {
+        "matches": [
+          "Skills\\s+location\\s+\\(project,\\s+user,\\s+marketplace,\\s+none\\)\\s+\\[default:\\s+project\\]"
+        ],
+        "notContains": [
+          "[default: marketplace]"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-locale-pack-missing-is-said",
+      "workspace": "init-no-pack",
+      "title": "A copy of UDS without the zh-TW skill texts installs English for --locale zh-tw and says so, names the fix, and does not blame the network",
+      "titleZh": "缺少 zh-TW 技能文字的 UDS 在 --locale zh-tw 時裝英文版並明說原因與補救方式，不歸咎網路",
+      "changelog": [
+        "A copy of UDS without the Chinese skill texts installed English"
+      ],
+      "prepare": [
+        {
+          "writeFile": "without-zh-tw.cjs",
+          "content": "const fs = require('fs'), path = require('path'), cp = require('child_process');\nconst [pkg, work] = process.argv.slice(2);\nconst proj = path.join(work, 'proj');\nfs.rmSync(proj, { recursive: true, force: true });\nfs.mkdirSync(path.join(proj, '.claude'), { recursive: true });\nlet copy, bin;\nif (fs.existsSync(path.join(pkg, 'bundled'))) {\n  // a published package: copy it next to its own dependencies and take the zh-TW pack out of the copy\n  copy = path.join(path.dirname(pkg), 'uds-without-zh-tw');\n  fs.rmSync(copy, { recursive: true, force: true });\n  fs.cpSync(pkg, copy, { recursive: true });\n  fs.rmSync(path.join(copy, 'bundled', 'locales', 'zh-TW'), { recursive: true, force: true });\n  bin = path.join(copy, 'bin', 'uds.js');\n} else {\n  // a source checkout (--local-bin): stage cli/ beside links to the repository folders, minus locales/\n  const repo = path.dirname(pkg);\n  copy = path.join(work, 'stage');\n  fs.rmSync(copy, { recursive: true, force: true });\n  fs.mkdirSync(path.join(copy, 'cli'), { recursive: true });\n  for (const d of ['bin', 'src']) fs.cpSync(path.join(pkg, d), path.join(copy, 'cli', d), { recursive: true });\n  for (const f of ['package.json', 'standards-registry.json']) fs.copyFileSync(path.join(pkg, f), path.join(copy, 'cli', f));\n  const link = (target, at) => fs.symlinkSync(target, at, fs.statSync(target).isDirectory() ? 'junction' : 'file');\n  link(path.join(pkg, 'node_modules'), path.join(copy, 'cli', 'node_modules'));\n  for (const name of fs.readdirSync(repo)) {\n    if (['cli', '.git', 'node_modules', 'locales'].includes(name)) continue;\n    link(path.join(repo, name), path.join(copy, name));\n  }\n  bin = path.join(copy, 'cli', 'bin', 'uds.js');\n}\nconst r = cp.spawnSync(process.execPath, [bin, 'init', '--yes', '--locale', 'zh-tw'], { cwd: proj, encoding: 'utf8', env: process.env });\nconst skill = path.join(proj, '.claude', 'skills', 'commit-standards', 'SKILL.md');\nconst chinese = fs.existsSync(skill) && fs.readFileSync(skill, 'utf8').includes('# Commit Message 助手');\nprocess.stdout.write((r.stdout || '') + (r.stderr || '') + '\\nCHINESE-SKILL-TEXT=' + chinese + '\\n');\nfs.rmSync(copy, { recursive: true, force: true });\nprocess.exit(r.status === null ? 1 : r.status);\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "without-zh-tw.cjs",
+        "{pkg}",
+        "{work}"
+      ],
+      "expect": {
+        "contains": [
+          "The zh-TW skill texts are not in this copy of UDS, so the skills were installed in English.",
+          "this is not about your network",
+          "uds update --apply --skills --locale zh-tw",
+          "CHINESE-SKILL-TEXT=false"
+        ],
+        "notContains": [
+          "CHINESE-SKILL-TEXT=true"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-init-enter-installs-skills",
+      "workspace": "human-init-enter",
+      "title": "Run uds init in your own terminal and press Enter at every question: the skills end up in the project",
+      "titleZh": "在你自己的終端機執行 uds init、每一題都只按 Enter：技能會裝進專案",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "uds": [
+        "init",
+        "--help"
+      ],
+      "expect": {
+        "contains": [
+          "--skills-location"
+        ]
+      },
+      "human": {
+        "prompt": "In a NEW empty folder that has a .claude folder inside it (mkdir -p demo/.claude on macOS/Linux; md demo\\.claude on Windows), run `uds init` in your own terminal and press Enter at every question. At the skills question the line \"Claude Code - Project Level (.claude/skills/)\" must already be ticked. When it ends, does demo/.claude/skills/ hold many folders (commit-standards, tdd-assistant, ...)?",
+        "promptZh": "在一個全新的空資料夾（裡面有 .claude 資料夾；macOS/Linux：mkdir -p demo/.claude，Windows：md demo\\.claude），於你自己的終端機執行 `uds init`，每一題都只按 Enter。技能那一題的「Claude Code - Project Level (.claude/skills/)」必須已經是勾選狀態。結束後，demo/.claude/skills/ 底下是否有很多資料夾（commit-standards、tdd-assistant……）？"
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-init-keeps-open-work",
+      "workspace": "human-init-yaml",
+      "title": "uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was",
+      "titleZh": "uds init 更新既有的 uds.project.yaml 時，open_work 區段原封不動",
+      "changelog": [
+        "Behavior change — the command-contract step of uds init no longer rewrites"
+      ],
+      "uds": [
+        "init",
+        "--help"
+      ],
+      "expect": {
+        "contains": [
+          "--skills-location"
+        ]
+      },
+      "human": {
+        "prompt": "In a NEW empty folder with a .claude folder, create uds.project.yaml with exactly these lines: `version: \"1\"`, `open_work:`, `  roots:`, `    other: ../other   # sibling checkout`, `commands:`, `  test: old-test`. Run `uds init` and press Enter at every question, EXCEPT: answer \"y\" at \"Update the commands (test, lint, build, security) in the existing uds.project.yaml?\" (the question lists the sections that are kept; open_work must be one of them) and type `npm run my-test` for the test command. Afterwards: is `test: npm run my-test` there, and are the open_work lines (including the comment) unchanged? Also run `uds init` again in a copy of the file and answer Enter at that question: the file must not change.",
+        "promptZh": "在一個全新、含 .claude 資料夾的空資料夾，建立 uds.project.yaml，內容恰好是這幾行：`version: \"1\"`、`open_work:`、`  roots:`、`    other: ../other   # sibling checkout`、`commands:`、`  test: old-test`。執行 `uds init`，每一題都按 Enter，只有兩處例外：「Update the commands (test, lint, build, security) in the existing uds.project.yaml?」答 y（問題必須寫出保留的區段名稱，包含 open_work），測試指令輸入 `npm run my-test`。結束後：`test: npm run my-test` 是否已寫入，open_work 的幾行（含註解）是否原封不動？另外在檔案的副本上再執行一次 `uds init`，那一題直接按 Enter：檔案不得有任何變動。"
+      }
     }
   ]
 }
