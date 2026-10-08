@@ -66,7 +66,11 @@
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test",
     "check:reference-only": "tsx scripts/check-reference-only-disclosure.ts",
-    "check:reference-only:self-test": "tsx scripts/check-reference-only-disclosure.ts --self-test"
+    "check:reference-only:self-test": "tsx scripts/check-reference-only-disclosure.ts --self-test",
+    "beta:acceptance": "node scripts/beta-acceptance/run.mjs",
+    "check:beta-acceptance": "node scripts/beta-acceptance/check-steps.mjs",
+    "docs:pre-release": "node scripts/beta-acceptance/generate-pre-release.mjs",
+    "check:pre-release-doc": "node scripts/beta-acceptance/generate-pre-release.mjs --check"
   },
   "type": "module",
   "dependencies": {

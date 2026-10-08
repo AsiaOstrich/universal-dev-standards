@@ -80,7 +80,9 @@ function summaryProblems({ core, zh, ai }) {
 
 const texts = () => ({ core: read('core/open-work-tracking.md'), zh: read('locales/zh-TW/core/open-work-tracking.md'), ai: read('ai/standards/open-work-tracking.ai.yaml') });
 
-it('open-work-tracking 1.4.0 says in the English text, the zh-TW translation with a current source_hash, the .ai.yaml, the registry and the self-adoption copy that an asked-awaiting item complete under OWT-022 is waiting-on-reply and not judged by OWT-019, names it in three CHANGELOGs with the exit-code change, agrees with what next-action prints, and both sync checks exit 0 (XSPEC-464 R4)', async () => {
+it('open-work-tracking 1.4.0 says in the English text, the zh-TW translation with a current source_hash, the .ai.yaml, the registry and the self-adoption copy that an asked-awaiting item complete under OWT-022 is waiting-on-reply and not judged by OWT-019, names it in three CHANGELOGs with the exit-code change, agrees with what next-action prints, and both sync checks exit 0 (XSPEC-464 R4)', async (ctx) => {
+  // needs a POSIX shell (bash runs scripts/check-*.sh); skipped, and counted as skipped, on Windows
+  if (process.platform === 'win32') ctx.skip();
   const t = texts();
   expect(replyProblems(t)).toEqual([]);
 

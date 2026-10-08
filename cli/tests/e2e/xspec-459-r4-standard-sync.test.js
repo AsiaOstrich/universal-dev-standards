@@ -25,7 +25,9 @@ const sh = (script, args = []) => {
   return { status: r.status, out: `${r.stdout}${r.stderr}` };
 };
 
-it('open-work-tracking carries OWT-020 to OWT-026 in the English text, the zh-TW translation, the .ai.yaml, the registry and the self-adoption copy, and both sync checks exit 0 (XSPEC-459 R4)', () => {
+it('open-work-tracking carries OWT-020 to OWT-026 in the English text, the zh-TW translation, the .ai.yaml, the registry and the self-adoption copy, and both sync checks exit 0 (XSPEC-459 R4)', (ctx) => {
+  // needs a POSIX shell (bash runs scripts/check-*.sh); skipped, and counted as skipped, on Windows
+  if (process.platform === 'win32') ctx.skip();
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
   const ai = read('ai/standards/open-work-tracking.ai.yaml');

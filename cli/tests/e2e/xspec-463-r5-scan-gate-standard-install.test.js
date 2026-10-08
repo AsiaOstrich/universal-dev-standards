@@ -101,7 +101,9 @@ it('uds update --apply --add-standard pipeline-security-gates installs the 1.1.0
   expect(existsSync(file), 'a later plain --apply keeps it').toBe(true);
 }, 120000);
 
-it('pipeline-security-gates 1.1.0 reads the same in the Chinese source, the zh-TW and zh-CN translations, the .ai.yaml, both registries and the self-adoption copy, and both sync checks exit 0 (XSPEC-463 R5)', () => {
+it('pipeline-security-gates 1.1.0 reads the same in the Chinese source, the zh-TW and zh-CN translations, the .ai.yaml, both registries and the self-adoption copy, and both sync checks exit 0 (XSPEC-463 R5)', (ctx) => {
+  // needs a POSIX shell (bash runs scripts/check-*.sh); skipped, and counted as skipped, on Windows
+  if (process.platform === 'win32') ctx.skip();
   const core = read('core/pipeline-security-gates.md');
   const zhTW = read('locales/zh-TW/core/pipeline-security-gates.md');
   const zhCN = read('locales/zh-CN/core/pipeline-security-gates.md');

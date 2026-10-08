@@ -615,14 +615,39 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+  # XSPEC-469 R4 — the end-to-end tests run on all three systems when main is pushed.
+  #
+  # Until 2026-10-08 they ran only for pull requests and only on Ubuntu, and the Windows job ran the unit tests
+  # alone. Three problems found in one round (a test that wrote the POSIX path /fake/root, an assertion too wide to
+  # hold on Windows, an expected output with the day it was written) each reached main and went red only there or
+  # the next morning; the fixes of beta.6 had not run on a real Windows at all.
+  #
+  # - push to main: ubuntu, windows and macos, every time, with no path filter. A job that is skipped because
+  #   nothing under cli/ changed is not a pass ("被 skip 不等於通過"), and the point of this one is that the three
+  #   systems are looked at after every push. The public repository's hosted runners cost nothing.
+  # - pull request: as before, Ubuntu only, and only when cli/** changed.
+  # - `fail-fast: false`: one red system must not hide the state of the other two.
+  # - A test that needs a POSIX shell calls `ctx.skip()` on Windows. A skipped test is not hidden: the last step
+  #   writes how many ran, passed, failed and were skipped into the job summary (scripts/ci-vitest-summary.mjs),
+  #   and fails the job when nothing ran.
+  # - The matrix is chosen by the event, so the job names on a pull request ("E2E Tests (ubuntu-latest)") are the
+  #   ones to look at; on a push there are three.
+  #
+  # NOT verified by running it: this file has been read by a YAML parser and by
+  # cli/tests/e2e/xspec-469-r4-ci-matrix.test.js, never by GitHub. The first push to main is the first real run.
   e2e:
-    name: E2E Tests
+    name: E2E Tests (${{ matrix.os }})
     needs: changes
-    if: ${{ github.event_name == 'pull_request' && needs.changes.outputs.cli == 'true' }}
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && needs.changes.outputs.cli == 'true') }}
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         working-directory: cli
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'push' && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
 
     steps:
       - name: Checkout
@@ -638,8 +663,41 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # bash on every system, so the arguments reach vitest the same way (PowerShell reads `--` its own way).
       - name: Run E2E tests
-        run: npm run test:e2e
+        shell: bash
+        run: npm run test:e2e -- --reporter=dot --reporter=json --outputFile.json=../e2e-result.json
+
+      - name: Count what ran and what was skipped
+        if: ${{ always() }}
+        shell: bash
+        run: node ../scripts/ci-vitest-summary.mjs ../e2e-result.json --title "E2E tests on ${{ matrix.os }}"
+
+  # XSPEC-469 R1 + R5 — every CHANGELOG `Unreleased` entry has a beta acceptance step (or an exemption with a
+  # reason), and docs/PRE-RELEASE.md is what scripts/beta-acceptance/ generates from that list and the reports.
+  # Both programs use the Node standard library only, so there is nothing to install and no path filter: the
+  # inputs are CHANGELOG.md, steps.json, the reports and the document, and a filter naming them goes stale.
+  # The red and green arms (an entry with no step, an exemption without a reason, a hand-edited block, a report
+  # that must not count) are tests: cli/tests/e2e/xspec-469-r1-changelog-coverage.test.js and
+  # xspec-469-r5-pre-release-doc.test.js.
+  beta-acceptance:
+    name: Beta Acceptance Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Every Unreleased CHANGELOG entry has an acceptance step
+        run: node scripts/beta-acceptance/check-steps.mjs
+
+      - name: docs/PRE-RELEASE.md is what the list and the reports produce
+        run: node scripts/beta-acceptance/generate-pre-release.mjs --check
 
   # XSPEC-073 G2 — the coverage gate was never wired.
   #

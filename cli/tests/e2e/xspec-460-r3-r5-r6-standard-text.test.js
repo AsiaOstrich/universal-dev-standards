@@ -62,7 +62,9 @@ it('open-work-tracking requires cross-project work to be recorded in a version-c
   }
 }, 60000);
 
-it('developer-memory and project-context-memory each carry a short Boundary section in the English text, the .ai.yaml and the translations that exist, at version 1.2.1, and both sync checks exit 0 (XSPEC-460 R5)', () => {
+it('developer-memory and project-context-memory each carry a short Boundary section in the English text, the .ai.yaml and the translations that exist, at version 1.2.1, and both sync checks exit 0 (XSPEC-460 R5)', (ctx) => {
+  // needs a POSIX shell (bash runs scripts/check-*.sh); skipped, and counted as skipped, on Windows
+  if (process.platform === 'win32') ctx.skip();
   for (const id of ['developer-memory', 'project-context-memory']) {
     const core = read(`core/${id}.md`);
     const ai = read(`ai/standards/${id}.ai.yaml`);
@@ -92,7 +94,9 @@ it('developer-memory and project-context-memory each carry a short Boundary sect
   expect(translations.status, translations.out).toBe(0);
 }, 120000);
 
-it('open-work-tracking 1.3.0 carries OWT-027 to OWT-029 at version 1.3.0 in the English text, the zh-TW translation with a current source_hash, the .ai.yaml, the registry and the self-adoption copy, names the entry in three CHANGELOGs, and both sync checks exit 0 (XSPEC-460 R6)', () => {
+it('open-work-tracking 1.3.0 carries OWT-027 to OWT-029 at version 1.3.0 in the English text, the zh-TW translation with a current source_hash, the .ai.yaml, the registry and the self-adoption copy, names the entry in three CHANGELOGs, and both sync checks exit 0 (XSPEC-460 R6)', (ctx) => {
+  // needs a POSIX shell (bash runs scripts/check-*.sh); skipped, and counted as skipped, on Windows
+  if (process.platform === 'win32') ctx.skip();
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
   const ai = read('ai/standards/open-work-tracking.ai.yaml');
