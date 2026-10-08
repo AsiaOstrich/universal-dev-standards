@@ -1878,8 +1878,8 @@
         "project"
       ],
       "id": "transient-lock-gives-up-in-plain-words",
-      "title": "uds init stops after ten tries when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do",
-      "titleZh": "檔案一直被鎖住時，uds init 試十次後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦",
+      "title": "uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do",
+      "titleZh": "檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦",
       "changelog": [
         "uds init and uds update retry a file copy that fails because the file is locked"
       ],
@@ -1894,13 +1894,14 @@
           "error-codes.ai.yaml",
           "locked by another program",
           "antivirus",
-          "run the command again"
+          "run the command again",
+          "UDS tried "
         ],
         "files": [
           {
             "path": "lock.log",
             "contains": [
-              "try 10"
+              "try 2"
             ],
             "notContains": [
               "try 11"

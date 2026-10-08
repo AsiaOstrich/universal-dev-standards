@@ -237,9 +237,9 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 65 steps (61 c
 64. `transient-lock-copy-retries` (**new 新**) — uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact.
    uds init 遇到檔案被短暫鎖住（連兩次 EBUSY 之後放開）仍能完成：複製會重試，檔案完整寫入。
    `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 0; output has "Standards initialized successfully"
-65. `transient-lock-gives-up-in-plain-words` (**new 新**) — uds init stops after ten tries when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
-   檔案一直被鎖住時，uds init 試十次後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
-   `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+3)
+65. `transient-lock-gives-up-in-plain-words` (**new 新**) — uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
+   檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
+   `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+4)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

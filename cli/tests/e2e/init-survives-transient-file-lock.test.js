@@ -117,8 +117,12 @@ it('uds init stops after a bounded number of tries when a file stays locked, rol
 
   expect(run.code).not.toBe(0);
   expect(text).toMatch(/rolled back/i);
-  // Bounded: ten tries, then it gives up. (Not "forever": the run ended well inside the harness's 150 s limit.)
-  expect(tries).toBe(10);
+  // Bounded: it retried (more than one try) and then gave up with at most ten. The exact count is the policy's and is
+  // pinned with a fake clock in tests/unit/utils/transient-fs.test.js; here a slow machine whose time ceiling comes
+  // first must not turn this red. What the message says it tried must be what the injector counted.
+  expect(tries).toBeGreaterThanOrEqual(2);
+  expect(tries).toBeLessThanOrEqual(10);
+  expect(text).toContain(`UDS tried ${tries} times`);
   expect(elapsedMs).toBeLessThan(120000);
   // The user is told which file, why, and what to do - not only the bare error code.
   expect(text).toContain(LOCKED_FILE);
