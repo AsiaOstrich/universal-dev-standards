@@ -55,7 +55,9 @@ export async function createTempDir() {
  */
 export async function cleanupTempDir(dir) {
   if (dir && dir.includes('uds-test-')) {
-    await rm(dir, { recursive: true, force: true });
+    // Windows keeps a directory locked for a moment after the process whose cwd it was has gone
+    // (EBUSY/EPERM, windows-latest init-flow Scenario A). rm retries those codes itself.
+    await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   }
 }
 
@@ -364,18 +366,25 @@ export async function runPrompted(rules, workDir, { timeout = 90000, idleMs = 40
     proc.stderr.on('data', (data) => { stderr += data.toString(); });
     proc.stdin.on('error', () => { /* the process ended while a key was being written */ });
 
+    let timedOut = false;
     const timer = setTimeout(() => {
+      timedOut = true;
       closed = true;
       clearTimeout(idle);
       proc.kill('SIGTERM');
-      resolve({ stdout, stderr: stripAnsi(stderr), exitCode: -1, timedOut: true, answers, files: [] });
+      setTimeout(() => proc.kill('SIGKILL'), 5000).unref(); // a process that ignores SIGTERM must still end
     }, timeout);
 
+    // Resolve only once the process is gone: a caller that removes `workDir` right after would otherwise hit a
+    // directory the dying process still holds as its cwd (EBUSY on Windows).
     proc.on('close', async (code) => {
       closed = true;
       clearTimeout(timer);
       clearTimeout(idle);
-      resolve({ stdout, stderr: stripAnsi(stderr), exitCode: code, timedOut: false, answers, files: await collectGeneratedFiles(workDir) });
+      resolve({
+        stdout, stderr: stripAnsi(stderr), exitCode: timedOut ? -1 : code, timedOut, answers,
+        files: timedOut ? [] : await collectGeneratedFiles(workDir)
+      });
     });
   });
 }

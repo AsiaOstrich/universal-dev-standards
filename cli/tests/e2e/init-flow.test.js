@@ -626,78 +626,33 @@ describe('E2E: uds init', () => {
     it('should complete with step-by-step user input', async () => {
       await setupTestDir(testDir, {});
 
-      // Interactive flow inputs:
-      // Step 0: Display Language - English (default, first option)
-      // Step 1: AI Tools - select Claude Code (first option, toggle with space, confirm with enter)
-      // Step 2: Skills Location - Plugin Marketplace (first option)
-      // Step 3: Commands Installation - accept defaults (project level pre-selected)
-      // Step 4: Standards Scope - Lean (first option)
-      // Step 5: Format - Compact (first option)
-      // Step 6-9: Standard Options (Git Workflow, Merge Strategy, Commit Lang, Test Levels)
-      // Step 10: Language Extensions - skip (no detected, or confirm defaults)
-      // Step 11: Framework Extensions - skip (no detected)
-      // Step 12: Locale - No (default)
-      // Step 13: Content Mode - Standard (first option, recommended)
-      // Step 14: Confirm - Yes
-
-      const inputs = [
-        // Display Language: first option (English), enter to confirm
-        '\r',
-        // AI Tools: select first option (Claude Code), space to toggle, enter to confirm
-        { type: 'checkbox', selections: [{ toggle: true }] },
-        // AGENTS.md prompt: Yes
-        'Y',
-        // Skills Location: first option (Plugin Marketplace), enter to select
-        '\r',
-        // Commands Installation: accept pre-selected defaults
-        '\r',
-        // Standards Scope: first option (Lean), enter
-        '\r',
-        // Format: first option (Compact), enter
-        '\r',
-        // Git Workflow: first option (GitHub Flow), enter
-        '\r',
-        // Merge Strategy: first option (Squash), enter
-        '\r',
-        // Output Language: first option (English), enter
-        '\r',
-        // Test Levels: accept defaults (Unit + Integration pre-selected), enter
-        '\r',
-        // Locale: No (default)
-        'n',
-        // Content Mode: first option (Standard), enter
-        '\r',
-        // Final Confirm: Yes
-        'Y'
-      ];
-
-      const result = await runInteractive(inputs, {}, testDir, 90000);
+      // Answered by what each prompt asks, not by position (see the cancel test below for why): every prompt
+      // takes its default (Enter) except the AI-tools checklist, where the first tool (Claude Code) is ticked.
+      // The final "Proceed with installation?" therefore gets its default, Yes.
+      const result = await runPrompted([
+        { when: /Which AI tools/i, keys: ' \r' }
+      ], testDir, { timeout: 100000 });
 
       // Record scenario result for reporting
       recordScenarioResult('Interactive Default Flow', {
         steps: [
           { step: 1, name: 'Exit code 0', matched: result.exitCode === 0 },
-          { step: 2, name: 'Has step outputs', matched: result.stepOutputs.length > 5 },
-          { step: 3, name: 'Success message', matched: result.stdout.includes('Standards initialized successfully') || result.stdout.includes('initialized') }
+          { step: 2, name: 'Answered prompts', matched: result.answers.length > 5 },
+          { step: 3, name: 'Success message', matched: result.stdout.includes('Standards initialized successfully') }
         ],
         output: result.stdout,
         files: result.files
       });
 
-      // Verify results - interactive mode may time out in CI, check for progress
-      // If it times out, it should at least have captured some step outputs
-      if (result.timedOut) {
-        // Interactive tests are inherently unstable due to prompt timing
-        // At minimum, verify we captured some interaction steps
-        expect(result.stepOutputs.length).toBeGreaterThan(0);
-      } else {
-        expect(result.exitCode).toBe(0);
-        expect(result.stdout).toContain('Standards initialized successfully');
-      }
-
-      // Verify step outputs were captured
-      expect(result.stepOutputs.length).toBeGreaterThan(3);
-    }, 120000); // Extended timeout for interactive mode
+      expect(result.timedOut, `the prompts did not finish. answered: ${JSON.stringify(result.answers.map((a) => a.prompt))}`).toBe(false);
+      expect(result.answers.length, 'the flow asked more than a handful of questions').toBeGreaterThan(5);
+      expect(result.answers[result.answers.length - 1].prompt).toMatch(/Proceed with installation/i);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Standards initialized successfully');
+      // The effect, read back: the install is on disk and records the tool that was ticked.
+      const manifest = JSON.parse(await readFile(join(testDir, '.standards/manifest.json'), 'utf8'));
+      expect(manifest.aiTools).toContain('claude-code');
+    }, 120000);
   });
 
   // ===== Scenario B: Interactive Mode - Custom Choices =====

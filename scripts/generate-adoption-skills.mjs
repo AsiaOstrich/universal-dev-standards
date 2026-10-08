@@ -204,7 +204,7 @@ import { fileURLToPath } from 'node:url';
 import {
   parseFrontmatter,
   rebuildWithFrontmatter,
-} from '../cli/src/utils/skills-installer.js';
+} from '../cli/src/utils/skill-frontmatter.js';
 import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));

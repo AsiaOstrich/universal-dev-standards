@@ -45,15 +45,18 @@ it('packing the CLI does not need an `npm` file on PATH: Windows has only npm.cm
   // This test reproduces the Windows failure on POSIX (a PATH without `npm`, built from /bin/sh and /usr/bin/tar);
   // on Windows the real thing runs in check-diff-installed-version and extensions-packaged-offline.
   if (process.platform === 'win32') ctx.skip();
-  // PATH holds `tar`, `sh` and `node` but no `npm`: a bare `spawn("npm")` now fails the way it fails on Windows (ENOENT).
+  // PATH holds `tar`, `gzip`, `sh` and `node` but no `npm`: a bare `spawn("npm")` now fails the way it fails on Windows (ENOENT).
   const bin = mkdtempSync(join(tmpdir(), 'uds-test-path-'));
   const savedPath = process.env.PATH;
   try {
-    const tar = ['/usr/bin/tar', '/bin/tar'].find((p) => existsSync(p));
-    expect(tar, 'control: a tar exists to put on the restricted PATH').toBeTruthy();
-    symlinkSync(tar, join(bin, 'tar'));
-    symlinkSync('/bin/sh', join(bin, 'sh')); // npm runs the prepack script through sh
-    symlinkSync(process.execPath, join(bin, 'node')); // ... which runs `node scripts/prepack.mjs`
+    // Every program the pack/extract path starts, found where this system keeps it. GNU tar (Ubuntu) starts
+    // `gzip` itself to read a .tgz; macOS's bsdtar has gzip built in, which is why this first passed only on macOS.
+    for (const name of ['tar', 'gzip', 'sh']) {
+      const found = ['/usr/bin', '/bin'].map((d) => join(d, name)).find((p) => existsSync(p));
+      expect(found, `control: ${name} exists on this system`).toBeTruthy();
+      symlinkSync(found, join(bin, name));
+    }
+    symlinkSync(process.execPath, join(bin, 'node')); // `node scripts/prepack.mjs`, started by npm through sh
     expect(existsSync(join(bin, 'npm')), 'control: there is no npm on the restricted PATH').toBe(false);
     process.env.PATH = bin;
     const pkg = await world.packAndExtract();
