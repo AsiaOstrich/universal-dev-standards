@@ -33,6 +33,8 @@ function parse(argv) {
     const name = argv[i];
     if (!['--from-package', '--version', '--tag'].includes(name)) throw new Error(`unknown option: ${name}`);
     const value = argv[(i += 1)];
+    // an empty --tag is "the event carried no tag name"; it is only compared, so it is ignored rather than refused
+    if (name === '--tag' && value === '') continue;
     if (value === undefined || value === '') throw new Error(`${name} needs a value`);
     if (name === '--from-package') out.fromPackage = resolve(value);
     else if (name === '--version') out.version = value;

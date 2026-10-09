@@ -223,6 +223,11 @@ it('the version comes from package.json or from what was typed, is written to th
   expect(b.stderr).toContain('WARNING');
   expect(b.stderr).toContain('v6.14.0');
 
+  // an event that carries no tag name passes an empty --tag; that is nothing to compare, not an error
+  const empty = await start(RESOLVE, ['--from-package', pkg, '--tag', '']);
+  expect(empty.code, empty.out).toBe(0);
+  expect(empty.stdout.trim()).toBe('version=6.14.0-beta.8');
+
   const c = await start(RESOLVE, ['--version', '6.13.2']);
   expect(c.code, c.out).toBe(0);
   expect(c.stdout.trim()).toBe('version=6.13.2');
@@ -403,7 +408,7 @@ function ghFixture({ artifacts, files, repo = 'AsiaOstrich/universal-dev-standar
 }
 
 /** A report as one platform's job would have uploaded it (the shape is the real run's; the platform and counts are set). */
-function platformReport(platform, { version = '6.14.0-beta.7', verdict = 'pass', failed = 0, kind = 'npm-registry' } = {}) {
+function platformReport(platform, { version = '6.14.0-beta.7', verdict = 'pass', failed = 0, kind = 'npm-registry', label = 'ci-test', finishedAt = '2026-10-10T01:02:03.000Z' } = {}) {
   const base = realReport([AUTO], { version }).json;
   return {
     ...base,
@@ -411,7 +416,8 @@ function platformReport(platform, { version = '6.14.0-beta.7', verdict = 'pass',
     uds: { ...base.uds, version, installKind: kind },
     environment: { ...base.environment, platform },
     counts: { ...base.counts, failed },
-    finishedAt: '2026-10-10T01:02:03.000Z',
+    label,
+    finishedAt,
   };
 }
 const reportFiles = (report, name) => ({ [`${name}.json`]: JSON.stringify(report), [`${name}.md`]: `# report ${name}\n` });
@@ -563,6 +569,31 @@ it('weakening the fetch program so that it places nothing, or does not refuse a 
   const dest2 = tmp.next('dest');
   await fetchReports(gh(), [V, '--dest', dest2, '--no-generate'], { script: noRefusal });
   expect(readdirSync(dest2).length, 'a report for another version was placed').toBeGreaterThan(0);
+});
+
+it('when one platform has reports from several shells, the PRE-RELEASE block shows the worst one, so a failing shell is not hidden by a passing one that finished later (XSPEC-471 R1)', () => {
+  const V = '6.14.0-beta.7';
+  const reports = tmp.next('reports');
+  mkdirSync(join(reports, V), { recursive: true });
+  const put = (name, r) => writeFileSync(join(reports, V, `${name}.json`), JSON.stringify(r));
+  put('a-pwsh', platformReport('windows', { label: 'ci-windows', finishedAt: '2026-10-10T01:00:00.000Z' }));
+  put('b-cmd-fail', platformReport('windows', { label: 'ci-windows-cmd', verdict: 'fail', failed: 2, finishedAt: '2026-10-10T01:10:00.000Z' }));
+  put('c-gitbash', platformReport('windows', { label: 'ci-windows-gitbash', finishedAt: '2026-10-10T01:20:00.000Z' }));
+  const doc = tmp.next('PRE-RELEASE.md');
+  copyFileSync(join(REPO, 'docs', 'PRE-RELEASE.md'), doc);
+  const gen = (extra = []) => spawnSync(process.execPath, [join(ACCEPT, 'generate-pre-release.mjs'), '--doc', doc, '--reports', reports, '--version', V, ...extra], { encoding: 'utf-8' });
+  const r = gen();
+  expect(r.status, r.stdout + r.stderr).toBe(0);
+  const windows = readFileSync(doc, 'utf-8').split('\n').find((l) => l.startsWith('| Windows |'));
+  expect(windows).toContain('Failed 有失敗：2 step(s) 步');
+  expect(windows).toContain('3 runs on this platform');
+
+  // a re-run of the same shell replaces its earlier run: the cmd shell passes the second time
+  put('d-cmd-rerun', platformReport('windows', { label: 'ci-windows-cmd', finishedAt: '2026-10-10T02:00:00.000Z' }));
+  expect(gen().status).toBe(0);
+  const after = readFileSync(doc, 'utf-8').split('\n').find((l) => l.startsWith('| Windows |'));
+  expect(after).toContain('Verified 已驗證');
+  expect(after).toContain('3 runs on this platform');
 });
 
 // ───────────────────────────── the workflow file, and the commands it runs ─────────────────────────────

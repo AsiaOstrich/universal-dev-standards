@@ -103,6 +103,27 @@ export function eligibleReports(reports, version) {
     && report.counts && Number.isInteger(report.counts.passed));
 }
 
+const SEVERITY = { fail: 0, error: 1, 'no-steps': 1, pass_with_unconfirmed: 2, pass: 3 };
+
+/**
+ * Which report speaks for a platform. A platform can have several runs under different labels (the post-publish workflow
+ * runs Windows from three shells, XSPEC-471 R1). The newest run of each label stands for that label (a re-run replaces an
+ * earlier run of the same label), and among the labels the WORST one is shown, so a failing shell cannot be hidden by a
+ * passing one that happened to finish later. With one label this is "the latest report decides", as before.
+ */
+function decide(reports) {
+  const newestPerLabel = new Map();
+  for (const entry of reports) {
+    const key = String(entry.report.label ?? '');
+    const have = newestPerLabel.get(key);
+    if (!have || String(entry.report.finishedAt).localeCompare(String(have.report.finishedAt)) > 0) newestPerLabel.set(key, entry);
+  }
+  const candidates = [...newestPerLabel.values()].sort((a, b) =>
+    (SEVERITY[a.report.verdict] ?? 1) - (SEVERITY[b.report.verdict] ?? 1)
+    || String(b.report.finishedAt).localeCompare(String(a.report.finishedAt)));
+  return { shown: candidates[0], labels: candidates.length };
+}
+
 /**
  * @param {{ version: string, reports: Array<{ file: string, report: object }> }} input
  */
@@ -110,14 +131,13 @@ export function renderVerified({ version, reports }) {
   const usable = eligibleReports(reports, version);
   const rows = ['| Platform 平台 | Status 狀態 | Details 細節 |', '|---|---|---|'];
   for (const [key, label] of PLATFORM_ROWS) {
-    const mine = usable
-      .filter(({ report }) => report.environment.platform === key)
-      .sort((a, b) => String(b.report.finishedAt).localeCompare(String(a.report.finishedAt)));
-    if (!mine.length) {
+    const forPlatform = usable.filter(({ report }) => report.environment.platform === key);
+    if (!forPlatform.length) {
       rows.push(`| ${label} | Not yet verified 尚未驗證 | no report for ${version} 沒有 ${version} 的報告 |`);
       continue;
     }
-    const r = mine[0].report;
+    const { shown, labels } = decide(forPlatform);
+    const r = shown.report;
     const c = r.counts;
     let status;
     if (r.verdict === 'pass') status = 'Verified 已驗證';
@@ -126,7 +146,8 @@ export function renderVerified({ version, reports }) {
     else status = 'Not verified (that run tested nothing, or could not run) 未驗證（該次執行沒有測到東西或無法執行）';
     const env = r.environment;
     const day = String(r.finishedAt || '').slice(0, 10) || 'date unknown';
-    rows.push(`| ${label} | ${status} | ${env.os.type} ${env.os.release}, Node ${env.node.version}, ${env.shell.value}; ${c.passed} passed / ${c.failed} failed / ${c.skipped} skipped; ${day} |`);
+    const several = labels > 1 ? ` — ${labels} runs on this platform (for example from different shells); the worst is shown 此平台有 ${labels} 次執行（例如不同殼層），顯示最差的一次` : '';
+    rows.push(`| ${label} | ${status} | ${env.os.type} ${env.os.release}, Node ${env.node.version}, ${env.shell.value}; ${c.passed} passed / ${c.failed} failed / ${c.skipped} skipped; ${day}${several} |`);
   }
   return [
     `Filled only from the acceptance reports in \`scripts/beta-acceptance/reports/${version}/\` (published package, this version). A platform without a report says "not yet verified".`,
