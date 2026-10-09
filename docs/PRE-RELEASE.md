@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
 It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 68 步（64 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 123 steps (119 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 123 步（119 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -249,6 +249,171 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 c
 68. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
    安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
+69. `audit-init` — a project set up for the audit steps.
+   為 audit 步驟準備的專案。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+70. `audit-health-only` — uds audit --health runs the health layer only and reports intact files.
+   uds audit --health 只跑健康檢查層，回報檔案完整。
+   `uds audit --health` → exit 0; output has "Health Check", "All files intact"
+71. `audit-format-json` — uds audit --format json prints the audit result as JSON.
+   uds audit --format json 以 JSON 印出審計結果。
+   `uds audit --format json` → exit 0; output has ""udsVersion"", ""health": {" (+2)
+72. `audit-quiet` — uds audit --quiet prints the one-line summary.
+   uds audit --quiet 只印一行摘要。
+   `uds audit --quiet` → exit 0; output has "/^Health: OK \| Patterns: 0 \| Frictions: \d+$/"
+73. `audit-score` — uds audit --score prints the health score with its four dimensions.
+   uds audit --score 印出健康分數與四個面向。
+   `uds audit --score` → exit 0; output has "Standards Health Score", "Mode: consumer" (+5)
+74. `audit-score-self` — uds audit --score --self runs in self mode.
+   uds audit --score --self 以 self 模式執行。
+   `uds audit --score --self` → exit 0; output has "Mode: self"
+75. `audit-score-format-json` — uds audit --score --format json prints the score as JSON.
+   uds audit --score --format json 以 JSON 印出分數。
+   `uds audit --score --format json` → exit 0; output has ""mode": "consumer"", ""dimensions": {" (+1)
+76. `audit-score-ci-threshold-met` — uds audit --score --ci --threshold 0 prints only the score and exits 0.
+   uds audit --score --ci --threshold 0 只印分數並以 0 結束。
+   `uds audit --score --ci --threshold 0` → exit 0; output has "/^\d+$/"
+77. `audit-score-ci-threshold-missed` — uds audit --score --ci --threshold 101 prints only the score and exits 1 (no score reaches it).
+   uds audit --score --ci --threshold 101 只印分數並以 1 結束（沒有分數達得到）。
+   `uds audit --score --ci --threshold 101` → exit 1; output has "/^\d+$/"
+78. `audit-score-save` — uds audit --score --save writes a score snapshot under .uds/health-scores.
+   uds audit --score --save 在 .uds/health-scores 寫入分數快照。
+   `uds audit --score --save` → exit 0; output has "Standards Health Score"
+79. `audit-score-trend` — uds audit --score --trend lists the saved snapshot with its date and score.
+   uds audit --score --trend 列出已存的快照（日期與分數）。
+   `uds audit --score --trend` → exit 0; output has "Trend", "/^ \d{4}-\d{2}-\d{2}: \d+$/"
+80. `audit-patterns-only` — uds audit --patterns names the standards a project's folders and files suggest.
+   uds audit --patterns 依專案的資料夾與檔案提出可能需要的標準。
+   `uds audit --patterns` → exit 0; output has "Patterns Detected (2)", "Evidence: monitoring/" (+2)
+81. `audit-effects-finding` — uds audit --effects --effects-config <file> exits 1 and names an implementation that reaches nothing outside the process.
+   uds audit --effects --effects-config <檔> 以 1 結束並指名「沒有碰到行程之外任何東西」的實作。
+   `uds audit --effects --effects-config effects.json` → exit 1; output has "reach nothing outside this process", "pure.adapter.js" (+1)
+82. `audit-effects-clean-json` — uds audit --effects --format json exits 0 with exitCode 0 in the JSON when every implementation reaches the outside.
+   uds audit --effects --format json 在每個實作都碰到外界時以 0 結束，JSON 內 exitCode 為 0。
+   `uds audit --effects --effects-config effects.json --format json` → exit 0; output has ""exitCode": 0", "reach a real cross-process boundary"
+83. `audit-effects-config-missing` — uds audit --effects --effects-config <missing file> exits 2 and names that file (not "clean").
+   uds audit --effects --effects-config <不存在的檔> 以 2 結束並指名該檔（不是「乾淨」）。
+   `uds audit --effects --effects-config no-such-config.json` → exit 2; output has "FATAL: no effect-family config at", "no-such-config.json" (+1)
+84. `audit-health-missing-file` — uds audit --health reports a standard file that the manifest lists and the folder lacks.
+   uds audit --health 回報「manifest 有列、資料夾卻沒有」的標準檔。
+   `uds audit --health` → exit 0; output has "anti-hallucination.ai.yaml: Standard file listed in manifest but missing from .standards/", "Fix: Run `uds check --restore-missing` to restore"
+85. `config-set-project` — uds config set <key> <value> writes the project configuration file.
+   uds config set <key> <value> 寫入專案設定檔。
+   `uds config set demo.flag hello` → exit 0; output has "Configuration updated (project): demo.flag = hello"
+86. `config-get` — uds config get <key> reads the value a later process wrote.
+   uds config get <key> 讀回先前行程寫下的值。
+   `uds config get demo.flag` → exit 0; output has "/^hello$/"
+87. `config-list` — uds config list prints the merged configuration as JSON.
+   uds config list 以 JSON 印出合併後的設定。
+   `uds config list` → exit 0; output has "Current Configuration:", ""flag": "hello"" (+1)
+88. `config-yes-shows-configuration` — uds config --yes (no action) prints the configuration without asking.
+   uds config --yes（不給動作）不詢問，直接印出設定。
+   `uds config --yes` → exit 0; output has "Current Configuration:", ""flag": "hello""
+89. `config-set-global` — uds config set <key> <value> --global writes the user-level file, not the project file.
+   uds config set <key> <value> --global 寫入使用者層級檔，不寫專案檔。
+   `uds config set demo.scope from-global --global` → exit 0; output has "Configuration updated (global): demo.scope = from-global"
+90. `config-get-reads-global` — uds config get finds the value that --global wrote in an earlier run.
+   uds config get 找得到先前以 --global 寫下的值。
+   `uds config get demo.scope` → exit 0; output has "/^from-global$/"
+91. `hitl-check-blocks-in-noninteractive` (**new 新**) — uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0).
+   uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）。
+   `uds hitl check --op "npm install left-pad"` → exit 1; output has "Blocked (Safety First)", "Denied"
+92. `hitl-check-requires-op` (**new 新**) — uds hitl check without --op says it is required and exits 2 (not 0).
+   uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）。
+   `uds hitl check` → exit 2; output has "--op <operation> is required"
+93. `hitl-config-raises-threshold` — uds config set hitl.threshold 4 --global is the setting uds hitl check reads next.
+   uds config set hitl.threshold 4 --global 的設定會被下一次 uds hitl check 讀到。
+   `uds config set hitl.threshold 4 --global` → exit 0; output has "Configuration updated (global): hitl.threshold = 4"
+94. `hitl-check-approves-under-raised-threshold` — uds hitl check approves the same operation once the threshold is raised (exit 0).
+   uds hitl check 在門檻調高後對同一個操作放行（結束碼 0）。
+   `uds hitl check --op "npm install left-pad"` → exit 0; output has "Approved"
+95. `config-init-vibe-mode` — uds config init --vibe-mode --yes applies the balanced preset to the project configuration.
+   uds config init --vibe-mode --yes 把 balanced 預設套用到專案設定。
+   `uds config init --vibe-mode --yes` → exit 0; output has "Vibe Coding mode enabled!", "hitl.threshold: 2"
+96. `config-init-project` — a project whose skills are not installed yet (skills location none).
+   尚未安裝技能的專案（skills location none）。
+   `uds init -y --skills-location none --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+97. `config-type-skills` — uds config --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project.
+   uds config --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案。
+   `uds config --type skills --ai-tool claude-code --skills-location project --yes` → exit 0; output has "Skills installed for Claude Code"
+98. `config-experimental` — uds config -E shows the experimental methodology line of the current configuration.
+   uds config -E 會在目前設定中顯示實驗性的 methodology 一行。
+   `uds config --type skills --ai-tool claude-code --skills-location project --yes -E` → exit 0; output has "Methodology: TDD [Experimental]", "Skills installed for Claude Code"
+99. `configure-init-project` — a project whose skills are not installed yet (for uds configure).
+   尚未安裝技能的專案（給 uds configure 用）。
+   `uds init -y --skills-location none --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+100. `configure-type-skills` — uds configure --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project.
+   uds configure --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案。
+   `uds configure --type skills --ai-tool claude-code --skills-location project --yes` → exit 0; output has "Skills installed for Claude Code"
+101. `configure-experimental` — uds configure -E shows the experimental methodology line of the current configuration.
+   uds configure -E 會在目前設定中顯示實驗性的 methodology 一行。
+   `uds configure --type skills --ai-tool claude-code --skills-location project --yes -E` → exit 0; output has "Methodology: TDD [Experimental]", "Skills installed for Claude Code"
+102. `agent-list` (**new 新**) — uds agent list names the five shipped agents with a description line and their expertise.
+   uds agent list 列出五個隨附的代理，各有一行說明與專長。
+   `uds agent list` → exit 0; output has "UDS Agents", "code-architect" (+7)
+103. `agent-info` (**new 新**) — uds agent info <name> shows the agent's description, expertise, tools and skills.
+   uds agent info <名稱> 顯示代理的說明、專長、工具與技能。
+   `uds agent info code-architect` → exit 0; output has "Agent: code-architect", "Role: specialist" (+9)
+104. `agent-install-project` — uds agent install <name> --yes copies the agent into .claude/agents of the project.
+   uds agent install <名稱> --yes 把代理複製到專案的 .claude/agents。
+   `uds agent install code-architect --yes` → exit 0; output has "Installed 1 agent(s)", "✓ code-architect"
+105. `agent-install-tool` — uds agent install <name> --tool opencode --yes copies the agent to the folder that tool reads.
+   uds agent install <名稱> --tool opencode --yes 把代理複製到該工具讀取的資料夾。
+   `uds agent install test-specialist --tool opencode --yes` → exit 0; output has "Installing agents for OpenCode", "Installed 1 agent(s)"
+106. `agent-install-global` — uds agent install <name> --global --yes installs to the user level, not into the project.
+   uds agent install <名稱> --global --yes 裝到使用者層級，不裝進專案。
+   `uds agent install doc-writer --global --yes` → exit 0; output has "Installed 1 agent(s)", "✓ doc-writer"
+107. `agent-list-installed` — uds agent list --installed counts the agents installed at project and user level for each tool.
+   uds agent list --installed 依工具統計專案層級與使用者層級已安裝的代理數。
+   `uds agent list --installed` → exit 0; output has "Installation Status:", "Claude Code [task]" (+3)
+108. `ai-context-init` — uds ai-context init --yes writes .ai-context.yaml with the modules found under src/.
+   uds ai-context init --yes 寫出 .ai-context.yaml，含 src/ 底下找到的模組。
+   `uds ai-context init --yes` → exit 0; output has "Created .ai-context.yaml", "Modules: 2 detected"
+109. `ai-context-init-keeps-existing` — uds ai-context init --yes leaves an existing .ai-context.yaml alone.
+   uds ai-context init --yes 不動已存在的 .ai-context.yaml。
+   `uds ai-context init --yes` → exit 0; output has ".ai-context.yaml already exists.", "Use --force to overwrite."
+110. `ai-context-init-force` — uds ai-context init --force --yes overwrites an existing .ai-context.yaml.
+   uds ai-context init --force --yes 覆寫已存在的 .ai-context.yaml。
+   `uds ai-context init --force --yes` → exit 0; output has "Created .ai-context.yaml"
+111. `ai-context-validate-valid` — uds ai-context validate accepts a configuration whose modules and documents exist.
+   uds ai-context validate 接受「模組與文件都存在」的設定。
+   `uds ai-context validate` → exit 0; output has "Validating .ai-context.yaml", "Configuration is valid!"
+112. `ai-context-validate-verbose` — uds ai-context validate --verbose also prints the whole configuration.
+   uds ai-context validate --verbose 另外印出完整設定。
+   `uds ai-context validate --verbose` → exit 0; output has "Configuration is valid!", "Configuration:" (+2)
+113. `ai-context-validate-invalid` — uds ai-context validate names what is wrong with a configuration.
+   uds ai-context validate 指出設定哪裡有問題。
+   `uds ai-context validate` → exit 0; output has "3 error(s):", "Missing project.name" (+2)
+114. `ai-context-graph` — uds ai-context graph lists the modules with their dependencies.
+   uds ai-context graph 列出模組與它們的相依。
+   `uds ai-context graph` → exit 0; output has "Module Dependency Graph", "api" (+3)
+115. `ai-context-graph-mermaid` — uds ai-context graph --mermaid also prints a Mermaid diagram of the dependencies.
+   uds ai-context graph --mermaid 另外印出相依關係的 Mermaid 圖。
+   `uds ai-context graph --mermaid` → exit 0; output has "```mermaid", "graph TD" (+2)
+116. `release-help-manual` — uds release lists its subcommands in a project set to manual release mode.
+   uds release 在手動發布模式的專案列出它的子指令。
+   `uds release` → exit 0; output has "uds release — 版本發布管理", "目前模式: manual" (+4)
+117. `release-promote` — uds release promote <version> names the RC it promotes from and the tag to create (it only prints; it writes nothing).
+   uds release promote <版本> 說明從哪個 RC 晉升、要建的 tag（只印出，不寫任何東西）。
+   `uds release promote 1.2.0` → exit 0; output has "目前版本: 1.2.0-rc.1", "晉升目標: 1.2.0" (+3)
+118. `release-deploy-staging` (**new 新**) — uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it).
+   uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）。
+   `uds release deploy staging` → exit 0; output has "已記錄部署: 1.2.0-rc.1 → staging"
+119. `release-deploy-result` (**new 新**) — uds release deploy <env> --result passed updates that deployment's recorded result.
+   uds release deploy <環境> --result passed 更新該筆部署紀錄的結果。
+   `uds release deploy staging --result passed` → exit 0; output has "已更新 1.2.0-rc.1 在 staging 的結果: passed"
+120. `release-manifest-checksum` — uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum.
+   uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json。
+   `uds release manifest --checksum e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb` → exit 0; output has "build-manifest.json 已產生", "版本: 1.2.0-rc.1"
+121. `release-verify-artifact` (**new 新**) — uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result.
+   uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果。
+   `uds release verify --artifact app.bin` → exit 0; output has "Manifest 驗證通過", "版本: 1.2.0-rc.1" (+2)
+122. `release-verify-wrong-artifact` — uds release verify --artifact <another file> reports the checksum mismatch.
+   uds release verify --artifact <別的檔> 回報 checksum 不符。
+   `uds release verify --artifact other.bin` → exit 0 or 1; output has "Manifest 驗證失敗", "checksum mismatch" (+1)
+123. `mcp-serve-answers-requests` (**new 新**) — uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends.
+   uds mcp serve 啟動、回應 initialize、tools/list 與三個設計工具，輸入結束時自行結束。
+   `uds mcp serve` → exit 0; output has "UDS MCP Design Standards Server started (stdio)", ""serverInfo":{"name":"uds-design-standards"" (+5)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

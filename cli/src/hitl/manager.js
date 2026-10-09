@@ -40,8 +40,10 @@ export class HitlManager {
   }
 
   async _promptUser(operation, riskLevel, context) {
-    // Check if we are in non-interactive mode (e.g. CI)
-    if (process.env.CI || process.env.UDS_NON_INTERACTIVE) {
+    // Check if we are in non-interactive mode: CI, a declared non-interactive run, or no terminal to answer on.
+    // A prompt with no terminal never gets an answer; @inquirer/prompts then lets the process end with exit code 0 and a
+    // stack trace, which `uds hitl check` callers read as "approved". No one to ask means blocked, as in CI.
+    if (process.env.CI || process.env.UDS_NON_INTERACTIVE || !process.stdin.isTTY) {
       console.log(chalk.yellow(''));
       console.log(chalk.yellow('HITL Checkpoint triggered in non-interactive mode.'));
       console.log(chalk.gray(`   Operation: ${operation}`));

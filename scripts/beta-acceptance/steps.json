@@ -36,6 +36,14 @@
     {
       "changelog": "CI: after a release is published, the acceptance steps run against",
       "reason": "A GitHub workflow (.github/workflows/post-publish-acceptance.yml) and four maintainer programs under scripts/beta-acceptance/ that run in the repository or on GitHub; none is in the npm package and no installed command changes. Tested by cli/tests/e2e/xspec-471-r1-post-publish-acceptance.test.js; the three real runs are only visible on the Actions page after a publish."
+    },
+    {
+      "option": "audit --gh",
+      "reason": "It forces `gh issue create` against the public AsiaOstrich/universal-dev-standards repository, and every way to reach that line also submits a real GitHub issue: --dry-run returns before it. No offline or dry-run path exists, so no step may run it. Suggested: let --dry-run print which submission method would be used."
+    },
+    {
+      "option": "mcp serve --root",
+      "reason": "Known broken: the option is accepted and stored in McpServer.udsRoot, but nothing reads udsRoot, so it changes no answer. Reproduce: run `uds mcp serve --root /elsewhere` and call any tool; the reply is the same as without --root. Waiting for a decision: remove the option or give it a meaning."
     }
   ],
   "steps": [
@@ -2014,6 +2022,1625 @@
               "one-way door"
             ]
           }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-init",
+      "workspace": "r4c-audit",
+      "title": "a project set up for the audit steps",
+      "titleZh": "為 audit 步驟準備的專案",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-health-only",
+      "workspace": "r4c-audit",
+      "title": "uds audit --health runs the health layer only and reports intact files",
+      "titleZh": "uds audit --health 只跑健康檢查層，回報檔案完整",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--health"
+      ],
+      "expect": {
+        "contains": [
+          "Health Check",
+          "All files intact"
+        ],
+        "notContains": [
+          "Patterns Detected",
+          "Friction Points"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-format-json",
+      "workspace": "r4c-audit",
+      "title": "uds audit --format json prints the audit result as JSON",
+      "titleZh": "uds audit --format json 以 JSON 印出審計結果",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--format",
+        "json"
+      ],
+      "expect": {
+        "contains": [
+          "\"udsVersion\"",
+          "\"health\": {",
+          "\"status\": \"OK\"",
+          "\"reportUrl\""
+        ],
+        "notContains": [
+          "UDS Audit Report"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-quiet",
+      "workspace": "r4c-audit",
+      "title": "uds audit --quiet prints the one-line summary",
+      "titleZh": "uds audit --quiet 只印一行摘要",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--quiet"
+      ],
+      "expect": {
+        "matches": [
+          "^Health: OK \\| Patterns: 0 \\| Frictions: \\d+$"
+        ],
+        "notContains": [
+          "UDS Audit Report"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score prints the health score with its four dimensions",
+      "titleZh": "uds audit --score 印出健康分數與四個面向",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score"
+      ],
+      "expect": {
+        "contains": [
+          "Standards Health Score",
+          "Mode:    consumer"
+        ],
+        "matches": [
+          "Overall: +\\d+/100",
+          "Completeness: \\d+/100",
+          "Freshness: \\d+/100",
+          "Consistency: \\d+/100",
+          "Coverage: \\d+/100"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-self",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --self runs in self mode",
+      "titleZh": "uds audit --score --self 以 self 模式執行",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--self"
+      ],
+      "expect": {
+        "contains": [
+          "Mode:    self"
+        ],
+        "notContains": [
+          "Mode:    consumer"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-format-json",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --format json prints the score as JSON",
+      "titleZh": "uds audit --score --format json 以 JSON 印出分數",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--format",
+        "json"
+      ],
+      "expect": {
+        "contains": [
+          "\"mode\": \"consumer\"",
+          "\"dimensions\": {"
+        ],
+        "matches": [
+          "^  \"score\": \\d+,$"
+        ],
+        "notContains": [
+          "Standards Health Score"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-ci-threshold-met",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --ci --threshold 0 prints only the score and exits 0",
+      "titleZh": "uds audit --score --ci --threshold 0 只印分數並以 0 結束",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--ci",
+        "--threshold",
+        "0"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^\\d+$"
+        ],
+        "notContains": [
+          "Standards Health Score"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-ci-threshold-missed",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --ci --threshold 101 prints only the score and exits 1 (no score reaches it)",
+      "titleZh": "uds audit --score --ci --threshold 101 只印分數並以 1 結束（沒有分數達得到）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--ci",
+        "--threshold",
+        "101"
+      ],
+      "expect": {
+        "exit": 1,
+        "matches": [
+          "^\\d+$"
+        ],
+        "notContains": [
+          "Standards Health Score"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-save",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --save writes a score snapshot under .uds/health-scores",
+      "titleZh": "uds audit --score --save 在 .uds/health-scores 寫入分數快照",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--save"
+      ],
+      "expect": {
+        "contains": [
+          "Standards Health Score"
+        ],
+        "files": [
+          {
+            "path": ".uds/health-scores"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-score-trend",
+      "workspace": "r4c-audit",
+      "title": "uds audit --score --trend lists the saved snapshot with its date and score",
+      "titleZh": "uds audit --score --trend 列出已存的快照（日期與分數）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--score",
+        "--trend"
+      ],
+      "expect": {
+        "contains": [
+          "Trend"
+        ],
+        "matches": [
+          "^  \\d{4}-\\d{2}-\\d{2}: \\d+$"
+        ],
+        "notContains": [
+          "No history"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-patterns-only",
+      "workspace": "r4c-audit-patterns",
+      "title": "uds audit --patterns names the standards a project's folders and files suggest",
+      "titleZh": "uds audit --patterns 依專案的資料夾與檔案提出可能需要的標準",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": "monitoring"
+        },
+        {
+          "writeFile": "Dockerfile",
+          "content": "FROM scratch\n"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--patterns"
+      ],
+      "expect": {
+        "contains": [
+          "Patterns Detected (2)",
+          "Evidence: monitoring/",
+          "Evidence: Dockerfile",
+          "New \"containerization\" standard"
+        ],
+        "notContains": [
+          "Health Check"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-effects-finding",
+      "workspace": "r4c-audit-effects",
+      "title": "uds audit --effects --effects-config <file> exits 1 and names an implementation that reaches nothing outside the process",
+      "titleZh": "uds audit --effects --effects-config <檔> 以 1 結束並指名「沒有碰到行程之外任何東西」的實作",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "effects.json",
+          "content": "{ \"families\": [ { \"name\": \"deploy-adapters\", \"include\": [\"src/adapters/*.adapter.js\"] } ] }\n"
+        },
+        {
+          "writeFile": "src/adapters/pure.adapter.js",
+          "content": "export function run(x) { return x + 1; }\n"
+        },
+        {
+          "writeFile": "src/adapters/net.adapter.js",
+          "content": "export async function run(x) { return fetch(\"https://example.invalid/\" + x); }\n"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--effects",
+        "--effects-config",
+        "effects.json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "reach nothing outside this process",
+          "pure.adapter.js",
+          "family 'deploy-adapters'"
+        ],
+        "notContains": [
+          "FATAL"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-effects-clean-json",
+      "workspace": "r4c-audit-effects-clean",
+      "title": "uds audit --effects --format json exits 0 with exitCode 0 in the JSON when every implementation reaches the outside",
+      "titleZh": "uds audit --effects --format json 在每個實作都碰到外界時以 0 結束，JSON 內 exitCode 為 0",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "effects.json",
+          "content": "{ \"families\": [ { \"name\": \"deploy-adapters\", \"include\": [\"src/adapters/*.adapter.js\"] } ] }\n"
+        },
+        {
+          "writeFile": "src/adapters/net.adapter.js",
+          "content": "export async function run(x) { return fetch(\"https://example.invalid/\" + x); }\n"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--effects",
+        "--effects-config",
+        "effects.json",
+        "--format",
+        "json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"exitCode\": 0",
+          "reach a real cross-process boundary"
+        ],
+        "notContains": [
+          "FATAL"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-effects-config-missing",
+      "workspace": "r4c-audit-effects-missing",
+      "title": "uds audit --effects --effects-config <missing file> exits 2 and names that file (not \"clean\")",
+      "titleZh": "uds audit --effects --effects-config <不存在的檔> 以 2 結束並指名該檔（不是「乾淨」）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "audit",
+        "--effects",
+        "--effects-config",
+        "no-such-config.json"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "FATAL: no effect-family config at",
+          "no-such-config.json",
+          "Exiting 2 (cannot measure)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "audit-health-missing-file",
+      "workspace": "r4c-audit",
+      "title": "uds audit --health reports a standard file that the manifest lists and the folder lacks",
+      "titleZh": "uds audit --health 回報「manifest 有列、資料夾卻沒有」的標準檔",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "removeFile": ".standards/anti-hallucination.ai.yaml"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--health"
+      ],
+      "expect": {
+        "contains": [
+          "anti-hallucination.ai.yaml: Standard file listed in manifest but missing from .standards/",
+          "Fix: Run `uds check --restore-missing` to restore"
+        ],
+        "notContains": [
+          "All files intact"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-set-project",
+      "workspace": "r4c-config-project",
+      "title": "uds config set <key> <value> writes the project configuration file",
+      "titleZh": "uds config set <key> <value> 寫入專案設定檔",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "set",
+        "demo.flag",
+        "hello"
+      ],
+      "expect": {
+        "contains": [
+          "Configuration updated (project): demo.flag = hello"
+        ],
+        "files": [
+          {
+            "path": ".uds/config.yaml",
+            "contains": [
+              "flag: hello"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-get",
+      "workspace": "r4c-config-project",
+      "title": "uds config get <key> reads the value a later process wrote",
+      "titleZh": "uds config get <key> 讀回先前行程寫下的值",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "get",
+        "demo.flag"
+      ],
+      "expect": {
+        "matches": [
+          "^hello$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-list",
+      "workspace": "r4c-config-project",
+      "title": "uds config list prints the merged configuration as JSON",
+      "titleZh": "uds config list 以 JSON 印出合併後的設定",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "list"
+      ],
+      "expect": {
+        "contains": [
+          "Current Configuration:",
+          "\"flag\": \"hello\"",
+          "\"threshold\": 2"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-yes-shows-configuration",
+      "workspace": "r4c-config-project",
+      "title": "uds config --yes (no action) prints the configuration without asking",
+      "titleZh": "uds config --yes（不給動作）不詢問，直接印出設定",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Current Configuration:",
+          "\"flag\": \"hello\""
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-set-global",
+      "workspace": "r4c-config-global",
+      "title": "uds config set <key> <value> --global writes the user-level file, not the project file",
+      "titleZh": "uds config set <key> <value> --global 寫入使用者層級檔，不寫專案檔",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "set",
+        "demo.scope",
+        "from-global",
+        "--global"
+      ],
+      "expect": {
+        "contains": [
+          "Configuration updated (global): demo.scope = from-global"
+        ],
+        "files": [
+          {
+            "path": ".uds/config.yaml",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-get-reads-global",
+      "workspace": "r4c-config-global",
+      "title": "uds config get finds the value that --global wrote in an earlier run",
+      "titleZh": "uds config get 找得到先前以 --global 寫下的值",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "get",
+        "demo.scope"
+      ],
+      "expect": {
+        "matches": [
+          "^from-global$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hitl-check-blocks-in-noninteractive",
+      "workspace": "r4c-hitl",
+      "title": "uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0)",
+      "titleZh": "uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）",
+      "changelog": [
+        "Behavior change — `uds hitl check` no longer ends with exit code 0"
+      ],
+      "uds": [
+        "hitl",
+        "check",
+        "--op",
+        "npm install left-pad"
+      ],
+      "env": {
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
+      },
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Blocked (Safety First)",
+          "Denied"
+        ],
+        "notContains": [
+          "Approved",
+          "ExitPromptError"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hitl-check-requires-op",
+      "workspace": "r4c-hitl",
+      "title": "uds hitl check without --op says it is required and exits 2 (not 0)",
+      "titleZh": "uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）",
+      "changelog": [
+        "Behavior change — `uds hitl check` no longer ends with exit code 0"
+      ],
+      "uds": [
+        "hitl",
+        "check"
+      ],
+      "env": {
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
+      },
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "--op <operation> is required"
+        ],
+        "notContains": [
+          "Approved"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hitl-config-raises-threshold",
+      "workspace": "r4c-hitl",
+      "title": "uds config set hitl.threshold 4 --global is the setting uds hitl check reads next",
+      "titleZh": "uds config set hitl.threshold 4 --global 的設定會被下一次 uds hitl check 讀到",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "set",
+        "hitl.threshold",
+        "4",
+        "--global"
+      ],
+      "expect": {
+        "contains": [
+          "Configuration updated (global): hitl.threshold = 4"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hitl-check-approves-under-raised-threshold",
+      "workspace": "r4c-hitl",
+      "title": "uds hitl check approves the same operation once the threshold is raised (exit 0)",
+      "titleZh": "uds hitl check 在門檻調高後對同一個操作放行（結束碼 0）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "hitl",
+        "check",
+        "--op",
+        "npm install left-pad"
+      ],
+      "env": {
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
+      },
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Approved"
+        ],
+        "notContains": [
+          "Blocked",
+          "Denied"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-init-vibe-mode",
+      "workspace": "r4c-config-vibe",
+      "title": "uds config init --vibe-mode --yes applies the balanced preset to the project configuration",
+      "titleZh": "uds config init --vibe-mode --yes 把 balanced 預設套用到專案設定",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "init",
+        "--vibe-mode",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Vibe Coding mode enabled!",
+          "hitl.threshold: 2"
+        ],
+        "files": [
+          {
+            "path": ".uds/config.yaml",
+            "contains": [
+              "vibe-coding:",
+              "enabled: true",
+              "threshold: 2",
+              "mode: soft"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-init-project",
+      "workspace": "r4c-config",
+      "title": "a project whose skills are not installed yet (skills location none)",
+      "titleZh": "尚未安裝技能的專案（skills location none）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-type-skills",
+      "workspace": "r4c-config",
+      "title": "uds config --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project",
+      "titleZh": "uds config --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "config",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "claude-code",
+        "--skills-location",
+        "project",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Skills installed for Claude Code"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/ac-coverage/SKILL.md",
+            "contains": [
+              "name: ac-coverage"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "config-experimental",
+      "workspace": "r4c-config",
+      "title": "uds config -E shows the experimental methodology line of the current configuration",
+      "titleZh": "uds config -E 會在目前設定中顯示實驗性的 methodology 一行",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "setManifest": {
+            "methodology": {
+              "active": "tdd"
+            }
+          }
+        }
+      ],
+      "uds": [
+        "config",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "claude-code",
+        "--skills-location",
+        "project",
+        "--yes",
+        "-E"
+      ],
+      "expect": {
+        "contains": [
+          "Methodology: TDD [Experimental]",
+          "Skills installed for Claude Code"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "configure-init-project",
+      "workspace": "r4c-configure",
+      "title": "a project whose skills are not installed yet (for uds configure)",
+      "titleZh": "尚未安裝技能的專案（給 uds configure 用）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "configure-type-skills",
+      "workspace": "r4c-configure",
+      "title": "uds configure --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project",
+      "titleZh": "uds configure --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "configure",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "claude-code",
+        "--skills-location",
+        "project",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Skills installed for Claude Code"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/ac-coverage/SKILL.md",
+            "contains": [
+              "name: ac-coverage"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "configure-experimental",
+      "workspace": "r4c-configure",
+      "title": "uds configure -E shows the experimental methodology line of the current configuration",
+      "titleZh": "uds configure -E 會在目前設定中顯示實驗性的 methodology 一行",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "setManifest": {
+            "methodology": {
+              "active": "tdd"
+            }
+          }
+        }
+      ],
+      "uds": [
+        "configure",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "claude-code",
+        "--skills-location",
+        "project",
+        "--yes",
+        "-E"
+      ],
+      "expect": {
+        "contains": [
+          "Methodology: TDD [Experimental]",
+          "Skills installed for Claude Code"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-list",
+      "workspace": "r4c-agent",
+      "title": "uds agent list names the five shipped agents with a description line and their expertise",
+      "titleZh": "uds agent list 列出五個隨附的代理，各有一行說明與專長",
+      "changelog": [
+        "`uds agent list` and `uds agent info` showed an empty description"
+      ],
+      "uds": [
+        "agent",
+        "list"
+      ],
+      "expect": {
+        "contains": [
+          "UDS Agents",
+          "code-architect",
+          "doc-writer",
+          "reviewer",
+          "spec-analyst",
+          "test-specialist",
+          "Software architecture specialist",
+          "Expertise: system-design",
+          "Supported AI Tools:"
+        ],
+        "notContains": [
+          "No description"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-info",
+      "workspace": "r4c-agent",
+      "title": "uds agent info <name> shows the agent's description, expertise, tools and skills",
+      "titleZh": "uds agent info <名稱> 顯示代理的說明、專長、工具與技能",
+      "changelog": [
+        "`uds agent list` and `uds agent info` showed an empty description"
+      ],
+      "uds": [
+        "agent",
+        "info",
+        "code-architect"
+      ],
+      "expect": {
+        "contains": [
+          "Agent: code-architect",
+          "Role: specialist",
+          "Software architecture specialist for system design",
+          "Expertise:",
+          "• system-design",
+          "Allowed Tools:",
+          "Disallowed Tools:",
+          "✗ Write",
+          "Skill Dependencies:",
+          "• spec-driven-dev"
+        ],
+        "matches": [
+          "Version: \\d+\\.\\d+\\.\\d+"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-install-project",
+      "workspace": "r4c-agent",
+      "title": "uds agent install <name> --yes copies the agent into .claude/agents of the project",
+      "titleZh": "uds agent install <名稱> --yes 把代理複製到專案的 .claude/agents",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "agent",
+        "install",
+        "code-architect",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Installed 1 agent(s)",
+          "✓ code-architect"
+        ],
+        "files": [
+          {
+            "path": ".claude/agents/code-architect.md",
+            "contains": [
+              "name: code-architect"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-install-tool",
+      "workspace": "r4c-agent",
+      "title": "uds agent install <name> --tool opencode --yes copies the agent to the folder that tool reads",
+      "titleZh": "uds agent install <名稱> --tool opencode --yes 把代理複製到該工具讀取的資料夾",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "agent",
+        "install",
+        "test-specialist",
+        "--tool",
+        "opencode",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Installing agents for OpenCode",
+          "Installed 1 agent(s)"
+        ],
+        "files": [
+          {
+            "path": ".opencode/agents/test-specialist.md",
+            "contains": [
+              "test-specialist"
+            ]
+          },
+          {
+            "path": ".claude/agents/test-specialist.md",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-install-global",
+      "workspace": "r4c-agent",
+      "title": "uds agent install <name> --global --yes installs to the user level, not into the project",
+      "titleZh": "uds agent install <名稱> --global --yes 裝到使用者層級，不裝進專案",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "agent",
+        "install",
+        "doc-writer",
+        "--global",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Installed 1 agent(s)",
+          "✓ doc-writer"
+        ],
+        "files": [
+          {
+            "path": ".claude/agents/doc-writer.md",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "agent-list-installed",
+      "workspace": "r4c-agent",
+      "title": "uds agent list --installed counts the agents installed at project and user level for each tool",
+      "titleZh": "uds agent list --installed 依工具統計專案層級與使用者層級已安裝的代理數",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "agent",
+        "list",
+        "--installed"
+      ],
+      "expect": {
+        "contains": [
+          "Installation Status:",
+          "Claude Code [task]",
+          "✓ Project: 1 agents",
+          "✓ User: 1 agents",
+          "OpenCode [task]"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-init",
+      "workspace": "r4c-ai-context-init",
+      "title": "uds ai-context init --yes writes .ai-context.yaml with the modules found under src/",
+      "titleZh": "uds ai-context init --yes 寫出 .ai-context.yaml，含 src/ 底下找到的模組",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "src/api/index.ts",
+          "content": "export {};\n"
+        },
+        {
+          "writeFile": "src/db/index.ts",
+          "content": "export {};\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "init",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Created .ai-context.yaml",
+          "Modules: 2 detected"
+        ],
+        "files": [
+          {
+            "path": ".ai-context.yaml",
+            "contains": [
+              "version: 1.0.0",
+              "- name: api",
+              "- name: db"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-init-keeps-existing",
+      "workspace": "r4c-ai-context-keep",
+      "title": "uds ai-context init --yes leaves an existing .ai-context.yaml alone",
+      "titleZh": "uds ai-context init --yes 不動已存在的 .ai-context.yaml",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".ai-context.yaml",
+          "content": "# KEEP-ME-4471\nversion: 1.0.0\nproject:\n  name: mine\n  type: library\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "init",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          ".ai-context.yaml already exists.",
+          "Use --force to overwrite."
+        ],
+        "notContains": [
+          "Created .ai-context.yaml"
+        ],
+        "files": [
+          {
+            "path": ".ai-context.yaml",
+            "contains": [
+              "# KEEP-ME-4471",
+              "name: mine"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-init-force",
+      "workspace": "r4c-ai-context-force",
+      "title": "uds ai-context init --force --yes overwrites an existing .ai-context.yaml",
+      "titleZh": "uds ai-context init --force --yes 覆寫已存在的 .ai-context.yaml",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".ai-context.yaml",
+          "content": "# KEEP-ME-4471\nversion: 1.0.0\nproject:\n  name: mine\n  type: library\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "init",
+        "--force",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Created .ai-context.yaml"
+        ],
+        "notContains": [
+          "already exists"
+        ],
+        "files": [
+          {
+            "path": ".ai-context.yaml",
+            "contains": [
+              "version: 1.0.0",
+              "primary-language: typescript"
+            ],
+            "notContains": [
+              "KEEP-ME-4471",
+              "name: mine"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-validate-valid",
+      "workspace": "r4c-ai-context-valid",
+      "title": "uds ai-context validate accepts a configuration whose modules and documents exist",
+      "titleZh": "uds ai-context validate 接受「模組與文件都存在」的設定",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "src/api/index.ts",
+          "content": "export {};\n"
+        },
+        {
+          "writeFile": "src/db/index.ts",
+          "content": "export {};\n"
+        },
+        {
+          "writeFile": "QUICK-REF.md",
+          "content": "# quick reference\n"
+        },
+        {
+          "writeFile": ".ai-context.yaml",
+          "content": "version: 1.0.0\nproject:\n  name: acme\n  type: web-app\n  primary-language: typescript\nmodules:\n  - name: api\n    path: src/api/\n    description: HTTP layer\n    dependencies: [db]\n    priority: high\n  - name: db\n    path: src/db/\n    description: storage\n    dependencies: []\n    priority: low\ndocumentation:\n  quick-ref: QUICK-REF.md\ncontext-strategy:\n  max-chunk-size: 50000\n  analysis-pattern: hierarchical\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "validate"
+      ],
+      "expect": {
+        "contains": [
+          "Validating .ai-context.yaml",
+          "Configuration is valid!"
+        ],
+        "notContains": [
+          "error(s)",
+          "warning(s)",
+          "Configuration:"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-validate-verbose",
+      "workspace": "r4c-ai-context-valid",
+      "title": "uds ai-context validate --verbose also prints the whole configuration",
+      "titleZh": "uds ai-context validate --verbose 另外印出完整設定",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "ai-context",
+        "validate",
+        "--verbose"
+      ],
+      "expect": {
+        "contains": [
+          "Configuration is valid!",
+          "Configuration:",
+          "name: acme",
+          "description: HTTP layer"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-validate-invalid",
+      "workspace": "r4c-ai-context-invalid",
+      "title": "uds ai-context validate names what is wrong with a configuration",
+      "titleZh": "uds ai-context validate 指出設定哪裡有問題",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".ai-context.yaml",
+          "content": "version: 1.0.0\nproject:\n  type: web-app\nmodules:\n  - name: lonely\ncontext-strategy:\n  analysis-pattern: zigzag\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "validate"
+      ],
+      "expect": {
+        "contains": [
+          "3 error(s):",
+          "Missing project.name",
+          "Module 0: missing path",
+          "context-strategy.analysis-pattern must be one of: hierarchical, parallel, sequential"
+        ],
+        "notContains": [
+          "Configuration is valid!"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-graph",
+      "workspace": "r4c-ai-context-graph",
+      "title": "uds ai-context graph lists the modules with their dependencies",
+      "titleZh": "uds ai-context graph 列出模組與它們的相依",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "src/api/index.ts",
+          "content": "export {};\n"
+        },
+        {
+          "writeFile": "src/db/index.ts",
+          "content": "export {};\n"
+        },
+        {
+          "writeFile": "QUICK-REF.md",
+          "content": "# quick reference\n"
+        },
+        {
+          "writeFile": ".ai-context.yaml",
+          "content": "version: 1.0.0\nproject:\n  name: acme\n  type: web-app\n  primary-language: typescript\nmodules:\n  - name: api\n    path: src/api/\n    description: HTTP layer\n    dependencies: [db]\n    priority: high\n  - name: db\n    path: src/db/\n    description: storage\n    dependencies: []\n    priority: low\ndocumentation:\n  quick-ref: QUICK-REF.md\ncontext-strategy:\n  max-chunk-size: 50000\n  analysis-pattern: hierarchical\n"
+        }
+      ],
+      "uds": [
+        "ai-context",
+        "graph"
+      ],
+      "expect": {
+        "contains": [
+          "Module Dependency Graph",
+          "api",
+          "Path: src/api/",
+          "Desc: HTTP layer",
+          "Deps: db"
+        ],
+        "notContains": [
+          "```mermaid"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ai-context-graph-mermaid",
+      "workspace": "r4c-ai-context-graph",
+      "title": "uds ai-context graph --mermaid also prints a Mermaid diagram of the dependencies",
+      "titleZh": "uds ai-context graph --mermaid 另外印出相依關係的 Mermaid 圖",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "ai-context",
+        "graph",
+        "--mermaid"
+      ],
+      "expect": {
+        "contains": [
+          "```mermaid",
+          "graph TD",
+          "api[api] --> db[db]",
+          "db[db]"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-help-manual",
+      "workspace": "r4c-release",
+      "title": "uds release lists its subcommands in a project set to manual release mode",
+      "titleZh": "uds release 在手動發布模式的專案列出它的子指令",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "writeFile": ".standards/release-config.yaml",
+          "content": "release:\n  mode: manual\n  versioning: semver\n  pre_release_tag: rc\n  manual:\n    manifest: true\n    manifest_path: build-manifest.json\n    deployment_log: deployments.yaml\n  environments:\n    - name: staging\n      type: testing\n      approval_required: false\n    - name: production\n      type: production\n      approval_required: true\n      requires_staging_pass: true\n"
+        },
+        {
+          "writeFile": "package.json",
+          "content": "{\n  \"name\": \"acme\",\n  \"version\": \"1.2.0-rc.1\"\n}\n"
+        },
+        {
+          "writeFile": "app.bin",
+          "content": "release artifact 4471"
+        },
+        {
+          "writeFile": "other.bin",
+          "content": "some other bytes"
+        },
+        {
+          "git": [
+            "add",
+            "-A"
+          ]
+        },
+        {
+          "git": [
+            "commit",
+            "-q",
+            "-m",
+            "init"
+          ]
+        }
+      ],
+      "uds": [
+        "release"
+      ],
+      "expect": {
+        "contains": [
+          "uds release — 版本發布管理",
+          "目前模式: manual",
+          "promote <version>",
+          "deploy <env>",
+          "manifest",
+          "verify [--artifact <path>]"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-promote",
+      "workspace": "r4c-release",
+      "title": "uds release promote <version> names the RC it promotes from and the tag to create (it only prints; it writes nothing)",
+      "titleZh": "uds release promote <版本> 說明從哪個 RC 晉升、要建的 tag（只印出，不寫任何東西）",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "release",
+        "promote",
+        "1.2.0"
+      ],
+      "expect": {
+        "contains": [
+          "目前版本: 1.2.0-rc.1",
+          "晉升目標: 1.2.0",
+          "晉升紀錄建立: 1.2.0-rc.1 → 1.2.0",
+          "Git tag: v1.2.0",
+          "git tag v1.2.0"
+        ],
+        "notContains": [
+          "版本格式無效"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-deploy-staging",
+      "workspace": "r4c-release",
+      "title": "uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it)",
+      "titleZh": "uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）",
+      "changelog": [
+        "`uds release deploy <env>` refused every environment in a project"
+      ],
+      "uds": [
+        "release",
+        "deploy",
+        "staging"
+      ],
+      "expect": {
+        "contains": [
+          "已記錄部署: 1.2.0-rc.1 → staging"
+        ],
+        "notContains": [
+          "未知的部署環境",
+          "[object Object]"
+        ],
+        "files": [
+          {
+            "path": "deployments.yaml",
+            "contains": [
+              "environment: staging",
+              "version: 1.2.0-rc.1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-deploy-result",
+      "workspace": "r4c-release",
+      "title": "uds release deploy <env> --result passed updates that deployment's recorded result",
+      "titleZh": "uds release deploy <環境> --result passed 更新該筆部署紀錄的結果",
+      "changelog": [
+        "`uds release deploy <env>` refused every environment in a project"
+      ],
+      "uds": [
+        "release",
+        "deploy",
+        "staging",
+        "--result",
+        "passed"
+      ],
+      "expect": {
+        "contains": [
+          "已更新 1.2.0-rc.1 在 staging 的結果: passed"
+        ],
+        "files": [
+          {
+            "path": "deployments.yaml",
+            "contains": [
+              "result: passed"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-manifest-checksum",
+      "workspace": "r4c-release",
+      "title": "uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum",
+      "titleZh": "uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "release",
+        "manifest",
+        "--checksum",
+        "e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb"
+      ],
+      "expect": {
+        "contains": [
+          "build-manifest.json 已產生",
+          "版本: 1.2.0-rc.1"
+        ],
+        "files": [
+          {
+            "path": "build-manifest.json",
+            "contains": [
+              "\"version\": \"1.2.0-rc.1\"",
+              "\"package\": \"e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb\"",
+              "\"commit\": \""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-verify-artifact",
+      "workspace": "r4c-release",
+      "title": "uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result",
+      "titleZh": "uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果",
+      "changelog": [
+        "`uds release deploy <env>` refused every environment in a project"
+      ],
+      "uds": [
+        "release",
+        "verify",
+        "--artifact",
+        "app.bin"
+      ],
+      "expect": {
+        "contains": [
+          "Manifest 驗證通過",
+          "版本: 1.2.0-rc.1",
+          "Checksum: e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb (一致)",
+          "Staging: 已通過"
+        ],
+        "notContains": [
+          "驗證失敗"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-verify-wrong-artifact",
+      "workspace": "r4c-release",
+      "title": "uds release verify --artifact <another file> reports the checksum mismatch",
+      "titleZh": "uds release verify --artifact <別的檔> 回報 checksum 不符",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "release",
+        "verify",
+        "--artifact",
+        "other.bin"
+      ],
+      "expect": {
+        "exit": [
+          0,
+          1
+        ],
+        "contains": [
+          "Manifest 驗證失敗",
+          "checksum mismatch",
+          "manifest records \"e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb\""
+        ],
+        "notContains": [
+          "Manifest 驗證通過"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "mcp-serve-answers-requests",
+      "workspace": "r4c-mcp",
+      "title": "uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends",
+      "titleZh": "uds mcp serve 啟動、回應 initialize、tools/list 與三個設計工具，輸入結束時自行結束",
+      "changelog": [
+        "`uds mcp serve`: `get_design_standards` and the DESIGN.md template fallback"
+      ],
+      "prepare": [
+        {
+          "writeFile": "ok/DESIGN.md",
+          "content": "# DESIGN.md — acme\n\n> version 1.0.0\n\n## 1. Visual Theme & Mood\n## 2. Color Palette\n## 3. Typography\n## 4. Component Styling\n## 5. Layout & Spacing\n## 6. Design Guidelines\n"
+        }
+      ],
+      "uds": [
+        "mcp",
+        "serve"
+      ],
+      "stdin": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{}}\n{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}\n{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"get_design_standards\",\"arguments\":{}}}\n{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"tools/call\",\"params\":{\"name\":\"get_design_token\",\"arguments\":{\"project_path\":\".\"}}}\n{\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"tools/call\",\"params\":{\"name\":\"validate_design_token\",\"arguments\":{\"design_md_path\":\"ok/DESIGN.md\"}}}\n",
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "UDS MCP Design Standards Server started (stdio)",
+          "\"serverInfo\":{\"name\":\"uds-design-standards\"",
+          "\"name\":\"get_design_standards\"",
+          "id: frontend-design-standards",
+          "This is the UDS DESIGN.md template",
+          "\\\"valid\\\": true",
+          "\\\"missing_sections\\\": []"
+        ],
+        "notContains": [
+          "ENOENT",
+          "\"error\""
         ]
       }
     }
