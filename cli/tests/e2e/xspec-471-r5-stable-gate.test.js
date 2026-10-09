@@ -364,16 +364,31 @@ it('a full bump to a preview version still works on a tree a stable bump would r
   expect(readJson(join(root, 'cli', 'package.json')).version).toBe('9.9.0-beta.4');
 }, 300000);
 
+it('check-stable-gate.mjs gives the verdict of the bump without bumping: 0 when it would pass, 1 and the same reasons when it would refuse, 2 for a preview version (XSPEC-471 R5)', () => {
+  const check = (root, version = TARGET) => spawnSync(process.execPath, [join(root, 'scripts', 'beta-acceptance', 'check-stable-gate.mjs'), version], { cwd: root, encoding: 'utf-8', env: cleanEnv() });
+  const green = greenTree();
+  const ok = check(green);
+  expect(ok.status, ok.stdout + ok.stderr).toBe(0);
+  expect(ok.stdout).toContain(`latest preview of ${TARGET}: ${PREVIEW}`);
+  const missing = greenTree({ reports: cleanReports().filter((r) => r.environment.platform !== 'windows') });
+  const no = check(missing);
+  expect(no.status).toBe(1);
+  expect(no.stdout).toContain('缺 Windows 報告');
+  expect(untouched(missing), 'it changed no file').toBe(true);
+  expect(check(green, '9.9.0-beta.4').status, 'a preview version is a mistake, not a pass').toBe(2);
+});
+
 // ── cuts: each decision of the gate taken out of a copy; the sample that depends on it must stop seeing it ─────────
 
 /** `arm` builds a tree and runs it; `holds` is what the sample asserts. A cut copy must make `holds` false. */
 const cut = (name, { rel, from, to, arm, holds }) => it(`cut: ${name}`, () => {
   const root = arm.tree();
   edit(root, rel, from, to);
-  const o = run(root, arm.version);
+  const go = (r) => (arm.check ? outcome(spawnSync(process.execPath, [join(r, 'scripts', 'beta-acceptance', 'check-stable-gate.mjs'), arm.version || TARGET], { cwd: r, encoding: 'utf-8', env: cleanEnv() })) : run(r, arm.version));
+  const o = go(root);
   expect(holds(o), `the sample still holds although "${name}" was cut:\n${o.out.slice(-1800)}`).toBe(false);
   // control: the same arm on an uncut tree does hold (otherwise the cut proves nothing)
-  const uncut = run(arm.tree(), arm.version);
+  const uncut = go(arm.tree());
   expect(holds(uncut), `control: without the cut the sample holds:\n${uncut.out.slice(-1800)}`).toBe(true);
 });
 
@@ -449,4 +464,8 @@ cut('the bump no longer asks the gate', {
 cut('the gate runs for preview versions too', {
   rel: BUMP, from: 'if (!IS_PRERELEASE) {\n  console.log(\'── Stable-release gate', to: 'if (true) {\n  console.log(\'── Stable-release gate',
   arm: { tree: miniTree, version: '9.9.0-beta.4' }, holds: (o) => !o.ran,
+});
+cut('check-stable-gate.mjs ignores the verdict in its exit code', {
+  rel: ['scripts', 'beta-acceptance', 'check-stable-gate.mjs'], from: 'process.exit(result.ok ? 0 : 1);', to: 'process.exit(0);',
+  arm: { tree: withoutPlatform('windows'), check: true }, holds: (o) => o.code === 1,
 });

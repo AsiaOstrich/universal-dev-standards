@@ -87,3 +87,20 @@ git status                                                                  # re
 ```
 
 It takes the newest artifact of each label for exactly that version, refuses a report that is for another version or was not installed from the npm registry, writes `.json` and `.md` into `reports/<version>/` (the file name gets the job label in front, `ci-windows__uds-beta-acceptance-…`, because three Windows jobs can finish in the same second), and (when the version is the one in `cli/package.json`) regenerates `docs/PRE-RELEASE.md`. Several reports of one platform are possible (Windows has three shells); the PRE-RELEASE generator currently shows the newest one per platform.
+
+## Before a stable release | 升正式版的關卡（XSPEC-471 R5）
+
+`node scripts/bump-version.mjs 6.14.0` (a version with **no** pre-release mark) first runs `lib/stable-gate.mjs`, before it changes any file and before the bundle-parity check. A preview version (`6.14.0-beta.8`) is not checked. If anything below is not true it exits 1 and prints **every** missing item in one list, so one run tells you all of it.
+`bump-version.mjs` 遇到**不帶**預覽標記的版號時，在改動任何檔案、也在 bundle-parity 檢查之前，先跑 `lib/stable-gate.mjs`。預覽版號不檢查。下列任何一項不成立就以 1 結束，並一次列出**全部**缺項。
+
+1. **A preview of this x.y.z exists, and it is the newest one.** The newest pre-release of the same `x.y.z` among the `## [x.y.z-beta.N]` headings of `CHANGELOG.md` and the version in `cli/package.json`. CHANGELOG is used because it is the project's own release record: no network, the same answer on every machine. The reports folder alone could not decide it, because a preview nobody ran the acceptance for would be skipped and an older accepted one would stand in. A version with no preview of its own (a patch released without one) is refused: nothing was accepted for it.
+2. **`reports/<that preview>/` has a report for Windows, macOS and Linux from the published package** (`uds.installKind` is `npm-registry`, same version). A report made with `--local-bin`, `--source` or an injected installer is never counted; if it is all a platform has, the platform is missing and the report is named. This is `eligibleReports` of `lib/pre-release-doc.mjs`, the rule the "Verified on" table uses.
+3. **No automatic step failed, in any shell.** The newest run of each label stands for that label (a re-run replaces it); a platform with several labels (Windows: `ci-windows`, `ci-windows-cmd`, `ci-windows-gitbash`) is judged by **every** label, so the worst one decides. A run that tested nothing, or could not run, is not an acceptance.
+4. **`check-cli-coverage.mjs` and `check-steps.mjs` exit 0.** Exit 2 ("could not measure") is a refusal, not a pass.
+5. **`coverage-baseline.json` is empty.** The ratchet lets a non-empty baseline pass; a stable release does not.
+6. **No exemption in `steps.json` says the feature is known broken.** The wording is **`Known broken: ...`** (or `已知壞掉`) at the start of the `reason`; write it that way when a step cannot be written because the feature does not work (XSPEC-471 R4: a step is never written to fit a broken behaviour). The exemption lets the preview ship and this gate holds the stable release until the feature is fixed or the option is removed.
+
+Printed but never blocking: the manual (`human-*`) steps nobody confirmed, per platform, and the number of steps in the current `steps.json` that a counted report does not contain (the report was made before they existed, so they have not run against a published package).
+
+**There is no switch to skip the gate**, and `SKIP_BUNDLE_PARITY` does not reach it. Everything it asks for can be produced by the post-publish workflow in minutes (a patch is released as a preview first), and a switch is the thing that was skipped before: the manual Windows run nobody did. To see what it would say without bumping anything: `node scripts/beta-acceptance/check-stable-gate.mjs <x.y.z>` (exit 0 = would pass, 1 = would refuse and why).
+**沒有跳過關卡的開關**，`SKIP_BUNDLE_PARITY` 也管不到它。它要的東西都能由發版後的流程在幾分鐘內產生（修補版先以預覽版發出）；而開關正是過去被跳過的那種東西：沒人去跑的手動 Windows 驗收。

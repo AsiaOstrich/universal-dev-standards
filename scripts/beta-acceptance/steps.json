@@ -48,6 +48,14 @@
     {
       "option": "init --experimental",
       "reason": "Its only effect is to add the interactive questions for the standards format, the content mode and the methodology to the init wizard; uds init --yes skips the wizard, so no non-interactive run can show it. Needs a person at a terminal."
+    },
+    {
+      "changelog": "CI: scripts/bump-version.mjs refuses a version with no pre-release mark",
+      "reason": "Maintainer tooling in the repository (scripts/bump-version.mjs and scripts/beta-acceptance/lib/stable-gate.mjs); it is run by the person who releases, not by an adopter, and nothing of it is in the npm package or visible in an installed command. Tested from the bump-version.mjs entry by cli/tests/e2e/xspec-471-r5-stable-gate.test.js, including the cuts of each rule."
+    },
+    {
+      "changelog": "The acceptance step init-locale-pack-missing-is-said failed under",
+      "reason": "A repair of an acceptance step itself (the prepare script in scripts/beta-acceptance/steps.json); the installed uds did not change and the step already runs on every platform against the published package. Tested by cli/tests/e2e/xspec-471-r5-locale-pack-step-source-checkout.test.js, which runs the step in --local-bin mode on a source checkout that has cli/bundled."
     }
   ],
   "steps": [

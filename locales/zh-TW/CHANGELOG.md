@@ -20,6 +20,7 @@ status: current
 ### Added
 
 - **CI：uds CLI 的每個指令、子指令與選項都要有驗收步驟，而且步驟必須讀回效果，不能只看結束碼（XSPEC-471 R2、R3）。** `node scripts/beta-acceptance/check-cli-coverage.mjs`（CI 工作「Beta Acceptance Coverage」）載入真正的 `cli/bin/uds.js`，記錄它建出的 commander 程式（含隱藏指令、隱藏選項與別名；不讀說明文字），當 `scripts/beta-acceptance/steps.json` 的任何步驟都沒用到某個指令、子指令或選項時，逐一列名並使 CI 變紅，並印出已用、豁免與缺少各幾個。要豁免只能在 `exemptions` 加 `{"command": ...}` 或 `{"option": ...}`，並附至少 20 字元的理由；空白或單字理由等於沒有豁免。加入這項檢查時已存在的缺口（31 個指令與子指令、115 個選項）列在 `scripts/beta-acceptance/coverage-baseline.json`，這份檔案只能減少：不在其中的缺口會紅，已被步驟用到的項目若沒移除也會紅（`--shrink-baseline`），所以檔案不會腐爛；`--baseline-not-larger-than <ref>` 會讓新增項目的變更變紅。`check-steps.mjs` 現在也會指名 `expect` 只有結束碼的步驟（含人工步驟；`{"step": ..., "reason": ...}` 可豁免一個步驟）。**未驗證**：CI 接線只由 YAML 解析器與測試讀過，尚未由 GitHub 實際執行。
+- **CI：`scripts/bump-version.mjs` 遇到不帶預覽標記的版號，除非它最近一個預覽版已在三個平台驗收通過，否則拒絕（XSPEC-471 R5）。** 在改動任何檔案之前，它先確認：`scripts/beta-acceptance/reports/<預覽版>/` 有 Windows、macOS、Linux 三個平台、來自已發布套件的報告（用 `--local-bin`、`--source` 或注入的安裝器做出的報告不算；同一平台從多種殼層跑過時，每一種都要看，取最差的），其中沒有任何自動步驟失敗，`check-cli-coverage.mjs` 與 `check-steps.mjs` 為綠、`coverage-baseline.json` 為空，而且 `steps.json` 沒有任何豁免寫明功能「已知壞掉」（R4 的寫法 "known broken"，`已知壞掉` 也會讀）。缺的東西會在一次拒絕中全部列出，結束碼為 1。沒人確認的人工步驟會列出，但不擋。預覽版號不檢查。這道關卡沒有跳過的開關，連 `SKIP_BUNDLE_PARITY` 也管不到：修補版先以預覽版發出，發版後的驗收會自動跑。規則在 `scripts/beta-acceptance/lib/stable-gate.mjs`。
 
 ### 修正
 
@@ -29,6 +30,7 @@ status: current
 - **行為變更——`uds hitl check` 在無法詢問時不再以結束碼 0 結束（XSPEC-471 R4）。** 沒有終端機可回答、也沒有 `CI` 變數時，高風險的 `--op` 會開一個永遠等不到回答的提示，印出堆疊追蹤後以 0 結束，腳本會把它當成「已核准」。現在印出「Blocked (Safety First)」與「Denied」並以 1 結束，與 CI 下相同。`uds hitl check` 沒給 `--op` 時以 2 結束（原本是 0）。
 - **`uds list` 只顯示它所計算的 163 個標準中的 81 個，而且拒絕 `--category core`（撰寫 XSPEC-471 R4 驗收步驟時發現）。** 「Total」行計入登錄檔中的每一個標準，但列表只走固定的五個分類，所以 `core`、`testing`、`security`、`deployment`、`operations` 這五個分類裡的 82 個標準被計入卻從未顯示，`uds list --category core` 還回答「Unknown category」。現在列表會顯示登錄檔裡有標準的每一個分類，每個分類各有標題與數量，標題上的數字加起來等於 Total；這五個分類已宣告在 `cli/standards-registry.json`（並註明它們不由 `uds init` 安裝，要用 `uds update --apply --add-standard` 依編號加入），日後登錄檔新增的分類會以它自己的名稱列出，不會再被丟掉。「有效分類」提示現在列出全部十個。標題與 Total 不一致時 `npm test` 會失敗。
 - **`uds quickstart`、`uds spec create`、`uds spec delete`、`uds spec split` 在沒有任何東西能回答它們的問題時，以 Node 堆疊追蹤結束，且結束碼為 0（撰寫 XSPEC-471 R4 驗收步驟時發現）。** 在沒有終端機的環境（AI 助理、CI、管線）執行時，它們畫出問題後就死在 `ExitPromptError`，整次執行看起來像成功。`uds update` 與 `uds uninstall` 早先已用同樣方式修正。現在：`uds quickstart` 印出四個流程與各自的指令（這份指南本來的工作就是列出指令）；沒給 `--yes` 的 `uds spec create` 把已寫好的規格留作草稿並說明如何確認（結束碼 0）；沒給 `--yes` 的 `uds spec delete` 什麼都不刪、說明要加 `--yes` 重跑，並以 2 結束（原為 0）；`uds spec split` 什麼都不改、說明要在終端機執行，並以 2 結束（原為 0）。有終端機時行為不變。
+- **驗收步驟 `init-locale-pack-missing-is-said` 在任何跑過 `prepack` 的 checkout 上，用 `run.mjs --local-bin cli/bin/uds.js` 會失敗（XSPEC-471 R5）。** 它以 `cli/bundled/` 是否存在來分辨已發布套件與原始碼 checkout，但原始碼 checkout 在 `prepack` 之後也有那個資料夾，於是「缺少 zh-TW 技能文字」的複本被建在 repository 根目錄，`skills-installer.js` 照樣在那裡找到 `locales/zh-TW`，裝了中文技能。現在步驟改問 `locales/zh-TW` 是否在 `cli/` 旁邊。已發布的套件從未受影響，`uds init` 也沒有。
 
 ## [6.14.0-beta.7] - 2026-10-08
 
