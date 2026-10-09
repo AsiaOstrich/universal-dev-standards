@@ -1,0 +1,148 @@
+name: Post-publish acceptance
+
+# dev-platform XSPEC-471 R1 — after a release was published to npm, run the acceptance steps (scripts/beta-acceptance/)
+# against the PUBLISHED package on Windows, macOS and Linux, and keep the reports as artifacts.
+#
+# Why a separate workflow that follows publish.yml, instead of a job inside it:
+#   - publish.yml is the critical path of a release. A failure of a platform check must not be able to turn a published
+#     release red, and a mistake in this file must not be able to stop a publish.
+#   - `workflow_run` starts only after the publish workflow has FINISHED. Nothing here waits a fixed time from the release
+#     event (EngramGraph's compatibility check did, 10 minutes, while the publish alone took 8; it went red twice for a
+#     package that was fine). The registry can still answer 404 for a few minutes after `npm publish` returned, so each job
+#     polls for the version (wait-for-npm.mjs) and says "package not published, not a platform failure" if it never shows.
+#   - a manual start (workflow_dispatch) can test any already-published version without touching publish.yml.
+#
+# What the reports say: passed / failed automated steps, and manual (`human-*`) items that nobody confirmed. Unconfirmed
+# manual items are listed in the job summary and are NOT failures. Any failed automated step makes that platform's job red.
+#
+# To bring the reports into the repository (never done by CI; CI does not commit to main):
+#   node scripts/beta-acceptance/fetch-ci-reports.mjs --version <version>
+
+run-name: Post-publish acceptance ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.event.workflow_run.head_branch }}
+
+on:
+  workflow_run:
+    workflows: ["Publish to npm"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact published version to test, e.g. 6.14.0-beta.7 (not a dist-tag)'
+        required: true
+        type: string
+      ref:
+        description: 'Git ref (tag, branch or SHA) whose scripts/beta-acceptance/ is used. Empty = the branch this is started on. For an OLD version pass its tag, otherwise steps.json lists steps for features that version does not have.'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Which version was published
+    # publish.yml also ends with conclusion "success" when it is started by hand (its publish job is skipped, nothing is
+    # published). Only a RELEASE that finished successfully means a new version is on npm.
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch'
+      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'release') }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      ref: ${{ steps.pin.outputs.ref }}
+    steps:
+      # The commit that was released (publish.yml checked out the same one), so steps.json is the list of THAT version.
+      # A manual start uses the ref typed in, or the branch it was started on.
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref || github.sha }}
+
+      - name: Pin the commit
+        id: pin
+        run: echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Untrusted text (the typed version, the tag) goes in through env, never into the script text.
+      - name: Resolve the published version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            node scripts/beta-acceptance/resolve-version.mjs --version "$INPUT_VERSION"
+          else
+            node scripts/beta-acceptance/resolve-version.mjs --from-package cli/package.json --tag "$RELEASE_TAG"
+          fi
+
+  accept:
+    name: Acceptance ${{ matrix.label }}
+    needs: resolve
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      # One red system must not hide the others.
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, shell: bash, label: ci-linux }
+          - { os: macos-latest, shell: bash, label: ci-macos }
+          # Windows is started from three shells. The program starts the steps itself (`uds` through node, `uds.cmd`
+          # through cmd.exe); the shell only matters for how `node run.mjs ...` is typed and how paths reach it.
+          # pwsh is the GitHub default and what most people type in; cmd is the other console; bash is Git Bash, where
+          # MSYS can rewrite paths and the commit-time warning step is meant to be read.
+          - { os: windows-latest, shell: pwsh, label: ci-windows }
+          - { os: windows-latest, shell: cmd, label: ci-windows-cmd }
+          - { os: windows-latest, shell: bash, label: ci-windows-gitbash }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.ref }}
+
+      # 20 is the lowest Node the package supports (cli/package.json engines), the one a user is most likely to have.
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      # `needs.resolve.outputs.version` is safe to put in the command line: resolve-version.mjs accepts only
+      # [0-9A-Za-z.+-] and refuses everything else before it writes the output.
+      - name: Wait until the version can be installed
+        id: wait
+        run: node scripts/beta-acceptance/wait-for-npm.mjs --version "${{ needs.resolve.outputs.version }}"
+
+      # The same command three times, once per shell: the `shell:` key of a step cannot take an expression, so the matrix
+      # picks the step with `if:` instead. Exactly one of them runs in each job.
+      - name: Run acceptance (bash)
+        if: ${{ matrix.shell == 'bash' }}
+        shell: bash
+        run: node scripts/beta-acceptance/run.mjs --version "${{ needs.resolve.outputs.version }}" --label "${{ matrix.label }}" --non-interactive --out uds-beta-acceptance-reports
+
+      - name: Run acceptance (pwsh)
+        if: ${{ matrix.shell == 'pwsh' }}
+        shell: pwsh
+        run: node scripts/beta-acceptance/run.mjs --version "${{ needs.resolve.outputs.version }}" --label "${{ matrix.label }}" --non-interactive --out uds-beta-acceptance-reports
+
+      - name: Run acceptance (cmd)
+        if: ${{ matrix.shell == 'cmd' }}
+        shell: cmd
+        run: node scripts/beta-acceptance/run.mjs --version "${{ needs.resolve.outputs.version }}" --label "${{ matrix.label }}" --non-interactive --out uds-beta-acceptance-reports
+
+      # `always()` on the two steps below: the run that FAILED is the one whose report is needed.
+      - name: Summarize the report
+        if: ${{ always() && steps.wait.outcome == 'success' }}
+        run: node scripts/beta-acceptance/ci-summary.mjs --dir uds-beta-acceptance-reports --label "${{ matrix.label }}" --version "${{ needs.resolve.outputs.version }}"
+
+      - name: Upload the report
+        if: ${{ always() && steps.wait.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-${{ matrix.label }}-${{ needs.resolve.outputs.version }}
+          path: uds-beta-acceptance-reports/
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90

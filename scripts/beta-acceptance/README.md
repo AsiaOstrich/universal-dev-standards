@@ -70,3 +70,20 @@ node scripts/beta-acceptance/generate-pre-release.mjs --check  # fail if the fil
 ```
 
 After a release, copy each machine's `.json` report into `reports/<version>/` and run the generator.
+
+## After every release | 發布後自動驗收（XSPEC-471 R1）
+
+`.github/workflows/post-publish-acceptance.yml` runs this same program against the **published** package on `ubuntu-latest`, `macos-latest` and `windows-latest` (Windows from PowerShell, cmd and Git Bash, labels `ci-windows`, `ci-windows-cmd`, `ci-windows-gitbash`). It is a separate workflow so that it can never turn a published release red or stop a publish.
+`.github/workflows/post-publish-acceptance.yml` 在 `ubuntu-latest`、`macos-latest`、`windows-latest` 對**已發布的套件**跑同一支程式（Windows 從 PowerShell、cmd、Git Bash 各跑一次）。它是獨立的流程，所以不會讓已發布的版本變紅，也不會擋住發布。
+
+- **When it starts | 何時啟動**: after "Publish to npm" finished with `success` for a **release** (a manual start of the publish workflow is ignored: nothing is published then); or by hand — Actions → "Post-publish acceptance" → Run workflow, or `gh workflow run post-publish-acceptance.yml -f version=6.14.0-beta.7`. The version is read from `cli/package.json` of the released commit, or typed; it is never written in the workflow. For an **old** version also pass `-f ref=<its tag>`, otherwise `steps.json` of the branch lists steps for features that version does not have.
+- **Waiting for npm | 等 npm**: `wait-for-npm.mjs` asks the registry until the version document and its tarball answer (default limit 20 minutes, every 15 seconds). No fixed wait. If it never appears the job fails with "package not published, not a platform failure | 套件未上架，不是平台失敗"; if the registry itself cannot be asked it says that instead (exit 2), because that is not proof the package is missing.
+- **Result | 結果**: each job's summary shows passed / failed / manual items not confirmed and lists every failed step (`ci-summary.mjs`). A failed automated step makes that job red. `human-*` steps are never answered in CI (`--non-interactive`): they are listed as *not confirmed* and are not failures. The report is uploaded as the artifact `acceptance-<label>-<version>` (kept 90 days).
+- **Into the repository | 放進 repository**: CI commits nothing. After a run:
+
+```bash
+node scripts/beta-acceptance/fetch-ci-reports.mjs --version 6.14.0-beta.7   # needs gh, logged in
+git status                                                                  # review, then commit the files yourself
+```
+
+It takes the newest artifact of each label for exactly that version, refuses a report that is for another version or was not installed from the npm registry, writes `.json` and `.md` into `reports/<version>/`, and (when the version is the one in `cli/package.json`) regenerates `docs/PRE-RELEASE.md`. Several reports of one platform are possible (Windows has three shells); the PRE-RELEASE generator currently shows the newest one per platform.
