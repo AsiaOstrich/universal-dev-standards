@@ -115,7 +115,7 @@ content
 EOF
   run_audit
   [ "$status" -eq 0 ]            # advisory by default
-  [[ "$output" =~ "CONTENT-001" ]]
+  [[ "$output" =~ "CONTENT-001" ]] || false
   run_audit --strict
   [ "$status" -eq 1 ]           # blocking under --strict
 }
@@ -146,8 +146,8 @@ anchor_standard: demo-standards
 this skill never mentions the required concept.
 EOF
   run_audit
-  [[ "$output" =~ "CONTENT-002" ]]
-  [[ "$output" =~ "heartbeat_event" ]]
+  [[ "$output" =~ "CONTENT-002" ]] || false
+  [[ "$output" =~ "heartbeat_event" ]] || false
 }
 
 # ── ③ size ratio (CONTENT-003) ────────────────────────────────────────────────
@@ -170,7 +170,7 @@ anchor_standard: demo-standards
 **Version**: 1.0.0
 EOF
   run_audit
-  [[ "$output" =~ "CONTENT-003" ]]
+  [[ "$output" =~ "CONTENT-003" ]] || false
 }
 
 # ── orphan handling ───────────────────────────────────────────────────────────
@@ -222,8 +222,8 @@ anchor_standard: demo-standards
 this skill omits the required concept entirely.
 EOF
   run_audit
-  [[ "$output" =~ "CONTENT-002" ]]
-  [[ "$output" =~ "top_level_event" ]]
+  [[ "$output" =~ "CONTENT-002" ]] || false
+  [[ "$output" =~ "top_level_event" ]] || false
 }
 
 @test "reports unversioned skill as advisory, never blocks even under --strict" {
@@ -249,5 +249,5 @@ more content here to keep the ratio healthy.
 EOF
   run_audit --strict
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "CONTENT-001" ]] || [[ "$output" =~ "unversioned" ]]
+  [[ "$output" =~ "CONTENT-001" ]] || [[ "$output" =~ "unversioned" ]] || false
 }

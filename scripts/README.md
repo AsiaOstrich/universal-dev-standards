@@ -210,6 +210,30 @@ setup() {
 See `tests/scripts/check-version-sync.bats` for a complete reference.
 完整參考範例見 `tests/scripts/check-version-sync.bats`。
 
+### Assertions must fail on every bash / 斷言在每個 bash 版本下都要會失敗
+
+macOS ships bash 3.2; CI (ubuntu) runs bash 5. In bash 3.2 a false `[[ … ]]` or
+`(( … ))` in the middle of a test does **not** abort it, and a bare `! cmd` never
+does on any version — so a test can be red on CI and green on every Mac.
+macOS 內建 bash 3.2、CI（ubuntu）跑 bash 5。bash 3.2 下，測試中間為假的
+`[[ … ]]` 或 `(( … ))` **不會**中止測試；裸的 `! cmd` 在任何版本都不會。
+結果是同一支測試在 CI 紅、在每台 Mac 上綠。
+
+| Write this / 這樣寫 | Not this / 不要這樣寫 |
+|---|---|
+| `[[ "$output" == *"x"* ]] \|\| false` | `[[ "$output" == *"x"* ]]` |
+| `run ! grep -q x "$F"` (needs `bats_require_minimum_version 1.5.0`) | `! grep -q x "$F"` |
+| `[ "$status" -eq 0 ]` (single bracket is fine) | |
+
+`tests/scripts/bats-assertion-hygiene.bats` runs `scripts/check-bats-assertions.mjs`
+over every `.bats` file and names the file and line of each bare assertion
+(`npm run check:bats-assertions`; `npm run check:bats-assertions:self-test` for the
+scanner's own red/green samples). It is part of `npm run test:scripts`, hence of the
+CI job "Check Script Ratchet".
+`tests/scripts/bats-assertion-hygiene.bats` 會對每個 `.bats` 檔跑
+`scripts/check-bats-assertions.mjs`，並指出每條裸斷言的檔名與行號；它屬於
+`npm run test:scripts`，因此在 CI 的 "Check Script Ratchet" 工作中執行。
+
 ### When adding a new script / 新增腳本時
 
 For **new scripts**, prefer TypeScript:

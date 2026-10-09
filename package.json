@@ -18,6 +18,8 @@
     "docs:locale-coverage": "node scripts/generate-locale-coverage.mjs",
     "docs:refresh-translation-hash": "tsx scripts/refresh-translation-hash.ts",
     "test:scripts": "tests/bats/bin/bats --print-output-on-failure tests/scripts/",
+    "check:bats-assertions": "node scripts/check-bats-assertions.mjs",
+    "check:bats-assertions:self-test": "node scripts/check-bats-assertions.mjs --self-test",
     "check:ai-behavior": "tsx scripts/check-ai-behavior-sync.ts",
     "check:commit-spec": "tsx scripts/check-commit-spec-reference.ts",
     "check:flow-gate": "tsx scripts/check-flow-gate-report.ts",

@@ -84,20 +84,20 @@ _write_trans() {
 @test "--help exits 0 and prints usage" {
   run_tool --help
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Usage"* ]]
+  [[ "$output" == *"Usage"* ]] || false
 }
 
 @test "no target selected -> exits 1 with usage hint" {
   run_tool
   [ "$status" -eq 1 ]
-  [[ "$output" == *"no target selected"* ]]
+  [[ "$output" == *"no target selected"* ]] || false
 }
 
 @test "mixing explicit files with --all -> exits 1 (ambiguous mode)" {
   _write_trans "$GOOD_HASH"
   run_tool "$TRANS" --all
   [ "$status" -eq 1 ]
-  [[ "$output" == *"exactly one mode"* ]]
+  [[ "$output" == *"exactly one mode"* ]] || false
 }
 
 # ── dry-run safety ──────────────────────────────────────────────────────────
@@ -106,8 +106,8 @@ _write_trans() {
   _write_trans "deadbeef0000"
   run_tool "$TRANS"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"WOULD-STAMP"* ]]
-  [[ "$output" == *"deadbeef0000 -> $GOOD_HASH"* ]]
+  [[ "$output" == *"WOULD-STAMP"* ]] || false
+  [[ "$output" == *"deadbeef0000 -> $GOOD_HASH"* ]] || false
   # File on disk must be untouched.
   grep -q "source_hash: deadbeef0000" "$TRANS"
 }
@@ -118,8 +118,8 @@ _write_trans() {
   [ "$status" -eq 0 ]
   local plain
   plain="$(_strip_ansi "$output")"
-  [[ "$plain" == *"would-change (dry-run):      0"* ]]
-  [[ "$plain" == *"skipped (already-current):   1"* ]]
+  [[ "$plain" == *"would-change (dry-run):      0"* ]] || false
+  [[ "$plain" == *"skipped (already-current):   1"* ]] || false
   grep -q "source_hash: $GOOD_HASH" "$TRANS"
 }
 
@@ -129,7 +129,7 @@ _write_trans() {
   _write_trans "deadbeef0000"
   run_tool "$TRANS" --write
   [ "$status" -eq 0 ]
-  [[ "$output" == *"STAMPED"* ]]
+  [[ "$output" == *"STAMPED"* ]] || false
   grep -q "^source_hash: $GOOD_HASH$" "$TRANS"
 }
 
@@ -190,7 +190,7 @@ _mtime() {
   [ "$status" -eq 0 ] || return 1
   local plain
   plain="$(_strip_ansi "$output")"
-  [[ "$plain" == *"stamped:                     0"* ]] || return 1
+  [[ "$plain" == *"stamped:                     0"* ]] || false
   local after_mtime
   after_mtime="$(_mtime "$TRANS")" || return 1
   [ "$before_mtime" = "$after_mtime" ]
@@ -210,7 +210,7 @@ _mtime() {
   [ "$status" -eq 0 ]
   local plain
   plain="$(_strip_ansi "$output")"
-  [[ "$plain" == *"skipped (not-managed):       1"* ]]
+  [[ "$plain" == *"skipped (not-managed):       1"* ]] || false
 }
 
 @test "source file does not exist -> skipped as missing-source, no crash" {
@@ -227,14 +227,14 @@ _mtime() {
   [ "$status" -eq 0 ]
   local plain
   plain="$(_strip_ansi "$output")"
-  [[ "$plain" == *"[SKIP]"*"source not found"* ]]
-  [[ "$plain" == *"skipped (missing-source):    1"* ]]
+  [[ "$plain" == *"[SKIP]"*"source not found"* ]] || false
+  [[ "$plain" == *"skipped (missing-source):    1"* ]] || false
 }
 
 @test "explicit file argument that does not exist -> exits 1, no crash" {
   run_tool "$SANDBOX/locales/zz-test/nope.md"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"not found"* ]]
+  [[ "$output" == *"not found"* ]] || false
 }
 
 # ── --all guardrail ──────────────────────────────────────────────────────────
@@ -244,7 +244,7 @@ _mtime() {
   run env REFRESH_TRANSLATION_HASH_LOCALES_DIR="$SANDBOX/locales" \
     npx tsx "$SCRIPT" --all --write
   [ "$status" -eq 1 ]
-  [[ "$output" == *"requires --force"* ]]
+  [[ "$output" == *"requires --force"* ]] || false
   grep -q "source_hash: deadbeef0000" "$TRANS"
 }
 
@@ -289,8 +289,8 @@ _mtime() {
   run env REFRESH_TRANSLATION_HASH_LOCALES_DIR="$SANDBOX/locales" \
     npx tsx "$SCRIPT" --all-missing
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Warning"* ]]
-  [[ "$output" == *"asserting"* ]]
+  [[ "$output" == *"Warning"* ]] || false
+  [[ "$output" == *"asserting"* ]] || false
 }
 
 @test "--all prints a large danger warning" {
@@ -298,5 +298,5 @@ _mtime() {
   run env REFRESH_TRANSLATION_HASH_LOCALES_DIR="$SANDBOX/locales" \
     npx tsx "$SCRIPT" --all
   [ "$status" -eq 0 ]
-  [[ "$output" == *"DANGER"* ]]
+  [[ "$output" == *"DANGER"* ]] || false
 }

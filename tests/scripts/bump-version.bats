@@ -3,6 +3,10 @@
 # Smoke tests for scripts/bump-version.sh (+ .mjs)
 # Scope: arg validation + release-gate wiring — no file mutations
 
+# `run ! cmd` (assert that cmd FAILS) needs bats >= 1.5.0. A bare `! cmd` never
+# triggers errexit in any bash version, so it cannot fail a test mid-body.
+bats_require_minimum_version 1.5.0
+
 setup() {
   REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   SCRIPT="$REPO_ROOT/scripts/bump-version.sh"
@@ -29,7 +33,7 @@ teardown() {
 
 @test "bump-version.sh prints usage hint when called with no arguments" {
   run bash "$SCRIPT"
-  [[ "$output" == *"Usage"* ]]
+  [[ "$output" == *"Usage"* ]] || false
 }
 
 @test "bump-version.sh exits 1 for invalid version format" {
@@ -44,7 +48,7 @@ teardown() {
 
 @test "bump-version.sh error message mentions expected format" {
   run bash "$SCRIPT" "not-a-version"
-  [[ "$output" == *"format"* || "$output" == *"X.Y.Z"* ]]
+  [[ "$output" == *"format"* || "$output" == *"X.Y.Z"* ]] || false
 }
 
 # ── Release-gate wiring (XSPEC-072 Phase 4.2 + RELEASE-FLOW-TODOS.md TODO-001) ──
@@ -75,8 +79,8 @@ teardown() {
   # The defect this convergence fixed was a step present in one copy and absent
   # from the other. Assert the wrapper never grows version-file mutation logic
   # of its own again.
-  ! grep -q "sed_inplace" "$SCRIPT"
-  ! grep -q "uds-manifest.json" "$SCRIPT"
+  run ! grep -q "sed_inplace" "$SCRIPT"
+  run ! grep -q "uds-manifest.json" "$SCRIPT"
 }
 
 @test "bump-version.mjs exists" {
@@ -107,8 +111,8 @@ teardown() {
   touch "$ROGUE_FILE"
   run bash "$SCRIPT" "9.9.9-beta.1"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"parity"* ]]
-  ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
+  [[ "$output" == *"parity"* ]] || false
+  run ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
 }
 
 @test "bump-version.mjs aborts on parity drift without mutating files (functional)" {
@@ -116,6 +120,6 @@ teardown() {
   touch "$ROGUE_FILE"
   run node "$MJS_SCRIPT" "9.9.9-beta.1"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"parity"* ]]
-  ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
+  [[ "$output" == *"parity"* ]] || false
+  run ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
 }

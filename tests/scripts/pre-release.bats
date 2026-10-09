@@ -24,5 +24,5 @@ setup() {
 @test "pre-release.sh --dry-run --skip-tests prints DRY RUN marker" {
   cd "$REPO_ROOT"
   run bash "$SCRIPT" --version 99.99.99 --dry-run --skip-tests
-  [[ "$output" == *"DRY RUN"* || "$output" == *"Dry Run"* ]]
+  [[ "$output" == *"DRY RUN"* || "$output" == *"Dry Run"* ]] || false
 }

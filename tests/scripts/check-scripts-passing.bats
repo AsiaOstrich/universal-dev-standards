@@ -208,7 +208,7 @@ setup() {
   git reset -- "$probe"
   rm -f "$probe"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"$probe"* ]]
+  [[ "$output" == *"$probe"* ]] || false
 }
 
 # ── fix-manifest-paths.sh ────────────────────────────────────────────────────

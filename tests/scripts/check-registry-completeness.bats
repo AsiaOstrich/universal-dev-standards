@@ -32,5 +32,5 @@ setup() {
   cd "$REPO_ROOT"
   run npx tsx "$SCRIPT"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"uds update"* || "$output" == *".standards/"* || "$output" == *"registry"* ]]
+  [[ "$output" == *"uds update"* || "$output" == *".standards/"* || "$output" == *"registry"* ]] || false
 }

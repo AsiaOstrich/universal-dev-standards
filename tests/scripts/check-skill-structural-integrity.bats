@@ -27,7 +27,7 @@ setup() {
 @test "passes when all skills have SKILL.md with required sections" {
   run "$TSX" "$SCRIPT"
   [ "$status" -eq 0 ]
-  [[ "$output" =~ "✓" ]] || [[ "$output" =~ "passed" ]]
+  [[ "$output" =~ "✓" ]] || [[ "$output" =~ "passed" ]] || false
 }
 
 # AC-223-03: 缺少 SKILL.md 時 exit 1
@@ -39,7 +39,7 @@ setup() {
 
   run "$TSX" "$SCRIPT" --skills-dir "$tmp_skills"
   [ "$status" -eq 1 ]
-  [[ "$output" =~ "broken-skill" ]]
+  [[ "$output" =~ "broken-skill" ]] || false
 
   rm -rf "$tmp_skills"
 }
@@ -54,7 +54,7 @@ setup() {
 
   run "$TSX" "$SCRIPT" --skills-dir "$tmp_skills" --skip-manifest
   [ "$status" -eq 1 ]
-  [[ "$output" =~ "empty-skill" ]]
+  [[ "$output" =~ "empty-skill" ]] || false
 
   rm -rf "$tmp_skills"
 }
@@ -71,7 +71,7 @@ setup() {
 
   run "$TSX" "$SCRIPT" --skills-dir "$tmp_skills" --manifest "$tmp_manifest"
   [ "$status" -eq 1 ]
-  [[ "$output" =~ "orphan-skill" ]]
+  [[ "$output" =~ "orphan-skill" ]] || false
 
   rm -rf "$tmp_skills" "$tmp_manifest"
 }

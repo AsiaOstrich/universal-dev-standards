@@ -48,7 +48,7 @@ Implement Google OAuth2 authentication flow for user login.
 
 Closes #123'
   [ "$status" -eq 1 ]
-  [[ "$output" == *"missing a Chinese paragraph"* ]]
+  [[ "$output" == *"missing a Chinese paragraph"* ]] || false
 }
 
 @test "AC-2 case 3: same-paragraph English+Chinese mixing is rejected" {
@@ -56,7 +56,7 @@ Closes #123'
 
 Add login form and 新增登入表單 for better UX.'
   [ "$status" -eq 1 ]
-  [[ "$output" == *"mixing English and Chinese"* ]]
+  [[ "$output" == *"mixing English and Chinese"* ]] || false
 }
 
 @test "AC-3: pure-English automated commit (dependabot-style) is exempt" {
@@ -93,5 +93,5 @@ Implement Google OAuth2 authentication flow for user login.
   long_en=$(printf 'x%.0s' {1..250})
   run_commitlint "feat(test): ${long_en}. 測測測測測。"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"header-max-length"* ]]
+  [[ "$output" == *"header-max-length"* ]] || false
 }

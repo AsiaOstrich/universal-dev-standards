@@ -31,5 +31,5 @@ setup() {
   cd "$REPO_ROOT"
   run bash "$SCRIPT"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Summary"* ]]
+  [[ "$output" == *"Summary"* ]] || false
 }

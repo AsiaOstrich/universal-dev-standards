@@ -20,20 +20,20 @@ setup() {
 
 @test "clean-room-install job uses node:20-alpine container" {
   run bash -c "grep -A5 'clean-room-install:' '$WORKFLOW'"
-  [[ "$output" =~ "node:20-alpine" ]]
+  [[ "$output" =~ "node:20-alpine" ]] || false
 }
 
 @test "publish job depends on clean-room-install via needs" {
   run grep -A5 "^  publish:" "$WORKFLOW"
-  [[ "$output" =~ "clean-room-install" ]]
+  [[ "$output" =~ "clean-room-install" ]] || false
 }
 
 @test "clean-room-install job verifies uds --version" {
   run bash -c "grep -A60 'clean-room-install:' '$WORKFLOW'"
-  [[ "$output" =~ "--version" ]]
+  [[ "$output" =~ "--version" ]] || false
 }
 
 @test "clean-room-install job verifies uds list" {
   run bash -c "grep -A60 'clean-room-install:' '$WORKFLOW'"
-  [[ "$output" =~ "uds list" ]] || [[ "$output" =~ "uds.js list" ]]
+  [[ "$output" =~ "uds list" ]] || [[ "$output" =~ "uds.js list" ]] || false
 }

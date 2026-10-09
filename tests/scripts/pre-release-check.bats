@@ -24,7 +24,7 @@ setup() {
 @test "pre-release-check.sh --help prints Options section" {
   cd "$REPO_ROOT"
   run bash "$SCRIPT" --help
-  [[ "$output" == *"Options"* ]]
+  [[ "$output" == *"Options"* ]] || false
 }
 
 @test "pre-release-check.sh rejects unknown flags" {
@@ -43,8 +43,8 @@ setup() {
 
 @test "Step 23 runs uds check not uds update" {
   run bash -c "grep -A20 'Dogfooding' '$SCRIPT'"
-  [[ "$output" =~ "check" ]]
-  [[ ! "$output" =~ "uds.js update" ]]
+  [[ "$output" =~ "check" ]] || false
+  [[ ! "$output" =~ "uds.js update" ]] || false
 }
 
 # TOTAL is a hand-maintained DISPLAY denominator ("[7.5/24] Checking ..."), not

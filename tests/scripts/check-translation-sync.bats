@@ -74,9 +74,9 @@ _write_trans() {
   run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
-  [[ "$doc_line" == *"[CURRENT]"* ]]
-  [[ "$doc_line" != *"[DRIFT]"* ]]
-  [[ "$output" == *"Content drift:"*"0"* ]]
+  [[ "$doc_line" == *"[CURRENT]"* ]] || false
+  [[ "$doc_line" != *"[DRIFT]"* ]] || false
+  [[ "$output" == *"Content drift:"*"0"* ]] || false
 }
 
 @test "(b) mismatched source_hash -> DRIFT detected (the anti-lie check)" {
@@ -84,10 +84,10 @@ _write_trans() {
   run bash "$SCRIPT" zz-test
   # Drift is advisory: run still succeeds, but the drift is surfaced.
   [ "$status" -eq 0 ]
-  [[ "$output" == *"[DRIFT]"*"doc.md"* ]]
-  [[ "$output" == *"content drift"* ]]
-  [[ "$output" == *"deadbeef0000"* ]]
-  [[ "$output" == *"$GOOD_HASH"* ]]
+  [[ "$output" == *"[DRIFT]"*"doc.md"* ]] || false
+  [[ "$output" == *"content drift"* ]] || false
+  [[ "$output" == *"deadbeef0000"* ]] || false
+  [[ "$output" == *"$GOOD_HASH"* ]] || false
 }
 
 @test "(b2) a lie cannot masquerade as CURRENT" {
@@ -96,8 +96,8 @@ _write_trans() {
   run bash "$SCRIPT" zz-test
   # The doc.md line must be DRIFT, never a green CURRENT.
   drift_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
-  [[ "$drift_line" == *"[DRIFT]"* ]]
-  [[ "$drift_line" != *"[CURRENT]"* ]]
+  [[ "$drift_line" == *"[DRIFT]"* ]] || false
+  [[ "$drift_line" != *"[CURRENT]"* ]] || false
 }
 
 @test "(c) missing source_hash -> advisory NO HASH, not a failure" {
@@ -106,10 +106,10 @@ _write_trans() {
   # [CURRENT] line, which is quiet by default.
   run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
-  [[ "$output" == *"no source_hash"* ]]
-  [[ "$output" == *"No source_hash:"*"1"* ]]
+  [[ "$output" == *"no source_hash"* ]] || false
+  [[ "$output" == *"No source_hash:"*"1"* ]] || false
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
-  [[ "$doc_line" != *"[DRIFT]"* ]]
+  [[ "$doc_line" != *"[DRIFT]"* ]] || false
 }
 
 @test "(d) git unavailable -> graceful skip, no crash" {
@@ -121,10 +121,10 @@ _write_trans() {
   _write_trans "deadbeef0000"
   run env PATH="$SANDBOX/fakebin:$PATH" bash "$SCRIPT" zz-test
   [ "$status" -eq 0 ]
-  [[ "$output" == *"SKIPPED"* ]]
+  [[ "$output" == *"SKIPPED"* ]] || false
   # With hash validation skipped, the lie is NOT flagged as drift.
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
-  [[ "$doc_line" != *"[DRIFT]"* ]]
+  [[ "$doc_line" != *"[DRIFT]"* ]] || false
 }
 
 @test "(e) example frontmatter in a body code fence is not mistaken for the real one" {
@@ -157,9 +157,9 @@ _write_trans() {
   run bash "$SCRIPT" zz-test --verbose
   [ "$status" -eq 0 ]
   doc_line="$(printf '%s\n' "$output" | grep 'doc.md' | head -1)"
-  [[ "$doc_line" == *"[CURRENT]"* ]]
-  [[ "$doc_line" != *"[DRIFT]"* ]]
-  [[ "$output" != *"abc123"* ]]
+  [[ "$doc_line" == *"[CURRENT]"* ]] || false
+  [[ "$doc_line" != *"[DRIFT]"* ]] || false
+  [[ "$output" != *"abc123"* ]] || false
 }
 
 @test "source-not-found still handled (does not crash new hash layer)" {
@@ -174,5 +174,5 @@ _write_trans() {
     echo "body"
   } > "$TRANS"
   run bash "$SCRIPT" zz-test
-  [[ "$output" == *"[MISSING]"*"doc.md"* ]]
+  [[ "$output" == *"[MISSING]"*"doc.md"* ]] || false
 }

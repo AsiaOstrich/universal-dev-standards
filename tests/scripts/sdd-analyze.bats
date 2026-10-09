@@ -23,7 +23,7 @@ run_analyze() {
   printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Status: OK"* ]]
+  [[ "$output" == *"Status: OK"* ]] || false
 }
 
 @test "orphan test reference blocks with exit 1" {
@@ -31,8 +31,8 @@ run_analyze() {
   printf '// @AC AC-1\n// @AC AC-999\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 1 ]
-  [[ "$output" == *"Orphan"* ]]
-  [[ "$output" == *"AC-999"* ]]
+  [[ "$output" == *"Orphan"* ]] || false
+  [[ "$output" == *"AC-999"* ]] || false
 }
 
 @test "uncovered AC is reported but not blocking" {
@@ -40,8 +40,8 @@ run_analyze() {
   printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Uncovered"* ]]
-  [[ "$output" == *"AC-2"* ]]
+  [[ "$output" == *"Uncovered"* ]] || false
+  [[ "$output" == *"AC-2"* ]] || false
 }
 
 @test "not_implemented (from .ac.yaml) blocks with exit 1" {
@@ -50,7 +50,7 @@ run_analyze() {
   printf '// (no test)\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 1 ]
-  [[ "$output" == *"not_implemented"* ]]
+  [[ "$output" == *"not_implemented"* ]] || false
 }
 
 @test "--json emits parseable JSON with coveragePct and orphans" {
@@ -66,7 +66,7 @@ run_analyze() {
   printf '// @AC AC-050-001\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Status: OK"* ]]
+  [[ "$output" == *"Status: OK"* ]] || false
 }
 
 # ── Phase 2: spec↔.feature sync + cross-spec conflicts ───────────────────────
@@ -77,8 +77,8 @@ run_analyze() {
   printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 1 ]
-  [[ "$output" == *"Cross-spec"* ]]
-  [[ "$output" == *"AC-1"* ]]
+  [[ "$output" == *"Cross-spec"* ]] || false
+  [[ "$output" == *"AC-1"* ]] || false
 }
 
 @test "orphan .feature reference blocks with exit 1" {
@@ -87,8 +87,8 @@ run_analyze() {
   printf '// @AC AC-1\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 1 ]
-  [[ "$output" == *"Orphan .feature"* ]]
-  [[ "$output" == *"AC-999"* ]]
+  [[ "$output" == *"Orphan .feature"* ]] || false
+  [[ "$output" == *"AC-999"* ]] || false
 }
 
 @test "AC without BDD scenario reported when .feature present (non-blocking)" {
@@ -97,8 +97,8 @@ run_analyze() {
   printf '// @AC AC-1\n// @AC AC-2\n' > "$PROJ/tests/a.test.ts"
   run_analyze
   [ "$status" -eq 0 ]
-  [[ "$output" == *"without BDD scenario"* ]]
-  [[ "$output" == *"AC-2"* ]]
+  [[ "$output" == *"without BDD scenario"* ]] || false
+  [[ "$output" == *"AC-2"* ]] || false
 }
 
 # ── Phase 3: user-guide ↔ E2E drift (T-NNN) ──────────────────────────────────
@@ -110,8 +110,8 @@ run_analyze() {
   printf '| UG-1 | login | T-001 |\n| UG-2 | logout | T-999 |\n' > "$PROJ/docs/guide.md"
   run_analyze --userguide "$PROJ/docs"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"drift"* ]]
-  [[ "$output" == *"T-999"* ]]
+  [[ "$output" == *"drift"* ]] || false
+  [[ "$output" == *"T-999"* ]] || false
 }
 
 @test "user-guide T-NNN matching a real test id is not drift" {
@@ -121,5 +121,5 @@ run_analyze() {
   printf '| UG-1 | login | T-001 |\n' > "$PROJ/docs/guide.md"
   run_analyze --userguide "$PROJ/docs"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Status: OK"* ]]
+  [[ "$output" == *"Status: OK"* ]] || false
 }

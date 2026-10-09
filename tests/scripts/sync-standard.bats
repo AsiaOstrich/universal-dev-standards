@@ -22,25 +22,25 @@ run_sync() {
 @test "exits 1 with a usage hint when given no arguments and no --all" {
   run_sync
   [ "$status" -eq 1 ]
-  [[ "$output" == *"Usage"* ]]
+  [[ "$output" == *"Usage"* ]] || false
 }
 
 @test "--help prints usage and exits 0" {
   run_sync --help
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Usage"* ]]
+  [[ "$output" == *"Usage"* ]] || false
 }
 
 @test "exits 1 for a non-existent standard" {
   run_sync --check this-standard-does-not-exist-xyz
   [ "$status" -eq 1 ]
-  [[ "$output" == *"not found"* ]]
+  [[ "$output" == *"not found"* ]] || false
 }
 
 @test "--check reports four-layer status for a known standard" {
   run_sync --check anti-hallucination
-  [[ "$output" == *"anti-hallucination"* ]]
-  [[ "$output" == *"ai/standards"* || "$output" == *".standards"* || "$output" == *"locale"* ]]
+  [[ "$output" == *"anti-hallucination"* ]] || false
+  [[ "$output" == *"ai/standards"* || "$output" == *".standards"* || "$output" == *"locale"* ]] || false
 }
 
 @test "--check is read-only: does not mutate the four layers" {
@@ -57,21 +57,21 @@ run_sync() {
   # ai/standards/*.ai.yaml is hand-maintained; convert would clobber it, so
   # regeneration must be opt-in.
   run_sync --check anti-hallucination
-  [[ "$output" != *"would regenerate"* ]]
-  [[ "$output" == *"hand-maintained"* || "$output" == *"--regen"* ]]
+  [[ "$output" != *"would regenerate"* ]] || false
+  [[ "$output" == *"hand-maintained"* || "$output" == *"--regen"* ]] || false
 }
 
 @test "--regen --check plans ai/standards regeneration" {
   run_sync --check --regen anti-hallucination
-  [[ "$output" == *"regenerate"* ]]
+  [[ "$output" == *"regenerate"* ]] || false
 }
 
 @test "resolves the on-disk ai file when STANDARD_ID_MAPPING renames the id" {
   # checkin-standards maps to id 'checkin', but the file is checkin-standards.ai.yaml.
   # The script must fall back to the literal on-disk name, not the mapped-but-absent one.
   run_sync --check checkin-standards
-  [[ "$output" == *"checkin-standards.ai.yaml"* ]]
-  [[ "$output" != *"ai/standards/checkin.ai.yaml"* ]]
+  [[ "$output" == *"checkin-standards.ai.yaml"* ]] || false
+  [[ "$output" != *"ai/standards/checkin.ai.yaml"* ]] || false
 }
 
 @test "uses registry source.ai for irregular filenames (error-code-standards → error-codes.ai.yaml)" {
@@ -79,8 +79,8 @@ run_sync() {
   # error-code-standards.ai.yaml — neither exists. Only the registry source.ai
   # (error-codes.ai.yaml, pluralised) is correct.
   run_sync --check error-code-standards
-  [[ "$output" == *"error-codes.ai.yaml"* ]]
-  [[ "$output" != *"missing"* ]]
+  [[ "$output" == *"error-codes.ai.yaml"* ]] || false
+  [[ "$output" != *"missing"* ]] || false
 }
 
 @test "parses **Version** inside a blockquote header (pii-classification)" {
@@ -88,5 +88,5 @@ run_sync() {
   # line; the version parser must still read it (not report v(unknown), which
   # would skip locale stale-marking).
   run_sync --check pii-classification
-  [[ "$output" != *"v(unknown)"* ]]
+  [[ "$output" != *"v(unknown)"* ]] || false
 }
