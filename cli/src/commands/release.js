@@ -40,6 +40,20 @@ function loadReleaseConfig(projectPath) {
 }
 
 /**
+ * The deployment environment names a release-config.yaml declares, or null when it declares none.
+ * An entry is a name (`- staging`) or the object `uds config` writes (`- name: staging`, with `type` and so on).
+ * The object form used to be compared as if it were a name, so a project set up by UDS itself could not deploy anywhere.
+ */
+function configuredEnvironmentNames(releaseConfig) {
+  const declared = releaseConfig?.release?.environments;
+  if (!Array.isArray(declared)) return null;
+  const names = declared
+    .map((entry) => (entry && typeof entry === 'object' ? entry.name : entry))
+    .filter((name) => typeof name === 'string' && name.trim() !== '');
+  return names.length > 0 ? names : null;
+}
+
+/**
  * Load deployments.yaml
  */
 function loadDeployments(projectPath) {
@@ -234,10 +248,7 @@ async function handleDeploy(environment, options, projectPath) {
 
   // Validate environment against allow-list (overridable via release-config.yaml)
   const deployConfig = loadReleaseConfig(projectPath);
-  const allowedEnvironments =
-    Array.isArray(deployConfig?.release?.environments) && deployConfig.release.environments.length > 0
-      ? deployConfig.release.environments
-      : DEFAULT_ENVIRONMENTS;
+  const allowedEnvironments = configuredEnvironmentNames(deployConfig) || DEFAULT_ENVIRONMENTS;
   if (!allowedEnvironments.includes(environment)) {
     console.log(chalk.red(`未知的部署環境: ${environment}`));
     console.log(chalk.gray(`  允許的環境: ${allowedEnvironments.join(', ')}`));

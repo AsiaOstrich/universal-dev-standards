@@ -10,8 +10,21 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// UDS standards root (relative to this file: cli/src/mcp/server.js → repo root is ../../../../)
-const UDS_REPO_ROOT = resolve(__dirname, '../../../../');
+/**
+ * Where the files UDS ships (ai/standards/, templates/) are.
+ *
+ * This file is `<cli>/src/mcp/server.js`, so `<cli>` is two levels up. A published package carries the shipped
+ * files in `<cli>/bundled/`; a repository checkout carries them one level above `<cli>`. (It used to climb four
+ * levels, which lands outside the repository and, in an installed package, outside the package: every tool that
+ * reads a shipped file failed with ENOENT, and the unit tests never saw it because they replace the file system.)
+ *
+ * @returns {string}
+ */
+export function resolveUdsRepoRoot() {
+  const cliRoot = resolve(__dirname, '../..');
+  const bundled = join(cliRoot, 'bundled');
+  return existsSync(join(bundled, 'ai')) ? bundled : resolve(cliRoot, '..');
+}
 
 /**
  * Required DESIGN.md sections per frontend-design-standards.
@@ -31,7 +44,7 @@ export class McpServer {
   constructor(options = {}) {
     this.udsRoot = options.udsRoot || process.cwd();
     // For reading UDS bundled files, always use UDS_REPO_ROOT
-    this.udsRepoRoot = options.udsRepoRoot || UDS_REPO_ROOT;
+    this.udsRepoRoot = options.udsRepoRoot || resolveUdsRepoRoot();
   }
 
   /**

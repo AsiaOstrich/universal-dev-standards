@@ -10,6 +10,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
+import * as yaml from 'js-yaml';
 import {
   getAgentConfig,
   getAgentsDirForAgent,
@@ -83,28 +84,20 @@ export function getAgentContent(agentName) {
  * @returns {Object} Parsed frontmatter fields
  */
 export function parseAgentFrontmatter(content) {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterMatch) {
     return {};
   }
 
-  const frontmatter = {};
-  const lines = frontmatterMatch[1].split('\n');
-
-  for (const line of lines) {
-    const match = line.match(/^(\w[\w-]*):\s*(.+)$/);
-    if (match) {
-      const [, key, value] = match;
-      // Handle arrays (simple case)
-      if (value.startsWith('[') && value.endsWith(']')) {
-        frontmatter[key] = value.slice(1, -1).split(',').map(s => s.trim().replace(/"/g, ''));
-      } else {
-        frontmatter[key] = value.trim();
-      }
-    }
+  // The agent files are YAML: `description: |` is a block, `expertise:` is a list. A line-by-line `key: value`
+  // reader saw the description as the single character `|` and dropped every list, so `uds agent list` and
+  // `uds agent info` showed an empty description and no expertise, tools or skills.
+  try {
+    const parsed = yaml.load(frontmatterMatch[1]);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
   }
-
-  return frontmatter;
 }
 
 /**

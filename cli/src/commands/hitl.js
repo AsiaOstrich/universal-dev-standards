@@ -7,16 +7,19 @@ const MAX_OP_LENGTH = 500;
 export async function hitlCommand(options) {
   if (!options.op) {
     console.error(chalk.red('Error: --op <operation> is required'));
+    process.exit(2); // not 0: a caller that reads the exit code must not take a missing question for "allowed"
     return;
   }
 
   const op = String(options.op).trim();
   if (op.length === 0) {
     console.error(chalk.red('Error: --op must not be empty'));
+    process.exit(2);
     return;
   }
   if (op.length > MAX_OP_LENGTH) {
     console.error(chalk.red(`Error: --op must be ≤ ${MAX_OP_LENGTH} characters (got ${op.length})`));
+    process.exit(2);
     return;
   }
 
