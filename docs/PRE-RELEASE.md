@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
 It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 126 steps (122 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 126 步（122 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 240 steps (233 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 240 步（233 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -249,178 +249,520 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 126 steps (122
 68. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
    安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
-69. `r4b-init-standard-choices` — uds init --workflow --merge-strategy --output-lang --test-levels records the choices in the manifest and installs the matching option files, not the defaults.
+69. `audit-init` — a project set up for the audit steps.
+   為 audit 步驟準備的專案。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+70. `audit-health-only` — uds audit --health runs the health layer only and reports intact files.
+   uds audit --health 只跑健康檢查層，回報檔案完整。
+   `uds audit --health` → exit 0; output has "Health Check", "All files intact"
+71. `audit-format-json` — uds audit --format json prints the audit result as JSON.
+   uds audit --format json 以 JSON 印出審計結果。
+   `uds audit --format json` → exit 0; output has ""udsVersion"", ""health": {" (+2)
+72. `audit-quiet` — uds audit --quiet prints the one-line summary.
+   uds audit --quiet 只印一行摘要。
+   `uds audit --quiet` → exit 0; output has "/^Health: OK \| Patterns: 0 \| Frictions: \d+$/"
+73. `audit-score` — uds audit --score prints the health score with its four dimensions.
+   uds audit --score 印出健康分數與四個面向。
+   `uds audit --score` → exit 0; output has "Standards Health Score", "Mode: consumer" (+5)
+74. `audit-score-self` — uds audit --score --self runs in self mode.
+   uds audit --score --self 以 self 模式執行。
+   `uds audit --score --self` → exit 0; output has "Mode: self"
+75. `audit-score-format-json` — uds audit --score --format json prints the score as JSON.
+   uds audit --score --format json 以 JSON 印出分數。
+   `uds audit --score --format json` → exit 0; output has ""mode": "consumer"", ""dimensions": {" (+1)
+76. `audit-score-ci-threshold-met` — uds audit --score --ci --threshold 0 prints only the score and exits 0.
+   uds audit --score --ci --threshold 0 只印分數並以 0 結束。
+   `uds audit --score --ci --threshold 0` → exit 0; output has "/^\d+$/"
+77. `audit-score-ci-threshold-missed` — uds audit --score --ci --threshold 101 prints only the score and exits 1 (no score reaches it).
+   uds audit --score --ci --threshold 101 只印分數並以 1 結束（沒有分數達得到）。
+   `uds audit --score --ci --threshold 101` → exit 1; output has "/^\d+$/"
+78. `audit-score-save` — uds audit --score --save writes a score snapshot under .uds/health-scores.
+   uds audit --score --save 在 .uds/health-scores 寫入分數快照。
+   `uds audit --score --save` → exit 0; output has "Standards Health Score"
+79. `audit-score-trend` — uds audit --score --trend lists the saved snapshot with its date and score.
+   uds audit --score --trend 列出已存的快照（日期與分數）。
+   `uds audit --score --trend` → exit 0; output has "Trend", "/^ \d{4}-\d{2}-\d{2}: \d+$/"
+80. `audit-patterns-only` — uds audit --patterns names the standards a project's folders and files suggest.
+   uds audit --patterns 依專案的資料夾與檔案提出可能需要的標準。
+   `uds audit --patterns` → exit 0; output has "Patterns Detected (2)", "Evidence: monitoring/" (+2)
+81. `audit-effects-finding` — uds audit --effects --effects-config <file> exits 1 and names an implementation that reaches nothing outside the process.
+   uds audit --effects --effects-config <檔> 以 1 結束並指名「沒有碰到行程之外任何東西」的實作。
+   `uds audit --effects --effects-config effects.json` → exit 1; output has "reach nothing outside this process", "pure.adapter.js" (+1)
+82. `audit-effects-clean-json` — uds audit --effects --format json exits 0 with exitCode 0 in the JSON when every implementation reaches the outside.
+   uds audit --effects --format json 在每個實作都碰到外界時以 0 結束，JSON 內 exitCode 為 0。
+   `uds audit --effects --effects-config effects.json --format json` → exit 0; output has ""exitCode": 0", "reach a real cross-process boundary"
+83. `audit-effects-config-missing` — uds audit --effects --effects-config <missing file> exits 2 and names that file (not "clean").
+   uds audit --effects --effects-config <不存在的檔> 以 2 結束並指名該檔（不是「乾淨」）。
+   `uds audit --effects --effects-config no-such-config.json` → exit 2; output has "FATAL: no effect-family config at", "no-such-config.json" (+1)
+84. `audit-health-missing-file` — uds audit --health reports a standard file that the manifest lists and the folder lacks.
+   uds audit --health 回報「manifest 有列、資料夾卻沒有」的標準檔。
+   `uds audit --health` → exit 0; output has "anti-hallucination.ai.yaml: Standard file listed in manifest but missing from .standards/", "Fix: Run `uds check --restore-missing` to restore"
+85. `config-set-project` — uds config set <key> <value> writes the project configuration file.
+   uds config set <key> <value> 寫入專案設定檔。
+   `uds config set demo.flag hello` → exit 0; output has "Configuration updated (project): demo.flag = hello"
+86. `config-get` — uds config get <key> reads the value a later process wrote.
+   uds config get <key> 讀回先前行程寫下的值。
+   `uds config get demo.flag` → exit 0; output has "/^hello$/"
+87. `config-list` — uds config list prints the merged configuration as JSON.
+   uds config list 以 JSON 印出合併後的設定。
+   `uds config list` → exit 0; output has "Current Configuration:", ""flag": "hello"" (+1)
+88. `config-yes-shows-configuration` — uds config --yes (no action) prints the configuration without asking.
+   uds config --yes（不給動作）不詢問，直接印出設定。
+   `uds config --yes` → exit 0; output has "Current Configuration:", ""flag": "hello""
+89. `config-set-global` — uds config set <key> <value> --global writes the user-level file, not the project file.
+   uds config set <key> <value> --global 寫入使用者層級檔，不寫專案檔。
+   `uds config set demo.scope from-global --global` → exit 0; output has "Configuration updated (global): demo.scope = from-global"
+90. `config-get-reads-global` — uds config get finds the value that --global wrote in an earlier run.
+   uds config get 找得到先前以 --global 寫下的值。
+   `uds config get demo.scope` → exit 0; output has "/^from-global$/"
+91. `hitl-check-blocks-in-noninteractive` (**new 新**) — uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0).
+   uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）。
+   `uds hitl check --op "npm install left-pad"` → exit 1; output has "Blocked (Safety First)", "Denied"
+92. `hitl-check-requires-op` (**new 新**) — uds hitl check without --op says it is required and exits 2 (not 0).
+   uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）。
+   `uds hitl check` → exit 2; output has "--op <operation> is required"
+93. `hitl-config-raises-threshold` — uds config set hitl.threshold 4 --global is the setting uds hitl check reads next.
+   uds config set hitl.threshold 4 --global 的設定會被下一次 uds hitl check 讀到。
+   `uds config set hitl.threshold 4 --global` → exit 0; output has "Configuration updated (global): hitl.threshold = 4"
+94. `hitl-check-approves-under-raised-threshold` — uds hitl check approves the same operation once the threshold is raised (exit 0).
+   uds hitl check 在門檻調高後對同一個操作放行（結束碼 0）。
+   `uds hitl check --op "npm install left-pad"` → exit 0; output has "Approved"
+95. `config-init-vibe-mode` — uds config init --vibe-mode --yes applies the balanced preset to the project configuration.
+   uds config init --vibe-mode --yes 把 balanced 預設套用到專案設定。
+   `uds config init --vibe-mode --yes` → exit 0; output has "Vibe Coding mode enabled!", "hitl.threshold: 2"
+96. `config-init-project` — a project whose skills are not installed yet (skills location none).
+   尚未安裝技能的專案（skills location none）。
+   `uds init -y --skills-location none --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+97. `config-type-skills` — uds config --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project.
+   uds config --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案。
+   `uds config --type skills --ai-tool claude-code --skills-location project --yes` → exit 0; output has "Skills installed for Claude Code"
+98. `config-experimental` — uds config -E shows the experimental methodology line of the current configuration.
+   uds config -E 會在目前設定中顯示實驗性的 methodology 一行。
+   `uds config --type skills --ai-tool claude-code --skills-location project --yes -E` → exit 0; output has "Methodology: TDD [Experimental]", "Skills installed for Claude Code"
+99. `configure-init-project` — a project whose skills are not installed yet (for uds configure).
+   尚未安裝技能的專案（給 uds configure 用）。
+   `uds init -y --skills-location none --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+100. `configure-type-skills` — uds configure --type skills --ai-tool claude-code --skills-location project --yes installs the skills into the project.
+   uds configure --type skills --ai-tool claude-code --skills-location project --yes 把技能裝進專案。
+   `uds configure --type skills --ai-tool claude-code --skills-location project --yes` → exit 0; output has "Skills installed for Claude Code"
+101. `configure-experimental` — uds configure -E shows the experimental methodology line of the current configuration.
+   uds configure -E 會在目前設定中顯示實驗性的 methodology 一行。
+   `uds configure --type skills --ai-tool claude-code --skills-location project --yes -E` → exit 0; output has "Methodology: TDD [Experimental]", "Skills installed for Claude Code"
+102. `agent-list` (**new 新**) — uds agent list names the five shipped agents with a description line and their expertise.
+   uds agent list 列出五個隨附的代理，各有一行說明與專長。
+   `uds agent list` → exit 0; output has "UDS Agents", "code-architect" (+7)
+103. `agent-info` (**new 新**) — uds agent info <name> shows the agent's description, expertise, tools and skills.
+   uds agent info <名稱> 顯示代理的說明、專長、工具與技能。
+   `uds agent info code-architect` → exit 0; output has "Agent: code-architect", "Role: specialist" (+9)
+104. `agent-install-project` — uds agent install <name> --yes copies the agent into .claude/agents of the project.
+   uds agent install <名稱> --yes 把代理複製到專案的 .claude/agents。
+   `uds agent install code-architect --yes` → exit 0; output has "Installed 1 agent(s)", "✓ code-architect"
+105. `agent-install-tool` — uds agent install <name> --tool opencode --yes copies the agent to the folder that tool reads.
+   uds agent install <名稱> --tool opencode --yes 把代理複製到該工具讀取的資料夾。
+   `uds agent install test-specialist --tool opencode --yes` → exit 0; output has "Installing agents for OpenCode", "Installed 1 agent(s)"
+106. `agent-install-global` — uds agent install <name> --global --yes installs to the user level, not into the project.
+   uds agent install <名稱> --global --yes 裝到使用者層級，不裝進專案。
+   `uds agent install doc-writer --global --yes` → exit 0; output has "Installed 1 agent(s)", "✓ doc-writer"
+107. `agent-list-installed` — uds agent list --installed counts the agents installed at project and user level for each tool.
+   uds agent list --installed 依工具統計專案層級與使用者層級已安裝的代理數。
+   `uds agent list --installed` → exit 0; output has "Installation Status:", "Claude Code [task]" (+3)
+108. `ai-context-init` — uds ai-context init --yes writes .ai-context.yaml with the modules found under src/.
+   uds ai-context init --yes 寫出 .ai-context.yaml，含 src/ 底下找到的模組。
+   `uds ai-context init --yes` → exit 0; output has "Created .ai-context.yaml", "Modules: 2 detected"
+109. `ai-context-init-keeps-existing` — uds ai-context init --yes leaves an existing .ai-context.yaml alone.
+   uds ai-context init --yes 不動已存在的 .ai-context.yaml。
+   `uds ai-context init --yes` → exit 0; output has ".ai-context.yaml already exists.", "Use --force to overwrite."
+110. `ai-context-init-force` — uds ai-context init --force --yes overwrites an existing .ai-context.yaml.
+   uds ai-context init --force --yes 覆寫已存在的 .ai-context.yaml。
+   `uds ai-context init --force --yes` → exit 0; output has "Created .ai-context.yaml"
+111. `ai-context-validate-valid` — uds ai-context validate accepts a configuration whose modules and documents exist.
+   uds ai-context validate 接受「模組與文件都存在」的設定。
+   `uds ai-context validate` → exit 0; output has "Validating .ai-context.yaml", "Configuration is valid!"
+112. `ai-context-validate-verbose` — uds ai-context validate --verbose also prints the whole configuration.
+   uds ai-context validate --verbose 另外印出完整設定。
+   `uds ai-context validate --verbose` → exit 0; output has "Configuration is valid!", "Configuration:" (+2)
+113. `ai-context-validate-invalid` — uds ai-context validate names what is wrong with a configuration.
+   uds ai-context validate 指出設定哪裡有問題。
+   `uds ai-context validate` → exit 0; output has "3 error(s):", "Missing project.name" (+2)
+114. `ai-context-graph` — uds ai-context graph lists the modules with their dependencies.
+   uds ai-context graph 列出模組與它們的相依。
+   `uds ai-context graph` → exit 0; output has "Module Dependency Graph", "api" (+3)
+115. `ai-context-graph-mermaid` — uds ai-context graph --mermaid also prints a Mermaid diagram of the dependencies.
+   uds ai-context graph --mermaid 另外印出相依關係的 Mermaid 圖。
+   `uds ai-context graph --mermaid` → exit 0; output has "```mermaid", "graph TD" (+2)
+116. `release-help-manual` — uds release lists its subcommands in a project set to manual release mode.
+   uds release 在手動發布模式的專案列出它的子指令。
+   `uds release` → exit 0; output has "uds release — 版本發布管理", "目前模式: manual" (+4)
+117. `release-promote` — uds release promote <version> names the RC it promotes from and the tag to create (it only prints; it writes nothing).
+   uds release promote <版本> 說明從哪個 RC 晉升、要建的 tag（只印出，不寫任何東西）。
+   `uds release promote 1.2.0` → exit 0; output has "目前版本: 1.2.0-rc.1", "晉升目標: 1.2.0" (+3)
+118. `release-deploy-staging` (**new 新**) — uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it).
+   uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）。
+   `uds release deploy staging` → exit 0; output has "已記錄部署: 1.2.0-rc.1 → staging"
+119. `release-deploy-result` (**new 新**) — uds release deploy <env> --result passed updates that deployment's recorded result.
+   uds release deploy <環境> --result passed 更新該筆部署紀錄的結果。
+   `uds release deploy staging --result passed` → exit 0; output has "已更新 1.2.0-rc.1 在 staging 的結果: passed"
+120. `release-manifest-checksum` — uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum.
+   uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json。
+   `uds release manifest --checksum e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb` → exit 0; output has "build-manifest.json 已產生", "版本: 1.2.0-rc.1"
+121. `release-verify-artifact` (**new 新**) — uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result.
+   uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果。
+   `uds release verify --artifact app.bin` → exit 0; output has "Manifest 驗證通過", "版本: 1.2.0-rc.1" (+2)
+122. `release-verify-wrong-artifact` — uds release verify --artifact <another file> reports the checksum mismatch.
+   uds release verify --artifact <別的檔> 回報 checksum 不符。
+   `uds release verify --artifact other.bin` → exit 0 or 1; output has "Manifest 驗證失敗", "checksum mismatch" (+1)
+123. `mcp-serve-answers-requests` (**new 新**) — uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends.
+   uds mcp serve 啟動、回應 initialize、tools/list 與三個設計工具，輸入結束時自行結束。
+   `uds mcp serve` → exit 0; output has "UDS MCP Design Standards Server started (stdio)", ""serverInfo":{"name":"uds-design-standards"" (+5)
+124. `list-every-counted-standard-is-shown` (**new 新**) — The standards uds list shows add up to the Total it prints (it used to count 163 and show 81).
+   uds list 顯示的標準數加起來等於它印出的 Total（以前算 163 卻只列 81）。
+   `{node} list-total.mjs {bin}` → exit 0; output has "/^listed [1-9]\d* of \d+ standards$/", "/^listed (\d+) of \1 standards$/"
+125. `list-shows-every-category` (**new 新**) — uds list has a heading for each of the ten categories, the five that used to be left out included.
+   uds list 為十個分類各列一個標題，包含以前被漏掉的五個。
+   `uds list` → exit 0; output has "Governance Layer Standard", "Disaster Recovery Drill Standards" (+10)
+126. `list-category-core` (**new 新**) — uds list --category core lists the core standards (it used to refuse "core" as an unknown category) and nothing from the other categories.
+   uds list --category core 列出核心標準（以前把 core 當成未知分類而拒絕），且不列其他分類。
+   `uds list --category core` → exit 0; output has "Category: Core Standard", "Governance Layer Standard"
+127. `list-category-skill-filters` — uds list --category skill lists only the skill standards.
+   uds list --category skill 只列出技能標準。
+   `uds list --category skill` → exit 0; output has "Category: Skill", "Anti-Hallucination Guidelines" (+1)
+128. `list-category-unknown` (**new 新**) — uds list --category with a name that is not a category exits 1 and names the valid ones, core included.
+   uds list --category 給了不存在的分類時以 1 結束並列出有效分類（含 core）。
+   `uds list --category no-such-category` → exit 1; output has "Unknown category 'no-such-category'", "Valid categories: skill, reference, core, testing, security, deployment, operations, extension, integration, template"
+129. `lint-text-report` — uds lint names the spec with a broken depends_on and the spec that is too long, and exits 1.
+   uds lint 點名 depends_on 指向不存在規格的規格與過長的規格，並以 1 結束。
+   `uds lint` → exit 1; output has "SPEC-001-alpha:", "SPEC-002-beta: 1 broken dependency: SPEC-999-missing" (+2)
+130. `lint-json-report` — uds lint --json prints the summary and one result per spec in the shape VibeOps reads.
+   uds lint --json 印出摘要與每份規格一筆結果（VibeOps 讀取的格式）。
+   `uds lint --json` → exit 1; output has ""fail": 1", ""warn": 1" (+3)
+131. `lint-no-specs-folder` — uds lint without a specs folder says nothing was scanned, in words.
+   uds lint 在沒有 specs 資料夾時明說沒有東西被掃描。
+   `uds lint` → exit 0; output has "Spec Lint", "沒有東西被掃描"
+132. `fix-standard-applies-fixer` — uds fix -s repairs a project that breaks a standard: the fixer's file appears and the standard then passes.
+   uds fix -s 修復違反標準的專案：修復器產生的檔案出現，標準隨後通過。
+   `uds fix -s demo-structure` → exit 0; output has "Attempting to fix violations for: demo-structure", "Fix applied successfully!"
+133. `fix-json-reports-fixed` — uds fix --json says "fixed" and the fixer's file is there.
+   uds fix --json 回報 fixed，且修復器產生的檔案存在。
+   `uds fix -s demo-structure --json` → exit 0; output has ""success": true", ""status": "fixed""
+134. `fix-needs-standard` — uds fix without --standard exits 1 and writes nothing.
+   uds fix 沒給 --standard 時以 1 結束且不寫任何檔案。
+   `uds fix` → exit 1; output has "Error: --standard is required"
+135. `r4a-init` — uds init sets up a project (the project the simulate step uses).
+   uds init 建立專案（simulate 步驟使用）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+136. `simulate-json-pass` — uds simulate --json on a compliant commit message says success and exits 0.
+   uds simulate --json 對合規的提交訊息回報 success 並以 0 結束。
+   `uds simulate -s commit-message -i "feat(api): add dept endpoint" --json` → exit 0; output has ""status": "pass"", ""success": true" (+1)
+137. `simulate-json-fail` — uds simulate --json on a non-compliant commit message says what is wrong and exits 1.
+   uds simulate --json 對不合規的提交訊息說明哪裡不對並以 1 結束。
+   `uds simulate -s commit-message -i "add new dept api" --json` → exit 1; output has ""status": "fail"", ""success": false" (+1)
+138. `report-adoption-table` — uds report turns hook telemetry into a per-standard table (executions, pass rate, average duration) and skips a damaged line.
+   uds report 把 hook 遙測整理成每個標準一列的表（次數、通過率、平均耗時），並略過損壞的行。
+   `uds report` → exit 0; output has "UDS Hook Telemetry Report", "Total executions: 3" (+2)
+139. `report-no-telemetry` — uds report with no telemetry file says there is no data instead of printing an empty table.
+   uds report 沒有遙測檔時說沒有資料，而不是印出空表。
+   `uds report` → exit 0; output has "No telemetry data available. Run hooks to generate data."
+140. `deps-path-reports-drift` — uds deps --path reads another folder's package.json and names the dependency whose tested version is behind what its range resolves to.
+   uds deps --path 讀另一個資料夾的 package.json，點名「測試的版本落後於範圍解析結果」的相依。
+   `{node} stub-registry.mjs {bin} deps --path proj` → exit 1; output has "demo — 4 runtime dependencies checked", "1 tested ≠ resolves:" (+1)
+141. `deps-json-output` — uds deps --json prints the measurement as JSON: examined, drifted (with locked and resolved) and clean.
+   uds deps --json 以 JSON 印出量測結果：examined、drifted（含 locked 與 resolved）與 clean。
+   `{node} stub-registry.mjs {bin} deps --path proj --json` → exit 1; output has ""examined": 4", ""consistent": 3" (+3)
+142. `deps-concurrency-limits-lookups` — uds deps --concurrency 1 looks the dependencies up one at a time, not all at once.
+   uds deps --concurrency 1 一個一個查相依，而不是一次全部查。
+   `{node} stub-registry.mjs {bin} deps --path proj --concurrency 1` → exit 1; output has "alpha ^1.0.0 tested=1.0.0 resolves=1.2.0", "/most requests at once = [12]$/"
+143. `deps-default-looks-up-in-parallel` — uds deps without --concurrency looks the four dependencies up in parallel (the control for the step above).
+   uds deps 沒給 --concurrency 時四個相依平行查詢（上一步的對照）。
+   `{node} stub-registry.mjs {bin} deps --path proj` → exit 1; output has "/most requests at once = [3-9]$/"
+144. `spec-create-yes-confirms` — uds spec new (alias of create) --scope --output --yes writes a confirmed micro-spec with that scope into that folder.
+   uds spec new（create 的別名）加 --scope --output --yes，在指定資料夾寫出已確認、範圍為指定值的微規格。
+   `uds spec new "Add login page" --scope backend --output docs/specs --yes` → exit 0; output has "Spec auto-confirmed.", "Spec ID: SPEC-001-add-login-page"
+145. `spec-list-status-filter` — uds spec ls --status draft --output lists only the draft micro-specs of that folder.
+   uds spec ls --status draft --output 只列出該資料夾中的草稿微規格。
+   `uds spec ls --status draft --output docs/specs` → exit 0; output has "/^SPEC-001-login-page\s+draft\s+feature\s+Login page$/", "/^Total: 1$/"
+146. `spec-show-prints-spec` — uds spec show --output prints the micro-spec, and exits 1 for an id that is not there.
+   uds spec show --output 印出微規格內容，找不到的編號則以 1 結束。
+   `uds spec show SPEC-002-export-report --output docs/specs` → exit 0; output has "## Micro-Spec: Export report", "**Status**: confirmed" (+1)
+147. `spec-show-unknown-id` — uds spec show for an id that is not there exits 1 and names it.
+   uds spec show 對不存在的編號以 1 結束並點名它。
+   `uds spec show SPEC-404-nothing --output docs/specs` → exit 1; output has "Spec not found: SPEC-404-nothing"
+148. `spec-confirm-marks-confirmed` — uds spec confirm --output turns a draft micro-spec into a confirmed one in its file.
+   uds spec confirm --output 把草稿微規格在檔案裡改成已確認。
+   `uds spec confirm SPEC-001-login-page --output docs/specs` → exit 0; output has "Spec confirmed and ready for implementation!"
+149. `spec-archive-moves-to-archive` — uds spec archive --output moves the micro-spec into archive/ marked archived and records it in archive/index.json.
+   uds spec archive --output 把微規格搬進 archive/、標為 archived，並記入 archive/index.json。
+   `uds spec archive SPEC-002-export-report --output docs/specs` → exit 0; output has "Spec archived successfully."
+150. `spec-delete-yes-removes-file` — uds spec rm (alias of delete) --yes --output removes that micro-spec and leaves the other one.
+   uds spec rm（delete 的別名）加 --yes --output 刪除該微規格並保留另一份。
+   `uds spec rm SPEC-001-login-page --yes --output docs/specs` → exit 0; output has "Spec deleted."
+151. `spec-delete-unknown-id` — uds spec delete --yes for an id that is not there exits 1 and deletes nothing.
+   uds spec delete --yes 對不存在的編號以 1 結束且不刪任何檔案。
+   `uds spec delete SPEC-404-nothing --yes --output docs/specs` → exit 1; output has "Spec not found: SPEC-404-nothing"
+152. `spec-search-finds-active-and-archived` — uds spec search --output finds the active micro-spec and the archived one by title and leaves the others out.
+   uds spec search --output 依標題找到進行中與已封存的微規格，其他的不列。
+   `uds spec search login --output docs/specs` → exit 0; output has "Found 2 spec(s) matching "login":", "SPEC-001-login-page [draft] Login page" (+1)
+153. `spec-search-archived-only` — uds spec search --archived looks only in the archive.
+   uds spec search --archived 只找已封存的。
+   `uds spec search login --archived --output docs/specs` → exit 0; output has "Found 1 spec(s) matching "login":", "SPEC-000-old-login [archived] Old login flow"
+154. `spec-split-too-few-criteria` — uds spec split --output refuses a micro-spec with fewer than two acceptance criteria and leaves it as it was.
+   uds spec split --output 對驗收條件少於兩條的微規格不拆，且檔案維持原樣。
+   `uds spec split SPEC-001-small --output docs/specs` → exit 0; output has "Spec SPEC-001-small has 1 AC(s)", "too few to split"
+155. `spec-split-unknown-id` — uds spec split --output for an id that is not there exits 1.
+   uds spec split --output 對不存在的編號以 1 結束。
+   `uds spec split SPEC-404-nothing --output docs/specs` → exit 1; output has "Spec SPEC-404-nothing not found"
+156. `human-spec-split-in-a-terminal` (needs a person 需人眼) — Split a micro-spec in your own terminal: choose which criteria move, and both specs end up pointing at each other.
+   在你自己的終端機拆一份微規格：選哪些驗收條件搬走，兩份規格最後互相指向對方。
+   `uds spec split --help` → exit 0; output has "Split a large spec into two with mutual depends_on references"
+157. `quickstart-without-terminal-shows-every-workflow` (**new 新**) — uds quickstart with no terminal prints all four workflows with their commands (it used to end on a stack trace and exit 0).
+   uds quickstart 沒有終端機時印出四個流程與各自的指令（以前以堆疊追蹤結束且結束碼為 0）。
+   `uds quickstart` → exit 0; output has "Quick Spec → Implement (Micro-Spec)", "uds spec archive SPEC-XXX" (+6)
+158. `spec-create-without-terminal-keeps-a-draft` (**new 新**) — uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it.
+   uds spec create 沒給 --yes 且沒有終端機時，規格維持草稿並說明如何確認。
+   `uds spec create "Add login page" --output docs/specs` → exit 0; output has "the spec stays a draft", "Run `uds spec confirm <id>`"
+159. `spec-delete-without-terminal-deletes-nothing` (**new 新**) — uds spec delete without --yes and with no terminal deletes nothing, says why and exits 2.
+   uds spec delete 沒給 --yes 且沒有終端機時什麼都不刪、說明原因並以 2 結束。
+   `uds spec delete SPEC-001-login-page --output docs/specs` → exit 2; output has "Re-run with --yes to delete. Nothing has been deleted."
+160. `spec-split-without-terminal-changes-nothing` (**new 新**) — uds spec split with three criteria and no terminal changes nothing, says why and exits 2.
+   uds spec split 有三條驗收條件且沒有終端機時什麼都不改、說明原因並以 2 結束。
+   `uds spec split SPEC-001-big --output docs/specs` → exit 2; output has "Cannot ask which ACs to move", "Nothing has been changed."
+161. `human-quickstart-pick-a-workflow` (needs a person 需人眼) — Run uds quickstart in your own terminal and pick one workflow with the arrow keys: only that workflow is printed.
+   在你自己的終端機執行 uds quickstart，用方向鍵選一個流程：只會印出那一個流程。
+   `uds quickstart --help` → exit 0; output has "Interactive workflow guide"
+162. `human-spec-create-and-delete-prompts` (needs a person 需人眼) — In your own terminal uds spec create asks what to do with the new spec, and uds spec delete asks before it deletes.
+   在你自己的終端機，uds spec create 會問新規格要怎麼處理，uds spec delete 會在刪除前先問。
+   `uds spec create --help` → exit 0; output has "Create a micro-spec from natural language intent"
+163. `open-work-next-action-root` — uds open-work next-action --root looks a named path up under that folder.
+   uds open-work next-action --root 在指定資料夾底下查所點名的路徑。
+   `uds open-work next-action n.md --root proj` → exit 0; output has "named-resolved=1 named-unresolved=0 unnamed=0", "from --root"
+164. `open-work-next-action-without-root` — uds open-work next-action without --root looks that same path up under the current folder and does not find it (the control for the step above).
+   uds open-work next-action 沒給 --root 時在目前資料夾查同一個路徑而找不到（上一步的對照）。
+   `uds open-work next-action n.md` → exit 0; output has "named-resolved=0 named-unresolved=1 unnamed=0", "path-missing=1" (+1)
+165. `open-work-next-action-id-pattern` — uds open-work next-action --id-pattern lets a team's own ticket format count as a named next action.
+   uds open-work next-action --id-pattern 讓團隊自己的工單格式算作有點名的下一步。
+   `uds open-work next-action n.md --id-pattern INC\d{7}` → exit 0; output has "unnamed=0", "<- id:INC0012345"
+166. `open-work-next-action-id-unrecognised` — uds open-work next-action without --id-pattern does not know that ticket format and exits 1 (the control for the step above).
+   uds open-work next-action 沒給 --id-pattern 時不認得那種工單格式而以 1 結束（上一步的對照）。
+   `uds open-work next-action n.md` → exit 1; output has "unnamed=1", "VIOLATION OWT-019"
+167. `open-work-next-action-command-word` — uds open-work next-action --command-word kubectl reads "kubectl rollout restart" as a command.
+   uds open-work next-action --command-word kubectl 把「kubectl rollout restart」當成指令。
+   `uds open-work next-action n.md --command-word kubectl` → exit 0; output has "unnamed=0", "<- command:kubectl rollout"
+168. `open-work-next-action-command-unrecognised` — uds open-work next-action without --command-word does not know kubectl and exits 1 (the control for the step above).
+   uds open-work next-action 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）。
+   `uds open-work next-action n.md` → exit 1; output has "unnamed=1", "VIOLATION OWT-019"
+169. `open-work-next-action-stale-after` — uds open-work next-action --stale-after 2 marks a reply asked four days ago as STALE, where the default of seven days does not.
+   uds open-work next-action --stale-after 2 把四天前問的回覆標為 STALE，預設七天則不會。
+   `uds open-work next-action w.md --now 2026-01-14 --stale-after 2` → exit 0; output has "1 older than 2 day(s)", "asked 4d ago (2026-01-10) STALE (older than 2d)"
+170. `open-work-next-action-default-not-stale` — uds open-work next-action with the default threshold does not call a four-day-old reply STALE (the control for the step above).
+   uds open-work next-action 用預設門檻時不把四天前的回覆標為 STALE（上一步的對照）。
+   `uds open-work next-action w.md --now 2026-01-14` → exit 0; output has "0 older than 7 day(s)", "asked 4d ago (2026-01-10)"
+171. `open-work-revision-before-after-violation` — uds open-work revision --before --after exits 1 when the acceptance section changed and no new revision record was added.
+   uds open-work revision --before --after 在驗收段落改了卻沒新增修訂紀錄時以 1 結束。
+   `uds open-work revision --before before.md --after after.md` → exit 1; output has "OWT-018 after.md: changed-no-record (changed: Acceptance)", "VIOLATION OWT-018: intent changed and no new revision record exists"
+172. `open-work-revision-before-after-recorded` — uds open-work revision --before --after exits 0 when the same change comes with a new, complete revision record.
+   uds open-work revision --before --after 在同樣的修改附上新的完整修訂紀錄時以 0 結束。
+   `uds open-work revision --before before.md --after after.md` → exit 0; output has "OWT-018 after.md: changed-recorded (changed: Acceptance)"
+173. `open-work-revision-file-base` — uds open-work revision --file --base compares the file with its committed version.
+   uds open-work revision --file --base 把檔案與已提交的版本比對。
+   `uds open-work revision --file spec.md --base HEAD` → exit 1; output has "OWT-018 spec.md: changed-no-record (changed: Acceptance)", "VIOLATION OWT-018"
+174. `open-work-separation-default-words` — uds open-work separation exits 1 for a carrier that holds both a Goal section and a Next action section.
+   uds open-work separation 對同時有 Goal 與 Next action 段落的檔案以 1 結束。
+   `uds open-work separation plan.md` → exit 1; output has "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Next action) in one carrier"
+175. `open-work-separation-declared-word` — uds open-work separation --next-action-word Todo counts a "Todo" section as the progress section.
+   uds open-work separation --next-action-word Todo 把「Todo」段落算作進度段落。
+   `uds open-work separation plan.md --next-action-word Todo` → exit 1; output has "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Todo) in one carrier"
+176. `open-work-separation-word-not-declared` — uds open-work separation without the word does not know "Todo" and exits 0 (the control for the step above).
+   uds open-work separation 沒宣告該詞時不認得「Todo」而以 0 結束（上一步的對照）。
+   `uds open-work separation plan.md` → exit 0; output has "OWT-017 walked 1 carrier(s)"
+177. `open-work-waiting-id-pattern` — uds open-work waiting --id-pattern lets a not-yet-asked item name its draft by the team's own ticket format.
+   uds open-work waiting --id-pattern 讓「尚未詢問」項目用團隊自己的工單格式點名草稿。
+   `uds open-work waiting w.md --now 2026-10-07 --id-pattern INC\d{7}` → exit 0; output has "not-yet-asked=1"
+178. `open-work-waiting-id-unrecognised` — uds open-work waiting without --id-pattern finds no draft in that ticket format and exits 1 (the control for the step above).
+   uds open-work waiting 沒給 --id-pattern 時在那種工單格式裡找不到草稿而以 1 結束（上一步的對照）。
+   `uds open-work waiting w.md --now 2026-10-07` → exit 1; output has "VIOLATION OWT-021: w.md table row (line 3, row "mail") is not-yet-asked but names no draft or action"
+179. `open-work-waiting-command-word` — uds open-work waiting --command-word kubectl lets a not-yet-asked item name its action as a kubectl command.
+   uds open-work waiting --command-word kubectl 讓「尚未詢問」項目用 kubectl 指令點名動作。
+   `uds open-work waiting w.md --now 2026-10-07 --command-word kubectl` → exit 0; output has "not-yet-asked=1"
+180. `open-work-waiting-command-unrecognised` — uds open-work waiting without --command-word does not know kubectl and exits 1 (the control for the step above).
+   uds open-work waiting 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）。
+   `uds open-work waiting w.md --now 2026-10-07` → exit 1; output has "VIOLATION OWT-021"
+181. `open-work-observations-stale-after` — uds open-work observations --stale-after 3 marks an observation made six days ago as stale and not confirmed.
+   uds open-work observations --stale-after 3 把六天前的觀察標為過舊、不算已確認。
+   `uds open-work observations o.md --now 2026-10-07 --stale-after 3` → exit 0; output has "stale=1 | confirmed=0", "STALE (observed 6d ago, older than 3d;"
+182. `open-work-observations-default-threshold` — uds open-work observations with the default threshold keeps a six-day-old observation confirmed (the control for the step above).
+   uds open-work observations 用預設門檻時六天前的觀察仍算已確認（上一步的對照）。
+   `uds open-work observations o.md --now 2026-10-07` → exit 0; output has "stale=0 | confirmed=1"
+183. `r4b-init-standard-choices` — uds init --workflow --merge-strategy --output-lang --test-levels records the choices in the manifest and installs the matching option files, not the defaults.
    uds init --workflow --merge-strategy --output-lang --test-levels 把選擇記入 manifest，並安裝對應的選項檔而非預設值。
    `uds init -y --skills-location none --workflow gitflow --merge-strategy rebase-ff --output-lang bilingual --test-levels unit-testing,e2e-testing` → exit 0; output has "Standards initialized successfully", "Git Workflow: Gitflow" (+3)
-70. `r4b-init-extensions` — uds init --lang --framework installs the language and framework extension files, and --no-agents-md writes no AGENTS.md.
+184. `r4b-init-extensions` — uds init --lang --framework installs the language and framework extension files, and --no-agents-md writes no AGENTS.md.
    uds init --lang --framework 安裝語言與框架擴充檔，--no-agents-md 不產生 AGENTS.md。
    `uds init -y --skills-location none --lang php --framework fat-free --content-mode minimal --no-agents-md` → exit 0; output has "Standards initialized successfully", "Languages: php" (+2)
-71. `r4b-init-claude-local-index-agents` — uds init --claude-target local writes the Claude Code block to CLAUDE.local.md and not CLAUDE.md; --content-mode index and --agents-md are honoured.
+185. `r4b-init-claude-local-index-agents` — uds init --claude-target local writes the Claude Code block to CLAUDE.local.md and not CLAUDE.md; --content-mode index and --agents-md are honoured.
    uds init --claude-target local 把 Claude Code 區塊寫進 CLAUDE.local.md 而非 CLAUDE.md；--content-mode index 與 --agents-md 生效。
    `uds init -y --skills-location none --claude-target local --content-mode index --agents-md` → exit 0; output has "Standards initialized successfully", "Content Mode: Standard" (+1)
-72. `r4b-init-layered-with-hooks` — uds init --content-layout layered writes a CLAUDE.md in the matching sub-folder, and --with-hooks installs the enforcement hook scripts and wires them into .claude/settings.json.
+186. `r4b-init-layered-with-hooks` — uds init --content-layout layered writes a CLAUDE.md in the matching sub-folder, and --with-hooks installs the enforcement hook scripts and wires them into .claude/settings.json.
    uds init --content-layout layered 在對應子目錄寫 CLAUDE.md；--with-hooks 安裝關卡 hook 腳本並接進 .claude/settings.json。
    `uds init -y --skills-location none --content-layout layered --with-hooks` → exit 0; output has "Standards initialized successfully", "Layered CLAUDE.md generated" (+1)
-73. `r4b-self-adoption-init-refused` — uds init in a folder that is the UDS source repository is refused: exit 1, says to use --force, and writes nothing.
+187. `r4b-self-adoption-init-refused` — uds init in a folder that is the UDS source repository is refused: exit 1, says to use --force, and writes nothing.
    uds init 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束、說明可用 --force，且不寫任何檔。
    `uds init -y --skills-location none` → exit 1; output has "Detected UDS source repo", "Override with --force" (+1)
-74. `r4b-self-adoption-init-force` — uds init --force bypasses the self-adoption guard, warns, and installs.
+188. `r4b-self-adoption-init-force` — uds init --force bypasses the self-adoption guard, warns, and installs.
    uds init --force 繞過自我採用防護、印出警告並照常安裝。
    `uds init -y --skills-location none --force` → exit 0; output has "--force was passed, continuing uds init", "Standards initialized successfully"
-75. `r4b-self-adoption-check-refused` — uds check in a folder that is the UDS source repository is refused: exit 1 and says to use --force.
+189. `r4b-self-adoption-check-refused` — uds check in a folder that is the UDS source repository is refused: exit 1 and says to use --force.
    uds check 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束並說明可用 --force。
    `uds check --offline` → exit 1; output has "Detected UDS source repo", "Override with --force"
-76. `r4b-self-adoption-check-force` — uds check --force bypasses the self-adoption guard, warns, and runs the integrity check.
+190. `r4b-self-adoption-check-force` — uds check --force bypasses the self-adoption guard, warns, and runs the integrity check.
    uds check --force 繞過自我採用防護、印出警告並照常執行完整性檢查。
    `uds check --offline --force` → exit 0; output has "--force was passed, continuing uds check", "File Integrity" (+1)
-77. `r4b-compile-init` — uds init sets up a project for the compile steps.
+191. `r4b-compile-init` — uds init sets up a project for the compile steps.
    uds init 建立專案（供 compile 步驟使用）。
    `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
-78. `r4b-compile-dry-run` — uds compile --dry-run prints the hook configuration it would write and writes nothing.
+192. `r4b-compile-dry-run` — uds compile --dry-run prints the hook configuration it would write and writes nothing.
    uds compile --dry-run 印出將要寫入的 hook 設定，且不寫任何檔。
    `uds compile --dry-run` → exit 0; output has ""PreToolUse"", ""command": "node scripts/hooks/validate-commit-msg.mjs"" (+1)
-79. `r4b-compile-target` — uds compile --target claude-code writes the hooks into .claude/settings.json and keeps the settings that were already there.
+193. `r4b-compile-target` — uds compile --target claude-code writes the hooks into .claude/settings.json and keeps the settings that were already there.
    uds compile --target claude-code 把 hook 寫進 .claude/settings.json，並保留原有設定。
    `uds compile --target claude-code` → exit 0; output has "/Compiled \d+ enforcement standard\(s\) for claude-code/"
-80. `r4b-compile-unknown-target` — uds compile --target with a platform it does not know exits 1 and names the supported one.
+194. `r4b-compile-unknown-target` — uds compile --target with a platform it does not know exits 1 and names the supported one.
    uds compile --target 給不認得的平台會以 1 結束並指出支援的平台。
    `uds compile --target no-such-platform` → exit 1; output has "Unknown target: no-such-platform. Supported: claude-code"
-81. `r4b-check-standard-fails` — uds check --standard <id> validates the project against that standard's physical spec and fails, naming what is missing.
+195. `r4b-check-standard-fails` — uds check --standard <id> validates the project against that standard's physical spec and fails, naming what is missing.
    uds check --standard <id> 依該標準的實體規格驗證專案，不符時失敗並指出缺少的項目。
    `uds check --standard proj-layout` → exit 1; output has "Checking compliance with standard: proj-layout", "Validation Failed" (+1)
-82. `r4b-check-standard-json-passes` — uds check --standard <id> --json prints the verdict as JSON and exits 0 when the project matches.
+196. `r4b-check-standard-json-passes` — uds check --standard <id> --json prints the verdict as JSON and exits 0 when the project matches.
    uds check --standard <id> --json 以 JSON 印出判定，專案符合時以 0 結束。
    `uds check --standard proj-layout --json` → exit 0; output has ""success": true", "Project structure matches required schema."
-83. `r4b-check-i18n-reports-violation` — uds check --i18n reports a canonical skill whose description is not English and exits 1.
+197. `r4b-check-i18n-reports-violation` — uds check --i18n reports a canonical skill whose description is not English and exits 1.
    uds check --i18n 回報描述不是英文的標準技能，並以 1 結束。
    `uds check --i18n` → exit 1; output has "UDS i18n Lint", "canonical:description-must-be-ascii" (+1)
-84. `r4b-check-i18n-json` — uds check --i18n --json prints the findings and their counts as JSON, and exits 1 on an error.
+198. `r4b-check-i18n-json` — uds check --i18n --json prints the findings and their counts as JSON, and exits 1 on an error.
    uds check --i18n --json 以 JSON 印出發現與數量，有錯誤時以 1 結束。
    `uds check --i18n --json` → exit 1; output has ""errors": 1", ""rule": "canonical:description-must-be-ascii"" (+1)
-85. `r4b-check-i18n-clean` — uds check --i18n finds no violation once the description is English, and exits 0.
+199. `r4b-check-i18n-clean` — uds check --i18n finds no violation once the description is English, and exits 0.
    uds check --i18n 在描述改成英文後找不到違規，並以 0 結束。
    `uds check --i18n` → exit 0; output has "No i18n violations found."
-86. `r4b-check-drift-init` — uds init sets up a project whose standards the next steps change.
+200. `r4b-check-drift-init` — uds init sets up a project whose standards the next steps change.
    uds init 建立專案（後續步驟會改動其中的標準檔）。
    `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
-87. `r4b-check-migrate` — uds check --migrate rebuilds the file hashes of a manifest that has none (an old manifest).
+201. `r4b-check-migrate` — uds check --migrate rebuilds the file hashes of a manifest that has none (an old manifest).
    uds check --migrate 為沒有檔案雜湊的舊版 manifest 重建雜湊。
    `uds check --offline --migrate` → exit 0; output has "Migrating to hash-based integrity checking", "to hash-based tracking" (+1)
-88. `r4b-check-summary` — uds check --summary prints the compact status and counts the standard file that was edited.
+202. `r4b-check-summary` — uds check --summary prints the compact status and counts the standard file that was edited.
    uds check --summary 印出精簡狀態，並計入被改過的標準檔。
    `uds check --offline --summary` → exit 0; output has "UDS Status Summary", "1 modified"
-89. `r4b-check-diff` — uds check --diff shows the difference between the edited standard file and the original.
+203. `r4b-check-diff` — uds check --diff shows the difference between the edited standard file and the original.
    uds check --diff 顯示被改過的標準檔與原版的差異。
    `uds check --offline --diff` → exit 0; output has "Diff for: .standards/anti-hallucination.ai.yaml", "+1: # tampered by the acceptance step" (+1)
-90. `r4b-check-no-interactive` — uds check --no-interactive lists the edited file and the ways to restore it, without asking.
+204. `r4b-check-no-interactive` — uds check --no-interactive lists the edited file and the ways to restore it, without asking.
    uds check --no-interactive 列出被改過的檔與還原方式，且不詢問。
    `uds check --offline --no-interactive` → exit 0; output has "anti-hallucination.ai.yaml (modified)", "Actions available:" (+1)
-91. `r4b-check-restore-missing` — uds check --restore-missing puts back a deleted standard file and leaves the edited one as it is.
+205. `r4b-check-restore-missing` — uds check --restore-missing puts back a deleted standard file and leaves the edited one as it is.
    uds check --restore-missing 補回被刪掉的標準檔，被改過的檔維持原樣。
    `uds check --offline --restore-missing` → exit 0; output has "changelog.ai.yaml: Restored", "Restored 1 file(s)"
-92. `r4b-check-restore` — uds check --restore puts the edited standard file back to the original.
+206. `r4b-check-restore` — uds check --restore puts the edited standard file back to the original.
    uds check --restore 把被改過的標準檔還原成原版。
    `uds check --offline --restore` → exit 0; output has "anti-hallucination.ai.yaml: Restored", "Restored 1 file(s)"
-93. `r4b-check-shipped-standard-macos` (macos only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
+207. `r4b-check-shipped-standard-macos` (macos only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
    uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過。
    `uds check --standard commit-message --json` → exit 0; output has ""success": true", "Passed rule: commitlint_config_exists"
-94. `r4b-check-shipped-standard-linux` (linux only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
+208. `r4b-check-shipped-standard-linux` (linux only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
    uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過。
    `uds check --standard commit-message --json` → exit 0; output has ""success": true", "Passed rule: commitlint_config_exists"
-95. `r4b-check-standard-without-spec` — uds check --standard names a shipped standard that has no physical spec and says validation was skipped.
+209. `r4b-check-standard-without-spec` — uds check --standard names a shipped standard that has no physical spec and says validation was skipped.
    uds check --standard 指定一個沒有實體規格的出貨標準時，說明已略過驗證。
    `uds check --standard anti-hallucination --json` → exit 0; output has ""skipped": true", "does not have a Physical Spec defined"
-96. `r4b-uninstall-partial-init` — uds init sets up a project that also holds the adopter's own files (README.md, text in CLAUDE.md, a skill of their own).
+210. `r4b-uninstall-partial-init` — uds init sets up a project that also holds the adopter's own files (README.md, text in CLAUDE.md, a skill of their own).
    uds init 建立專案；專案裡另有採用者自己的檔案（README.md、CLAUDE.md 中的文字、自己寫的技能）。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-97. `r4b-uninstall-dry-run` — uds uninstall --dry-run lists what it would remove and changes nothing.
+211. `r4b-uninstall-dry-run` — uds uninstall --dry-run lists what it would remove and changes nothing.
    uds uninstall --dry-run 列出將要移除的項目，且不改任何檔。
    `uds uninstall --dry-run` → exit 0; output has "dry-run mode", "Remove: .standards/" (+2)
-98. `r4b-uninstall-skills-only` (**new 新**) — uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files.
+212. `r4b-uninstall-skills-only` (**new 新**) — uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files.
    uds uninstall --skills-only --yes 移除 UDS 技能，保留採用者自己寫的技能與被他改過的 UDS 技能檔，並留下標準與整合檔。
    `uds uninstall --skills-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0" (+1)
-99. `r4b-uninstall-integrations-only` — uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards.
+213. `r4b-uninstall-integrations-only` — uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards.
    uds uninstall --integrations-only --yes 移除 CLAUDE.md 的 UDS 區塊並保留區塊外的文字，刪除 UDS 產生的 AGENTS.md，並留下標準。
    `uds uninstall --integrations-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
-100. `r4b-uninstall-standards-only` — uds uninstall --standards-only --yes removes what UDS wrote into .standards/ and leaves the adopter's own files, the file they added there, and their skill.
+214. `r4b-uninstall-standards-only` — uds uninstall --standards-only --yes removes what UDS wrote into .standards/ and leaves the adopter's own files, the file they added there, and their skill.
    uds uninstall --standards-only --yes 移除 UDS 寫進 .standards/ 的檔，並留下採用者自己的檔案、他放進去的檔與他的技能。
    `uds uninstall --standards-only --yes` → exit 0; output has "Uninstall complete", "Removed: 1" (+1)
-101. `r4b-uninstall-all-init` — uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own.
+215. `r4b-uninstall-all-init` — uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own.
    uds init --with-hooks 建立專案；.claude/settings.json 原本就有採用者自己的 hook。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Enforcement hooks installed"
-102. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/.
+216. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/.
    uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook。
    `uds uninstall --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
-103. `r4b-uninstall-user-level-init` — uds init --skills-location user puts the skills in the user's home folder, not in the project.
+217. `r4b-uninstall-user-level-init` — uds init --skills-location user puts the skills in the user's home folder, not in the project.
    uds init --skills-location user 把技能裝進使用者的家目錄，而不是專案裡。
    `uds init -y --skills-location user --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-104. `r4b-uninstall-user-level-present` — Control: the user-level skills are in the home folder before the uninstall.
+218. `r4b-uninstall-user-level-present` — Control: the user-level skills are in the home folder before the uninstall.
    對照：解除安裝前，使用者層的技能確實在家目錄裡。
    `{node} -e "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"` → exit 0; output has "/USER-SKILLS-LEFT=[1-9]/"
-105. `r4b-uninstall-user-level-skipped` — uds uninstall --skills-only --dry-run says the user-level skills are skipped without --all, and removes nothing.
+219. `r4b-uninstall-user-level-skipped` — uds uninstall --skills-only --dry-run says the user-level skills are skipped without --all, and removes nothing.
    uds uninstall --skills-only --dry-run 說明不加 --all 會略過使用者層技能，且不移除任何東西。
    `uds uninstall --skills-only --dry-run` → exit 0; output has "Skip: skills/claude-code [user] (user-level, use --all to include)", "Dry-run complete"
-106. `r4b-uninstall-all-flag` — uds uninstall --all --yes also removes the skills installed in the user's home folder.
+220. `r4b-uninstall-all-flag` — uds uninstall --all --yes also removes the skills installed in the user's home folder.
    uds uninstall --all --yes 連裝在使用者家目錄的技能一併移除。
    `uds uninstall --all --yes` → exit 0; output has "Uninstall complete", "skills/claude-code [user]"
-107. `r4b-uninstall-user-level-gone` — The user-level skills are gone from the home folder after uds uninstall --all.
+221. `r4b-uninstall-user-level-gone` — The user-level skills are gone from the home folder after uds uninstall --all.
    uds uninstall --all 之後，家目錄裡的使用者層技能已不在。
    `{node} -e "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"` → exit 0; output has "USER-SKILLS-LEFT=0"
-108. `r4b-update-init` — uds init sets up a Claude Code project (CLAUDE.md, AGENTS.md, skills) for the uds update steps.
+222. `r4b-update-init` — uds init sets up a Claude Code project (CLAUDE.md, AGENTS.md, skills) for the uds update steps.
    uds init 建立 Claude Code 專案（CLAUDE.md、AGENTS.md、技能），供 uds update 步驟使用。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-109. `r4b-update-standards-only` — uds update --standards-only brings the standards up to the installed version and leaves the integration files alone.
+223. `r4b-update-standards-only` — uds update --standards-only brings the standards up to the installed version and leaves the integration files alone.
    uds update --standards-only 把標準更新到已安裝的版本，並且不動整合檔。
    `uds update --standards-only --yes --offline` → exit 0; output has "Updated", "standard files" (+1)
-110. `r4b-update-regenerates-integration` — Without --standards-only the same update also regenerates the UDS block in CLAUDE.md and keeps the text around it.
+224. `r4b-update-regenerates-integration` — Without --standards-only the same update also regenerates the UDS block in CLAUDE.md and keeps the text around it.
    不加 --standards-only 時，同樣的更新也會重寫 CLAUDE.md 的 UDS 區塊，並保留區塊外的文字。
    `uds update --yes --offline` → exit 0; output has "Syncing integration files", "Integration files synced" (+1)
-111. `r4b-update-integrations-only` — uds update --integrations-only regenerates the UDS block in CLAUDE.md and does not touch the standards.
+225. `r4b-update-integrations-only` — uds update --integrations-only regenerates the UDS block in CLAUDE.md and does not touch the standards.
    uds update --integrations-only 重寫 CLAUDE.md 的 UDS 區塊，且不動標準檔。
    `uds update --integrations-only --yes --offline` → exit 0; output has "Integration files updated successfully", "Files updated: CLAUDE.md"
-112. `r4b-update-keeps-edited-standard` — A plain uds update on a project that is already up to date leaves an edited standard file as it is.
+226. `r4b-update-keeps-edited-standard` — A plain uds update on a project that is already up to date leaves an edited standard file as it is.
    已是最新版的專案執行一般的 uds update，會讓被改過的標準檔維持原樣。
    `uds update --yes --offline` → exit 0; output has "Standards are up to date."
-113. `r4b-update-force` — uds update --force overwrites the edited standard file with the shipped one, ignoring the hash comparison.
+227. `r4b-update-force` — uds update --force overwrites the edited standard file with the shipped one, ignoring the hash comparison.
    uds update --force 忽略雜湊比對，用隨套件出貨的版本覆蓋被改過的標準檔。
    `uds update --force --yes --offline` → exit 0; output has "forced update (--force)", "Reconciliation complete"
-114. `r4b-update-sync-refs` — uds update --sync-refs rewrites the standards list in CLAUDE.md after a standard left the manifest.
+228. `r4b-update-sync-refs` — uds update --sync-refs rewrites the standards list in CLAUDE.md after a standard left the manifest.
    uds update --sync-refs 在標準自 manifest 移除後，重寫 CLAUDE.md 裡的標準清單。
    `uds update --sync-refs --yes --offline` → exit 0; output has "Syncing integration references", "Updated CLAUDE.md" (+1)
-115. `r4b-update-debug` — uds update --debug prints how it decided which skills and commands are missing or outdated.
+229. `r4b-update-debug` — uds update --debug prints how it decided which skills and commands are missing or outdated.
    uds update --debug 印出它如何判斷技能與指令缺少或過期。
    `uds update --yes --offline --debug` → exit 0; output has "Skills/Commands Detection Debug", "aiTools in manifest: ["claude-code"]" (+1)
-116. `r4b-update-keeps-retired-standard` — uds update lists a standard file UDS wrote and no longer ships, and keeps it unless --prune is given.
+230. `r4b-update-keeps-retired-standard` — uds update lists a standard file UDS wrote and no longer ships, and keeps it unless --prune is given.
    uds update 會列出 UDS 寫過但已不再出貨的標準檔，沒給 --prune 就保留它。
    `{node} prune-case.cjs {bin} update --yes --offline` → exit 0; output has "1 file(s) are no longer shipped by UDS", "retired-by-uds.ai.yaml" (+2)
-117. `r4b-update-prune` — uds update --prune deletes the standard file UDS wrote and no longer ships.
+231. `r4b-update-prune` — uds update --prune deletes the standard file UDS wrote and no longer ships.
    uds update --prune 刪除 UDS 寫過但已不再出貨的標準檔。
    `{node} prune-case.cjs {bin} update --yes --offline --prune` → exit 0; output has "will be removed", "Removing now (--prune)" (+1)
-118. `r4b-update-locale` — uds update --skills --locale zh-tw reinstalls the skills in Traditional Chinese and records the locale.
+232. `r4b-update-locale` — uds update --skills --locale zh-tw reinstalls the skills in Traditional Chinese and records the locale.
    uds update --skills --locale zh-tw 以繁體中文重裝技能並記錄語系。
    `uds update --skills --locale zh-tw --yes --offline` → exit 0; output has "Updated Skills for 1 AI tools"
-119. `r4b-update-with-hooks-ai-tool` — uds update --with-hooks --ai-tool codex installs the hook for Codex only, not for the tool the project already uses.
+233. `r4b-update-with-hooks-ai-tool` — uds update --with-hooks --ai-tool codex installs the hook for Codex only, not for the tool the project already uses.
    uds update --with-hooks --ai-tool codex 只為 Codex 安裝 hook，不動專案原本使用的工具。
    `uds update --with-hooks --ai-tool codex --yes --offline` → exit 0; output has "codex: installed"
-120. `r4b-update-with-hooks` — uds update --with-hooks installs the hooks that are missing for the detected tool and leaves the one that is already there.
+234. `r4b-update-with-hooks` — uds update --with-hooks installs the hooks that are missing for the detected tool and leaves the one that is already there.
    uds update --with-hooks 為偵測到的工具補裝缺少的 hook，並保留已經裝好的。
    `uds update --with-hooks --yes --offline` → exit 0; output has "claude-code: installed", "codex: already installed, not touched"
-121. `r4b-update-claude-target-local` — uds update --claude-target local moves the UDS block from CLAUDE.md to CLAUDE.local.md and keeps the text around it.
+235. `r4b-update-claude-target-local` — uds update --claude-target local moves the UDS block from CLAUDE.md to CLAUDE.local.md and keeps the text around it.
    uds update --claude-target local 把 UDS 區塊從 CLAUDE.md 搬到 CLAUDE.local.md，並保留區塊外的文字。
    `uds update --claude-target local --yes --offline` → exit 0; output has "claude-code now targets CLAUDE.local.md"
-122. `r4b-update-commands-init` — uds init in a Cursor project installs the slash commands next to the skills.
+236. `r4b-update-commands-init` — uds init in a Cursor project installs the slash commands next to the skills.
    uds init 在 Cursor 專案裡於技能旁安裝斜線指令。
    `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully", "commands to: Cursor"
-123. `r4b-update-commands` — uds update --commands puts back a deleted slash command and an edited one.
+237. `r4b-update-commands` — uds update --commands puts back a deleted slash command and an edited one.
    uds update --commands 補回被刪掉與被改過的斜線指令。
    `uds update --commands --yes --offline` → exit 0; output has "Updating slash commands", "commands for 1 AI tool(s): Cursor"
-124. `r4b-update-beta-init` — uds init sets up a project for the uds update --beta steps.
+238. `r4b-update-beta-init` — uds init sets up a project for the uds update --beta steps.
    uds init 建立專案，供 uds update --beta 步驟使用。
    `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
-125. `r4b-update-beta-ignored` — Control: without --beta, uds update ignores a newer beta on npm (the registry here says latest 6.0.0, beta 99.0.0-beta.1).
+239. `r4b-update-beta-ignored` — Control: without --beta, uds update ignores a newer beta on npm (the registry here says latest 6.0.0, beta 99.0.0-beta.1).
    對照：不加 --beta 時，uds update 不理會 npm 上較新的 beta（此處的 registry 替身回報 latest 6.0.0、beta 99.0.0-beta.1）。
    `{node} --require {work}/fake-npm.cjs {bin} update --yes` → exit 0; output has "Standards are up to date."
-126. `r4b-update-beta` — uds update --beta reports the newer beta that npm has.
+240. `r4b-update-beta` — uds update --beta reports the newer beta that npm has.
    uds update --beta 會回報 npm 上較新的 beta 版。
    `{node} --require {work}/fake-npm.cjs {bin} update --beta --yes` → exit 0; output has "New CLI version available", "Latest on npm: 99.0.0-beta.1"
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -435,9 +777,9 @@ Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
-| macOS | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Darwin 25.6.0, Node v22.23.2, zsh; 64 passed / 0 failed / 0 skipped; 2026-10-09 |
-| Linux | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Linux 6.8.0-142-generic, Node v22.22.1, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 |
+| Windows | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Windows_NT 10.0.26100, Node v20.20.2, cmd.exe; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 3 runs on this platform (for example from different shells); the worst is shown 此平台有 3 次執行（例如不同殼層），顯示最差的一次 |
+| macOS | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Darwin 25.6.0, Node v20.20.2, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 2 runs on this platform (for example from different shells); the worst is shown 此平台有 2 次執行（例如不同殼層），顯示最差的一次 |
+| Linux | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Linux 6.17.0-1022-azure, Node v20.20.2, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 2 runs on this platform (for example from different shells); the worst is shown 此平台有 2 次執行（例如不同殼層），顯示最差的一次 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
