@@ -21,6 +21,26 @@ export const VERSION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$/;
 export const PACKAGE_NAME = 'universal-dev-standards';
 
 /**
+ * How long `npm install` of a registry version keeps trying when the registry says the version is not there yet.
+ * Attempts are separated by `baseWaitMs`, then double each time (5 s, 10 s, 20 s, 40 s for 5 attempts, 75 s of waiting).
+ * No new attempt starts once the next wait would carry the run past `budgetMs` (180 s) counted from the first attempt;
+ * an attempt already running is not interrupted (it has its own `timeoutMs`). The failures that qualify are the ones
+ * `isVersionNotVisibleYet` recognises; every other failure ends the run at once.
+ */
+export const INSTALL_RETRY = { attempts: 5, baseWaitMs: 5000, budgetMs: 180000 };
+
+/**
+ * Does this npm output say "that version is not on the registry (yet)" and nothing else?
+ * npm says E404 when the package document is missing, ETARGET ("No matching version found") when the document is there
+ * but does not list the version, and "No match found for version" for `npm view`. A freshly published version can be
+ * answered like this for a while by one registry edge and not by another, which is the only failure worth retrying:
+ * a network error, a 403 or a broken tarball will not get better by asking again.
+ */
+export function isVersionNotVisibleYet(text) {
+  return /npm (?:error|ERR!) code (?:E404|ETARGET)\b|"code":\s*"(?:E404|ETARGET)"|No matching version found|No match found for version|is not in this registry/.test(String(text || ''));
+}
+
+/**
  * How to start npm without a shell.
  *
  * 1. `npm_execpath` (set when this program was started by npm/npx) if it is npm-cli.js;
@@ -68,9 +88,10 @@ export function binOf(pkgDir) {
  * @param {{ dir: string, version: string, source?: string|null, installer?: string|null, local?: string|null, env?: NodeJS.ProcessEnv, run?: Function, timeoutMs?: number, allowNetwork?: boolean }} o
  * @returns {Promise<{ ok: boolean, kind: string, requested: string, pkgDir: string|null, binPath: string|null, shimPath?: string|null, version: string|null, output: string, durationMs: number, error: string|null }>}
  */
-export async function installPackage({ dir, version, source = null, installer = null, local = null, env = process.env, run = runProcess, timeoutMs = 600000, allowNetwork = false }) {
+export async function installPackage({ dir, version, source = null, installer = null, local = null, env = process.env, run = runProcess, timeoutMs = 600000, allowNetwork = false, retry = INSTALL_RETRY, sleep = (ms) => new Promise((wake) => setTimeout(wake, ms)), log = () => {} }) {
   const started = Date.now();
-  const done = (extra) => ({ ok: false, kind: 'unknown', requested: version, pkgDir: null, binPath: null, version: null, output: '', durationMs: Date.now() - started, error: null, ...extra });
+  let attempts = 0;
+  const done = (extra) => ({ ok: false, kind: 'unknown', requested: version, pkgDir: null, binPath: null, version: null, output: '', durationMs: Date.now() - started, error: null, attempts, ...extra });
   try {
     if (local) {
       const binPath = resolve(local);
@@ -106,7 +127,30 @@ export async function installPackage({ dir, version, source = null, installer = 
     const args = [...npm.prefixArgs, 'install', spec, '--no-audit', '--no-fund', '--no-update-notifier', '--loglevel=error'];
     // a tarball or folder on this disk must never reach for the network (the tests rely on this)
     if (kind === 'local-source' && !allowNetwork) args.push('--offline');
-    const r = await run({ file: npm.file, args, cwd: dir, env, shell: npm.shell, timeoutMs });
+    // a registry version is asked for fresh: the registry lets a client keep a package document for minutes, and a
+    // document cached before the version was published would answer every retry the same way
+    if (kind === 'npm-registry') args.push('--prefer-online');
+    const maxAttempts = kind === 'npm-registry' ? Math.max(1, retry.attempts) : 1;
+    let r;
+    for (;;) {
+      attempts += 1;
+      r = await run({ file: npm.file, args, cwd: dir, env, shell: npm.shell, timeoutMs });
+      if (r.spawnError || r.timedOut || r.exitCode === 0) break;
+      const seen = `${r.stdout || ''}${r.stderr || ''}`;
+      if (!isVersionNotVisibleYet(seen)) break;
+      const firstLine = seen.split(/\r?\n/).find((l) => /code|No match|not in this registry/.test(l)) || 'version not found';
+      const wait = retry.baseWaitMs * 2 ** (attempts - 1);
+      if (attempts >= maxAttempts) {
+        log(`[beta-acceptance] npm install attempt ${attempts}/${maxAttempts} failed (${firstLine.trim()}); no attempts left. 已用完重試次數。`);
+        break;
+      }
+      if (Date.now() - started + wait > retry.budgetMs) {
+        log(`[beta-acceptance] npm install attempt ${attempts}/${maxAttempts} failed (${firstLine.trim()}); the ${Math.round(retry.budgetMs / 1000)} s limit would be passed, giving up. 超過重試總時間上限。`);
+        break;
+      }
+      log(`[beta-acceptance] npm install attempt ${attempts}/${maxAttempts} failed (${firstLine.trim()}); the registry may not show the new version yet — retrying in ${wait / 1000} s. 版本可能還沒傳到 registry，${wait / 1000} 秒後重試。`);
+      await sleep(wait);
+    }
     const output = `${r.stdout || ''}${r.stderr || ''}`.trim();
     if (r.spawnError) return done({ kind, output, error: `could not start npm (${npm.how}): ${r.spawnError}` });
     if (r.timedOut) return done({ kind, output, error: `npm install did not finish in ${Math.round(timeoutMs / 1000)}s` });

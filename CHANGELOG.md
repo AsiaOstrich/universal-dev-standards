@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI: the post-publish acceptance waits for what `npm install` reads, and tries the install again when the version is not visible yet (XSPEC-471 R1).** Right after 6.14.0-beta.8 was published, `wait-for-npm.mjs` declared the version found on its 8th poll (the per-version document `/universal-dev-standards/6.14.0-beta.8` answered 200 and its tarball answered 2xx), and the very next `npm install universal-dev-standards@6.14.0-beta.8` failed in the first three jobs ("COULD NOT RUN | install failed", 0 steps run). `npm install` does not read that document: it reads the package document `/universal-dev-standards`, which was not yet updated. The wait now asks the package document for the version, then the tarball, then `npm view` through the same npm and registry setting the install uses; and `run.mjs` retries `npm install` (5 attempts, 5/10/20/40 s apart, none started after 180 s) when npm says E404 or ETARGET, printing each retry and noting the count in the report. Any other install error still fails at once. `--install-retries <n>` and `--install-retry-wait <sec>` set the limits. Maintainer tooling under `scripts/beta-acceptance/`; nothing of it is in the npm package.
+
 ## [6.14.0-beta.8] - 2026-10-10
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).

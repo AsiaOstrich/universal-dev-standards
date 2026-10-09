@@ -14,7 +14,10 @@
  *     from the Actions page.
  *
  * Wires that make these red when cut (one line of source each):
- *   scripts/beta-acceptance/wait-for-npm.mjs     if (doc.version !== version) return { kind: 'absent'
+ *   scripts/beta-acceptance/wait-for-npm.mjs     if (!entry) return { kind: 'absent'
+ *   scripts/beta-acceptance/wait-for-npm.mjs     if (npm.kind !== 'found') return npm;
+ *   scripts/beta-acceptance/lib/install.mjs      if (!isVersionNotVisibleYet(seen)) break;
+ *   scripts/beta-acceptance/lib/install.mjs      await sleep(wait);
  *   scripts/beta-acceptance/resolve-version.mjs  if (typeof version !== 'string' || !EXACT_VERSION.test(version)) {
  *   scripts/beta-acceptance/ci-summary.mjs       if (problems.length) red = true;
  *   scripts/beta-acceptance/fetch-ci-reports.mjs copyFileSync(join(dir, file), target);
@@ -27,7 +30,8 @@ import { createServer } from 'http';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, copyFileSync } from 'fs';
 import { join } from 'path';
 import { load } from 'js-yaml';
-import { copyProgram, REPO, runAcceptance, scratch, weaken, writeInstaller, writeSteps } from '../utils/xspec-469.js';
+import { copyProgram, REPO, runAcceptance, scratch, weaken, writeFakePackage, writeInstaller, writeSteps } from '../utils/xspec-469.js';
+import { resolveNpm } from '../../../scripts/beta-acceptance/lib/install.mjs';
 import { parseArgs } from '../../../scripts/beta-acceptance/run.mjs';
 import { pickArtifacts } from '../../../scripts/beta-acceptance/fetch-ci-reports.mjs';
 
@@ -36,6 +40,8 @@ afterAll(() => tmp.cleanup());
 
 const ACCEPT = join(REPO, 'scripts', 'beta-acceptance');
 const WAIT = join(ACCEPT, 'wait-for-npm.mjs');
+const RUN = join(ACCEPT, 'run.mjs');
+const NPM_CACHE = tmp.next('npm-cache'); // npm keeps a package document for minutes; every test run starts with none
 const RESOLVE = join(ACCEPT, 'resolve-version.mjs');
 const SUMMARY = join(ACCEPT, 'ci-summary.mjs');
 const FETCH = join(ACCEPT, 'fetch-ci-reports.mjs');
@@ -44,7 +50,7 @@ const WORKFLOW = join(REPO, '.github', 'workflows', 'post-publish-acceptance.yml
 /** Start a program the way the workflow does (a real child process) and wait for it. Async: the registry lives in this process. */
 function start(script, args, { env = {}, cwd = REPO } = {}) {
   return new Promise((done) => {
-    const child = spawn(process.execPath, [script, ...args], { cwd, env: { ...process.env, GITHUB_ACTIONS: '', GITHUB_STEP_SUMMARY: '', GITHUB_OUTPUT: '', ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [script, ...args], { cwd, env: { ...process.env, npm_config_cache: NPM_CACHE, GITHUB_ACTIONS: '', GITHUB_STEP_SUMMARY: '', GITHUB_OUTPUT: '', ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (c) => { stdout += c; });
@@ -55,24 +61,49 @@ function start(script, args, { env = {}, cwd = REPO } = {}) {
 
 // ───────────────────────────── a registry the test controls ─────────────────────────────
 
+const WAIT_VERSION = '6.14.0-beta.7';
+
 /**
- * `versionStatuses` / `tarballStatuses`: the answer to the 1st, 2nd, ... request; the last one repeats.
- * `versionBody`: what a 200 on the version document says (default: the version asked for).
+ * A registry that answers like npm's, and that the test reads back. It tells apart who is asking (by User-Agent): the
+ * programs under test use Node's fetch ("own"), `npm view` and `npm install` send "npm/...". Each side counts its own requests.
+ *
+ *   packumentStatuses   the answer of the PACKAGE document (`/universal-dev-standards`, the one `npm install` reads) to the 1st, 2nd, ...
+ *                       request of the program itself; the last one repeats.
+ *   packumentVersions   the versions that each 200 of the package document lists (1st, 2nd, ... 200; the last repeats).
+ *   npmStatuses / npmVersions   the same for requests from npm (default: always 200 and always listing the version).
+ *   tarballStatuses     the answer of the tarball URL (GET and HEAD) to the 1st, 2nd, ...; the last repeats.
+ *   tarball             bytes served as the tarball (default: empty).
+ *   versionDocument     also serve `/universal-dev-standards/<version>` with 200 and a tarball for ANY version: what the first
+ *                       version of wait-for-npm trusted, and what `npm install` never reads (2026-10-10, run 37969191195).
  */
-async function registry({ versionStatuses, tarballStatuses = [200], versionBody = null }) {
+async function registry({ version = WAIT_VERSION, packumentStatuses = [200], packumentVersions = [[version]], npmStatuses = null, npmVersions = null, tarballStatuses = [200], tarball = null, versionDocument = true }) {
   const requests = [];
-  const counters = { version: 0, tarball: 0 };
+  const counters = { own: 0, npm: 0, ownVersions: 0, npmVersions: 0, tarball: 0 };
+  const lists = { own: [packumentStatuses, packumentVersions], npm: [npmStatuses || [200], npmVersions || [[version]]] };
+  const next = (list, key) => list[Math.min(counters[key]++, list.length - 1)];
   const server = createServer((req, res) => {
-    requests.push(`${req.method} ${req.url}`);
-    const next = (list, key) => list[Math.min(counters[key]++, list.length - 1)];
-    const m = /^\/universal-dev-standards\/(.+)$/.exec(req.url);
-    if (m && req.method === 'GET') {
-      const status = next(versionStatuses, 'version');
-      res.writeHead(status, { 'content-type': 'application/json' });
-      res.end(status === 200 ? JSON.stringify(versionBody || { name: 'universal-dev-standards', version: decodeURIComponent(m[1]), dist: { tarball: `http://127.0.0.1:${server.address().port}/tarballs/uds.tgz` } }) : '{"error":"x"}');
+    const who = /^npm\//.test(req.headers['user-agent'] || '') ? 'npm' : 'own';
+    requests.push(`${who === 'npm' ? 'NPM ' : ''}${req.method} ${req.url}`);
+    const base = `http://127.0.0.1:${server.address().port}`;
+    if (req.url === '/universal-dev-standards' && req.method === 'GET') {
+      const status = next(lists[who][0], who);
+      if (status !== 200) {
+        res.writeHead(status, { 'content-type': 'application/json' });
+        res.end('{"error":"x"}');
+        return;
+      }
+      const listed = next(lists[who][1], `${who}Versions`);
+      const versions = Object.fromEntries(listed.map((v) => [v, { name: 'universal-dev-standards', version: v, dist: { tarball: `${base}/tarballs/uds.tgz` } }]));
+      // as the real registry: a client may keep the document for 5 minutes and asks again with its ETag after that
+      res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'public, max-age=300', etag: `"${listed.join(',') || 'none'}"` });
+      res.end(JSON.stringify({ name: 'universal-dev-standards', 'dist-tags': listed.length ? { latest: listed[listed.length - 1] } : {}, versions }));
+    } else if (versionDocument && req.method === 'GET' && /^\/universal-dev-standards\/[^/]+$/.test(req.url)) {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ name: 'universal-dev-standards', version: decodeURIComponent(req.url.split('/')[2]), dist: { tarball: `${base}/tarballs/uds.tgz` } }));
     } else if (req.url === '/tarballs/uds.tgz') {
-      res.writeHead(next(tarballStatuses, 'tarball'));
-      res.end();
+      const status = next(tarballStatuses, 'tarball');
+      res.writeHead(status, tarball ? { 'content-type': 'application/octet-stream', 'content-length': tarball.length } : {});
+      res.end(req.method === 'HEAD' || status !== 200 ? undefined : tarball || undefined);
     } else {
       res.writeHead(500);
       res.end();
@@ -87,30 +118,91 @@ async function registry({ versionStatuses, tarballStatuses = [200], versionBody 
   };
 }
 
-const waitFor = async (reg, extra = [], version = '6.14.0-beta.7', env = {}) =>
+const waitFor = async (reg, extra = [], version = WAIT_VERSION, env = {}) =>
   start(WAIT, ['--version', version, '--timeout-sec', '1', '--interval-sec', '0.1', ...extra], { env: { npm_config_registry: reg.url, ...env } });
+
+const PACKUMENT = /^GET \/universal-dev-standards$/;
+const NPM_PACKUMENT = /^NPM GET \/universal-dev-standards$/;
 
 // ───────────────────────────── wait-for-npm ─────────────────────────────
 
-it('keeps asking until the registry resolves the version and its tarball, then exits 0 without waiting any fixed time (XSPEC-471 R1)', async () => {
-  const reg = await registry({ versionStatuses: [404, 404, 200], tarballStatuses: [404, 200] });
+it('keeps asking until the package document lists the version, its tarball answers and npm itself resolves it, then exits 0 without waiting any fixed time (XSPEC-471 R1)', async () => {
+  const reg = await registry({ packumentStatuses: [404, 404, 200], tarballStatuses: [404, 200] });
   try {
-    const r = await start(WAIT, ['--version', '6.14.0-beta.7', '--timeout-sec', '20', '--interval-sec', '0.1'], { env: { npm_config_registry: reg.url } });
+    const r = await start(WAIT, ['--version', WAIT_VERSION, '--timeout-sec', '60', '--interval-sec', '0.1'], { env: { npm_config_registry: reg.url } });
     expect(r.code, r.out).toBe(0);
-    expect(r.stdout).toContain('OK: universal-dev-standards@6.14.0-beta.7 is on the registry');
-    // read back from the server: the version document was asked for three times, then the tarball twice (once not yet there)
-    expect(reg.count(/^GET \/universal-dev-standards\/6\.14\.0-beta\.7$/)).toBe(4);
+    expect(r.stdout).toContain(`OK: universal-dev-standards@${WAIT_VERSION} is on the registry`);
+    // read back from the server: the package document was asked for four times (404, 404, 200 with the tarball not yet there, 200),
+    // the tarball twice (once not yet there), and npm resolved it once, only after all of that
+    expect(reg.count(PACKUMENT)).toBe(4);
     expect(reg.count(/^HEAD \/tarballs\/uds\.tgz$/)).toBe(2);
+    expect(reg.count(NPM_PACKUMENT)).toBe(1);
+    expect(reg.requests.findIndex((q) => NPM_PACKUMENT.test(q)), 'npm is asked only after the tarball answered').toBeGreaterThan(reg.requests.lastIndexOf('HEAD /tarballs/uds.tgz'));
   } finally {
     await reg.close();
   }
 });
 
+it('the 2026-10-10 incident: a version document that already answers 200 does not count while the package document that npm install reads does not list the version yet (XSPEC-471 R1)', async () => {
+  // run 37969191195: GET /universal-dev-standards/6.14.0-beta.8 was 200 with a reachable tarball on the 8th poll, `npm install` of the same version failed at once.
+  // Here the version document answers 200 from the first request; the package document lists the version only from its 4th answer.
+  const reg = await registry({ packumentVersions: [[], [], [], [WAIT_VERSION]], versionDocument: true });
+  try {
+    const r = await start(WAIT, ['--version', WAIT_VERSION, '--timeout-sec', '60', '--interval-sec', '0.1'], { env: { npm_config_registry: reg.url } });
+    expect(r.code, r.out).toBe(0);
+    expect(reg.count(PACKUMENT), 'found only from the 4th answer of the package document').toBe(4);
+    expect(r.stdout).toMatch(/attempt 1,.*: absent/);
+    expect(r.stdout).toMatch(/attempt 4,.*: found/);
+    expect(reg.count(/^GET \/universal-dev-standards\/./), 'the version document is not what is asked').toBe(0);
+  } finally {
+    await reg.close();
+  }
+
+  // and when the package document never lists it, the version document alone cannot make the package "published"
+  const never = await registry({ packumentVersions: [[]], versionDocument: true });
+  try {
+    const r = await waitFor(never);
+    expect(r.code, r.out).toBe(1);
+    expect(r.stderr).toContain('NOT PUBLISHED');
+    expect(r.stderr).toContain('套件未上架，不是平台失敗');
+    expect(r.stderr).toContain(`do not include ${WAIT_VERSION}`);
+  } finally {
+    await never.close();
+  }
+});
+
+it('npm itself has the last word: when the package document and tarball are fine but npm view still says "no such version", it keeps waiting, and when npm view breaks for another reason the result is "could not ask", not "not published" (XSPEC-471 R1)', async () => {
+  // npm's own 1st request gets a document without the version (another edge, an older cache); its 2nd gets the version
+  const edge = await registry({ npmVersions: [[], [WAIT_VERSION]] });
+  try {
+    const r = await start(WAIT, ['--version', WAIT_VERSION, '--timeout-sec', '60', '--interval-sec', '0.1'], { env: { npm_config_registry: edge.url } });
+    expect(r.code, r.out).toBe(0);
+    expect(r.stdout).toMatch(/attempt 1,.*: absent — npm view .*E404/);
+    expect(r.stdout).toMatch(/attempt 2,.*: found/);
+    expect(edge.count(PACKUMENT)).toBe(2);
+    expect(edge.count(NPM_PACKUMENT)).toBe(2);
+  } finally {
+    await edge.close();
+  }
+
+  // npm is refused (403) while the program's own client is not: that is "could not ask" (exit 2) at the limit
+  const refused = await registry({ npmStatuses: [403] });
+  try {
+    const r = await waitFor(refused);
+    expect(r.code, r.out).toBe(2);
+    expect(r.stderr).toContain('COULD NOT ASK');
+    expect(r.out).not.toContain('NOT PUBLISHED');
+    expect(r.out).not.toContain('套件未上架');
+  } finally {
+    await refused.close();
+  }
+});
+
 it('a version that never appears exits 1 and says, in English and Chinese, in the log and in the job summary, that the package is not published and this is not a platform failure (XSPEC-471 R1)', async () => {
-  const reg = await registry({ versionStatuses: [404] });
+  const reg = await registry({ packumentStatuses: [404] });
   try {
     const summary = tmp.next('summary.md');
-    const r = await waitFor(reg, [], '6.14.0-beta.7', { GITHUB_STEP_SUMMARY: summary });
+    const r = await waitFor(reg, [], WAIT_VERSION, { GITHUB_STEP_SUMMARY: summary });
     expect(r.code, r.out).toBe(1);
     expect(r.stderr).toContain('NOT PUBLISHED');
     expect(r.stderr).toContain('套件未上架，不是平台失敗');
@@ -123,8 +215,8 @@ it('a version that never appears exits 1 and says, in English and Chinese, in th
   }
 });
 
-it('a registry that answers with errors exits 2 and does NOT claim the package is missing; a version document for another version, and a tarball that stays 404, both count as not published (XSPEC-471 R1)', async () => {
-  const broken = await registry({ versionStatuses: [503] });
+it('a registry that answers with errors exits 2 and does NOT claim the package is missing; a package document without the version, and a tarball that stays 404, both count as not published (XSPEC-471 R1)', async () => {
+  const broken = await registry({ packumentStatuses: [503] });
   try {
     const r = await waitFor(broken);
     expect(r.code, r.out).toBe(2);
@@ -135,17 +227,17 @@ it('a registry that answers with errors exits 2 and does NOT claim the package i
     await broken.close();
   }
 
-  const other = await registry({ versionStatuses: [200], versionBody: { version: '9.9.9', dist: { tarball: 'http://127.0.0.1:1/never' } } });
+  const other = await registry({ packumentVersions: [['9.9.9']] });
   try {
     const r = await waitFor(other);
     expect(r.code, r.out).toBe(1);
     expect(r.stderr).toContain('NOT PUBLISHED');
-    expect(r.stderr).toContain('not 6.14.0-beta.7');
+    expect(r.stderr).toContain(`do not include ${WAIT_VERSION}`);
   } finally {
     await other.close();
   }
 
-  const noTarball = await registry({ versionStatuses: [200], tarballStatuses: [404] });
+  const noTarball = await registry({ tarballStatuses: [404] });
   try {
     const r = await waitFor(noTarball);
     expect(r.code, r.out).toBe(1);
@@ -156,7 +248,7 @@ it('a registry that answers with errors exits 2 and does NOT claim the package i
 });
 
 it('arguments that would put something else into the registry URL or the command line are refused with exit 2 before any request (XSPEC-471 R1)', async () => {
-  const reg = await registry({ versionStatuses: [200] });
+  const reg = await registry({});
   try {
     for (const bad of ['6.14.0/../x', '6.14.0 && echo hi', '$(id)', '']) {
       const r = await start(WAIT, ['--version', bad], { env: { npm_config_registry: reg.url } });
@@ -169,39 +261,160 @@ it('arguments that would put something else into the registry URL or the command
   }
 });
 
-it('weakening the wait program turns the properties red: a document for the wrong version, or a missing tarball, would be taken for a resolvable package (XSPEC-471 R1)', async () => {
+it('weakening the wait program turns the properties red: no package-document check, no npm check, a document for the wrong version, or a missing tarball would be taken for a resolvable package (XSPEC-471 R1)', async () => {
   const copyWith = (from, to) => {
     const root = tmp.next('copy');
     const file = join(copyProgram(root), 'wait-for-npm.mjs');
     weaken(file, from, to);
     return file;
   };
-  const wrongVersion = () => registry({ versionStatuses: [200], versionBody: { version: '9.9.9', dist: { tarball: 'http://127.0.0.1:1/never' } } });
+  const short = ['--version', WAIT_VERSION, '--timeout-sec', '1', '--interval-sec', '0.1'];
+  const wrongVersion = () => registry({ packumentVersions: [['9.9.9']] });
 
-  // control: the unweakened program says "not published" for the wrong-version document (same arm as above)
+  // control: the unweakened program says "not published" for the document that lists another version (same arm as above)
   const control = await wrongVersion();
   try {
-    expect((await start(WAIT, ['--version', '6.14.0-beta.7', '--timeout-sec', '1', '--interval-sec', '0.1'], { env: { npm_config_registry: control.url } })).code).toBe(1);
+    expect((await start(WAIT, short, { env: { npm_config_registry: control.url } })).code).toBe(1);
   } finally {
     await control.close();
   }
 
-  // weakened: the version in the document is not compared, so the program goes on to the tarball (here a dead address) and cannot tell
-  const noCompare = copyWith("if (doc.version !== version) return { kind: 'absent'", "if (false) return { kind: 'absent'");
+  // weakened: the package document is not checked for the version, so the program goes on to the (dead) tarball and cannot tell
+  const noCompare = copyWith("if (!entry) return { kind: 'absent'", "if (false) return { kind: 'absent'");
   const a = await wrongVersion();
   try {
-    expect((await start(noCompare, ['--version', '6.14.0-beta.7', '--timeout-sec', '1', '--interval-sec', '0.1'], { env: { npm_config_registry: a.url } })).code, 'a document for another version was not rejected as "absent"').not.toBe(1);
+    expect((await start(noCompare, short, { env: { npm_config_registry: a.url } })).code, 'a document for another version was not rejected as "absent"').not.toBe(1);
   } finally {
     await a.close();
   }
 
+  // weakened: what npm view says is not looked at, so the first fine-looking answer ends the wait
+  const noNpm = copyWith("if (npm.kind !== 'found') return npm;", 'if (false) return npm;');
+  const edge = await registry({ npmVersions: [[], [WAIT_VERSION]] });
+  try {
+    const r = await start(noNpm, ['--version', WAIT_VERSION, '--timeout-sec', '60', '--interval-sec', '0.1'], { env: { npm_config_registry: edge.url } });
+    expect(r.code, r.out).toBe(0);
+    expect(r.stdout, 'without the npm question the wait ends at the first poll').toMatch(/attempt 1,.*: found/);
+  } finally {
+    await edge.close();
+  }
+
   // weakened: a 404 on the tarball is an error, not "not there yet", so "not published" becomes "could not ask"
   const noTarball404 = copyWith("if (head.status === 404) return { kind: 'absent'", "if (false) return { kind: 'absent'");
-  const b = await registry({ versionStatuses: [200], tarballStatuses: [404] });
+  const b = await registry({ tarballStatuses: [404] });
   try {
-    expect((await start(noTarball404, ['--version', '6.14.0-beta.7', '--timeout-sec', '1', '--interval-sec', '0.1'], { env: { npm_config_registry: b.url } })).code).toBe(2);
+    expect((await start(noTarball404, short, { env: { npm_config_registry: b.url } })).code).toBe(2);
   } finally {
     await b.close();
+  }
+});
+
+
+// ───────────────────────────── npm install of the published version (run.mjs) ─────────────────────────────
+
+const INSTALL_VERSION = '1.2.3';
+
+/** The bytes of a real package tarball (made by `npm pack`, offline), so that npm can really install what the registry serves. */
+function packFakePackage() {
+  const dir = writeFakePackage(tmp.next('pkg'), INSTALL_VERSION);
+  const dest = tmp.next('packed');
+  mkdirSync(dest);
+  const npm = resolveNpm();
+  const r = spawnSync(npm.file, [...npm.prefixArgs, 'pack', dir, '--pack-destination', dest, '--offline', '--silent', '--no-update-notifier'], { encoding: 'utf-8', shell: npm.shell, env: { ...process.env, npm_config_cache: tmp.next('npm-cache') } });
+  if (r.status !== 0) throw new Error(`npm pack failed: ${r.stdout}${r.stderr}`);
+  return readFileSync(join(dest, readdirSync(dest).find((n) => n.endsWith('.tgz'))));
+}
+
+/** `node run.mjs --version 1.2.3` against the test registry, as the workflow runs it; waits are shortened from seconds to milliseconds. */
+async function installRun(reg, extra = [], env = {}) {
+  const outDir = tmp.next('out');
+  const steps = writeSteps(tmp.next('steps.json'), [{ id: 'prints-version', title: 'prints its version', uds: ['--version'], expect: { contains: [INSTALL_VERSION] } }]);
+  const r = await start(RUN, ['--version', INSTALL_VERSION, '--steps', steps, '--non-interactive', '--out', outDir, '--install-retry-wait', '0.05', ...extra], { env: { npm_config_registry: reg.url, npm_config_cache: tmp.next('npm-cache'), npm_config_fetch_retries: '0', ...env } });
+  const json = existsSync(outDir) ? readdirSync(outDir).filter((n) => n.endsWith('.json')).map((n) => JSON.parse(readFileSync(join(outDir, n), 'utf-8'))) : [];
+  return { ...r, report: json[0] };
+}
+
+it('npm install that is told "no such version" twice (the registry has not caught up) is tried again, prints the retries, and the run goes on to pass (XSPEC-471 R1)', async () => {
+  const tarball = packFakePackage();
+  // ETARGET: the package document is there but does not list the version yet; E404: the package document is not there yet
+  for (const arm of [
+    { name: 'ETARGET', opts: { npmVersions: [[], [], [INSTALL_VERSION]] }, said: 'ETARGET' },
+    { name: 'E404', opts: { npmStatuses: [404, 404, 200] }, said: 'E404' },
+  ]) {
+    const reg = await registry({ version: INSTALL_VERSION, tarball, ...arm.opts });
+    try {
+      const r = await installRun(reg);
+      expect(r.code, `${arm.name}: ${r.out}`).toBe(0);
+      expect(reg.count(NPM_PACKUMENT), `${arm.name}: npm asked for the package document three times`).toBe(3);
+      expect(r.stdout, arm.name).toContain('npm install attempt 1/5 failed');
+      expect(r.stdout, arm.name).toContain('npm install attempt 2/5 failed');
+      expect(r.stdout, arm.name).toContain('retrying in 0.05 s');
+      expect(r.stdout, arm.name).toContain(arm.said);
+      expect(r.stdout, `${arm.name}: no third failure`).not.toContain('attempt 3/5 failed');
+      // read back: the package really was installed on the 3rd attempt, and the run says so in its report
+      expect(r.report.counts, arm.name).toMatchObject({ passed: 1, failed: 0 });
+      expect(r.report.uds.version, arm.name).toBe(INSTALL_VERSION);
+      expect(r.report.notes.join('\n'), arm.name).toContain('npm install needed 3 attempts');
+    } finally {
+      await reg.close();
+    }
+  }
+});
+
+it('npm install that fails for any other reason is not tried again, and one that keeps being told "no such version" gives up after the number of attempts it was given (XSPEC-471 R1)', async () => {
+  const tarball = packFakePackage();
+  // 403: not a "version not found" answer, so one attempt only
+  const refused = await registry({ version: INSTALL_VERSION, tarball, npmStatuses: [403] });
+  try {
+    const r = await installRun(refused);
+    expect(r.code, r.out).toBe(2);
+    expect(refused.count(NPM_PACKUMENT), 'asked once').toBe(1);
+    expect(r.stdout).not.toContain('retrying');
+    expect(r.out).toContain('install failed');
+    expect(r.report.install.ok).toBe(false);
+  } finally {
+    await refused.close();
+  }
+
+  // never there: the limit is --install-retries
+  for (const attempts of [3, 1]) {
+    const never = await registry({ version: INSTALL_VERSION, tarball, npmVersions: [[]] });
+    try {
+      const r = await installRun(never, ['--install-retries', String(attempts)]);
+      expect(r.code, r.out).toBe(2);
+      expect(never.count(NPM_PACKUMENT), `--install-retries ${attempts}`).toBe(attempts);
+      expect(r.stdout).toContain(`attempt ${attempts}/${attempts} failed`);
+      expect(r.stdout).toContain('no attempts left');
+      expect(r.out).toContain('install failed');
+    } finally {
+      await never.close();
+    }
+  }
+});
+
+it('the retries stop at the time limit, and a bad --install-retries or --install-retry-wait is refused with exit 2 before anything is installed (XSPEC-471 R1)', async () => {
+  for (const bad of [['--install-retries', '0'], ['--install-retries', '2.5'], ['--install-retries', 'many'], ['--install-retry-wait', '-1'], ['--install-retry-wait', 'soon']]) {
+    const reg = await registry({ version: INSTALL_VERSION });
+    try {
+      const r = await installRun(reg, bad);
+      expect(r.code, `${bad.join(' ')}: ${r.out}`).toBe(2);
+      expect(reg.requests, `${bad.join(' ')}: nothing was asked`).toEqual([]);
+    } finally {
+      await reg.close();
+    }
+  }
+
+  // a first wait of 200 s is already beyond the 180 s limit: it gives up after the first attempt, without sleeping
+  const slow = await registry({ version: INSTALL_VERSION, npmVersions: [[]] });
+  try {
+    const started = Date.now();
+    const r = await installRun(slow, ['--install-retry-wait', '200']);
+    expect(Date.now() - started, 'it did not sleep 200 s').toBeLessThan(60000);
+    expect(r.code, r.out).toBe(2);
+    expect(slow.count(NPM_PACKUMENT)).toBe(1);
+    expect(r.stdout).toContain('180 s limit would be passed');
+  } finally {
+    await slow.close();
   }
 });
 
@@ -796,15 +1009,15 @@ it('the run step of the workflow, as written, is accepted by run.mjs, asks for n
 it('the wait step of the workflow, as written, succeeds against a registry that has the version and fails with the "not published" message against one that has not (XSPEC-471 R1)', async () => {
   const wait = commandOf(stepNamed(accept(), 'Wait until the version can be installed'));
   expect(wait.script).toBe(WAIT);
-  const there = await registry({ versionStatuses: [200] });
+  const there = await registry({ version: VERSION });
   try {
     const r = await start(wait.script, wait.args, { env: { npm_config_registry: there.url } });
     expect(r.code, r.out).toBe(0);
-    expect(there.requests[0]).toBe(`GET /universal-dev-standards/${VERSION}`);
+    expect(there.requests[0], 'it asks for the package document, the one npm install reads').toBe('GET /universal-dev-standards');
   } finally {
     await there.close();
   }
-  const absent = await registry({ versionStatuses: [404] });
+  const absent = await registry({ version: VERSION, packumentStatuses: [404] });
   try {
     // the workflow's own limit is 20 minutes; the test shortens it, which is the one thing it adds
     const r = await start(wait.script, [...wait.args, '--timeout-sec', '1', '--interval-sec', '0.1'], { env: { npm_config_registry: absent.url } });

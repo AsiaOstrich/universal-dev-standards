@@ -30,6 +30,10 @@
       "reason": "A CI job and a baseline file for the maintainers in the repository (scripts/beta-acceptance/check-cli-coverage.mjs); it adds no command or option to the installed uds and nothing of it is in the npm package. Tested by cli/tests/e2e/xspec-471-r2-cli-coverage.test.js and xspec-471-r3-effect-assertions.test.js."
     },
     {
+      "changelog": "CI: the post-publish acceptance waits for what npm install reads",
+      "reason": "Maintainer tooling under scripts/beta-acceptance/ (wait-for-npm.mjs and the retry in lib/install.mjs), started by a GitHub workflow after a release; it is not part of the npm package and changes no command or option of the installed uds. Tested by cli/tests/e2e/xspec-471-r1-post-publish-acceptance.test.js."
+    },
+    {
       "step": "human-commit-warning-display",
       "reason": "The step lets git print to the person's own terminal (human.inherit) so the person can see whether the characters are readable; the program cannot read that output. The automatic step commit-warning-hook checks the same warning text with contains."
     },

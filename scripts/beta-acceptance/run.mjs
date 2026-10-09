@@ -17,6 +17,10 @@
  *   --non-interactive   never ask; unanswered manual items are recorded as unconfirmed
  *   --only <id,id>      run only these steps (debugging; a partial run is not an acceptance run)
  *   --timeout <sec>     per-step limit (default 120)
+ *   --install-retries <n>       attempts for `npm install` of a registry version (default 5; 1 = no retry). Only a
+ *                       "version not found" answer (E404 / ETARGET) is tried again; anything else fails at once
+ *   --install-retry-wait <sec>  wait before the 2nd attempt, doubling after each (default 5: 5, 10, 20, 40 s);
+ *                       no new attempt starts after 180 s from the first one
  *   --keep              keep the throwaway folder (it is printed)
  *   --steps <file>      another list (default: steps.json next to this file)
  * For tests and for people writing steps (the report says which was used, and the PRE-RELEASE generator ignores
@@ -40,17 +44,17 @@ import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { collectEnvironment } from './lib/env-info.mjs';
 import { runSteps } from './lib/execute.mjs';
-import { installPackage, readNpmVersion } from './lib/install.mjs';
+import { INSTALL_RETRY, installPackage, readNpmVersion } from './lib/install.mjs';
 import { buildReport, EXIT, toMarkdown, VERDICT_TEXT } from './lib/report.mjs';
 import { platformName, validateSteps } from './lib/steps.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-const VALUE_FLAGS = ['--version', '--out', '--label', '--shell', '--answers', '--only', '--timeout', '--steps', '--source', '--installer', '--local-bin'];
+const VALUE_FLAGS = ['--version', '--out', '--label', '--shell', '--answers', '--only', '--timeout', '--steps', '--source', '--installer', '--local-bin', '--install-retries', '--install-retry-wait'];
 const BOOLEAN_FLAGS = ['--keep', '--non-interactive', '--help', '-h'];
 
 export function parseArgs(argv) {
-  const opts = { version: 'beta', versionGiven: false, out: resolve('uds-beta-acceptance-reports'), label: null, shell: null, answers: null, only: null, timeout: 120, steps: join(HERE, 'steps.json'), source: null, installer: null, localBin: null, keep: false, nonInteractive: false, help: false };
+  const opts = { version: 'beta', versionGiven: false, out: resolve('uds-beta-acceptance-reports'), label: null, shell: null, answers: null, only: null, timeout: 120, steps: join(HERE, 'steps.json'), source: null, installer: null, localBin: null, installRetries: INSTALL_RETRY.attempts, installRetryWaitSec: INSTALL_RETRY.baseWaitMs / 1000, keep: false, nonInteractive: false, help: false };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     const eq = a.indexOf('=');
@@ -81,6 +85,18 @@ export function parseArgs(argv) {
       case '--source': opts.source = resolve(value); break;
       case '--installer': opts.installer = resolve(value); break;
       case '--local-bin': opts.localBin = resolve(value); break;
+      case '--install-retries': {
+        const n = Number(value);
+        if (!Number.isInteger(n) || n < 1) throw new Error(`--install-retries must be a whole number of attempts, 1 or more, got "${value}"`);
+        opts.installRetries = n;
+        break;
+      }
+      case '--install-retry-wait': {
+        const n = Number(value);
+        if (!Number.isFinite(n) || n < 0) throw new Error(`--install-retry-wait must be a number of seconds, 0 or more, got "${value}"`);
+        opts.installRetryWaitSec = n;
+        break;
+      }
       default: break;
     }
   }
@@ -153,7 +169,7 @@ export async function main(argv) {
   log(`[beta-acceptance] ${platform}, Node ${process.version}; working in ${sandbox}`);
   log(`[beta-acceptance] installing ${opts.localBin ? `(no install: ${opts.localBin})` : opts.installer ? `(injected installer ${opts.installer})` : opts.source ? opts.source : `universal-dev-standards@${opts.version}`} ...`);
 
-  const install = await installPackage({ dir: join(sandbox, 'install'), version: opts.version, source: opts.source, installer: opts.installer, local: opts.localBin });
+  const install = await installPackage({ dir: join(sandbox, 'install'), version: opts.version, source: opts.source, installer: opts.installer, local: opts.localBin, retry: { ...INSTALL_RETRY, attempts: opts.installRetries, baseWaitMs: opts.installRetryWaitSec * 1000 }, log });
   const environment = await collectEnvironment({ shell: opts.shell, npmVersion: await readNpmVersion() });
   const request = { version: opts.version, versionGiven: opts.versionGiven, source: opts.source ? '--source' : opts.installer ? '--installer' : opts.localBin ? '--local-bin' : 'npm registry', stepsFile: opts.steps === join(HERE, 'steps.json') ? 'scripts/beta-acceptance/steps.json' : 'another list (--steps)', stepsSha256 };
   const label = opts.label || '(no --label given)';
@@ -161,6 +177,7 @@ export async function main(argv) {
   let uds = { version: install.version || 'unknown', installKind: install.kind };
   const notes = [];
   let error = install.ok ? null : `install failed: ${install.error}`;
+  if (install.attempts > 1) notes.push(`npm install needed ${install.attempts} attempts (${install.ok ? 'the last one worked' : 'none worked'}): the registry answered "version not found" for a while after the version was published. npm install 試了 ${install.attempts} 次。`);
   if (install.ok && opts.versionGiven && /^\d+\.\d+\.\d+/.test(opts.version) && install.version !== opts.version) {
     error = `asked for ${opts.version} but ${install.version} is installed`;
   }
