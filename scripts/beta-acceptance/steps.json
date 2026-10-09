@@ -32,6 +32,10 @@
     {
       "step": "human-commit-warning-display",
       "reason": "The step lets git print to the person's own terminal (human.inherit) so the person can see whether the characters are readable; the program cannot read that output. The automatic step commit-warning-hook checks the same warning text with contains."
+    },
+    {
+      "changelog": "CI: after a release is published, the acceptance steps run against",
+      "reason": "A GitHub workflow (.github/workflows/post-publish-acceptance.yml) and four maintainer programs under scripts/beta-acceptance/ that run in the repository or on GitHub; none is in the npm package and no installed command changes. Tested by cli/tests/e2e/xspec-471-r1-post-publish-acceptance.test.js; the three real runs are only visible on the Actions page after a publish."
     }
   ],
   "steps": [
