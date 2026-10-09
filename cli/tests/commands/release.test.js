@@ -3,7 +3,7 @@
  * Tests the releaseCommand entry point and subcommand routing.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock fs
 vi.mock('fs', async (importOriginal) => {
@@ -50,6 +50,11 @@ describe('Release Command', () => {
     });
     // Default: no release-config.yaml (ci-cd mode)
     existsSync.mockReturnValue(false);
+  });
+
+  // verify sets process.exitCode on failure; vitest reads the worker's exit code, so a leaked value would fail the whole run.
+  afterEach(() => {
+    process.exitCode = undefined;
   });
 
   // ============================================================
@@ -324,6 +329,7 @@ describe('Release Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('通過');
+      expect(process.exitCode).toBeUndefined();
     });
 
     it('should fail when commit does not match', async () => {
@@ -346,6 +352,7 @@ describe('Release Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('失敗');
+      expect(process.exitCode).toBe(1);
     });
 
     it('should report missing manifest', async () => {
@@ -358,6 +365,7 @@ describe('Release Command', () => {
 
       const output = consoleLogs.join('\n');
       expect(output).toContain('build-manifest.json');
+      expect(process.exitCode).toBe(2);
     });
 
     // T13 (XSPEC-292): verify must consume the recorded checksum via --artifact

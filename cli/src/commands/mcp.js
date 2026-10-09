@@ -16,9 +16,8 @@ export function mcpCommand(program) {
   mcp
     .command('serve')
     .description('Start MCP Design Standards Server (stdio transport)')
-    .option('--root <path>', 'UDS standards root path', process.cwd())
-    .action((options) => {
-      const server = new McpServer({ udsRoot: options.root });
+    .action(() => {
+      const server = new McpServer();
       server.start();
       // Log to stderr only — stdout is reserved for MCP JSON-RPC messages
       process.stderr.write('UDS MCP Design Standards Server started (stdio)\n');

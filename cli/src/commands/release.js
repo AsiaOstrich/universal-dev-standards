@@ -7,7 +7,16 @@
  *   deploy   — Record deployment to environment (manual/hybrid mode)
  *   manifest — Generate build-manifest.json (manual/hybrid mode)
  *   verify   — Verify manifest against git state (manual/hybrid mode)
+ *
+ * Exit codes of `verify` (a script that gates a release on it must never read a failure as a pass):
+ *   0  the manifest verified
+ *   1  verification FAILED (commit or checksum does not match what the manifest records)
+ *   2  could not verify (no manifest, unreadable manifest, artifact not found, or the mode has no verify)
+ * 1 = "the answer is no", 2 = "no answer", the same split as `uds hitl check`.
  */
+
+const EXIT_VERIFY_FAILED = 1;
+const EXIT_CANNOT_VERIFY = 2;
 
 import chalk from 'chalk';
 import * as yaml from 'js-yaml';
@@ -16,7 +25,7 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import { resolveReleaseWorkflow } from '../utils/release-config.js';
-import { formatGitTag, createPromotionRecord, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
+import { formatGitTag, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
 
 // Default deployment environments (overridable via release-config.yaml release.environments)
 const DEFAULT_ENVIRONMENTS = ['development', 'staging', 'canary', 'preview', 'production'];
@@ -165,9 +174,13 @@ export async function releaseCommand(subcommand, args, options) {
     case 'verify':
       if (!workflow.hasManifest) {
         console.log(chalk.red('verify 子命令僅在 manual 或 hybrid 模式下可用。'));
+        process.exitCode = EXIT_CANNOT_VERIFY; // nothing was verified; 0 would read as "verified"
         return;
       }
-      await handleVerify(projectPath, options);
+      {
+        const verifyExit = await handleVerify(projectPath, options);
+        if (verifyExit !== 0) process.exitCode = verifyExit; // wire:release-verify-exit
+      }
       break;
 
     default:
@@ -217,16 +230,12 @@ async function handlePromote(targetVersion, projectPath) {
     console.log(chalk.gray(`  晉升目標: ${targetVersion}`));
   }
 
-  // Create promotion record
-  const record = createPromotionRecord(currentVersion || 'unknown', targetVersion);
-  console.log();
-  console.log(chalk.green(`  ✓ 晉升紀錄建立: ${record.promoted_from} → ${record.version}`));
-
-  // Create git tag
+  // This command only prints. It writes no promotion record and creates no git tag, so it must not say it did.
   const tag = formatGitTag(targetVersion);
-  console.log(chalk.green(`  ✓ Git tag: ${tag}`));
   console.log();
-  console.log(chalk.cyan('後續步驟:'));
+  console.log(chalk.yellow('這個指令不會建立晉升紀錄，也不會建立 Git tag；它只列出下一步要執行的事。'));
+  console.log();
+  console.log(chalk.cyan('下一步（由你執行）:'));
   console.log(chalk.gray(`  1. 更新版本檔案為 ${targetVersion}`));
   console.log(chalk.gray(`  2. git tag ${tag}`));
   console.log(chalk.gray('  3. 從此 commit 重新打包'));
@@ -346,6 +355,8 @@ async function handleManifest(versionArg, options, projectPath) {
  *
  * T13 (XSPEC-292): when --artifact is given, compute its SHA256 so verify
  * actually CONSUMES the checksum recorded in the manifest, not just stores it.
+ *
+ * @returns {Promise<number>} the exit code: 0 verified, EXIT_VERIFY_FAILED, or EXIT_CANNOT_VERIFY
  */
 async function handleVerify(projectPath, options = {}) {
   const manifestPath = join(projectPath, 'build-manifest.json');
@@ -353,7 +364,7 @@ async function handleVerify(projectPath, options = {}) {
   if (!existsSync(manifestPath)) {
     console.log(chalk.red('找不到 build-manifest.json'));
     console.log(chalk.gray('  請先執行 uds release manifest'));
-    return;
+    return EXIT_CANNOT_VERIFY;
   }
 
   let manifest;
@@ -361,7 +372,7 @@ async function handleVerify(projectPath, options = {}) {
     manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
   } catch {
     console.log(chalk.red('build-manifest.json 格式不正確'));
-    return;
+    return EXIT_CANNOT_VERIFY;
   }
   const currentCommit = getGitCommit();
 
@@ -371,7 +382,7 @@ async function handleVerify(projectPath, options = {}) {
   if (artifactPath) {
     if (!existsSync(artifactPath)) {
       console.log(chalk.red(`找不到 artifact：${artifactPath}`));
-      return;
+      return EXIT_CANNOT_VERIFY;
     }
     actualChecksum = createHash('sha256').update(readFileSync(artifactPath)).digest('hex');
   }
@@ -407,6 +418,8 @@ async function handleVerify(projectPath, options = {}) {
   } else {
     console.log(chalk.yellow('  Staging: 未通過或無紀錄'));
   }
+
+  return result.valid ? 0 : EXIT_VERIFY_FAILED;
 }
 
 /**

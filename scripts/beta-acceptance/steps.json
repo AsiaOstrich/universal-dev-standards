@@ -42,10 +42,6 @@
       "reason": "It forces `gh issue create` against the public AsiaOstrich/universal-dev-standards repository, and every way to reach that line also submits a real GitHub issue: --dry-run returns before it. No offline or dry-run path exists, so no step may run it. Suggested: let --dry-run print which submission method would be used."
     },
     {
-      "option": "mcp serve --root",
-      "reason": "Known broken: the option is accepted and stored in McpServer.udsRoot, but nothing reads udsRoot, so it changes no answer. Reproduce: run `uds mcp serve --root /elsewhere` and call any tool; the reply is the same as without --root. Waiting for a decision: remove the option or give it a meaning."
-    },
-    {
       "option": "init --experimental",
       "reason": "Its only effect is to add the interactive questions for the standards format, the content mode and the methodology to the init wizard; uds init --yes skips the wizard, so no non-interactive run can show it. Needs a person at a terminal."
     },
@@ -3447,10 +3443,11 @@
       "platform": "all",
       "id": "release-promote",
       "workspace": "r4c-release",
-      "title": "uds release promote <version> names the RC it promotes from and the tag to create (it only prints; it writes nothing)",
-      "titleZh": "uds release promote <版本> 說明從哪個 RC 晉升、要建的 tag（只印出，不寫任何東西）",
-      "smoke": true,
-      "changelog": [],
+      "title": "uds release promote <version> says it creates no promotion record and no tag, and lists the next steps for the person to run",
+      "titleZh": "uds release promote <版本> 明說不建立晉升紀錄也不建 tag，並列出要使用者自己執行的下一步",
+      "changelog": [
+        "uds release promote <version> no longer prints"
+      ],
       "uds": [
         "release",
         "promote",
@@ -3460,12 +3457,44 @@
         "contains": [
           "目前版本: 1.2.0-rc.1",
           "晉升目標: 1.2.0",
-          "晉升紀錄建立: 1.2.0-rc.1 → 1.2.0",
-          "Git tag: v1.2.0",
+          "這個指令不會建立晉升紀錄，也不會建立 Git tag",
+          "下一步（由你執行）",
           "git tag v1.2.0"
         ],
         "notContains": [
-          "版本格式無效"
+          "版本格式無效",
+          "✓",
+          "晉升紀錄建立",
+          "Git tag: v1.2.0"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-promote-creates-no-tag",
+      "workspace": "r4c-release",
+      "title": "After uds release promote, git tag --list in the project is still empty (the command creates no tag)",
+      "titleZh": "uds release promote 之後，專案裡的 git tag --list 仍是空的（這個指令不建 tag）",
+      "changelog": [
+        "uds release promote <version> no longer prints"
+      ],
+      "prepare": [
+        {
+          "writeFile": "tag-count.mjs",
+          "content": "import { spawnSync } from 'node:child_process';\n// Reads the tags back from git itself, so the answer does not depend on what uds printed.\nconst run = spawnSync('git', ['tag', '--list'], { encoding: 'utf8' });\nif (run.status !== 0) { console.log(`git tag --list exited ${run.status}: ${run.stderr}`); process.exit(1); }\nconsole.log(`tags: ${run.stdout.split('\\n').filter(Boolean).length}`);\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "tag-count.mjs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "tags: 0"
+        ],
+        "notContains": [
+          "v1.2.0"
         ]
       }
     },
@@ -3594,10 +3623,11 @@
       "platform": "all",
       "id": "release-verify-wrong-artifact",
       "workspace": "r4c-release",
-      "title": "uds release verify --artifact <another file> reports the checksum mismatch",
-      "titleZh": "uds release verify --artifact <別的檔> 回報 checksum 不符",
-      "smoke": true,
-      "changelog": [],
+      "title": "uds release verify --artifact <another file> reports the checksum mismatch and ends with exit code 1",
+      "titleZh": "uds release verify --artifact <別的檔> 回報 checksum 不符，並以結束碼 1 結束",
+      "changelog": [
+        "Behavior change — uds release verify now ends with exit code 1 when verification fails"
+      ],
       "uds": [
         "release",
         "verify",
@@ -3605,14 +3635,36 @@
         "other.bin"
       ],
       "expect": {
-        "exit": [
-          0,
-          1
-        ],
+        "exit": 1,
         "contains": [
           "Manifest 驗證失敗",
           "checksum mismatch",
           "manifest records \"e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb\""
+        ],
+        "notContains": [
+          "Manifest 驗證通過"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "release-verify-missing-artifact",
+      "workspace": "r4c-release",
+      "title": "uds release verify --artifact <a file that is not there> ends with exit code 2 (could not verify), not 0",
+      "titleZh": "uds release verify --artifact <不存在的檔> 以結束碼 2 結束（無法驗證），不是 0",
+      "changelog": [
+        "Behavior change — uds release verify now ends with exit code 1 when verification fails"
+      ],
+      "uds": [
+        "release",
+        "verify",
+        "--artifact",
+        "not-there.bin"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "找不到 artifact：not-there.bin"
         ],
         "notContains": [
           "Manifest 驗證通過"
@@ -3653,6 +3705,31 @@
         "notContains": [
           "ENOENT",
           "\"error\""
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "mcp-serve-root-option-is-refused",
+      "workspace": "r4c-mcp",
+      "title": "uds mcp serve --root <path> is refused as an unknown option with exit code 1 (the option was removed)",
+      "titleZh": "uds mcp serve --root <路徑> 被當成未知選項拒絕並以結束碼 1 結束（選項已移除）",
+      "changelog": [
+        "Behavior change — the --root <path> option of uds mcp serve is removed"
+      ],
+      "uds": [
+        "mcp",
+        "serve",
+        "--root",
+        "elsewhere"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "error: unknown option '--root'"
+        ],
+        "notContains": [
+          "UDS MCP Design Standards Server started"
         ]
       }
     },

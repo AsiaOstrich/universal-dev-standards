@@ -42,7 +42,6 @@ const REQUIRED_DESIGN_SECTIONS = [
 
 export class McpServer {
   constructor(options = {}) {
-    this.udsRoot = options.udsRoot || process.cwd();
     // For reading UDS bundled files, always use UDS_REPO_ROOT
     this.udsRepoRoot = options.udsRepoRoot || resolveUdsRepoRoot();
   }

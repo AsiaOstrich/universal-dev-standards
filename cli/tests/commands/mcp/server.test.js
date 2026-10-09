@@ -64,7 +64,6 @@ meta:
 // ---------------------------------------------------------------------------
 function makeServer() {
   return new McpServer({
-    udsRoot: '/fake/project',
     udsRepoRoot: '/fake/uds-repo',
   });
 }
