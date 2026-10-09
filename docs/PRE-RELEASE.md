@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
 It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 68 步（64 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 126 steps (122 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 126 步（122 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -249,6 +249,180 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 c
 68. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
    安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
+69. `r4b-init-standard-choices` — uds init --workflow --merge-strategy --output-lang --test-levels records the choices in the manifest and installs the matching option files, not the defaults.
+   uds init --workflow --merge-strategy --output-lang --test-levels 把選擇記入 manifest，並安裝對應的選項檔而非預設值。
+   `uds init -y --skills-location none --workflow gitflow --merge-strategy rebase-ff --output-lang bilingual --test-levels unit-testing,e2e-testing` → exit 0; output has "Standards initialized successfully", "Git Workflow: Gitflow" (+3)
+70. `r4b-init-extensions` — uds init --lang --framework installs the language and framework extension files, and --no-agents-md writes no AGENTS.md.
+   uds init --lang --framework 安裝語言與框架擴充檔，--no-agents-md 不產生 AGENTS.md。
+   `uds init -y --skills-location none --lang php --framework fat-free --content-mode minimal --no-agents-md` → exit 0; output has "Standards initialized successfully", "Languages: php" (+2)
+71. `r4b-init-claude-local-index-agents` — uds init --claude-target local writes the Claude Code block to CLAUDE.local.md and not CLAUDE.md; --content-mode index and --agents-md are honoured.
+   uds init --claude-target local 把 Claude Code 區塊寫進 CLAUDE.local.md 而非 CLAUDE.md；--content-mode index 與 --agents-md 生效。
+   `uds init -y --skills-location none --claude-target local --content-mode index --agents-md` → exit 0; output has "Standards initialized successfully", "Content Mode: Standard" (+1)
+72. `r4b-init-layered-with-hooks` — uds init --content-layout layered writes a CLAUDE.md in the matching sub-folder, and --with-hooks installs the enforcement hook scripts and wires them into .claude/settings.json.
+   uds init --content-layout layered 在對應子目錄寫 CLAUDE.md；--with-hooks 安裝關卡 hook 腳本並接進 .claude/settings.json。
+   `uds init -y --skills-location none --content-layout layered --with-hooks` → exit 0; output has "Standards initialized successfully", "Layered CLAUDE.md generated" (+1)
+73. `r4b-self-adoption-init-refused` — uds init in a folder that is the UDS source repository is refused: exit 1, says to use --force, and writes nothing.
+   uds init 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束、說明可用 --force，且不寫任何檔。
+   `uds init -y --skills-location none` → exit 1; output has "Detected UDS source repo", "Override with --force" (+1)
+74. `r4b-self-adoption-init-force` — uds init --force bypasses the self-adoption guard, warns, and installs.
+   uds init --force 繞過自我採用防護、印出警告並照常安裝。
+   `uds init -y --skills-location none --force` → exit 0; output has "--force was passed, continuing uds init", "Standards initialized successfully"
+75. `r4b-self-adoption-check-refused` — uds check in a folder that is the UDS source repository is refused: exit 1 and says to use --force.
+   uds check 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束並說明可用 --force。
+   `uds check --offline` → exit 1; output has "Detected UDS source repo", "Override with --force"
+76. `r4b-self-adoption-check-force` — uds check --force bypasses the self-adoption guard, warns, and runs the integrity check.
+   uds check --force 繞過自我採用防護、印出警告並照常執行完整性檢查。
+   `uds check --offline --force` → exit 0; output has "--force was passed, continuing uds check", "File Integrity" (+1)
+77. `r4b-compile-init` — uds init sets up a project for the compile steps.
+   uds init 建立專案（供 compile 步驟使用）。
+   `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
+78. `r4b-compile-dry-run` — uds compile --dry-run prints the hook configuration it would write and writes nothing.
+   uds compile --dry-run 印出將要寫入的 hook 設定，且不寫任何檔。
+   `uds compile --dry-run` → exit 0; output has ""PreToolUse"", ""command": "node scripts/hooks/validate-commit-msg.mjs"" (+1)
+79. `r4b-compile-target` — uds compile --target claude-code writes the hooks into .claude/settings.json and keeps the settings that were already there.
+   uds compile --target claude-code 把 hook 寫進 .claude/settings.json，並保留原有設定。
+   `uds compile --target claude-code` → exit 0; output has "/Compiled \d+ enforcement standard\(s\) for claude-code/"
+80. `r4b-compile-unknown-target` — uds compile --target with a platform it does not know exits 1 and names the supported one.
+   uds compile --target 給不認得的平台會以 1 結束並指出支援的平台。
+   `uds compile --target no-such-platform` → exit 1; output has "Unknown target: no-such-platform. Supported: claude-code"
+81. `r4b-check-standard-fails` — uds check --standard <id> validates the project against that standard's physical spec and fails, naming what is missing.
+   uds check --standard <id> 依該標準的實體規格驗證專案，不符時失敗並指出缺少的項目。
+   `uds check --standard proj-layout` → exit 1; output has "Checking compliance with standard: proj-layout", "Validation Failed" (+1)
+82. `r4b-check-standard-json-passes` — uds check --standard <id> --json prints the verdict as JSON and exits 0 when the project matches.
+   uds check --standard <id> --json 以 JSON 印出判定，專案符合時以 0 結束。
+   `uds check --standard proj-layout --json` → exit 0; output has ""success": true", "Project structure matches required schema."
+83. `r4b-check-i18n-reports-violation` — uds check --i18n reports a canonical skill whose description is not English and exits 1.
+   uds check --i18n 回報描述不是英文的標準技能，並以 1 結束。
+   `uds check --i18n` → exit 1; output has "UDS i18n Lint", "canonical:description-must-be-ascii" (+1)
+84. `r4b-check-i18n-json` — uds check --i18n --json prints the findings and their counts as JSON, and exits 1 on an error.
+   uds check --i18n --json 以 JSON 印出發現與數量，有錯誤時以 1 結束。
+   `uds check --i18n --json` → exit 1; output has ""errors": 1", ""rule": "canonical:description-must-be-ascii"" (+1)
+85. `r4b-check-i18n-clean` — uds check --i18n finds no violation once the description is English, and exits 0.
+   uds check --i18n 在描述改成英文後找不到違規，並以 0 結束。
+   `uds check --i18n` → exit 0; output has "No i18n violations found."
+86. `r4b-check-drift-init` — uds init sets up a project whose standards the next steps change.
+   uds init 建立專案（後續步驟會改動其中的標準檔）。
+   `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
+87. `r4b-check-migrate` — uds check --migrate rebuilds the file hashes of a manifest that has none (an old manifest).
+   uds check --migrate 為沒有檔案雜湊的舊版 manifest 重建雜湊。
+   `uds check --offline --migrate` → exit 0; output has "Migrating to hash-based integrity checking", "to hash-based tracking" (+1)
+88. `r4b-check-summary` — uds check --summary prints the compact status and counts the standard file that was edited.
+   uds check --summary 印出精簡狀態，並計入被改過的標準檔。
+   `uds check --offline --summary` → exit 0; output has "UDS Status Summary", "1 modified"
+89. `r4b-check-diff` — uds check --diff shows the difference between the edited standard file and the original.
+   uds check --diff 顯示被改過的標準檔與原版的差異。
+   `uds check --offline --diff` → exit 0; output has "Diff for: .standards/anti-hallucination.ai.yaml", "+1: # tampered by the acceptance step" (+1)
+90. `r4b-check-no-interactive` — uds check --no-interactive lists the edited file and the ways to restore it, without asking.
+   uds check --no-interactive 列出被改過的檔與還原方式，且不詢問。
+   `uds check --offline --no-interactive` → exit 0; output has "anti-hallucination.ai.yaml (modified)", "Actions available:" (+1)
+91. `r4b-check-restore-missing` — uds check --restore-missing puts back a deleted standard file and leaves the edited one as it is.
+   uds check --restore-missing 補回被刪掉的標準檔，被改過的檔維持原樣。
+   `uds check --offline --restore-missing` → exit 0; output has "changelog.ai.yaml: Restored", "Restored 1 file(s)"
+92. `r4b-check-restore` — uds check --restore puts the edited standard file back to the original.
+   uds check --restore 把被改過的標準檔還原成原版。
+   `uds check --offline --restore` → exit 0; output has "anti-hallucination.ai.yaml: Restored", "Restored 1 file(s)"
+93. `r4b-check-shipped-standard-macos` (macos only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
+   uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過。
+   `uds check --standard commit-message --json` → exit 0; output has ""success": true", "Passed rule: commitlint_config_exists"
+94. `r4b-check-shipped-standard-linux` (linux only) — uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists.
+   uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過。
+   `uds check --standard commit-message --json` → exit 0; output has ""success": true", "Passed rule: commitlint_config_exists"
+95. `r4b-check-standard-without-spec` — uds check --standard names a shipped standard that has no physical spec and says validation was skipped.
+   uds check --standard 指定一個沒有實體規格的出貨標準時，說明已略過驗證。
+   `uds check --standard anti-hallucination --json` → exit 0; output has ""skipped": true", "does not have a Physical Spec defined"
+96. `r4b-uninstall-partial-init` — uds init sets up a project that also holds the adopter's own files (README.md, text in CLAUDE.md, a skill of their own).
+   uds init 建立專案；專案裡另有採用者自己的檔案（README.md、CLAUDE.md 中的文字、自己寫的技能）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+97. `r4b-uninstall-dry-run` — uds uninstall --dry-run lists what it would remove and changes nothing.
+   uds uninstall --dry-run 列出將要移除的項目，且不改任何檔。
+   `uds uninstall --dry-run` → exit 0; output has "dry-run mode", "Remove: .standards/" (+2)
+98. `r4b-uninstall-skills-only` (**new 新**) — uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files.
+   uds uninstall --skills-only --yes 移除 UDS 技能，保留採用者自己寫的技能與被他改過的 UDS 技能檔，並留下標準與整合檔。
+   `uds uninstall --skills-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0" (+1)
+99. `r4b-uninstall-integrations-only` — uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards.
+   uds uninstall --integrations-only --yes 移除 CLAUDE.md 的 UDS 區塊並保留區塊外的文字，刪除 UDS 產生的 AGENTS.md，並留下標準。
+   `uds uninstall --integrations-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
+100. `r4b-uninstall-standards-only` — uds uninstall --standards-only --yes removes .standards/ and leaves the adopter's own files and skill.
+   uds uninstall --standards-only --yes 移除 .standards/，並留下採用者自己的檔案與技能。
+   `uds uninstall --standards-only --yes` → exit 0; output has "Uninstall complete", "Removed: 1"
+101. `r4b-uninstall-all-init` — uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own.
+   uds init --with-hooks 建立專案；.claude/settings.json 原本就有採用者自己的 hook。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Enforcement hooks installed"
+102. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill and hook.
+   uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook。
+   `uds uninstall --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
+103. `r4b-uninstall-user-level-init` — uds init --skills-location user puts the skills in the user's home folder, not in the project.
+   uds init --skills-location user 把技能裝進使用者的家目錄，而不是專案裡。
+   `uds init -y --skills-location user --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+104. `r4b-uninstall-user-level-present` — Control: the user-level skills are in the home folder before the uninstall.
+   對照：解除安裝前，使用者層的技能確實在家目錄裡。
+   `{node} -e "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"` → exit 0; output has "/USER-SKILLS-LEFT=[1-9]/"
+105. `r4b-uninstall-user-level-skipped` — uds uninstall --skills-only --dry-run says the user-level skills are skipped without --all, and removes nothing.
+   uds uninstall --skills-only --dry-run 說明不加 --all 會略過使用者層技能，且不移除任何東西。
+   `uds uninstall --skills-only --dry-run` → exit 0; output has "Skip: skills/claude-code [user] (user-level, use --all to include)", "Dry-run complete"
+106. `r4b-uninstall-all-flag` — uds uninstall --all --yes also removes the skills installed in the user's home folder.
+   uds uninstall --all --yes 連裝在使用者家目錄的技能一併移除。
+   `uds uninstall --all --yes` → exit 0; output has "Uninstall complete", "skills/claude-code [user]"
+107. `r4b-uninstall-user-level-gone` — The user-level skills are gone from the home folder after uds uninstall --all.
+   uds uninstall --all 之後，家目錄裡的使用者層技能已不在。
+   `{node} -e "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"` → exit 0; output has "USER-SKILLS-LEFT=0"
+108. `r4b-update-init` — uds init sets up a Claude Code project (CLAUDE.md, AGENTS.md, skills) for the uds update steps.
+   uds init 建立 Claude Code 專案（CLAUDE.md、AGENTS.md、技能），供 uds update 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+109. `r4b-update-standards-only` — uds update --standards-only brings the standards up to the installed version and leaves the integration files alone.
+   uds update --standards-only 把標準更新到已安裝的版本，並且不動整合檔。
+   `uds update --standards-only --yes --offline` → exit 0; output has "Updated", "standard files" (+1)
+110. `r4b-update-regenerates-integration` — Without --standards-only the same update also regenerates the UDS block in CLAUDE.md and keeps the text around it.
+   不加 --standards-only 時，同樣的更新也會重寫 CLAUDE.md 的 UDS 區塊，並保留區塊外的文字。
+   `uds update --yes --offline` → exit 0; output has "Syncing integration files", "Integration files synced" (+1)
+111. `r4b-update-integrations-only` — uds update --integrations-only regenerates the UDS block in CLAUDE.md and does not touch the standards.
+   uds update --integrations-only 重寫 CLAUDE.md 的 UDS 區塊，且不動標準檔。
+   `uds update --integrations-only --yes --offline` → exit 0; output has "Integration files updated successfully", "Files updated: CLAUDE.md"
+112. `r4b-update-keeps-edited-standard` — A plain uds update on a project that is already up to date leaves an edited standard file as it is.
+   已是最新版的專案執行一般的 uds update，會讓被改過的標準檔維持原樣。
+   `uds update --yes --offline` → exit 0; output has "Standards are up to date."
+113. `r4b-update-force` — uds update --force overwrites the edited standard file with the shipped one, ignoring the hash comparison.
+   uds update --force 忽略雜湊比對，用隨套件出貨的版本覆蓋被改過的標準檔。
+   `uds update --force --yes --offline` → exit 0; output has "forced update (--force)", "Reconciliation complete"
+114. `r4b-update-sync-refs` — uds update --sync-refs rewrites the standards list in CLAUDE.md after a standard left the manifest.
+   uds update --sync-refs 在標準自 manifest 移除後，重寫 CLAUDE.md 裡的標準清單。
+   `uds update --sync-refs --yes --offline` → exit 0; output has "Syncing integration references", "Updated CLAUDE.md" (+1)
+115. `r4b-update-debug` — uds update --debug prints how it decided which skills and commands are missing or outdated.
+   uds update --debug 印出它如何判斷技能與指令缺少或過期。
+   `uds update --yes --offline --debug` → exit 0; output has "Skills/Commands Detection Debug", "aiTools in manifest: ["claude-code"]" (+1)
+116. `r4b-update-keeps-retired-standard` — uds update lists a standard file UDS wrote and no longer ships, and keeps it unless --prune is given.
+   uds update 會列出 UDS 寫過但已不再出貨的標準檔，沒給 --prune 就保留它。
+   `{node} prune-case.cjs {bin} update --yes --offline` → exit 0; output has "1 file(s) are no longer shipped by UDS", "retired-by-uds.ai.yaml" (+2)
+117. `r4b-update-prune` — uds update --prune deletes the standard file UDS wrote and no longer ships.
+   uds update --prune 刪除 UDS 寫過但已不再出貨的標準檔。
+   `{node} prune-case.cjs {bin} update --yes --offline --prune` → exit 0; output has "will be removed", "Removing now (--prune)" (+1)
+118. `r4b-update-locale` — uds update --skills --locale zh-tw reinstalls the skills in Traditional Chinese and records the locale.
+   uds update --skills --locale zh-tw 以繁體中文重裝技能並記錄語系。
+   `uds update --skills --locale zh-tw --yes --offline` → exit 0; output has "Updated Skills for 1 AI tools"
+119. `r4b-update-with-hooks-ai-tool` — uds update --with-hooks --ai-tool codex installs the hook for Codex only, not for the tool the project already uses.
+   uds update --with-hooks --ai-tool codex 只為 Codex 安裝 hook，不動專案原本使用的工具。
+   `uds update --with-hooks --ai-tool codex --yes --offline` → exit 0; output has "codex: installed"
+120. `r4b-update-with-hooks` — uds update --with-hooks installs the hooks that are missing for the detected tool and leaves the one that is already there.
+   uds update --with-hooks 為偵測到的工具補裝缺少的 hook，並保留已經裝好的。
+   `uds update --with-hooks --yes --offline` → exit 0; output has "claude-code: installed", "codex: already installed, not touched"
+121. `r4b-update-claude-target-local` — uds update --claude-target local moves the UDS block from CLAUDE.md to CLAUDE.local.md and keeps the text around it.
+   uds update --claude-target local 把 UDS 區塊從 CLAUDE.md 搬到 CLAUDE.local.md，並保留區塊外的文字。
+   `uds update --claude-target local --yes --offline` → exit 0; output has "Switching claude-code integration target: CLAUDE.md → CLAUDE.local.md", "claude-code now targets CLAUDE.local.md"
+122. `r4b-update-commands-init` — uds init in a Cursor project installs the slash commands next to the skills.
+   uds init 在 Cursor 專案裡於技能旁安裝斜線指令。
+   `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully", "commands to: Cursor"
+123. `r4b-update-commands` — uds update --commands puts back a deleted slash command and an edited one.
+   uds update --commands 補回被刪掉與被改過的斜線指令。
+   `uds update --commands --yes --offline` → exit 0; output has "Updating slash commands", "commands for 1 AI tool(s): Cursor"
+124. `r4b-update-beta-init` — uds init sets up a project for the uds update --beta steps.
+   uds init 建立專案，供 uds update --beta 步驟使用。
+   `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
+125. `r4b-update-beta-ignored` — Control: without --beta, uds update ignores a newer beta on npm (the registry here says latest 6.0.0, beta 99.0.0-beta.1).
+   對照：不加 --beta 時，uds update 不理會 npm 上較新的 beta（此處的 registry 替身回報 latest 6.0.0、beta 99.0.0-beta.1）。
+   `{node} --require {work}/fake-npm.cjs {bin} update --yes` → exit 0; output has "Standards are up to date."
+126. `r4b-update-beta` — uds update --beta reports the newer beta that npm has.
+   uds update --beta 會回報 npm 上較新的 beta 版。
+   `{node} --require {work}/fake-npm.cjs {bin} update --beta --yes` → exit 0; output has "New CLI version available", "Latest on npm: 99.0.0-beta.1"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

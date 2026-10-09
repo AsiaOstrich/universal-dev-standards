@@ -36,6 +36,10 @@
     {
       "changelog": "CI: after a release is published, the acceptance steps run against",
       "reason": "A GitHub workflow (.github/workflows/post-publish-acceptance.yml) and four maintainer programs under scripts/beta-acceptance/ that run in the repository or on GitHub; none is in the npm package and no installed command changes. Tested by cli/tests/e2e/xspec-471-r1-post-publish-acceptance.test.js; the three real runs are only visible on the Actions page after a publish."
+    },
+    {
+      "option": "init --experimental",
+      "reason": "Its only effect is to add the interactive questions for the standards format, the content mode and the methodology to the init wizard; uds init --yes skips the wizard, so no non-interactive run can show it. Needs a person at a terminal."
     }
   ],
   "steps": [
@@ -2014,6 +2018,2092 @@
               "one-way door"
             ]
           }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-init-standard-choices",
+      "workspace": "r4b-init-choices",
+      "title": "uds init --workflow --merge-strategy --output-lang --test-levels records the choices in the manifest and installs the matching option files, not the defaults",
+      "titleZh": "uds init --workflow --merge-strategy --output-lang --test-levels 把選擇記入 manifest，並安裝對應的選項檔而非預設值",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--workflow",
+        "gitflow",
+        "--merge-strategy",
+        "rebase-ff",
+        "--output-lang",
+        "bilingual",
+        "--test-levels",
+        "unit-testing,e2e-testing"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "Git Workflow: Gitflow",
+          "Merge Strategy: Rebase + FF",
+          "Output Language: Bilingual",
+          "Test Levels: unit-testing, e2e-testing"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"workflow\": \"gitflow\"",
+              "\"merge_strategy\": \"rebase-ff\"",
+              "\"output_language\": \"bilingual\"",
+              "\"unit-testing\"",
+              "\"e2e-testing\""
+            ],
+            "notContains": [
+              "\"integration-testing\"",
+              "\"workflow\": \"github-flow\""
+            ]
+          },
+          {
+            "path": ".standards/options/gitflow.ai.yaml"
+          },
+          {
+            "path": ".standards/options/rebase-ff.ai.yaml"
+          },
+          {
+            "path": ".standards/options/bilingual.ai.yaml"
+          },
+          {
+            "path": ".standards/options/unit-testing.ai.yaml"
+          },
+          {
+            "path": ".standards/options/e2e-testing.ai.yaml"
+          },
+          {
+            "path": ".standards/options/github-flow.ai.yaml",
+            "exists": false
+          },
+          {
+            "path": ".standards/options/integration-testing.ai.yaml",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-init-extensions",
+      "workspace": "r4b-init-extensions",
+      "title": "uds init --lang --framework installs the language and framework extension files, and --no-agents-md writes no AGENTS.md",
+      "titleZh": "uds init --lang --framework 安裝語言與框架擴充檔，--no-agents-md 不產生 AGENTS.md",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--lang",
+        "php",
+        "--framework",
+        "fat-free",
+        "--content-mode",
+        "minimal",
+        "--no-agents-md"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "Languages: php",
+          "Frameworks: fat-free",
+          "Content Mode: Minimal"
+        ],
+        "files": [
+          {
+            "path": ".standards/php-style.md"
+          },
+          {
+            "path": ".standards/fat-free-patterns.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"contentMode\": \"minimal\"",
+              "\"generateAgentsMd\": false",
+              "extensions/languages/php-style.md",
+              "extensions/frameworks/fat-free-patterns.md"
+            ]
+          },
+          {
+            "path": "AGENTS.md",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-init-claude-local-index-agents",
+      "workspace": "r4b-init-local",
+      "title": "uds init --claude-target local writes the Claude Code block to CLAUDE.local.md and not CLAUDE.md; --content-mode index and --agents-md are honoured",
+      "titleZh": "uds init --claude-target local 把 Claude Code 區塊寫進 CLAUDE.local.md 而非 CLAUDE.md；--content-mode index 與 --agents-md 生效",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--claude-target",
+        "local",
+        "--content-mode",
+        "index",
+        "--agents-md"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "Content Mode: Standard",
+          "Generated AGENTS.md"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.local.md",
+            "contains": [
+              "UDS:STANDARDS:START",
+              "Reference: .standards/anti-hallucination.ai.yaml"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "exists": false
+          },
+          {
+            "path": "AGENTS.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"claude-code\": \"CLAUDE.local.md\"",
+              "\"contentMode\": \"index\"",
+              "\"generateAgentsMd\": true"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-init-layered-with-hooks",
+      "workspace": "r4b-init-layered",
+      "title": "uds init --content-layout layered writes a CLAUDE.md in the matching sub-folder, and --with-hooks installs the enforcement hook scripts and wires them into .claude/settings.json",
+      "titleZh": "uds init --content-layout layered 在對應子目錄寫 CLAUDE.md；--with-hooks 安裝關卡 hook 腳本並接進 .claude/settings.json",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "mkdir": "src/api"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--content-layout",
+        "layered",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "Layered CLAUDE.md generated",
+          "Enforcement hooks installed"
+        ],
+        "files": [
+          {
+            "path": "src/api/CLAUDE.md",
+            "contains": [
+              "UDS Standards"
+            ]
+          },
+          {
+            "path": "scripts/hooks/validate-commit-msg.mjs"
+          },
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "node scripts/hooks/validate-commit-msg.mjs",
+              "node scripts/hooks/check-turn-completion.mjs"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"contentLayout\": \"layered\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-self-adoption-init-refused",
+      "workspace": "r4b-self-adoption",
+      "title": "uds init in a folder that is the UDS source repository is refused: exit 1, says to use --force, and writes nothing",
+      "titleZh": "uds init 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束、說明可用 --force，且不寫任何檔",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": ".uds-source-repo",
+          "content": "marker: this folder is a UDS source repository\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Detected UDS source repo",
+          "Override with --force",
+          "Matched signals: .uds-source-repo"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          },
+          {
+            "path": "AGENTS.md",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-self-adoption-init-force",
+      "workspace": "r4b-self-adoption",
+      "title": "uds init --force bypasses the self-adoption guard, warns, and installs",
+      "titleZh": "uds init --force 繞過自我採用防護、印出警告並照常安裝",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--force"
+      ],
+      "expect": {
+        "contains": [
+          "--force was passed, continuing uds init",
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"upstream\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-self-adoption-check-refused",
+      "workspace": "r4b-self-adoption",
+      "title": "uds check in a folder that is the UDS source repository is refused: exit 1 and says to use --force",
+      "titleZh": "uds check 在 UDS 原始碼 repository 的資料夾會被拒絕：以 1 結束並說明可用 --force",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Detected UDS source repo",
+          "Override with --force"
+        ],
+        "notContains": [
+          "File Integrity"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-self-adoption-check-force",
+      "workspace": "r4b-self-adoption",
+      "title": "uds check --force bypasses the self-adoption guard, warns, and runs the integrity check",
+      "titleZh": "uds check --force 繞過自我採用防護、印出警告並照常執行完整性檢查",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--offline",
+        "--force"
+      ],
+      "expect": {
+        "contains": [
+          "--force was passed, continuing uds check",
+          "File Integrity",
+          "unchanged, 0 modified, 0 missing"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-compile-init",
+      "workspace": "r4b-compile",
+      "title": "uds init sets up a project for the compile steps",
+      "titleZh": "uds init 建立專案（供 compile 步驟使用）",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-compile-dry-run",
+      "workspace": "r4b-compile",
+      "title": "uds compile --dry-run prints the hook configuration it would write and writes nothing",
+      "titleZh": "uds compile --dry-run 印出將要寫入的 hook 設定，且不寫任何檔",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "compile",
+        "--dry-run"
+      ],
+      "expect": {
+        "contains": [
+          "\"PreToolUse\"",
+          "\"command\": \"node scripts/hooks/validate-commit-msg.mjs\"",
+          "\"command\": \"node scripts/hooks/check-dangerous-cmd.mjs\""
+        ],
+        "notContains": [
+          "Compiled "
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-compile-target",
+      "workspace": "r4b-compile",
+      "title": "uds compile --target claude-code writes the hooks into .claude/settings.json and keeps the settings that were already there",
+      "titleZh": "uds compile --target claude-code 把 hook 寫進 .claude/settings.json，並保留原有設定",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": ".claude/settings.json",
+          "content": "{\n  \"permissions\": {\n    \"allow\": [\"Bash(echo:*)\"]\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "compile",
+        "--target",
+        "claude-code"
+      ],
+      "expect": {
+        "matches": [
+          "Compiled \\d+ enforcement standard\\(s\\) for claude-code"
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "Bash(echo:*)",
+              "node scripts/hooks/validate-commit-msg.mjs",
+              "node scripts/hooks/check-dangerous-cmd.mjs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-compile-unknown-target",
+      "workspace": "r4b-compile",
+      "title": "uds compile --target with a platform it does not know exits 1 and names the supported one",
+      "titleZh": "uds compile --target 給不認得的平台會以 1 結束並指出支援的平台",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "compile",
+        "--target",
+        "no-such-platform"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Unknown target: no-such-platform. Supported: claude-code"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-standard-fails",
+      "workspace": "r4b-check-standard",
+      "title": "uds check --standard <id> validates the project against that standard's physical spec and fails, naming what is missing",
+      "titleZh": "uds check --standard <id> 依該標準的實體規格驗證專案，不符時失敗並指出缺少的項目",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": ".standards/proj-layout.ai.yaml",
+          "content": "id: proj-layout\nphysical_spec:\n  type: filesystem_schema\n  schema:\n    root:\n      required:\n        - src\n        - docs\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--standard",
+        "proj-layout"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Checking compliance with standard: proj-layout",
+          "Validation Failed",
+          "Missing required directories: src, docs"
+        ],
+        "notContains": [
+          "Validation Passed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-standard-json-passes",
+      "workspace": "r4b-check-standard",
+      "title": "uds check --standard <id> --json prints the verdict as JSON and exits 0 when the project matches",
+      "titleZh": "uds check --standard <id> --json 以 JSON 印出判定，專案符合時以 0 結束",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": "src"
+        },
+        {
+          "mkdir": "docs"
+        }
+      ],
+      "uds": [
+        "check",
+        "--standard",
+        "proj-layout",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"success\": true",
+          "Project structure matches required schema."
+        ],
+        "notContains": [
+          "Checking compliance"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-i18n-reports-violation",
+      "workspace": "r4b-check-i18n",
+      "title": "uds check --i18n reports a canonical skill whose description is not English and exits 1",
+      "titleZh": "uds check --i18n 回報描述不是英文的標準技能，並以 1 結束",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "skills/demo/SKILL.md",
+          "content": "---\nname: demo\ndescription: 這是中文描述\n---\n# Demo\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--i18n"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "UDS i18n Lint",
+          "canonical:description-must-be-ascii",
+          "Errors: 1"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-i18n-json",
+      "workspace": "r4b-check-i18n",
+      "title": "uds check --i18n --json prints the findings and their counts as JSON, and exits 1 on an error",
+      "titleZh": "uds check --i18n --json 以 JSON 印出發現與數量，有錯誤時以 1 結束",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--i18n",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "\"errors\": 1",
+          "\"rule\": \"canonical:description-must-be-ascii\"",
+          "\"severity\": \"error\""
+        ],
+        "notContains": [
+          "UDS i18n Lint"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-i18n-clean",
+      "workspace": "r4b-check-i18n",
+      "title": "uds check --i18n finds no violation once the description is English, and exits 0",
+      "titleZh": "uds check --i18n 在描述改成英文後找不到違規，並以 0 結束",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "skills/demo/SKILL.md",
+          "content": "---\nname: demo\ndescription: An English description\n---\n# Demo\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--i18n"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "No i18n violations found."
+        ],
+        "notContains": [
+          "canonical:description-must-be-ascii"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-drift-init",
+      "workspace": "r4b-check-drift",
+      "title": "uds init sets up a project whose standards the next steps change",
+      "titleZh": "uds init 建立專案（後續步驟會改動其中的標準檔）",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"fileHashes\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-migrate",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --migrate rebuilds the file hashes of a manifest that has none (an old manifest)",
+      "titleZh": "uds check --migrate 為沒有檔案雜湊的舊版 manifest 重建雜湊",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "setManifest": {
+            "fileHashes": {}
+          }
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline",
+        "--migrate"
+      ],
+      "expect": {
+        "contains": [
+          "Migrating to hash-based integrity checking",
+          "to hash-based tracking",
+          "Manifest version upgraded"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\".standards/commit-message.ai.yaml\": {",
+              "\"hash\": \"sha256:"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-summary",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --summary prints the compact status and counts the standard file that was edited",
+      "titleZh": "uds check --summary 印出精簡狀態，並計入被改過的標準檔",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": ".standards/anti-hallucination.ai.yaml",
+          "content": "# tampered by the acceptance step\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline",
+        "--summary"
+      ],
+      "expect": {
+        "contains": [
+          "UDS Status Summary",
+          "1 modified"
+        ],
+        "notContains": [
+          "File Integrity:"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-diff",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --diff shows the difference between the edited standard file and the original",
+      "titleZh": "uds check --diff 顯示被改過的標準檔與原版的差異",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--offline",
+        "--diff"
+      ],
+      "expect": {
+        "contains": [
+          "Diff for: .standards/anti-hallucination.ai.yaml",
+          "+1: # tampered by the acceptance step",
+          "--- Original"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-no-interactive",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --no-interactive lists the edited file and the ways to restore it, without asking",
+      "titleZh": "uds check --no-interactive 列出被改過的檔與還原方式，且不詢問",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--offline",
+        "--no-interactive"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "anti-hallucination.ai.yaml (modified)",
+          "Actions available:",
+          "Run `uds check --restore` to restore all modified/missing files"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-restore-missing",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --restore-missing puts back a deleted standard file and leaves the edited one as it is",
+      "titleZh": "uds check --restore-missing 補回被刪掉的標準檔，被改過的檔維持原樣",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "removeFile": ".standards/changelog.ai.yaml"
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline",
+        "--restore-missing"
+      ],
+      "expect": {
+        "contains": [
+          "changelog.ai.yaml: Restored",
+          "Restored 1 file(s)"
+        ],
+        "files": [
+          {
+            "path": ".standards/changelog.ai.yaml",
+            "contains": [
+              "# Changelog Standards"
+            ]
+          },
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "# tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-restore",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --restore puts the edited standard file back to the original",
+      "titleZh": "uds check --restore 把被改過的標準檔還原成原版",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--offline",
+        "--restore"
+      ],
+      "expect": {
+        "contains": [
+          "anti-hallucination.ai.yaml: Restored",
+          "Restored 1 file(s)"
+        ],
+        "files": [
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "id: anti-hallucination"
+            ],
+            "notContains": [
+              "tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "macos",
+      "id": "r4b-check-shipped-standard-macos",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists",
+      "titleZh": "uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "commitlint.config.js",
+          "content": "module.exports = {};\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--standard",
+        "commit-message",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"success\": true",
+          "Passed rule: commitlint_config_exists"
+        ]
+      }
+    },
+    {
+      "platform": "linux",
+      "id": "r4b-check-shipped-standard-linux",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --standard commit-message --json runs the physical spec of a shipped standard found through the manifest, and passes once the config file it asks for exists",
+      "titleZh": "uds check --standard commit-message --json 執行隨套件出貨之標準的實體規格（經 manifest 找到），所需設定檔存在時通過",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "commitlint.config.js",
+          "content": "module.exports = {};\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--standard",
+        "commit-message",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"success\": true",
+          "Passed rule: commitlint_config_exists"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-check-standard-without-spec",
+      "workspace": "r4b-check-drift",
+      "title": "uds check --standard names a shipped standard that has no physical spec and says validation was skipped",
+      "titleZh": "uds check --standard 指定一個沒有實體規格的出貨標準時，說明已略過驗證",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "check",
+        "--standard",
+        "anti-hallucination",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"skipped\": true",
+          "does not have a Physical Spec defined"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-partial-init",
+      "workspace": "r4b-uninstall-partial",
+      "title": "uds init sets up a project that also holds the adopter's own files (README.md, text in CLAUDE.md, a skill of their own)",
+      "titleZh": "uds init 建立專案；專案裡另有採用者自己的檔案（README.md、CLAUDE.md 中的文字、自己寫的技能）",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "README.md",
+          "content": "my project\n"
+        },
+        {
+          "writeFile": "CLAUDE.md",
+          "content": "# My notes\nKEEP-ME-OUTSIDE-BLOCK\n"
+        },
+        {
+          "writeFile": ".claude/skills/my-own/SKILL.md",
+          "content": "---\nname: my-own\ndescription: a skill I wrote myself\n---\n# my own skill\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".claude/skills/my-own/SKILL.md",
+            "contains": [
+              "# my own skill"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START",
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-dry-run",
+      "workspace": "r4b-uninstall-partial",
+      "title": "uds uninstall --dry-run lists what it would remove and changes nothing",
+      "titleZh": "uds uninstall --dry-run 列出將要移除的項目，且不改任何檔",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "uninstall",
+        "--dry-run"
+      ],
+      "expect": {
+        "contains": [
+          "dry-run mode",
+          "Remove: .standards/",
+          "Remove: skills/claude-code [project]",
+          "Dry-run complete"
+        ],
+        "notContains": [
+          "Uninstall complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          },
+          {
+            "path": "AGENTS.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-skills-only",
+      "workspace": "r4b-uninstall-partial",
+      "title": "uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files",
+      "titleZh": "uds uninstall --skills-only --yes 移除 UDS 技能，保留採用者自己寫的技能與被他改過的 UDS 技能檔，並留下標準與整合檔",
+      "changelog": [
+        "uds uninstall no longer deletes skills and commands you wrote yourself"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".claude/skills/commit-standards/guide.md",
+          "content": "# my own notes on commit messages\n"
+        }
+      ],
+      "uds": [
+        "uninstall",
+        "--skills-only",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Uninstall complete",
+          "Errors: 0",
+          "kept 1 file(s) changed since UDS wrote them"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "exists": false
+          },
+          {
+            "path": ".claude/skills/tdd-assistant",
+            "exists": false
+          },
+          {
+            "path": ".claude/skills/commit-standards/guide.md",
+            "contains": [
+              "# my own notes on commit messages"
+            ]
+          },
+          {
+            "path": ".claude/skills/my-own/SKILL.md",
+            "contains": [
+              "# my own skill"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"installed\": false"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-integrations-only",
+      "workspace": "r4b-uninstall-partial",
+      "title": "uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards",
+      "titleZh": "uds uninstall --integrations-only --yes 移除 CLAUDE.md 的 UDS 區塊並保留區塊外的文字，刪除 UDS 產生的 AGENTS.md，並留下標準",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "uninstall",
+        "--integrations-only",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Uninstall complete",
+          "Errors: 0"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "# My notes",
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ],
+            "notContains": [
+              "UDS:STANDARDS"
+            ]
+          },
+          {
+            "path": "AGENTS.md",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": "README.md",
+            "contains": [
+              "my project"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-standards-only",
+      "workspace": "r4b-uninstall-partial",
+      "title": "uds uninstall --standards-only --yes removes .standards/ and leaves the adopter's own files and skill",
+      "titleZh": "uds uninstall --standards-only --yes 移除 .standards/，並留下採用者自己的檔案與技能",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "uninstall",
+        "--standards-only",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Uninstall complete",
+          "Removed: 1"
+        ],
+        "files": [
+          {
+            "path": ".standards",
+            "exists": false
+          },
+          {
+            "path": "README.md",
+            "contains": [
+              "my project"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ]
+          },
+          {
+            "path": ".claude/skills/my-own/SKILL.md",
+            "contains": [
+              "# my own skill"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-all-init",
+      "workspace": "r4b-uninstall-everything",
+      "title": "uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own",
+      "titleZh": "uds init --with-hooks 建立專案；.claude/settings.json 原本就有採用者自己的 hook",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "README.md",
+          "content": "my project\n"
+        },
+        {
+          "writeFile": "CLAUDE.md",
+          "content": "# My notes\nKEEP-ME-OUTSIDE-BLOCK\n"
+        },
+        {
+          "writeFile": ".claude/skills/my-own/SKILL.md",
+          "content": "---\nname: my-own\ndescription: a skill I wrote myself\n---\n# my own skill\n"
+        },
+        {
+          "writeFile": ".claude/settings.json",
+          "content": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo my-own-hook\"\n          }\n        ]\n      }\n    ]\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Enforcement hooks installed"
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "echo my-own-hook",
+              "node scripts/hooks/validate-commit-msg.mjs"
+            ]
+          },
+          {
+            "path": "scripts/hooks/validate-commit-msg.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-yes-everything",
+      "workspace": "r4b-uninstall-everything",
+      "title": "uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill and hook",
+      "titleZh": "uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook",
+      "changelog": [
+        "uds uninstall no longer deletes skills and commands you wrote yourself"
+      ],
+      "uds": [
+        "uninstall",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Uninstall complete",
+          "Errors: 0"
+        ],
+        "files": [
+          {
+            "path": ".standards",
+            "exists": false
+          },
+          {
+            "path": "scripts/hooks",
+            "exists": false
+          },
+          {
+            "path": "AGENTS.md",
+            "exists": false
+          },
+          {
+            "path": ".claude/skills/commit-standards",
+            "exists": false
+          },
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "echo my-own-hook"
+            ],
+            "notContains": [
+              "validate-commit-msg"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "# My notes",
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ],
+            "notContains": [
+              "UDS:STANDARDS"
+            ]
+          },
+          {
+            "path": "README.md",
+            "contains": [
+              "my project"
+            ]
+          },
+          {
+            "path": ".claude/skills/my-own/SKILL.md",
+            "contains": [
+              "# my own skill"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-user-level-init",
+      "workspace": "r4b-uninstall-user-level",
+      "title": "uds init --skills-location user puts the skills in the user's home folder, not in the project",
+      "titleZh": "uds init --skills-location user 把技能裝進使用者的家目錄，而不是專案裡",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "user",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"location\": \"user\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-user-level-present",
+      "workspace": "r4b-uninstall-user-level",
+      "title": "Control: the user-level skills are in the home folder before the uninstall",
+      "titleZh": "對照：解除安裝前，使用者層的技能確實在家目錄裡",
+      "changelog": [],
+      "smoke": true,
+      "run": [
+        "{node}",
+        "-e",
+        "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"
+      ],
+      "expect": {
+        "matches": [
+          "USER-SKILLS-LEFT=[1-9]"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-user-level-skipped",
+      "workspace": "r4b-uninstall-user-level",
+      "title": "uds uninstall --skills-only --dry-run says the user-level skills are skipped without --all, and removes nothing",
+      "titleZh": "uds uninstall --skills-only --dry-run 說明不加 --all 會略過使用者層技能，且不移除任何東西",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "uninstall",
+        "--skills-only",
+        "--dry-run"
+      ],
+      "expect": {
+        "contains": [
+          "Skip: skills/claude-code [user] (user-level, use --all to include)",
+          "Dry-run complete"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-all-flag",
+      "workspace": "r4b-uninstall-user-level",
+      "title": "uds uninstall --all --yes also removes the skills installed in the user's home folder",
+      "titleZh": "uds uninstall --all --yes 連裝在使用者家目錄的技能一併移除",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "uninstall",
+        "--all",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Uninstall complete",
+          "skills/claude-code [user]"
+        ],
+        "notContains": [
+          "use --all to include"
+        ],
+        "files": [
+          {
+            "path": ".standards",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-uninstall-user-level-gone",
+      "workspace": "r4b-uninstall-user-level",
+      "title": "The user-level skills are gone from the home folder after uds uninstall --all",
+      "titleZh": "uds uninstall --all 之後，家目錄裡的使用者層技能已不在",
+      "changelog": [],
+      "smoke": true,
+      "run": [
+        "{node}",
+        "-e",
+        "const fs=require('fs'),p=require('path');const d=p.join(process.env.HOME||process.env.USERPROFILE,'.claude','skills');console.log('USER-SKILLS-LEFT='+(fs.existsSync(d)?fs.readdirSync(d).length:0))"
+      ],
+      "expect": {
+        "contains": [
+          "USER-SKILLS-LEFT=0"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-init",
+      "workspace": "r4b-update",
+      "title": "uds init sets up a Claude Code project (CLAUDE.md, AGENTS.md, skills) for the uds update steps",
+      "titleZh": "uds init 建立 Claude Code 專案（CLAUDE.md、AGENTS.md、技能），供 uds update 步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          },
+          {
+            "path": "AGENTS.md"
+          },
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-standards-only",
+      "workspace": "r4b-update",
+      "title": "uds update --standards-only brings the standards up to the installed version and leaves the integration files alone",
+      "titleZh": "uds update --standards-only 把標準更新到已安裝的版本，並且不動整合檔",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "CLAUDE.md",
+          "content": "# My project notes\nKEEP-ME-OUTSIDE-BLOCK\n\n<!-- UDS:STANDARDS:START -->\nSTALE-BLOCK-SENTINEL\n<!-- UDS:STANDARDS:END -->\n"
+        },
+        {
+          "setManifest": {
+            "upstream.version": "6.9.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--standards-only",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Updated",
+          "standard files",
+          "Standards updated successfully"
+        ],
+        "notContains": [
+          "Syncing integration files",
+          "Integration files synced"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "STALE-BLOCK-SENTINEL",
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "\"version\": \"6.9.0\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-regenerates-integration",
+      "workspace": "r4b-update",
+      "title": "Without --standards-only the same update also regenerates the UDS block in CLAUDE.md and keeps the text around it",
+      "titleZh": "不加 --standards-only 時，同樣的更新也會重寫 CLAUDE.md 的 UDS 區塊，並保留區塊外的文字",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "6.9.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Syncing integration files",
+          "Integration files synced",
+          "Standards updated successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "KEEP-ME-OUTSIDE-BLOCK",
+              "UDS:STANDARDS:START"
+            ],
+            "notContains": [
+              "STALE-BLOCK-SENTINEL"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-integrations-only",
+      "workspace": "r4b-update",
+      "title": "uds update --integrations-only regenerates the UDS block in CLAUDE.md and does not touch the standards",
+      "titleZh": "uds update --integrations-only 重寫 CLAUDE.md 的 UDS 區塊，且不動標準檔",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "CLAUDE.md",
+          "content": "# My project notes\nKEEP-ME-OUTSIDE-BLOCK\n\n<!-- UDS:STANDARDS:START -->\nSTALE-BLOCK-SENTINEL\n<!-- UDS:STANDARDS:END -->\n"
+        },
+        {
+          "writeFile": ".standards/anti-hallucination.ai.yaml",
+          "content": "# tampered by the acceptance step\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--integrations-only",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Integration files updated successfully",
+          "Files updated: CLAUDE.md"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "KEEP-ME-OUTSIDE-BLOCK",
+              "UDS:STANDARDS:START"
+            ],
+            "notContains": [
+              "STALE-BLOCK-SENTINEL"
+            ]
+          },
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "# tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-keeps-edited-standard",
+      "workspace": "r4b-update",
+      "title": "A plain uds update on a project that is already up to date leaves an edited standard file as it is",
+      "titleZh": "已是最新版的專案執行一般的 uds update，會讓被改過的標準檔維持原樣",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Standards are up to date."
+        ],
+        "files": [
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "# tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-force",
+      "workspace": "r4b-update",
+      "title": "uds update --force overwrites the edited standard file with the shipped one, ignoring the hash comparison",
+      "titleZh": "uds update --force 忽略雜湊比對，用隨套件出貨的版本覆蓋被改過的標準檔",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--force",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "forced update (--force)",
+          "Reconciliation complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "id: anti-hallucination"
+            ],
+            "notContains": [
+              "tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-sync-refs",
+      "workspace": "r4b-update",
+      "title": "uds update --sync-refs rewrites the standards list in CLAUDE.md after a standard left the manifest",
+      "titleZh": "uds update --sync-refs 在標準自 manifest 移除後，重寫 CLAUDE.md 裡的標準清單",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "forgetStandard": "open-work-tracking"
+        }
+      ],
+      "uds": [
+        "update",
+        "--sync-refs",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Syncing integration references",
+          "Updated CLAUDE.md",
+          "Updated 1 integration file(s)"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ],
+            "notContains": [
+              "open-work-tracking"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-debug",
+      "workspace": "r4b-update",
+      "title": "uds update --debug prints how it decided which skills and commands are missing or outdated",
+      "titleZh": "uds update --debug 印出它如何判斷技能與指令缺少或過期",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "6.9.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--yes",
+        "--offline",
+        "--debug"
+      ],
+      "expect": {
+        "contains": [
+          "Skills/Commands Detection Debug",
+          "aiTools in manifest: [\"claude-code\"]",
+          "Checking tool: claude-code"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-keeps-retired-standard",
+      "workspace": "r4b-update",
+      "title": "uds update lists a standard file UDS wrote and no longer ships, and keeps it unless --prune is given",
+      "titleZh": "uds update 會列出 UDS 寫過但已不再出貨的標準檔，沒給 --prune 就保留它",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "prune-case.cjs",
+          "content": "// Make the project look as if an older UDS had written a standard that this UDS no longer ships, then run uds on it.\n// usage: node prune-case.cjs <uds.js> <uds arguments...>\nconst fs = require('fs'), path = require('path'), cp = require('child_process'), crypto = require('crypto');\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst rel = '.standards/retired-by-uds.ai.yaml';\nconst body = '# a standard an older UDS wrote and this UDS no longer ships\\n';\nfs.writeFileSync(rel, body);\nconst manifestPath = path.join('.standards', 'manifest.json');\nconst manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));\nmanifest.upstream.version = '6.9.0';\nmanifest.fileHashes = manifest.fileHashes || {};\nmanifest.fileHashes[rel] = { hash: 'sha256:' + crypto.createHash('sha256').update(body).digest('hex'), size: body.length, installedAt: new Date().toISOString() };\nfs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\\n');\nconst r = cp.spawnSync(process.execPath, [bin, ...udsArgs], { encoding: 'utf8', env: process.env });\nprocess.stdout.write((r.stdout || '') + (r.stderr || '') + '\\nRETIRED-STANDARD-FILE-EXISTS=' + fs.existsSync(rel) + '\\n');\nprocess.exit(r.status === null ? 1 : r.status);\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "prune-case.cjs",
+        "{bin}",
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "1 file(s) are no longer shipped by UDS",
+          "retired-by-uds.ai.yaml",
+          "Not deleted. Re-run with --prune to remove them.",
+          "RETIRED-STANDARD-FILE-EXISTS=true"
+        ],
+        "notContains": [
+          "RETIRED-STANDARD-FILE-EXISTS=false"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-prune",
+      "workspace": "r4b-update",
+      "title": "uds update --prune deletes the standard file UDS wrote and no longer ships",
+      "titleZh": "uds update --prune 刪除 UDS 寫過但已不再出貨的標準檔",
+      "changelog": [],
+      "smoke": true,
+      "run": [
+        "{node}",
+        "prune-case.cjs",
+        "{bin}",
+        "update",
+        "--yes",
+        "--offline",
+        "--prune"
+      ],
+      "expect": {
+        "contains": [
+          "will be removed",
+          "Removing now (--prune)",
+          "RETIRED-STANDARD-FILE-EXISTS=false"
+        ],
+        "notContains": [
+          "RETIRED-STANDARD-FILE-EXISTS=true",
+          "Not deleted"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-locale",
+      "workspace": "r4b-update",
+      "title": "uds update --skills --locale zh-tw reinstalls the skills in Traditional Chinese and records the locale",
+      "titleZh": "uds update --skills --locale zh-tw 以繁體中文重裝技能並記錄語系",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--skills",
+        "--locale",
+        "zh-tw",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Updated Skills for 1 AI tools"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "contains": [
+              "# Commit Message 助手"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"locale\": \"zh-TW\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-with-hooks-ai-tool",
+      "workspace": "r4b-update",
+      "title": "uds update --with-hooks --ai-tool codex installs the hook for Codex only, not for the tool the project already uses",
+      "titleZh": "uds update --with-hooks --ai-tool codex 只為 Codex 安裝 hook，不動專案原本使用的工具",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--with-hooks",
+        "--ai-tool",
+        "codex",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "codex: installed"
+        ],
+        "files": [
+          {
+            "path": ".codex/hooks.json",
+            "contains": [
+              "check-turn-completion-codex.mjs"
+            ]
+          },
+          {
+            "path": ".claude/settings.json",
+            "exists": false
+          },
+          {
+            "path": "scripts/hooks/check-turn-completion-codex.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-with-hooks",
+      "workspace": "r4b-update",
+      "title": "uds update --with-hooks installs the hooks that are missing for the detected tool and leaves the one that is already there",
+      "titleZh": "uds update --with-hooks 為偵測到的工具補裝缺少的 hook，並保留已經裝好的",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--with-hooks",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "claude-code: installed",
+          "codex: already installed, not touched"
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "node scripts/hooks/validate-commit-msg.mjs"
+            ]
+          },
+          {
+            "path": ".codex/hooks.json",
+            "contains": [
+              "check-turn-completion-codex.mjs"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-claude-target-local",
+      "workspace": "r4b-update",
+      "title": "uds update --claude-target local moves the UDS block from CLAUDE.md to CLAUDE.local.md and keeps the text around it",
+      "titleZh": "uds update --claude-target local 把 UDS 區塊從 CLAUDE.md 搬到 CLAUDE.local.md，並保留區塊外的文字",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "update",
+        "--claude-target",
+        "local",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Switching claude-code integration target: CLAUDE.md → CLAUDE.local.md",
+          "claude-code now targets CLAUDE.local.md"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.local.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "KEEP-ME-OUTSIDE-BLOCK"
+            ],
+            "notContains": [
+              "UDS:STANDARDS:START"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"claude-code\": \"CLAUDE.local.md\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-commands-init",
+      "workspace": "r4b-update-cmds",
+      "title": "uds init in a Cursor project installs the slash commands next to the skills",
+      "titleZh": "uds init 在 Cursor 專案裡於技能旁安裝斜線指令",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": ".cursorrules",
+          "content": "# my own Cursor rules\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "commands to: Cursor"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/commands/changelog.md",
+            "contains": [
+              "name: changelog"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-commands",
+      "workspace": "r4b-update-cmds",
+      "title": "uds update --commands puts back a deleted slash command and an edited one",
+      "titleZh": "uds update --commands 補回被刪掉與被改過的斜線指令",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "removeFile": ".cursor/commands/audit.md"
+        },
+        {
+          "writeFile": ".cursor/commands/changelog.md",
+          "content": "# tampered by the acceptance step\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--commands",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Updating slash commands",
+          "commands for 1 AI tool(s): Cursor"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/commands/changelog.md",
+            "contains": [
+              "name: changelog"
+            ],
+            "notContains": [
+              "tampered by the acceptance step"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-beta-init",
+      "workspace": "r4b-update-beta",
+      "title": "uds init sets up a project for the uds update --beta steps",
+      "titleZh": "uds init 建立專案，供 uds update --beta 步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-beta-ignored",
+      "workspace": "r4b-update-beta",
+      "title": "Control: without --beta, uds update ignores a newer beta on npm (the registry here says latest 6.0.0, beta 99.0.0-beta.1)",
+      "titleZh": "對照：不加 --beta 時，uds update 不理會 npm 上較新的 beta（此處的 registry 替身回報 latest 6.0.0、beta 99.0.0-beta.1）",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "writeFile": "fake-npm.cjs",
+          "content": "const https = require('https');\nconst { EventEmitter } = require('events');\nconst doc = JSON.stringify({ 'dist-tags': { latest: '6.0.0', beta: '99.0.0-beta.1' } });\nhttps.get = function (url, opts, cb) {\n  if (typeof opts === 'function') cb = opts;\n  const req = new EventEmitter();\n  req.destroy = () => {};\n  process.nextTick(() => {\n    const res = new EventEmitter();\n    res.statusCode = 200;\n    cb(res);\n    res.emit('data', doc);\n    res.emit('end');\n  });\n  return req;\n};\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/fake-npm.cjs",
+        "{bin}",
+        "update",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Standards are up to date."
+        ],
+        "notContains": [
+          "New CLI version available",
+          "99.0.0-beta.1"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4b-update-beta",
+      "workspace": "r4b-update-beta",
+      "title": "uds update --beta reports the newer beta that npm has",
+      "titleZh": "uds update --beta 會回報 npm 上較新的 beta 版",
+      "changelog": [],
+      "smoke": true,
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/fake-npm.cjs",
+        "{bin}",
+        "update",
+        "--beta",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "New CLI version available",
+          "Latest on npm: 99.0.0-beta.1"
         ]
       }
     }
