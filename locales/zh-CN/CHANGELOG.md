@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Added
+
+- **CI：uds CLI 的每个命令、子命令与选项都要有验收步骤，而且步骤必须读回效果，不能只看退出码（XSPEC-471 R2、R3）。** `node scripts/beta-acceptance/check-cli-coverage.mjs`（CI 工作「Beta Acceptance Coverage」）加载真正的 `cli/bin/uds.js`，记录它建出的 commander 程序（含隐藏命令、隐藏选项与别名；不读帮助文本），当 `scripts/beta-acceptance/steps.json` 的任何步骤都没用到某个命令、子命令或选项时，逐一列名并使 CI 变红，并打印已用、豁免与缺少各几个。要豁免只能在 `exemptions` 加 `{"command": ...}` 或 `{"option": ...}`，并附至少 20 字符的理由；空白或单字理由等于没有豁免。加入这项检查时已存在的缺口（31 个命令与子命令、115 个选项）列在 `scripts/beta-acceptance/coverage-baseline.json`，这份文件只能减少：不在其中的缺口会红，已被步骤用到的条目若没移除也会红（`--shrink-baseline`），所以文件不会腐烂；`--baseline-not-larger-than <ref>` 会让新增条目的变更变红。`check-steps.mjs` 现在也会指名 `expect` 只有退出码的步骤（含人工步骤；`{"step": ..., "reason": ...}` 可豁免一个步骤）。**未验证**：CI 接线只由 YAML 解析器与测试读过，尚未由 GitHub 实际执行。
+
 ## [6.14.0-beta.7] - 2026-10-08
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

@@ -17,6 +17,10 @@ status: current
 
 ## [Unreleased]
 
+### Added
+
+- **CI：uds CLI 的每個指令、子指令與選項都要有驗收步驟，而且步驟必須讀回效果，不能只看結束碼（XSPEC-471 R2、R3）。** `node scripts/beta-acceptance/check-cli-coverage.mjs`（CI 工作「Beta Acceptance Coverage」）載入真正的 `cli/bin/uds.js`，記錄它建出的 commander 程式（含隱藏指令、隱藏選項與別名；不讀說明文字），當 `scripts/beta-acceptance/steps.json` 的任何步驟都沒用到某個指令、子指令或選項時，逐一列名並使 CI 變紅，並印出已用、豁免與缺少各幾個。要豁免只能在 `exemptions` 加 `{"command": ...}` 或 `{"option": ...}`，並附至少 20 字元的理由；空白或單字理由等於沒有豁免。加入這項檢查時已存在的缺口（31 個指令與子指令、115 個選項）列在 `scripts/beta-acceptance/coverage-baseline.json`，這份檔案只能減少：不在其中的缺口會紅，已被步驟用到的項目若沒移除也會紅（`--shrink-baseline`），所以檔案不會腐爛；`--baseline-not-larger-than <ref>` 會讓新增項目的變更變紅。`check-steps.mjs` 現在也會指名 `expect` 只有結束碼的步驟（含人工步驟；`{"step": ..., "reason": ...}` 可豁免一個步驟）。**未驗證**：CI 接線只由 YAML 解析器與測試讀過，尚未由 GitHub 實際執行。
+
 ## [6.14.0-beta.7] - 2026-10-08
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
