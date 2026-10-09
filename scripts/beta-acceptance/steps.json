@@ -2016,6 +2016,1952 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "list-every-counted-standard-is-shown",
+      "title": "The standards uds list shows add up to the Total it prints (it used to count 163 and show 81)",
+      "titleZh": "uds list 顯示的標準數加起來等於它印出的 Total（以前算 163 卻只列 81）",
+      "smoke": false,
+      "changelog": [
+        "uds list showed 81 of the 163 standards it counted"
+      ],
+      "prepare": [
+        {
+          "writeFile": "list-total.mjs",
+          "content": "import { spawnSync } from 'node:child_process';\n// Runs `uds list` and compares two numbers the command itself prints: the sum of the category headings and the Total line.\nconst run = spawnSync(process.execPath, [process.argv[2], 'list'], { encoding: 'utf8' });\nif (run.status !== 0) { console.log(`uds list exited ${run.status}`); process.exit(1); }\nlet listed = 0;\nfor (const line of run.stdout.split('\\n')) {\n  const heading = /^[A-Z][A-Za-z ]* \\((\\d+)\\)$/.exec(line.trimEnd());\n  if (heading) listed += Number(heading[1]);\n}\nconst total = /Total: (\\d+) standards/.exec(run.stdout);\nconsole.log(`listed ${listed} of ${total ? total[1] : 'unknown'} standards`);\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "list-total.mjs",
+        "{bin}"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^listed [1-9]\\d* of \\d+ standards$",
+          "^listed (\\d+) of \\1 standards$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "list-shows-every-category",
+      "title": "uds list has a heading for each of the ten categories, the five that used to be left out included",
+      "titleZh": "uds list 為十個分類各列一個標題，包含以前被漏掉的五個",
+      "smoke": false,
+      "changelog": [
+        "uds list showed 81 of the 163 standards it counted"
+      ],
+      "uds": [
+        "list"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^Skill \\(\\d+\\)$",
+          "^Reference Document \\(\\d+\\)$",
+          "^Core Standard \\(\\d+\\)$",
+          "^Testing Standard \\(\\d+\\)$",
+          "^Security Standard \\(\\d+\\)$",
+          "^Deployment Standard \\(\\d+\\)$",
+          "^Operations Standard \\(\\d+\\)$",
+          "^Extension \\(\\d+\\)$",
+          "^Integration \\(\\d+\\)$",
+          "^Template \\(\\d+\\)$"
+        ],
+        "contains": [
+          "Governance Layer Standard",
+          "Disaster Recovery Drill Standards"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "list-category-core",
+      "title": "uds list --category core lists the core standards (it used to refuse \"core\" as an unknown category) and nothing from the other categories",
+      "titleZh": "uds list --category core 列出核心標準（以前把 core 當成未知分類而拒絕），且不列其他分類",
+      "smoke": false,
+      "changelog": [
+        "uds list showed 81 of the 163 standards it counted"
+      ],
+      "uds": [
+        "list",
+        "--category",
+        "core"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Category: Core Standard",
+          "Governance Layer Standard"
+        ],
+        "notContains": [
+          "Skill (",
+          "Reference Document (",
+          "Disaster Recovery Drill Standards",
+          "Unknown category"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "list-category-skill-filters",
+      "title": "uds list --category skill lists only the skill standards",
+      "titleZh": "uds list --category skill 只列出技能標準",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "list",
+        "--category",
+        "skill"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Category: Skill",
+          "Anti-Hallucination Guidelines"
+        ],
+        "matches": [
+          "^Skill \\(\\d+\\)$"
+        ],
+        "notContains": [
+          "Extension (",
+          "Core Standard (",
+          "Template ("
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "list-category-unknown",
+      "title": "uds list --category with a name that is not a category exits 1 and names the valid ones, core included",
+      "titleZh": "uds list --category 給了不存在的分類時以 1 結束並列出有效分類（含 core）",
+      "smoke": false,
+      "changelog": [
+        "uds list showed 81 of the 163 standards it counted"
+      ],
+      "uds": [
+        "list",
+        "--category",
+        "no-such-category"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Unknown category 'no-such-category'",
+          "Valid categories: skill, reference, core, testing, security, deployment, operations, extension, integration, template"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "lint-text-report",
+      "title": "uds lint names the spec with a broken depends_on and the spec that is too long, and exits 1",
+      "titleZh": "uds lint 點名 depends_on 指向不存在規格的規格與過長的規格，並以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "specs/SPEC-001-alpha.md",
+          "content": "## Micro-Spec: Alpha\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Alpha\n\n**Scope**: general\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "specs/SPEC-002-beta.md",
+          "content": "## Micro-Spec: Beta\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: SPEC-999-missing, SPEC-001-alpha\n\n**Intent**: Beta\n\n**Scope**: general\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "specs/SPEC-003-long.md",
+          "content": "## Micro-Spec: Long\n\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\n"
+        }
+      ],
+      "uds": [
+        "lint"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "SPEC-001-alpha:",
+          "SPEC-002-beta: 1 broken dependency: SPEC-999-missing",
+          "SPEC-003-long:",
+          "1 pass, 1 warn, 1 fail"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "lint-json-report",
+      "title": "uds lint --json prints the summary and one result per spec in the shape VibeOps reads",
+      "titleZh": "uds lint --json 印出摘要與每份規格一筆結果（VibeOps 讀取的格式）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "specs/SPEC-001-alpha.md",
+          "content": "## Micro-Spec: Alpha\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Alpha\n\n**Scope**: general\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "specs/SPEC-002-beta.md",
+          "content": "## Micro-Spec: Beta\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: SPEC-999-missing, SPEC-001-alpha\n\n**Intent**: Beta\n\n**Scope**: general\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "specs/SPEC-003-long.md",
+          "content": "## Micro-Spec: Long\n\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\nA line of the spec body.\n"
+        }
+      ],
+      "uds": [
+        "lint",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "\"fail\": 1",
+          "\"warn\": 1",
+          "\"pass\": 1",
+          "\"specId\": \"SPEC-002-beta\"",
+          "\"message\": \"1 broken dependency: SPEC-999-missing;"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "lint-no-specs-folder",
+      "title": "uds lint without a specs folder says nothing was scanned, in words",
+      "titleZh": "uds lint 在沒有 specs 資料夾時明說沒有東西被掃描",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "lint"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec Lint",
+          "沒有東西被掃描"
+        ],
+        "notContains": [
+          "0 pass, 0 warn, 0 fail"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "fix-standard-applies-fixer",
+      "title": "uds fix -s repairs a project that breaks a standard: the fixer's file appears and the standard then passes",
+      "titleZh": "uds fix -s 修復違反標準的專案：修復器產生的檔案出現，標準隨後通過",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".standards/demo-structure.ai.yaml",
+          "content": "standard:\n  id: demo-structure\nphysical_spec:\n  type: filesystem_schema\n  schema:\n    root:\n      required:\n        - docs\n  fixer:\n    type: copy_template\n    template_file: readme.tpl\n    destination: docs/README.md\n"
+        },
+        {
+          "writeFile": ".standards/templates/readme.tpl",
+          "content": "project docs go here\n"
+        }
+      ],
+      "uds": [
+        "fix",
+        "-s",
+        "demo-structure"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Attempting to fix violations for: demo-structure",
+          "Fix applied successfully!"
+        ],
+        "files": [
+          {
+            "path": "docs/README.md",
+            "contains": [
+              "project docs go here"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "fix-json-reports-fixed",
+      "title": "uds fix --json says \"fixed\" and the fixer's file is there",
+      "titleZh": "uds fix --json 回報 fixed，且修復器產生的檔案存在",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".standards/demo-structure.ai.yaml",
+          "content": "standard:\n  id: demo-structure\nphysical_spec:\n  type: filesystem_schema\n  schema:\n    root:\n      required:\n        - docs\n  fixer:\n    type: copy_template\n    template_file: readme.tpl\n    destination: docs/README.md\n"
+        },
+        {
+          "writeFile": ".standards/templates/readme.tpl",
+          "content": "project docs go here\n"
+        }
+      ],
+      "uds": [
+        "fix",
+        "-s",
+        "demo-structure",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"success\": true",
+          "\"status\": \"fixed\""
+        ],
+        "files": [
+          {
+            "path": "docs/README.md",
+            "contains": [
+              "project docs go here"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "fix-needs-standard",
+      "title": "uds fix without --standard exits 1 and writes nothing",
+      "titleZh": "uds fix 沒給 --standard 時以 1 結束且不寫任何檔案",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".standards/demo-structure.ai.yaml",
+          "content": "standard:\n  id: demo-structure\nphysical_spec:\n  type: filesystem_schema\n  schema:\n    root:\n      required:\n        - docs\n  fixer:\n    type: copy_template\n    template_file: readme.tpl\n    destination: docs/README.md\n"
+        },
+        {
+          "writeFile": ".standards/templates/readme.tpl",
+          "content": "project docs go here\n"
+        }
+      ],
+      "uds": [
+        "fix"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Error: --standard is required"
+        ],
+        "files": [
+          {
+            "path": "docs",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "r4a-init",
+      "title": "uds init sets up a project (the project the simulate step uses)",
+      "titleZh": "uds init 建立專案（simulate 步驟使用）",
+      "smoke": true,
+      "changelog": [],
+      "workspace": "r4a-simulate",
+      "prepare": [
+        {
+          "gitInit": true
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "simulate-json-pass",
+      "title": "uds simulate --json on a compliant commit message says success and exits 0",
+      "titleZh": "uds simulate --json 對合規的提交訊息回報 success 並以 0 結束",
+      "smoke": true,
+      "changelog": [],
+      "workspace": "r4a-simulate",
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(api): add dept endpoint",
+        "--json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "\"status\": \"pass\"",
+          "\"success\": true",
+          "header format <type>(<scope>): <subject>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "simulate-json-fail",
+      "title": "uds simulate --json on a non-compliant commit message says what is wrong and exits 1",
+      "titleZh": "uds simulate --json 對不合規的提交訊息說明哪裡不對並以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "workspace": "r4a-simulate",
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "add new dept api",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "\"status\": \"fail\"",
+          "\"success\": false",
+          "The first line is not in the form <type>(<scope>): <subject>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "report-adoption-table",
+      "title": "uds report turns hook telemetry into a per-standard table (executions, pass rate, average duration) and skips a damaged line",
+      "titleZh": "uds report 把 hook 遙測整理成每個標準一列的表（次數、通過率、平均耗時），並略過損壞的行",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".standards/telemetry.jsonl",
+          "content": "{\"standard_id\":\"commit-message\",\"result\":\"pass\",\"duration_ms\":10}\n{\"standard_id\":\"commit-message\",\"result\":\"fail\",\"duration_ms\":30}\nthis line is not json\n{\"standard_id\":\"testing\",\"result\":\"pass\",\"duration_ms\":100}\n"
+        }
+      ],
+      "uds": [
+        "report"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "UDS Hook Telemetry Report",
+          "Total executions: 3"
+        ],
+        "matches": [
+          "^commit-message\\s+2\\s+50\\.0%\\s+20ms$",
+          "^testing\\s+1\\s+100\\.0%\\s+100ms$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "report-no-telemetry",
+      "title": "uds report with no telemetry file says there is no data instead of printing an empty table",
+      "titleZh": "uds report 沒有遙測檔時說沒有資料，而不是印出空表",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "report"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "No telemetry data available. Run hooks to generate data."
+        ],
+        "notContains": [
+          "Total executions"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "deps-path-reports-drift",
+      "title": "uds deps --path reads another folder's package.json and names the dependency whose tested version is behind what its range resolves to",
+      "titleZh": "uds deps --path 讀另一個資料夾的 package.json，點名「測試的版本落後於範圍解析結果」的相依",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "stub-registry.mjs",
+          "content": "import { createServer } from 'node:http';\nimport { spawn } from 'node:child_process';\n// A stand-in npm registry: every package has 1.0.0 and 1.2.0 (latest). It answers after one second and counts the requests in flight.\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst known = ['alpha', 'beta', 'gamma', 'delta'];\nlet inflight = 0;\nlet most = 0;\nconst server = createServer((req, res) => {\n  inflight += 1;\n  most = Math.max(most, inflight);\n  const name = decodeURIComponent(req.url.slice(1));\n  setTimeout(() => {\n    inflight -= 1;\n    if (!known.includes(name)) { res.statusCode = 404; res.end('{\"error\":\"not found\"}'); return; }\n    const manifest = (version) => ({ name, version, dist: { tarball: `http://127.0.0.1:${server.address().port}/${name}/-/${name}-${version}.tgz`, shasum: '0'.repeat(40) } });\n    res.setHeader('content-type', 'application/json');\n    res.end(JSON.stringify({ name, 'dist-tags': { latest: '1.2.0' }, versions: { '1.0.0': manifest('1.0.0'), '1.2.0': manifest('1.2.0') } }));\n  }, 1000);\n});\nserver.listen(0, '127.0.0.1', () => {\n  const registry = `http://127.0.0.1:${server.address().port}/`;\n  const child = spawn(process.execPath, [bin, ...udsArgs], { stdio: ['ignore', 'inherit', 'inherit'], env: { ...process.env, npm_config_registry: registry } });\n  child.on('close', (code) => { console.log(`stand-in registry: most requests at once = ${most}`); server.close(); process.exitCode = code; });\n});\n"
+        },
+        {
+          "writeFile": "proj/package.json",
+          "content": "{\"name\":\"demo\",\"version\":\"1.0.0\",\"dependencies\":{\"alpha\":\"^1.0.0\",\"beta\":\"^1.0.0\",\"gamma\":\"^1.0.0\",\"delta\":\"^1.0.0\"}}\n"
+        },
+        {
+          "writeFile": "proj/package-lock.json",
+          "content": "{\"name\":\"demo\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"demo\"},\"node_modules/alpha\":{\"version\":\"1.0.0\"},\"node_modules/beta\":{\"version\":\"1.2.0\"},\"node_modules/gamma\":{\"version\":\"1.2.0\"},\"node_modules/delta\":{\"version\":\"1.2.0\"}}}\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "stub-registry.mjs",
+        "{bin}",
+        "deps",
+        "--path",
+        "proj"
+      ],
+      "timeoutSec": 180,
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "demo — 4 runtime dependencies checked",
+          "1 tested ≠ resolves:",
+          "alpha  ^1.0.0  tested=1.0.0  resolves=1.2.0"
+        ],
+        "notContains": [
+          "could not be checked"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "deps-json-output",
+      "title": "uds deps --json prints the measurement as JSON: examined, drifted (with locked and resolved) and clean",
+      "titleZh": "uds deps --json 以 JSON 印出量測結果：examined、drifted（含 locked 與 resolved）與 clean",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "stub-registry.mjs",
+          "content": "import { createServer } from 'node:http';\nimport { spawn } from 'node:child_process';\n// A stand-in npm registry: every package has 1.0.0 and 1.2.0 (latest). It answers after one second and counts the requests in flight.\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst known = ['alpha', 'beta', 'gamma', 'delta'];\nlet inflight = 0;\nlet most = 0;\nconst server = createServer((req, res) => {\n  inflight += 1;\n  most = Math.max(most, inflight);\n  const name = decodeURIComponent(req.url.slice(1));\n  setTimeout(() => {\n    inflight -= 1;\n    if (!known.includes(name)) { res.statusCode = 404; res.end('{\"error\":\"not found\"}'); return; }\n    const manifest = (version) => ({ name, version, dist: { tarball: `http://127.0.0.1:${server.address().port}/${name}/-/${name}-${version}.tgz`, shasum: '0'.repeat(40) } });\n    res.setHeader('content-type', 'application/json');\n    res.end(JSON.stringify({ name, 'dist-tags': { latest: '1.2.0' }, versions: { '1.0.0': manifest('1.0.0'), '1.2.0': manifest('1.2.0') } }));\n  }, 1000);\n});\nserver.listen(0, '127.0.0.1', () => {\n  const registry = `http://127.0.0.1:${server.address().port}/`;\n  const child = spawn(process.execPath, [bin, ...udsArgs], { stdio: ['ignore', 'inherit', 'inherit'], env: { ...process.env, npm_config_registry: registry } });\n  child.on('close', (code) => { console.log(`stand-in registry: most requests at once = ${most}`); server.close(); process.exitCode = code; });\n});\n"
+        },
+        {
+          "writeFile": "proj/package.json",
+          "content": "{\"name\":\"demo\",\"version\":\"1.0.0\",\"dependencies\":{\"alpha\":\"^1.0.0\",\"beta\":\"^1.0.0\",\"gamma\":\"^1.0.0\",\"delta\":\"^1.0.0\"}}\n"
+        },
+        {
+          "writeFile": "proj/package-lock.json",
+          "content": "{\"name\":\"demo\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"demo\"},\"node_modules/alpha\":{\"version\":\"1.0.0\"},\"node_modules/beta\":{\"version\":\"1.2.0\"},\"node_modules/gamma\":{\"version\":\"1.2.0\"},\"node_modules/delta\":{\"version\":\"1.2.0\"}}}\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "stub-registry.mjs",
+        "{bin}",
+        "deps",
+        "--path",
+        "proj",
+        "--json"
+      ],
+      "timeoutSec": 180,
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "\"examined\": 4",
+          "\"consistent\": 3",
+          "\"locked\": \"1.0.0\"",
+          "\"resolved\": \"1.2.0\"",
+          "\"clean\": false"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "deps-concurrency-limits-lookups",
+      "title": "uds deps --concurrency 1 looks the dependencies up one at a time, not all at once",
+      "titleZh": "uds deps --concurrency 1 一個一個查相依，而不是一次全部查",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "stub-registry.mjs",
+          "content": "import { createServer } from 'node:http';\nimport { spawn } from 'node:child_process';\n// A stand-in npm registry: every package has 1.0.0 and 1.2.0 (latest). It answers after one second and counts the requests in flight.\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst known = ['alpha', 'beta', 'gamma', 'delta'];\nlet inflight = 0;\nlet most = 0;\nconst server = createServer((req, res) => {\n  inflight += 1;\n  most = Math.max(most, inflight);\n  const name = decodeURIComponent(req.url.slice(1));\n  setTimeout(() => {\n    inflight -= 1;\n    if (!known.includes(name)) { res.statusCode = 404; res.end('{\"error\":\"not found\"}'); return; }\n    const manifest = (version) => ({ name, version, dist: { tarball: `http://127.0.0.1:${server.address().port}/${name}/-/${name}-${version}.tgz`, shasum: '0'.repeat(40) } });\n    res.setHeader('content-type', 'application/json');\n    res.end(JSON.stringify({ name, 'dist-tags': { latest: '1.2.0' }, versions: { '1.0.0': manifest('1.0.0'), '1.2.0': manifest('1.2.0') } }));\n  }, 1000);\n});\nserver.listen(0, '127.0.0.1', () => {\n  const registry = `http://127.0.0.1:${server.address().port}/`;\n  const child = spawn(process.execPath, [bin, ...udsArgs], { stdio: ['ignore', 'inherit', 'inherit'], env: { ...process.env, npm_config_registry: registry } });\n  child.on('close', (code) => { console.log(`stand-in registry: most requests at once = ${most}`); server.close(); process.exitCode = code; });\n});\n"
+        },
+        {
+          "writeFile": "proj/package.json",
+          "content": "{\"name\":\"demo\",\"version\":\"1.0.0\",\"dependencies\":{\"alpha\":\"^1.0.0\",\"beta\":\"^1.0.0\",\"gamma\":\"^1.0.0\",\"delta\":\"^1.0.0\"}}\n"
+        },
+        {
+          "writeFile": "proj/package-lock.json",
+          "content": "{\"name\":\"demo\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"demo\"},\"node_modules/alpha\":{\"version\":\"1.0.0\"},\"node_modules/beta\":{\"version\":\"1.2.0\"},\"node_modules/gamma\":{\"version\":\"1.2.0\"},\"node_modules/delta\":{\"version\":\"1.2.0\"}}}\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "stub-registry.mjs",
+        "{bin}",
+        "deps",
+        "--path",
+        "proj",
+        "--concurrency",
+        "1"
+      ],
+      "timeoutSec": 180,
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "alpha  ^1.0.0  tested=1.0.0  resolves=1.2.0"
+        ],
+        "matches": [
+          "most requests at once = [12]$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "deps-default-looks-up-in-parallel",
+      "title": "uds deps without --concurrency looks the four dependencies up in parallel (the control for the step above)",
+      "titleZh": "uds deps 沒給 --concurrency 時四個相依平行查詢（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "stub-registry.mjs",
+          "content": "import { createServer } from 'node:http';\nimport { spawn } from 'node:child_process';\n// A stand-in npm registry: every package has 1.0.0 and 1.2.0 (latest). It answers after one second and counts the requests in flight.\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst known = ['alpha', 'beta', 'gamma', 'delta'];\nlet inflight = 0;\nlet most = 0;\nconst server = createServer((req, res) => {\n  inflight += 1;\n  most = Math.max(most, inflight);\n  const name = decodeURIComponent(req.url.slice(1));\n  setTimeout(() => {\n    inflight -= 1;\n    if (!known.includes(name)) { res.statusCode = 404; res.end('{\"error\":\"not found\"}'); return; }\n    const manifest = (version) => ({ name, version, dist: { tarball: `http://127.0.0.1:${server.address().port}/${name}/-/${name}-${version}.tgz`, shasum: '0'.repeat(40) } });\n    res.setHeader('content-type', 'application/json');\n    res.end(JSON.stringify({ name, 'dist-tags': { latest: '1.2.0' }, versions: { '1.0.0': manifest('1.0.0'), '1.2.0': manifest('1.2.0') } }));\n  }, 1000);\n});\nserver.listen(0, '127.0.0.1', () => {\n  const registry = `http://127.0.0.1:${server.address().port}/`;\n  const child = spawn(process.execPath, [bin, ...udsArgs], { stdio: ['ignore', 'inherit', 'inherit'], env: { ...process.env, npm_config_registry: registry } });\n  child.on('close', (code) => { console.log(`stand-in registry: most requests at once = ${most}`); server.close(); process.exitCode = code; });\n});\n"
+        },
+        {
+          "writeFile": "proj/package.json",
+          "content": "{\"name\":\"demo\",\"version\":\"1.0.0\",\"dependencies\":{\"alpha\":\"^1.0.0\",\"beta\":\"^1.0.0\",\"gamma\":\"^1.0.0\",\"delta\":\"^1.0.0\"}}\n"
+        },
+        {
+          "writeFile": "proj/package-lock.json",
+          "content": "{\"name\":\"demo\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"demo\"},\"node_modules/alpha\":{\"version\":\"1.0.0\"},\"node_modules/beta\":{\"version\":\"1.2.0\"},\"node_modules/gamma\":{\"version\":\"1.2.0\"},\"node_modules/delta\":{\"version\":\"1.2.0\"}}}\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "stub-registry.mjs",
+        "{bin}",
+        "deps",
+        "--path",
+        "proj"
+      ],
+      "timeoutSec": 180,
+      "expect": {
+        "exit": 1,
+        "matches": [
+          "most requests at once = [3-9]$"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-create-yes-confirms",
+      "title": "uds spec new (alias of create) --scope --output --yes writes a confirmed micro-spec with that scope into that folder",
+      "titleZh": "uds spec new（create 的別名）加 --scope --output --yes，在指定資料夾寫出已確認、範圍為指定值的微規格",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "spec",
+        "new",
+        "Add login page",
+        "--scope",
+        "backend",
+        "--output",
+        "docs/specs",
+        "--yes"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec auto-confirmed.",
+          "Spec ID: SPEC-001-add-login-page"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-add-login-page.md",
+            "contains": [
+              "## Micro-Spec: Add login page",
+              "**Status**: confirmed",
+              "**Scope**: backend",
+              "**Confirmed**: Yes"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-list-status-filter",
+      "title": "uds spec ls --status draft --output lists only the draft micro-specs of that folder",
+      "titleZh": "uds spec ls --status draft --output 只列出該資料夾中的草稿微規格",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "ls",
+        "--status",
+        "draft",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^SPEC-001-login-page\\s+draft\\s+feature\\s+Login page$",
+          "^Total: 1$"
+        ],
+        "notContains": [
+          "SPEC-002-export-report"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-show-prints-spec",
+      "title": "uds spec show --output prints the micro-spec, and exits 1 for an id that is not there",
+      "titleZh": "uds spec show --output 印出微規格內容，找不到的編號則以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "show",
+        "SPEC-002-export-report",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "## Micro-Spec: Export report",
+          "**Status**: confirmed",
+          "**Scope**: backend"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-show-unknown-id",
+      "title": "uds spec show for an id that is not there exits 1 and names it",
+      "titleZh": "uds spec show 對不存在的編號以 1 結束並點名它",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "show",
+        "SPEC-404-nothing",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Spec not found: SPEC-404-nothing"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-confirm-marks-confirmed",
+      "title": "uds spec confirm --output turns a draft micro-spec into a confirmed one in its file",
+      "titleZh": "uds spec confirm --output 把草稿微規格在檔案裡改成已確認",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "confirm",
+        "SPEC-001-login-page",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec confirmed and ready for implementation!"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "contains": [
+              "**Status**: confirmed",
+              "**Confirmed**: Yes"
+            ],
+            "notContains": [
+              "**Status**: draft",
+              "**Confirmed**: No"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-archive-moves-to-archive",
+      "title": "uds spec archive --output moves the micro-spec into archive/ marked archived and records it in archive/index.json",
+      "titleZh": "uds spec archive --output 把微規格搬進 archive/、標為 archived，並記入 archive/index.json",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "archive",
+        "SPEC-002-export-report",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec archived successfully."
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-002-export-report.md",
+            "exists": false
+          },
+          {
+            "path": "docs/specs/archive/SPEC-002-export-report.md",
+            "contains": [
+              "**Status**: archived"
+            ]
+          },
+          {
+            "path": "docs/specs/archive/index.json",
+            "contains": [
+              "\"id\": \"SPEC-002-export-report\"",
+              "\"title\": \"Export report\""
+            ]
+          },
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "contains": [
+              "**Status**: draft"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-delete-yes-removes-file",
+      "title": "uds spec rm (alias of delete) --yes --output removes that micro-spec and leaves the other one",
+      "titleZh": "uds spec rm（delete 的別名）加 --yes --output 刪除該微規格並保留另一份",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "rm",
+        "SPEC-001-login-page",
+        "--yes",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec deleted."
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "exists": false
+          },
+          {
+            "path": "docs/specs/SPEC-002-export-report.md",
+            "contains": [
+              "Export report"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-delete-unknown-id",
+      "title": "uds spec delete --yes for an id that is not there exits 1 and deletes nothing",
+      "titleZh": "uds spec delete --yes 對不存在的編號以 1 結束且不刪任何檔案",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "delete",
+        "SPEC-404-nothing",
+        "--yes",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Spec not found: SPEC-404-nothing"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "contains": [
+              "Login page"
+            ]
+          },
+          {
+            "path": "docs/specs/SPEC-002-export-report.md",
+            "contains": [
+              "Export report"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-search-finds-active-and-archived",
+      "title": "uds spec search --output finds the active micro-spec and the archived one by title and leaves the others out",
+      "titleZh": "uds spec search --output 依標題找到進行中與已封存的微規格，其他的不列",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        },
+        {
+          "writeFile": "docs/specs/archive/index.json",
+          "content": "[{\"id\":\"SPEC-000-old-login\",\"title\":\"Old login flow\",\"type\":\"feature\",\"archived_at\":\"2026-01-01T00:00:00.000Z\",\"scope\":\"frontend\"}]\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "search",
+        "login",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Found 2 spec(s) matching \"login\":",
+          "SPEC-001-login-page [draft] Login page",
+          "SPEC-000-old-login [archived] Old login flow"
+        ],
+        "notContains": [
+          "SPEC-002-export-report"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-search-archived-only",
+      "title": "uds spec search --archived looks only in the archive",
+      "titleZh": "uds spec search --archived 只找已封存的",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        },
+        {
+          "writeFile": "docs/specs/archive/index.json",
+          "content": "[{\"id\":\"SPEC-000-old-login\",\"title\":\"Old login flow\",\"type\":\"feature\",\"archived_at\":\"2026-01-01T00:00:00.000Z\",\"scope\":\"frontend\"}]\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "search",
+        "login",
+        "--archived",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Found 1 spec(s) matching \"login\":",
+          "SPEC-000-old-login [archived] Old login flow"
+        ],
+        "notContains": [
+          "SPEC-001-login-page"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-split-too-few-criteria",
+      "title": "uds spec split --output refuses a micro-spec with fewer than two acceptance criteria and leaves it as it was",
+      "titleZh": "uds spec split --output 對驗收條件少於兩條的微規格不拆，且檔案維持原樣",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-small.md",
+          "content": "## Micro-Spec: Small\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Small\n\n**Scope**: general\n\n**Acceptance**:\n- [ ] AC-1: the only criterion\n\n**Confirmed**: No\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "split",
+        "SPEC-001-small",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Spec SPEC-001-small has 1 AC(s)",
+          "too few to split"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-small.md",
+            "contains": [
+              "AC-1: the only criterion"
+            ]
+          },
+          {
+            "path": "docs/specs/.backup",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-split-unknown-id",
+      "title": "uds spec split --output for an id that is not there exits 1",
+      "titleZh": "uds spec split --output 對不存在的編號以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "split",
+        "SPEC-404-nothing",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Spec SPEC-404-nothing not found"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-spec-split-in-a-terminal",
+      "title": "Split a micro-spec in your own terminal: choose which criteria move, and both specs end up pointing at each other",
+      "titleZh": "在你自己的終端機拆一份微規格：選哪些驗收條件搬走，兩份規格最後互相指向對方",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "spec",
+        "split",
+        "--help"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Split a large spec into two with mutual depends_on references"
+        ]
+      },
+      "human": {
+        "prompt": "In a NEW empty folder, create specs/SPEC-001-big.md holding \"## Micro-Spec: Big\", \"**Depends On**: none\", \"**Type**: feature\" and three lines \"- [ ] AC-1: first\", \"- [ ] AC-2: second\", \"- [ ] AC-3: third\" (each on its own line). Run `uds spec split SPEC-001-big` in your own terminal, tick AC-3 with the space bar, press Enter, answer y. Afterwards: are there two spec files, does the original lack AC-3 and name the new spec after \"Depends On\", does the new one hold AC-3 and name SPEC-001-big, and is specs/.backup/SPEC-001-big-pre-split.md the untouched original?",
+        "promptZh": "在一個全新的空資料夾建立 specs/SPEC-001-big.md，內容有「## Micro-Spec: Big」、「**Depends On**: none」、「**Type**: feature」，以及三行（各佔一行）「- [ ] AC-1: first」、「- [ ] AC-2: second」、「- [ ] AC-3: third」。在你自己的終端機執行 `uds spec split SPEC-001-big`，用空白鍵勾選 AC-3，按 Enter，回答 y。結束後：是否有兩份規格檔？原本那份是否已沒有 AC-3、且「Depends On」寫著新規格？新的那份是否有 AC-3、且指向 SPEC-001-big？specs/.backup/SPEC-001-big-pre-split.md 是否為未經改動的原檔？"
+      }
+    },
+    {
+      "platform": "all",
+      "id": "quickstart-without-terminal-shows-every-workflow",
+      "title": "uds quickstart with no terminal prints all four workflows with their commands (it used to end on a stack trace and exit 0)",
+      "titleZh": "uds quickstart 沒有終端機時印出四個流程與各自的指令（以前以堆疊追蹤結束且結束碼為 0）",
+      "smoke": false,
+      "changelog": [
+        "uds quickstart, uds spec create, uds spec delete and uds spec split ended on"
+      ],
+      "uds": [
+        "quickstart"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Quick Spec → Implement (Micro-Spec)",
+          "uds spec archive SPEC-XXX",
+          "Full SDD Spec Flow (Boost)",
+          "uds spec create \"your feature\" --scope fullstack",
+          "Test-Driven Development (TDD)",
+          "# Make it pass (GREEN)",
+          "Check Project Health",
+          "uds check --i18n"
+        ],
+        "notContains": [
+          "ExitPromptError",
+          "force closed the prompt"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-create-without-terminal-keeps-a-draft",
+      "title": "uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it",
+      "titleZh": "uds spec create 沒給 --yes 且沒有終端機時，規格維持草稿並說明如何確認",
+      "smoke": false,
+      "changelog": [
+        "uds quickstart, uds spec create, uds spec delete and uds spec split ended on"
+      ],
+      "uds": [
+        "spec",
+        "create",
+        "Add login page",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "the spec stays a draft",
+          "Run `uds spec confirm <id>`"
+        ],
+        "notContains": [
+          "ExitPromptError",
+          "force closed the prompt"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-add-login-page.md",
+            "contains": [
+              "**Status**: draft",
+              "**Confirmed**: No"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-delete-without-terminal-deletes-nothing",
+      "title": "uds spec delete without --yes and with no terminal deletes nothing, says why and exits 2",
+      "titleZh": "uds spec delete 沒給 --yes 且沒有終端機時什麼都不刪、說明原因並以 2 結束",
+      "smoke": false,
+      "changelog": [
+        "uds quickstart, uds spec create, uds spec delete and uds spec split ended on"
+      ],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        },
+        {
+          "writeFile": "docs/specs/SPEC-002-export-report.md",
+          "content": "## Micro-Spec: Export report\n\n**Status**: confirmed\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Export report\n\n**Scope**: backend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: Yes\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "delete",
+        "SPEC-001-login-page",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "Re-run with --yes to delete. Nothing has been deleted."
+        ],
+        "notContains": [
+          "ExitPromptError",
+          "force closed the prompt"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "contains": [
+              "Login page"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "spec-split-without-terminal-changes-nothing",
+      "title": "uds spec split with three criteria and no terminal changes nothing, says why and exits 2",
+      "titleZh": "uds spec split 有三條驗收條件且沒有終端機時什麼都不改、說明原因並以 2 結束",
+      "smoke": false,
+      "changelog": [
+        "uds quickstart, uds spec create, uds spec delete and uds spec split ended on"
+      ],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-big.md",
+          "content": "## Micro-Spec: Big\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Big\n\n**Scope**: general\n\n**Acceptance**:\n- [ ] AC-1: first\n- [ ] AC-2: second\n- [ ] AC-3: third\n\n**Confirmed**: No\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "split",
+        "SPEC-001-big",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "Cannot ask which ACs to move",
+          "Nothing has been changed."
+        ],
+        "notContains": [
+          "ExitPromptError",
+          "force closed the prompt"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-big.md",
+            "contains": [
+              "AC-3: third"
+            ]
+          },
+          {
+            "path": "docs/specs/.backup",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-quickstart-pick-a-workflow",
+      "title": "Run uds quickstart in your own terminal and pick one workflow with the arrow keys: only that workflow is printed",
+      "titleZh": "在你自己的終端機執行 uds quickstart，用方向鍵選一個流程：只會印出那一個流程",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "quickstart",
+        "--help"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Interactive workflow guide"
+        ]
+      },
+      "human": {
+        "prompt": "In your own terminal run `uds quickstart`, press the Down arrow once and Enter. Is only the second workflow (\"Full SDD Spec Flow (Boost)\") printed, with its four numbered commands, and no other workflow?",
+        "promptZh": "在你自己的終端機執行 `uds quickstart`，按一次向下鍵再按 Enter。是否只印出第二個流程（「Full SDD Spec Flow (Boost)」）和它的四個編號指令，而沒有其他流程？"
+      }
+    },
+    {
+      "platform": "all",
+      "id": "human-spec-create-and-delete-prompts",
+      "title": "In your own terminal uds spec create asks what to do with the new spec, and uds spec delete asks before it deletes",
+      "titleZh": "在你自己的終端機，uds spec create 會問新規格要怎麼處理，uds spec delete 會在刪除前先問",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "spec",
+        "create",
+        "--help"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Create a micro-spec from natural language intent"
+        ]
+      },
+      "human": {
+        "prompt": "In a NEW empty folder run `uds spec create \"Add login page\"` in your own terminal and choose \"Confirm and proceed\": is specs/SPEC-001-add-login-page.md written with \"**Status**: confirmed\"? Then run `uds spec delete SPEC-001-add-login-page`, answer n: is the file still there? Run it again and answer y: is it gone?",
+        "promptZh": "在一個全新的空資料夾，於你自己的終端機執行 `uds spec create \"Add login page\"` 並選「Confirm and proceed」：specs/SPEC-001-add-login-page.md 是否寫出且有「**Status**: confirmed」？再執行 `uds spec delete SPEC-001-add-login-page` 並回答 n：檔案是否還在？再執行一次並回答 y：檔案是否已消失？"
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-root",
+      "title": "uds open-work next-action --root looks a named path up under that folder",
+      "titleZh": "uds open-work next-action --root 在指定資料夾底下查所點名的路徑",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "proj/docs/plan.md",
+          "content": "# plan\n"
+        },
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | edit docs/plan.md |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md",
+        "--root",
+        "proj"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "named-resolved=1 named-unresolved=0 unnamed=0",
+          "from --root"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-without-root",
+      "title": "uds open-work next-action without --root looks that same path up under the current folder and does not find it (the control for the step above)",
+      "titleZh": "uds open-work next-action 沒給 --root 時在目前資料夾查同一個路徑而找不到（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "proj/docs/plan.md",
+          "content": "# plan\n"
+        },
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | edit docs/plan.md |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "named-resolved=0 named-unresolved=1 unnamed=0",
+          "path-missing=1",
+          "no --root was given"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-id-pattern",
+      "title": "uds open-work next-action --id-pattern lets a team's own ticket format count as a named next action",
+      "titleZh": "uds open-work next-action --id-pattern 讓團隊自己的工單格式算作有點名的下一步",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | close INC0012345 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md",
+        "--id-pattern",
+        "INC\\d{7}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "unnamed=0",
+          "<- id:INC0012345"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-id-unrecognised",
+      "title": "uds open-work next-action without --id-pattern does not know that ticket format and exits 1 (the control for the step above)",
+      "titleZh": "uds open-work next-action 沒給 --id-pattern 時不認得那種工單格式而以 1 結束（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | close INC0012345 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "unnamed=1",
+          "VIOLATION OWT-019"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-command-word",
+      "title": "uds open-work next-action --command-word kubectl reads \"kubectl rollout restart\" as a command",
+      "titleZh": "uds open-work next-action --command-word kubectl 把「kubectl rollout restart」當成指令",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | kubectl rollout restart |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md",
+        "--command-word",
+        "kubectl"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "unnamed=0",
+          "<- command:kubectl rollout"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-command-unrecognised",
+      "title": "uds open-work next-action without --command-word does not know kubectl and exits 1 (the control for the step above)",
+      "titleZh": "uds open-work next-action 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "n.md",
+          "content": "| item | Next action |\n|---|---|\n| a | kubectl rollout restart |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "n.md"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "unnamed=1",
+          "VIOLATION OWT-019"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-stale-after",
+      "title": "uds open-work next-action --stale-after 2 marks a reply asked four days ago as STALE, where the default of seven days does not",
+      "titleZh": "uds open-work next-action --stale-after 2 把四天前問的回覆標為 STALE，預設七天則不會",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | asked-at | waiting for | release | Next action |\n|---|---|---|---|---|---|\n| vendor quote | asked-awaiting | 2026-01-10 | the quote | the quote arrives | wait for the vendor reply |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "w.md",
+        "--now",
+        "2026-01-14",
+        "--stale-after",
+        "2"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "1 older than 2 day(s)",
+          "asked 4d ago (2026-01-10) STALE (older than 2d)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-next-action-default-not-stale",
+      "title": "uds open-work next-action with the default threshold does not call a four-day-old reply STALE (the control for the step above)",
+      "titleZh": "uds open-work next-action 用預設門檻時不把四天前的回覆標為 STALE（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | asked-at | waiting for | release | Next action |\n|---|---|---|---|---|---|\n| vendor quote | asked-awaiting | 2026-01-10 | the quote | the quote arrives | wait for the vendor reply |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "w.md",
+        "--now",
+        "2026-01-14"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "0 older than 7 day(s)",
+          "asked 4d ago (2026-01-10)"
+        ],
+        "notContains": [
+          "STALE (older"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-revision-before-after-violation",
+      "title": "uds open-work revision --before --after exits 1 when the acceptance section changed and no new revision record was added",
+      "titleZh": "uds open-work revision --before --after 在驗收段落改了卻沒新增修訂紀錄時以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "before.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n"
+        },
+        {
+          "writeFile": "after.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n- B passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "revision",
+        "--before",
+        "before.md",
+        "--after",
+        "after.md"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "OWT-018 after.md: changed-no-record (changed: Acceptance)",
+          "VIOLATION OWT-018: intent changed and no new revision record exists"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-revision-before-after-recorded",
+      "title": "uds open-work revision --before --after exits 0 when the same change comes with a new, complete revision record",
+      "titleZh": "uds open-work revision --before --after 在同樣的修改附上新的完整修訂紀錄時以 0 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "before.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n"
+        },
+        {
+          "writeFile": "after.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n- B passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n| 2026-10-08 | added B | the buyer asked | albert |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "revision",
+        "--before",
+        "before.md",
+        "--after",
+        "after.md"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "OWT-018 after.md: changed-recorded (changed: Acceptance)"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-revision-file-base",
+      "title": "uds open-work revision --file --base compares the file with its committed version",
+      "titleZh": "uds open-work revision --file --base 把檔案與已提交的版本比對",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "writeFile": "spec.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n"
+        },
+        {
+          "git": [
+            "add",
+            "spec.md"
+          ]
+        },
+        {
+          "git": [
+            "commit",
+            "-q",
+            "-m",
+            "first version"
+          ]
+        },
+        {
+          "writeFile": "spec.md",
+          "content": "# Spec\n\n## Acceptance\n\n- A passes\n- B passes\n\n## Revision history\n\n| date | what changed | why | approved by |\n|---|---|---|---|\n| 2026-10-01 | first | start | albert |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "revision",
+        "--file",
+        "spec.md",
+        "--base",
+        "HEAD"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "OWT-018 spec.md: changed-no-record (changed: Acceptance)",
+          "VIOLATION OWT-018"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-separation-default-words",
+      "title": "uds open-work separation exits 1 for a carrier that holds both a Goal section and a Next action section",
+      "titleZh": "uds open-work separation 對同時有 Goal 與 Next action 段落的檔案以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "plan.md",
+          "content": "# Plan\n\n## Goal\n\nShip it.\n\n## Next action\n\n- run npm test\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "separation",
+        "plan.md"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Next action) in one carrier"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-separation-declared-word",
+      "title": "uds open-work separation --next-action-word Todo counts a \"Todo\" section as the progress section",
+      "titleZh": "uds open-work separation --next-action-word Todo 把「Todo」段落算作進度段落",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "plan.md",
+          "content": "# Plan\n\n## Goal\n\nShip it.\n\n## Todo\n\n- run npm test\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "separation",
+        "plan.md",
+        "--next-action-word",
+        "Todo"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Todo) in one carrier"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-separation-word-not-declared",
+      "title": "uds open-work separation without the word does not know \"Todo\" and exits 0 (the control for the step above)",
+      "titleZh": "uds open-work separation 沒宣告該詞時不認得「Todo」而以 0 結束（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "plan.md",
+          "content": "# Plan\n\n## Goal\n\nShip it.\n\n## Todo\n\n- run npm test\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "separation",
+        "plan.md"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "OWT-017 walked 1 carrier(s)"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-waiting-id-pattern",
+      "title": "uds open-work waiting --id-pattern lets a not-yet-asked item name its draft by the team's own ticket format",
+      "titleZh": "uds open-work waiting --id-pattern 讓「尚未詢問」項目用團隊自己的工單格式點名草稿",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| mail | not-yet-asked | INC0012345 | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07",
+        "--id-pattern",
+        "INC\\d{7}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "not-yet-asked=1"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-waiting-id-unrecognised",
+      "title": "uds open-work waiting without --id-pattern finds no draft in that ticket format and exits 1 (the control for the step above)",
+      "titleZh": "uds open-work waiting 沒給 --id-pattern 時在那種工單格式裡找不到草稿而以 1 結束（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| mail | not-yet-asked | INC0012345 | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-021: w.md table row (line 3, row \"mail\") is not-yet-asked but names no draft or action"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-waiting-command-word",
+      "title": "uds open-work waiting --command-word kubectl lets a not-yet-asked item name its action as a kubectl command",
+      "titleZh": "uds open-work waiting --command-word kubectl 讓「尚未詢問」項目用 kubectl 指令點名動作",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| mail | not-yet-asked | kubectl rollout restart | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07",
+        "--command-word",
+        "kubectl"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "not-yet-asked=1"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-waiting-command-unrecognised",
+      "title": "uds open-work waiting without --command-word does not know kubectl and exits 1 (the control for the step above)",
+      "titleZh": "uds open-work waiting 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | status | draft | asked-at | waiting for | release |\n|---|---|---|---|---|---|\n| mail | not-yet-asked | kubectl rollout restart | | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "VIOLATION OWT-021"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-observations-stale-after",
+      "title": "uds open-work observations --stale-after 3 marks an observation made six days ago as stale and not confirmed",
+      "titleZh": "uds open-work observations --stale-after 3 把六天前的觀察標為過舊、不算已確認",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "o.md",
+          "content": "# Facts\n\n| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n| mail sent | open | albert | 2026-10-01 | yes |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "observations",
+        "o.md",
+        "--now",
+        "2026-10-07",
+        "--stale-after",
+        "3"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "stale=1 | confirmed=0",
+          "STALE (observed 6d ago, older than 3d;"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "open-work-observations-default-threshold",
+      "title": "uds open-work observations with the default threshold keeps a six-day-old observation confirmed (the control for the step above)",
+      "titleZh": "uds open-work observations 用預設門檻時六天前的觀察仍算已確認（上一步的對照）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "o.md",
+          "content": "# Facts\n\n| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n| mail sent | open | albert | 2026-10-01 | yes |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "observations",
+        "o.md",
+        "--now",
+        "2026-10-07"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "stale=0 | confirmed=1"
+        ],
+        "notContains": [
+          "STALE ("
+        ]
+      }
     }
   ]
 }

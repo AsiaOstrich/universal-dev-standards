@@ -42,8 +42,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
 It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 checked by the program, 4 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 68 步（64 步由程式判定、4 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 127 steps (120 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 127 步（120 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -249,6 +249,183 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 68 steps (64 c
 68. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
    安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/code-review.ai.yaml`
+69. `list-every-counted-standard-is-shown` (**new 新**) — The standards uds list shows add up to the Total it prints (it used to count 163 and show 81).
+   uds list 顯示的標準數加起來等於它印出的 Total（以前算 163 卻只列 81）。
+   `{node} list-total.mjs {bin}` → exit 0; output has "/^listed [1-9]\d* of \d+ standards$/", "/^listed (\d+) of \1 standards$/"
+70. `list-shows-every-category` (**new 新**) — uds list has a heading for each of the ten categories, the five that used to be left out included.
+   uds list 為十個分類各列一個標題，包含以前被漏掉的五個。
+   `uds list` → exit 0; output has "Governance Layer Standard", "Disaster Recovery Drill Standards" (+10)
+71. `list-category-core` (**new 新**) — uds list --category core lists the core standards (it used to refuse "core" as an unknown category) and nothing from the other categories.
+   uds list --category core 列出核心標準（以前把 core 當成未知分類而拒絕），且不列其他分類。
+   `uds list --category core` → exit 0; output has "Category: Core Standard", "Governance Layer Standard"
+72. `list-category-skill-filters` — uds list --category skill lists only the skill standards.
+   uds list --category skill 只列出技能標準。
+   `uds list --category skill` → exit 0; output has "Category: Skill", "Anti-Hallucination Guidelines" (+1)
+73. `list-category-unknown` (**new 新**) — uds list --category with a name that is not a category exits 1 and names the valid ones, core included.
+   uds list --category 給了不存在的分類時以 1 結束並列出有效分類（含 core）。
+   `uds list --category no-such-category` → exit 1; output has "Unknown category 'no-such-category'", "Valid categories: skill, reference, core, testing, security, deployment, operations, extension, integration, template"
+74. `lint-text-report` — uds lint names the spec with a broken depends_on and the spec that is too long, and exits 1.
+   uds lint 點名 depends_on 指向不存在規格的規格與過長的規格，並以 1 結束。
+   `uds lint` → exit 1; output has "SPEC-001-alpha:", "SPEC-002-beta: 1 broken dependency: SPEC-999-missing" (+2)
+75. `lint-json-report` — uds lint --json prints the summary and one result per spec in the shape VibeOps reads.
+   uds lint --json 印出摘要與每份規格一筆結果（VibeOps 讀取的格式）。
+   `uds lint --json` → exit 1; output has ""fail": 1", ""warn": 1" (+3)
+76. `lint-no-specs-folder` — uds lint without a specs folder says nothing was scanned, in words.
+   uds lint 在沒有 specs 資料夾時明說沒有東西被掃描。
+   `uds lint` → exit 0; output has "Spec Lint", "沒有東西被掃描"
+77. `fix-standard-applies-fixer` — uds fix -s repairs a project that breaks a standard: the fixer's file appears and the standard then passes.
+   uds fix -s 修復違反標準的專案：修復器產生的檔案出現，標準隨後通過。
+   `uds fix -s demo-structure` → exit 0; output has "Attempting to fix violations for: demo-structure", "Fix applied successfully!"
+78. `fix-json-reports-fixed` — uds fix --json says "fixed" and the fixer's file is there.
+   uds fix --json 回報 fixed，且修復器產生的檔案存在。
+   `uds fix -s demo-structure --json` → exit 0; output has ""success": true", ""status": "fixed""
+79. `fix-needs-standard` — uds fix without --standard exits 1 and writes nothing.
+   uds fix 沒給 --standard 時以 1 結束且不寫任何檔案。
+   `uds fix` → exit 1; output has "Error: --standard is required"
+80. `r4a-init` — uds init sets up a project (the project the simulate step uses).
+   uds init 建立專案（simulate 步驟使用）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+81. `simulate-json-pass` — uds simulate --json on a compliant commit message says success and exits 0.
+   uds simulate --json 對合規的提交訊息回報 success 並以 0 結束。
+   `uds simulate -s commit-message -i "feat(api): add dept endpoint" --json` → exit 0; output has ""status": "pass"", ""success": true" (+1)
+82. `simulate-json-fail` — uds simulate --json on a non-compliant commit message says what is wrong and exits 1.
+   uds simulate --json 對不合規的提交訊息說明哪裡不對並以 1 結束。
+   `uds simulate -s commit-message -i "add new dept api" --json` → exit 1; output has ""status": "fail"", ""success": false" (+1)
+83. `report-adoption-table` — uds report turns hook telemetry into a per-standard table (executions, pass rate, average duration) and skips a damaged line.
+   uds report 把 hook 遙測整理成每個標準一列的表（次數、通過率、平均耗時），並略過損壞的行。
+   `uds report` → exit 0; output has "UDS Hook Telemetry Report", "Total executions: 3" (+2)
+84. `report-no-telemetry` — uds report with no telemetry file says there is no data instead of printing an empty table.
+   uds report 沒有遙測檔時說沒有資料，而不是印出空表。
+   `uds report` → exit 0; output has "No telemetry data available. Run hooks to generate data."
+85. `deps-path-reports-drift` — uds deps --path reads another folder's package.json and names the dependency whose tested version is behind what its range resolves to.
+   uds deps --path 讀另一個資料夾的 package.json，點名「測試的版本落後於範圍解析結果」的相依。
+   `{node} stub-registry.mjs {bin} deps --path proj` → exit 1; output has "demo — 4 runtime dependencies checked", "1 tested ≠ resolves:" (+1)
+86. `deps-json-output` — uds deps --json prints the measurement as JSON: examined, drifted (with locked and resolved) and clean.
+   uds deps --json 以 JSON 印出量測結果：examined、drifted（含 locked 與 resolved）與 clean。
+   `{node} stub-registry.mjs {bin} deps --path proj --json` → exit 1; output has ""examined": 4", ""consistent": 3" (+3)
+87. `deps-concurrency-limits-lookups` — uds deps --concurrency 1 looks the dependencies up one at a time, not all at once.
+   uds deps --concurrency 1 一個一個查相依，而不是一次全部查。
+   `{node} stub-registry.mjs {bin} deps --path proj --concurrency 1` → exit 1; output has "alpha ^1.0.0 tested=1.0.0 resolves=1.2.0", "/most requests at once = [12]$/"
+88. `deps-default-looks-up-in-parallel` — uds deps without --concurrency looks the four dependencies up in parallel (the control for the step above).
+   uds deps 沒給 --concurrency 時四個相依平行查詢（上一步的對照）。
+   `{node} stub-registry.mjs {bin} deps --path proj` → exit 1; output has "/most requests at once = [3-9]$/"
+89. `spec-create-yes-confirms` — uds spec new (alias of create) --scope --output --yes writes a confirmed micro-spec with that scope into that folder.
+   uds spec new（create 的別名）加 --scope --output --yes，在指定資料夾寫出已確認、範圍為指定值的微規格。
+   `uds spec new "Add login page" --scope backend --output docs/specs --yes` → exit 0; output has "Spec auto-confirmed.", "Spec ID: SPEC-001-add-login-page"
+90. `spec-list-status-filter` — uds spec ls --status draft --output lists only the draft micro-specs of that folder.
+   uds spec ls --status draft --output 只列出該資料夾中的草稿微規格。
+   `uds spec ls --status draft --output docs/specs` → exit 0; output has "/^SPEC-001-login-page\s+draft\s+feature\s+Login page$/", "/^Total: 1$/"
+91. `spec-show-prints-spec` — uds spec show --output prints the micro-spec, and exits 1 for an id that is not there.
+   uds spec show --output 印出微規格內容，找不到的編號則以 1 結束。
+   `uds spec show SPEC-002-export-report --output docs/specs` → exit 0; output has "## Micro-Spec: Export report", "**Status**: confirmed" (+1)
+92. `spec-show-unknown-id` — uds spec show for an id that is not there exits 1 and names it.
+   uds spec show 對不存在的編號以 1 結束並點名它。
+   `uds spec show SPEC-404-nothing --output docs/specs` → exit 1; output has "Spec not found: SPEC-404-nothing"
+93. `spec-confirm-marks-confirmed` — uds spec confirm --output turns a draft micro-spec into a confirmed one in its file.
+   uds spec confirm --output 把草稿微規格在檔案裡改成已確認。
+   `uds spec confirm SPEC-001-login-page --output docs/specs` → exit 0; output has "Spec confirmed and ready for implementation!"
+94. `spec-archive-moves-to-archive` — uds spec archive --output moves the micro-spec into archive/ marked archived and records it in archive/index.json.
+   uds spec archive --output 把微規格搬進 archive/、標為 archived，並記入 archive/index.json。
+   `uds spec archive SPEC-002-export-report --output docs/specs` → exit 0; output has "Spec archived successfully."
+95. `spec-delete-yes-removes-file` — uds spec rm (alias of delete) --yes --output removes that micro-spec and leaves the other one.
+   uds spec rm（delete 的別名）加 --yes --output 刪除該微規格並保留另一份。
+   `uds spec rm SPEC-001-login-page --yes --output docs/specs` → exit 0; output has "Spec deleted."
+96. `spec-delete-unknown-id` — uds spec delete --yes for an id that is not there exits 1 and deletes nothing.
+   uds spec delete --yes 對不存在的編號以 1 結束且不刪任何檔案。
+   `uds spec delete SPEC-404-nothing --yes --output docs/specs` → exit 1; output has "Spec not found: SPEC-404-nothing"
+97. `spec-search-finds-active-and-archived` — uds spec search --output finds the active micro-spec and the archived one by title and leaves the others out.
+   uds spec search --output 依標題找到進行中與已封存的微規格，其他的不列。
+   `uds spec search login --output docs/specs` → exit 0; output has "Found 2 spec(s) matching "login":", "SPEC-001-login-page [draft] Login page" (+1)
+98. `spec-search-archived-only` — uds spec search --archived looks only in the archive.
+   uds spec search --archived 只找已封存的。
+   `uds spec search login --archived --output docs/specs` → exit 0; output has "Found 1 spec(s) matching "login":", "SPEC-000-old-login [archived] Old login flow"
+99. `spec-split-too-few-criteria` — uds spec split --output refuses a micro-spec with fewer than two acceptance criteria and leaves it as it was.
+   uds spec split --output 對驗收條件少於兩條的微規格不拆，且檔案維持原樣。
+   `uds spec split SPEC-001-small --output docs/specs` → exit 0; output has "Spec SPEC-001-small has 1 AC(s)", "too few to split"
+100. `spec-split-unknown-id` — uds spec split --output for an id that is not there exits 1.
+   uds spec split --output 對不存在的編號以 1 結束。
+   `uds spec split SPEC-404-nothing --output docs/specs` → exit 1; output has "Spec SPEC-404-nothing not found"
+101. `human-spec-split-in-a-terminal` (needs a person 需人眼) — Split a micro-spec in your own terminal: choose which criteria move, and both specs end up pointing at each other.
+   在你自己的終端機拆一份微規格：選哪些驗收條件搬走，兩份規格最後互相指向對方。
+   `uds spec split --help` → exit 0; output has "Split a large spec into two with mutual depends_on references"
+102. `quickstart-without-terminal-shows-every-workflow` (**new 新**) — uds quickstart with no terminal prints all four workflows with their commands (it used to end on a stack trace and exit 0).
+   uds quickstart 沒有終端機時印出四個流程與各自的指令（以前以堆疊追蹤結束且結束碼為 0）。
+   `uds quickstart` → exit 0; output has "Quick Spec → Implement (Micro-Spec)", "uds spec archive SPEC-XXX" (+6)
+103. `spec-create-without-terminal-keeps-a-draft` (**new 新**) — uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it.
+   uds spec create 沒給 --yes 且沒有終端機時，規格維持草稿並說明如何確認。
+   `uds spec create "Add login page" --output docs/specs` → exit 0; output has "the spec stays a draft", "Run `uds spec confirm <id>`"
+104. `spec-delete-without-terminal-deletes-nothing` (**new 新**) — uds spec delete without --yes and with no terminal deletes nothing, says why and exits 2.
+   uds spec delete 沒給 --yes 且沒有終端機時什麼都不刪、說明原因並以 2 結束。
+   `uds spec delete SPEC-001-login-page --output docs/specs` → exit 2; output has "Re-run with --yes to delete. Nothing has been deleted."
+105. `spec-split-without-terminal-changes-nothing` (**new 新**) — uds spec split with three criteria and no terminal changes nothing, says why and exits 2.
+   uds spec split 有三條驗收條件且沒有終端機時什麼都不改、說明原因並以 2 結束。
+   `uds spec split SPEC-001-big --output docs/specs` → exit 2; output has "Cannot ask which ACs to move", "Nothing has been changed."
+106. `human-quickstart-pick-a-workflow` (needs a person 需人眼) — Run uds quickstart in your own terminal and pick one workflow with the arrow keys: only that workflow is printed.
+   在你自己的終端機執行 uds quickstart，用方向鍵選一個流程：只會印出那一個流程。
+   `uds quickstart --help` → exit 0; output has "Interactive workflow guide"
+107. `human-spec-create-and-delete-prompts` (needs a person 需人眼) — In your own terminal uds spec create asks what to do with the new spec, and uds spec delete asks before it deletes.
+   在你自己的終端機，uds spec create 會問新規格要怎麼處理，uds spec delete 會在刪除前先問。
+   `uds spec create --help` → exit 0; output has "Create a micro-spec from natural language intent"
+108. `open-work-next-action-root` — uds open-work next-action --root looks a named path up under that folder.
+   uds open-work next-action --root 在指定資料夾底下查所點名的路徑。
+   `uds open-work next-action n.md --root proj` → exit 0; output has "named-resolved=1 named-unresolved=0 unnamed=0", "from --root"
+109. `open-work-next-action-without-root` — uds open-work next-action without --root looks that same path up under the current folder and does not find it (the control for the step above).
+   uds open-work next-action 沒給 --root 時在目前資料夾查同一個路徑而找不到（上一步的對照）。
+   `uds open-work next-action n.md` → exit 0; output has "named-resolved=0 named-unresolved=1 unnamed=0", "path-missing=1" (+1)
+110. `open-work-next-action-id-pattern` — uds open-work next-action --id-pattern lets a team's own ticket format count as a named next action.
+   uds open-work next-action --id-pattern 讓團隊自己的工單格式算作有點名的下一步。
+   `uds open-work next-action n.md --id-pattern INC\d{7}` → exit 0; output has "unnamed=0", "<- id:INC0012345"
+111. `open-work-next-action-id-unrecognised` — uds open-work next-action without --id-pattern does not know that ticket format and exits 1 (the control for the step above).
+   uds open-work next-action 沒給 --id-pattern 時不認得那種工單格式而以 1 結束（上一步的對照）。
+   `uds open-work next-action n.md` → exit 1; output has "unnamed=1", "VIOLATION OWT-019"
+112. `open-work-next-action-command-word` — uds open-work next-action --command-word kubectl reads "kubectl rollout restart" as a command.
+   uds open-work next-action --command-word kubectl 把「kubectl rollout restart」當成指令。
+   `uds open-work next-action n.md --command-word kubectl` → exit 0; output has "unnamed=0", "<- command:kubectl rollout"
+113. `open-work-next-action-command-unrecognised` — uds open-work next-action without --command-word does not know kubectl and exits 1 (the control for the step above).
+   uds open-work next-action 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）。
+   `uds open-work next-action n.md` → exit 1; output has "unnamed=1", "VIOLATION OWT-019"
+114. `open-work-next-action-stale-after` — uds open-work next-action --stale-after 2 marks a reply asked four days ago as STALE, where the default of seven days does not.
+   uds open-work next-action --stale-after 2 把四天前問的回覆標為 STALE，預設七天則不會。
+   `uds open-work next-action w.md --now 2026-01-14 --stale-after 2` → exit 0; output has "1 older than 2 day(s)", "asked 4d ago (2026-01-10) STALE (older than 2d)"
+115. `open-work-next-action-default-not-stale` — uds open-work next-action with the default threshold does not call a four-day-old reply STALE (the control for the step above).
+   uds open-work next-action 用預設門檻時不把四天前的回覆標為 STALE（上一步的對照）。
+   `uds open-work next-action w.md --now 2026-01-14` → exit 0; output has "0 older than 7 day(s)", "asked 4d ago (2026-01-10)"
+116. `open-work-revision-before-after-violation` — uds open-work revision --before --after exits 1 when the acceptance section changed and no new revision record was added.
+   uds open-work revision --before --after 在驗收段落改了卻沒新增修訂紀錄時以 1 結束。
+   `uds open-work revision --before before.md --after after.md` → exit 1; output has "OWT-018 after.md: changed-no-record (changed: Acceptance)", "VIOLATION OWT-018: intent changed and no new revision record exists"
+117. `open-work-revision-before-after-recorded` — uds open-work revision --before --after exits 0 when the same change comes with a new, complete revision record.
+   uds open-work revision --before --after 在同樣的修改附上新的完整修訂紀錄時以 0 結束。
+   `uds open-work revision --before before.md --after after.md` → exit 0; output has "OWT-018 after.md: changed-recorded (changed: Acceptance)"
+118. `open-work-revision-file-base` — uds open-work revision --file --base compares the file with its committed version.
+   uds open-work revision --file --base 把檔案與已提交的版本比對。
+   `uds open-work revision --file spec.md --base HEAD` → exit 1; output has "OWT-018 spec.md: changed-no-record (changed: Acceptance)", "VIOLATION OWT-018"
+119. `open-work-separation-default-words` — uds open-work separation exits 1 for a carrier that holds both a Goal section and a Next action section.
+   uds open-work separation 對同時有 Goal 與 Next action 段落的檔案以 1 結束。
+   `uds open-work separation plan.md` → exit 1; output has "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Next action) in one carrier"
+120. `open-work-separation-declared-word` — uds open-work separation --next-action-word Todo counts a "Todo" section as the progress section.
+   uds open-work separation --next-action-word Todo 把「Todo」段落算作進度段落。
+   `uds open-work separation plan.md --next-action-word Todo` → exit 1; output has "VIOLATION OWT-017: plan.md holds intent (Goal) and progress (Todo) in one carrier"
+121. `open-work-separation-word-not-declared` — uds open-work separation without the word does not know "Todo" and exits 0 (the control for the step above).
+   uds open-work separation 沒宣告該詞時不認得「Todo」而以 0 結束（上一步的對照）。
+   `uds open-work separation plan.md` → exit 0; output has "OWT-017 walked 1 carrier(s)"
+122. `open-work-waiting-id-pattern` — uds open-work waiting --id-pattern lets a not-yet-asked item name its draft by the team's own ticket format.
+   uds open-work waiting --id-pattern 讓「尚未詢問」項目用團隊自己的工單格式點名草稿。
+   `uds open-work waiting w.md --now 2026-10-07 --id-pattern INC\d{7}` → exit 0; output has "not-yet-asked=1"
+123. `open-work-waiting-id-unrecognised` — uds open-work waiting without --id-pattern finds no draft in that ticket format and exits 1 (the control for the step above).
+   uds open-work waiting 沒給 --id-pattern 時在那種工單格式裡找不到草稿而以 1 結束（上一步的對照）。
+   `uds open-work waiting w.md --now 2026-10-07` → exit 1; output has "VIOLATION OWT-021: w.md table row (line 3, row "mail") is not-yet-asked but names no draft or action"
+124. `open-work-waiting-command-word` — uds open-work waiting --command-word kubectl lets a not-yet-asked item name its action as a kubectl command.
+   uds open-work waiting --command-word kubectl 讓「尚未詢問」項目用 kubectl 指令點名動作。
+   `uds open-work waiting w.md --now 2026-10-07 --command-word kubectl` → exit 0; output has "not-yet-asked=1"
+125. `open-work-waiting-command-unrecognised` — uds open-work waiting without --command-word does not know kubectl and exits 1 (the control for the step above).
+   uds open-work waiting 沒給 --command-word 時不認得 kubectl 而以 1 結束（上一步的對照）。
+   `uds open-work waiting w.md --now 2026-10-07` → exit 1; output has "VIOLATION OWT-021"
+126. `open-work-observations-stale-after` — uds open-work observations --stale-after 3 marks an observation made six days ago as stale and not confirmed.
+   uds open-work observations --stale-after 3 把六天前的觀察標為過舊、不算已確認。
+   `uds open-work observations o.md --now 2026-10-07 --stale-after 3` → exit 0; output has "stale=1 | confirmed=0", "STALE (observed 6d ago, older than 3d;"
+127. `open-work-observations-default-threshold` — uds open-work observations with the default threshold keeps a six-day-old observation confirmed (the control for the step above).
+   uds open-work observations 用預設門檻時六天前的觀察仍算已確認（上一步的對照）。
+   `uds open-work observations o.md --now 2026-10-07` → exit 0; output has "stale=0 | confirmed=1"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
