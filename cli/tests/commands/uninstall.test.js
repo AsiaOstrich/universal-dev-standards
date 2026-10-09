@@ -14,6 +14,7 @@ vi.mock('@inquirer/prompts', () => ({
 
 import { select, checkbox, confirm } from '@inquirer/prompts';
 import { uninstallCommand } from '../../src/commands/uninstall.js';
+import { computeFileHash } from '../../src/utils/hasher.js';
 
 describe('uninstall command', () => {
   let testDir;
@@ -68,11 +69,14 @@ describe('uninstall command', () => {
       integrations.push('CLAUDE.md');
     }
 
-    // Skills
+    // Skills: a skill folder UDS installed, with the install record the real installer writes for it
+    // (uninstall removes only files it can prove UDS wrote).
+    const skillHashes = {};
     if (withSkills) {
-      const skillsDir = join(testDir, '.claude', 'skills');
-      mkdirSync(skillsDir, { recursive: true });
-      writeFileSync(join(skillsDir, 'SKILL.md'), '# Test skill');
+      const skillFile = join(testDir, '.claude', 'skills', 'test-skill', 'SKILL.md');
+      mkdirSync(join(testDir, '.claude', 'skills', 'test-skill'), { recursive: true });
+      writeFileSync(skillFile, '# Test skill');
+      skillHashes['claude-code/project/test-skill/SKILL.md'] = computeFileHash(skillFile);
       skillInstalls.push({ agent: 'claude-code', level: 'project', path: '.claude/skills/', status: 'success' });
     }
 
@@ -112,7 +116,7 @@ describe('uninstall command', () => {
       },
       methodology: null,
       fileHashes: {},
-      skillHashes: {},
+      skillHashes,
       commandHashes: {},
       integrationBlockHashes: {}
     };
