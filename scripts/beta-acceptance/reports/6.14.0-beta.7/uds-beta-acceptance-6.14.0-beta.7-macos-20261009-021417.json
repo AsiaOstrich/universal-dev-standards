@@ -1,0 +1,1168 @@
+{
+  "schema": 1,
+  "tool": "uds-beta-acceptance",
+  "startedAt": "2026-10-09T02:14:02.833Z",
+  "finishedAt": "2026-10-09T02:14:17.514Z",
+  "durationMs": 14681,
+  "label": "mac-nb",
+  "verdict": "pass_with_unconfirmed",
+  "exitCode": 0,
+  "error": null,
+  "request": {
+    "version": "6.14.0-beta.7",
+    "versionGiven": true,
+    "source": "npm registry",
+    "stepsFile": "scripts/beta-acceptance/steps.json",
+    "stepsSha256": "a3a22f531d32f8cc47e9fe74351df8ee1180103b2bb2b2754ad4ba2f96ffbc05"
+  },
+  "uds": {
+    "version": "6.14.0-beta.7",
+    "installKind": "npm-registry"
+  },
+  "install": {
+    "ok": true,
+    "durationMs": 2027,
+    "error": null,
+    "output": "added 47 packages in 2s"
+  },
+  "environment": {
+    "platform": "macos",
+    "nodePlatform": "darwin",
+    "os": {
+      "type": "Darwin",
+      "release": "25.6.0",
+      "version": "Darwin Kernel Version 25.6.0: Fri Jul 31 19:11:03 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T8132",
+      "arch": "arm64"
+    },
+    "shell": {
+      "value": "zsh",
+      "evidence": "SHELL variable"
+    },
+    "parentProcess": "zsh",
+    "node": {
+      "version": "v22.23.2"
+    },
+    "npm": {
+      "version": "10.9.8"
+    },
+    "windowsCodePage": {
+      "value": "不適用（非 Windows）",
+      "source": "platform is darwin"
+    },
+    "locale": {
+      "LANG": "C.UTF-8",
+      "LC_ALL": "(未設定)",
+      "LC_MESSAGES": "(未設定)",
+      "UDS_LOCALE": "(未設定)"
+    },
+    "terminal": {
+      "stdinIsTTY": false,
+      "stdoutIsTTY": false
+    },
+    "ci": false
+  },
+  "counts": {
+    "planned": 68,
+    "passed": 64,
+    "failed": 0,
+    "skipped": 0,
+    "humanConfirmed": 0,
+    "humanUnconfirmed": 4,
+    "executed": 68
+  },
+  "steps": [
+    {
+      "id": "smoke-version",
+      "title": "The installed uds command starts and prints its version",
+      "titleZh": "已安裝的 uds 指令能啟動並印出版本",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds --version",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 101,
+      "output": "6.14.0-beta.7"
+    },
+    {
+      "id": "smoke-shim",
+      "title": "The `uds` command that npm put on the path (uds.cmd on Windows) starts",
+      "titleZh": "npm 放進 PATH 的 `uds` 指令（Windows 上是 uds.cmd）能啟動",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds --version",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 586,
+      "output": "6.14.0-beta.7"
+    },
+    {
+      "id": "available-init",
+      "title": "uds init sets up a project (the project the next steps use)",
+      "titleZh": "uds init 建立專案（後續步驟使用）",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 143,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/available/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/available/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "std-open-work-states",
+      "title": "The installed open-work-tracking standard defines the two waiting states and the hand-written-fact rules (OWT-020 to OWT-026)",
+      "titleZh": "安裝後的 open-work-tracking 標準含兩個等待狀態與手寫事實規則（OWT-020～OWT-026）",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.2.0"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "std-open-work-cross-project",
+      "title": "The installed open-work-tracking standard lets a wait name an object in another project (OWT-027 to OWT-029)",
+      "titleZh": "安裝後的 open-work-tracking 標準允許等待項目點名另一個專案的物件（OWT-027～OWT-029）",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.3.0"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "std-open-work-waiting-on-reply",
+      "title": "The installed open-work-tracking standard is 1.4.0 and names waiting-on-reply",
+      "titleZh": "安裝後的 open-work-tracking 標準是 1.4.0，並提到 waiting-on-reply",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.4.0"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "std-open-work-summary",
+      "title": "The installed open-work-tracking standard explains who produces the OWT-007 summary",
+      "titleZh": "安裝後的 open-work-tracking 標準說明 OWT-007 摘要由誰產生",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking explains that the OWT-007 summary"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "std-memory-boundary",
+      "title": "The installed developer-memory and project-context-memory standards carry the boundary section",
+      "titleZh": "安裝後的 developer-memory 與 project-context-memory 標準含邊界段",
+      "platform": "all",
+      "changelog": [
+        "Boundary notes in developer-memory and project-context-memory"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "available-check-line",
+      "title": "uds check prints one line when UDS ships a standard the project does not have",
+      "titleZh": "UDS 出貨而專案沒有某標準時，uds check 印一行說明",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds check --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 195,
+      "output": "Universal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\nFile Integrity:\n\n  Summary: 73 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nReference Sync Status:\n  ✗ AGENTS.md:\n    mentions paths that do not exist in this project:\n      - .standards/open-work-tracking.ai.yaml\n    These are usually outside the UDS block, left by an older install. UDS does not rewrite text it did not write — correct them by hand or delete the line.\n  ℹ AGENTS.md:\n    Standards with no \"Reference:\"/\"參考:\" line in this file (optional):\n      - anti-hallucination.ai.yaml\n      - checkin-standards.ai.yaml\n      - developer-memory.ai.yaml\n      - documentation-structure.ai.yaml\n      - git-workflow.ai.yaml\n      - project-context-memory.ai.yaml\n      - project-structure.ai.yaml\n      - refactoring-standards.ai.yaml\n      - requirement-engineering.ai.yaml\n      - spec-driven-development.ai.yaml\n\n  Run `uds update --integrations-only` to regenerate integration files.\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (70/70)\n\nSkills Status:\n  No AI tools configured\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    73 via copied documents\n\n1 upstream standard(s) not installed — run `uds update --plan` to see them\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found\n    · no test files found — nothing was measured\n  ✓ [stub] scripts/check-stubs.mjs: nothing found\n\n✓ Project is compliant with standards"
+    },
+    {
+      "id": "available-audit-friction",
+      "title": "uds audit --friction lists the missing standard as one low-severity finding",
+      "titleZh": "uds audit --friction 把沒裝的標準列為一筆低嚴重度發現",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds audit --friction --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 106,
+      "output": "UDS Audit Report\n══════════════════════════════════════════════════\n\nFriction Points (1)\n────────────────────────────────────────\n  [LOW] 1 available standard(s) not installed — Not-installed\n         open-work-tracking\n         Run `uds update --plan` to see them; install one with `uds update --apply --add-standard <id>`"
+    },
+    {
+      "id": "available-audit-report-held-back",
+      "title": "uds audit --report does not send the missing-standard finding to the maintainers",
+      "titleZh": "uds audit --report 不會把「沒裝的標準」當成回饋送給維護者",
+      "platform": "all",
+      "changelog": [
+        "uds audit --report does not put the"
+      ],
+      "command": "uds audit --report --yes --dry-run --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 117,
+      "output": "UDS Audit Report\n══════════════════════════════════════════════════\n\nHealth Check\n────────────────────────────────────────\n  ✓ All files intact\n\nFriction Points (1)\n────────────────────────────────────────\n  [LOW] 1 available standard(s) not installed — Not-installed\n         open-work-tracking\n         Run `uds update --plan` to see them; install one with `uds update --apply --add-standard <id>`\n\nNothing to send: the \"available standards\" finding above is for you to act on, not feedback for the UDS maintainers."
+    },
+    {
+      "id": "available-plan",
+      "title": "uds update --plan ends with the standards available upstream and not installed",
+      "titleZh": "uds update --plan 結尾列出上游有而專案沒裝的標準",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds update --plan --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 123,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\n- Calculating reconciliation plan...\n=== Reconciliation Plan ===\n\n~ Migrate Block (1):\n  ~ AGENTS.md (integration content differs from what would be generated)\n\nSummary:\n  Create: 0\n  Update: 0\n  Migrate Block: 1\n  Delete: 0\n  Unchanged: 129\n\nRun `uds update --apply` to apply exactly these changes.\nRun `uds update --force` to rewrite every managed file (a larger plan than the one above).\n\n\nAvailable upstream, not installed (1)\n  reference (1)\n    open-work-tracking — Downstream of deferred-item-exit: once an item has an exit, its carrier must stay trustworthy.\n  Install one: uds update --apply --add-standard <id>   (repeat the flag for several; add --plan to preview first)\nNot listed above: 95 more standard(s) in categories `uds init` never installs (core 59, testing 15, integration 7, extension 5, security 5, deployment 2, operations 1, template 1). Any of them can still be installed by id with --add-standard."
+    },
+    {
+      "id": "available-unknown-id",
+      "title": "uds update --add-standard with an unknown id exits 1 and offers the nearest ids",
+      "titleZh": "uds update --add-standard 給不存在的 id 時以 1 結束並列出最接近的 id",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds update --plan --offline --add-standard no-such-standard-xyz",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 105,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nUnknown standard id \"no-such-standard-xyz\": it is not in the registry. Closest ids:\n    push-standards\n    logging-standards\n    privacy-standards\n    rollback-standards\n    slo-standards"
+    },
+    {
+      "id": "available-add-standard",
+      "title": "uds update --apply --add-standard installs the standard and records it in the manifest",
+      "titleZh": "uds update --apply --add-standard 安裝該標準並記入 manifest",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds update --apply --yes --offline --add-standard open-work-tracking",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 145,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nRunning declarative state reconciliation...\n\n=== Reconciliation Plan ===\n\n+ Create (1):\n  + .standards/open-work-tracking.ai.yaml (standard not found on disk)\n\n~ Migrate Block (1):\n  ~ AGENTS.md (integration content differs from what would be generated)\n\nSummary:\n  Create: 1\n  Update: 0\n  Migrate Block: 1\n  Delete: 0\n  Unchanged: 129\n\n- Applying reconciliation plan...\n✔ Reconciliation complete: 2 succeeded\n  Backup: .uds-backups/2026-10-09T02-14-06-540Z-0001\n  Use `uds update --rollback` to undo.\n  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.\n\nAvailable upstream, not installed: none. Every standard UDS installs by default is already in this project.\nNot listed above: 95 more standard(s) in categories `uds init` never installs (core 59, testing 15, integration 7, extension 5, security 5, deployment 2, operations 1, template 1). Any of them can still be installed by id with --add-standard."
+    },
+    {
+      "id": "available-clean-after-add",
+      "title": "uds check --ci then reports nothing left to install, and the standard survives the next apply",
+      "titleZh": "安裝後 uds check --ci 回報沒有未裝的標準",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds check --ci --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 190,
+      "output": "Universal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  No AI tools configured\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found\n    · no test files found — nothing was measured\n  ✓ [stub] scripts/check-stubs.mjs: nothing found\n\n✓ Project is compliant with standards"
+    },
+    {
+      "id": "available-rollback",
+      "title": "One uds update --rollback takes the added standard out again",
+      "titleZh": "一次 uds update --rollback 就把剛加的標準移除",
+      "platform": "all",
+      "changelog": [
+        "uds update now says which standards UDS ships and the project does not have"
+      ],
+      "command": "uds update --rollback --yes",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 101,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nRolling back from: .uds-backups/2026-10-09T02-14-06-540Z-0001\n  Created: 2026-10-09T02:14:06.542Z\n\n.uds-backups/2026-10-09T02-14-06-540Z-0001 (reconcile)\n  Restored 2 file(s), removed 1 file(s) the update had created.\n  ← AGENTS.md\n  ← .standards/manifest.json\n  ✕ .standards/open-work-tracking.ai.yaml\n\nRollback successful. Restored 2 file(s), removed 1."
+    },
+    {
+      "id": "psg-add-standard",
+      "title": "pipeline-security-gates 1.1.0 installs with the scanner behaviours PSG-1 to PSG-3",
+      "titleZh": "pipeline-security-gates 1.1.0 可安裝，並含掃描器行為 PSG-1～PSG-3",
+      "platform": "all",
+      "changelog": [
+        "pipeline-security-gates 1.1.0"
+      ],
+      "command": "uds update --apply --yes --offline --add-standard pipeline-security-gates",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 144,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nRunning declarative state reconciliation...\n\n=== Reconciliation Plan ===\n\n+ Create (1):\n  + .standards/pipeline-security-gates.ai.yaml (standard not found on disk)\n\n~ Migrate Block (1):\n  ~ AGENTS.md (integration content differs from what would be generated)\n\nSummary:\n  Create: 1\n  Update: 0\n  Migrate Block: 1\n  Delete: 0\n  Unchanged: 129\n\n- Applying reconciliation plan...\n✔ Reconciliation complete: 2 succeeded\n  Backup: .uds-backups/2026-10-09T02-14-06-977Z-0001\n  Use `uds update --rollback` to undo.\n  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.\n\n1 standard(s) UDS ships are not installed in this project (no file was changed for them).\n  See them: uds update --plan    Install one: uds update --apply --add-standard <id>\nNot listed above: 94 more standard(s) in categories `uds init` never installs (core 58, testing 15, integration 7, extension 5, security 5, deployment 2, operations 1, template 1). Any of them can still be installed by id with --add-standard."
+    },
+    {
+      "id": "legacy-update-init",
+      "title": "uds init sets up a project (the project the next step uses)",
+      "titleZh": "uds init 建立專案（下一步使用）",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 144,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/legacy-update/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/legacy-update/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "legacy-update-messages",
+      "title": "uds update on a project from an older UDS says \"upstream has them, this project does not\" (no \"level\"), and tells how to update skills",
+      "titleZh": "舊版 UDS 建立的專案執行 uds update：訊息不再提「等級」，並說明如何更新技能",
+      "platform": "all",
+      "changelog": [
+        "The older uds update message",
+        "uds update's \"Skills update available\" reminder"
+      ],
+      "command": "uds update --yes --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 115,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nCurrent version: 6.0.0\nLatest version:  6.14.0-beta.7\n\nUpdate available: 6.0.0 → 6.14.0-beta.7\n\nFiles to update:\n  .standards/acceptance-criteria-traceability.ai.yaml\n  .standards/acceptance-test-driven-development.ai.yaml\n  .standards/accessibility-standards.ai.yaml\n  .standards/adr-standards.ai.yaml\n  .standards/agent-dispatch.ai.yaml\n  .standards/ai-agreement-standards.ai.yaml\n  .standards/ai-command-behavior.ai.yaml\n  .standards/ai-friendly-architecture.ai.yaml\n  .standards/ai-instruction-standards.ai.yaml\n  .standards/ai-response-navigation.ai.yaml\n  .standards/anti-hallucination.ai.yaml\n  .standards/api-design-standards.ai.yaml\n  .standards/behavior-driven-development.ai.yaml\n  .standards/behavior-snapshot.ai.yaml\n  .standards/changelog.ai.yaml\n  .standards/checkin-standards.ai.yaml\n  .standards/class-level-fix.ai.yaml\n  .standards/code-review.ai.yaml\n  .standards/commit-message.ai.yaml\n  .standards/context-aware-loading.ai.yaml\n  .standards/database-standards.ai.yaml\n  .standards/deferred-item-exit.ai.yaml\n  .standards/deployment-standards.ai.yaml\n  .standards/developer-memory.ai.yaml\n  .standards/documentation-lifecycle.ai.yaml\n  .standards/documentation-structure.ai.yaml\n  .standards/documentation-writing-standards.ai.yaml\n  .standards/error-codes.ai.yaml\n  .standards/feature-discovery-standards.ai.yaml\n  .standards/feature-manifest-standard.ai.yaml\n  .standards/flow-based-testing.ai.yaml\n  .standards/forward-derivation-standards.ai.yaml\n  .standards/full-coverage-testing.ai.yaml\n  .standards/git-workflow.ai.yaml\n  .standards/git-worktree.ai.yaml\n  .standards/knowledge-graph-memory.ai.yaml\n  .standards/logging.ai.yaml\n  .standards/mock-boundary.ai.yaml\n  .standards/model-selection.ai.yaml\n  .standards/mutation-testing.ai.yaml\n  .standards/packaging-standards.ai.yaml\n  .standards/performance-standards.ai.yaml\n  .standards/project-context-memory.ai.yaml\n  .standards/\n... (1249 characters omitted) ...\n AGENTS.md\n\n1 new standard(s) available (upstream has them, this project does not):\n  + .standards/open-work-tracking.ai.yaml\n\n\n- Updating standards...\n✔ Updated 73 standard files\n- Installing new standards...\n✔ Installed 1 new standard(s)\n- Syncing integration files...\n✔ Synced 1 integration files\n\n  .standards/ examined: 75 file(s) — 74 written by UDS, 0 not ours, 0 ownership unknown, 1 excluded\n    excluded .standards/manifest.json (the manifest itself)\n    first run with ownership tracking: files installed before this release cannot be attributed yet, so none will be removed.\n\n✓ Standards updated successfully!\n  Version: 6.0.0 → 6.14.0-beta.7\n  Integration files synced: 1\n\nSkills update available:\n  Current: 0.0.1\n  Latest: 6.14.0-beta.7\n\n  Update them with: uds update --apply --skills"
+    },
+    {
+      "id": "skills-two-ways",
+      "title": "uds skills ends with the two ways to install UDS skills side by side and calls neither deprecated",
+      "titleZh": "uds skills 結尾並列兩種安裝技能的方式，且不再說任何一種「已棄用」",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds skills output text changed"
+      ],
+      "command": "uds skills",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 99,
+      "output": "Universal Dev Standards - Installed Skills\n──────────────────────────────────────────────────\n\nNo Universal Dev Standards skills installed.\n\nTwo ways to install UDS skills\n\n  ● Into the project (the main path)\n      uds init --skills-location project   (new project)\n      uds update --apply --skills          (project already set up)\n      - Works with many AI tools: Claude Code, OpenCode, Cursor, Codex, Copilot, Windsurf and more.\n      - Has Traditional and Simplified Chinese skill texts (a missing one falls back to English with a warning).\n      - Follows the UDS version you installed, beta releases included.\n      - You update it yourself: run the same command again after upgrading UDS.\n\n  ● Claude Code plugin marketplace (an alternative, with limits)\n      /plugin marketplace add AsiaOstrich/universal-dev-standards\n      /plugin install universal-dev-standards@asia-ostrich\n      - Claude Code only.\n      - English skill texts only: the plugin settings have no language choice.\n      - Follows stable releases only, so a beta of UDS gets no beta skills.\n      - Puts no files in the project, so `uds check` cannot compare them file by file.\n\n  Installing both lists every skill twice in Claude Code (for example /commit and /universal-dev-standards:commit). Pick one; `uds check` warns when it finds both."
+    },
+    {
+      "id": "personal-skill-init",
+      "title": "uds init --skills-location project ends by naming a personal skill that covers a UDS skill",
+      "titleZh": "uds init --skills-location project 結尾點名「蓋掉 UDS 技能」的個人技能",
+      "platform": "all",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 153,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/personal-skill/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/personal-skill/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n⚠ 1 UDS skill(s) installed in this project share a name with a personal skill, and Claude Code runs the personal one without any error:\n    /plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/\n    Personal skills rank above project skills, so the UDS skill is never run under that name.\n    Pick one:\n      Keep both: rename your personal skill (its folder name, and `name:` in its SKILL.md).\n      Keep yours only: delete the UDS skill folder under .claude/skills/ (`uds uninstall --skills-only` removes the skills and commands of every tool in this project).\n    This check does not see skills your organization deploys at enterprise level (they rank above personal skills), or personal skills added after this run. No warning is not proof of no collision; `uds check` looks again every time.\n\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "personal-skill-check",
+      "title": "uds check names the same collision, says how to fix it, and still reports the project as compliant",
+      "titleZh": "uds check 點名同樣的撞名、說明怎麼修，且專案判定不變",
+      "platform": "all",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "command": "uds check --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 201,
+      "output": "Universal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  No AI tools configured\n\n⚠ 1 UDS skill(s) installed in this project share a name with a personal skill, and Claude Code runs the personal one without any error:\n    /plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/\n    Personal skills rank above project skills, so the UDS skill is never run under that name.\n    Pick one:\n      Keep both: rename your personal skill (its folder name, and `name:` in its SKILL.md).\n      Keep yours only: delete the UDS skill folder under .claude/skills/ (`uds uninstall --skills-only` removes the skills and commands of every tool in this project).\n    This check does not see skills your organization deploys at enterprise level (they rank above personal skills), or personal skills added after this run. No warning is not proof of no collision; `uds check` looks again every time.\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found\n    · no test files found — nothing was measured\n  ✓ [stub] scripts/check-stubs.mjs: nothing found\n\n✓ Project is compliant with standards"
+    },
+    {
+      "id": "personal-skill-update",
+      "title": "uds update --apply --skills ends with the same warning",
+      "titleZh": "uds update --apply --skills 結尾印同樣的警告",
+      "platform": "all",
+      "changelog": [
+        "uds check warns when a personal skill has the same name"
+      ],
+      "command": "uds update --apply --yes --offline --skills",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 201,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nRunning declarative state reconciliation...\n\n=== Reconciliation Plan ===\n\n~ Migrate Block (1):\n  ~ AGENTS.md (integration content differs from what would be generated)\n\nSummary:\n  Create: 0\n  Update: 0\n  Migrate Block: 1\n  Delete: 0\n  Unchanged: 130\n\n- Applying reconciliation plan...\n✔ Reconciliation complete: 1 succeeded\n  Backup: .uds-backups/2026-10-09T02-14-07-852Z-0001\n  Use `uds update --rollback` to undo.\n  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.\n\nAvailable upstream, not installed: none. Every standard UDS installs by default is already in this project.\nNot listed above: 95 more standard(s) in categories `uds init` never installs (core 59, testing 15, integration 7, extension 5, security 5, deployment 2, operations 1, template 1). Any of them can still be installed by id with --add-standard.\n\nUpdating Skills for all AI Agents...\n\nCurrent Skills status:\n  Claude Code (project): v6.14.0-beta.7 ✓\n\n- Installing Skills...\n✔ Updated Skills for 1 AI tools\n  Backup: .uds-backups/2026-10-09T02-14-07-856Z-0002\n  Use `uds update --rollback` to undo.\n  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.\n\n⚠ 1 UDS skill(s) installed in this project share a name with a personal skill, and Claude Code runs the personal one without any error:\n    /plan: your ~/.claude/skills/plan/ replaces the UDS skill .claude/skills/plan/\n    Personal skills rank above project skills, so the UDS skill is never run under that name.\n    Pick one:\n      Keep both: rename your personal skill (its folder name, and `name:` in its SKILL.md).\n      Keep yours only: delete the UDS skill folder under .claude/skills/ (`uds uninstall --skills-only` removes the skills and commands of every tool in this project).\n    This check does not see skills your organization deploys at enterprise level (they rank above personal skills), or personal skills added after this run. No warning is not proof of no collision; `uds check` looks again every time."
+    },
+    {
+      "id": "double-install-init",
+      "title": "uds init sets up a project with the UDS skills in it",
+      "titleZh": "uds init 建立含 UDS 技能的專案",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 144,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/double-install/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/double-install/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "double-install-check",
+      "title": "uds check warns that the UDS skills are installed twice (project and plugin) without changing the verdict",
+      "titleZh": "uds check 警告 UDS 技能裝了兩次（專案與外掛），且不改變判定",
+      "platform": "all",
+      "changelog": [
+        "uds check warns when UDS skills are installed twice"
+      ],
+      "command": "uds check --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 193,
+      "output": "Universal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  No AI tools configured\n\n⚠ UDS skills are installed twice: 56 in this project (.claude/skills/) and the plugin universal-dev-standards@asia-ostrich.\n    Claude Code runs plugin skills as /<plugin>:<skill> and project skills as /<skill>, so each skill shows up twice (for example /commit and /universal-dev-standards:commit).\n    Every skill's name and description is put into context on every turn, so the duplicate takes that space twice.\n    Keep one:\n      Keep the project copy: in Claude Code run /plugin uninstall universal-dev-standards@asia-ostrich\n      Keep the plugin: delete the UDS skill folders under .claude/skills/ (`uds uninstall --skills-only` removes the skills and commands of every tool in this project).\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found\n    · no test files found — nothing was measured\n  ✓ [stub] scripts/check-stubs.mjs: nothing found\n\n✓ Project is compliant with standards"
+    },
+    {
+      "id": "docs-install-skills",
+      "title": "The shipped Traditional Chinese getting-started guide has the \"how to install skills\" section",
+      "titleZh": "套件附的繁體中文入門指南含「技能怎麼裝」一節",
+      "platform": "all",
+      "changelog": [
+        "Docs: \"How to install skills\""
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "docs-personal-skill",
+      "title": "The shipped guide and the skill naming rules explain which skill runs when two share a name",
+      "titleZh": "套件附的指南與技能命名規則說明同名時誰會執行",
+      "platform": "all",
+      "changelog": [
+        "Docs: \"When a personal skill has the same name as a UDS skill\""
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "id": "owt-self-test",
+      "title": "uds open-work self-test passes (its own red and green samples)",
+      "titleZh": "uds open-work self-test 通過（內建的紅綠樣本）",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds open-work self-test",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 112,
+      "output": "[owt] self-test: OK"
+    },
+    {
+      "id": "owt-waiting-states",
+      "title": "uds open-work waiting tells \"not yet asked\" from \"asked, awaiting a reply\" and shows the age",
+      "titleZh": "uds open-work waiting 分得出「尚未詢問」與「已問、等回覆」並顯示年齡",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.2.0",
+        "uds open-work waiting and uds open-work observations"
+      ],
+      "command": "uds open-work waiting w.md --now 2026-01-12",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 114,
+      "output": "[owt] OWT-020/021/022 walked 2 record(s) with a status field in 1 carrier(s) (today 2026-01-12); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=1 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=0\n[owt]   asked-awaiting       w.md table row (line 3, row \"quote\"): quote  (asked 2d ago)\n[owt]   not-yet-asked        w.md table row (line 4, row \"mail\"): mail\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-waiting-violation",
+      "title": "uds open-work waiting exits 1 for a not-yet-asked item that names no draft",
+      "titleZh": "uds open-work waiting 對「沒點名草稿的尚未詢問項目」以 1 結束",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.2.0"
+      ],
+      "command": "uds open-work waiting bad.md --now 2026-01-12",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 112,
+      "output": "[owt] OWT-020/021/022 walked 1 record(s) with a status field in 1 carrier(s) (today 2026-01-12); 0 carrier(s) had none\n[owt]   not-yet-asked=1 asked-awaiting=0 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=0\n[owt]   not-yet-asked        bad.md table row (line 3, row \"mail\"): mail\n[owt] VIOLATION OWT-021: bad.md table row (line 3, row \"mail\") is not-yet-asked but names no draft or action: no file path, command, test name or requirement identifier\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-observations",
+      "title": "uds open-work observations counts unknown apart, shows every age and marks an old observation stale",
+      "titleZh": "uds open-work observations 把 unknown 另計、顯示每筆年齡、標出過舊的觀察",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.2.0",
+        "uds open-work waiting and uds open-work observations"
+      ],
+      "command": "uds open-work observations facts.md --now 2026-10-07",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 116,
+      "output": "[owt] OWT-023/024/025/026 walked 4 observation(s) in 1 carrier(s) (today 2026-10-07); stale after 7 day(s) (default, UNCALIBRATED); 0 carrier(s) had none\n[owt]   yes=2 no=1 unknown=1 invalid=0 | stale=1 | confirmed=1 (yes, well formed, not stale) | undecidable-table-rows=0\n[owt]   value=yes age=2d by=albert at=2026-10-05  facts.md table row (line 5, row \"mail sent\"): mail sent\n[owt]   value=yes age=36d by=albert at=2026-09-01  facts.md table row (line 6, row \"legal replied\"): legal replied\n[owt]   value=unknown age=1d by=albert at=2026-10-06  facts.md table row (line 7, row \"approved\"): approved\n[owt]   value=no age=3d by=albert at=2026-10-04  facts.md table row (line 8, row \"quote accepted\"): quote accepted\n[owt] UNKNOWN (counted apart, never complete): facts.md table row (line 7, row \"approved\"): approved\n[owt] STALE (observed 36d ago, older than 7d; counted apart, not confirmed): facts.md table row (line 6, row \"legal replied\"): legal replied\n[owt] LIMIT: the check decides that the fields exist, are well formed, and how old the stamp is. It cannot decide that an observation is true, or that it is still true now (OWT-014): a stamp says who saw it and when, never that it still holds.\n[owt] COVERAGE UNKNOWN (OWT-011): a table is read as an observation carrier only if it has an observed-by or observed-at column (or a list item such a label); the \"derivable subject\" test is a short word list. A clean pass does not mean no hand-written fact is unstamped or derivable.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-cross-project-root",
+      "title": "uds open-work waiting --root NAME=DIR reads a wait on another project: released, or not yet released",
+      "titleZh": "uds open-work waiting --root NAME=DIR 判讀「等另一個專案的物件」：已解除或尚未解除",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.3.0",
+        "uds open-work waiting --root NAME=DIR"
+      ],
+      "command": "uds open-work waiting w.md --now 2026-10-07 --root other={workPosix}/other",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 115,
+      "output": "[owt] OWT-020/021/022 walked 2 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=0 waiting-unspecified=0 done=0 other=0 waiting-cross-project=2 undecidable-table-rows=0\n[owt]   waiting-cross-project w.md table row (line 3, row \"wait a\"): wait a\n[owt]   waiting-cross-project w.md table row (line 4, row \"wait b\"): wait b\n[owt] OWT-027/028 2 release condition(s) name an object in another project (looked up on this machine only; no network): released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0\n[owt]   RELEASED              other:docs/a.md (path, machine-observable) w.md table row (line 3, row \"wait a\"): the path exists there\n[owt]   NOT YET RELEASED      other:docs/b.md (path, machine-observable) w.md table row (line 4, row \"wait b\"): the path does not exist there\n[owt] RESOLUTION: project \"other\" is looked up under <sandbox>/work/owt-cross-project-root/other (from --root NAME=DIR or open_work.projects). Only a path or a version-control tag is looked up; nothing leaves this machine.\n[owt] NOT VISIBLE FROM HERE is counted apart: it is not released and it is not zero. NEEDS A PERSON is counted apart and is never released. RELEASED says the object exists there now, never that it is the right object (OWT-014).\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-cross-project-config",
+      "title": "open_work.projects in uds.project.yaml says where the other project lives, without --root",
+      "titleZh": "uds.project.yaml 的 open_work.projects 不必打 --root 也能指出另一個專案在哪",
+      "platform": "all",
+      "changelog": [
+        "uds open-work waiting --root NAME=DIR"
+      ],
+      "command": "uds open-work waiting w.md --now 2026-10-07",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 115,
+      "output": "[owt] OWT-020/021/022 walked 2 record(s) with a status field in 1 carrier(s) (today 2026-10-07); 0 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=0 waiting-unspecified=0 done=0 other=0 waiting-cross-project=2 undecidable-table-rows=0\n[owt]   waiting-cross-project w.md table row (line 3, row \"wait a\"): wait a\n[owt]   waiting-cross-project w.md table row (line 4, row \"wait b\"): wait b\n[owt] OWT-027/028 2 release condition(s) name an object in another project (looked up on this machine only; no network): released=1 not-yet-released=1 not-visible-from-here=0 needs-a-person=0\n[owt]   RELEASED              other:docs/a.md (path, machine-observable) w.md table row (line 3, row \"wait a\"): the path exists there\n[owt]   NOT YET RELEASED      other:docs/b.md (path, machine-observable) w.md table row (line 4, row \"wait b\"): the path does not exist there\n[owt] RESOLUTION: project \"other\" is looked up under <sandbox>/work/owt-cross-project-config/other (from --root NAME=DIR or open_work.projects). Only a path or a version-control tag is looked up; nothing leaves this machine.\n[owt] NOT VISIBLE FROM HERE is counted apart: it is not released and it is not zero. NEEDS A PERSON is counted apart and is never released. RELEASED says the object exists there now, never that it is the right object (OWT-014).\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-next-action-words",
+      "title": "uds open-work next-action reads the column headed 下一個動作",
+      "titleZh": "uds open-work next-action 讀得懂標題為「下一個動作」的欄",
+      "platform": "all",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "command": "uds open-work next-action n.md",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 120,
+      "output": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   of the named-unresolved (1): path-missing=0 not-resolvable=1\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-next-action-words (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: n.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-next-action-words, not against where the file is; pass --root to say where its paths start\n[owt]   named-unresolved n.md table column \"下一個動作\" (line 3, row \"a\"): run npm test  <- command:npm test\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments."
+    },
+    {
+      "id": "owt-next-action-declared-word",
+      "title": "uds open-work next-action --next-action-word adds a word of your own",
+      "titleZh": "uds open-work next-action --next-action-word 可加入自己的欄位用詞",
+      "platform": "all",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "command": "uds open-work next-action n.md --next-action-word 待辦",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 120,
+      "output": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   of the named-unresolved (1): path-missing=0 not-resolvable=1\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-next-action-declared-word (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: n.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-next-action-declared-word, not against where the file is; pass --root to say where its paths start\n[owt]   named-unresolved n.md table column \"待辦\" (line 3, row \"a\"): run npm test  <- command:npm test\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments."
+    },
+    {
+      "id": "owt-next-action-exit-2-explains",
+      "title": "uds open-work next-action exits 2 and says why when no field was found",
+      "titleZh": "找不到下一步欄位時 uds open-work next-action 以 2 結束並說明原因",
+      "platform": "all",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "command": "uds open-work next-action n.md",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 2,
+      "durationMs": 121,
+      "output": "[owt] OWT-019 walked 0 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 1 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=0 undecidable-table-rows=0\n[owt]   of the named-unresolved (0): path-missing=0 not-resolvable=0\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-next-action-exit-2-explains (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: n.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-next-action-exit-2-explains, not against where the file is; pass --root to say where its paths start\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments.\n[owt] CANNOT DECIDE: no next-action field found in any carrier (walked 0). Exit 2 is not a pass.\n[owt] WHY: no carrier had a next-action field. What each one showed:\n[owt]   n.md: has 1 table(s), but no table header matches a recognised word; if one of them is your next-action column, declare its word\n[owt]     table headers (2 distinct): \"item\", \"待辦\"\n[owt] WORDS RECOGNISED (a heading, a table header or an inline \"word: ...\" label that contains one of these, any case): built in: next action, next step (also \"next-action\", \"next steps\") | 下一步 | 下一動 | 回來要做什麼 | 下一個動作 | 下一個步驟 | 接下來要做什麼\n[owt]   declared by you: none\n[owt] TO ADD A WORD: pass --next-action-word <word> (repeat it for several), or list it under open_work: next_action_words: in uds.project.yaml. It is plain text, not a pattern, and it is added to the same list for headings, table headers and labels."
+    },
+    {
+      "id": "owt-next-action-glab",
+      "title": "uds open-work next-action reads `glab mr merge 486` as a command",
+      "titleZh": "uds open-work next-action 把 `glab mr merge 486` 當成指令",
+      "platform": "all",
+      "changelog": [
+        "uds open-work next-action reads more of the words"
+      ],
+      "command": "uds open-work next-action n.md",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 119,
+      "output": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=1 unnamed=0 undecidable-table-rows=0\n[owt]   of the named-unresolved (1): path-missing=0 not-resolvable=1\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-next-action-glab (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: n.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-next-action-glab, not against where the file is; pass --root to say where its paths start\n[owt]   named-unresolved n.md table column \"Next action\" (line 3, row \"a\"): glab mr merge 486  <- command:glab mr\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments."
+    },
+    {
+      "id": "owt-waiting-on-reply",
+      "title": "uds open-work next-action accepts a complete asked-awaiting row as waiting-on-reply and exits 0",
+      "titleZh": "uds open-work next-action 把「已問、等回覆」且齊全的列算成 waiting-on-reply，並以 0 結束",
+      "platform": "all",
+      "changelog": [
+        "open-work-tracking 1.4.0",
+        "Behavior change — uds open-work next-action exits 0, not 1"
+      ],
+      "command": "uds open-work next-action w.md --now 2026-01-12",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 120,
+      "output": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=0 undecidable-table-rows=0 waiting-on-reply=1\n[owt]   of the named-unresolved (0): path-missing=0 not-resolvable=0\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-waiting-on-reply (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: w.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-waiting-on-reply, not against where the file is; pass --root to say where its paths start\n[owt]   waiting-on-reply w.md table column \"Next action\" (line 3, row \"vendor quote\"): wait for the vendor reply\n[owt] WAITING-ON-REPLY 1 row(s) are asked-awaiting and carry everything OWT-022 asks for, so OWT-019 is not applied to them (counted apart: not named, not resolved, not complete; 0 older than 7 day(s), UNCALIBRATED):\n[owt]   w.md table column \"Next action\" (line 3, row \"vendor quote\"): asked 2d ago (2026-01-10); waiting for: the quote; released by: the quote arrives\n[owt] WAITING-ON-REPLY LIMIT: the check decides that asked-at, what is waited for and the release event are present and well formed (OWT-022). It cannot decide that the request was really sent or that it is still unanswered (OWT-014, as for OWT-023). A row without all of them is judged by OWT-019 as before.\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments."
+    },
+    {
+      "id": "owt-blank-field-waiting",
+      "title": "uds open-work waiting does not read a blank release as filled by the Next action line under it",
+      "titleZh": "空白的「解除條件」不會被下一行的 Next action 補成有值（waiting）",
+      "platform": "all",
+      "changelog": [
+        "uds open-work waiting read a blank field of a list item"
+      ],
+      "command": "uds open-work waiting bad.md --now 2026-01-12",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 119,
+      "output": "[owt] OWT-020/021/022 walked 1 record(s) with a status field in 1 carrier(s) (today 2026-01-12); 0 carrier(s) had none\n[owt]   not-yet-asked=0 asked-awaiting=1 waiting-unspecified=0 done=0 other=0 undecidable-table-rows=0\n[owt]   asked-awaiting       bad.md list item (line 1, \"vendor quote\"): vendor quote  (asked 2d ago)\n[owt] VIOLATION OWT-022: bad.md list item (line 1, \"vendor quote\") is asked-awaiting but does not state what event releases it (OWT-002)\n[owt] A waiting item that is neither not-yet-asked nor asked-awaiting is named above, one by one; it is never folded into a total and never counted as done.\n[owt] COVERAGE UNKNOWN (OWT-011): state words and field names are matched by vocabulary. A waiting item written in words the vocabulary does not hold is read as \"other\", not as waiting. A clean pass does not mean nothing is waiting unasked.\n[owt] UNCALIBRATED (OWT-016): the state words, field names (English and Chinese), the derivable-subject word list and the stale-after threshold are initial judgments, none measured against real usage."
+    },
+    {
+      "id": "owt-blank-field-next-action",
+      "title": "The same list item is still a violation for uds open-work next-action (exit 1)",
+      "titleZh": "同一個清單項目對 uds open-work next-action 仍是違規（以 1 結束）",
+      "platform": "all",
+      "changelog": [
+        "uds open-work waiting read a blank field of a list item"
+      ],
+      "command": "uds open-work next-action bad.md --now 2026-01-12",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 116,
+      "output": "[owt] OWT-019 walked 1 next-action field(s) in 1 carrier(s); 0 empty/done field(s) not evaluated; 0 carrier(s) had no next-action field\n[owt]   named-resolved=0 named-unresolved=0 unnamed=1 undecidable-table-rows=0\n[owt]   of the named-unresolved (0): path-missing=0 not-resolvable=0\n[owt] RESOLUTION: a path is looked up under <sandbox>/work/owt-blank-field-next-action (the current directory: no --root was given). Only a PATH is looked up. A command, a test name or a requirement identifier is checked for being named and is never looked up, so it counts as not-resolvable, not as a missing path. path-missing is a path that was looked up and is not there.\n[owt] RESOLUTION: bad.md is outside any git repository, so its paths are resolved against <sandbox>/work/owt-blank-field-next-action, not against where the file is; pass --root to say where its paths start\n[owt]   unnamed          bad.md label (line 6): wait for the vendor reply\n[owt] VIOLATION OWT-019: bad.md label (line 6) names no file path, test name, command or requirement identifier: \"wait for the vendor reply\"\n[owt] COVERAGE UNKNOWN (OWT-011): recognising a path/command/test name/identifier is pattern matching; an unrecognised format is reported as unnamed. A clean pass does not mean every next action is specific.\n[owt] UNCALIBRATED (OWT-016): heading vocabulary, command list, extension list and identifier pattern are initial judgments."
+    },
+    {
+      "id": "beta6-init",
+      "title": "uds init sets up a project (the project the next steps use)",
+      "titleZh": "uds init 建立專案（後續步驟使用）",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 148,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/beta6/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/beta6/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "beta6-simulate-no-verdict",
+      "title": "uds simulate -s anti-hallucination: no simulator, exit 2, and not called \"Simulation Failed\"",
+      "titleZh": "uds simulate -s anti-hallucination：沒有模擬器，以 2 結束，且不再印「Simulation Failed」",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "command": "uds simulate -s anti-hallucination -i test",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 2,
+      "durationMs": 133,
+      "output": "Simulating compliance for: anti-hallucination\nInput: test\n──────────────────────────────────────────────────\n⚠  Cannot simulate: no verdict was reached, so this is neither a pass nor a fail\n   Standard 'anti-hallucination' does not support simulation (no 'simulator' spec defined).\n\nDetails:\nStandards that can be simulated in this project: commit-message."
+    },
+    {
+      "id": "beta6-simulate-pass",
+      "title": "uds simulate -s commit-message on a compliant message exits 0",
+      "titleZh": "uds simulate -s commit-message 對合規訊息以 0 結束",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "command": "uds simulate -s commit-message -i \"feat(api): add dept endpoint\"",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 112,
+      "output": "Simulating compliance for: commit-message\nInput: feat(api): add dept endpoint\n──────────────────────────────────────────────────\n✓  Simulation Passed\nChecked: header format <type>(<scope>): <subject>; type is one of: feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security (from .standards/options); rule scope-lowercase; rule subject-max-length\nNot checked: rule imperative-mood (the standard gives no machine-checkable pattern); rule no-mixed-changes and the commit language option"
+    },
+    {
+      "id": "beta6-simulate-fail",
+      "title": "uds simulate -s commit-message on a non-compliant message exits 1 and says what is wrong",
+      "titleZh": "uds simulate -s commit-message 對不合規訊息以 1 結束並說明哪裡不對",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds simulate no longer prints"
+      ],
+      "command": "uds simulate -s commit-message -i \"add new dept api\"",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 110,
+      "output": "Simulating compliance for: commit-message\nInput: add new dept api\n──────────────────────────────────────────────────\n✗  Simulation Failed: the input does not comply\n\nDetails:\n- The first line is not in the form <type>(<scope>): <subject> (scope is optional).\nChecked: header format <type>(<scope>): <subject>; rule subject-max-length\nNot checked: rule imperative-mood (the standard gives no machine-checkable pattern); rule no-mixed-changes and the commit language option"
+    },
+    {
+      "id": "beta6-skills-all",
+      "title": "uds skills lists every installed skill: the two numbers in \"N / N\" are equal",
+      "titleZh": "uds skills 列出全部已安裝技能：「N / N」兩個數字相等",
+      "platform": "all",
+      "changelog": [
+        "uds skills listed 27 of 56 installed skills"
+      ],
+      "command": "uds skills",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 110,
+      "output": "Universal Dev Standards - Installed Skills\n──────────────────────────────────────────────────\n\n● Project Level\n  Version: 6.14.0-beta.7\n  Path: <sandbox>/work/beta6/.claude/skills\n\n  Skills (56):\n    ✓ ac-coverage\n    ✓ adr-assistant\n    ✓ ai-collaboration-standards\n    ✓ ai-friendly-architecture\n    ✓ ai-instruction-standards\n    ✓ api-design-assistant\n    ✓ atdd-assistant\n    ✓ audit-assistant\n    ✓ bdd-assistant\n    ✓ brainstorm-assistant\n    ✓ changelog-guide\n    ✓ checkin-assistant\n    ✓ ci-cd-assistant\n    ✓ code-review-assistant\n    ✓ commit-standards\n    ✓ comprehension-ladder\n    ✓ contract-test-assistant\n    ✓ database-assistant\n    ✓ deploy-assistant\n    ✓ dev-methodology\n    ✓ dev-workflow-guide\n    ✓ docs-generator\n    ✓ documentation-guide\n    ✓ durable-execution-assistant\n    ✓ e2e-assistant\n    ✓ error-code-guide\n    ✓ git-workflow-guide\n    ✓ incident-response-assistant\n    ✓ journey-test-assistant\n    ✓ knowledge-graph\n    ✓ logging-guide\n    ✓ metrics-dashboard-assistant\n    ✓ migration-assistant\n    ✓ observability-assistant\n    ✓ orchestrate\n    ✓ plan\n    ✓ pr-automation-assistant\n    ✓ project-discovery\n    ✓ project-structure-guide\n    ✓ push\n    ✓ refactoring-assistant\n    ✓ release-standards\n    ✓ requirement-assistant\n    ✓ retrospective-assistant\n    ✓ reverse-engineer\n    ✓ runbook-assistant\n    ✓ security-assistant\n    ✓ security-scan-assistant\n    ✓ skill-builder\n    ✓ slo-assistant\n    ✓ spec-derivation\n    ✓ spec-driven-dev\n    ✓ sweep\n    ✓ tdd-assistant\n    ✓ test-coverage-assistant\n    ✓ testing-guide\n\n──────────────────────────────────────────────────\nTotal unique skills: 56 / 56\n`uds check` tracks 116 skill files for these skills (it counts files across every tool, not skills).\n\nTwo ways to install UDS skills\n\n  ● Into the project (the main path)\n      uds init --skills-location project   (new project)\n      uds update --apply --skills          (project already set up)\n      - Works with many AI tools: Claude Code, OpenCode, Cur\n... (127 characters omitted) ...\n English with a warning).\n      - Follows the UDS version you installed, beta releases included.\n      - You update it yourself: run the same command again after upgrading UDS.\n\n  ● Claude Code plugin marketplace (an alternative, with limits)\n      /plugin marketplace add AsiaOstrich/universal-dev-standards\n      /plugin install universal-dev-standards@asia-ostrich\n      - Claude Code only.\n      - English skill texts only: the plugin settings have no language choice.\n      - Follows stable releases only, so a beta of UDS gets no beta skills.\n      - Puts no files in the project, so `uds check` cannot compare them file by file.\n\n  Installing both lists every skill twice in Claude Code (for example /commit and /universal-dev-standards:commit). Pick one; `uds check` warns when it finds both."
+    },
+    {
+      "id": "beta6-update-drops-ghost-names",
+      "title": "uds update --apply removes skill and command names UDS cannot vouch for from the manifest, and keeps its backup in the one .uds-backups folder",
+      "titleZh": "uds update --apply 會從 manifest 移除 UDS 無法擔保的技能與命令名稱，且備份放在單一 .uds-backups 資料夾",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds update now removes names UDS cannot vouch for",
+        "Behavior change — uds update backups now live in one folder"
+      ],
+      "command": "uds update --apply --yes --offline",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 151,
+      "output": "Universal Documentation Standards - Update\n──────────────────────────────────────────────────\nRunning declarative state reconciliation...\n\n=== Reconciliation Plan ===\n\n~ Migrate Block (1):\n  ~ AGENTS.md (integration content differs from what would be generated)\n\nSummary:\n  Create: 0\n  Update: 0\n  Migrate Block: 1\n  Delete: 0\n  Unchanged: 130\n\n- Applying reconciliation plan...\n✔ Reconciliation complete: 1 succeeded\n  Backup: .uds-backups/2026-10-09T02-14-10-551Z-0001\n  Use `uds update --rollback` to undo.\n  Tools that do not read .gitignore (indexers, IDE search, grep): exclude `.uds-backups`.\n\nAvailable upstream, not installed: none. Every standard UDS installs by default is already in this project.\nNot listed above: 95 more standard(s) in categories `uds init` never installs (core 59, testing 15, integration 7, extension 5, security 5, deployment 2, operations 1, template 1). Any of them can still be installed by id with --add-standard."
+    },
+    {
+      "id": "beta6-run-trailing-comment",
+      "title": "uds run test shows and runs the command without the trailing \"# comment\" of uds.project.yaml",
+      "titleZh": "uds run test 顯示並執行的指令不含 uds.project.yaml 行尾的「# 註解」",
+      "platform": "all",
+      "changelog": [
+        "uds run read uds.project.yaml with a hand-written line parser"
+      ],
+      "command": "uds run test",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 126,
+      "output": "uds run test  ← uds.project.yaml\n$ node \"<sandbox>/work/beta6-run-trailing-comment/probe.js\" \"<sandbox>/work/beta6-run-trailing-comment/received.json\" Tests.csproj"
+    },
+    {
+      "id": "beta6-run-dry-run",
+      "title": "uds run test --dry-run prints the command without the comment",
+      "titleZh": "uds run test --dry-run 印出的指令不含註解",
+      "platform": "all",
+      "changelog": [
+        "uds run read uds.project.yaml with a hand-written line parser"
+      ],
+      "command": "uds run test --dry-run",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 106,
+      "output": "uds run test  ← uds.project.yaml\n$ node \"<sandbox>/work/beta6-run-trailing-comment/probe.js\" \"<sandbox>/work/beta6-run-trailing-comment/received.json\" Tests.csproj\n\n(dry-run mode — 未實際執行)"
+    },
+    {
+      "id": "beta6-spec-list-sdd",
+      "title": "uds spec list reads the status and title of an SDD spec instead of calling it a draft with an empty title",
+      "titleZh": "uds spec list 讀得出 SDD 規格的狀態與標題，不再把它叫成標題為空的 draft",
+      "platform": "all",
+      "changelog": [
+        "uds spec list listed full SDD specs as draft"
+      ],
+      "command": "uds spec list",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 102,
+      "output": "Micro-Specs\n\n──────────────────────────────────────────────────────────────────────────────────────────\nID                                 Status                          Type      Title\n──────────────────────────────────────────────────────────────────────────────────────────\nSPEC-004-bare                      format: SDD (status not parsed) -         Bare Spec\nSPEC-001-dept-api                  approved                        -         Department API Specificat\n──────────────────────────────────────────────────────────────────────────────────────────\nTotal: 2"
+    },
+    {
+      "id": "beta6-deps-needs-package-json",
+      "title": "uds deps with no package.json still exits 1",
+      "titleZh": "沒有 package.json 時 uds deps 仍以 1 結束",
+      "platform": "all",
+      "changelog": [
+        "uds deps --if-present"
+      ],
+      "command": "uds deps",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 104,
+      "output": "uds deps: no package.json at <sandbox>/work/beta6-deps-needs-package-json"
+    },
+    {
+      "id": "beta6-deps-if-present",
+      "title": "uds deps --if-present exits 0 and says nothing was checked",
+      "titleZh": "uds deps --if-present 以 0 結束並說明沒有檢查任何東西",
+      "platform": "all",
+      "changelog": [
+        "uds deps --if-present"
+      ],
+      "command": "uds deps --if-present",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 101,
+      "output": "Not applicable: there is no package.json, so nothing was checked"
+    },
+    {
+      "id": "commit-warning-init",
+      "title": "uds init sets up a project with the git pre-commit hook",
+      "titleZh": "uds init 建立含 git pre-commit hook 的專案",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 151,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/commit-warning/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/commit-warning/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "commit-warning-hook",
+      "title": "A commit that changes code and no test prints the test-change warning from the git hook and still goes through",
+      "titleZh": "只改程式、沒改測試的提交：git hook 印出 test-change 警告，提交照常完成",
+      "platform": "all",
+      "changelog": [
+        "uds check warns when a commit changes code and touches no test"
+      ],
+      "command": "git commit -m \"feat: add app\"",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 1135,
+      "output": "[master (root-commit) 8572908] feat: add app\n 1 file changed, 1 insertion(+)\n create mode 100644 src/app.js\n\nRunning UDS pre-commit checks...\n\nUniversal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\n- Checking for CLI updates...\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  No AI tools configured\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ⚠ [error-exit] 沒有錯誤訊息單一出口檢查（scripts/check-error-exit.mjs）。\n    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——\n    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。\n    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。\n\n  ⚠ [test-change] This commit changes 1 code file(s) and touches no test file (XSPEC-444 R2). Warning only — the commit is not blocked.\n    code files changed without a test change:\n      - src/app.js\n    A change to behavior needs a test that fails without it. Not a behavior change (generated code, a rename with edits)?\n    Record the exemption with its reason in .standards/test-policy.json:  \"exempt\": [{ \"pattern\": \"<glob>\", \"reason\": \"<why>\" }]\n    To make this block the commit instead: set \"mode\": \"block\" in .standards/test-policy.json.\n\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found in the staged files\n  ✓ [stub] scripts/check-stubs.mjs: nothing found in the staged files\n\n✓ Project is compliant with standards\n\nPre-commit checks passed"
+    },
+    {
+      "id": "human-commit-warning-display",
+      "title": "The commit-time warning reads correctly in this shell (Git Bash on Windows: no garbled characters)",
+      "titleZh": "提交時的警告在這個殼層裡能正常閱讀（Windows 的 Git Bash：沒有亂碼）",
+      "platform": "all",
+      "changelog": [],
+      "command": "git commit -m \"feat: add a second file\"",
+      "ran": true,
+      "status": "unconfirmed",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 327,
+      "output": "[master 10bba85] feat: add a second file\n 1 file changed, 1 insertion(+)\n create mode 100644 src/second.js\n\nRunning UDS pre-commit checks...\n\nUniversal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\n- Checking for CLI updates...\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (1 files)\n    User customizations outside UDS blocks are preserved\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  No AI tools configured\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    0 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ⚠ [error-exit] 沒有錯誤訊息單一出口檢查（scripts/check-error-exit.mjs）。\n    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——\n    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。\n    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。\n\n  ⚠ [test-change] This commit changes 1 code file(s) and touches no test file (XSPEC-444 R2). Warning only — the commit is not blocked.\n    code files changed without a test change:\n      - src/second.js\n    A change to behavior needs a test that fails without it. Not a behavior change (generated code, a rename with edits)?\n    Record the exemption with its reason in .standards/test-policy.json:  \"exempt\": [{ \"pattern\": \"<glob>\", \"reason\": \"<why>\" }]\n    To make this block the commit instead: set \"mode\": \"block\" in .standards/test-policy.json.\n\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found in the staged files\n  ✓ [stub] scripts/check-stubs.mjs: nothing found in the staged files\n\n✓ Project is compliant with standards\n\nPre-commit checks passed",
+      "human": {
+        "prompt": "Look at the warning printed above, the one that starts with \"test-change\". Is it readable, with the warning sign and the dash showing, not question marks or boxes? Run this in the shell you normally commit from (Git Bash on Windows).",
+        "promptZh": "請看上面印出的警告（以 test-change 開頭的那一段）：警告符號與破折號是否正常顯示，而不是問號或方框？請在你平常提交用的殼層（Windows 上的 Git Bash）執行。",
+        "answer": "none"
+      }
+    },
+    {
+      "id": "human-chinese-display",
+      "title": "Traditional Chinese text is readable in this console (no ???? or empty boxes)",
+      "titleZh": "這個主控台上的繁體中文能正常閱讀（沒有 ???? 或方框）",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds --ui-lang zh-tw skills",
+      "ran": true,
+      "status": "unconfirmed",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 99,
+      "output": "通用開發標準 - 已安裝的 Skills\n──────────────────────────────────────────────────\n\n未安裝任何通用開發標準 Skills。\n\n安裝 UDS 技能的兩種方式\n\n  ● 裝進專案（主要路徑）\n      uds init --skills-location project   （新專案）\n      uds update --apply --skills          （已設定過的專案）\n      - 支援多種 AI 工具：Claude Code、OpenCode、Cursor、Codex、Copilot、Windsurf 等。\n      - 有繁體中文與簡體中文的技能文字（缺的會警告並退回英文）。\n      - 跟著你裝的 UDS 版本走，包含測試版。\n      - 由你自己更新：升級 UDS 後再跑一次同一個指令。\n\n  ● Claude Code 外掛市集（替代方式，有限制）\n      /plugin marketplace add AsiaOstrich/universal-dev-standards\n      /plugin install universal-dev-standards@asia-ostrich\n      - 只支援 Claude Code。\n      - 只有英文技能文字：外掛設定沒有語系選擇。\n      - 只跟正式版：UDS 的測試版不會有測試版技能。\n      - 專案內不放檔案，所以 `uds check` 無法逐檔比對。\n\n  兩種都裝，Claude Code 會把每個技能列出兩次（例如 /commit 與 /universal-dev-standards:commit）。請擇一；`uds check` 發現兩者並存時會警告。",
+      "human": {
+        "prompt": "Look at the text above. Is the Chinese readable (not ???? or boxes)? On a Traditional Chinese Windows console (code page 950) this is the line that breaks.",
+        "promptZh": "請看上面的文字：中文是否正常顯示（不是 ???? 或方框）？繁體中文 Windows 主控台（字碼頁 950）最容易在這裡出問題。",
+        "answer": "none"
+      }
+    },
+    {
+      "id": "init-default-skills-into-project",
+      "title": "uds init --yes installs the UDS skills into the project (.claude/skills) by default, with no word of the plugin as the way",
+      "titleZh": "uds init --yes 預設把 UDS 技能裝進專案（.claude/skills），不再把外掛當作預設",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "command": "uds init --yes",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 143,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n  AI Tools: claudeCode\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: Claude Code\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating integration files...\n✔ Generated 1 integration files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/init-default/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  76 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/init-default/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)"
+    },
+    {
+      "id": "init-default-skills-check",
+      "title": "uds check --ci finds the skill files that uds init --yes installed intact",
+      "titleZh": "uds check --ci 認為 uds init --yes 裝進專案的技能檔完整",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "command": "uds check --ci",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 318,
+      "output": "Universal Documentation Standards - Check\n──────────────────────────────────────────────────\n✓ Standards initialized\n\nAdoption Status:\n  Installed: 2026-10-09\n  Version: 6.14.0-beta.7\n\n- Checking for CLI updates...\nFile Integrity:\n\n  Summary: 74 unchanged, 0 modified, 0 missing\n\nSkills File Integrity\n  ✓ All skill files intact (116 files)\n\nIntegration UDS Block Integrity\n  ✓ All UDS blocks intact (2 files)\n    User customizations outside UDS blocks are preserved\n\nReference Sync Status:\n  ℹ CLAUDE.md:\n    Standards with no \"Reference:\"/\"參考:\" line in this file (optional):\n      - developer-memory.ai.yaml\n      - documentation-structure.ai.yaml\n      - git-workflow.ai.yaml\n      - project-context-memory.ai.yaml\n      - project-structure.ai.yaml\n      - refactoring-standards.ai.yaml\n      - requirement-engineering.ai.yaml\n      - spec-driven-development.ai.yaml\n\nAI Tool Integration Status:\n  ✓ CLAUDE.md:\n    Standards index present\n    74/74 standards referenced\n\nAGENTS.md Standards Sync\n  ✓ AGENTS.md standards synced (71/71)\n\nSkills Status:\n  Claude Code:\n    ✓ Skills Installed:\n      - Project: <sandbox>/work/init-default/.claude/skills/\n        Version: 6.14.0-beta.7\n\n  Tracked installations:\n    - claude-code: project\n\nCoverage Summary:\n  Total: 163 standards\n    37 with Skills (interactive AI assistance)\n    126 reference documents\n  Your coverage:\n    37 via Skills\n    74 via copied documents\n\nUpstream standards not installed: none\n  ⚠ [test-change] could not read the staged changes (error: unknown option `cached'); the code-without-test check did not run.\n  ✓ [anti-fake-test] scripts/check-anti-fake-tests.mjs: nothing found\n    · no test files found — nothing was measured\n  ✓ [stub] scripts/check-stubs.mjs: nothing found\n\n✓ Project is compliant with standards"
+    },
+    {
+      "id": "init-plugin-writes-no-skill-files",
+      "title": "uds init --yes --skills-location marketplace writes no skill file and says the skills come from the plugin and how to move them into the project",
+      "titleZh": "uds init --yes --skills-location marketplace 不寫任何技能檔，並說明技能由外掛提供、怎麼改裝進專案",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "command": "uds init --yes --skills-location marketplace",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 118,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n  AI Tools: claudeCode\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: Claude Code\n  Skills: Plugin Marketplace (managed by Claude Code)\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating integration files...\n✔ Generated 1 integration files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n\n✓ Standards initialized successfully!\n\n  76 files copied to project\n  Skills: Using Plugin Marketplace installation\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n\nSkills: provided by the Claude Code plugin (no skill file was written to this project).\n  Install the plugin in Claude Code: /plugin marketplace add AsiaOstrich/universal-dev-standards, then /plugin install universal-dev-standards@asia-ostrich\n  The plugin works in Claude Code only, loads English skill texts only, follows stable releases only, and puts no files in the project.\n  To put the skills into this project instead (many AI tools, Chinese texts): uds config --type skills --ai-tool claude-code --skills-location project --yes"
+    },
+    {
+      "id": "init-chinese-skill-texts-no-tool-marker",
+      "title": "uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Chinese skill texts from the package, with no locale warning",
+      "titleZh": "uds init --yes --locale zh-tw 在沒有 AI 工具標記的資料夾，從套件內裝進中文技能文字，且沒有語系警告",
+      "platform": "all",
+      "changelog": [
+        "A copy of UDS without the Chinese skill texts installed English"
+      ],
+      "command": "uds init --yes --locale zh-tw",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 160,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: 繁體中文\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Copying extensions...\n✔ Copied 1 extension files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/init-zh-tw/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  76 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/init-zh-tw/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)"
+    },
+    {
+      "id": "init-help-default-is-project",
+      "title": "uds init --help names the project as the default of --skills-location",
+      "titleZh": "uds init --help 把專案列為 --skills-location 的預設",
+      "platform": "all",
+      "changelog": [
+        "Docs and prompts no longer recommend the plugin marketplace"
+      ],
+      "command": "uds init --help",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 97,
+      "output": "Usage: uds init [options]\n\nInitialize standards in current project\n\nOptions:\n  -m, --mode <mode>             Installation mode (skills, full)\n  -f, --format <format>         Standards format (ai, human, both)\n  --workflow <workflow>         Git workflow (github-flow, gitflow, trunk-based)\n  --merge-strategy <strategy>   Merge strategy (squash, merge-commit, rebase-ff)\n  --output-lang <lang>          Output language (english, traditional-chinese,\n                                bilingual)\n  --test-levels <levels>        Test levels, comma-separated\n                                (unit-testing,integration-testing,...)\n  --lang <language>             Language extension (csharp, php)\n  --framework <framework>       Framework extension (fat-free)\n  --locale <locale>             Locale extension (zh-tw)\n  --skills-location <location>  Skills location (project, user, marketplace,\n                                none) [default: project]\n  --content-mode <mode>         Content mode for integration files (minimal,\n                                index) [default: index]; full is retired and\n                                resolves to index\n  --agents-md                   Generate AGENTS.md universal summary\n  --no-agents-md                Skip AGENTS.md generation\n  --with-hooks                  Install enforcement hooks declared by the\n                                installed standards\n  --content-layout <layout>     Content layout (flat, layered) [default: flat]\n  --claude-target <target>      Claude Code integration target: project\n                                (default, writes CLAUDE.md) or local (writes\n                                CLAUDE.local.md — not committed to git;\n                                gitignore it yourself)\n  -y, --yes                     Use defaults, skip interactive prompts\n  -E, --experimental            Enable experimental features (methodology)\n  --force                       Bypass UDS source-repo self-adoption guard\n                                (DEC-044 / XSPEC-071)\n  -h, --help                    display help for command"
+    },
+    {
+      "id": "init-locale-pack-missing-is-said",
+      "title": "A copy of UDS without the zh-TW skill texts installs English for --locale zh-tw and says so, names the fix, and does not blame the network",
+      "titleZh": "缺少 zh-TW 技能文字的 UDS 在 --locale zh-tw 時裝英文版並明說原因與補救方式，不歸咎網路",
+      "platform": "all",
+      "changelog": [
+        "A copy of UDS without the Chinese skill texts installed English"
+      ],
+      "command": "{node} without-zh-tw.cjs {pkg} {work}",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 611,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n  AI Tools: claudeCode\n\nConfiguration Summary:\n  Display Language: 繁體中文\n  AI Tools: Claude Code\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Copying extensions...\n✔ Copied 1 extension files\n- Generating integration files...\n✔ Generated 1 integration files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n\n⚠ The zh-TW skill texts are not in this copy of UDS, so the skills were installed in English.\n    The Traditional and Simplified Chinese texts ship inside the UDS npm package (the locales/ folder), so this is not about your network: this copy of UDS is incomplete or damaged.\n    To get the zh-TW texts, reinstall UDS (npm install -g universal-dev-standards), then run: uds update --apply --skills --locale zh-tw\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/init-no-pack/proj/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  77 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/init-no-pack/proj/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n\nCHINESE-SKILL-TEXT=false"
+    },
+    {
+      "id": "human-init-enter-installs-skills",
+      "title": "Run uds init in your own terminal and press Enter at every question: the skills end up in the project",
+      "titleZh": "在你自己的終端機執行 uds init、每一題都只按 Enter：技能會裝進專案",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — uds init and uds init --yes now install the UDS skills into the project"
+      ],
+      "command": "uds init --help",
+      "ran": true,
+      "status": "unconfirmed",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 99,
+      "output": "Usage: uds init [options]\n\nInitialize standards in current project\n\nOptions:\n  -m, --mode <mode>             Installation mode (skills, full)\n  -f, --format <format>         Standards format (ai, human, both)\n  --workflow <workflow>         Git workflow (github-flow, gitflow, trunk-based)\n  --merge-strategy <strategy>   Merge strategy (squash, merge-commit, rebase-ff)\n  --output-lang <lang>          Output language (english, traditional-chinese,\n                                bilingual)\n  --test-levels <levels>        Test levels, comma-separated\n                                (unit-testing,integration-testing,...)\n  --lang <language>             Language extension (csharp, php)\n  --framework <framework>       Framework extension (fat-free)\n  --locale <locale>             Locale extension (zh-tw)\n  --skills-location <location>  Skills location (project, user, marketplace,\n                                none) [default: project]\n  --content-mode <mode>         Content mode for integration files (minimal,\n                                index) [default: index]; full is retired and\n                                resolves to index\n  --agents-md                   Generate AGENTS.md universal summary\n  --no-agents-md                Skip AGENTS.md generation\n  --with-hooks                  Install enforcement hooks declared by the\n                                installed standards\n  --content-layout <layout>     Content layout (flat, layered) [default: flat]\n  --claude-target <target>      Claude Code integration target: project\n                                (default, writes CLAUDE.md) or local (writes\n                                CLAUDE.local.md — not committed to git;\n                                gitignore it yourself)\n  -y, --yes                     Use defaults, skip interactive prompts\n  -E, --experimental            Enable experimental features (methodology)\n  --force                       Bypass UDS source-repo self-adoption guard\n                                (DEC-044 / XSPEC-071)\n  -h, --help                    display help for command",
+      "human": {
+        "prompt": "In a NEW empty folder that has a .claude folder inside it (mkdir -p demo/.claude on macOS/Linux; md demo\\.claude on Windows), run `uds init` in your own terminal and press Enter at every question. At the skills question the line \"Claude Code - Project Level (.claude/skills/)\" must already be ticked. When it ends, does demo/.claude/skills/ hold many folders (commit-standards, tdd-assistant, ...)?",
+        "promptZh": "在一個全新的空資料夾（裡面有 .claude 資料夾；macOS/Linux：mkdir -p demo/.claude，Windows：md demo\\.claude），於你自己的終端機執行 `uds init`，每一題都只按 Enter。技能那一題的「Claude Code - Project Level (.claude/skills/)」必須已經是勾選狀態。結束後，demo/.claude/skills/ 底下是否有很多資料夾（commit-standards、tdd-assistant……）？",
+        "answer": "none"
+      }
+    },
+    {
+      "id": "human-init-keeps-open-work",
+      "title": "uds init that updates an existing uds.project.yaml keeps the open_work section exactly as it was",
+      "titleZh": "uds init 更新既有的 uds.project.yaml 時，open_work 區段原封不動",
+      "platform": "all",
+      "changelog": [
+        "Behavior change — the command-contract step of uds init no longer rewrites"
+      ],
+      "command": "uds init --help",
+      "ran": true,
+      "status": "unconfirmed",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 96,
+      "output": "Usage: uds init [options]\n\nInitialize standards in current project\n\nOptions:\n  -m, --mode <mode>             Installation mode (skills, full)\n  -f, --format <format>         Standards format (ai, human, both)\n  --workflow <workflow>         Git workflow (github-flow, gitflow, trunk-based)\n  --merge-strategy <strategy>   Merge strategy (squash, merge-commit, rebase-ff)\n  --output-lang <lang>          Output language (english, traditional-chinese,\n                                bilingual)\n  --test-levels <levels>        Test levels, comma-separated\n                                (unit-testing,integration-testing,...)\n  --lang <language>             Language extension (csharp, php)\n  --framework <framework>       Framework extension (fat-free)\n  --locale <locale>             Locale extension (zh-tw)\n  --skills-location <location>  Skills location (project, user, marketplace,\n                                none) [default: project]\n  --content-mode <mode>         Content mode for integration files (minimal,\n                                index) [default: index]; full is retired and\n                                resolves to index\n  --agents-md                   Generate AGENTS.md universal summary\n  --no-agents-md                Skip AGENTS.md generation\n  --with-hooks                  Install enforcement hooks declared by the\n                                installed standards\n  --content-layout <layout>     Content layout (flat, layered) [default: flat]\n  --claude-target <target>      Claude Code integration target: project\n                                (default, writes CLAUDE.md) or local (writes\n                                CLAUDE.local.md — not committed to git;\n                                gitignore it yourself)\n  -y, --yes                     Use defaults, skip interactive prompts\n  -E, --experimental            Enable experimental features (methodology)\n  --force                       Bypass UDS source-repo self-adoption guard\n                                (DEC-044 / XSPEC-071)\n  -h, --help                    display help for command",
+      "human": {
+        "prompt": "In a NEW empty folder with a .claude folder, create uds.project.yaml with exactly these lines: `version: \"1\"`, `open_work:`, `  roots:`, `    other: ../other   # sibling checkout`, `commands:`, `  test: old-test`. Run `uds init` and press Enter at every question, EXCEPT: answer \"y\" at \"Update the commands (test, lint, build, security) in the existing uds.project.yaml?\" (the question lists the sections that are kept; open_work must be one of them) and type `npm run my-test` for the test command. Afterwards: is `test: npm run my-test` there, and are the open_work lines (including the comment) unchanged? Also run `uds init` again in a copy of the file and answer Enter at that question: the file must not change.",
+        "promptZh": "在一個全新、含 .claude 資料夾的空資料夾，建立 uds.project.yaml，內容恰好是這幾行：`version: \"1\"`、`open_work:`、`  roots:`、`    other: ../other   # sibling checkout`、`commands:`、`  test: old-test`。執行 `uds init`，每一題都按 Enter，只有兩處例外：「Update the commands (test, lint, build, security) in the existing uds.project.yaml?」答 y（問題必須寫出保留的區段名稱，包含 open_work），測試指令輸入 `npm run my-test`。結束後：`test: npm run my-test` 是否已寫入，open_work 的幾行（含註解）是否原封不動？另外在檔案的副本上再執行一次 `uds init`，那一題直接按 Enter：檔案不得有任何變動。",
+        "answer": "none"
+      }
+    },
+    {
+      "id": "transient-lock-copy-retries",
+      "title": "uds init finishes when one file is locked for a moment (two EBUSY errors, then free): the copy is retried and the file lands intact",
+      "titleZh": "uds init 遇到檔案被短暫鎖住（連兩次 EBUSY 之後放開）仍能完成：複製會重試，檔案完整寫入",
+      "platform": "all",
+      "changelog": [
+        "uds init and uds update retry a file copy that fails because the file is locked"
+      ],
+      "command": "{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 341,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n  AI Tools: claudeCode\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: Claude Code\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating integration files...\n✔ Generated 1 integration files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/transient-lock-copy-retries/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  76 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/transient-lock-copy-retries/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)"
+    },
+    {
+      "id": "transient-lock-gives-up-in-plain-words",
+      "title": "uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do",
+      "titleZh": "檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦",
+      "platform": "all",
+      "changelog": [
+        "uds init and uds update retry a file copy that fails because the file is locked"
+      ],
+      "command": "{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 2504,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n  AI Tools: claudeCode\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: Claude Code\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 73 standard files\n- Generating integration files...\n✔ Generated 1 integration files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/transient-lock-gives-up-in-plain-words/.claude/skills/)\n\nInstallation failed and was rolled back: Transaction verification failed for uds init\n    ai/standards/error-codes.ai.yaml: Could not copy \"<sandbox>/install/node_modules/universal-dev-standards/bundled/ai/standards/error-codes.ai.yaml\" to \"<sandbox>/work/transient-lock-gives-up-in-plain-words/.standards/error-codes.ai.yaml\": the file is locked by another program (EBUSY). UDS tried 10 times over 2.3 s and the lock did not clear. Likely causes: antivirus real-time scanning, the Windows search indexer, a cloud-sync client (OneDrive, Dropbox) or an editor that has the file open. Close whatever is using the file or add the project folder to the antivirus exclusions, then run the command again. (Original error: EBUSY: resource busy or locked, copyfile)"
+    },
+    {
+      "id": "tautology-init",
+      "title": "uds init sets up a project with the fake-test scanner in scripts/",
+      "titleZh": "uds init 建立專案，並把假測試掃描腳本放進 scripts/",
+      "platform": "all",
+      "changelog": [],
+      "command": "uds init -y --skills-location project --mode skills --format ai",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 147,
+      "output": "Universal Development Standards - Initialize\n──────────────────────────────────────────────────\n- Detecting project characteristics...\n✔ Project analysis complete\n\nConfiguration Summary:\n  Display Language: English\n  AI Tools: none\n  Skills: install/update to project\n  Format: Compact\n  Git Workflow: GitHub Flow\n  Release Mode: CI/CD\n  Merge Strategy: Squash\n  Output Language: English\n  Test Levels: unit-testing, integration-testing, system-testing, e2e-testing\n  Languages: none\n  Frameworks: none\n  Content Mode: auto\n\n\n- Copying standards...\n✔ Copied 74 standard files\n- Generating AGENTS.md (universal summary)...\n✔ Generated AGENTS.md (universal summary)\n- Installing Skills...\n✔ Installed 56 Skills to Claude Code (<sandbox>/work/tautology/.claude/skills/)\n\n✓ Standards initialized successfully!\n\n  75 files copied to project\n  56 Skills installed to Claude Code: <sandbox>/work/tautology/.claude/skills/\n  Manifest created at .standards/manifest.json\n\nNext steps:\n  1. Review .standards/ directory\n  2. Add .standards/ to version control\n  3. Restart Claude Code to load new Skills\n  4. Run `uds check` to verify adoption status\n\n  ✓ scripts/check-anti-fake-tests.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\n  ✓ scripts/check-stubs.mjs (fake-test / stub scanner — `uds check` runs it and warns; edit it freely)\nConfiguring Pre-commit Hook (native git hook)...\n  ✓ Installed .git/hooks/pre-commit (native git hook)"
+    },
+    {
+      "id": "tautology-scan",
+      "title": "The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone",
+      "titleZh": "掃描腳本點名「預期值是同一個呼叫」或「從同一個輸入重算」的測試，手算例則不動",
+      "platform": "all",
+      "changelog": [
+        "check-anti-fake-tests also names a test whose expected value"
+      ],
+      "command": "{node} scripts/check-anti-fake-tests.mjs",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 1,
+      "durationMs": 31,
+      "output": "check-anti-fake-tests: scanned 1 test file(s), 3 test case(s) (whole project)\n  ✗ tests/cart.test.js:1  tautology  \"totals: one call written on both sides\" — its only assertion(s) are not independent of the code under test: the expected value is the same call as the code under test (same function, same arguments) (see verification-oracle)\n  ✗ tests/cart.test.js:4  tautology  \"totals: the expected value re-adds the items\" — its only assertion(s) are not independent of the code under test: the expected value is recomputed from the same input as the code under test (reduce/map/filter with a callback that uses only its own parameters), so it is not an independent oracle (see verification-oracle)\nRESULT: 2 finding(s)"
+    },
+    {
+      "id": "std-merge-danger",
+      "title": "The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule",
+      "titleZh": "安裝後的 code-review 標準要求寫明合併風險（門與影響範圍），並寫出單向門的規則",
+      "platform": "all",
+      "changelog": [
+        "code-review-checklist 1.6.0 and the PR templates ask every change"
+      ],
+      "command": "(read the files; no command | 讀檔，不執行指令)",
+      "ran": true,
+      "status": "pass",
+      "failures": [],
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": ""
+    }
+  ],
+  "notes": []
+}

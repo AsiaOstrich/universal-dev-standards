@@ -262,8 +262,8 @@ Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
 | Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.7 沒有 6.14.0-beta.7 的報告 |
+| macOS | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Darwin 25.6.0, Node v22.23.2, zsh; 64 passed / 0 failed / 0 skipped; 2026-10-09 |
+| Linux | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Linux 6.8.0-142-generic, Node v22.22.1, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
