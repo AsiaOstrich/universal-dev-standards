@@ -227,7 +227,7 @@ async function gatherPreview(projectPath, manifest, categories, includeUserLevel
     preview.integrations = await uninstallIntegrations(projectPath, manifest, { dryRun: true });
   }
   if (categories.includes('standards')) {
-    preview.standards = uninstallStandards(projectPath, { dryRun: true });
+    preview.standards = uninstallStandards(projectPath, { dryRun: true, manifest });
   }
   if (categories.includes('hooks')) {
     // Nothing is deleted yet in a preview, so folders are judged against what the
@@ -267,7 +267,7 @@ async function executeUninstall(projectPath, manifest, categories, options) {
     });
   }
   if (categories.includes('standards')) {
-    results.standards = uninstallStandards(projectPath);
+    results.standards = uninstallStandards(projectPath, { manifest });
   }
   if (categories.includes('hooks')) {
     // After everything else, so a folder that only held UDS files is empty by now.

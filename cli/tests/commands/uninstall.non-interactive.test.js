@@ -35,6 +35,7 @@ vi.mock('@inquirer/prompts', () => ({
 
 import { select, checkbox, confirm } from '@inquirer/prompts';
 import { uninstallCommand } from '../../src/commands/uninstall.js';
+import { computeFileHash } from '../../src/utils/hasher.js';
 
 function setTTY(value) {
   Object.defineProperty(process.stdin, 'isTTY', { value, configurable: true, writable: true });
@@ -90,7 +91,7 @@ describe('uninstall — non-interactive behaviour and exit codes', () => {
       integrations: ['CLAUDE.md'], integrationConfigs: {}, options: {}, aiTools: ['claude-code'],
       skills: { installed: false, location: 'project', names: [], version: null, installations: [] },
       commands: { installed: false, names: [], version: null, installations: [] },
-      methodology: null, fileHashes: {}, skillHashes: {}, commandHashes: {}, integrationBlockHashes: {}
+      methodology: null, fileHashes: { '.standards/commit-message.ai.yaml': computeFileHash(join(testDir, '.standards', 'commit-message.ai.yaml')) }, skillHashes: {}, commandHashes: {}, integrationBlockHashes: {}
     }, null, 2));
   }
 

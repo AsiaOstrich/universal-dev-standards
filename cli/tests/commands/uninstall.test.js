@@ -53,13 +53,17 @@ describe('uninstall command', () => {
       cmdInstalls = []
     } = opts;
 
-    // .standards/ directory
+    // .standards/ directory: files UDS installed, with the records `uds init` writes for them
+    const standardHashes = {};
     if (withStandards) {
       const stdDir = join(testDir, '.standards');
       mkdirSync(stdDir, { recursive: true });
       mkdirSync(join(stdDir, 'options'), { recursive: true });
       writeFileSync(join(stdDir, 'commit-message.ai.yaml'), 'content');
       writeFileSync(join(stdDir, 'testing.ai.yaml'), 'content');
+      for (const name of ['commit-message.ai.yaml', 'testing.ai.yaml']) {
+        standardHashes[`.standards/${name}`] = computeFileHash(join(stdDir, name));
+      }
     }
 
     // Integration files
@@ -115,7 +119,7 @@ describe('uninstall command', () => {
         installations: cmdInstalls
       },
       methodology: null,
-      fileHashes: {},
+      fileHashes: standardHashes,
       skillHashes,
       commandHashes: {},
       integrationBlockHashes: {}

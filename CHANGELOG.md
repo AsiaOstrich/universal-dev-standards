@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- **`uds uninstall` no longer deletes skills and commands you wrote yourself (XSPEC-471 R4).** It removed the whole skills folder of each installation (`.claude/skills/`, `.opencode/skill/`, ...) and the whole commands folder, so a skill of your own that sat there went with the UDS ones. It now removes only the files the manifest records and that are unchanged since UDS wrote them, keeps a UDS file you edited (and says so), and removes a folder only when nothing else is in it. This is the rule `uds uninstall` already followed for hook scripts and integration files. `.standards/` is still removed as a whole folder. Found while writing the acceptance step for `uds uninstall`.
+- **`uds uninstall` no longer deletes skills and commands you wrote yourself, or files you added to `.standards/` (XSPEC-471 R4).** It removed the whole skills folder of each installation (`.claude/skills/`, `.opencode/skill/`, ...), the whole commands folder and the whole `.standards/` folder, so a skill of your own that sat there, or a notes file you kept in `.standards/`, went with the UDS files. It now removes only the files the manifest records and that are unchanged since UDS wrote them, keeps a UDS file you edited (and says so), and removes a folder only when nothing else is in it. This is the rule `uds uninstall` already followed for hook scripts and integration files. A project whose manifest records no file for an installation (an older UDS) keeps that installation's files and says why. Found while writing the acceptance step for `uds uninstall`.
 
 ## [6.14.0-beta.7] - 2026-10-08
 

@@ -2930,6 +2930,10 @@
         {
           "writeFile": ".claude/skills/my-own/SKILL.md",
           "content": "---\nname: my-own\ndescription: a skill I wrote myself\n---\n# my own skill\n"
+        },
+        {
+          "writeFile": ".standards/my-notes.md",
+          "content": "notes of my own about our standards\n"
         }
       ],
       "uds": [
@@ -3124,8 +3128,8 @@
       "platform": "all",
       "id": "r4b-uninstall-standards-only",
       "workspace": "r4b-uninstall-partial",
-      "title": "uds uninstall --standards-only --yes removes .standards/ and leaves the adopter's own files and skill",
-      "titleZh": "uds uninstall --standards-only --yes 移除 .standards/，並留下採用者自己的檔案與技能",
+      "title": "uds uninstall --standards-only --yes removes what UDS wrote into .standards/ and leaves the adopter's own files, the file they added there, and their skill",
+      "titleZh": "uds uninstall --standards-only --yes 移除 UDS 寫進 .standards/ 的檔，並留下採用者自己的檔案、他放進去的檔與他的技能",
       "changelog": [],
       "smoke": true,
       "uds": [
@@ -3136,12 +3140,23 @@
       "expect": {
         "contains": [
           "Uninstall complete",
-          "Removed: 1"
+          "Removed: 1",
+          "my-notes.md"
         ],
         "files": [
           {
-            "path": ".standards",
+            "path": ".standards/manifest.json",
             "exists": false
+          },
+          {
+            "path": ".standards/commit-message.ai.yaml",
+            "exists": false
+          },
+          {
+            "path": ".standards/my-notes.md",
+            "contains": [
+              "notes of my own"
+            ]
           },
           {
             "path": "README.md",
@@ -3186,6 +3201,10 @@
           "content": "---\nname: my-own\ndescription: a skill I wrote myself\n---\n# my own skill\n"
         },
         {
+          "writeFile": ".standards/my-notes.md",
+          "content": "notes of my own about our standards\n"
+        },
+        {
           "writeFile": ".claude/settings.json",
           "content": "{\n  \"hooks\": {\n    \"Stop\": [\n      {\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo my-own-hook\"\n          }\n        ]\n      }\n    ]\n  }\n}\n"
         }
@@ -3223,7 +3242,7 @@
       "platform": "all",
       "id": "r4b-uninstall-yes-everything",
       "workspace": "r4b-uninstall-everything",
-      "title": "uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill and hook",
+      "title": "uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/",
       "titleZh": "uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook",
       "changelog": [
         "uds uninstall no longer deletes skills and commands you wrote yourself"
@@ -3239,8 +3258,18 @@
         ],
         "files": [
           {
-            "path": ".standards",
+            "path": ".standards/manifest.json",
             "exists": false
+          },
+          {
+            "path": ".standards/commit-message.ai.yaml",
+            "exists": false
+          },
+          {
+            "path": ".standards/my-notes.md",
+            "contains": [
+              "notes of my own"
+            ]
           },
           {
             "path": "scripts/hooks",
@@ -3914,7 +3943,6 @@
       ],
       "expect": {
         "contains": [
-          "Switching claude-code integration target: CLAUDE.md → CLAUDE.local.md",
           "claude-code now targets CLAUDE.local.md"
         ],
         "files": [

@@ -342,13 +342,13 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 126 steps (122
 99. `r4b-uninstall-integrations-only` — uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards.
    uds uninstall --integrations-only --yes 移除 CLAUDE.md 的 UDS 區塊並保留區塊外的文字，刪除 UDS 產生的 AGENTS.md，並留下標準。
    `uds uninstall --integrations-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
-100. `r4b-uninstall-standards-only` — uds uninstall --standards-only --yes removes .standards/ and leaves the adopter's own files and skill.
-   uds uninstall --standards-only --yes 移除 .standards/，並留下採用者自己的檔案與技能。
-   `uds uninstall --standards-only --yes` → exit 0; output has "Uninstall complete", "Removed: 1"
+100. `r4b-uninstall-standards-only` — uds uninstall --standards-only --yes removes what UDS wrote into .standards/ and leaves the adopter's own files, the file they added there, and their skill.
+   uds uninstall --standards-only --yes 移除 UDS 寫進 .standards/ 的檔，並留下採用者自己的檔案、他放進去的檔與他的技能。
+   `uds uninstall --standards-only --yes` → exit 0; output has "Uninstall complete", "Removed: 1" (+1)
 101. `r4b-uninstall-all-init` — uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own.
    uds init --with-hooks 建立專案；.claude/settings.json 原本就有採用者自己的 hook。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Enforcement hooks installed"
-102. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill and hook.
+102. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/.
    uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook。
    `uds uninstall --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
 103. `r4b-uninstall-user-level-init` — uds init --skills-location user puts the skills in the user's home folder, not in the project.
@@ -407,7 +407,7 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 126 steps (122
    `uds update --with-hooks --yes --offline` → exit 0; output has "claude-code: installed", "codex: already installed, not touched"
 121. `r4b-update-claude-target-local` — uds update --claude-target local moves the UDS block from CLAUDE.md to CLAUDE.local.md and keeps the text around it.
    uds update --claude-target local 把 UDS 區塊從 CLAUDE.md 搬到 CLAUDE.local.md，並保留區塊外的文字。
-   `uds update --claude-target local --yes --offline` → exit 0; output has "Switching claude-code integration target: CLAUDE.md → CLAUDE.local.md", "claude-code now targets CLAUDE.local.md"
+   `uds update --claude-target local --yes --offline` → exit 0; output has "claude-code now targets CLAUDE.local.md"
 122. `r4b-update-commands-init` — uds init in a Cursor project installs the slash commands next to the skills.
    uds init 在 Cursor 專案裡於技能旁安裝斜線指令。
    `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully", "commands to: Cursor"
