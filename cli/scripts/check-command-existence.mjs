@@ -161,9 +161,11 @@ const NEGATION_YAML_KEY = /^(not_needed|rejected|deferred|avoided?|anti[-_]?patt
  * `core/developer-memory.md` 用表格明講「CLI commands (`uds memory ...`) | **Not needed**」——
  * 否定詞跟指令樣式在同一行,這是最常見、最好偵測的「刻意反例」形狀。
  * 判準是關鍵詞清單，不是逐檔白名單；命中會計數並在報告中列出規則本身命中了幾次。
+ * `error: unknown (option|command)` 是 commander 拒絕時印的原句：驗收步驟刻意傳一個已移除的選項、斷言它被拒絕時
+ * （docs/PRE-RELEASE.md 的 `uds mcp serve --root` → `error: unknown option '--root'`），那一行就是在記錄「它不存在」。
  */
 const NEGATION_LINE_PATTERN =
-  /\b(not[\s_-]?needed|never needed|no longer (exists|supported|works)|not a (real|valid) command|there is no|does not exist|doesn'?t exist|removed in v?\d|deprecated|rejected|superseded|contradicts|forbidden)\b|不需要|永遠不需要|永不需要|已移除|已棄用|已弃用|拒絕採用|拒绝采用|矛盾|不存在/i;
+  /\b(not[\s_-]?needed|never needed|no longer (exists|supported|works)|not a (real|valid) command|there is no|does not exist|doesn'?t exist|error: unknown (option|command)|removed in v?\d|deprecated|rejected|superseded|contradicts|forbidden)\b|不需要|永遠不需要|永不需要|已移除|已棄用|已弃用|拒絕採用|拒绝采用|矛盾|不存在/i;
 
 function findEnclosingYamlKey(lines, matchLineIdx) {
   const line = lines[matchLineIdx];
