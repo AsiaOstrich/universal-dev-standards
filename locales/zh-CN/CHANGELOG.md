@@ -21,6 +21,11 @@ status: current
 
 - **CI：uds CLI 的每个命令、子命令与选项都要有验收步骤，而且步骤必须读回效果，不能只看退出码（XSPEC-471 R2、R3）。** `node scripts/beta-acceptance/check-cli-coverage.mjs`（CI 工作「Beta Acceptance Coverage」）加载真正的 `cli/bin/uds.js`，记录它建出的 commander 程序（含隐藏命令、隐藏选项与别名；不读帮助文本），当 `scripts/beta-acceptance/steps.json` 的任何步骤都没用到某个命令、子命令或选项时，逐一列名并使 CI 变红，并打印已用、豁免与缺少各几个。要豁免只能在 `exemptions` 加 `{"command": ...}` 或 `{"option": ...}`，并附至少 20 字符的理由；空白或单字理由等于没有豁免。加入这项检查时已存在的缺口（31 个命令与子命令、115 个选项）列在 `scripts/beta-acceptance/coverage-baseline.json`，这份文件只能减少：不在其中的缺口会红，已被步骤用到的条目若没移除也会红（`--shrink-baseline`），所以文件不会腐烂；`--baseline-not-larger-than <ref>` 会让新增条目的变更变红。`check-steps.mjs` 现在也会指名 `expect` 只有退出码的步骤（含人工步骤；`{"step": ..., "reason": ...}` 可豁免一个步骤）。**未验证**：CI 接线只由 YAML 解析器与测试读过，尚未由 GitHub 实际执行。
 
+### 修复
+
+- **`uds list` 只显示它所计算的 163 个标准中的 81 个，而且拒绝 `--category core`（编写 XSPEC-471 R4 验收步骤时发现）。** “Total”行计入注册表中的每一个标准，但列表只走固定的五个分类，所以 `core`、`testing`、`security`、`deployment`、`operations` 这五个分类里的 82 个标准被计入却从未显示，`uds list --category core` 还回答“Unknown category”。现在列表会显示注册表里有标准的每一个分类，每个分类各有标题与数量，标题上的数字加起来等于 Total；这五个分类已声明在 `cli/standards-registry.json`（并注明它们不由 `uds init` 安装，要用 `uds update --apply --add-standard` 按编号加入），日后注册表新增的分类会以它自己的名称列出，不会再被丢掉。“有效分类”提示现在列出全部十个。标题与 Total 不一致时 `npm test` 会失败。
+- **`uds quickstart`、`uds spec create`、`uds spec delete`、`uds spec split` 在没有任何东西能回答它们的问题时，以 Node 堆栈跟踪结束，且退出码为 0（编写 XSPEC-471 R4 验收步骤时发现）。** 在没有终端的环境（AI 助手、CI、管道）运行时，它们画出问题后就死在 `ExitPromptError`，整次运行看起来像成功。`uds update` 与 `uds uninstall` 早先已用同样方式修复。现在：`uds quickstart` 打印四个流程与各自的命令（这份指南本来的工作就是列出命令）；没给 `--yes` 的 `uds spec create` 把已写好的规格留作草稿并说明如何确认（退出码 0）；没给 `--yes` 的 `uds spec delete` 什么都不删、说明要加 `--yes` 重跑，并以 2 结束（原为 0）；`uds spec split` 什么都不改、说明要在终端运行，并以 2 结束（原为 0）。有终端时行为不变。
+
 ## [6.14.0-beta.7] - 2026-10-08
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

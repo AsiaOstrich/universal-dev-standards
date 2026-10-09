@@ -21,6 +21,7 @@
 
 import chalk from 'chalk';
 import { select } from '@inquirer/prompts';
+import { isPromptClosed } from '../utils/prompt-closed.js';
 
 export const WORKFLOWS = [
   {
@@ -64,6 +65,18 @@ export const WORKFLOWS = [
   },
 ];
 
+/** Print one workflow: its name, what it is for, and its numbered commands. */
+function printWorkflow(workflow) {
+  console.log(chalk.bold(`\n${workflow.name}\n`));
+  console.log(chalk.gray(`${workflow.description}\n`));
+
+  for (let i = 0; i < workflow.steps.length; i++) {
+    const step = workflow.steps[i];
+    console.log(`  ${chalk.cyan(`${i + 1}.`)} ${chalk.yellow(step.cmd)}`);
+    console.log(`     ${chalk.gray(step.desc)}\n`);
+  }
+}
+
 /**
  * Execute the quickstart command
  */
@@ -77,20 +90,23 @@ export async function quickstartCommand() {
     description: w.description,
   }));
 
-  const selected = await select({
-    message: 'Which workflow do you want to follow?',
-    choices,
-  });
-
-  const workflow = WORKFLOWS[selected];
-  console.log(chalk.bold(`\n${workflow.name}\n`));
-  console.log(chalk.gray(`${workflow.description}\n`));
-
-  for (let i = 0; i < workflow.steps.length; i++) {
-    const step = workflow.steps[i];
-    console.log(`  ${chalk.cyan(`${i + 1}.`)} ${chalk.yellow(step.cmd)}`);
-    console.log(`     ${chalk.gray(step.desc)}\n`);
+  let selected;
+  try {
+    selected = await select({
+      message: 'Which workflow do you want to follow?',
+      choices,
+    });
+  } catch (promptError) {
+    if (!isPromptClosed(promptError)) throw promptError;
+    // Nothing can answer (not a terminal: an AI assistant, CI, a pipe). The guide's whole job is to show the commands, so show all of them
+    // rather than a stack trace and an exit code of 0.
+    console.log(chalk.gray('Nothing here can answer the question (not a terminal), so every workflow is shown.'));
+    for (const workflow of WORKFLOWS) printWorkflow(workflow);
+    console.log(chalk.gray('Tip: Run "uds quickstart" in a terminal to pick one workflow.\n'));
+    return;
   }
+
+  printWorkflow(WORKFLOWS[selected]);
 
   console.log(chalk.gray('Tip: Run each command in order. Use "uds quickstart" anytime to see this guide again.\n'));
 }

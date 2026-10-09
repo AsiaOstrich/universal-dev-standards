@@ -9,6 +9,14 @@ import { readManifest, isInitialized } from '../utils/copier.js';
 import { t, getLanguage, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 
 /**
+ * The order the listing shows its categories in. A category the registry holds standards for but that is not named
+ * here is still listed (after these, under its own key): the "Total" line counts every standard in the registry, so a
+ * category that was left out of the display used to make the total larger than the list (82 of 163 standards were
+ * counted and never shown, and `--category core` was refused as unknown).
+ */
+const CATEGORY_ORDER = ['skill', 'reference', 'core', 'testing', 'security', 'deployment', 'operations', 'extension', 'integration', 'template'];
+
+/**
  * List command - displays available standards
  * @param {Object} options - Command options
  */
@@ -44,7 +52,8 @@ export function listCommand(options) {
     const categoryInfo = getCategoryInfo(category);
     if (!categoryInfo) {
       console.log(chalk.red(`${msg.errorUnknownCategory} '${category}'`));
-      console.log(chalk.gray(msg.validCategories));
+      const valid = CATEGORY_ORDER.filter((c) => getCategoryInfo(c));
+      console.log(chalk.gray(`${msg.validCategories} ${valid.join(', ')}`));
       process.exit(1);
     }
     standards = getStandardsByCategory(category);
@@ -65,13 +74,13 @@ export function listCommand(options) {
   }
 
   // Display each category
-  const categoryOrder = ['skill', 'reference', 'extension', 'integration', 'template'];
+  const categoryOrder = [...CATEGORY_ORDER, ...Object.keys(grouped).filter((c) => !CATEGORY_ORDER.includes(c))];
 
   for (const cat of categoryOrder) {
     if (!grouped[cat] || grouped[cat].length === 0) continue;
 
     const catInfo = getCategoryInfo(cat);
-    console.log(chalk.yellow.bold(`${catInfo.name} (${grouped[cat].length})`));
+    console.log(chalk.yellow.bold(`${catInfo?.name ?? cat} (${grouped[cat].length})`));
 
     for (const std of grouped[cat]) {
       const name = std.skillName

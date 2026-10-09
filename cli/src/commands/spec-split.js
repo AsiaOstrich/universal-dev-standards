@@ -13,6 +13,7 @@ import { MicroSpec } from '../vibe/micro-spec.js';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withFileTransaction } from '../utils/transaction.js';
+import { isPromptClosed } from '../utils/prompt-closed.js';
 
 /**
  * Extract acceptance criteria from spec markdown
@@ -86,24 +87,35 @@ export async function specSplitCommand(id, options = {}) {
   }
   console.log();
 
-  // Interactive selection: which ACs to move to new spec
-  const toMove = await checkbox({
-    message: 'Select ACs to move to a NEW spec (remaining stay in original):',
-    choices: acs.map(ac => ({
-      name: `${ac.id}: ${ac.text.substring(ac.id.length + 1).trim().substring(0, 60)}`,
-      value: ac.id,
-    })),
-  });
+  // Interactive selection: which ACs to move to new spec. Nothing can be written before both answers are in,
+  // so a prompt that cannot be answered (not a terminal) changes nothing and says so.
+  let toMove;
+  let proceed;
+  try {
+    toMove = await checkbox({
+      message: 'Select ACs to move to a NEW spec (remaining stay in original):',
+      choices: acs.map(ac => ({
+        name: `${ac.id}: ${ac.text.substring(ac.id.length + 1).trim().substring(0, 60)}`,
+        value: ac.id,
+      })),
+    });
 
-  if (toMove.length === 0 || toMove.length === acs.length) {
-    console.log(chalk.yellow('Must select some (but not all) ACs to move. Aborting.'));
+    if (toMove.length === 0 || toMove.length === acs.length) {
+      console.log(chalk.yellow('Must select some (but not all) ACs to move. Aborting.'));
+      return;
+    }
+
+    proceed = await inquirerConfirm({
+      message: `Split ${id}: keep ${acs.length - toMove.length} ACs, move ${toMove.length} ACs to new spec?`,
+      default: true,
+    });
+  } catch (promptError) {
+    if (!isPromptClosed(promptError)) throw promptError;
+    console.log(chalk.red('\nCannot ask which ACs to move: there is nothing attached to answer the prompt (non-interactive shell, CI, or a pipe).'));
+    console.log(chalk.gray(`  Run \`uds spec split ${id}\` in a terminal. Nothing has been changed.`));
+    process.exitCode = 2;
     return;
   }
-
-  const proceed = await inquirerConfirm({
-    message: `Split ${id}: keep ${acs.length - toMove.length} ACs, move ${toMove.length} ACs to new spec?`,
-    default: true,
-  });
 
   if (!proceed) {
     console.log(chalk.gray('Split cancelled.'));

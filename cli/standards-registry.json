@@ -691,6 +691,31 @@
       "name": "Template",
       "description": "Document templates for specific purposes. Use as starting point for project documents.",
       "adoptionMethod": "Copy and customize"
+    },
+    "core": {
+      "name": "Core Standard",
+      "description": "Core development standards that apply across projects: governance, agent behavior, observability, workflow discipline. Not installed by uds init.",
+      "adoptionMethod": "Install by id with uds update --apply --add-standard"
+    },
+    "testing": {
+      "name": "Testing Standard",
+      "description": "Standards for specific kinds of tests and test hygiene: contract, property-based, smoke, replay, flaky-test management and others. Not installed by uds init.",
+      "adoptionMethod": "Install by id with uds update --apply --add-standard"
+    },
+    "security": {
+      "name": "Security Standard",
+      "description": "Security standards for operations, containers, static analysis and supply-chain attestation. Not installed by uds init.",
+      "adoptionMethod": "Install by id with uds update --apply --add-standard"
+    },
+    "deployment": {
+      "name": "Deployment Standard",
+      "description": "Standards for what must be known and checked before a release goes out: quality manifest and release readiness gate. Not installed by uds init.",
+      "adoptionMethod": "Install by id with uds update --apply --add-standard"
+    },
+    "operations": {
+      "name": "Operations Standard",
+      "description": "Standards for running a system after it is released, such as disaster recovery drills. Not installed by uds init.",
+      "adoptionMethod": "Install by id with uds update --apply --add-standard"
     }
   },
   "standards": [

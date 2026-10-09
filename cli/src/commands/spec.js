@@ -15,6 +15,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { MicroSpec, SpecStatus } from '../vibe/micro-spec.js';
 import { msg } from '../i18n/messages.js';
+import { isPromptClosed } from '../utils/prompt-closed.js';
 
 /**
  * Get localized message with fallback
@@ -69,15 +70,25 @@ export async function specCreateCommand(intent, options = {}) {
 
     // Ask for confirmation unless --yes flag
     if (!options.yes) {
-      const action = await select({
-        message: t('spec.confirmQuestion', 'How would you like to proceed?'),
-        choices: [
-          { name: t('spec.confirm', 'Confirm and proceed'), value: 'confirm' },
-          { name: t('spec.edit', 'Edit the spec'), value: 'edit' },
-          { name: t('spec.skip', 'Skip (keep as draft)'), value: 'skip' },
-          { name: t('spec.discard', 'Discard'), value: 'discard' }
-        ]
-      });
+      let action;
+      try {
+        action = await select({
+          message: t('spec.confirmQuestion', 'How would you like to proceed?'),
+          choices: [
+            { name: t('spec.confirm', 'Confirm and proceed'), value: 'confirm' },
+            { name: t('spec.edit', 'Edit the spec'), value: 'edit' },
+            { name: t('spec.skip', 'Skip (keep as draft)'), value: 'skip' },
+            { name: t('spec.discard', 'Discard'), value: 'discard' }
+          ]
+        });
+      } catch (promptError) {
+        if (!isPromptClosed(promptError)) throw promptError;
+        // Nothing can answer (not a terminal): the spec is already written, so it stays a draft and the person is told how to confirm it.
+        console.log('');
+        console.log(chalk.yellow(t('spec.cannotAsk', 'Nothing here can answer the question, so the spec stays a draft.')));
+        console.log(chalk.gray(t('spec.cannotAskHint', 'Run `uds spec confirm <id>` to confirm it, or create it with --yes.')));
+        action = 'skip';
+      }
 
       if (action === 'confirm') {
         microSpec.confirm(spec.id);
@@ -265,10 +276,20 @@ export async function specDeleteCommand(id, options = {}) {
   });
 
   if (!options.yes) {
-    const confirmed = await inquirerConfirm({
-      message: t('spec.deleteConfirm', `Are you sure you want to delete spec '${id}'?`),
-      default: false
-    });
+    let confirmed;
+    try {
+      confirmed = await inquirerConfirm({
+        message: t('spec.deleteConfirm', `Are you sure you want to delete spec '${id}'?`),
+        default: false
+      });
+    } catch (promptError) {
+      if (!isPromptClosed(promptError)) throw promptError;
+      // Not auto-confirming: an unattended run must not be allowed to delete what a person was asked about.
+      console.log(chalk.red(t('spec.cannotConfirmDelete', 'Cannot ask for confirmation: there is nothing attached to answer the prompt (non-interactive shell, CI, or a pipe).')));
+      console.log(chalk.gray(t('spec.cannotConfirmDeleteHint', 'Re-run with --yes to delete. Nothing has been deleted.')));
+      process.exitCode = 2;
+      return;
+    }
 
     if (!confirmed) {
       console.log(chalk.gray(t('spec.deleteCancelled', 'Delete cancelled.')));
