@@ -21,6 +21,13 @@ status: current
 
 - **CI：uds CLI 的每個指令、子指令與選項都要有驗收步驟，而且步驟必須讀回效果，不能只看結束碼（XSPEC-471 R2、R3）。** `node scripts/beta-acceptance/check-cli-coverage.mjs`（CI 工作「Beta Acceptance Coverage」）載入真正的 `cli/bin/uds.js`，記錄它建出的 commander 程式（含隱藏指令、隱藏選項與別名；不讀說明文字），當 `scripts/beta-acceptance/steps.json` 的任何步驟都沒用到某個指令、子指令或選項時，逐一列名並使 CI 變紅，並印出已用、豁免與缺少各幾個。要豁免只能在 `exemptions` 加 `{"command": ...}` 或 `{"option": ...}`，並附至少 20 字元的理由；空白或單字理由等於沒有豁免。加入這項檢查時已存在的缺口（31 個指令與子指令、115 個選項）列在 `scripts/beta-acceptance/coverage-baseline.json`，這份檔案只能減少：不在其中的缺口會紅，已被步驟用到的項目若沒移除也會紅（`--shrink-baseline`），所以檔案不會腐爛；`--baseline-not-larger-than <ref>` 會讓新增項目的變更變紅。`check-steps.mjs` 現在也會指名 `expect` 只有結束碼的步驟（含人工步驟；`{"step": ..., "reason": ...}` 可豁免一個步驟）。**未驗證**：CI 接線只由 YAML 解析器與測試讀過，尚未由 GitHub 實際執行。
 
+### 修正
+
+- **`uds mcp serve`：`get_design_standards` 與 `get_design_token` 的 DESIGN.md 範本後備，在每一種安裝方式下都回 ENOENT（XSPEC-471 R4）。** 伺服器去「`cli/src/mcp/` 往上四層」找 UDS 隨附的檔案，那個位置在 repository 之外，已安裝的套件也一樣在套件之外。現在改找套件的 `bundled/` 資料夾，在原始碼檢出時則找 `cli/` 的上一層。伺服器的單元測試把檔案系統換掉了，所以從沒看到；新增的端對端測試會啟動真正的 `uds mcp serve` 並讀回回應。
+- **`uds release deploy <env>` 在「`release-config.yaml` 是 UDS 自己產生」的專案裡，拒絕每一個環境（XSPEC-471 R4）。** `uds init` 與 `uds config` 把 `release.environments` 寫成物件（`- name: staging`），檢查卻拿使用者輸入的名稱去比那些物件，於是說「未知的環境」並列出 `[object Object]`。現在物件形式與純名稱都讀得懂。
+- **`uds agent list` 與 `uds agent info` 顯示空白的說明，也沒有專長、工具、技能（XSPEC-471 R4）。** 代理檔是 YAML（`description: |`、清單），讀取程式一次只看一行 `key: value`，把說明看成 `|`。現在 front matter 以 YAML 解析。
+- **行為變更——`uds hitl check` 在無法詢問時不再以結束碼 0 結束（XSPEC-471 R4）。** 沒有終端機可回答、也沒有 `CI` 變數時，高風險的 `--op` 會開一個永遠等不到回答的提示，印出堆疊追蹤後以 0 結束，腳本會把它當成「已核准」。現在印出「Blocked (Safety First)」與「Denied」並以 1 結束，與 CI 下相同。`uds hitl check` 沒給 `--op` 時以 2 結束（原本是 0）。
+
 ## [6.14.0-beta.7] - 2026-10-08
 
 > **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。

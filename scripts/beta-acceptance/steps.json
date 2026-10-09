@@ -2588,8 +2588,8 @@
       "platform": "all",
       "id": "hitl-check-blocks-in-noninteractive",
       "workspace": "r4c-hitl",
-      "title": "uds hitl check denies an operation above the threshold when it cannot ask (exit 1)",
-      "titleZh": "uds hitl check 對超過門檻的操作在無法詢問時拒絕（結束碼 1）",
+      "title": "uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0)",
+      "titleZh": "uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）",
       "smoke": true,
       "changelog": [
         "Behavior change — `uds hitl check` no longer ends with exit code 0"
@@ -2601,13 +2601,43 @@
         "npm install left-pad"
       ],
       "env": {
-        "UDS_NON_INTERACTIVE": "1"
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
       },
       "expect": {
         "exit": 1,
         "contains": [
           "Blocked (Safety First)",
           "Denied"
+        ],
+        "notContains": [
+          "Approved",
+          "ExitPromptError"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hitl-check-requires-op",
+      "workspace": "r4c-hitl",
+      "title": "uds hitl check without --op says it is required and exits 2 (not 0)",
+      "titleZh": "uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）",
+      "smoke": true,
+      "changelog": [
+        "Behavior change — `uds hitl check` no longer ends with exit code 0"
+      ],
+      "uds": [
+        "hitl",
+        "check"
+      ],
+      "env": {
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
+      },
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "--op <operation> is required"
         ],
         "notContains": [
           "Approved"
@@ -2650,7 +2680,8 @@
         "npm install left-pad"
       ],
       "env": {
-        "UDS_NON_INTERACTIVE": "1"
+        "CI": "",
+        "UDS_NON_INTERACTIVE": ""
       },
       "expect": {
         "exit": 0,
@@ -3471,7 +3502,9 @@
       "title": "uds release deploy <env> --result passed updates that deployment's recorded result",
       "titleZh": "uds release deploy <環境> --result passed 更新該筆部署紀錄的結果",
       "smoke": true,
-      "changelog": [],
+      "changelog": [
+        "`uds release deploy <env>` refused every environment in a project"
+      ],
       "uds": [
         "release",
         "deploy",
@@ -3531,7 +3564,9 @@
       "title": "uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result",
       "titleZh": "uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果",
       "smoke": true,
-      "changelog": [],
+      "changelog": [
+        "`uds release deploy <env>` refused every environment in a project"
+      ],
       "uds": [
         "release",
         "verify",
