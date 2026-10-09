@@ -43,6 +43,8 @@ const writeJson = (name, value) => {
   return file;
 };
 
+// the real binary is started by two tests below; it gets a throwaway home so that loading it can never touch the real one
+const HOME_ENV = { HOME: tmp.dir, USERPROFILE: tmp.dir, XDG_CONFIG_HOME: tmp.dir, APPDATA: tmp.dir };
 const FAKE_CLI = makeFakeCli(tmp.next('fake-cli'));
 const EMPTY_BASELINE = { schema: 1, commands: [], options: [] };
 
@@ -64,7 +66,7 @@ const without = (...ids) => ALL_STEPS.filter((s) => !ids.includes(s.id));
 
 it('the real CLI is listed whole: its top-level commands are the ones `uds --help` prints, its options are the ones the binary declares, and the commands another module registers (mcp, mcp serve) are in it (XSPEC-471 R2)', () => {
   // reading 1: the Commands block of the real `uds --help`
-  const help = spawnSync(process.execPath, [join(REPO, 'cli', 'bin', 'uds.js'), '--help'], { encoding: 'utf-8', timeout: 60000 });
+  const help = spawnSync(process.execPath, [join(REPO, 'cli', 'bin', 'uds.js'), '--help'], { encoding: 'utf-8', timeout: 60000, env: { ...cleanEnv(), ...HOME_ENV } });
   expect(help.status, help.stderr).toBe(0);
   const block = help.stdout.split(/^Commands:\s*$/m)[1];
   expect(block, 'control: --help has a Commands block').toBeTruthy();
@@ -72,7 +74,7 @@ it('the real CLI is listed whole: its top-level commands are the ones `uds --hel
   expect(helpNames.length, 'control: that reading found the commands').toBeGreaterThan(10);
 
   // the program's own list
-  const tree = spawnSync(process.execPath, [join(ACCEPT_DIR, 'dump-cli-tree.mjs'), join(REPO, 'cli')], { encoding: 'utf-8', timeout: 120000, maxBuffer: 64 * 1024 * 1024 });
+  const tree = spawnSync(process.execPath, [join(ACCEPT_DIR, 'dump-cli-tree.mjs'), join(REPO, 'cli')], { encoding: 'utf-8', timeout: 120000, maxBuffer: 64 * 1024 * 1024, env: { ...cleanEnv(), ...HOME_ENV } });
   expect(tree.status, tree.stderr).toBe(0);
   const root = JSON.parse(tree.stdout);
   expect(root.commands.map((c) => c.name), 'the top-level commands, in the order `--help` prints them').toEqual(helpNames);
