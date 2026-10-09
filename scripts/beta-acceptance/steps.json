@@ -2590,7 +2590,6 @@
       "workspace": "r4c-hitl",
       "title": "uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0)",
       "titleZh": "uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）",
-      "smoke": true,
       "changelog": [
         "Behavior change — `uds hitl check` no longer ends with exit code 0"
       ],
@@ -2622,7 +2621,6 @@
       "workspace": "r4c-hitl",
       "title": "uds hitl check without --op says it is required and exits 2 (not 0)",
       "titleZh": "uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）",
-      "smoke": true,
       "changelog": [
         "Behavior change — `uds hitl check` no longer ends with exit code 0"
       ],
@@ -2926,7 +2924,6 @@
       "workspace": "r4c-agent",
       "title": "uds agent list names the five shipped agents with a description line and their expertise",
       "titleZh": "uds agent list 列出五個隨附的代理，各有一行說明與專長",
-      "smoke": true,
       "changelog": [
         "`uds agent list` and `uds agent info` showed an empty description"
       ],
@@ -2957,7 +2954,6 @@
       "workspace": "r4c-agent",
       "title": "uds agent info <name> shows the agent's description, expertise, tools and skills",
       "titleZh": "uds agent info <名稱> 顯示代理的說明、專長、工具與技能",
-      "smoke": true,
       "changelog": [
         "`uds agent list` and `uds agent info` showed an empty description"
       ],
@@ -3467,7 +3463,6 @@
       "workspace": "r4c-release",
       "title": "uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it)",
       "titleZh": "uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）",
-      "smoke": true,
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
@@ -3501,7 +3496,6 @@
       "workspace": "r4c-release",
       "title": "uds release deploy <env> --result passed updates that deployment's recorded result",
       "titleZh": "uds release deploy <環境> --result passed 更新該筆部署紀錄的結果",
-      "smoke": true,
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
@@ -3563,7 +3557,6 @@
       "workspace": "r4c-release",
       "title": "uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result",
       "titleZh": "uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果",
-      "smoke": true,
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
@@ -3620,7 +3613,6 @@
       "workspace": "r4c-mcp",
       "title": "uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends",
       "titleZh": "uds mcp serve 啟動、回應 initialize、tools/list 與三個設計工具，輸入結束時自行結束",
-      "smoke": true,
       "changelog": [
         "`uds mcp serve`: `get_design_standards` and the DESIGN.md template fallback"
       ],
