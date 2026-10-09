@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.7
-translation_version: 6.14.0-beta.7
-last_synced: 2026-10-08
+source_version: 6.14.0-beta.8
+translation_version: 6.14.0-beta.8
+last_synced: 2026-10-09
 status: current
 ---
 
@@ -16,6 +16,12 @@ status: current
 並遵循[語義化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.8] - 2026-10-10
+
+> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行為改變：**`uds hitl check` 無人可答時拒絕（結束碼 1）；`uds release verify` 失敗以 1、無法驗證以 2 結束；`uds release promote` 不再為沒做的事印「✓」；移除 `uds mcp serve --root`；沒有終端機時 `uds spec delete／split` 以 2、`uds spec create` 以 0 結束；`uds uninstall` 只移除 UDS 寫的、你沒改過的檔。
 
 ### Added
 

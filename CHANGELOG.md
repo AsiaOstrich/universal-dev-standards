@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.8] - 2026-10-10
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Behavior changes:** `uds hitl check` refuses (exit 1) when no one can answer; `uds release verify` exits 1 on failure and 2 when it cannot verify; `uds release promote` no longer prints "✓" for things it did not do; `uds mcp serve --root` is removed; with no terminal, `uds spec delete/split` exit 2 and `uds spec create` exits 0; `uds uninstall` removes only files UDS wrote and you did not change.
+
 ### Added
 
 - **CI: every command, subcommand and option of the uds CLI needs an acceptance step, and a step must read back an effect, not only an exit code (XSPEC-471 R2, R3).** `node scripts/beta-acceptance/check-cli-coverage.mjs` (CI job "Beta Acceptance Coverage") loads the real `cli/bin/uds.js`, records the commander program it builds (hidden commands, hidden options and aliases included; nothing is read from help text) and fails, naming each one, when a command, subcommand or option is used by no step of `scripts/beta-acceptance/steps.json`; it prints how many are used, exempt and missing. An item may be exempt only with an `exemptions` item `{"command": ...}` or `{"option": ...}` and a reason of at least 20 characters; a blank or one-word reason leaves the item missing. The gaps that existed when the check was added (31 commands and subcommands, 115 options) are listed in `scripts/beta-acceptance/coverage-baseline.json`, which only shrinks: a gap that is not in it fails, and an entry that a step now uses fails until it is removed (`--shrink-baseline`), so the file cannot rot; `--baseline-not-larger-than <ref>` fails a change that adds an entry. `check-steps.mjs` now also names a step whose `expect` has only an exit code, a step for a person included (`{"step": ..., "reason": ...}` exempts one). **Not verified**: the CI wiring was read by a YAML parser and by tests, not run by GitHub.

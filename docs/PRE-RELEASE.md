@@ -9,25 +9,31 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.7`
+## Current beta | 目前的測試版：`6.14.0-beta.8`
 
-> **New in 6.14.0-beta.7** — `uds init` (and `uds init --yes`) now installs the UDS skills into the project; `uds update` names the standards UDS ships that your project does not have, and `--add-standard <id>` installs them; `uds check` warns when UDS skills are installed twice, or when a personal skill has the same name as a UDS skill; `open-work-tracking` 1.2.0–1.4.0 (asked-and-awaiting a reply is its own state, a wait can name another project, more ways to write "next action"); a copy of UDS without the Chinese skill texts now says so instead of quietly installing English; file copies retry when Windows holds a file for a moment; and `check-anti-fake-tests` also names a test whose expected value is recomputed from the code under test. This is also the first beta checked by one program on each machine against the published package — see "What to test".
-> **6.14.0-beta.7 新增** — `uds init`（含 `uds init --yes`）改為把 UDS 技能裝進專案；`uds update` 會列出 UDS 有出貨而專案沒有的標準，並可用 `--add-standard <id>` 安裝；`uds check` 會在 UDS 技能裝了兩份、或個人技能與 UDS 技能同名時警告；`open-work-tracking` 1.2.0–1.4.0（「已詢問、等回覆」成為獨立狀態、等待可指向另一個專案、「下一個動作」接受更多寫法）；缺中文技能文字的 UDS 複本會明說，不再默默裝英文；Windows 暫時鎖住檔案時複製會重試；`check-anti-fake-tests` 也會點名預期值照抄被測程式的測試。這也是第一個由同一支程式在每台機器上、對已發布套件做驗收的測試版——見「請幫忙測什麼」。
+> **New in 6.14.0-beta.8** — every `uds` command, subcommand and option now has an acceptance step that runs it from the installed package and reads back what it did (240 steps, up from 68). Writing them found eight features that were not wired up in beta.7, all fixed here: `uds list` showed 81 of the 163 standards it counted; `uds mcp serve` answered "file not found" for the shipped standards; `uds release deploy` refused the config UDS itself generates; `uds agent list/info` showed empty descriptions; `uds hitl check` crashed and ended with 0 when no one could answer; `uds quickstart` and `uds spec create/delete/split` ended on a stack trace with 0 when there was no terminal; `uds uninstall` deleted skills and `.standards/` notes you wrote yourself; and `uds release promote` printed "✓" for a record and a tag it never made. After every release, the acceptance steps now run by themselves on Windows (PowerShell, cmd, Git Bash), macOS and Linux, and a stable version cannot be bumped until the latest preview passed on all three.
+> **6.14.0-beta.8 新增** — 每一個 `uds` 指令、子指令與選項現在都有驗收步驟，從已安裝的套件執行並讀回效果（240 步，原本 68 步）。補步驟時抓到 beta.7 裡八個沒接上的功能，本版全部修好：`uds list` 標示 163 個標準卻只列 81 個；`uds mcp serve` 讀隨附標準一律回「找不到檔案」；`uds release deploy` 拒絕 UDS 自己產生的設定；`uds agent list／info` 說明全空白；`uds hitl check` 無人可答時當掉並以 0 結束；`uds quickstart` 與 `uds spec create／delete／split` 沒有終端機時印出堆疊並以 0 結束；`uds uninstall` 會刪掉你自己寫的技能與 `.standards/` 筆記；`uds release promote` 為從未建立的紀錄與標籤印出「✓」。每次發版後，驗收步驟會自動在 Windows（PowerShell、cmd、Git Bash）、macOS、Linux 執行；最近的預覽版三平台都通過之前，無法升成正式版。
 
 **Behavior changes — read this first.**
-- `uds init` and `uds init --yes` install the UDS skills into the project (`.claude/skills/`). They used to pick the Claude Code plugin when Claude Code was detected and write no skill file, or none at all in a folder with no AI tool. To keep the old behaviour, pass `--skills-location` explicitly.
-- The command-contract step of `uds init` no longer rewrites the whole `uds.project.yaml`: it changes only the commands it asks about and keeps `open_work:`, `custom:` and everything else.
-- `uds skills` output text changed: project-level and user-level installations are no longer labeled deprecated, and the plugin is no longer labeled recommended. Scripts that match on that text need updating.
-- `uds open-work next-action` exits **0**, not 1, for a carrier whose only violations were "asked, awaiting a reply" rows that OWT-022 finds complete.
+- `uds hitl check` with no terminal to answer on now **refuses** (exit **1**) instead of crashing with 0; a missing `--op` exits **2**. A script that treated 0 as "approved" was being told yes when no one had answered.
+- `uds release verify` exits **1** when verification fails and **2** when it could not verify (no manifest, unreadable JSON, missing `--artifact`, or a mode without verify). It used to exit 0 either way.
+- `uds release promote` no longer prints "✓" for a promotion record or a Git tag: it never made them. It now says so and lists the commands for you to run.
+- `uds mcp serve --root` is removed (it was accepted and never read); passing it is now an unknown-option error.
+- With no terminal, `uds spec delete` and `uds spec split` change nothing and exit **2**; `uds spec create` keeps a draft and exits **0**.
+- `uds uninstall` removes only files UDS wrote and that you have not changed; a project installed by an older UDS keeps what UDS cannot prove it wrote, and the output names it.
+- `uds list` lists all 163 standards in their categories, and `--category core` (and the other four new categories) is accepted.
 
 **行為改變，請先讀。**
-- `uds init` 與 `uds init --yes` 會把 UDS 技能裝進專案（`.claude/skills/`）。以前偵測到 Claude Code 就選外掛、不寫任何技能檔；資料夾裡沒有 AI 工具時則什麼都不裝。要維持舊行為，請明確帶 `--skills-location`。
-- `uds init` 的命令約定步驟不再整份改寫 `uds.project.yaml`：只改它詢問的那幾個命令，保留 `open_work:`、`custom:` 與其他內容。
-- `uds skills` 的輸出文字改變：專案層與使用者層的安裝不再標為已棄用，外掛也不再標為推薦。比對這段文字的腳本需要更新。
-- `uds open-work next-action` 對「唯一的違規是 OWT-022 判定完整的『已詢問、等回覆』列」的追蹤檔，改以 **0** 結束（原本是 1）。
+- `uds hitl check` 沒有終端機可回答時改為**拒絕**（結束碼 **1**），不再當掉並以 0 結束；缺 `--op` 以 **2** 結束。把 0 當成「已核准」的腳本，以前在沒有人回答時得到的是「核准」。
+- `uds release verify` 驗證失敗以 **1** 結束，無法驗證（沒有 manifest、JSON 壞掉、`--artifact` 不存在、模式沒有 verify）以 **2** 結束；以前一律 0。
+- `uds release promote` 不再為晉升紀錄與 Git tag 印「✓」——它從來沒有建立它們；現在明說，並列出要你執行的指令。
+- 移除 `uds mcp serve --root`（收下後從未讀取）；現在傳它會得到未知選項錯誤。
+- 沒有終端機時，`uds spec delete` 與 `uds spec split` 不改任何東西並以 **2** 結束；`uds spec create` 留作草稿並以 **0** 結束。
+- `uds uninstall` 只移除 UDS 寫的、且你沒改過的檔；舊版 UDS 安裝的專案會保留 UDS 無法證明是它寫的檔，並在輸出點名。
+- `uds list` 依分類列出全部 163 個標準，`--category core`（及另外四個新分類）可用。
 
-Everything in 6.14.0-beta.6 is still here (`uds simulate` exits 2 for a standard that cannot be simulated; backups in `.uds-backups/`; `uds.project.yaml` read as YAML; `uds skills` lists every installed skill).
-6.14.0-beta.6 的內容都還在（`uds simulate` 對不可模擬的標準以 2 結束；備份集中在 `.uds-backups/`；`uds.project.yaml` 以 YAML 解析；`uds skills` 列出全部已安裝技能）。
+Everything in 6.14.0-beta.7 is still here (`uds init` installs skills into the project; `uds update --add-standard`; the duplicate- and shadowed-skill warnings; `open-work-tracking` 1.2.0–1.4.0; the Windows file-lock retry).
+6.14.0-beta.7 的內容都還在（`uds init` 把技能裝進專案；`uds update --add-standard`；技能重複與被蓋過的警告；`open-work-tracking` 1.2.0–1.4.0；Windows 檔案鎖重試）。
 
 ### What to test | 請幫忙測什麼（Windows 優先）
 
@@ -36,11 +42,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.7
+node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.8
 ```
 
-It installs the published 6.14.0-beta.7 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.0-beta.7 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.14.0-beta.8 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.14.0-beta.8 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 243 步（236 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -315,10 +321,10 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 90. `config-get-reads-global` — uds config get finds the value that --global wrote in an earlier run.
    uds config get 找得到先前以 --global 寫下的值。
    `uds config get demo.scope` → exit 0; output has "/^from-global$/"
-91. `hitl-check-blocks-in-noninteractive` (**new 新**) — uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0).
+91. `hitl-check-blocks-in-noninteractive` — uds hitl check denies an operation above the threshold when no one can answer (exit 1, not a crash with exit 0).
    uds hitl check 對超過門檻的操作在沒有人能回答時拒絕（結束碼 1，不是崩潰後結束碼 0）。
    `uds hitl check --op "npm install left-pad"` → exit 1; output has "Blocked (Safety First)", "Denied"
-92. `hitl-check-requires-op` (**new 新**) — uds hitl check without --op says it is required and exits 2 (not 0).
+92. `hitl-check-requires-op` — uds hitl check without --op says it is required and exits 2 (not 0).
    uds hitl check 沒給 --op 時說明必須提供並以 2 結束（不是 0）。
    `uds hitl check` → exit 2; output has "--op <operation> is required"
 93. `hitl-config-raises-threshold` — uds config set hitl.threshold 4 --global is the setting uds hitl check reads next.
@@ -348,10 +354,10 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 101. `configure-experimental` — uds configure -E shows the experimental methodology line of the current configuration.
    uds configure -E 會在目前設定中顯示實驗性的 methodology 一行。
    `uds configure --type skills --ai-tool claude-code --skills-location project --yes -E` → exit 0; output has "Methodology: TDD [Experimental]", "Skills installed for Claude Code"
-102. `agent-list` (**new 新**) — uds agent list names the five shipped agents with a description line and their expertise.
+102. `agent-list` — uds agent list names the five shipped agents with a description line and their expertise.
    uds agent list 列出五個隨附的代理，各有一行說明與專長。
    `uds agent list` → exit 0; output has "UDS Agents", "code-architect" (+7)
-103. `agent-info` (**new 新**) — uds agent info <name> shows the agent's description, expertise, tools and skills.
+103. `agent-info` — uds agent info <name> shows the agent's description, expertise, tools and skills.
    uds agent info <名稱> 顯示代理的說明、專長、工具與技能。
    `uds agent info code-architect` → exit 0; output has "Agent: code-architect", "Role: specialist" (+9)
 104. `agent-install-project` — uds agent install <name> --yes copies the agent into .claude/agents of the project.
@@ -393,49 +399,49 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 116. `release-help-manual` — uds release lists its subcommands in a project set to manual release mode.
    uds release 在手動發布模式的專案列出它的子指令。
    `uds release` → exit 0; output has "uds release — 版本發布管理", "目前模式: manual" (+4)
-117. `release-promote` (**new 新**) — uds release promote <version> says it creates no promotion record and no tag, and lists the next steps for the person to run.
+117. `release-promote` — uds release promote <version> says it creates no promotion record and no tag, and lists the next steps for the person to run.
    uds release promote <版本> 明說不建立晉升紀錄也不建 tag，並列出要使用者自己執行的下一步。
    `uds release promote 1.2.0` → exit 0; output has "目前版本: 1.2.0-rc.1", "晉升目標: 1.2.0" (+3)
-118. `release-promote-creates-no-tag` (**new 新**) — After uds release promote, git tag --list in the project is still empty (the command creates no tag).
+118. `release-promote-creates-no-tag` — After uds release promote, git tag --list in the project is still empty (the command creates no tag).
    uds release promote 之後，專案裡的 git tag --list 仍是空的（這個指令不建 tag）。
    `{node} tag-count.mjs` → exit 0; output has "tags: 0"
-119. `release-deploy-staging` (**new 新**) — uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it).
+119. `release-deploy-staging` — uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it).
    uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）。
    `uds release deploy staging` → exit 0; output has "已記錄部署: 1.2.0-rc.1 → staging"
-120. `release-deploy-result` (**new 新**) — uds release deploy <env> --result passed updates that deployment's recorded result.
+120. `release-deploy-result` — uds release deploy <env> --result passed updates that deployment's recorded result.
    uds release deploy <環境> --result passed 更新該筆部署紀錄的結果。
    `uds release deploy staging --result passed` → exit 0; output has "已更新 1.2.0-rc.1 在 staging 的結果: passed"
 121. `release-manifest-checksum` — uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum.
    uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json。
    `uds release manifest --checksum e45f458d1f60c197d80e68c904a2bfe5ba90f7f439d01423977f72a458c8c5cb` → exit 0; output has "build-manifest.json 已產生", "版本: 1.2.0-rc.1"
-122. `release-verify-artifact` (**new 新**) — uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result.
+122. `release-verify-artifact` — uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result.
    uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果。
    `uds release verify --artifact app.bin` → exit 0; output has "Manifest 驗證通過", "版本: 1.2.0-rc.1" (+2)
-123. `release-verify-wrong-artifact` (**new 新**) — uds release verify --artifact <another file> reports the checksum mismatch and ends with exit code 1.
+123. `release-verify-wrong-artifact` — uds release verify --artifact <another file> reports the checksum mismatch and ends with exit code 1.
    uds release verify --artifact <別的檔> 回報 checksum 不符，並以結束碼 1 結束。
    `uds release verify --artifact other.bin` → exit 1; output has "Manifest 驗證失敗", "checksum mismatch" (+1)
-124. `release-verify-missing-artifact` (**new 新**) — uds release verify --artifact <a file that is not there> ends with exit code 2 (could not verify), not 0.
+124. `release-verify-missing-artifact` — uds release verify --artifact <a file that is not there> ends with exit code 2 (could not verify), not 0.
    uds release verify --artifact <不存在的檔> 以結束碼 2 結束（無法驗證），不是 0。
    `uds release verify --artifact not-there.bin` → exit 2; output has "找不到 artifact：not-there.bin"
-125. `mcp-serve-answers-requests` (**new 新**) — uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends.
+125. `mcp-serve-answers-requests` — uds mcp serve starts, answers initialize, tools/list and the three design tools, and ends when its input ends.
    uds mcp serve 啟動、回應 initialize、tools/list 與三個設計工具，輸入結束時自行結束。
    `uds mcp serve` → exit 0; output has "UDS MCP Design Standards Server started (stdio)", ""serverInfo":{"name":"uds-design-standards"" (+5)
-126. `mcp-serve-root-option-is-refused` (**new 新**) — uds mcp serve --root <path> is refused as an unknown option with exit code 1 (the option was removed).
+126. `mcp-serve-root-option-is-refused` — uds mcp serve --root <path> is refused as an unknown option with exit code 1 (the option was removed).
    uds mcp serve --root <路徑> 被當成未知選項拒絕並以結束碼 1 結束（選項已移除）。
    `uds mcp serve --root elsewhere` → exit 1; output has "error: unknown option '--root'"
-127. `list-every-counted-standard-is-shown` (**new 新**) — The standards uds list shows add up to the Total it prints (it used to count 163 and show 81).
+127. `list-every-counted-standard-is-shown` — The standards uds list shows add up to the Total it prints (it used to count 163 and show 81).
    uds list 顯示的標準數加起來等於它印出的 Total（以前算 163 卻只列 81）。
    `{node} list-total.mjs {bin}` → exit 0; output has "/^listed [1-9]\d* of \d+ standards$/", "/^listed (\d+) of \1 standards$/"
-128. `list-shows-every-category` (**new 新**) — uds list has a heading for each of the ten categories, the five that used to be left out included.
+128. `list-shows-every-category` — uds list has a heading for each of the ten categories, the five that used to be left out included.
    uds list 為十個分類各列一個標題，包含以前被漏掉的五個。
    `uds list` → exit 0; output has "Governance Layer Standard", "Disaster Recovery Drill Standards" (+10)
-129. `list-category-core` (**new 新**) — uds list --category core lists the core standards (it used to refuse "core" as an unknown category) and nothing from the other categories.
+129. `list-category-core` — uds list --category core lists the core standards (it used to refuse "core" as an unknown category) and nothing from the other categories.
    uds list --category core 列出核心標準（以前把 core 當成未知分類而拒絕），且不列其他分類。
    `uds list --category core` → exit 0; output has "Category: Core Standard", "Governance Layer Standard"
 130. `list-category-skill-filters` — uds list --category skill lists only the skill standards.
    uds list --category skill 只列出技能標準。
    `uds list --category skill` → exit 0; output has "Category: Skill", "Anti-Hallucination Guidelines" (+1)
-131. `list-category-unknown` (**new 新**) — uds list --category with a name that is not a category exits 1 and names the valid ones, core included.
+131. `list-category-unknown` — uds list --category with a name that is not a category exits 1 and names the valid ones, core included.
    uds list --category 給了不存在的分類時以 1 結束並列出有效分類（含 core）。
    `uds list --category no-such-category` → exit 1; output has "Unknown category 'no-such-category'", "Valid categories: skill, reference, core, testing, security, deployment, operations, extension, integration, template"
 132. `lint-text-report` — uds lint names the spec with a broken depends_on and the spec that is too long, and exits 1.
@@ -522,16 +528,16 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 159. `human-spec-split-in-a-terminal` (needs a person 需人眼) — Split a micro-spec in your own terminal: choose which criteria move, and both specs end up pointing at each other.
    在你自己的終端機拆一份微規格：選哪些驗收條件搬走，兩份規格最後互相指向對方。
    `uds spec split --help` → exit 0; output has "Split a large spec into two with mutual depends_on references"
-160. `quickstart-without-terminal-shows-every-workflow` (**new 新**) — uds quickstart with no terminal prints all four workflows with their commands (it used to end on a stack trace and exit 0).
+160. `quickstart-without-terminal-shows-every-workflow` — uds quickstart with no terminal prints all four workflows with their commands (it used to end on a stack trace and exit 0).
    uds quickstart 沒有終端機時印出四個流程與各自的指令（以前以堆疊追蹤結束且結束碼為 0）。
    `uds quickstart` → exit 0; output has "Quick Spec → Implement (Micro-Spec)", "uds spec archive SPEC-XXX" (+6)
-161. `spec-create-without-terminal-keeps-a-draft` (**new 新**) — uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it.
+161. `spec-create-without-terminal-keeps-a-draft` — uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it.
    uds spec create 沒給 --yes 且沒有終端機時，規格維持草稿並說明如何確認。
    `uds spec create "Add login page" --output docs/specs` → exit 0; output has "the spec stays a draft", "Run `uds spec confirm <id>`"
-162. `spec-delete-without-terminal-deletes-nothing` (**new 新**) — uds spec delete without --yes and with no terminal deletes nothing, says why and exits 2.
+162. `spec-delete-without-terminal-deletes-nothing` — uds spec delete without --yes and with no terminal deletes nothing, says why and exits 2.
    uds spec delete 沒給 --yes 且沒有終端機時什麼都不刪、說明原因並以 2 結束。
    `uds spec delete SPEC-001-login-page --output docs/specs` → exit 2; output has "Re-run with --yes to delete. Nothing has been deleted."
-163. `spec-split-without-terminal-changes-nothing` (**new 新**) — uds spec split with three criteria and no terminal changes nothing, says why and exits 2.
+163. `spec-split-without-terminal-changes-nothing` — uds spec split with three criteria and no terminal changes nothing, says why and exits 2.
    uds spec split 有三條驗收條件且沒有終端機時什麼都不改、說明原因並以 2 結束。
    `uds spec split SPEC-001-big --output docs/specs` → exit 2; output has "Cannot ask which ACs to move", "Nothing has been changed."
 164. `human-quickstart-pick-a-workflow` (needs a person 需人眼) — Run uds quickstart in your own terminal and pick one workflow with the arrow keys: only that workflow is printed.
@@ -687,7 +693,7 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 214. `r4b-uninstall-dry-run` — uds uninstall --dry-run lists what it would remove and changes nothing.
    uds uninstall --dry-run 列出將要移除的項目，且不改任何檔。
    `uds uninstall --dry-run` → exit 0; output has "dry-run mode", "Remove: .standards/" (+2)
-215. `r4b-uninstall-skills-only` (**new 新**) — uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files.
+215. `r4b-uninstall-skills-only` — uds uninstall --skills-only --yes removes the UDS skills, keeps the skill the adopter wrote and the UDS skill file they edited, and leaves the standards and the integration files.
    uds uninstall --skills-only --yes 移除 UDS 技能，保留採用者自己寫的技能與被他改過的 UDS 技能檔，並留下標準與整合檔。
    `uds uninstall --skills-only --yes` → exit 0; output has "Uninstall complete", "Errors: 0" (+1)
 216. `r4b-uninstall-integrations-only` — uds uninstall --integrations-only --yes removes the UDS block from CLAUDE.md and keeps the text around it, deletes the AGENTS.md UDS generated, and leaves the standards.
@@ -699,7 +705,7 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 243 steps (236
 218. `r4b-uninstall-all-init` — uds init --with-hooks sets up a project whose .claude/settings.json already holds a hook of the adopter's own.
    uds init --with-hooks 建立專案；.claude/settings.json 原本就有採用者自己的 hook。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Enforcement hooks installed"
-219. `r4b-uninstall-yes-everything` (**new 新**) — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/.
+219. `r4b-uninstall-yes-everything` — uds uninstall --yes removes everything UDS installed (standards, skills, hooks and their scripts, integration files) and keeps the adopter's own files, skill, hook and the notes file they put in .standards/.
    uds uninstall --yes 移除 UDS 裝的全部內容（標準、技能、hook 與腳本、整合檔），並保留採用者自己的檔案、技能與 hook。
    `uds uninstall --yes` → exit 0; output has "Uninstall complete", "Errors: 0"
 220. `r4b-uninstall-user-level-init` — uds init --skills-location user puts the skills in the user's home folder, not in the project.
@@ -781,14 +787,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.7/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.0-beta.7/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.8/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.14.0-beta.8/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Windows_NT 10.0.26100, Node v20.20.2, cmd.exe; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 3 runs on this platform (for example from different shells); the worst is shown 此平台有 3 次執行（例如不同殼層），顯示最差的一次 |
-| macOS | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Darwin 25.6.0, Node v20.20.2, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 2 runs on this platform (for example from different shells); the worst is shown 此平台有 2 次執行（例如不同殼層），顯示最差的一次 |
-| Linux | Automated steps passed; 4 manual item(s) not confirmed 自動步驟通過；4 項人工尚未確認 | Linux 6.17.0-1022-azure, Node v20.20.2, bash; 64 passed / 0 failed / 0 skipped; 2026-10-09 — 2 runs on this platform (for example from different shells); the worst is shown 此平台有 2 次執行（例如不同殼層），顯示最差的一次 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
