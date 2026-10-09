@@ -100,7 +100,9 @@ It takes the newest artifact of each label for exactly that version, refuses a r
 5. **`coverage-baseline.json` is empty.** The ratchet lets a non-empty baseline pass; a stable release does not.
 6. **No exemption in `steps.json` says the feature is known broken.** The wording is **`Known broken: ...`** (or `已知壞掉`) at the start of the `reason`; write it that way when a step cannot be written because the feature does not work (XSPEC-471 R4: a step is never written to fit a broken behaviour). The exemption lets the preview ship and this gate holds the stable release until the feature is fixed or the option is removed.
 
-Printed but never blocking: the manual (`human-*`) steps nobody confirmed, per platform, and the number of steps in the current `steps.json` that a counted report does not contain (the report was made before they existed, so they have not run against a published package).
+7. **Every step of the current `steps.json` that applies to a platform is in the counted report of every label of that platform.** A step added after the preview was published has not run against a published package, so a newer preview is needed: publish one, and the post-publish acceptance runs all steps on the three platforms by itself. The refusal says how many steps and the first few ids.
+
+Printed but never blocking: the manual (`human-*`) steps nobody confirmed, per platform, and the report files that were not counted.
 
 **There is no switch to skip the gate**, and `SKIP_BUNDLE_PARITY` does not reach it. Everything it asks for can be produced by the post-publish workflow in minutes (a patch is released as a preview first), and a switch is the thing that was skipped before: the manual Windows run nobody did. To see what it would say without bumping anything: `node scripts/beta-acceptance/check-stable-gate.mjs <x.y.z>` (exit 0 = would pass, 1 = would refuse and why).
 **沒有跳過關卡的開關**，`SKIP_BUNDLE_PARITY` 也管不到它。它要的東西都能由發版後的流程在幾分鐘內產生（修補版先以預覽版發出）；而開關正是過去被跳過的那種東西：沒人去跑的手動 Windows 驗收。

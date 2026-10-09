@@ -19,9 +19,10 @@
  *   5. `coverage-baseline.json` is empty (R4 emptied it; the ratchet check lets a non-empty one pass, a stable release does not),
  *   6. no exemption in `steps.json` says it is "known broken" (R4: a step is not written to fit a broken feature; the feature is
  *      listed as an exemption that says so, and this gate holds the stable release back until it is fixed or removed).
+ *   7. every step of the current steps.json that applies to the platform is in the counted report of EVERY label (a step added
+ *      after the preview was published has not run against a published package, so a newer preview is needed),
  *
- * Not blocking, printed so nobody has to look for it: the manual (`human-*`) steps nobody confirmed, per platform; steps of the
- * current steps.json that the report does not contain (the report was made before they existed); report files that were not counted.
+ * Not blocking, printed so nobody has to look for it: the manual (`human-*`) steps nobody confirmed, per platform; report files that were not counted.
  *
  * "Latest published preview": CHANGELOG.md is the project's own release record, needs no network and gives the same answer on
  * every machine; cli/package.json is added because the bump runs from the commit that carries the preview's version. The highest
@@ -136,7 +137,7 @@ export function judgeReports({ version, reports, steps = [] }) {
       for (const id of missing) notRun.add(id);
     }
   }
-  if (notRun.size) notes.push(`${notRun.size} step(s) of the current steps.json are missing from at least one counted report: the report was made before they existed, so they have not run against a published package (first: ${list([...notRun], 4)}) 目前清單有 ${notRun.size} 步不在報告裡，尚未對已發布套件跑過`);
+  if (notRun.size) problems.push(`${notRun.size} step(s) of the current steps.json have not run against the published ${version} on at least one platform (first: ${list([...notRun], 4)}): the report was made before they existed. Fix: publish a new preview; the post-publish acceptance then runs all steps on the three platforms by itself, then fetch its reports 目前清單有 ${notRun.size} 步沒有對已發布的 ${version} 跑過：發一個新預覽版，發版後三平台驗收會自動跑，再取回報告`);
   for (const { file, report } of notCounted) {
     const platform = report && report.environment && report.environment.platform;
     if (PLATFORMS.some(([k]) => k === platform)) notes.push(`not counted: ${file} (${report.uds ? `${report.uds.installKind} ${report.uds.version}` : 'no uds field'}); only reports of the published package ${version} count 不計入`);

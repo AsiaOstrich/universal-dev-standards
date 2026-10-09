@@ -91,10 +91,13 @@ const bump = (root, version = TARGET) => spawnSync(process.execPath, [join(root,
 
 // ── the reports ────────────────────────────────────────────────────────────────
 
+const CURRENT_STEPS = readJson(join(REPO, 'scripts', 'beta-acceptance', 'steps.json')).steps;
+
 /** A report the acceptance program could have written (the fields the gate and the PRE-RELEASE table read). */
-function report({ version = PREVIEW, platform, label, kind = 'npm-registry', failed = [], verdict = null, seq = 1 }) {
-  const steps = [{ id: 'smoke-version', status: 'pass' }, ...failed.map((id) => ({ id, status: 'fail' })), { id: 'human-chinese-display', status: 'unconfirmed', human: {} }];
-  const counts = { planned: steps.length, passed: 1, failed: failed.length, skipped: 0, humanConfirmed: 0, humanUnconfirmed: 1, executed: steps.length };
+function report({ version = PREVIEW, platform, label, kind = 'npm-registry', failed = [], omit = [], verdict = null, seq = 1 }) {
+  // every step of the current steps.json, as a report of a preview made with the current list would have them
+  const steps = [...CURRENT_STEPS.filter((s) => !omit.includes(s.id)).map((s) => (s.human ? { id: s.id, status: 'unconfirmed', human: {} } : { id: s.id, status: failed.includes(s.id) ? 'fail' : 'pass' })), ...failed.filter((id) => !CURRENT_STEPS.some((s) => s.id === id)).map((id) => ({ id, status: 'fail' }))];
+  const counts = { planned: steps.length, passed: steps.filter((s) => s.status === 'pass').length, failed: failed.length, skipped: 0, humanConfirmed: 0, humanUnconfirmed: steps.filter((s) => s.status === 'unconfirmed').length, executed: steps.length };
   return {
     schema: 1,
     tool: 'uds-beta-acceptance',
@@ -178,7 +181,9 @@ it('with a clean report from the published package for Windows, macOS and Linux 
   const o = run(greenTree());
   expect(o.passed, o.out.slice(-2500)).toBe(true);
   expect(o.refused).toBe(false);
-  expect(o.out, 'the manual steps nobody confirmed are listed').toContain('human-chinese-display — Windows, macOS, Linux');
+  const aManual = CURRENT_STEPS.find((s) => s.human);
+  expect(aManual, 'control: steps.json has a manual step').toBeTruthy();
+  expect(o.out, 'the manual steps nobody confirmed are listed').toContain(`${aManual.id} — Windows, macOS, Linux`);
   expect(o.out).toContain(`latest preview of ${TARGET}: ${PREVIEW}`);
   expect(o.out, 'it names what it checked').toContain('check-cli-coverage.mjs: green');
 });
@@ -242,6 +247,26 @@ it('a report of another version in the folder is not counted either (XSPEC-471 R
   const o = run(greenTree({ reports }));
   expect(o.refused).toBe(true);
   expect(o.reasons).toContain('缺 Linux 報告');
+});
+
+it('a step of the current list that the preview report does not contain (added after the preview) refuses the release, with the count, the first ids and what to do (XSPEC-471 R5)', () => {
+  const two = CURRENT_STEPS.filter((s) => !s.human).slice(0, 2).map((s) => s.id);
+  // one platform's reports lack two steps; the other platforms have them all
+  const reports = cleanReports().map((r) => (r.label === 'ci-linux' ? report({ platform: 'linux', label: 'ci-linux', omit: two }) : r));
+  const o = run(greenTree({ reports }));
+  expect(o.refused, o.out.slice(-1500)).toBe(true);
+  expect(o.reasons).toContain('2 step(s) of the current steps.json have not run against the published');
+  expect(o.reasons).toContain(two[0]);
+  expect(o.reasons).toContain('publish a new preview');
+  expect(o.count).toBe(1);
+  // control: the same reports with the steps present pass
+  expect(run(greenTree()).passed).toBe(true);
+  // a step that is for another platform only is not required of this one
+  const winOnly = CURRENT_STEPS.find((s) => s.platform === 'windows');
+  if (winOnly) {
+    const linuxWithout = cleanReports().map((r) => (r.label === 'ci-linux' ? report({ platform: 'linux', label: 'ci-linux', omit: [winOnly.id] }) : r));
+    expect(run(greenTree({ reports: linuxWithout })).passed, 'a Windows-only step missing from the Linux report is fine').toBe(true);
+  }
 });
 
 it('a baseline that still holds a gap refuses the release although the coverage check is green (XSPEC-471 R5)', () => {
@@ -468,4 +493,9 @@ cut('the gate runs for preview versions too', {
 cut('check-stable-gate.mjs ignores the verdict in its exit code', {
   rel: ['scripts', 'beta-acceptance', 'check-stable-gate.mjs'], from: 'process.exit(result.ok ? 0 : 1);', to: 'process.exit(0);',
   arm: { tree: withoutPlatform('windows'), check: true }, holds: (o) => o.code === 1,
+});
+cut('steps of the current list missing from a report are only a note again', {
+  rel: GATE_LIB, from: '  if (notRun.size) problems.push(', to: '  if (notRun.size) notes.push(',
+  arm: { tree: () => greenTree({ reports: cleanReports().map((r) => (r.label === 'ci-linux' ? report({ platform: 'linux', label: 'ci-linux', omit: [CURRENT_STEPS.find((x) => !x.human).id] }) : r)) }) },
+  holds: refusedFor('have not run against the published'),
 });
