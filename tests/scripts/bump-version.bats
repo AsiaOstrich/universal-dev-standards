@@ -97,23 +97,25 @@ teardown() {
 
 # ── Functional: parity drift must abort the bump BEFORE any file mutation ──────
 # A rogue .ai.yaml in .standards/ (absent from the bundle) breaks parity; the
-# bump must exit 1 without writing the new version anywhere. Requires npm —
+# bump must exit 1 without writing the new version anywhere. A preview version is
+# used so the stable-release gate (XSPEC-471 R5), which runs first for stable
+# versions, does not stop the bump before parity is reached. Requires npm —
 # skipped in environments without node (same prerequisite as the scripts).
 
 @test "bump-version.sh aborts on parity drift without mutating files (functional)" {
   command -v npm >/dev/null 2>&1 || skip "npm not in PATH"
   touch "$ROGUE_FILE"
-  run bash "$SCRIPT" "9.9.9"
+  run bash "$SCRIPT" "9.9.9-beta.1"
   [ "$status" -eq 1 ]
   [[ "$output" == *"parity"* ]]
-  ! grep -q '"version": "9.9.9"' "$REPO_ROOT/cli/package.json"
+  ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
 }
 
 @test "bump-version.mjs aborts on parity drift without mutating files (functional)" {
   command -v npm >/dev/null 2>&1 || skip "npm not in PATH"
   touch "$ROGUE_FILE"
-  run node "$MJS_SCRIPT" "9.9.9"
+  run node "$MJS_SCRIPT" "9.9.9-beta.1"
   [ "$status" -eq 1 ]
   [[ "$output" == *"parity"* ]]
-  ! grep -q '"version": "9.9.9"' "$REPO_ROOT/cli/package.json"
+  ! grep -q '"version": "9.9.9-beta.1"' "$REPO_ROOT/cli/package.json"
 }
