@@ -792,9 +792,9 @@ Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.8 沒有 6.14.0-beta.8 的報告 |
+| Windows | Automated steps passed; 7 manual item(s) not confirmed 自動步驟通過；7 項人工尚未確認 | Windows_NT 10.0.26100, Node v20.20.2, PowerShell 7 (pwsh); 234 passed / 0 failed / 2 skipped; 2026-10-09 — 3 runs on this platform (for example from different shells); the worst is shown 此平台有 3 次執行（例如不同殼層），顯示最差的一次 |
+| macOS | Automated steps passed; 7 manual item(s) not confirmed 自動步驟通過；7 項人工尚未確認 | Darwin 25.6.0, Node v20.20.2, bash; 235 passed / 0 failed / 1 skipped; 2026-10-09 |
+| Linux | Automated steps passed; 7 manual item(s) not confirmed 自動步驟通過；7 項人工尚未確認 | Linux 6.17.0-1022-azure, Node v20.20.2, bash; 235 passed / 0 failed / 1 skipped; 2026-10-09 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
