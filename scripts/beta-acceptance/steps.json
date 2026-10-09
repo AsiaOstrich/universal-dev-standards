@@ -24,6 +24,14 @@
     {
       "changelog": "The plugin settings carried skill counts that were wrong",
       "reason": "The wrong skill counts were in .claude-plugin/plugin.json, marketplace.json and README.md, which live in the repository and the Claude Code marketplace listing, not in the npm package; the CI gate above keeps them right."
+    },
+    {
+      "changelog": "CI: every command, subcommand and option of the uds CLI needs an acceptance step",
+      "reason": "A CI job and a baseline file for the maintainers in the repository (scripts/beta-acceptance/check-cli-coverage.mjs); it adds no command or option to the installed uds and nothing of it is in the npm package. Tested by cli/tests/e2e/xspec-471-r2-cli-coverage.test.js and xspec-471-r3-effect-assertions.test.js."
+    },
+    {
+      "step": "human-commit-warning-display",
+      "reason": "The step lets git print to the person's own terminal (human.inherit) so the person can see whether the characters are readable; the program cannot read that output. The automatic step commit-warning-hook checks the same warning text with contains."
     }
   ],
   "steps": [

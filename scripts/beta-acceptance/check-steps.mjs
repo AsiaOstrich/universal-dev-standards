@@ -12,6 +12,10 @@
  *   1  an entry has no step, an anchor matches nothing / several entries, or the steps file is malformed
  *   2  could not measure (a file unreadable, not JSON, no `## [Unreleased]` heading) — NOT a pass
  *
+ * R3 (XSPEC-471): the same run judges every step's `expect`. A step that checks only an exit code (no `contains`, `matches`
+ * or `files`) is named and the run fails (exit 1), unless an `exemptions` item {"step": "<id>", "reason": "<why>"} says why
+ * it cannot. The rule is in lib/steps.mjs (`validateSteps`), which the runner and the PRE-RELEASE generator also use.
+ *
  * The entry's key is the START of its text (see lib/changelog.mjs): a step names an entry by quoting how it begins.
  */
 
@@ -20,6 +24,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseChangelog } from './lib/changelog.mjs';
 import { judgeCoverage } from './lib/coverage.mjs';
+import { checksEffect, exitOnlyExemptions } from './lib/steps.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -57,6 +62,11 @@ const steps = Array.isArray(doc.steps) ? doc.steps : [];
 console.log(`[beta-acceptance] CHANGELOG ${changelogPath}`);
 console.log(`[beta-acceptance] steps file ${stepsPath}: ${steps.length} step(s), ${(doc.exemptions || []).length} exemption(s)`);
 console.log(`[beta-acceptance] Unreleased entries: ${verdict.unreleasedCount}; covered: ${verdict.covered} (by a step: ${verdict.withStep}; by an exemption that gives a reason: ${verdict.exempted})`);
+
+const exitOnlyAllowed = exitOnlyExemptions(doc);
+const effectSteps = steps.filter(checksEffect).length;
+const exemptSteps = steps.filter((s) => !checksEffect(s) && exitOnlyAllowed.has(s.id)).length;
+console.log(`[beta-acceptance] R3 effect assertions: ${effectSteps} of ${steps.length} step(s) read back output or a file; exit-code-only by an exemption that gives a reason: ${exemptSteps}; exit-code-only without one: ${steps.length - effectSteps - exemptSteps}`);
 
 for (const e of verdict.schemaErrors) console.log(`  FAIL steps file: ${e}`);
 for (const u of verdict.uncovered) console.log(`  FAIL no acceptance step for the ${u.section} entry at CHANGELOG line ${u.line}: "${u.text}"`);

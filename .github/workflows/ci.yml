@@ -679,7 +679,10 @@ jobs:
 
   # XSPEC-469 R1 + R5 — every CHANGELOG `Unreleased` entry has a beta acceptance step (or an exemption with a
   # reason), and docs/PRE-RELEASE.md is what scripts/beta-acceptance/ generates from that list and the reports.
-  # Both programs use the Node standard library only, so there is nothing to install and no path filter: the
+  # XSPEC-471 R2 + R3 — every command, subcommand and option of the CLI has a step, an exemption or a baseline entry,
+  # and every step reads back an effect.
+  # The programs use the Node standard library only (check-cli-coverage.mjs needs the CLI's own dependencies, installed
+  # by the step that says so), and there is no path filter: the
   # inputs are CHANGELOG.md, steps.json, the reports and the document, and a filter naming them goes stale.
   # The red and green arms (an entry with no step, an exemption without a reason, a hand-edited block, a report
   # that must not count) are tests: cli/tests/e2e/xspec-469-r1-changelog-coverage.test.js and
@@ -691,14 +694,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # the baseline step below compares the baseline file with the one on the branch this change goes into
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '20'
 
-      - name: Every Unreleased CHANGELOG entry has an acceptance step
+      - name: Every Unreleased CHANGELOG entry has an acceptance step, and every step reads back an effect
         run: node scripts/beta-acceptance/check-steps.mjs
+
+      # XSPEC-471 R2: the list of commands and options is read from the real cli/bin/uds.js (check-cli-coverage.mjs ->
+      # dump-cli-tree.mjs), which imports its dependencies, so this is the one step here that needs `npm ci`.
+      - name: Install CLI dependencies (the check loads cli/bin/uds.js)
+        working-directory: cli
+        run: npm ci
+
+      - name: Every command, subcommand and option of the CLI has an acceptance step, an exemption with a reason, or a place in the shrinking baseline
+        run: node scripts/beta-acceptance/check-cli-coverage.mjs
+
+      - name: The baseline of known gaps did not grow
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then BASE="origin/$BASE_REF"; else BASE="$BEFORE_SHA"; fi
+          if [ -z "$BASE" ] || ! git rev-parse --verify --quiet "${BASE}^{commit}" > /dev/null; then
+            echo "::notice::No earlier commit to compare the baseline with ('$BASE'); this run did not check that the baseline only shrinks."
+            exit 0
+          fi
+          node scripts/beta-acceptance/check-cli-coverage.mjs --baseline-not-larger-than "$BASE"
 
       - name: docs/PRE-RELEASE.md is what the list and the reports produce
         run: node scripts/beta-acceptance/generate-pre-release.mjs --check

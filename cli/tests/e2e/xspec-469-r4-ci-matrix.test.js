@@ -169,15 +169,20 @@ it('the e2e job writes a JSON result and a final step that always runs turns it 
   expect(count.run).toContain('${{ matrix.os }}');
 });
 
-it('the beta-acceptance job runs both checks with Node alone, on every push and pull request (XSPEC-469 R1, R5)', () => {
+it('the beta-acceptance job runs its checks on every push and pull request, and the one that loads the CLI is preceded by the install of the CLI dependencies (XSPEC-469 R1, R5; XSPEC-471 R2, R3)', () => {
   const job = workflow().jobs['beta-acceptance'];
   expect(job.if, 'no condition: it cannot be skipped into a false green').toBeUndefined();
   expect(job.needs).toBeUndefined();
   const commands = job.steps.map((s) => s.run).filter(Boolean);
-  expect(commands).toEqual([
-    'node scripts/beta-acceptance/check-steps.mjs',
-    'node scripts/beta-acceptance/generate-pre-release.mjs --check',
-  ]);
+  expect(commands[0]).toBe('node scripts/beta-acceptance/check-steps.mjs');
+  expect(commands[1]).toBe('npm ci');
+  expect(job.steps.find((s) => s.run === 'npm ci')['working-directory']).toBe('cli');
+  expect(commands[2]).toBe('node scripts/beta-acceptance/check-cli-coverage.mjs');
+  expect(commands[3]).toContain('node scripts/beta-acceptance/check-cli-coverage.mjs --baseline-not-larger-than "$BASE"');
+  expect(commands[4]).toBe('node scripts/beta-acceptance/generate-pre-release.mjs --check');
+  expect(commands, 'nothing else runs in this job').toHaveLength(5);
+  // the baseline comparison needs the history of the branch the change goes into
+  expect(job.steps.find((s) => s.uses && s.uses.startsWith('actions/checkout')).with['fetch-depth']).toBe(0);
 });
 
 it('the end-to-end tests that need a POSIX shell skip themselves on Windows with ctx.skip(), so the job counts them as skipped instead of red (XSPEC-469 R4)', () => {

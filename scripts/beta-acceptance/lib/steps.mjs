@@ -12,6 +12,16 @@ export const PLATFORMS = ['all', 'windows', 'macos', 'linux'];
 export const STEP_ID = /^[a-z0-9][a-z0-9-]*$/;
 /** An exemption has to say why; "n/a" is not a reason. */
 export const MIN_REASON_LENGTH = 20;
+/** What an exemption can exempt: a CHANGELOG entry (XSPEC-469), a command or an option of the CLI (XSPEC-471 R2), a step's exit-only expectation (XSPEC-471 R3). */
+export const EXEMPTION_TARGETS = ['changelog', 'command', 'option', 'step'];
+
+/** The ids of the steps that may check only an exit code: an exemption that names the step and gives a reason. Without a reason it does not count. */
+export function exitOnlyExemptions(doc) {
+  const list = Array.isArray(doc && doc.exemptions) ? doc.exemptions : [];
+  return new Set(list
+    .filter((x) => x && typeof x.step === 'string' && typeof x.reason === 'string' && x.reason.trim().length >= MIN_REASON_LENGTH)
+    .map((x) => x.step.trim()));
+}
 
 /** `process.platform` -> the vocabulary of the list. Anything else (freebsd, ...) is its own name, matched by `all` only. */
 export function platformName(nodePlatform = process.platform) {
@@ -24,6 +34,12 @@ export function platformName(nodePlatform = process.platform) {
 export function appliesTo(step, platform = platformName()) {
   return step.platform === 'all' || step.platform === platform;
 }
+
+/** Does the step read back an effect: output text it must contain, a pattern, or a file? (`notContains` alone passes for a command that prints nothing, so it does not count.) */
+export const checksEffect = (step) => {
+  const e = (step && step.expect) || {};
+  return (e.contains || []).length + (e.matches || []).length + (e.files || []).length > 0;
+};
 
 const isStringArray = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string');
 
@@ -44,13 +60,22 @@ export function validateSteps(doc) {
     errors.push('"exemptions" must be an array');
   } else {
     exemptions.forEach((x, i) => {
-      if (!x || typeof x.changelog !== 'string' || x.changelog.trim() === '') errors.push(`exemptions[${i}] has no "changelog" anchor`);
+      const targets = EXEMPTION_TARGETS.filter((k) => x && typeof x[k] === 'string' && x[k].trim() !== '');
+      if (targets.length !== 1) {
+        errors.push(`exemptions[${i}] must name exactly one thing it exempts: "changelog" (an entry), "command", "option" or "step"`);
+      }
+      const label = targets.length === 1 ? `${targets[0]} ${JSON.stringify(x[targets[0]])}` : 'no target';
       if (!x || typeof x.reason !== 'string' || x.reason.trim().length < MIN_REASON_LENGTH) {
-        errors.push(`exemptions[${i}] (${x && x.changelog ? JSON.stringify(x.changelog) : 'no anchor'}) needs a "reason" of at least ${MIN_REASON_LENGTH} characters saying why the entry has no user-visible behaviour`);
+        errors.push(`exemptions[${i}] (${label}) needs a "reason" of at least ${MIN_REASON_LENGTH} characters saying why it is exempt`);
       }
     });
   }
   const seen = new Set();
+  const exitOnlyOk = exitOnlyExemptions(doc);
+  const stepIds = new Set(doc.steps.map((s) => s && s.id));
+  (Array.isArray(exemptions) ? exemptions : []).forEach((x, i) => {
+    if (x && typeof x.step === 'string' && x.step.trim() !== '' && !stepIds.has(x.step.trim())) errors.push(`exemptions[${i}] (step ${JSON.stringify(x.step)}) names a step that does not exist`);
+  });
   doc.steps.forEach((s, i) => {
     const where = `steps[${i}]${s && s.id ? ` (${s.id})` : ''}`;
     if (!s || typeof s !== 'object') {
@@ -88,10 +113,11 @@ export function validateSteps(doc) {
       }
     }
     // An exit code alone proves a command ran, not that the feature is there: beta.6 exits 0 for a flag it does not know
-    // in several commands. Every automated step reads back at least one piece of output or one file.
-    const e = s.expect || {};
-    const checks = (e.contains || []).length + (e.matches || []).length + (e.files || []).length;
-    if (checks === 0 && !s.human) errors.push(`${where}: only an exit code is checked — "expect" needs "contains", "matches" or "files" (output text or a file to read back) so the step can tell the feature from its absence`);
+    // in several commands. Every step reads back at least one piece of output or one file (XSPEC-471 R3), a person's step
+    // included, unless an exemption names the step and says why it cannot (for example its output goes to the person's terminal).
+    const checks = checksEffect(s);
+    if (!checks && !exitOnlyOk.has(s.id)) errors.push(`${where}: only an exit code is checked — "expect" needs "contains", "matches" or "files" (output text or a file to read back) so the step can tell the feature from its absence, or an "exemptions" item {"step": "${s.id}", "reason": ...} saying why it cannot`);
+    else if (checks && exitOnlyOk.has(s.id)) errors.push(`${where}: has an exemption for checking only an exit code, but it checks output or a file: remove the exemption`);
     if (s.human !== undefined) {
       if (!s.human || typeof s.human.prompt !== 'string' || typeof s.human.promptZh !== 'string') errors.push(`${where}: "human" needs "prompt" (English) and "promptZh" (繁體中文) saying what the person should look at`);
     }

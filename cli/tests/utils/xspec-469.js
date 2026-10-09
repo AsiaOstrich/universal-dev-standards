@@ -156,8 +156,8 @@ export function buildChangelog({ unreleased = {}, released = {} } = {}) {
  */
 export const entryFor = (anchor) => `**${anchor}.** A made-up entry that stands in for a real one; only the way it begins matters.`;
 
-/** The anchors (CHANGELOG entry starts) a steps file points at, steps first and then exemptions, each once, in file order. */
+/** The anchors (CHANGELOG entry starts) a steps file points at, steps first and then exemptions, each once, in file order. (An exemption of a command, option or step - XSPEC-471 - has no anchor.) */
 export function anchorsOf(doc) {
-  const all = [...doc.steps.flatMap((s) => s.changelog || []), ...(doc.exemptions || []).map((x) => x.changelog)];
+  const all = [...doc.steps.flatMap((s) => s.changelog || []), ...(doc.exemptions || []).map((x) => x.changelog).filter(Boolean)];
   return [...new Set(all)];
 }
