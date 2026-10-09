@@ -27,6 +27,8 @@ status: current
 - **`uds release deploy <env>` 在“`release-config.yaml` 是 UDS 自己生成”的项目里，拒绝每一个环境（XSPEC-471 R4）。** `uds init` 与 `uds config` 把 `release.environments` 写成对象（`- name: staging`），检查却拿用户输入的名称去比这些对象，于是说“未知的环境”并列出 `[object Object]`。现在对象形式与纯名称都能读懂。
 - **`uds agent list` 与 `uds agent info` 显示空白的说明，也没有专长、工具、技能（XSPEC-471 R4）。** 代理文件是 YAML（`description: |`、列表），读取程序一次只看一行 `key: value`，把说明看成 `|`。现在 front matter 以 YAML 解析。
 - **行为变更——`uds hitl check` 在无法询问时不再以退出码 0 结束（XSPEC-471 R4）。** 没有终端可回答、也没有 `CI` 变量时，高风险的 `--op` 会打开一个永远等不到回答的提示，打印堆栈跟踪后以 0 结束，脚本会把它当成“已批准”。现在打印“Blocked (Safety First)”与“Denied”并以 1 结束，与 CI 下相同。`uds hitl check` 没给 `--op` 时以 2 结束（原本是 0）。
+- **`uds list` 只显示它所计算的 163 个标准中的 81 个，而且拒绝 `--category core`（编写 XSPEC-471 R4 验收步骤时发现）。** “Total”行计入注册表中的每一个标准，但列表只走固定的五个分类，所以 `core`、`testing`、`security`、`deployment`、`operations` 这五个分类里的 82 个标准被计入却从未显示，`uds list --category core` 还回答“Unknown category”。现在列表会显示注册表里有标准的每一个分类，每个分类各有标题与数量，标题上的数字加起来等于 Total；这五个分类已声明在 `cli/standards-registry.json`（并注明它们不由 `uds init` 安装，要用 `uds update --apply --add-standard` 按编号加入），日后注册表新增的分类会以它自己的名称列出，不会再被丢掉。“有效分类”提示现在列出全部十个。标题与 Total 不一致时 `npm test` 会失败。
+- **`uds quickstart`、`uds spec create`、`uds spec delete`、`uds spec split` 在没有任何东西能回答它们的问题时，以 Node 堆栈跟踪结束，且退出码为 0（编写 XSPEC-471 R4 验收步骤时发现）。** 在没有终端的环境（AI 助手、CI、管道）运行时，它们画出问题后就死在 `ExitPromptError`，整次运行看起来像成功。`uds update` 与 `uds uninstall` 早先已用同样方式修复。现在：`uds quickstart` 打印四个流程与各自的命令（这份指南本来的工作就是列出命令）；没给 `--yes` 的 `uds spec create` 把已写好的规格留作草稿并说明如何确认（退出码 0）；没给 `--yes` 的 `uds spec delete` 什么都不删、说明要加 `--yes` 重跑，并以 2 结束（原为 0）；`uds spec split` 什么都不改、说明要在终端运行，并以 2 结束（原为 0）。有终端时行为不变。
 
 ## [6.14.0-beta.7] - 2026-10-08
 
