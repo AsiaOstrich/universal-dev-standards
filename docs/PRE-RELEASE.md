@@ -18,7 +18,7 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 - `uds hitl check` with no terminal to answer on now **refuses** (exit **1**) instead of crashing with 0; a missing `--op` exits **2**. A script that treated 0 as "approved" was being told yes when no one had answered.
 - `uds release verify` exits **1** when verification fails and **2** when it could not verify (no manifest, unreadable JSON, missing `--artifact`, or a mode without verify). It used to exit 0 either way.
 - `uds release promote` no longer prints "✓" for a promotion record or a Git tag: it never made them. It now says so and lists the commands for you to run.
-- `uds mcp serve --root` is removed (it was accepted and never read); passing it is now an unknown-option error.
+- `uds mcp serve --root` no longer exists (it was accepted and never read); passing it now gives `error: unknown option '--root'`.
 - With no terminal, `uds spec delete` and `uds spec split` change nothing and exit **2**; `uds spec create` keeps a draft and exits **0**.
 - `uds uninstall` removes only files UDS wrote and that you have not changed; a project installed by an older UDS keeps what UDS cannot prove it wrote, and the output names it.
 - `uds list` lists all 163 standards in their categories, and `--category core` (and the other four new categories) is accepted.
@@ -27,7 +27,7 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 - `uds hitl check` 沒有終端機可回答時改為**拒絕**（結束碼 **1**），不再當掉並以 0 結束；缺 `--op` 以 **2** 結束。把 0 當成「已核准」的腳本，以前在沒有人回答時得到的是「核准」。
 - `uds release verify` 驗證失敗以 **1** 結束，無法驗證（沒有 manifest、JSON 壞掉、`--artifact` 不存在、模式沒有 verify）以 **2** 結束；以前一律 0。
 - `uds release promote` 不再為晉升紀錄與 Git tag 印「✓」——它從來沒有建立它們；現在明說，並列出要你執行的指令。
-- 移除 `uds mcp serve --root`（收下後從未讀取）；現在傳它會得到未知選項錯誤。
+- `uds mcp serve --root` 已移除，現在不存在（收下後從未讀取）；傳它會得到 `error: unknown option '--root'`。
 - 沒有終端機時，`uds spec delete` 與 `uds spec split` 不改任何東西並以 **2** 結束；`uds spec create` 留作草稿並以 **0** 結束。
 - `uds uninstall` 只移除 UDS 寫的、且你沒改過的檔；舊版 UDS 安裝的專案會保留 UDS 無法證明是它寫的檔，並在輸出點名。
 - `uds list` 依分類列出全部 163 個標準，`--category core`（及另外四個新分類）可用。
