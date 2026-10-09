@@ -159,10 +159,12 @@ export async function main(argv) {
         }
         for (const file of [name, name.replace(/\.json$/, '.md')]) {
           if (!existsSync(join(dir, file))) continue;
-          const target = join(opts.dest, file);
+          // The file name run.mjs gives a report has the platform and the second, not the label; the three Windows jobs can finish
+          // in the same second and would overwrite each other. The label in front keeps them apart.
+          const target = join(opts.dest, `${art.label}__${file}`);
           copyFileSync(join(dir, file), target);
         }
-        placed.push({ label: art.label, file: name, report });
+        placed.push({ label: art.label, file: `${art.label}__${name}`, report });
       }
     }
   } finally {

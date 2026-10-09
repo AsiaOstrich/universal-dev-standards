@@ -31,7 +31,7 @@ on:
         required: true
         type: string
       ref:
-        description: 'Git ref (tag, branch or SHA) whose scripts/beta-acceptance/ is used. Empty = the branch this is started on. For an OLD version pass its tag, otherwise steps.json lists steps for features that version does not have.'
+        description: 'Git ref (tag, branch or SHA) whose scripts/beta-acceptance/steps.json is the list to run. Empty = the list of the branch this is started on. For an OLD version pass its tag, otherwise the list has steps for features that version does not have. The programs always come from the branch this is started on.'
         required: false
         default: ''
         type: string
@@ -51,17 +51,33 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       ref: ${{ steps.pin.outputs.ref }}
+      steps_ref: ${{ steps.pin.outputs.steps_ref }}
     steps:
-      # The commit that was released (publish.yml checked out the same one), so steps.json is the list of THAT version.
-      # A manual start uses the ref typed in, or the branch it was started on.
+      # The programs (and, after a release, the list) come from the commit that was released: publish.yml checked out the
+      # same one. A manual start takes the programs from the branch it was started on, because an old tag does not have them.
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref || github.sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
-      - name: Pin the commit
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      # `steps_ref` says which commit's steps.json is the list of the tested version: the released commit after a release,
+      # the typed ref (or the started-on branch) for a manual start. The typed text goes in through env and is checked
+      # before it becomes an output.
+      - name: Pin the commits
         id: pin
-        run: echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        env:
+          STEPS_REF: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref || github.sha }}
+        run: |
+          case "$STEPS_REF" in
+            *[!A-Za-z0-9._/-]*) echo "the ref contains a character that a git ref does not need: refused" >&2; exit 1 ;;
+          esac
+          echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "steps_ref=$STEPS_REF" >> "$GITHUB_OUTPUT"
 
       # Untrusted text (the typed version, the tag) goes in through env, never into the script text.
       - name: Resolve the published version
@@ -102,6 +118,22 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.resolve.outputs.ref }}
+
+      # Only when the list of the tested version is not on the commit the programs come from (a manual start with a `ref`
+      # for an older version): take that commit's steps.json and put it where run.mjs reads its default list.
+      - name: Checkout the list of the tested version
+        if: ${{ needs.resolve.outputs.steps_ref != needs.resolve.outputs.ref }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.steps_ref }}
+          path: version-source
+          sparse-checkout: scripts/beta-acceptance/steps.json
+          sparse-checkout-cone-mode: false
+
+      - name: Use the list of the tested version
+        if: ${{ needs.resolve.outputs.steps_ref != needs.resolve.outputs.ref }}
+        shell: bash
+        run: cp version-source/scripts/beta-acceptance/steps.json scripts/beta-acceptance/steps.json
 
       # 20 is the lowest Node the package supports (cli/package.json engines), the one a user is most likely to have.
       - name: Setup Node.js

@@ -451,12 +451,12 @@ it('downloads the newest artifact of each label for exactly this version and pla
   const r = await fetchReports(gh, [V, '--dest', dest, '--no-generate']);
   expect(r.code, r.out).toBe(0);
   expect(readdirSync(dest).sort()).toEqual([
-    'uds-beta-acceptance-6.14.0-macos-20261010-010204.json',
-    'uds-beta-acceptance-6.14.0-macos-20261010-010204.md',
-    'uds-beta-acceptance-6.14.0-windows-20261010-010203.json',
-    'uds-beta-acceptance-6.14.0-windows-20261010-010203.md',
+    'ci-macos__uds-beta-acceptance-6.14.0-macos-20261010-010204.json',
+    'ci-macos__uds-beta-acceptance-6.14.0-macos-20261010-010204.md',
+    'ci-windows__uds-beta-acceptance-6.14.0-windows-20261010-010203.json',
+    'ci-windows__uds-beta-acceptance-6.14.0-windows-20261010-010203.md',
   ]);
-  const placed = JSON.parse(readFileSync(join(dest, 'uds-beta-acceptance-6.14.0-windows-20261010-010203.json'), 'utf-8'));
+  const placed = JSON.parse(readFileSync(join(dest, 'ci-windows__uds-beta-acceptance-6.14.0-windows-20261010-010203.json'), 'utf-8'));
   expect(placed.verdict).toBe('pass');
   expect(r.stdout).toContain('platform windows: has a report');
   expect(r.stdout).toContain('platform macos: has a report');
@@ -464,6 +464,30 @@ it('downloads the newest artifact of each label for exactly this version and pla
   // which downloads were made: runs 100 for windows and macos, never the older run or the expired and decoy artifacts
   const downloads = gh.calls().filter((a) => a[0] === 'run').map((a) => `${a[2]} ${a[a.indexOf('-n') + 1]}`).sort();
   expect(downloads).toEqual([`100 acceptance-ci-macos-${V}`, `100 acceptance-ci-windows-${V}`]);
+});
+
+it('two jobs of one platform whose reports have the same file name (finished in the same second) both end up in the folder (XSPEC-471 R1)', async () => {
+  const V = '6.14.0';
+  const same = 'uds-beta-acceptance-6.14.0-windows-20261010-010203';
+  const gh = ghFixture({
+    artifacts: [
+      art(1, `acceptance-ci-windows-${V}`, 100, '2026-10-10T01:00:00Z'),
+      art(2, `acceptance-ci-windows-cmd-${V}`, 100, '2026-10-10T01:00:00Z'),
+      art(3, `acceptance-ci-windows-gitbash-${V}`, 100, '2026-10-10T01:00:00Z'),
+    ],
+    files: {
+      [`100--acceptance-ci-windows-${V}`]: reportFiles(platformReport('windows', { version: V, label: 'ci-windows' }), same),
+      [`100--acceptance-ci-windows-cmd-${V}`]: reportFiles(platformReport('windows', { version: V, label: 'ci-windows-cmd', verdict: 'fail', failed: 1 }), same),
+      [`100--acceptance-ci-windows-gitbash-${V}`]: reportFiles(platformReport('windows', { version: V, label: 'ci-windows-gitbash' }), same),
+    },
+  });
+  const dest = tmp.next('dest');
+  const r = await fetchReports(gh, [V, '--dest', dest, '--no-generate']);
+  expect(r.code, r.out).toBe(0);
+  const jsons = readdirSync(dest).filter((n) => n.endsWith('.json')).sort();
+  expect(jsons).toEqual([`ci-windows-cmd__${same}.json`, `ci-windows-gitbash__${same}.json`, `ci-windows__${same}.json`]);
+  // each one still holds its own report: the failing shell was not overwritten by a passing one
+  expect(JSON.parse(readFileSync(join(dest, `ci-windows-cmd__${same}.json`), 'utf-8')).verdict).toBe('fail');
 });
 
 it('a report that is for another version, or was not installed from the registry, is refused with exit 1 and is not placed; what is valid still is (XSPEC-471 R1)', async () => {
@@ -487,7 +511,7 @@ it('a report that is for another version, or was not installed from the registry
   expect(r.stderr).toContain('not 6.14.0');
   expect(r.stderr).toContain('REFUSED acceptance-ci-linux-6.14.0/from-folder.json');
   expect(r.stderr).toContain('not installed from the npm registry (local-source)');
-  expect(readdirSync(dest).sort()).toEqual(['good-macos.json', 'good-macos.md']);
+  expect(readdirSync(dest).sort()).toEqual(['ci-macos__good-macos.json', 'ci-macos__good-macos.md']);
 });
 
 it('says so and exits 1 when no artifact matches, and exits 2 when gh itself fails, so "nothing there" and "could not ask" differ (XSPEC-471 R1)', async () => {
@@ -542,7 +566,7 @@ it('when the version is the one in cli/package.json, the PRE-RELEASE "verified o
   });
   const r = await fetchReports(gh, [V], { cwd: root, script: join(program, 'fetch-ci-reports.mjs') });
   expect(r.code, r.out).toBe(0);
-  expect(existsSync(join(root, 'scripts', 'beta-acceptance', 'reports', V, `uds-beta-acceptance-${V}-windows-20261010-010203.json`))).toBe(true);
+  expect(existsSync(join(root, 'scripts', 'beta-acceptance', 'reports', V, `ci-windows__uds-beta-acceptance-${V}-windows-20261010-010203.json`))).toBe(true);
   const after = readFileSync(join(root, 'docs', 'PRE-RELEASE.md'), 'utf-8');
   expect(after).toMatch(/\| Windows \| Verified 已驗證 \|/);
   expect(after).toMatch(/\| macOS \| Not yet verified/);
@@ -662,13 +686,15 @@ it('the acceptance job runs on Linux, macOS and Windows (from pwsh, cmd and Git 
   expect([...new Set(job.strategy.matrix.include.map((m) => m.shell))].sort(), 'every shell of the matrix has a step').toEqual(['bash', 'cmd', 'pwsh']);
   // the checkout is the commit that resolve pinned, so every system tests the same list
   expect(stepNamed(job, 'Checkout').with.ref).toBe('${{ needs.resolve.outputs.ref }}');
+  // the programs come from the released commit after a release, and from the branch it was started on for a manual start: an old tag does not have them
   const resolveCheckout = stepNamed(workflow().jobs.resolve, 'Checkout');
-  expect(resolveCheckout.with.ref).toContain('github.event.workflow_run.head_sha');
+  expect(resolveCheckout.with.ref).toBe("${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}");
+  expect(resolveCheckout.with.ref, 'a typed ref must not choose where the programs come from').not.toContain('inputs');
 });
 
 it('the order is wait for npm, run, summary, upload, and the summary and upload run when the run failed but not when the wait did (XSPEC-471 R1)', () => {
   const names = accept().steps.map((s) => s.name);
-  expect(names).toEqual(['Checkout', 'Setup Node.js', 'Wait until the version can be installed', 'Run acceptance (bash)', 'Run acceptance (pwsh)', 'Run acceptance (cmd)', 'Summarize the report', 'Upload the report']);
+  expect(names).toEqual(['Checkout', 'Checkout the list of the tested version', 'Use the list of the tested version', 'Setup Node.js', 'Wait until the version can be installed', 'Run acceptance (bash)', 'Run acceptance (pwsh)', 'Run acceptance (cmd)', 'Summarize the report', 'Upload the report']);
   for (const n of ['Summarize the report', 'Upload the report']) {
     const s = stepNamed(accept(), n);
     expect(s.if, n).toContain('always()');
@@ -676,6 +702,48 @@ it('the order is wait for npm, run, summary, upload, and the summary and upload 
   }
   // the run steps carry no `success()` condition of their own beyond the shell: they follow the wait step, so a missing package stops the job there
   for (const sh of ['bash', 'pwsh', 'cmd']) expect(stepNamed(accept(), `Run acceptance (${sh})`).if).not.toContain('always()');
+});
+
+it('a manual start with a ref takes only steps.json from that ref, the other steps are skipped when the list already comes from the same commit, and the typed ref is checked before it becomes an output (XSPEC-471 R1)', (ctx) => {
+  const job = accept();
+  const second = stepNamed(job, 'Checkout the list of the tested version');
+  const use = stepNamed(job, 'Use the list of the tested version');
+  const differs = '${{ needs.resolve.outputs.steps_ref != needs.resolve.outputs.ref }}';
+  expect(second.if).toBe(differs);
+  expect(use.if).toBe(differs);
+  expect(second.with).toMatchObject({ ref: '${{ needs.resolve.outputs.steps_ref }}', path: 'version-source', 'sparse-checkout': 'scripts/beta-acceptance/steps.json' });
+  expect(use.run).toBe('cp version-source/scripts/beta-acceptance/steps.json scripts/beta-acceptance/steps.json');
+  expect(use.shell).toBe('bash');
+
+  if (process.platform === 'win32') ctx.skip(); // the copy step and the pin step are bash scripts
+  // run the copy as written: the list of the tested version replaces the default list
+  const work = tmp.next('job');
+  mkdirSync(join(work, 'version-source', 'scripts', 'beta-acceptance'), { recursive: true });
+  mkdirSync(join(work, 'scripts', 'beta-acceptance'), { recursive: true });
+  writeFileSync(join(work, 'version-source', 'scripts', 'beta-acceptance', 'steps.json'), '{"list":"of the tested version"}');
+  writeFileSync(join(work, 'scripts', 'beta-acceptance', 'steps.json'), '{"list":"of the branch"}');
+  const cp = spawnSync('bash', ['-c', use.run], { cwd: work, encoding: 'utf-8' });
+  expect(cp.status, cp.stderr).toBe(0);
+  expect(readFileSync(join(work, 'scripts', 'beta-acceptance', 'steps.json'), 'utf-8')).toBe('{"list":"of the tested version"}');
+
+  // the pin step: a plain ref becomes an output, text that is not a ref is refused and writes nothing
+  const pin = stepNamed(workflow().jobs.resolve, 'Pin the commits');
+  const repoDir = tmp.next('repo');
+  mkdirSync(repoDir);
+  const git = (args) => spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.com', ...args], { cwd: repoDir, encoding: 'utf-8' });
+  git(['init', '-q']);
+  git(['commit', '-q', '--allow-empty', '-m', 'x']);
+  const pinWith = (STEPS_REF) => {
+    const out = tmp.next('github-output');
+    const r = spawnSync('bash', ['-c', pin.run], { cwd: repoDir, encoding: 'utf-8', env: { ...process.env, STEPS_REF, GITHUB_OUTPUT: out } });
+    return { r, out: existsSync(out) ? readFileSync(out, 'utf-8') : null };
+  };
+  const ok = pinWith('v6.14.0-beta.7');
+  expect(ok.r.status, ok.r.stderr).toBe(0);
+  expect(ok.out).toMatch(/^ref=[0-9a-f]{40}\nsteps_ref=v6\.14\.0-beta\.7\n$/);
+  const bad = pinWith('main\nversion=9.9.9');
+  expect(bad.r.status).not.toBe(0);
+  expect(bad.out, 'a ref with a newline must not be able to write another output').toBeNull();
 });
 
 it('no run step puts the typed version, the tag or the ref into script text; they reach the programs through env only (XSPEC-471 R1)', () => {
