@@ -427,8 +427,9 @@ it('downloads the newest artifact of each label for exactly this version and pla
   const oldWin = platformReport('windows', { version: V, verdict: 'fail', failed: 2 });
   const gh = ghFixture({
     artifacts: [
-      art(1, `acceptance-ci-windows-${V}`, 100, '2026-10-10T01:00:00Z'),
+      // the older upload is listed first on purpose: picking the first one seen would be wrong
       art(2, `acceptance-ci-windows-${V}`, 99, '2026-10-09T01:00:00Z'),
+      art(1, `acceptance-ci-windows-${V}`, 100, '2026-10-10T01:00:00Z'),
       art(3, `acceptance-ci-macos-${V}`, 100, '2026-10-10T01:00:00Z'),
       art(4, `acceptance-ci-linux-${V}`, 100, '2026-10-10T01:00:00Z', true),
       art(5, `acceptance-ci-linux-${V}-beta.7`, 98, '2026-10-10T02:00:00Z'),
