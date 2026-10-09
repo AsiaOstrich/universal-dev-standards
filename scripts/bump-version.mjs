@@ -20,6 +20,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import { syncSecurityVersions } from './lib/security-versions.mjs';
+import { evaluateStableGate, formatGate } from './beta-acceptance/lib/stable-gate.mjs';
 
 const IS_WINDOWS = process.platform === 'win32';
 
@@ -84,6 +85,26 @@ console.log(`  New version : ${BLUE}${NEW_VERSION}${NC}`);
 console.log(`  Release type: ${BLUE}${RELEASE_TYPE}${NC}`);
 console.log(`  Date        : ${BLUE}${TODAY}${NC}`);
 console.log('');
+
+// ── Pre-flight: stable-release gate (dev-platform XSPEC-471 R5) ─────────────────
+// A version without a pre-release mark is refused unless the latest preview of it was accepted, from the PUBLISHED package, on
+// Windows, macOS and Linux, every command and option has an acceptance step (the baseline is empty), and no step exemption says a
+// feature is known broken. Every missing thing is listed in one go. Preview versions skip this entirely.
+// It runs before anything is changed and before the parity gate (it is cheaper), and SKIP_BUNDLE_PARITY does not reach it: there is
+// deliberately no switch. See scripts/beta-acceptance/lib/stable-gate.mjs for the rules and README.md there for why no switch.
+if (!IS_PRERELEASE) {
+  console.log('── Stable-release gate | 正式版關卡 (XSPEC-471 R5) ───────────────────────────');
+  console.log('');
+  const gate = evaluateStableGate({ root: ROOT_DIR, target: NEW_VERSION.replace(/-.*$/, '') });
+  console.log(formatGate(gate, NEW_VERSION));
+  console.log('');
+  if (!gate.ok) {
+    console.error(`${RED}Stable-release gate REFUSED ${NEW_VERSION} — no file was modified. 正式版關卡拒絕 ${NEW_VERSION}，沒有改動任何檔案。${NC}`);
+    process.exit(1);
+  }
+  console.log(`  ${GREEN}[OK]${NC} Stable-release gate passed — proceeding.`);
+  console.log('');
+}
 
 // ── Pre-flight: bundle ⇄ source parity gate (XSPEC-072 Phase 4.2) ────────────
 // Refuse to bump/release when the npm-bundled standards have drifted from the

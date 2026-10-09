@@ -103,7 +103,22 @@ export function eligibleReports(reports, version) {
     && report.counts && Number.isInteger(report.counts.passed));
 }
 
-const SEVERITY = { fail: 0, error: 1, 'no-steps': 1, pass_with_unconfirmed: 2, pass: 3 };
+export const SEVERITY = { fail: 0, error: 1, 'no-steps': 1, pass_with_unconfirmed: 2, pass: 3 };
+
+/**
+ * The run that stands for each label: the newest one (a re-run replaces an earlier run of the same label).
+ * Shared with the stable-release gate (lib/stable-gate.mjs), so the document and the gate cannot disagree about which run counts.
+ * @returns {Array<{ file: string, report: object }>}
+ */
+export function newestPerLabel(reports) {
+  const newest = new Map();
+  for (const entry of reports) {
+    const key = String(entry.report.label ?? '');
+    const have = newest.get(key);
+    if (!have || String(entry.report.finishedAt).localeCompare(String(have.report.finishedAt)) > 0) newest.set(key, entry);
+  }
+  return [...newest.values()];
+}
 
 /**
  * Which report speaks for a platform. A platform can have several runs under different labels (the post-publish workflow
@@ -112,13 +127,7 @@ const SEVERITY = { fail: 0, error: 1, 'no-steps': 1, pass_with_unconfirmed: 2, p
  * passing one that happened to finish later. With one label this is "the latest report decides", as before.
  */
 function decide(reports) {
-  const newestPerLabel = new Map();
-  for (const entry of reports) {
-    const key = String(entry.report.label ?? '');
-    const have = newestPerLabel.get(key);
-    if (!have || String(entry.report.finishedAt).localeCompare(String(have.report.finishedAt)) > 0) newestPerLabel.set(key, entry);
-  }
-  const candidates = [...newestPerLabel.values()].sort((a, b) =>
+  const candidates = newestPerLabel(reports).sort((a, b) =>
     (SEVERITY[a.report.verdict] ?? 1) - (SEVERITY[b.report.verdict] ?? 1)
     || String(b.report.finishedAt).localeCompare(String(a.report.finishedAt)));
   return { shown: candidates[0], labels: candidates.length };
