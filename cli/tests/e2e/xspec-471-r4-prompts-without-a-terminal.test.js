@@ -59,6 +59,15 @@ it('uds spec delete without --yes and with no terminal deletes nothing, says why
   expect(existsSync(join(dir, SPEC_DIR, 'SPEC-001-keep.md'))).toBe(true);
 });
 
+it('uds spec delete of a spec that does not exist says so and exits 1 without asking first (Mac manual acceptance 2026-10-10)', async () => {
+  const dir = projectWithSpec('SPEC-001-keep', 'Keep me', ['AC-1: one']);
+  const run = await h.runCli(['spec', 'delete', 'SPEC-001-gone', '--output', SPEC_DIR], dir);
+  expect(run.code, run.stdout + run.stderr).toBe(1);
+  expect(run.stdout).toContain('Spec not found: SPEC-001-gone');
+  expect(run.stdout).not.toContain('Nothing has been deleted');
+  expect(existsSync(join(dir, SPEC_DIR, 'SPEC-001-keep.md'))).toBe(true);
+});
+
 it('uds spec create without --yes and with no terminal leaves the spec as a draft and says how to confirm it (XSPEC-471 R4)', async () => {
   const dir = h.makeDir('prompts');
   const run = await h.runCli(['spec', 'create', 'Add login page', '--output', SPEC_DIR], dir);

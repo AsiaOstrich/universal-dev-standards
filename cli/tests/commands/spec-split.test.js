@@ -188,6 +188,8 @@ describe('specSplitCommand', () => {
     expect(newSpecWrite).toBeDefined();
     expect(newSpecWrite[1]).toContain('AC-3');
     expect(newSpecWrite[1]).toContain('SPEC-010-complex'); // depends_on original
+    // The moved ACs end their section with a blank line, like every other section (Mac manual acceptance 2026-10-10).
+    expect(newSpecWrite[1]).toMatch(/AC-3[^\n]*\n\n\*\*Confirmed\*\*/);
 
     // Console shows success
     const output = consoleSpy.mock.calls.map(c => c[0]).join('\n');

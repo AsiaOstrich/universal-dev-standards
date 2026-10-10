@@ -1707,29 +1707,30 @@ async function offerErrorExitGate(projectPath, options) {
   const src = join(getRepoRoot(), 'templates', 'gates', 'check-error-exit.mjs');
   if (!existsSync(src)) return;                              // 範本沒出貨——沉默，不要假裝提供了
 
-  console.log(chalk.bold('  錯誤訊息單一出口閘門'));
-  console.log(chalk.gray('    防的是：每個呼叫端各自把錯誤回應拼成給人看的字串。'));
-  console.log(chalk.gray('    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。'));
-  console.log(chalk.gray(`    要寫入：scripts/check-error-exit.mjs（純 Node、零相依、${Math.round(readFileSync(src, 'utf-8').length / 1024)}KB）`));
-  console.log(chalk.gray('    寫入後它會 exit 2 直到你填好 CONFIG——那是刻意的，'));
-  console.log(chalk.gray('    一支在新 repo 裡靜靜回綠的閘門跟一支沒裝的無從分辨。'));
+  const m = t().commands.update.errorExitOffer;
+  console.log(chalk.bold(m.title));
+  console.log(chalk.gray(m.guards));
+  console.log(chalk.gray(m.drift));
+  console.log(chalk.gray(m.willWrite.replace('{kb}', String(Math.round(readFileSync(src, 'utf-8').length / 1024)))));
+  console.log(chalk.gray(m.exit2a));
+  console.log(chalk.gray(m.exit2b));
   console.log();
 
   const ok = await confirmOrFail({
-    message: '要把這道閘門寫進 scripts/check-error-exit.mjs 嗎？',
+    message: m.question,
     defaultValue: false,   // 🔴 預設不寫。沉默不是同意。
     options
   });
   if (!ok) {
-    console.log(chalk.gray('  跳過。`uds check` 之後會再提醒，但不會自己寫進去。'));
+    console.log(chalk.gray(m.skipped));
     console.log();
     return;
   }
 
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, readFileSync(src, 'utf-8'), 'utf-8');
-  console.log(chalk.green('  ✓ 已寫入 scripts/check-error-exit.mjs'));
-  console.log(chalk.gray('    下一步：填好檔頭的 CONFIG，然後把它接進你的 CI 或 pre-commit。'));
+  console.log(chalk.green(m.written));
+  console.log(chalk.gray(m.next));
   console.log();
 }
 

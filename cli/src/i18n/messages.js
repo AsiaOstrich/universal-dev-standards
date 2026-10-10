@@ -779,6 +779,12 @@ export const messages = {
 
       // check command
       check: {
+        errorExitGate: {
+          missing: '  ⚠ [error-exit] No single-exit check for error messages (scripts/check-error-exit.mjs).',
+          why1: '    This gate stops every caller from turning an error response into its own human-readable string —',
+          why2: '    the first one is the implementation; from the second on they drift apart, and the screen shows only "Bad Request".',
+          howTo: '    To install it: `uds update` shows its content and asks before writing it.',
+        },
         title: 'Universal Documentation Standards - Check',
         // Basic status
         standardsInitialized: '✓ Standards initialized',
@@ -1099,6 +1105,18 @@ export const messages = {
 
       // update command
       update: {
+        errorExitOffer: {
+          title: '  Single exit for error messages (gate)',
+          guards: '    It guards against: every caller turning an error response into its own human-readable string.',
+          drift: '    The first one is the implementation; from the second on they drift apart, and the screen shows only "Bad Request".',
+          willWrite: '    Will write: scripts/check-error-exit.mjs (plain Node, no dependencies, {kb}KB)',
+          exit2a: '    Once written it exits 2 until you fill in its CONFIG — on purpose:',
+          exit2b: '    a gate that quietly passes in a new repo cannot be told apart from one that is not installed.',
+          question: 'Write this gate to scripts/check-error-exit.mjs?',
+          skipped: '  Skipped. `uds check` will remind you again, but will not write it by itself.',
+          written: '  ✓ Wrote scripts/check-error-exit.mjs',
+          next: '    Next: fill in the CONFIG at the top of the file, then wire it into your CI or pre-commit.',
+        },
         title: 'Universal Documentation Standards - Update',
         // CLI update
         cliUpdateAvailable: '⚡ New CLI version available!',
@@ -2134,6 +2152,12 @@ export const messages = {
 
       // check command
       check: {
+        errorExitGate: {
+          missing: '  ⚠ [error-exit] 沒有錯誤訊息單一出口檢查（scripts/check-error-exit.mjs）。',
+          why1: '    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——',
+          why2: '    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。',
+          howTo: '    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。',
+        },
         title: '通用文件標準 - 檢查',
         // Basic status
         standardsInitialized: '✓ 標準已初始化',
@@ -2449,6 +2473,18 @@ export const messages = {
 
       // update command
       update: {
+        errorExitOffer: {
+          title: '  錯誤訊息單一出口閘門',
+          guards: '    防的是：每個呼叫端各自把錯誤回應拼成給人看的字串。',
+          drift: '    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。',
+          willWrite: '    要寫入：scripts/check-error-exit.mjs（純 Node、零相依、{kb}KB）',
+          exit2a: '    寫入後它會 exit 2 直到你填好 CONFIG——那是刻意的，',
+          exit2b: '    一支在新 repo 裡靜靜回綠的閘門跟一支沒裝的無從分辨。',
+          question: '要把這道閘門寫進 scripts/check-error-exit.mjs 嗎？',
+          skipped: '  跳過。`uds check` 之後會再提醒，但不會自己寫進去。',
+          written: '  ✓ 已寫入 scripts/check-error-exit.mjs',
+          next: '    下一步：填好檔頭的 CONFIG，然後把它接進你的 CI 或 pre-commit。',
+        },
         title: '通用文件標準 - 更新',
         // CLI update
         cliUpdateAvailable: '⚡ 有新的 CLI 版本可用！',
@@ -3505,6 +3541,12 @@ export const messages = {
 
       // check command
       check: {
+        errorExitGate: {
+          missing: '  ⚠ [error-exit] 没有错误信息单一出口检查（scripts/check-error-exit.mjs）。',
+          why1: '    这道闸门防的是「每个调用端各自把错误响应拼成给人看的字符串」——',
+          why2: '    第一处是实现，第二处开始就会各写各的，而界面上只剩一句 Bad Request。',
+          howTo: '    要装的话：`uds update` 会显示内容并征求同意后写入。',
+        },
         title: '通用文档标准 - 检查',
         // Basic status
         standardsInitialized: '✓ 标准已初始化',
@@ -3721,6 +3763,18 @@ export const messages = {
 
       // update command
       update: {
+        errorExitOffer: {
+          title: '  错误信息单一出口闸门',
+          guards: '    防的是：每个调用端各自把错误响应拼成给人看的字符串。',
+          drift: '    第一处是实现，第二处开始就会各写各的，而界面上只剩一句 Bad Request。',
+          willWrite: '    要写入：scripts/check-error-exit.mjs（纯 Node、零依赖、{kb}KB）',
+          exit2a: '    写入后它会 exit 2 直到你填好 CONFIG——那是刻意的，',
+          exit2b: '    一支在新 repo 里静静回绿的闸门跟一支没装的无从分辨。',
+          question: '要把这道闸门写进 scripts/check-error-exit.mjs 吗？',
+          skipped: '  跳过。`uds check` 之后会再提醒，但不会自己写进去。',
+          written: '  ✓ 已写入 scripts/check-error-exit.mjs',
+          next: '    下一步：填好文件头的 CONFIG，然后把它接进你的 CI 或 pre-commit。',
+        },
         title: '通用文档标准 - 更新',
         // CLI update
         cliUpdateAvailable: '⚡ 新 CLI 版本可用！',

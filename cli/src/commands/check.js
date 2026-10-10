@@ -1354,10 +1354,11 @@ function checkErrorExitGate(projectPath) {
   if (!existsSync(join(projectPath, 'src'))) {
     return;
   }
-  console.log(chalk.yellow('  ⚠ [error-exit] 沒有錯誤訊息單一出口檢查（scripts/check-error-exit.mjs）。'));
-  console.log(chalk.gray('    這道閘門防的是「每個呼叫端各自把錯誤回應拼成給人看的字串」——'));
-  console.log(chalk.gray('    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。'));
-  console.log(chalk.gray('    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。'));
+  const m = t().commands.check.errorExitGate;
+  console.log(chalk.yellow(m.missing));
+  console.log(chalk.gray(m.why1));
+  console.log(chalk.gray(m.why2));
+  console.log(chalk.gray(m.howTo));
   console.log();
 }
 

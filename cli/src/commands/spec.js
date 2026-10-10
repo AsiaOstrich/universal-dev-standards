@@ -275,6 +275,13 @@ export async function specDeleteCommand(id, options = {}) {
     output: options.output
   });
 
+  // Look the spec up before asking: asking "delete it?" about a spec that is not there, then saying so, wastes the answer.
+  if (!microSpec.get(id)) {
+    console.log(chalk.red(t('spec.notFound', 'Spec not found: ') + id));
+    process.exitCode = 1;
+    return;
+  }
+
   if (!options.yes) {
     let confirmed;
     try {
