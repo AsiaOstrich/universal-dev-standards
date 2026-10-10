@@ -2,13 +2,14 @@
 source: ../../../ai/MAINTENANCE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-08
+last_synced: 2026-10-11
+source_hash: 360d4eb5f652
 status: current
 ---
 
 # AI 标准维护指南
 
-> **Language**: [English](../../../ai/MAINTENANCE.md) | 繁体中文
+> **语言**: [English](../../../ai/MAINTENANCE.md) | [繁體中文](../../zh-TW/ai/MAINTENANCE.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2025-12-30
@@ -88,19 +89,34 @@ locales/zh-TW/ai/options/
 
 ### 步骤 1：检查目前同步状态
 
+**macOS / Linux:**
 ```bash
-# 执行翻译同步检查
 ./scripts/check-translation-sync.sh zh-TW
+```
+
+**Windows PowerShell:**
+```powershell
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 ```
 
 ### 步骤 2：识别 core/ 的变更
 
+**macOS / Linux:**
 ```bash
 # 检查最近变更
 git log --oneline core/ -10
 
 # 比较版本
 grep -E "^\*\*Version\*\*:|^version:" core/*.md | head -20
+```
+
+**Windows PowerShell:**
+```powershell
+# 检查最近变更
+git log --oneline core/ -10
+
+# 比较版本
+Select-String -Path core\*.md -Pattern "^\*\*Version\*\*:|^version:" | Select-Object -First 20
 ```
 
 ### 步骤 3：更新 ai/standards/
@@ -140,10 +156,15 @@ options:
 
 ### 步骤 6：验证同步
 
+**macOS / Linux:**
 ```bash
-# 再次执行同步检查
 ./scripts/check-translation-sync.sh zh-TW
+# 预期：所有档案 [CURRENT]
+```
 
+**Windows PowerShell:**
+```powershell
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 # 预期：所有档案 [CURRENT]
 ```
 
@@ -187,7 +208,6 @@ meta:
   updated: "{YYYY-MM-DD}"      # 最后更新日期
   source: core/{source}.md     # 来源档案路径
   description: {简短描述}
-  language: zh-CN              # 翻译档案需要此栏位
 
 # 选用：如标准有可配置选项
 options:
@@ -212,6 +232,21 @@ quick_reference:
     columns: [{col1}, {col2}, ...]
     rows:
       - [{val1}, {val2}, ...]
+```
+
+---
+
+## 翻译档案结构
+
+与英文版相同，另加以下字段：
+
+```yaml
+meta:
+  version: "{x.y.z}"           # 必须符合英文版本
+  updated: "{YYYY-MM-DD}"
+  source: core/{source}.md
+  description: {中文描述}
+  language: zh-TW              # ← 额外字段
 ```
 
 ---
@@ -301,19 +336,19 @@ grep -rh "file:.*options/" ai/standards/*.yaml | \
 
 ```powershell
 # 检查同步状态
-.\scripts\check-translation-sync.ps1 zh-TW
+.\scripts\check-translation-sync.ps1 -Locale zh-TW
 
 # 列出所有 AI 标准
 Get-ChildItem ai\standards\*.yaml
 
 # 列出所有选项
-Get-ChildItem -Recurse ai\options -Filter "*.yaml" | Sort-Object FullName
+Get-ChildItem ai\options -Recurse -Filter "*.yaml" | Sort-Object FullName
 
 # 比较档案数量
 Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
 Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
-Write-Host "EN options: $((Get-ChildItem -Recurse ai\options -Filter '*.yaml').Count)"
-Write-Host "ZH options: $((Get-ChildItem -Recurse locales\zh-TW\ai\options -Filter '*.yaml').Count)"
+Write-Host "EN options: $((Get-ChildItem ai\options -Recurse -Filter '*.yaml').Count)"
+Write-Host "ZH options: $((Get-ChildItem locales\zh-TW\ai\options -Recurse -Filter '*.yaml').Count)"
 ```
 
 ---

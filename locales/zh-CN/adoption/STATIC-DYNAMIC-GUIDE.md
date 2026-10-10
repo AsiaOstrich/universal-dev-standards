@@ -2,13 +2,14 @@
 source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-01-07
+last_synced: 2026-10-11
+source_hash: b3e348a13a75
 status: current
 ---
 
 # 静态与动态规范指南
 
-> **语言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | 繁体中文
+> **语言**: [English](../../../adoption/STATIC-DYNAMIC-GUIDE.md) | [繁體中文](../../zh-TW/adoption/STATIC-DYNAMIC-GUIDE.md) | 简体中文
 
 **版本**: 1.2.0
 **最后更新**: 2026-01-07
@@ -86,7 +87,7 @@ status: current
 
 | 规范 | 核心规则 | 核心目的 |
 |------|---------|---------|
-| [checkin-standards](../../../core/checkin-standards.md) | 编译通过、测试通过、覆盖率维持 | 确保 commit 前的程式码品质 |
+| [checkin-standards](../../../core/checkin-standards.md) | 编译通过、测试通过、覆盖率维持 | 确保 commit 前的代码质量 |
 
 ### 部署方式
 
@@ -119,8 +120,8 @@ status: current
 
 | 规范 | 静态元件 | 动态技能 | 触发关键字 |
 |------|----------|----------|------------|
-| [anti-hallucination](../../../core/anti-hallucination.md) | 确定性标签、建议原则 | ai-collaboration-standards | certainty, assumption, 确定性 |
-| [project-structure](../../../core/project-structure.md) | 目录惯例 | project-structure-guide | structure, organization, 结构 |
+| [anti-hallucination](../../../core/anti-hallucination.md) | 确定性标签、建议原则 | ai-collaboration-standards | certainty, assumption, inference |
+| [project-structure](../../../core/project-structure.md) | 目录惯例 | project-structure-guide | structure, organization |
 
 ### 部署方式
 
@@ -151,7 +152,7 @@ status: current
 | [changelog-standards](../../../core/changelog-standards.md) | changelog-guide | changelog, release notes, 变更日志 |
 | [code-review-checklist](../../../core/code-review-checklist.md) | code-review-assistant | review, PR, 审查 |
 | [commit-message-guide](../../../core/commit-message-guide.md) | commit-standards | commit, git, 提交, feat, fix |
-| [documentation-structure](../../../core/documentation-structure.md) | documentation-guide | README, docs, 文件 |
+| [documentation-structure](../../../core/documentation-structure.md) | documentation-guide | README, docs |
 | [documentation-writing-standards](../../../core/documentation-writing-standards.md) | documentation-guide | documentation |
 | [error-code-standards](../../../core/error-code-standards.md) | error-code-guide | error code, error handling, 错误码 |
 | [git-workflow](../../../core/git-workflow.md) | git-workflow-guide | branch, merge, 分支 |
@@ -165,8 +166,6 @@ status: current
 | [versioning](../../../core/versioning.md) | release-standards | version, release, 版本 |
 
 ### 部署方式
-
-安装为 Claude Code Skills：
 
 **主要路径：装进项目**（支持多种 AI 工具、有繁体与简体中文文本、跟随你装的 UDS 版本）
 ```bash
@@ -289,7 +288,7 @@ description: |
 - [CLAUDE.md 范本](../../../templates/CLAUDE.md.template) - 可立即使用的静态规则范本
 - [Claude Code Skills](../../../skills/README.md) - 技能安装指南
 - [采用指南](ADOPTION-GUIDE.md) - 整体采用策略
-- [MAINTENANCE.md](../MAINTENANCE.md) - 如何新增/更新技能（维护者专用）
+- 维护者工作流程指南 — 参见内部规划中心（`cross-project/ops/uds-operation.md`）
 
 ---
 

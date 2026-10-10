@@ -2,7 +2,8 @@
 source: ../../STANDARDS-MAPPING.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-07
+last_synced: 2026-10-11
+source_hash: 4207a4d165f6
 status: current
 ---
 
@@ -10,21 +11,104 @@ status: current
 
 本文件提供核心标准与各 AI 工具实作之间的完整对应关系。
 
+## 标准关系图
+
+```mermaid
+graph TB
+    subgraph "Development Methodology"
+        SDD[methodologies/guides/sdd-guide.md] --> FD[forward-derivation-standards.md]
+        RE[reverse-engineering-standards.md] --> SDD
+        SDD --> TDD[methodologies/guides/tdd-guide.md]
+        TDD --> BDD[methodologies/guides/bdd-guide.md]
+        BDD --> ATDD[methodologies/guides/atdd-guide.md]
+    end
+
+    subgraph "Testing Standards"
+        TS[testing-standards.md] --> TCD[test-completeness-dimensions.md]
+        TDD --> TS
+        BDD --> TS
+        ATDD --> TS
+    end
+
+    subgraph "Quality & Process"
+        AH[anti-hallucination.md] --> SDD
+        AH --> RE
+        CS[checkin-standards.md] --> CRG[code-review-checklist.md]
+        CS --> CMG[commit-message-guide.md]
+        CS --> TS
+    end
+
+    subgraph "Documentation"
+        DS[documentation-structure.md] --> DWS[documentation-writing-standards.md]
+        DWS --> CL[changelog-standards.md]
+        CL --> VER[versioning.md]
+    end
+
+    subgraph "Infrastructure"
+        GW[git-workflow.md] --> CMG
+        PS[project-structure.md] --> DS
+        LS[logging-standards.md] --> ECS[error-code-standards.md]
+    end
+
+    %% Cross-group connections
+    TS --> CS
+    SDD --> DS
+    VER --> CS
+```
+
+**如何阅读此图**：
+- 箭头表示依赖／引用关系
+- 从你的任务类型出发，找出相关标准
+- 顺着箭头发现相关的标准
+
 ## 覆盖摘要
+
+> ⚠️ 下方各类别的细项是早期版本（32 个标准时）手动维护的过时快照，尚未依目前的 149 个标准重新清点——四个类别列需要重新人工稽核才能再被信任。**总计**这一行已依目前的源文件重新核实，截至 2026-07-16 正确。
 
 | 类别 | 核心标准 | AI 标准 | Claude Code 技能 | 其他 AI 工具 |
 |------|---------|--------|-----------------|-------------|
-| 开发 | 14 | 16 | 10 | 4 |
-| 测试 | 2 | 7 | 2 | 4 |
-| 文件 | 2 | 4 | 1 | 4 |
-| 流程 | 4 | 4 | 4 | 4 |
+| 开发 | 18 | 18 | 12 | 4 |
+| 测试 | 6 | 6 | 4 | 4 |
+| 文件 | 4 | 4 | 2 | 4 |
+| 流程与质量 | 4 | 4 | 8 | 4 |
 
-**总计**：16 个核心标准 → 16 个 AI 标准 → 15 个 Claude Code 技能 → 4 个 AI 工具整合
+**总计**：149 个核心标准（`ls core/*.md`）→ 141 个 AI 标准（`ls ai/standards/*.ai.yaml`）→ 55 个 Claude Code 技能（`uds-manifest.json` stats）→ 10 个 AI 工具整合（`cli/src/core/constants.js` 的 `SUPPORTED_AI_TOOLS`）
+
+## ISO 标准对齐
+
+本节将 UDS 组件对应到国际软件工程标准。
+
+### ISO/IEC 12207（软件生命周期过程）
+
+| ISO 12207 过程组 | 过程 | UDS 组件 | 实现方式 |
+|-----------------|------|---------|---------|
+| **协议（6.1）** | 获取（6.1.1） | `ai-agreement-standards.md` | 上下文合约／RFP Prompts |
+| | 供应（6.1.2） | `ai-agreement-standards.md` | 交付验收／自我验证 |
+| **组织赋能（6.2）** | 基础设施（6.2.2） | `virtual-organization-standards.md` | 工具整合（MCP） |
+| | 人力资源（6.2.4） | `virtual-organization-standards.md` | 技能管理 |
+| | 质量管理（6.2.5） | `checkin-standards.md` | Vibe Checks／CI 闸门 |
+| **技术（6.4）** | 利害关系人需求（6.4.1） | `requirement-engineering.md` | 需求模板 |
+| | 实现（6.4.4） | `checkin-standards.md` | 编码标准 |
+| | 验证（6.4.7） | `testing-standards.md` | 测试金字塔 |
+| | 维护（6.4.10） | `refactoring-standards.md` | 重构规程 |
+
+### ISO/IEC 25010（系统与软件质量模型）
+
+| 质量特性 | UDS 组件 | 指标 |
+|---------|---------|------|
+| **可维护性** | `refactoring-standards.md` | 模块化、可分析性 |
+| **可靠性** | `testing-standards.md` | 测试覆盖率、容错性 |
+| **安全性** | `security-standards.md` | 保密性、完整性 |
+| **性能效率** | `performance-standards.md` | 时间特性、资源利用 |
+| **易用性** | `accessibility-standards.md` | 可操作性、无障碍性 |
 
 ## 核心标准矩阵
 
 | 核心标准 | AI 标准 | Claude Code 技能 | Cursor | Windsurf | Cline | Copilot |
 |---------|--------|-----------------|--------|----------|-------|---------|
+| ai-agreement-standards.md | - | contract-auditor (planned) | ✅ | ✅ | ✅ | ✅ |
+| virtual-organization-standards.md | - | hr-manager (planned) | ✅ | ✅ | ✅ | ✅ |
+| refactoring-standards.md | ✅ refactoring-standards.ai.yaml | refactoring-assistant | ✅ | ✅ | ✅ | ✅ |
 | anti-hallucination.md | ✅ | ai-collaboration-standards | ✅ | ✅ | ✅ | ✅ |
 | commit-message-guide.md | ✅ commit-message.ai.yaml | commit-standards | ✅ | ✅ | ✅ | ✅ |
 | code-review-guide.md | ✅ code-review.ai.yaml | code-review-assistant | ✅ | ✅ | ✅ | ✅ |
@@ -41,6 +125,19 @@ status: current
 | error-code-standards.md | ✅ error-codes.ai.yaml | error-code-guide | ✅ | ✅ | ✅ | ✅ |
 | test-driven-development.md | ✅ | tdd-assistant | ✅ | ✅ | ✅ | ✅ |
 | spec-driven-development.md | ✅ | spec-driven-dev | ✅ | ✅ | ✅ | ✅ |
+| accessibility-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| security-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| performance-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| requirement-engineering.md | ✅ | requirement-assistant | ✅ | ✅ | ✅ | ✅ |
+| reverse-engineering-standards.md | ✅ | reverse-engineer | ✅ | ✅ | ✅ | ✅ |
+| forward-derivation-standards.md | ✅ | spec-derivation | ✅ | ✅ | ✅ | ✅ |
+| acceptance-test-driven-development.md | ✅ | atdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| behavior-driven-development.md | ✅ | bdd-assistant | ✅ | ✅ | ✅ | ✅ |
+| ai-friendly-architecture.md | ✅ | ai-friendly-architecture | ✅ | ✅ | ✅ | ✅ |
+| ai-instruction-standards.md | ✅ | ai-instruction-standards | ✅ | ✅ | ✅ | ✅ |
+| developer-memory.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
+| project-context-memory.md | ✅ | project-discovery | ✅ | ✅ | ✅ | ✅ |
+| deployment-standards.md | ✅ | - | ✅ | ✅ | ✅ | ✅ |
 
 图例：✅ = 已实作 | - = 不适用作为独立技能
 

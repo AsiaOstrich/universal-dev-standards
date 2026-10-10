@@ -2,13 +2,16 @@
 source: ../../../../adoption/checklists/recommended.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: a9db5033c84d
 status: current
 ---
 
-# 等级二：推荐采用检查清单
+# 推荐采用检查清单（历史参考）
 
-> **语言**: [English](../../../../adoption/checklists/recommended.md) | 繁体中文
+> **语言**: [English](../../../../adoption/checklists/recommended.md) | [繁體中文](../../../zh-TW/adoption/checklists/recommended.md) | 简体中文
+>
+> **注意**：等级制度已移除。UDS 现在通过 `uds init` 默认安装所有标准。本检查清单保留作为历史参考。完整的采用检查清单请参见 [enterprise.md](enterprise.md)。
 
 > 团队专案的专业品质标准
 >
@@ -59,8 +62,8 @@ npx universal-dev-standards update --apply --skills   # 已设置好的项目
 等级二没有超出等级一的额外参考文件。
 
 **验证等级一文件**:
-- [ ] `.standards/checkin-standards.md` exists
-- [ ] `.standards/spec-driven-development.md` exists
+- [ ] `.standards/checkin-standards.md` 已存在
+- [ ] `.standards/spec-driven-development.md` 已存在
 
 ---
 
@@ -77,7 +80,7 @@ cp path/to/universal-dev-standards/extensions/languages/csharp-style.md .standar
 ```powershell
 Copy-Item path\to\universal-dev-standards\extensions\languages\csharp-style.md .standards\
 ```
-- [ ] `csharp-style.md` copied (if applicable)
+- [ ] 已复制 `csharp-style.md`（如适用）
 
 **用于 PHP 专案（macOS / Linux）**:
 ```bash
@@ -88,7 +91,7 @@ cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
 ```powershell
 Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
 ```
-- [ ] `php-style.md` copied (if applicable)
+- [ ] 已复制 `php-style.md`（如适用）
 
 ### 框架延伸
 
@@ -101,20 +104,20 @@ cp path/to/universal-dev-standards/extensions/frameworks/fat-free-patterns.md .s
 ```powershell
 Copy-Item path\to\universal-dev-standards\extensions\frameworks\fat-free-patterns.md .standards\
 ```
-- [ ] `fat-free-patterns.md` copied (if applicable)
+- [ ] 已复制 `fat-free-patterns.md`（如适用）
 
 ### 地区延伸
 
 **用于繁体中文团队（macOS / Linux）**:
 ```bash
-cp path/to/universal-dev-standards/extensions/locales/zh-cn.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 
 **用于繁体中文团队（Windows PowerShell）**:
 ```powershell
-Copy-Item path\to\universal-dev-standards\extensions\locales\zh-cn.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
 ```
-- [ ] `zh-cn.md` copied (if applicable)
+- [ ] 已复制 `zh-tw.md`（如适用）
 
 ---
 
@@ -135,7 +138,7 @@ cp path/to/universal-dev-standards/integrations/github-copilot/copilot-instructi
 New-Item -ItemType Directory -Force -Path .github
 Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
 ```
-- [ ] `.github/copilot-instructions.md` installed
+- [ ] 已安装 `.github/copilot-instructions.md`
 
 ### Cursor IDE
 
@@ -148,7 +151,7 @@ cp path/to/universal-dev-standards/integrations/cursor/.cursorrules .
 ```powershell
 Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
 ```
-- [ ] `.cursorrules` installed
+- [ ] 已安装 `.cursorrules`
 
 ### Windsurf IDE
 
@@ -161,7 +164,7 @@ cp path/to/universal-dev-standards/integrations/windsurf/.windsurfrules .
 ```powershell
 Copy-Item path\to\universal-dev-standards\integrations\windsurf\.windsurfrules .
 ```
-- [ ] `.windsurfrules` installed
+- [ ] 已安装 `.windsurfrules`
 
 ### Cline
 
@@ -174,9 +177,9 @@ cp path/to/universal-dev-standards/integrations/cline/.clinerules .
 ```powershell
 Copy-Item path\to\universal-dev-standards\integrations\cline\.clinerules .
 ```
-- [ ] `.clinerules` installed
+- [ ] 已安装 `.clinerules`
 
-### OpenSpec (for SDD workflow)
+### OpenSpec（用于 SDD 工作流程）
 
 **macOS / Linux:**
 ```bash
@@ -187,7 +190,7 @@ cp -r path/to/universal-dev-standards/integrations/openspec/ .openspec/
 ```powershell
 Copy-Item -Recurse path\to\universal-dev-standards\integrations\openspec\ .openspec\
 ```
-- [ ] `.openspec/` directory installed
+- [ ] 已安装 `.openspec/` 目录
 
 ---
 
@@ -195,24 +198,24 @@ Copy-Item -Recurse path\to\universal-dev-standards\integrations\openspec\ .opens
 
 ### Git 工作流程选择
 
-Review `git-workflow.md` and select:
+阅读 `git-workflow.md` 并选择：
 - [ ] Trunk-Based Development
 - [ ] GitHub Flow
 - [ ] GitFlow
 
-Document decision in project README or CONTRIBUTING.md.
+将决定记录在项目的 README 或 CONTRIBUTING.md 中。
 
-### 程式码审查流程
+### 代码审查流程
 
-- [ ] Define required reviewers
-- [ ] Set up branch protection rules
-- [ ] Configure code-review-assistant skill settings
+- [ ] 定义必要的审查者
+- [ ] 设置分支保护规则
+- [ ] 配置 code-review-assistant skill 设置
 
 ### 测试标准
 
-- [ ] Define coverage targets (recommended: 70/20/7/3)
-- [ ] Set up CI/CD pipeline
-- [ ] Configure testing-guide skill settings
+- [ ] 定义覆盖率目标（建议：70/20/7/3）
+- [ ] 设置 CI/CD 流水线
+- [ ] 配置 testing-guide skill 设置
 
 ---
 
@@ -220,29 +223,29 @@ Document decision in project README or CONTRIBUTING.md.
 
 ### 测试所有 Skills
 
-1. **commit-standards**: Write a commit → Should follow Conventional Commits
-2. **code-review-assistant**: Review code → Should use systematic checklist
-3. **git-workflow-guide**: Ask about branching → Should explain chosen workflow
-4. **release-standards**: Ask about versioning → Should explain SemVer
-5. **testing-guide**: Ask about tests → Should explain testing pyramid
+1. **commit-standards**：写一个 commit → 应遵循 Conventional Commits
+2. **code-review-assistant**：审查代码 → 应使用系统性检查清单
+3. **git-workflow-guide**：询问分支策略 → 应说明所选的工作流程
+4. **release-standards**：询问版本管理 → 应说明 SemVer
+5. **testing-guide**：询问测试 → 应说明测试金字塔
 
 ### 验证整合
 
-- [ ] AI tool follows project standards
-- [ ] AI tool provides evidence-based responses
+- [ ] AI 工具遵循项目标准
+- [ ] AI 工具提供基于证据的回应
 
 ---
 
 ## 最终检查清单
 
-| Category | Items | Status |
-|----------|-------|--------|
-| **Level 1 Skills** | ai-collaboration-standards, commit-standards | [ ] |
-| **Level 2 Skills** | code-review-assistant, git-workflow-guide, release-standards, testing-guide, requirement-assistant | [ ] |
-| **Reference Docs** | checkin-standards.md, spec-driven-development.md | [ ] |
-| **Extensions** | (selected based on project) | [ ] |
-| **Integrations** | (selected based on tools) | [ ] |
-| **Team Config** | Workflow, review process, testing targets | [ ] |
+| 类别 | 项目 | 状态 |
+|------|------|------|
+| **等级一 Skills** | ai-collaboration-standards, commit-standards | [ ] |
+| **等级二 Skills** | code-review-assistant, git-workflow-guide, release-standards, testing-guide, requirement-assistant | [ ] |
+| **参考文件** | checkin-standards.md, spec-driven-development.md | [ ] |
+| **延伸规范** | （依项目选择） | [ ] |
+| **整合** | （依工具选择） | [ ] |
+| **团队配置** | 工作流程、审查流程、测试目标 | [ ] |
 
 ---
 
@@ -260,16 +263,16 @@ Document decision in project README or CONTRIBUTING.md.
 - [Checkin Standards](../../../../core/checkin-standards.md) - 签入标准
 - [Git Workflow](../../../../core/git-workflow.md) - Git 工作流程
 - [Testing Standards](../../../../core/testing-standards.md) - 测试标准
-- [Code Review Checklist](../../../../core/code-review-checklist.md) - 程式码审查
+- [Code Review Checklist](../../../../core/code-review-checklist.md) - 代码审查
 
 ---
 
 ## 版本历史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
-| 1.0.0 | 2025-12-23 | Initial checklist |
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0.1 | 2025-12-24 | 新增：相关标准、授权章节 |
+| 1.0.0 | 2025-12-23 | 初版检查清单 |
 
 ---
 

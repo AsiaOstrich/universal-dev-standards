@@ -2,25 +2,26 @@
 source: ../../../../adoption/checklists/enterprise.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 8a0f688e3ba8
 status: current
 ---
 
-# 等级三：企业采用检查清单
+# 完整采用检查清单
 
-> **语言**: [English](../../../../adoption/checklists/enterprise.md) | 繁体中文
+> **语言**: [English](../../../../adoption/checklists/enterprise.md) | [繁體中文](../../../zh-TW/adoption/checklists/enterprise.md) | 简体中文
 
-> 企业或受监管专案的全面标准
+> 适用于所有专案的全面标准
 >
-> 设置时间：1-2 天
+> 快速设置：`npx universal-dev-standards init`
 
 ---
 
 ## 前置条件
 
-- [ ] 等级二（推荐）已完成
-- [ ] 利害关系人已批准全面采用
-- [ ] 已分配时间进行文件审查
+- [ ] 已初始化 Git 储存库
+- [ ] 已安装 Claude Code（用于 Skills）
+- [ ] 利害关系人已批准采用
 
 ---
 
@@ -91,10 +92,10 @@ Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
 
 **检查清单**:
-- [ ] `checkin-standards.md` (Level 1)
-- [ ] `spec-driven-development.md` (Level 1)
-- [ ] `documentation-writing-standards.md` (Level 3)
-- [ ] `project-structure.md` (Level 3)
+- [ ] `checkin-standards.md`（Level 1）
+- [ ] `spec-driven-development.md`（Level 1）
+- [ ] `documentation-writing-standards.md`（Level 3）
+- [ ] `project-structure.md`（Level 3）
 
 ---
 
@@ -113,7 +114,7 @@ cp path/to/universal-dev-standards/templates/migration-template.md docs/
 ```powershell
 Copy-Item path\to\universal-dev-standards\templates\migration-template.md docs\
 ```
-- [ ] `migration-template.md` copied (if applicable)
+- [ ] 已复制 `migration-template.md`（如适用）
 
 ---
 
@@ -122,14 +123,14 @@ Copy-Item path\to\universal-dev-standards\templates\migration-template.md docs\
 验证等级二的所有适用延伸规范已安装：
 
 ### 语言延伸
-- [ ] `csharp-style.md` (if C# project)
-- [ ] `php-style.md` (if PHP project)
+- [ ] `csharp-style.md`（C# 专案）
+- [ ] `php-style.md`（PHP 专案）
 
 ### 框架延伸
-- [ ] `fat-free-patterns.md` (if Fat-Free project)
+- [ ] `fat-free-patterns.md`（Fat-Free 专案）
 
 ### 地区延伸
-- [ ] `zh-cn.md` (if 简体中文 team)
+- [ ] `zh-tw.md`（繁体中文团队）
 
 ---
 
@@ -168,11 +169,11 @@ project/
 ```
 
 **检查清单**:
-- [ ] `README.md` created/updated
-- [ ] `CONTRIBUTING.md` created
-- [ ] `CHANGELOG.md` created
-- [ ] `docs/` directory structure created
-- [ ] `docs/adr/` for Architecture Decision Records
+- [ ] 已建立／更新 `README.md`
+- [ ] 已建立 `CONTRIBUTING.md`
+- [ ] 已建立 `CHANGELOG.md`
+- [ ] 已建立 `docs/` 目录结构
+- [ ] `docs/adr/` 用于架构决策记录（ADR）
 
 ---
 
@@ -190,8 +191,8 @@ project/
 └── ...
 ```
 
-- [ ] Directory structure follows standard
-- [ ] `.gitignore` properly configured
+- [ ] 目录结构遵循标准
+- [ ] `.gitignore` 已正确配置
 
 ---
 
@@ -201,25 +202,25 @@ project/
 
 遵循 `documentation-writing-standards.md`:
 
-- [ ] Document matrix defined (which docs for which project type)
-- [ ] Writing guidelines communicated to team
-- [ ] Review process for documentation established
+- [ ] 已定义文件矩阵（哪种专案类型需要哪些文件）
+- [ ] 已向团队传达撰写指引
+- [ ] 已建立文件审查流程
 
 ### 品质闸门
 
 遵循 `checkin-standards.md`:
 
-- [ ] Pre-commit hooks configured
-- [ ] CI/CD pipeline enforces standards
-- [ ] Build verification automated
+- [ ] 已配置 Pre-commit hooks
+- [ ] CI/CD 流水线强制执行标准
+- [ ] 构建验证已自动化
 
 ### 规格驱动开发
 
 遵循 `spec-driven-development.md`:
 
-- [ ] Team trained on SDD methodology
-- [ ] OpenSpec (or equivalent) workflow established
-- [ ] Spec → Implementation → Verification cycle defined
+- [ ] 团队已接受 SDD 方法论培训
+- [ ] 已建立 OpenSpec（或同等）工作流程
+- [ ] 已定义 规格 → 实作 → 验证 循环
 
 ---
 
@@ -227,10 +228,10 @@ project/
 
 适用于受监管产业：
 
-- [ ] Standards adoption documented
-- [ ] Change management process defined
-- [ ] Version control for all standards
-- [ ] Regular standards review scheduled
+- [ ] 已记录标准采用情况
+- [ ] 已定义变更管理流程
+- [ ] 所有标准均纳入版本控制
+- [ ] 已排定定期标准审查
 
 ---
 
@@ -240,43 +241,43 @@ project/
 
 以相关情境测试每个 skill:
 
-| Skill | Test Scenario | Pass |
-|-------|--------------|------|
-| ai-collaboration-standards | Ask for unverified claim | [ ] |
-| commit-standards | Write complex commit | [ ] |
-| code-review-assistant | Review PR | [ ] |
-| git-workflow-guide | Explain branching strategy | [ ] |
-| release-standards | Plan a release | [ ] |
-| testing-guide | Design test strategy | [ ] |
-| requirement-assistant | Write user story | [ ] |
-| documentation-guide | Plan documentation | [ ] |
+| Skill | 测试情境 | 通过 |
+|-------|---------|------|
+| ai-collaboration-standards | 要求提出未经验证的说法 | [ ] |
+| commit-standards | 撰写复杂的 commit | [ ] |
+| code-review-assistant | 审查 PR | [ ] |
+| git-workflow-guide | 说明分支策略 | [ ] |
+| release-standards | 规划一次发布 | [ ] |
+| testing-guide | 设计测试策略 | [ ] |
+| requirement-assistant | 撰写 user story | [ ] |
+| documentation-guide | 规划文件 | [ ] |
 
 ### 文件稽核
 
-- [ ] All required documents exist
-- [ ] Documents follow writing standards
-- [ ] Documents are up-to-date
+- [ ] 所有必要文件皆存在
+- [ ] 文件遵循撰写标准
+- [ ] 文件保持最新
 
 ### 整合验证
 
-- [ ] All AI tools follow project standards
-- [ ] CI/CD enforces quality gates
-- [ ] Team follows established workflows
+- [ ] 所有 AI 工具遵循专案标准
+- [ ] CI/CD 强制执行品质闸门
+- [ ] 团队遵循既定工作流程
 
 ---
 
 ## 最终检查清单
 
-| Category | Items | Status |
-|----------|-------|--------|
-| **All Skills (8)** | Complete set installed | [ ] |
-| **Reference Docs (4)** | All Level 1 + Level 3 docs | [ ] |
-| **Extensions** | All applicable installed | [ ] |
-| **Integrations** | All tools configured | [ ] |
-| **Documentation** | Structure established | [ ] |
-| **Project Structure** | Follows standard | [ ] |
-| **Governance** | Processes defined | [ ] |
-| **Verification** | All tests passed | [ ] |
+| 类别 | 项目 | 状态 |
+|------|------|------|
+| **所有 Skills（8）** | 完整安装 | [ ] |
+| **参考文件（4）** | 所有 Level 1 + Level 3 文件 | [ ] |
+| **延伸规范** | 所有适用项目已安装 | [ ] |
+| **整合** | 所有工具已配置 | [ ] |
+| **文件** | 结构已建立 | [ ] |
+| **专案结构** | 遵循标准 | [ ] |
+| **治理** | 流程已定义 | [ ] |
+| **验证** | 所有测试通过 | [ ] |
 
 ---
 
@@ -284,16 +285,16 @@ project/
 
 ### 定期审查
 
-- [ ] Monthly: Review standards compliance
-- [ ] Quarterly: Update standards if needed
-- [ ] Annually: Full standards audit
+- [ ] 每月：审查标准遵循情况
+- [ ] 每季：视需要更新标准
+- [ ] 每年：完整标准稽核
 
 ### 更新
 
 监控更新：
-- [ ] Subscribe to universal-dev-standards releases
-- [ ] Subscribe to universal-dev-skills releases
-- [ ] Plan upgrade process for new versions
+- [ ] 订阅 universal-dev-standards 的发布
+- [ ] 订阅 universal-dev-skills 的发布
+- [ ] 规划新版本的升级流程
 
 ---
 
@@ -301,13 +302,13 @@ project/
 
 完成后，您的专案具有：
 
-- Full AI assistance with 8 Claude Code Skills
-- Complete reference documentation
-- Language/framework-specific guidelines
-- All AI tool integrations
-- Proper documentation structure
-- Standard project organization
-- Governance processes
+- 以 8 个 Claude Code Skills 提供的完整 AI 协助
+- 完整的参考文件
+- 语言/框架专属指引
+- 所有 AI 工具整合
+- 正确的文件结构
+- 标准的专案组织
+- 治理流程
 
 您的专案现在遵循企业级文件标准。
 
@@ -326,10 +327,10 @@ project/
 
 ## 版本历史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
-| 1.0.0 | 2025-12-23 | Initial checklist |
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0.1 | 2025-12-24 | 新增：相关标准、授权章节 |
+| 1.0.0 | 2025-12-23 | 初版检查清单 |
 
 ---
 

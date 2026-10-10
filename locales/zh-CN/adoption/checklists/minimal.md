@@ -2,13 +2,16 @@
 source: ../../../../adoption/checklists/minimal.md
 source_version: 1.0.1
 translation_version: 1.0.1
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: e1ac3b282885
 status: current
 ---
 
-# 等级 1：基本采用检查清单
+# 基本采用检查清单（历史参考）
 
-> **语言**: [English](../../../../adoption/checklists/minimal.md) | 繁体中文
+> **语言**: [English](../../../../adoption/checklists/minimal.md) | [繁體中文](../../../zh-TW/adoption/checklists/minimal.md) | 简体中文
+>
+> **注意**：等级制度已移除。UDS 现在通过 `uds init` 默认安装所有标准。本检查清单保留作为历史参考。完整的采用检查清单请参见 [enterprise.md](enterprise.md)。
 
 > 任何专案的最低可行标准
 >
@@ -38,6 +41,7 @@ npx universal-dev-standards init
 只支持 Claude Code、只有英文技能文本、只跟正式版、项目内不放文件。
 
 ```bash
+# In Claude Code
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```
@@ -99,21 +103,21 @@ Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .stand
 
 ### 测试 Skills
 
-1. Open Claude Code in your project
-2. Try: "Help me write a commit message" → Should follow Conventional Commits
-3. Ask about code changes → Should provide evidence-based responses
+1. 在您的专案中打开 Claude Code
+2. 尝试："Help me write a commit message" → 应遵循 Conventional Commits
+3. 询问代码变更 → 应提供基于证据的回应
 
 ### 检阅参考文件
 
-- [ ] Read `checkin-standards.md` and understand quality gates
-- [ ] Read `spec-driven-development.md` and understand the methodology
+- [ ] 阅读 `checkin-standards.md` 并理解质量关卡
+- [ ] 阅读 `spec-driven-development.md` 并理解该方法论
 
 ---
 
 ## 最终检查清单
 
-| Item | Status |
-|------|--------|
+| 项目 | 状态 |
+|------|------|
 | ai-collaboration-standards skill | [ ] |
 | commit-standards skill | [ ] |
 | .standards/checkin-standards.md | [ ] |
@@ -139,10 +143,10 @@ Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .stand
 
 ## 版本历史
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.1 | 2025-12-24 | Added: Related Standards, License sections |
-| 1.0.0 | 2025-12-23 | Initial checklist |
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0.1 | 2025-12-24 | 新增：相关标准、授权章节 |
+| 1.0.0 | 2025-12-23 | 初版检查清单 |
 
 ---
 

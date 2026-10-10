@@ -2,7 +2,8 @@
 source: ../../../core/agent-dispatch.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-24
+last_synced: 2026-10-11
+source_hash: d18ca22786b3
 status: current
 ---
 
@@ -59,55 +60,89 @@ Prompt 包含执行所需的完整上下文，代理不需要额外提问或搜�
 
 ---
 
-## 独立性验证
-
-在并行派遣前，必须检查以下条件：
-
-| 检查项 | 条件 | 失败时处理 |
-|--------|------|-----------|
-| 文件集合不相交 | 两个任务不修改相同文件 | 串行执行 |
-| 无共享可变状态 | 任务间不依赖共享变量 | 合并为单一任务 |
-| 无执行顺序依赖 | 任务 B 不需要任务 A 的输出 | 串行执行 |
-
 ## 状态协议
 
-每个子代理必须返回标准化状态：
+每个子代理完成时必须回报以下四种状态之一：
 
-| 状态 | 含义 | 后续动作 |
-|------|------|---------|
-| `SUCCESS` | 任务完成，所有验证通过 | 整合结果 |
-| `FAILED` | 任务失败，附带错误详情 | 分析失败原因 |
-| `BLOCKED` | 任务被外部依赖阻塞 | 解除阻塞后重试 |
-| `PARTIAL` | 部分完成，附带进度说明 | 评估是否继续 |
+| 状态 | 说明 | 编排器动作 |
+|------|------|-----------|
+| `DONE` | 任务成功完成 | 继续下一个任务 |
+| `DONE_WITH_CONCERNS` | 已完成，但有需要记录的疑虑 | 记录疑虑，继续 |
+| `NEEDS_CONTEXT` | 需要更多上下文才能完成 | 注入上下文，重新派遣（不是重试） |
+| `BLOCKED` | 无法完成，需要升级处理 | 升级模型等级或拆分任务 |
 
-## 冲突预防
-
-### 文件级隔离
+### 状态判定流程
 
 ```
-代理 A: src/auth/**        ← 独立域
-代理 B: src/payments/**    ← 独立域
-代理 C: src/shared/**      ← ⚠️ 不可并行（共享域）
+Agent completes work
+  ├── All acceptance criteria met? → DONE
+  ├── Criteria met but concerns exist? → DONE_WITH_CONCERNS
+  ├── Missing information to proceed? → NEEDS_CONTEXT
+  └── Fundamentally unable to complete? → BLOCKED
 ```
-
-### 合并策略
-
-| 情况 | 策略 |
-|------|------|
-| 无冲突 | 自动合并 |
-| 格式冲突（仅空白/排序） | 自动解决 |
-| 语义冲突 | 人工审查 |
 
 ---
 
-## 相关标准
+## 冲突检测
 
-- [Git Worktree 隔离](git-worktree.md)
-- [分支完成工作流程](branch-completion.md)
-- [AI 模型选择策略](model-selection.md)
+并行代理返回时，编排器必须：
+
+1. **检查文件冲突** — 是否有多个代理修改了同一文件？
+2. **运行完整测试套件** — 合并所有变更后验证集成
+3. **解决冲突** — 自动解决，或标记交由人工审查
+
+```
+Agent A (modifies: src/auth.ts, src/auth.test.ts)  ─┐
+                                                      ├─→ Conflict check → Integration test
+Agent B (modifies: src/api.ts, src/api.test.ts)     ─┘
+```
 
 ---
 
-## 许可证
+## 规则
 
-本标准采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 发布。
+| ID | 触发条件 | 动作 | 优先级 |
+|----|---------|------|--------|
+| AD-001 | 多个代理编辑同一文件 | 标记冲突，要求合并解决 | Critical |
+| AD-002 | 代理回报 BLOCKED | 升级模型等级并重试一次 | High |
+| AD-003 | 所有并行代理完成 | 运行完整测试套件验证集成 | High |
+
+---
+
+## 示例
+
+### 正确：并行的独立任务
+
+```yaml
+# Two agents working on independent modules
+Agent 1:
+  task: "Add rate limiting to /api/users endpoint"
+  files: [src/api/users.ts, src/api/users.test.ts]
+
+Agent 2:
+  task: "Add caching to /api/products endpoint"
+  files: [src/api/products.ts, src/api/products.test.ts]
+
+# No shared files → safe to parallelize
+```
+
+### 错误：并行的相依任务
+
+```yaml
+# Two agents modifying shared state
+Agent 1:
+  task: "Refactor database connection pool"
+  files: [src/db.ts]  # ⚠️ shared file
+
+Agent 2:
+  task: "Add connection retry logic"
+  files: [src/db.ts]  # ⚠️ conflict!
+```
+
+---
+
+## 参考资料
+
+- **Superpowers**: [dispatching-parallel-agents](https://github.com/obra/superpowers), [subagent-driven-development](https://github.com/obra/superpowers) (MIT)
+- **MapReduce**: 概念性的并行执行模型
+- **Actor Model**: 独立代理的通信模式
