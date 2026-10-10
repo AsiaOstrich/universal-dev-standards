@@ -164,7 +164,8 @@ export async function specSplitCommand(id, options = {}) {
   const acSection = movedACLines.join('\n');
   const finalContent = newContent.replace(
     /\*\*Acceptance\*\*:[\s\S]*?(?=\n\*\*|$)/,
-    `**Acceptance**:\n${acSection}`
+    // The lazy match stops before the blank line that ends the section, so give it back (or **Confirmed** sticks to the last AC).
+    `**Acceptance**:\n${acSection}\n`
   );
 
   // T11 (XSPEC-292 §9.2): the two writes must be atomic. If creating the new
