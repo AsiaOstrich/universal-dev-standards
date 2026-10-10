@@ -2,36 +2,39 @@
 source: ../../../core/ai-instruction-standards.md
 source_version: 1.1.1
 translation_version: 1.1.1
-last_synced: 2026-08-19
+last_synced: 2026-10-11
+source_hash: 64bcd0b65483
 status: current
 ---
 
 # AI 指令文件规范
 
-> **语言**: [English](../../../core/ai-instruction-standards.md) | [简体中文](../../zh-TW/core/ai-instruction-standards.md) | 简体中文
+> **语言**: [English](../../../core/ai-instruction-standards.md) | [繁體中文](../../zh-TW/core/ai-instruction-standards.md) | 简体中文
 
-**版本**: 1.1.0
-**最后更新**: 2026-05-28
+**版本**: 1.1.1
+**最后更新**: 2026-08-19
 **适用范围**: 所有使用 AI 编码助手的项目
+**范围**: partial
+**行业标准**: 无（新兴 AI 工具实践）
 
 ---
 
 ## 目的
 
-本规范定义创建和维护 AI 指令文件（又称「系统提示词文件」）的最佳实践。这些文件引导 AI 助手理解项目特定的惯例、标准和工作流程。
+本规范定义创建和维护 AI 指令文件（又称「系统提示词文件」）的最佳实践。这些文件引导 AI 助手理解项目特定的惯例、标准和工作流程。v1.1.0 将范围扩展到 skill 层级的指令文件（SKILL.md），并新增 i18n 策略。
 
 ---
 
 ## 支持的 AI 工具
 
-| AI 工具 | 指令文件 | 格式 |
-|---------|---------|------|
-| Claude Code | `CLAUDE.md` | Markdown |
-| Cursor | `.cursorrules` | Markdown |
-| Windsurf | `.windsurfrules` | Markdown |
-| Cline | `.clinerules` | Markdown |
-| GitHub Copilot | `.github/copilot-instructions.md` | Markdown |
-| OpenCode | `.opencode/instructions.md` | Markdown |
+| AI 工具 | 指令文件 | 格式 | Skill 层级指令 |
+|---------|---------|------|---------------|
+| Claude Code | `CLAUDE.md` | Markdown | `.claude/skills/{name}/SKILL.md` |
+| Cursor | `.cursorrules` | Markdown | n/a |
+| Windsurf | `.windsurfrules` | Markdown | n/a |
+| Cline | `.clinerules` | Markdown | n/a |
+| GitHub Copilot | `.github/copilot-instructions.md` | Markdown | n/a |
+| OpenCode | `.opencode/instructions.md` | Markdown | n/a |
 
 ---
 
@@ -173,85 +176,104 @@ AI 指令档常需提供多语言版本——既为了国际采用者，也为�
 | 层 | 内容 | Canonical (en) | Locale ({lang}) | 为何分这层 |
 |----|------|---------------|----------------|-----------|
 | **L1 — Metadata** | YAML frontmatter `description`、`argument-hint`、`allowed-tools` | **必须英文** | **必须对应 locale 语言** | AI 触发讯号；英文 token 效率最高 + 训练语料密度高 |
-| **L2 — 指令（Instructions）** | 对 AI 的命令式规则 | **必须英文** | 对应 locale 语言（可选；可保留英文）| AI 读英文指令最精准 |
-| **L3 — 输出范本（Output Templates）** | 范例输出、回应格式、情境范本 | 英文（canonical 锁定英文）| **强制对应 locale**（mandatory）| **唯一直接影响 AI 输出语言的层** |
-| **L4 — 人类文件** | 维护者注解、贡献者说明 | 英文 | 对应 locale 语言（强烈建议）| 给人类维护者读，AI 不读 |
+| **L2 — 指令（Instructions）** | 对 AI 的命令式规则（步骤、行为、allowed-tools 的理由） | **必须英文** | 对应 locale 语言（可选；可保留英文）| AI 读英文指令最精准；只有维护者需要以自己的语言阅读指令时，locale 版才有用 |
+| **L3 — 输出范本（Output Templates）** | 范例输出、回应格式、情境范本 | 英文（canonical 锁定英文）| **强制对应 locale**（mandatory）| **唯一直接影响 AI 输出语言的层**——AI 会沿用它看到的范本语言 |
+| **L4 — 人类文件** | 维护者注解、操作说明、贡献者说明 | 英文 | 对应 locale 语言（强烈建议）| 给人类维护者读，AI 不读 |
 
-**关键 insight**：L1（description）是 AI 用来决定「**是否调用**」此 skill 的触发讯号——它**不**影响 AI 之后说什么。L3（output template）才是控制 AI 输出语言的唯一开关。**i18n 强制检查应该聚焦在 L3——加强 L1 的强制是常见错误。**
+**关键 insight**：L1（description）是 AI 用来决定「**是否调用**」此 skill 的触发讯号——它**不**影响 AI 之后说什么。L3（output template）才是控制 AI 输出语言的唯一开关，因为 AI 会模仿它看到的范本语言。**i18n 强制检查应该聚焦在 L3——加强 L1 的强制是常见错误，解决的是错的问题。**
 
 ### Canonical / Locale 档案结构
 
 UDS 标准与 skill 的 locale 变体结构：
 
 ```text
-core/{name}.md
-core/{name}.ai.yaml
-locales/{lang}/core/{name}.md
-locales/{lang}/ai/standards/{name}.ai.yaml
-skills/{name}/SKILL.md
-locales/{lang}/skills/{name}/SKILL.md
+core/{name}.md                              ← canonical (English) — single source of truth
+core/{name}.ai.yaml                         ← canonical structured (English)
+locales/{lang}/core/{name}.md               ← locale variant (matches lang)
+locales/{lang}/ai/standards/{name}.ai.yaml  ← locale .ai.yaml (matches lang)
+skills/{name}/SKILL.md                      ← canonical skill (English)
+locales/{lang}/skills/{name}/SKILL.md       ← locale skill variant
 ```
 
 **命名惯例**：使用 BCP 47 语言标签——`zh-TW`、`zh-CN`、`ja`、`ko`、`en-US` 等。
 
 ### Locale 变体 Frontmatter 必填栏位
 
+每个 locale 变体都必须带有可追溯的 frontmatter，才能侦测漂移：
+
 ```yaml
 ---
-name: {与 canonical 同名}
-source: {指回 canonical 的相对路径}
-source_version: {翻译时 canonical 的版本}
-translation_version: {本翻译的版本}
+name: {same name as canonical}
+source: {relative path back to canonical}
+source_version: {version of canonical at time of translation}
+translation_version: {version of this translation}
 ---
 ```
 
-`source_version` 落后超过 2 个 minor 版本会触发 drift 警告。
+canonical 更新（bump `source_version`）时，locale 维护者应重新同步并 bump `translation_version`。`source_version` 落后超过 2 个 minor 版本会触发 drift 警告（见「Chimera 防范」）。
 
 ### 责任边界
 
 | 角色 | 拥有 | 必须做 |
 |------|------|--------|
-| **Canonical 拥有者** | `core/{name}.md` 等 | 维持 L1/L2/L3/L4 为英文；breaking change 时 bump `source_version` |
-| **Locale 维护者** | `locales/{lang}/...` | `translation_version` 对齐 `source_version`；翻译 L1（必）、L2（选）、L3（必）、L4（建议）|
-| **采用者** | 自己的 `.claude/skills/`、`CLAUDE.md` | 用 `uds init --locale {lang}`（首次）或 `uds update --locale {lang}`（重新同步）安装；**绝不**手动修改 canonical |
+| **Canonical 拥有者** | `core/{name}.md`、`core/{name}.ai.yaml`、`skills/{name}/SKILL.md` | 维持 L1/L2/L3/L4 为英文；每次 breaking change 都 bump `source_version` |
+| **Locale 维护者** | `locales/{lang}/...` 档案 | `translation_version` 对齐 `source_version`；翻译 L1（必）、L2（选）、L3（必）、L4（建议）|
+| **采用者（下游项目）** | 自己的 `.claude/skills/`、`CLAUDE.md` 等 | 用 `uds init --locale {lang}`（首次）或 `uds update --locale {lang}`（重新同步）安装；**绝不**手动修改 canonical 档案（一律编辑 locale 变体或使用 overlay）|
 
 ### Chimera 防范
 
+**Chimera** 指违反分层规则、混用语言的档案。常见的 chimera 模式：
+
 | 模式 | 严重度 | 侦测方式 |
 |------|--------|----------|
-| Canonical 的 `description` 含 CJK | ❌ Error | Lint |
-| Locale 变体的 `description` 是纯 ASCII | ❌ Error | Lint |
-| Locale 变体缺 `source:` frontmatter | ❌ Error | Lint |
-| Canonical L3 含非英文范例 | ⚠️ Warn | Lint |
-| 采用者档案与 canonical/locale 都不同 | ⚠️ Warn | Sync check |
-| `translation_version` 落后过多 | ⚠️ Warn | Drift check |
+| Canonical 的 `description` 栏位含 CJK | ❌ Error | Lint: `canonical:description-must-be-ascii` |
+| Locale 变体的 `description` 栏位是纯 ASCII | ❌ Error | Lint: `locale:description-must-match-language` |
+| Locale 变体缺 `source:` frontmatter | ❌ Error | Lint: `locale:must-have-source-frontmatter` |
+| Canonical L3 输出范本含非英文范例回应 | ⚠️ Warn | Lint: `canonical:l3-language-consistency` |
+| `.claude/skills/` 中的采用者档案与 canonical 及任何 locale 变体都不同 | ⚠️ Warn | Sync check: `adopter:must-match-installed-locale` |
+| `translation_version` 落后 `source_version` 超过 2 个 minor 版本 | ⚠️ Warn | Drift check |
+
+Pre-commit / CI lint 应强制执行 error 级规则；warn 级规则显示在仪表板上，但不阻断。
 
 ### 采用者安装
 
+采用者通过 UDS CLI 安装指令档：
+
 ```bash
-uds init --locale zh-cn     # 首次以简体中文安装 skills 与 standards
-uds update --locale zh-cn   # 对既有采用重新同步
+uds init --locale zh-tw     # first-time install of skills + standards in Traditional Chinese
+uds update --locale zh-tw   # re-sync an existing adoption
 ```
 
-**Locale 解析优先顺序**：`--locale` flag > `.uds/install.yaml` > `UDS_LOCALE` env > fallback `en`
+**Locale 解析优先顺序**：
+1. `--locale` CLI flag（最高优先）
+2. `.uds/install.yaml` 的 `locale:` 栏位
+3. 环境变量 `UDS_LOCALE`
+4. Fallback：`en`
 
-Locale 不存在时 fallback 到 canonical + WARN，**不**阻断安装。
+**Locale 不存在时的 fallback**：某个 skill 没有所请求的 locale 变体时，CLI 会：
+- 安装 canonical（英文）档案
+- 发出 WARN，列出改用 fallback 的 skills
+- **不**阻断安装
+
+这让 locale 覆盖不完整时，采用者仍能正常安装。采用者可查阅 `locales/COVERAGE.md`，取得哪些已翻译、哪些未翻译的权威清单。
 
 ### 迁移：已有 chimera 的采用者
 
-1. **辨识 chimera**：比对采用者档案与 UDS canonical / locale 变体
-2. **安装正确变体**：`uds update --locale {lang}`
-3. **保留专案级客制**：抽出为 overlay
-4. **丢弃纯翻译**：locale 变体取代之
+若采用者已在自己的项目中手动修改过 canonical 档案（例如翻译了 `.claude/skills/` 里的 description）：
+
+1. **辨识 chimera**：比对采用者档案与 UDS canonical 及 canonical 的 locale 变体。
+2. **安装正确变体**：执行 `uds update --locale {lang}`，以 locale 变体取代 chimera 档案。
+3. **保留项目级客制**：若 chimera 含有正当的项目级客制（不只是翻译），将其抽出为 overlay，或记录在采用者的客制化纪录中（例如 `UDS-CUSTOMIZATION.md`）。
+4. **丢弃纯翻译**：只是翻译的 chimera 变更应丢弃——正确的 locale 变体会取代它们。
 
 ### 快速参考
 
 | 动作 | 何时 | 工具 / 档案 |
 |------|------|------------|
-| 新增语言支援 | 想支援新 locale | `locales/{lang}/...` |
-| 更新 canonical | 改进英文 source | Bump `source_version` |
-| 翻译 / 同步 locale | 新增或更新 locale 内容 | Bump `translation_version` |
-| 检查覆盖率 | 定期 review | `locales/COVERAGE.md` |
+| 新增语言支援 | 想支援新 locale | 建立 `locales/{lang}/...`，镜射 canonical 结构 |
+| 更新 canonical | 改进英文 source | Bump `source_version`；通知 locale 维护者 |
+| 翻译 / 同步 locale | 新增或更新 locale 内容 | Bump `translation_version`；引用当前的 `source_version` |
+| 检查覆盖率 | 定期 review | 查看自动产生的 `locales/COVERAGE.md` |
 | 带 locale 安装 | 采用者初设 | `uds init --locale {lang}` |
 | 带 locale 重新同步 | 既有采用 | `uds update --locale {lang}` |
 | 跑 i18n lint | Commit 前 / CI | `uds check --i18n` |

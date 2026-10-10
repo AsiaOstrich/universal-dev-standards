@@ -2,7 +2,8 @@
 source: ../../SECURITY.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: e897d42bcd9f
 status: current
 ---
 

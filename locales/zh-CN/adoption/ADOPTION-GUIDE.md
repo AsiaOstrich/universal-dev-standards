@@ -2,13 +2,14 @@
 source: ../../../adoption/ADOPTION-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 51fdc21380ea
 status: current
 ---
 
 # 规范采用指南
 
-> **语言**: [English](../../../adoption/ADOPTION-GUIDE.md) | 繁体中文
+> **语言**: [English](../../../adoption/ADOPTION-GUIDE.md) | [繁體中文](../../zh-TW/adoption/ADOPTION-GUIDE.md) | 简体中文
 >
 > 版本 1.0.0
 
@@ -22,8 +23,8 @@ status: current
 - [静态与动态规范](#静态与动态规范)
 - [规范分类](#规范分类)
 - [完整规范对照表](#完整规范对照表)
-- [采用等级](#采用等级)
 - [如何采用](#如何采用)
+- [采用之后：日常工作流程](#采用之后日常工作流程)
 - [常见错误避免](#常见错误避免)
 
 ---
@@ -76,7 +77,7 @@ status: current
 
 **部署方式**：装进项目（主要路径）、通过 Claude Code 插件市场（替代方式，有限制）或手动复制，安装为 Skills。
 
-> 详细分类请参阅 [STATIC-DYNAMIC-GUIDE.md](../../../adoption/STATIC-DYNAMIC-GUIDE.md)。
+> 详细分类请参阅 [STATIC-DYNAMIC-GUIDE.md](STATIC-DYNAMIC-GUIDE.md)。
 
 ---
 
@@ -107,14 +108,14 @@ cp -r skills/commit-standards ~/.claude/skills/
 
 **采用方式**：复制到专案的 `.standards/` 目录
 
-**macOS / Linux:**
 ```bash
+# macOS / Linux
 mkdir -p .standards
 cp <source-file> .standards/
 ```
 
-**Windows PowerShell:**
 ```powershell
+# Windows PowerShell
 New-Item -ItemType Directory -Force -Path .standards
 Copy-Item <source-file> .standards\
 ```
@@ -143,100 +144,61 @@ Copy-Item <source-file> .standards\
 
 ### 核心规范
 
-| 规范 | 类别 | Skill 名称 | 等级 | 采用方式 |
-|------|------|-----------|------|---------|
-| anti-hallucination.md | Skill | ai-collaboration-standards | 1 | 安装 Skill |
-| commit-message-guide.md | Skill | commit-standards | 1 | 安装 Skill |
-| checkin-standards.md | 参考文件 | - | 1 | 复制到专案 |
-| spec-driven-development.md | 参考文件 | - | 1 | 复制到专案 |
-| code-review-checklist.md | Skill | code-review-assistant | 2 | 安装 Skill |
-| git-workflow.md | Skill | git-workflow-guide | 2 | 安装 Skill |
-| versioning.md | Skill | release-standards | 2 | 安装 Skill |
-| changelog-standards.md | Skill | release-standards | 2 | 安装 Skill |
-| testing-standards.md | Skill | testing-guide | 2 | 安装 Skill |
-| documentation-structure.md | Skill | documentation-guide | 3 | 安装 Skill |
-| documentation-writing-standards.md | 参考文件 | - | 3 | 复制到专案 |
-| project-structure.md | 参考文件 | - | 3 | 复制到专案 |
+| 规范 | 类别 | Skill 名称 | 采用方式 |
+|------|------|-----------|---------|
+| anti-hallucination.md | Skill | ai-collaboration-standards | 安装 Skill |
+| commit-message-guide.md | Skill | commit-standards | 安装 Skill |
+| checkin-standards.md | 参考文件 | - | 复制到专案 |
+| spec-driven-development.md | 参考文件 | - | 复制到专案 |
+| code-review-checklist.md | Skill | code-review-assistant | 安装 Skill |
+| git-workflow.md | Skill | git-workflow-guide | 安装 Skill |
+| versioning.md | Skill | release-standards | 安装 Skill |
+| changelog-standards.md | Skill | release-standards | 安装 Skill |
+| testing-standards.md | Skill | testing-guide | 安装 Skill |
+| documentation-structure.md | Skill | documentation-guide | 安装 Skill |
+| documentation-writing-standards.md | 参考文件 | - | 复制到专案 |
+| project-structure.md | 参考文件 | - | 复制到专案 |
 
 ### 延伸规范
 
-| 规范 | 类别 | 适用范围 | 等级 |
-|------|------|---------|------|
-| csharp-style.md | 延伸 | C# 专案 | 2 |
-| php-style.md | 延伸 | PHP 8.1+ 专案 | 2 |
-| fat-free-patterns.md | 延伸 | Fat-Free Framework | 2 |
-| zh-cn.md | 延伸 | 繁体中文团队 | 2 |
+| 规范 | 类别 | 适用范围 |
+|------|------|---------|
+| csharp-style.md | 延伸 | C# 专案 |
+| php-style.md | 延伸 | PHP 8.1+ 专案 |
+| fat-free-patterns.md | 延伸 | Fat-Free Framework |
+| zh-tw.md | 延伸 | 繁体中文团队 |
 
 ### 整合配置
 
-| 规范 | 目标路径 | 等级 |
-|------|---------|------|
-| copilot-instructions.md | .github/copilot-instructions.md | 2 |
-| .cursorrules | .cursorrules | 2 |
-| .windsurfrules | .windsurfrules | 2 |
-| .clinerules | .clinerules | 2 |
-| google-antigravity/* | 请参阅 README | 2 |
-| openspec/* | 请参阅 README | 2 |
+| 规范 | 目标路径 |
+|------|---------|
+| copilot-instructions.md | .github/copilot-instructions.md |
+| .cursorrules | .cursorrules |
+| .windsurfrules | .windsurfrules |
+| .clinerules | .clinerules |
+| google-antigravity/* | 请参阅 README |
+| openspec/* | 请参阅 README |
 
 ### 模板
 
-| 模板 | 类别 | 适用范围 | 等级 |
-|------|------|---------|------|
-| requirement-*.md | Skill | 所有专案 | 2 |
-| migration-template.md | 模板 | 迁移专案 | 3 |
-
----
-
-## 采用等级
-
-### 等级一：基本
-
-任何专案的最低可行标准。设置时间：约 30 分钟。
-
-**必要**：
-- [ ] ai-collaboration-standards (Skill)
-- [ ] commit-standards (Skill)
-- [ ] checkin-standards.md (参考文件)
-- [ ] spec-driven-development.md (参考文件)
-
-详细检查清单请参阅 [checklists/minimal.md](../../../adoption/checklists/minimal.md)。
-
-### 等级二：推荐
-
-团队专案的专业品质标准。设置时间：约 2 小时。
-
-**包含等级一，加上**：
-- [ ] code-review-assistant (Skill)
-- [ ] git-workflow-guide (Skill)
-- [ ] release-standards (Skill)
-- [ ] testing-guide (Skill)
-- [ ] 适用的延伸规范
-- [ ] AI 工具整合
-
-详细检查清单请参阅 [checklists/recommended.md](../../../adoption/checklists/recommended.md)。
-
-### 等级三：企业
-
-企业或受监管专案的全面标准。设置时间：1-2 天。
-
-**包含等级二，加上**：
-- [ ] documentation-guide (Skill)
-- [ ] documentation-writing-standards.md (参考文件)
-- [ ] project-structure.md (参考文件)
-- [ ] migration-template.md (如适用)
-
-详细检查清单请参阅 [checklists/enterprise.md](../../../adoption/checklists/enterprise.md)。
+| 模板 | 类别 | 适用范围 |
+|------|------|---------|
+| requirement-*.md | Skill | 所有专案 |
+| migration-template.md | 模板 | 迁移专案 |
 
 ---
 
 ## 如何采用
 
-### 步骤一：决定采用等级
+### 步骤一：通过 CLI 安装规范（推荐）
 
-考虑专案需求：
-- **个人／副专案**：等级一
-- **团队专案**：等级二
-- **企业／受监管**：等级三
+采用所有规范最简单的方式：
+
+```bash
+npx universal-dev-standards init
+```
+
+这会为你的专案安装所有可用的规范、skills 与整合。
 
 ### 步骤二：安装 Skills
 
@@ -273,12 +235,9 @@ Copy-Item -Recurse universal-dev-standards\skills\claude-code\commit-standards $
 # 在专案目录中
 mkdir -p .standards
 
-# 根据等级复制参考文件
-# 等级一
+# 复制所有参考文件
 cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
 cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
-
-# 等级三（额外）
 cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
@@ -288,12 +247,9 @@ cp path/to/universal-dev-standards/core/project-structure.md .standards/
 # 在专案目录中
 New-Item -ItemType Directory -Force -Path .standards
 
-# 根据等级复制参考文件
-# 等级一
+# 复制所有参考文件
 Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
-
-# 等级三（额外）
 Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
@@ -304,14 +260,14 @@ Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```bash
 # 范例：PHP 专案，繁体中文团队
 cp path/to/universal-dev-standards/extensions/languages/php-style.md .standards/
-cp path/to/universal-dev-standards/extensions/locales/zh-cn.md .standards/
+cp path/to/universal-dev-standards/extensions/locales/zh-tw.md .standards/
 ```
 
 **Windows PowerShell:**
 ```powershell
 # 范例：PHP 专案，繁体中文团队
 Copy-Item path\to\universal-dev-standards\extensions\languages\php-style.md .standards\
-Copy-Item path\to\universal-dev-standards\extensions\locales\zh-cn.md .standards\
+Copy-Item path\to\universal-dev-standards\extensions\locales\zh-tw.md .standards\
 ```
 
 ### 步骤五：设置 AI 工具整合
@@ -335,6 +291,22 @@ Copy-Item path\to\universal-dev-standards\integrations\cursor\.cursorrules .
 New-Item -ItemType Directory -Force -Path .github
 Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-instructions.md .github\
 ```
+
+---
+
+## 采用之后：日常工作流程
+
+执行 `uds init` 之后，你可能会想：**「日常开发中要怎么使用 UDS？」**
+
+[DAILY-WORKFLOW-GUIDE.md](DAILY-WORKFLOW-GUIDE.md) 对此有详细说明，内容包括：
+
+- **Greenfield 与 Brownfield**：新专案与旧有代码库的不同工作流程
+- **渐进式采用**：你不需要反向工程所有旧代码
+- **依任务类型选择工作流程**：根据任务类型选择方法论
+- **旧有代码策略**：Golden Master Testing、特征测试（Characterization Tests）
+- **可用命令**：日常使用的快速参考（`/tdd`、`/bdd`、`/sdd` 等）
+
+> **关键洞见**：对旧专案而言，重点是「触碰一点，保护一点」，而不是事前就写齐完整文件。
 
 ---
 
@@ -396,6 +368,5 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - 来源储存库
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills 储存库
-- [最小检查清单](../../../adoption/checklists/minimal.md) - 等级一采用检查清单
-- [推荐检查清单](../../../adoption/checklists/recommended.md) - 等级二采用检查清单
-- [企业检查清单](../../../adoption/checklists/enterprise.md) - 等级三采用检查清单
+- [日常工作流程指南](DAILY-WORKFLOW-GUIDE.md) - 采用之后如何使用 UDS
+- [采用检查清单](checklists/enterprise.md) - 完整的采用检查清单

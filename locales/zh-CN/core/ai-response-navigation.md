@@ -2,7 +2,8 @@
 source: ../../../core/ai-response-navigation.md
 source_version: 1.4.0
 translation_version: 1.4.0
-last_synced: 2026-10-05
+last_synced: 2026-10-11
+source_hash: 1439c64bce23
 status: current
 ---
 

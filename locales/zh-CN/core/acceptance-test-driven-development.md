@@ -2,7 +2,8 @@
 source: ../../../core/acceptance-test-driven-development.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-24
+last_synced: 2026-10-11
+source_hash: c3209a2e8e02
 status: current
 ---
 

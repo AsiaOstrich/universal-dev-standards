@@ -1,17 +1,20 @@
 ---
 source: ../../../core/acceptance-criteria-traceability.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
-status: stale
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-10-11
+source_hash: 06ca6a77af24
+status: current
 ---
 
 # 验收标准可追溯性规范
 
-> **语言**: [English](../../../core/acceptance-criteria-traceability.md) | 简体中文
+> **语言**: [English](../../../core/acceptance-criteria-traceability.md) | [繁體中文](../../zh-TW/core/acceptance-criteria-traceability.md) | 简体中文
 
+**版本**: 1.2.0
+**最后更新**: 2026-08-24
 **适用范围**: 所有使用规格驱动或测试驱动工作流程的软件项目
-**Scope**: universal
+**范围**: universal
 
 ---
 
@@ -78,6 +81,12 @@ class TestAC1_UserLogin:
 Scenario: User login with valid credentials
 ```
 
+> **键名拼法（刻意设计，不是冲突）。** `acceptance-criteria`（kebab-case）
+> 是给人看的／识别字拼法——文档标题、标准 id、AI 格式的键。
+> `acceptance_criteria`（snake_case）是 YAML **序列化**字段（例如
+> `structured-task-definition`）。`acceptanceCriteria`（camelCase）不使用。
+> 这些是各层适用的拼法（见词汇表的字段命名表），**不予统一**。
+
 ---
 
 ## 覆盖状态定义
@@ -89,28 +98,60 @@ Scenario: User login with valid credentials
 | **已覆盖** | ✅ | AC 已完整测试 | AC 中所有条件都有对应的测试断言 |
 | **部分覆盖** | ⚠️ | AC 已部分测试 | 部分条件已测试，但缺少边界情况或执行路径 |
 | **未覆盖** | ❌ | AC 没有测试 | 没有任何测试用例引用此 AC |
+| **未实现** | 🚫 | AC 没有对应的实现 | 功能代码不存在（不是测试缺口，而是代码缺口） |
+
+### `not_implemented` 与 `uncovered` 判定树
+
+```
+Q1: Does the corresponding code exist in src/?
+  No → 🚫 not_implemented
+  Yes → Q2: Does any test reference this AC?
+    No → ❌ uncovered
+    Yes → Q3: Are all conditions in the AC tested?
+      Yes → ✅ covered
+      No → ⚠️ partial
+```
+
+`not_implemented` 的典型信号：`throw new NotImplementedException()`、空的 stub 函数体、`// FEATURE_STUB:` 标记。
 
 ### 覆盖率计算
 
 ```
-AC Coverage % = (covered_count / total_ac_count) × 100
+AC Coverage % = (covered_count + partial_count × 0.5) / (total_ac_count - not_implemented_count) × 100
 
 Where:
   covered_count = count of AC with status "covered"
   total_ac_count = total number of AC in specification
+  not_implemented_count = count of AC with status "not_implemented" (excluded from denominator)
   partial counts as 0.5 for coverage calculation
 ```
 
 ### 计算范例
 
 ```
-SPEC-001: 8 AC total
-  - 5 covered (✅)
-  - 2 partial (⚠️)
-  - 1 uncovered (❌)
+SPEC-001: 20 AC total
+  - 15 covered (✅)
+  - 0 partial (⚠️)
+  - 2 uncovered (❌)
+  - 3 not_implemented (🚫)
 
-Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
+Coverage = (15 + 0) / (20 - 3) × 100 = 88.2%
+Status: BLOCKED by 3 not_implemented AC(s)
 ```
+
+### `not_implemented` 的 CI 闸门
+
+`not_implemented` 的 AC 会触发一道**阻断式** CI 闸门，与覆盖率百分比闸门各自独立：
+
+```
+[AC-NOT-IMPL] 3 AC(s) marked not_implemented:
+  🚫 AC-007  OrderCancellation
+  🚫 AC-012  RefundCalculation
+  🚫 AC-019  ExportToPDF
+All not_implemented ACs must be resolved before UAT.
+```
+
+只有当所有 `not_implemented` 的 AC 都更新为 `uncovered`、`partial` 或 `covered` 时，闸门才会解除。
 
 ---
 
@@ -195,6 +236,8 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 基础设施限制 | 测试环境限制 | 解决方案计划 |
 | 延后至下一迭代 | 已与利害关系人确认 | Ticket 引用 |
 
+> 本标准产出的**延后项目**（`Gaps` 的 Uncovered AC／Partial AC、上表的例外、报告的 `Action Items`）适用 [deferred-item-exit](../../../core/deferred-item-exit.md)。
+
 ---
 
 ## AC 覆盖率报告格式
@@ -205,7 +248,7 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 # AC Coverage Report
 
 **Specification**: SPEC-001 — User Authentication
-**Generated**: 2026-03-23
+**Generated**: 2026-03-18
 **Coverage**: 75% (6/8 AC)
 
 ## Summary
@@ -246,7 +289,7 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 {
   "specId": "SPEC-001",
   "specName": "User Authentication",
-  "generatedAt": "2026-03-23T10:00:00Z",
+  "generatedAt": "2026-03-18T10:00:00Z",
   "coverage": {
     "percentage": 75,
     "covered": 5,
@@ -325,6 +368,8 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 忽略未覆盖的 AC | 验证存在缺口 | 追踪并规划所有 AC 的覆盖工作 |
 | AC 缺乏可测试性 | 无法验证 | 确保所有 AC 都可测试 |
 | 覆盖但缺乏断言 | 测试执行但不验证任何内容 | 确认测试含有有意义的断言 |
+| 代码不存在却标为 `uncovered` | 掩盖功能完整性的缺口 | 代码不存在时使用 `not_implemented` |
+| 把 `not_implemented` 计入分母 | 灌水覆盖率指标 | 将 `not_implemented` 排除于分母之外 |
 
 ---
 
@@ -343,3 +388,5 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 版本 | 日期 | 变更内容 |
 |------|------|---------|
 | 1.0.0 | 2026-03-18 | 初始版本 — 可追溯性矩阵、覆盖率计算、规格生成规则 |
+| 1.1.0 | 2026-05-12 | 新增第 4 种状态 `not_implemented`；更新 CI 闸门公式；新增判定树（XSPEC-199） |
+| 1.2.0 | 2026-08-24 | 为覆盖缺口、门槛例外与报告行动项目加上指向 `deferred-item-exit` 的指标（XSPEC-391 R5） |
