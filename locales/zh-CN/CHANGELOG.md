@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.8
-translation_version: 6.14.0-beta.8
-last_synced: 2026-10-09
+source_version: 6.14.0-beta.9
+translation_version: 6.14.0-beta.9
+last_synced: 2026-10-10
 status: current
 ---
 
@@ -16,6 +16,17 @@ status: current
 并遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.0-beta.9] - 2026-10-10
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。
+>
+> **行为改变：**对不存在的规格执行 `uds spec delete <id>`，现在不先询问，直接以结束码 1 结束。
+
+### Fixed
+
+- **`uds spec delete` 先说规格不存在再问要不要删；`uds spec split` 在 `**Confirmed**` 前保留空行；`uds check` 与 `uds update` 的 error-exit 闸门提示改随界面语言（6.14.0-beta.8 macOS 人工验收时发现）。** 删除不存在的规格 ID，过去会先问「要删除吗」，答 yes 后才印「找不到规格」；现在直接印「找不到规格：<id>」并以 1 结束，不再询问。`uds spec split` 写出的新规格，`**Confirmed**: No` 原本紧贴最后一条验收条件，现在中间保留空行。`uds check`（「[error-exit] 没有错误信息单一出口检查」）与 `uds update`（询问是否写入 `scripts/check-error-exit.mjs`）过去不论界面语言一律印繁体中文，现在与 CLI 其他部分一样依界面语言显示英文、繁体中文或简体中文。闸门脚本本身（`templates/gates/check-error-exit.mjs`）仍印中文，本版未改。
+- **CI：发版后验收改为等待 `npm install` 实际读取的文件，版本尚未可见时重试安装（XSPEC-471 R1）。** 6.14.0-beta.8 发布后，`wait-for-npm.mjs` 在单一版本文件回 200 时就宣告找到，但紧接的 `npm install` 在前三个作业失败（0 步执行）——`npm install` 读的是包总览文件，当时尚未更新。现在依序确认包总览列出该版本、tarball 可取得、`npm view` 看得到；`run.mjs` 遇到 E404／ETARGET 会重试安装（最多 5 次，间隔 5／10／20／40 秒，180 秒后不再开始新的尝试），并把重试次数记进报告。其他安装错误仍立即失败。`--install-retries <n>` 与 `--install-retry-wait <sec>` 可调整上限。属维护者工具，不在 npm 包内。
 
 ## [6.14.0-beta.8] - 2026-10-10
 

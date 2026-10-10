@@ -9,8 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.9] - 2026-10-10
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
+> **Behavior change:** `uds spec delete <id>` for a spec that does not exist now exits 1 at once, without asking first.
+
 ### Fixed
 
+- **`uds spec delete` says a spec is not there before asking whether to delete it; `uds spec split` keeps the blank line before `**Confirmed**`; the error-exit gate hints of `uds check` and `uds update` follow the UI language (found in the 6.14.0-beta.8 macOS manual acceptance).** Deleting a spec ID that does not exist used to ask "delete it?" and, after a yes, print "Spec not found"; it now prints "Spec not found: <id>" and exits 1 without asking. The spec that `uds spec split` writes had `**Confirmed**: No` directly under its last acceptance criterion; the blank line between them is back. `uds check` ("[error-exit] No single-exit check for error messages") and `uds update` (the offer to write `scripts/check-error-exit.mjs`) printed their text in Traditional Chinese whatever the UI language; they now speak English, Traditional Chinese or Simplified Chinese like the rest of the CLI. The gate script itself (`templates/gates/check-error-exit.mjs`) still prints Chinese; that is not changed here.
 - **CI: the post-publish acceptance waits for what `npm install` reads, and tries the install again when the version is not visible yet (XSPEC-471 R1).** Right after 6.14.0-beta.8 was published, `wait-for-npm.mjs` declared the version found on its 8th poll (the per-version document `/universal-dev-standards/6.14.0-beta.8` answered 200 and its tarball answered 2xx), and the very next `npm install universal-dev-standards@6.14.0-beta.8` failed in the first three jobs ("COULD NOT RUN | install failed", 0 steps run). `npm install` does not read that document: it reads the package document `/universal-dev-standards`, which was not yet updated. The wait now asks the package document for the version, then the tarball, then `npm view` through the same npm and registry setting the install uses; and `run.mjs` retries `npm install` (5 attempts, 5/10/20/40 s apart, none started after 180 s) when npm says E404 or ETARGET, printing each retry and noting the count in the report. Any other install error still fails at once. `--install-retries <n>` and `--install-retry-wait <sec>` set the limits. Maintainer tooling under `scripts/beta-acceptance/`; nothing of it is in the npm package.
 
 ## [6.14.0-beta.8] - 2026-10-10

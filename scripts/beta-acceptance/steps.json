@@ -253,6 +253,65 @@
     },
     {
       "platform": "all",
+      "id": "error-exit-hint-init",
+      "workspace": "error-exit-lang",
+      "title": "uds init --yes in a project with source code (prepares the error-exit hint steps)",
+      "titleZh": "在有原始碼的專案執行 uds init --yes（為 error-exit 提示步驟做準備）",
+      "smoke": false,
+      "changelog": [
+        "uds spec delete says a spec is not there before asking whether to delete it"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "src/index.js",
+          "content": "export const x = 1;\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "exit": 0,
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "error-exit-hint-in-english",
+      "workspace": "error-exit-lang",
+      "title": "uds check in an English project says the missing error-exit gate in English, not Chinese",
+      "titleZh": "英文介面的專案，uds check 用英文（而非中文）說明缺少 error-exit 閘門",
+      "smoke": false,
+      "changelog": [
+        "uds spec delete says a spec is not there before asking whether to delete it"
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "[error-exit] No single-exit check for error messages (scripts/check-error-exit.mjs).",
+          "`uds update` shows its content and asks before writing it."
+        ],
+        "notContains": [
+          "沒有錯誤訊息單一出口檢查",
+          "要裝的話"
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "available-check-line",
       "workspace": "available",
       "title": "uds check prints one line when UDS ships a standard the project does not have",
@@ -4694,6 +4753,48 @@
     },
     {
       "platform": "all",
+      "id": "spec-delete-unknown-id-does-not-ask",
+      "title": "uds spec delete without --yes for an id that is not there says so and exits 1 without asking first",
+      "titleZh": "uds spec delete 沒給 --yes、編號不存在時直接說找不到並以 1 結束，不先詢問",
+      "smoke": false,
+      "changelog": [
+        "uds spec delete says a spec is not there before asking whether to delete it"
+      ],
+      "prepare": [
+        {
+          "writeFile": "docs/specs/SPEC-001-login-page.md",
+          "content": "## Micro-Spec: Login page\n\n**Status**: draft\n**Created**: 2026-10-01\n**Type**: feature\n**Spec Mode**: standard\n**Depends On**: none\n\n**Intent**: Login page\n\n**Scope**: frontend\n\n**Acceptance**:\n- Feature implemented as described\n\n**Confirmed**: No\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "delete",
+        "SPEC-404-nothing",
+        "--output",
+        "docs/specs"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Spec not found: SPEC-404-nothing"
+        ],
+        "notContains": [
+          "Nothing has been deleted",
+          "Cannot ask for confirmation",
+          "ExitPromptError"
+        ],
+        "files": [
+          {
+            "path": "docs/specs/SPEC-001-login-page.md",
+            "contains": [
+              "Login page"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "spec-search-finds-active-and-archived",
       "title": "uds spec search --output finds the active micro-spec and the archived one by title and leaves the others out",
       "titleZh": "uds spec search --output 依標題找到進行中與已封存的微規格，其他的不列",
@@ -4849,7 +4950,9 @@
       "title": "Split a micro-spec in your own terminal: choose which criteria move, and both specs end up pointing at each other",
       "titleZh": "在你自己的終端機拆一份微規格：選哪些驗收條件搬走，兩份規格最後互相指向對方",
       "smoke": true,
-      "changelog": [],
+      "changelog": [
+        "uds spec delete says a spec is not there before asking whether to delete it"
+      ],
       "uds": [
         "spec",
         "split",
@@ -4862,8 +4965,8 @@
         ]
       },
       "human": {
-        "prompt": "In a NEW empty folder, create specs/SPEC-001-big.md holding \"## Micro-Spec: Big\", \"**Depends On**: none\", \"**Type**: feature\" and three lines \"- [ ] AC-1: first\", \"- [ ] AC-2: second\", \"- [ ] AC-3: third\" (each on its own line). Run `uds spec split SPEC-001-big` in your own terminal, tick AC-3 with the space bar, press Enter, answer y. Afterwards: are there two spec files, does the original lack AC-3 and name the new spec after \"Depends On\", does the new one hold AC-3 and name SPEC-001-big, and is specs/.backup/SPEC-001-big-pre-split.md the untouched original?",
-        "promptZh": "在一個全新的空資料夾建立 specs/SPEC-001-big.md，內容有「## Micro-Spec: Big」、「**Depends On**: none」、「**Type**: feature」，以及三行（各佔一行）「- [ ] AC-1: first」、「- [ ] AC-2: second」、「- [ ] AC-3: third」。在你自己的終端機執行 `uds spec split SPEC-001-big`，用空白鍵勾選 AC-3，按 Enter，回答 y。結束後：是否有兩份規格檔？原本那份是否已沒有 AC-3、且「Depends On」寫著新規格？新的那份是否有 AC-3、且指向 SPEC-001-big？specs/.backup/SPEC-001-big-pre-split.md 是否為未經改動的原檔？"
+        "prompt": "In a NEW empty folder, create specs/SPEC-001-big.md holding \"## Micro-Spec: Big\", \"**Depends On**: none\", \"**Type**: feature\" and three lines \"- [ ] AC-1: first\", \"- [ ] AC-2: second\", \"- [ ] AC-3: third\" (each on its own line). Run `uds spec split SPEC-001-big` in your own terminal, tick AC-3 with the space bar, press Enter, answer y. Afterwards: are there two spec files, does the original lack AC-3 and name the new spec after \"Depends On\", does the new one hold AC-3 and name SPEC-001-big, is there an empty line between AC-3 and \"**Confirmed**\" in the new spec, and is specs/.backup/SPEC-001-big-pre-split.md the untouched original?",
+        "promptZh": "在一個全新的空資料夾建立 specs/SPEC-001-big.md，內容有「## Micro-Spec: Big」、「**Depends On**: none」、「**Type**: feature」，以及三行（各佔一行）「- [ ] AC-1: first」、「- [ ] AC-2: second」、「- [ ] AC-3: third」。在你自己的終端機執行 `uds spec split SPEC-001-big`，用空白鍵勾選 AC-3，按 Enter，回答 y。結束後：是否有兩份規格檔？原本那份是否已沒有 AC-3、且「Depends On」寫著新規格？新的那份是否有 AC-3、且指向 SPEC-001-big？新的那份裡 AC-3 與「**Confirmed**」之間是否有一行空行？specs/.backup/SPEC-001-big-pre-split.md 是否為未經改動的原檔？"
       }
     },
     {
