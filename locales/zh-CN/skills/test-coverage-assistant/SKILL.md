@@ -2,7 +2,8 @@
 source: ../../../../skills/test-coverage-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: a54fe2543e47
 status: current
 description: |
   [UDS] 以八维度框架分析代码层级的测试覆盖率，并建议该优先补上哪些缺口。
@@ -16,6 +17,8 @@ description: |
 > **语言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 简体中文
 
 多维度分析测试覆盖率并提供可执行的建议。
+
+> **相关**：如需需求层级覆盖率（哪些 AC 有对应测试？），请改用 `/ac-coverage`。此技能（`/coverage`）专注于代码层级覆盖率（行、分支、函数）。
 
 ## 覆盖率维度
 
@@ -56,9 +59,11 @@ description: |
 
 ## 使用方式
 
-- `/coverage` - 执行完整覆盖率分析
-- `/coverage src/auth` - 分析特定模块
-- `/coverage --recommend` - 获取测试建议
+```
+/coverage                   - 执行完整覆盖率分析
+/coverage src/auth          - 分析特定模块
+/coverage --recommend       - 获取测试建议
+```
 
 ## 下一步引导
 
@@ -66,10 +71,14 @@ description: |
 
 > **覆盖率分析完成。建议下一步：**
 > - 覆盖率不足 → 执行 `/tdd` 补齐测试
-> - 已达标 → 执行 `/checkin` 品质关卡
+> - 已达标 → 执行 `/checkin` 品质关卡 ⭐ **推荐**
 > - 发现热点 → 执行 `/refactor` 改善可测试性
 
 ## 参考
 
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[test-completeness-dimensions.md](../../../../core/test-completeness-dimensions.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/coverage`](../../../../skills/commands/coverage.md#ai-agent-behavior--ai-代理行為)

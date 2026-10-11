@@ -2,22 +2,22 @@
 source: ../../../../skills/tdd-assistant/language-examples.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-07
+last_synced: 2026-10-11
+source_hash: 481f97a74878
 status: current
 ---
-
-# TDD 语言範例
+# TDD 语言示例
 
 > **语言**: [English](../../../../skills/tdd-assistant/language-examples.md) | 简体中文
 
 **版本**: 1.0.0
-**最後更新**: 2026-01-07
+**最后更新**: 2026-01-07
 
 ---
 
-## 概覽
+## 概述
 
-本文件提供六种主流程序语言的完整 TDD 範例：
+本文档提供六种主流编程语言的完整 TDD 示例：
 
 1. [JavaScript/TypeScript](#javascripttypescript)
 2. [Python](#python)
@@ -26,11 +26,11 @@ status: current
 5. [Java](#java)
 6. [Ruby](#ruby)
 
-每个區段包含：
-- 完整的紅-綠-重構範例
+每个部分包含：
+- 完整的红-绿-重构示例
 - 测试框架设置
-- Mock/Stub 使用
-- BDD 範例（如適用）
+- Mock/Stub 用法
+- BDD 示例（如适用）
 
 ---
 
@@ -48,9 +48,20 @@ npm install --save-dev jest @types/jest ts-jest
 npm install --save-dev vitest
 ```
 
-#### 完整 TDD 範例：購物車
+```json
+// package.json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  }
+}
+```
 
-**步骤 1：紅色 - 撰写失败测试**
+#### 完整 TDD 示例：购物车
+
+**步骤 1：RED - 编写失败的测试**
 
 ```typescript
 // cart.test.ts
@@ -59,35 +70,35 @@ import { ShoppingCart } from './cart';
 describe('ShoppingCart', () => {
   describe('calculateTotal', () => {
     test('should return 0 for empty cart', () => {
-      // Arrange（准备）
+      // Arrange
       const cart = new ShoppingCart();
 
-      // Act（执行）
+      // Act
       const total = cart.calculateTotal();
 
-      // Assert（斷言）
+      // Assert
       expect(total).toBe(0);
     });
   });
 });
 ```
 
-执行测试 - 它失败因为 `ShoppingCart` 不存在。
+运行测试 - 因为 `ShoppingCart` 不存在而失败。
 
-**步骤 2：綠色 - 最少实現**
+**步骤 2：GREEN - 最少实现**
 
 ```typescript
 // cart.ts
 export class ShoppingCart {
   calculateTotal(): number {
-    return 0; // 假裝！
+    return 0; // Fake it!
   }
 }
 ```
 
-测试通過。
+测试通过。
 
-**步骤 3：紅色 - 新增下一个测试**
+**步骤 3：RED - 添加下一个测试**
 
 ```typescript
 test('should return sum of item prices', () => {
@@ -101,7 +112,7 @@ test('should return sum of item prices', () => {
 });
 ```
 
-**步骤 4：綠色 - 实現**
+**步骤 4：GREEN - 实现**
 
 ```typescript
 export class ShoppingCart {
@@ -117,7 +128,44 @@ export class ShoppingCart {
 }
 ```
 
-#### Mock 範例
+**步骤 5：RED - 测试折扣**
+
+```typescript
+test('should apply percentage discount', () => {
+  const cart = new ShoppingCart();
+  cart.addItem({ name: 'Widget', price: 100 });
+  cart.applyDiscount(20); // 20% off
+
+  const total = cart.calculateTotal();
+
+  expect(total).toBe(80);
+});
+```
+
+**步骤 6：GREEN 与 REFACTOR**
+
+```typescript
+export class ShoppingCart {
+  private items: Array<{ name: string; price: number }> = [];
+  private discountPercent = 0;
+
+  addItem(item: { name: string; price: number }): void {
+    this.items.push(item);
+  }
+
+  applyDiscount(percent: number): void {
+    this.discountPercent = percent;
+  }
+
+  calculateTotal(): number {
+    const subtotal = this.items.reduce((sum, item) => sum + item.price, 0);
+    const discount = subtotal * (this.discountPercent / 100);
+    return subtotal - discount;
+  }
+}
+```
+
+#### Mock 示例
 
 ```typescript
 // orderService.test.ts
@@ -127,15 +175,20 @@ import { PaymentGateway } from './paymentGateway';
 jest.mock('./paymentGateway');
 
 describe('OrderService', () => {
+  let orderService: OrderService;
+  let mockPaymentGateway: jest.Mocked<PaymentGateway>;
+
+  beforeEach(() => {
+    mockPaymentGateway = new PaymentGateway() as jest.Mocked<PaymentGateway>;
+    orderService = new OrderService(mockPaymentGateway);
+  });
+
   test('should process payment and return order confirmation', async () => {
     // Arrange
-    const mockPaymentGateway = new PaymentGateway() as jest.Mocked<PaymentGateway>;
     mockPaymentGateway.charge.mockResolvedValue({
       success: true,
       transactionId: 'TXN123'
     });
-
-    const orderService = new OrderService(mockPaymentGateway);
 
     // Act
     const result = await orderService.checkout({
@@ -145,8 +198,50 @@ describe('OrderService', () => {
 
     // Assert
     expect(result.confirmed).toBe(true);
+    expect(result.transactionId).toBe('TXN123');
     expect(mockPaymentGateway.charge).toHaveBeenCalledWith(100, '4111111111111111');
   });
+});
+```
+
+#### 使用 Cucumber.js 进行 BDD
+
+```gherkin
+# features/shopping_cart.feature
+Feature: Shopping Cart
+  As a customer
+  I want to add items to my cart
+  So that I can purchase them
+
+  Scenario: Add item to empty cart
+    Given I have an empty shopping cart
+    When I add a "Widget" priced at $10
+    Then the cart total should be $10
+
+  Scenario: Apply discount code
+    Given I have a cart with items totaling $100
+    When I apply discount code "SAVE20"
+    Then the cart total should be $80
+```
+
+```typescript
+// features/step_definitions/cart_steps.ts
+import { Given, When, Then } from '@cucumber/cucumber';
+import { expect } from 'chai';
+import { ShoppingCart } from '../src/cart';
+
+let cart: ShoppingCart;
+
+Given('I have an empty shopping cart', function () {
+  cart = new ShoppingCart();
+});
+
+When('I add a {string} priced at ${int}', function (name: string, price: number) {
+  cart.addItem({ name, price });
+});
+
+Then('the cart total should be ${int}', function (expected: number) {
+  expect(cart.calculateTotal()).to.equal(expected);
 });
 ```
 
@@ -162,9 +257,18 @@ describe('OrderService', () => {
 pip install pytest pytest-cov pytest-mock
 ```
 
-#### 完整 TDD 範例：计算机
+```ini
+# pytest.ini
+[pytest]
+testpaths = tests
+python_files = test_*.py
+python_functions = test_*
+addopts = -v --tb=short
+```
 
-**步骤 1：紅色**
+#### 完整 TDD 示例：计算器
+
+**步骤 1：RED**
 
 ```python
 # tests/test_calculator.py
@@ -173,26 +277,26 @@ from calculator import Calculator
 
 class TestCalculator:
     def test_add_two_positive_numbers(self):
-        # Arrange（准备）
+        # Arrange
         calc = Calculator()
 
-        # Act（执行）
+        # Act
         result = calc.add(2, 3)
 
-        # Assert（斷言）
+        # Assert
         assert result == 5
 ```
 
-**步骤 2：綠色**
+**步骤 2：GREEN**
 
 ```python
 # calculator.py
 class Calculator:
     def add(self, a: float, b: float) -> float:
-        return 5  # 假裝！
+        return 5  # Fake it!
 ```
 
-**步骤 3：紅色 - 強制泛化**
+**步骤 3：RED - 强制泛化**
 
 ```python
 def test_add_different_numbers(self):
@@ -201,7 +305,7 @@ def test_add_different_numbers(self):
     assert result == 30
 ```
 
-**步骤 4：綠色 - 实現**
+**步骤 4：GREEN - 实现**
 
 ```python
 class Calculator:
@@ -209,10 +313,41 @@ class Calculator:
         return a + b
 ```
 
-#### Mock 範例
+**步骤 5：RED - 添加更多运算**
+
+```python
+def test_subtract_returns_difference(self):
+    calc = Calculator()
+    result = calc.subtract(10, 3)
+    assert result == 7
+
+def test_divide_by_zero_raises_error(self):
+    calc = Calculator()
+    with pytest.raises(ValueError, match="Cannot divide by zero"):
+        calc.divide(10, 0)
+```
+
+**步骤 6：GREEN 与 REFACTOR**
+
+```python
+class Calculator:
+    def add(self, a: float, b: float) -> float:
+        return a + b
+
+    def subtract(self, a: float, b: float) -> float:
+        return a - b
+
+    def divide(self, a: float, b: float) -> float:
+        if b == 0:
+            raise ValueError("Cannot divide by zero")
+        return a / b
+```
+
+#### Mock 示例
 
 ```python
 # tests/test_user_service.py
+import pytest
 from unittest.mock import Mock, patch
 from user_service import UserService
 
@@ -233,6 +368,63 @@ class TestUserService:
             subject="Welcome!",
             body="Hello John, welcome to our service!"
         )
+
+    def test_get_user_returns_user_from_repository(self):
+        # Arrange
+        mock_repo = Mock()
+        mock_repo.find_by_id.return_value = {"id": 1, "name": "John"}
+        service = UserService(repository=mock_repo)
+
+        # Act
+        user = service.get_user(1)
+
+        # Assert
+        assert user["name"] == "John"
+        mock_repo.find_by_id.assert_called_once_with(1)
+```
+
+#### 使用 Behave 进行 BDD
+
+```gherkin
+# features/calculator.feature
+Feature: Calculator
+  As a user
+  I want to perform calculations
+  So that I can solve math problems
+
+  Scenario: Add two numbers
+    Given I have a calculator
+    When I add 5 and 3
+    Then the result should be 8
+
+  Scenario Outline: Multiple additions
+    Given I have a calculator
+    When I add <a> and <b>
+    Then the result should be <result>
+
+    Examples:
+      | a  | b  | result |
+      | 1  | 1  | 2      |
+      | 10 | 20 | 30     |
+      | -5 | 5  | 0      |
+```
+
+```python
+# features/steps/calculator_steps.py
+from behave import given, when, then
+from calculator import Calculator
+
+@given('I have a calculator')
+def step_impl(context):
+    context.calculator = Calculator()
+
+@when('I add {a:d} and {b:d}')
+def step_impl(context, a, b):
+    context.result = context.calculator.add(a, b)
+
+@then('the result should be {expected:d}')
+def step_impl(context, expected):
+    assert context.result == expected
 ```
 
 ---
@@ -250,9 +442,9 @@ dotnet add package Moq
 dotnet add package FluentAssertions
 ```
 
-#### 完整 TDD 範例：订单处理器
+#### 完整 TDD 示例：订单处理器
 
-**步骤 1：紅色**
+**步骤 1：RED**
 
 ```csharp
 // OrderProcessorTests.cs
@@ -264,20 +456,20 @@ public class OrderProcessorTests
     [Fact]
     public void ProcessOrder_WithValidOrder_ReturnsSuccess()
     {
-        // Arrange（准备）
+        // Arrange
         var processor = new OrderProcessor();
         var order = new Order { Id = 1, Amount = 100 };
 
-        // Act（执行）
+        // Act
         var result = processor.Process(order);
 
-        // Assert（斷言）
+        // Assert
         result.IsSuccess.Should().BeTrue();
     }
 }
 ```
 
-**步骤 2：綠色**
+**步骤 2：GREEN**
 
 ```csharp
 // OrderProcessor.cs
@@ -285,15 +477,74 @@ public class OrderProcessor
 {
     public ProcessResult Process(Order order)
     {
-        return new ProcessResult { IsSuccess = true }; // 假裝！
+        return new ProcessResult { IsSuccess = true }; // Fake it!
     }
+}
+
+public class Order
+{
+    public int Id { get; set; }
+    public decimal Amount { get; set; }
+}
+
+public class ProcessResult
+{
+    public bool IsSuccess { get; set; }
+    public string? ErrorMessage { get; set; }
 }
 ```
 
-#### Moq 範例
+**步骤 3：RED - 添加验证**
+
+```csharp
+[Fact]
+public void ProcessOrder_WithZeroAmount_ReturnsFailure()
+{
+    var processor = new OrderProcessor();
+    var order = new Order { Id = 1, Amount = 0 };
+
+    var result = processor.Process(order);
+
+    result.IsSuccess.Should().BeFalse();
+    result.ErrorMessage.Should().Be("Order amount must be greater than zero");
+}
+```
+
+**步骤 4：GREEN 与 REFACTOR**
+
+```csharp
+public class OrderProcessor
+{
+    public ProcessResult Process(Order order)
+    {
+        if (order.Amount <= 0)
+        {
+            return ProcessResult.Failure("Order amount must be greater than zero");
+        }
+
+        return ProcessResult.Success();
+    }
+}
+
+public class ProcessResult
+{
+    public bool IsSuccess { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
+    public static ProcessResult Success() =>
+        new() { IsSuccess = true };
+
+    public static ProcessResult Failure(string message) =>
+        new() { IsSuccess = false, ErrorMessage = message };
+}
+```
+
+#### 使用 Moq 的 Mock 示例
 
 ```csharp
 using Moq;
+using Xunit;
+using FluentAssertions;
 
 public class PaymentServiceTests
 {
@@ -302,18 +553,87 @@ public class PaymentServiceTests
     {
         // Arrange
         var mockGateway = new Mock<IPaymentGateway>();
+        var mockEmailService = new Mock<IEmailService>();
+
         mockGateway
             .Setup(g => g.ChargeAsync(It.IsAny<decimal>(), It.IsAny<string>()))
             .ReturnsAsync(new ChargeResult { TransactionId = "TXN123" });
 
-        var service = new PaymentService(mockGateway.Object);
+        var service = new PaymentService(mockGateway.Object, mockEmailService.Object);
 
         // Act
-        var result = await service.ProcessPaymentAsync(100, "4111111111111111");
+        var result = await service.ProcessPaymentAsync(100, "4111111111111111", "user@example.com");
 
         // Assert
         result.TransactionId.Should().Be("TXN123");
-        mockGateway.Verify(g => g.ChargeAsync(100, "4111111111111111"), Times.Once);
+
+        mockGateway.Verify(
+            g => g.ChargeAsync(100, "4111111111111111"),
+            Times.Once);
+
+        mockEmailService.Verify(
+            e => e.SendReceiptAsync("user@example.com", It.Is<Receipt>(r => r.TransactionId == "TXN123")),
+            Times.Once);
+    }
+}
+```
+
+#### 使用 SpecFlow 进行 BDD
+
+```gherkin
+# Features/OrderProcessing.feature
+Feature: Order Processing
+  As an e-commerce system
+  I want to process customer orders
+  So that customers can receive their products
+
+  Scenario: Process valid order
+    Given I have an order with amount $100
+    When I process the order
+    Then the order should be marked as processed
+    And a confirmation email should be sent
+
+  Scenario: Reject order with zero amount
+    Given I have an order with amount $0
+    When I process the order
+    Then the order should be rejected
+    And the error message should be "Order amount must be greater than zero"
+```
+
+```csharp
+// StepDefinitions/OrderProcessingSteps.cs
+using TechTalk.SpecFlow;
+using FluentAssertions;
+
+[Binding]
+public class OrderProcessingSteps
+{
+    private Order _order;
+    private ProcessResult _result;
+    private readonly OrderProcessor _processor = new();
+
+    [Given(@"I have an order with amount \$(.*)")]
+    public void GivenIHaveAnOrderWithAmount(decimal amount)
+    {
+        _order = new Order { Id = 1, Amount = amount };
+    }
+
+    [When(@"I process the order")]
+    public void WhenIProcessTheOrder()
+    {
+        _result = _processor.Process(_order);
+    }
+
+    [Then(@"the order should be marked as processed")]
+    public void ThenTheOrderShouldBeMarkedAsProcessed()
+    {
+        _result.IsSuccess.Should().BeTrue();
+    }
+
+    [Then(@"the error message should be ""(.*)""")]
+    public void ThenTheErrorMessageShouldBe(string expectedMessage)
+    {
+        _result.ErrorMessage.Should().Be(expectedMessage);
     }
 }
 ```
@@ -330,9 +650,9 @@ public class PaymentServiceTests
 go get github.com/stretchr/testify
 ```
 
-#### 完整 TDD 範例：使用者储存庫
+#### 完整 TDD 示例：用户仓储
 
-**步骤 1：紅色**
+**步骤 1：RED**
 
 ```go
 // user_repository_test.go
@@ -344,31 +664,40 @@ import (
 )
 
 func TestUserRepository_FindById_ReturnsUser(t *testing.T) {
-    // Arrange（准备）
+    // Arrange
     repo := NewUserRepository()
     repo.Save(&User{ID: 1, Name: "John"})
 
-    // Act（执行）
+    // Act
     user, err := repo.FindById(1)
 
-    // Assert（斷言）
+    // Assert
     assert.NoError(t, err)
     assert.Equal(t, "John", user.Name)
 }
 ```
 
-**步骤 2：綠色**
+**步骤 2：GREEN**
 
 ```go
 // user_repository.go
 package repository
+
+import "errors"
+
+type User struct {
+    ID   int
+    Name string
+}
 
 type UserRepository struct {
     users map[int]*User
 }
 
 func NewUserRepository() *UserRepository {
-    return &UserRepository{users: make(map[int]*User)}
+    return &UserRepository{
+        users: make(map[int]*User),
+    }
 }
 
 func (r *UserRepository) Save(user *User) {
@@ -384,7 +713,20 @@ func (r *UserRepository) FindById(id int) (*User, error) {
 }
 ```
 
-#### 表格驅动测试（Go 慣例）
+**步骤 3：RED - 错误情形**
+
+```go
+func TestUserRepository_FindById_ReturnsErrorWhenNotFound(t *testing.T) {
+    repo := NewUserRepository()
+
+    user, err := repo.FindById(999)
+
+    assert.Nil(t, user)
+    assert.EqualError(t, err, "user not found")
+}
+```
+
+#### 表格驱动测试（Go 惯用法）
 
 ```go
 func TestUserRepository_Save(t *testing.T) {
@@ -419,13 +761,51 @@ func TestUserRepository_Save(t *testing.T) {
 }
 ```
 
+#### 使用 testify/mock 进行 Mock
+
+```go
+// email_service_test.go
+package service
+
+import (
+    "testing"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/mock"
+)
+
+// Mock
+type MockEmailSender struct {
+    mock.Mock
+}
+
+func (m *MockEmailSender) Send(to, subject, body string) error {
+    args := m.Called(to, subject, body)
+    return args.Error(0)
+}
+
+func TestNotificationService_SendWelcome(t *testing.T) {
+    // Arrange
+    mockSender := new(MockEmailSender)
+    mockSender.On("Send", "user@example.com", "Welcome!", mock.Anything).Return(nil)
+
+    service := NewNotificationService(mockSender)
+
+    // Act
+    err := service.SendWelcome("user@example.com")
+
+    // Assert
+    assert.NoError(t, err)
+    mockSender.AssertExpectations(t)
+}
+```
+
 ---
 
 ## Java
 
 ### 测试框架：JUnit 5 + Mockito
 
-#### 设置 (Maven)
+#### 设置（Maven）
 
 ```xml
 <dependencies>
@@ -441,12 +821,18 @@ func TestUserRepository_Save(t *testing.T) {
         <version>5.5.0</version>
         <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.24.2</version>
+        <scope>test</scope>
+    </dependency>
 </dependencies>
 ```
 
-#### 完整 TDD 範例：帳戶服务
+#### 完整 TDD 示例：账户服务
 
-**步骤 1：紅色**
+**步骤 1：RED**
 
 ```java
 // AccountServiceTest.java
@@ -457,20 +843,20 @@ class AccountServiceTest {
 
     @Test
     void deposit_withPositiveAmount_increasesBalance() {
-        // Arrange（准备）
+        // Arrange
         AccountService service = new AccountService();
         Account account = new Account(100.0);
 
-        // Act（执行）
+        // Act
         service.deposit(account, 50.0);
 
-        // Assert（斷言）
+        // Assert
         assertThat(account.getBalance()).isEqualTo(150.0);
     }
 }
 ```
 
-**步骤 2：綠色**
+**步骤 2：GREEN**
 
 ```java
 // AccountService.java
@@ -479,33 +865,172 @@ public class AccountService {
         account.setBalance(account.getBalance() + amount);
     }
 }
+
+// Account.java
+public class Account {
+    private double balance;
+
+    public Account(double initialBalance) {
+        this.balance = initialBalance;
+    }
+
+    public double getBalance() { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
+}
 ```
 
-#### Mockito 範例
+**步骤 3：RED - 验证**
 
 ```java
+@Test
+void deposit_withNegativeAmount_throwsException() {
+    AccountService service = new AccountService();
+    Account account = new Account(100.0);
+
+    assertThatThrownBy(() -> service.deposit(account, -50.0))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Deposit amount must be positive");
+}
+
+@Test
+void withdraw_withInsufficientFunds_throwsException() {
+    AccountService service = new AccountService();
+    Account account = new Account(100.0);
+
+    assertThatThrownBy(() -> service.withdraw(account, 150.0))
+        .isInstanceOf(InsufficientFundsException.class)
+        .hasMessage("Insufficient funds");
+}
+```
+
+**步骤 4：GREEN 与 REFACTOR**
+
+```java
+public class AccountService {
+
+    public void deposit(Account account, double amount) {
+        validatePositiveAmount(amount, "Deposit");
+        account.setBalance(account.getBalance() + amount);
+    }
+
+    public void withdraw(Account account, double amount) {
+        validatePositiveAmount(amount, "Withdrawal");
+        if (account.getBalance() < amount) {
+            throw new InsufficientFundsException("Insufficient funds");
+        }
+        account.setBalance(account.getBalance() - amount);
+    }
+
+    private void validatePositiveAmount(double amount, String operation) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException(operation + " amount must be positive");
+        }
+    }
+}
+```
+
+#### 使用 Mockito 进行 Mock
+
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
     private PaymentGateway paymentGateway;
 
+    @Mock
+    private InventoryService inventoryService;
+
     @InjectMocks
     private OrderService orderService;
 
     @Test
-    void placeOrder_withValidOrder_processesPayment() {
+    void placeOrder_withValidOrder_processesPaymentAndUpdatesInventory() {
         // Arrange
         Order order = new Order("PROD-1", 2, 50.0);
-        when(paymentGateway.charge(100.0))
-            .thenReturn(new PaymentResult("TXN-123", true));
+        when(inventoryService.checkStock("PROD-1")).thenReturn(10);
+        when(paymentGateway.charge(100.0)).thenReturn(new PaymentResult("TXN-123", true));
 
         // Act
         OrderResult result = orderService.placeOrder(order);
 
         // Assert
         assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getTransactionId()).isEqualTo("TXN-123");
+
+        verify(inventoryService).checkStock("PROD-1");
+        verify(inventoryService).reserve("PROD-1", 2);
         verify(paymentGateway).charge(100.0);
+    }
+}
+```
+
+#### 使用 Cucumber-JVM 进行 BDD
+
+```gherkin
+# src/test/resources/features/account.feature
+Feature: Account Management
+  As a bank customer
+  I want to manage my account balance
+  So that I can track my finances
+
+  Scenario: Deposit money
+    Given I have an account with balance $100
+    When I deposit $50
+    Then my balance should be $150
+
+  Scenario: Withdraw with insufficient funds
+    Given I have an account with balance $100
+    When I try to withdraw $150
+    Then I should see an error "Insufficient funds"
+    And my balance should be $100
+```
+
+```java
+// StepDefinitions.java
+import io.cucumber.java.en.*;
+import static org.assertj.core.api.Assertions.*;
+
+public class AccountStepDefinitions {
+    private Account account;
+    private AccountService service = new AccountService();
+    private Exception caughtException;
+
+    @Given("I have an account with balance ${double}")
+    public void iHaveAccountWithBalance(double balance) {
+        account = new Account(balance);
+    }
+
+    @When("I deposit ${double}")
+    public void iDeposit(double amount) {
+        service.deposit(account, amount);
+    }
+
+    @When("I try to withdraw ${double}")
+    public void iTryToWithdraw(double amount) {
+        try {
+            service.withdraw(account, amount);
+        } catch (Exception e) {
+            caughtException = e;
+        }
+    }
+
+    @Then("my balance should be ${double}")
+    public void myBalanceShouldBe(double expected) {
+        assertThat(account.getBalance()).isEqualTo(expected);
+    }
+
+    @Then("I should see an error {string}")
+    public void iShouldSeeAnError(String message) {
+        assertThat(caughtException).hasMessage(message);
     }
 }
 ```
@@ -526,9 +1051,14 @@ group :test do
 end
 ```
 
-#### 完整 TDD 範例：購物車
+```bash
+bundle install
+rspec --init
+```
 
-**步骤 1：紅色**
+#### 完整 TDD 示例：购物车
+
+**步骤 1：RED**
 
 ```ruby
 # spec/shopping_cart_spec.rb
@@ -545,30 +1075,32 @@ RSpec.describe ShoppingCart do
 end
 ```
 
-**步骤 2：綠色**
+**步骤 2：GREEN**
 
 ```ruby
 # lib/shopping_cart.rb
 class ShoppingCart
   def total
-    0 # 假裝！
+    0 # Fake it!
   end
 end
 ```
 
-**步骤 3：紅色 - 新增商品**
+**步骤 3：RED - 添加商品**
 
 ```ruby
-it 'returns sum of item prices' do
-  cart = ShoppingCart.new
-  cart.add_item(name: 'Widget', price: 10)
-  cart.add_item(name: 'Gadget', price: 20)
+describe '#total' do
+  it 'returns sum of item prices' do
+    cart = ShoppingCart.new
+    cart.add_item(name: 'Widget', price: 10)
+    cart.add_item(name: 'Gadget', price: 20)
 
-  expect(cart.total).to eq(30)
+    expect(cart.total).to eq(30)
+  end
 end
 ```
 
-**步骤 4：綠色与重構**
+**步骤 4：GREEN 与 REFACTOR**
 
 ```ruby
 class ShoppingCart
@@ -586,9 +1118,49 @@ class ShoppingCart
 end
 ```
 
-#### RSpec Mock 範例
+**步骤 5：RED - 折扣**
 
 ```ruby
+describe '#apply_discount' do
+  it 'reduces total by percentage' do
+    cart = ShoppingCart.new
+    cart.add_item(name: 'Widget', price: 100)
+    cart.apply_discount(20) # 20% off
+
+    expect(cart.total).to eq(80)
+  end
+end
+```
+
+**步骤 6：GREEN**
+
+```ruby
+class ShoppingCart
+  def initialize
+    @items = []
+    @discount_percent = 0
+  end
+
+  def add_item(item)
+    @items << item
+  end
+
+  def apply_discount(percent)
+    @discount_percent = percent
+  end
+
+  def total
+    subtotal = @items.sum { |item| item[:price] }
+    discount = subtotal * (@discount_percent / 100.0)
+    subtotal - discount
+  end
+end
+```
+
+#### RSpec Mock
+
+```ruby
+# spec/order_service_spec.rb
 RSpec.describe OrderService do
   describe '#process' do
     it 'charges payment and sends confirmation' do
@@ -606,23 +1178,96 @@ RSpec.describe OrderService do
         email_service: email_service
       )
 
+      order = Order.new(amount: 100, email: 'user@example.com')
+
       # Act
-      result = service.process(Order.new(amount: 100, email: 'user@example.com'))
+      result = service.process(order)
 
       # Assert
       expect(result.success?).to be true
       expect(payment_gateway).to have_received(:charge).with(100)
+      expect(email_service).to have_received(:send_confirmation)
+        .with('user@example.com', hash_including(transaction_id: 'TXN123'))
     end
   end
 end
 ```
 
+#### 使用 RSpec 进行 BDD（原生）
+
+RSpec 内置 BDD 风格的语法：
+
+```ruby
+# spec/features/shopping_cart_spec.rb
+RSpec.feature 'Shopping Cart', type: :feature do
+  scenario 'User adds items to cart' do
+    # Given
+    cart = ShoppingCart.new
+
+    # When
+    cart.add_item(name: 'Widget', price: 10)
+    cart.add_item(name: 'Gadget', price: 20)
+
+    # Then
+    expect(cart.total).to eq(30)
+    expect(cart.item_count).to eq(2)
+  end
+
+  scenario 'User applies discount code' do
+    # Given
+    cart = ShoppingCart.new
+    cart.add_item(name: 'Widget', price: 100)
+
+    # When
+    cart.apply_discount(20)
+
+    # Then
+    expect(cart.total).to eq(80)
+  end
+end
+```
+
+#### 使用 Cucumber 进行 BDD
+
+```gherkin
+# features/shopping_cart.feature
+Feature: Shopping Cart
+  As a customer
+  I want to manage my shopping cart
+  So that I can purchase products
+
+  Scenario: Add item to cart
+    Given I have an empty cart
+    When I add a "Widget" priced at $10
+    Then my cart total should be $10
+
+  Scenario: Apply discount
+    Given I have a cart with total $100
+    When I apply a 20% discount
+    Then my cart total should be $80
+```
+
+```ruby
+# features/step_definitions/cart_steps.rb
+Given('I have an empty cart') do
+  @cart = ShoppingCart.new
+end
+
+When('I add a {string} priced at ${int}') do |name, price|
+  @cart.add_item(name: name, price: price)
+end
+
+Then('my cart total should be ${int}') do |expected|
+  expect(@cart.total).to eq(expected)
+end
+```
+
 ---
 
-## 框架比較摘要
+## 框架比较摘要
 
 | 语言 | 单元测试 | Mock | BDD | Watch 模式 |
-|------|---------|------|-----|-----------|
+|----------|-----------|------|-----|------------|
 | **JavaScript** | Jest/Vitest | jest.mock | Cucumber.js | `--watch` |
 | **Python** | pytest | unittest.mock | Behave | pytest-watch |
 | **C#** | xUnit/NUnit | Moq | SpecFlow | dotnet watch |
@@ -632,8 +1277,8 @@ end
 
 ---
 
-## 相关文件
+## 相关文档
 
-- [SKILL.md](./SKILL.md) - TDD 助手概覽
+- [SKILL.md](./SKILL.md) - TDD 助手概述
 - [TDD 工作流程](./tdd-workflow.md) - 详细工作流程指南
 - [TDD 核心标准](../../../../core/test-driven-development.md) - 完整 TDD 标准

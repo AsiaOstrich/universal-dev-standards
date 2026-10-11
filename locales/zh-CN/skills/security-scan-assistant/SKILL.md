@@ -2,7 +2,8 @@
 source: ../../../../skills/security-scan-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 731552ef9632
 status: current
 description: |
   引导自动化安全扫描、依赖包审计与密钥检测。
@@ -19,14 +20,14 @@ description: |
 
 ## 扫描类型
 
-| 类型 | 工具范例 | 用途 |
+| 类型 | 工具示例 | 用途 |
 |------|----------|------|
-| **依赖包审计** | npm audit, pip-audit, Snyk | 检测已知 CVE |
-| **机密检测** | gitleaks, trufflehog | 检测泄露的凭证 |
+| **依赖包审计** | npm audit, pip-audit, Snyk | 检测依赖包中的已知 CVE |
+| **机密检测** | gitleaks, trufflehog | 检测代码中泄露的凭证 |
 | **许可证合规** | license-checker, SPDX | 验证开源许可证兼容性 |
 | **SAST** | Semgrep, CodeQL | 静态分析代码模式 |
 
-## 工具整合
+## 工具集成
 
 | 工具 | 命令 | 范围 |
 |------|------|------|
@@ -51,19 +52,27 @@ description: |
 SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 ```
 
+1. **Scan** — 对代码库与依赖包运行自动化扫描器
+2. **Triage** — 过滤误报，确认真实漏洞
+3. **Prioritize** — 依严重程度与可利用性排序
+4. **Fix** — 应用补丁、更新依赖包、轮换密钥
+5. **Verify** — 重新扫描以确认已修复
+
 ## 使用方式
 
-- `/scan` - 完整扫描（依赖包 + 机密 + 许可证）
-- `/scan --deps` - 仅依赖包审计
-- `/scan --secrets` - 仅机密检测
-- `/scan --license` - 许可证合规检查
+```
+/scan                - 完整扫描（依赖包 + 机密 + 许可证）
+/scan --deps         - 仅依赖包审计
+/scan --secrets      - 仅机密检测
+/scan --license      - 许可证合规检查
+```
 
 ## 下一步引导
 
 `/scan` 完成后，AI 助手应建议：
 
 > **扫描完成。建议下一步：**
-> - 执行 `/security` 深入安全审查
+> - 执行 `/security` 深入安全审查 ⭐ **推荐**
 > - 执行 `/checkin` 确认修复符合提交规范
 > - 执行 `/commit` 提交安全修复
 > - 更新依赖包 → `npm update` 或 `pip install --upgrade`
@@ -71,3 +80,18 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 ## 参考
 
 - 核心规范：[security-standards.md](../../../../core/security-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文档：[`/scan`](../commands/scan.md#ai-agent-behavior--ai-代理行为)
+
+## 授权
+
+CC BY 4.0 — 文档内容

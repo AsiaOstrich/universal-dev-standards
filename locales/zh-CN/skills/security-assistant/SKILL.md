@@ -2,7 +2,8 @@
 source: ../../../../skills/security-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: a5525e3a2b4b
 status: current
 description: |
   引导安全审查与漏洞评估，遵循 OWASP 标准。
@@ -61,20 +62,37 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 
 ## 使用方式
 
-- `/security` - 完整安全审查
-- `/security src/auth` - 审计特定模块
-- `/security --owasp` - OWASP Top 10 重点审查
+```
+/security                - 当前项目的完整安全审查
+/security src/auth       - 审计特定模块
+/security --owasp        - OWASP Top 10 重点审查
+```
 
 ## 下一步引导
 
 `/security` 完成后，AI 助手应建议：
 
 > **安全审查完成。建议下一步：**
-> - 执行 `/checkin` 确认修复符合提交规范
-> - 执行 `/code-review` 进行代码审查
+> - 执行 `/checkin` 确认修复符合提交规范 ⭐ **推荐**
+> - 执行 `/code-review` 对安全修复进行代码审查
 > - 执行 `/commit` 提交安全修复
 > - 检查依赖包更新 → `npm audit` 或 `pip audit`
 
 ## 参考
 
 - 核心规范：[security-standards.md](../../../../core/security-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文档：[`/security`](../commands/security.md#ai-agent-behavior--ai-代理行为)
+
+## 授权
+
+CC BY 4.0 — 文档内容

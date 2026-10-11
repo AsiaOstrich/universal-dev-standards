@@ -2,7 +2,8 @@
 source: ../../../../skills/slo-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: e2d34e41eac2
 status: current
 description: |
   引导 SLI 选取、SLO 设置与 Error Budget 管理。
