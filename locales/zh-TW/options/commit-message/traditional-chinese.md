@@ -2,7 +2,8 @@
 source: ../../../../options/commit-message/traditional-chinese.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 9e6c32b9a52e
 status: current
 ---
 
@@ -59,6 +60,8 @@ status: current
 | `perf` | 效能優化 | `perf: 優化資料庫查詢` |
 | `test` | 測試相關 | `test: 新增驗證模組單元測試` |
 | `chore` | 維護作業 | `chore: 更新相依套件` |
+| `ci` | CI/CD 變更 | `ci: 新增 GitHub Actions 工作流程` |
+| `build` | 建置系統 | `build: 設定 webpack 生產環境` |
 
 ## 撰寫指南
 
@@ -75,6 +78,12 @@ status: current
 2. **說明原因**：解釋為什麼要做這個變更
 3. **使用列表**：多項變更時使用項目符號
 4. **空行分隔**：與主題行以空行分隔
+
+### 頁尾
+
+1. **參考議題**：`關閉 #123`、`修復 #456`
+2. **重大變更**：`重大變更: 說明`
+3. **共同作者**：`Co-authored-by: 姓名 <email>`
 
 ## 範例
 
@@ -119,6 +128,27 @@ feat(api): 將驗證改為 JWT 權杖
 關閉 #789
 ```
 
+### 文件更新
+
+```
+docs(readme): 新增 Windows 安裝說明
+
+- 新增 PowerShell 指令
+- 包含 WSL 設定指南
+- 新增疑難排解章節
+```
+
+### 程式碼重構
+
+```
+refactor(core): 將驗證抽取至獨立模組
+
+將驗證邏輯從 UserService 移至專門的 ValidationService，
+以獲得更好的關注點分離和可重用性。
+
+無功能性變更。
+```
+
 ## 反面教材
 
 ### 不良範例
@@ -130,9 +160,13 @@ fix: 修正錯誤
 # 沒有說明
 更新使用者服務
 
+# 太冗長
+feat: 新增一個允許使用者上傳他們的個人頭像並自動調整大小為多種尺寸的新功能
+
 # 無意義
 進行中
 雜項變更
+暫存
 ```
 
 ### 改善範例
@@ -146,6 +180,53 @@ feat(users): 新增個人頭像上傳功能
 
 支援 JPEG、PNG 和 WebP 格式。
 圖片自動調整為 100x100、200x200 和 400x400 像素。
+
+# 包含類型
+refactor(users): 簡化服務層
+
+# 目的清晰
+feat(cache): 新增 Redis 支援 session 儲存
+```
+
+## 設定
+
+### Git Commit 範本
+
+建立 `~/.gitmessage`：
+
+```
+# <類型>(<範圍>): <主題>
+# |<----  最多使用 50 個字元  ---->|
+
+# 說明為什麼要做這個變更
+# |<----   每行盡量限制在 72 個字元   ---->|
+
+# 提供相關議題或 PR 的連結
+# 例如：關閉 #23
+```
+
+設定 git：
+
+```bash
+git config --global commit.template ~/.gitmessage
+```
+
+### Commitlint 設定
+
+```javascript
+// commitlint.config.js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'header-max-length': [2, 'always', 72],
+    'body-max-line-length': [2, 'always', 72],
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build']
+    ]
+  }
+};
 ```
 
 ## 相關選項

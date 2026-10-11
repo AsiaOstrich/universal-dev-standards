@@ -2,7 +2,8 @@
 source: ../../../../options/commit-message/english.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 9c2d5e760869
 status: current
 ---
 
@@ -60,6 +61,8 @@ status: current
 | `perf` | 效能優化 | `perf: optimize database queries` |
 | `test` | 測試相關 | `test: add unit tests for auth module` |
 | `chore` | 維護作業 | `chore: update dependencies` |
+| `ci` | CI/CD 變更 | `ci: add GitHub Actions workflow` |
+| `build` | 建置系統 | `build: configure webpack for production` |
 
 ## 撰寫指南
 
@@ -77,6 +80,12 @@ status: current
 2. **說明「什麼」和「為什麼」**：而非「如何」（程式碼會顯示如何）
 3. **使用項目符號**：多項變更時
 4. **與主題分隔**：使用空行
+
+### 頁尾
+
+1. **參照議題**：`Closes #123`、`Fixes #456`
+2. **標註重大變更**：`BREAKING CHANGE: description`
+3. **加入共同作者**：`Co-authored-by: Name <email>`
 
 ## 範例
 
@@ -121,6 +130,114 @@ Migration guide:
 3. Remove session cookie handling
 
 Closes #789
+```
+
+### 文件
+
+```
+docs(readme): add installation instructions for Windows
+
+- Add PowerShell commands
+- Include WSL setup guide
+- Add troubleshooting section
+```
+
+### 重構
+
+```
+refactor(core): extract validation into separate module
+
+Move validation logic from UserService to dedicated
+ValidationService for better separation of concerns and reusability.
+
+No functional changes.
+```
+
+## 反模式
+
+### 不良範例
+
+```
+# Too vague
+fix: fix bug
+
+# Past tense
+fixed: fixed the login issue
+
+# Too long
+feat: add a new feature that allows users to upload their profile pictures and automatically resize them to multiple dimensions
+
+# No type
+update user service
+
+# Meaningless
+wip
+misc changes
+asdf
+```
+
+### 良好替代寫法
+
+```
+# Specific
+fix(auth): prevent session timeout during file upload
+
+# Imperative
+fix(auth): resolve login redirect loop
+
+# Concise with body for details
+feat(users): add profile picture upload
+
+Support JPEG, PNG, and WebP formats. Images are automatically
+resized to 100x100, 200x200, and 400x400 pixels.
+
+# With type
+refactor(users): simplify service layer
+
+# Clear purpose
+feat(cache): add Redis support for session storage
+```
+
+## 設定
+
+### Git Commit 範本
+
+建立 `~/.gitmessage`：
+
+```
+# <type>(<scope>): <subject>
+# |<----  Using a maximum of 50 characters  ---->|
+
+# Explain why this change is being made
+# |<----   Try to limit each line to 72 characters   ---->|
+
+# Provide links or keys to any relevant issues or PRs
+# Example: Closes #23
+```
+
+設定 git：
+
+```bash
+git config --global commit.template ~/.gitmessage
+```
+
+### Commitlint 設定
+
+```javascript
+// commitlint.config.js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'header-max-length': [2, 'always', 72],
+    'body-max-line-length': [2, 'always', 72],
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build']
+    ],
+    'subject-case': [2, 'always', 'lower-case']
+  }
+};
 ```
 
 ## 相關選項

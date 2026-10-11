@@ -2,7 +2,8 @@
 source: ../../../../options/git-workflow/rebase-ff.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: b0c321db93d1
 status: current
 ---
 
@@ -28,9 +29,9 @@ Rebase and fast-forward 是一種合併策略，透過將功能分支的 commit 
 ## 運作方式
 
 ```
-rebase 前：              rebase + fast-forward 後：
-main:    A---B---C       A---B---C---D'---E'---F'
-              \                         (rebased commits)
+Before rebase:               After rebase + fast-forward:
+main:    A---B---C           A---B---C---D'---E'---F'
+              \                              (rebased commits)
 feature:       D---E---F
 ```
 
@@ -41,37 +42,37 @@ Commit D、E、F 被「重新播放」為 D'、E'、F' 在 C 之上。
 ### 合併前的互動式 Rebase
 
 ```bash
-# 在功能分支上開始
+# Start on feature branch
 git checkout feature/user-profile
 
-# 取得最新變更
+# Fetch latest changes
 git fetch origin
 
-# Rebase 到 main 上
+# Rebase onto main
 git rebase origin/main
 
-# 如有衝突，解決後繼續
+# If conflicts occur, resolve and continue
 git add <resolved-files>
 git rebase --continue
 
-# 或需要時中止
+# Or abort if needed
 git rebase --abort
 ```
 
 ### Fast-Forward 合併
 
 ```bash
-# 切換到 main
+# Switch to main
 git checkout main
 git pull origin main
 
-# Fast-forward 合併（只在 feature 領先時有效）
+# Fast-forward merge (only works if feature is ahead)
 git merge --ff-only feature/user-profile
 
-# 推送
+# Push
 git push origin main
 
-# 清理
+# Clean up
 git branch -d feature/user-profile
 ```
 
@@ -80,11 +81,11 @@ git branch -d feature/user-profile
 當你 rebase 了已推送的分支：
 
 ```bash
-# rebase 後
+# After rebasing
 git push --force-with-lease origin feature/user-profile
 
-# --force-with-lease 比 --force 安全
-# 如果其他人推送到該分支會失敗
+# --force-with-lease is safer than --force
+# It fails if someone else pushed to the branch
 ```
 
 ## 互動式 Rebase
@@ -92,21 +93,44 @@ git push --force-with-lease origin feature/user-profile
 合併前清理 commit：
 
 ```bash
-# 互動式 rebase 最近 4 個 commit
+# Rebase last 4 commits interactively
 git rebase -i HEAD~4
 
-# 或從分支點 rebase
+# Or rebase from branch point
 git rebase -i main
+```
+
+### 互動式 Rebase 指令
+
+```
+pick   abc1234 feat: add user model
+squash def5678 fix typo
+reword ghi9012 add user service
+drop   jkl3456 wip - remove this
+
+# Commands:
+# p, pick   = use commit
+# r, reword = use commit, but edit message
+# e, edit   = use commit, but stop for amending
+# s, squash = meld into previous commit
+# f, fixup  = like squash, but discard message
+# d, drop   = remove commit
 ```
 
 ### 常用清理模式
 
-```
+```bash
+# Combine fixup commits
 pick abc1234 feat: add user model
 fixup def5678 fix typo in user model
 fixup ghi9012 another fix
 
-# 結果：單一乾淨的 commit
+# Result: single clean commit
+
+# Reorder and edit
+pick abc1234 feat: add user model
+reword def5678 feat: add user validation
+pick ghi9012 test: add user tests
 ```
 
 ## 優點
@@ -129,21 +153,112 @@ fixup ghi9012 another fix
 | 失去合併脈絡 | 無分支合併時間記錄 |
 | 共享時危險 | 可能對協作者造成問題 |
 
-## Rebase 的黃金法則
+## 安全規則
+
+### Rebase 的黃金法則
 
 **永遠不要 rebase 已推送到共享分支的 commit。**
 
 ```bash
-# 安全：rebase 本地 commit
-git rebase main  # 如果功能分支未推送
+# SAFE: Rebase local-only commits
+git rebase main  # If feature branch is not pushed
 
-# 注意：rebase 已推送的功能分支
+# CAUTION: Rebase pushed feature branch
 git rebase main
-git push --force-with-lease  # 只有在你是唯一工作者時
+git push --force-with-lease  # Only if you're the only one working on it
 
-# 危險：永遠不要這樣做
+# DANGEROUS: Never do this
 git checkout main
-git rebase feature  # 永遠不要 rebase main/master！
+git rebase feature  # Never rebase main/master!
+```
+
+### 使用 `--force-with-lease`
+
+```bash
+# Safer than --force
+git push --force-with-lease origin feature-branch
+
+# Fails if remote has commits you don't have locally
+# Prevents overwriting others' work
+```
+
+## 設定
+
+### 儲存庫設定（GitHub）
+
+```yaml
+# In repository settings > Pull Requests
+Allow rebase merging: ✓
+Allow merge commits: ✗ (for enforcement)
+Allow squash merging: ✗ (for enforcement)
+```
+
+### Git 設定
+
+```bash
+# Default to rebase when pulling
+git config --global pull.rebase true
+
+# Auto-stash before rebase
+git config --global rebase.autoStash true
+
+# Auto-squash fixup commits
+git config --global rebase.autoSquash true
+```
+
+### Git 別名
+
+```bash
+# Add to ~/.gitconfig
+[alias]
+    rb = rebase
+    rbi = rebase -i
+    rbc = rebase --continue
+    rba = rebase --abort
+    fpush = push --force-with-lease
+```
+
+## Rebase 期間處理衝突
+
+```bash
+# Start rebase
+git rebase main
+
+# When conflict occurs:
+# 1. Edit conflicted files
+# 2. Stage resolved files
+git add <resolved-files>
+
+# 3. Continue rebase
+git rebase --continue
+
+# Repeat for each conflicting commit
+
+# If you want to skip a commit
+git rebase --skip
+
+# If you want to abort entirely
+git rebase --abort
+```
+
+## Autosquash 工作流程
+
+使用 commit 訊息前綴進行自動 squash：
+
+```bash
+# Original commit
+git commit -m "feat: add user model"
+
+# Later fixup (will auto-squash)
+git commit --fixup=<original-sha>
+# Creates: "fixup! feat: add user model"
+
+# Or squash with custom message
+git commit --squash=<original-sha>
+# Creates: "squash! feat: add user model"
+
+# Auto-squash during rebase
+git rebase -i --autosquash main
 ```
 
 ## 相關選項

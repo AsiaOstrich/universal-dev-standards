@@ -2,7 +2,8 @@
 source: ../../../../options/testing/e2e-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: bd8259ffd41b
 status: current
 ---
 
@@ -36,9 +37,23 @@ status: current
 - 跨瀏覽器相容性
 - 無障礙驗證
 
+## 測試金字塔位置
+
+```
+        /\
+       /★★\     E2E Tests (this level - few but critical)
+      /----\
+     /      \   Integration Tests
+    /--------\
+   /          \  Unit Tests (many)
+  /------------\
+```
+
+E2E 測試：數量少，但對關鍵路徑而言價值高。
+
 ## 何時撰寫 E2E 測試
 
-### 應該撰寫
+### 應該撰寫 E2E 測試的情境
 
 | 情境 | 範例 |
 |------|------|
@@ -48,7 +63,7 @@ status: current
 | 法規遵循 | GDPR 同意、無障礙 |
 | 跨系統流程 | 多服務交易 |
 
-### 不應該撰寫
+### 不應該撰寫 E2E 測試的情境
 
 | 情境 | 更好的替代方案 |
 |------|----------------|
@@ -56,6 +71,7 @@ status: current
 | API 驗證 | 整合測試 |
 | 元件行為 | 元件測試 |
 | 錯誤訊息 | 單元測試 |
+| 內部邏輯 | 單元/整合測試 |
 
 ## 框架範例
 
@@ -65,9 +81,9 @@ status: current
 // tests/e2e/checkout.spec.js
 import { test, expect } from '@playwright/test';
 
-test.describe('結帳流程', () => {
+test.describe('Checkout Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // 以測試使用者登入
+    // Login as test user
     await page.goto('/login');
     await page.fill('[data-testid="email"]', 'test@example.com');
     await page.fill('[data-testid="password"]', 'testpass123');
@@ -75,33 +91,95 @@ test.describe('結帳流程', () => {
     await expect(page).toHaveURL('/dashboard');
   });
 
-  test('使用信用卡完成購買', async ({ page }) => {
-    // 加入購物車
+  test('complete purchase with credit card', async ({ page }) => {
+    // Add item to cart
     await page.goto('/products/widget-pro');
     await page.click('[data-testid="add-to-cart"]');
     await expect(page.locator('[data-testid="cart-count"]')).toHaveText('1');
 
-    // 前往結帳
+    // Go to checkout
     await page.click('[data-testid="checkout-button"]');
     await expect(page).toHaveURL('/checkout');
 
-    // 填寫配送資訊
+    // Fill shipping info
     await page.fill('[data-testid="address"]', '123 Test St');
     await page.fill('[data-testid="city"]', 'Test City');
     await page.fill('[data-testid="zip"]', '12345');
     await page.click('[data-testid="continue-to-payment"]');
 
-    // 填寫付款資訊（測試卡號）
+    // Fill payment info (test card)
     await page.fill('[data-testid="card-number"]', '4242424242424242');
     await page.fill('[data-testid="card-expiry"]', '12/25');
     await page.fill('[data-testid="card-cvc"]', '123');
 
-    // 完成購買
+    // Complete purchase
     await page.click('[data-testid="place-order"]');
 
-    // 驗證成功
+    // Verify success
     await expect(page).toHaveURL(/\/order-confirmation/);
     await expect(page.locator('[data-testid="order-number"]')).toBeVisible();
+    await expect(page.locator('[data-testid="confirmation-email"]')).toContainText('test@example.com');
+  });
+
+  test('handles payment failure gracefully', async ({ page }) => {
+    await page.goto('/checkout');
+
+    // Use declined test card
+    await page.fill('[data-testid="card-number"]', '4000000000000002');
+    await page.fill('[data-testid="card-expiry"]', '12/25');
+    await page.fill('[data-testid="card-cvc"]', '123');
+
+    await page.click('[data-testid="place-order"]');
+
+    // Verify error handling
+    await expect(page.locator('[data-testid="payment-error"]')).toBeVisible();
+    await expect(page.locator('[data-testid="payment-error"]')).toContainText('Card declined');
+    await expect(page).toHaveURL('/checkout'); // Still on checkout
+  });
+});
+```
+
+### Cypress
+
+```javascript
+// cypress/e2e/user-registration.cy.js
+describe('User Registration', () => {
+  beforeEach(() => {
+    cy.visit('/register');
+  });
+
+  it('successfully registers a new user', () => {
+    const email = `test-${Date.now()}@example.com`;
+
+    // Fill registration form
+    cy.get('[data-testid="name"]').type('Test User');
+    cy.get('[data-testid="email"]').type(email);
+    cy.get('[data-testid="password"]').type('SecurePass123!');
+    cy.get('[data-testid="confirm-password"]').type('SecurePass123!');
+    cy.get('[data-testid="terms-checkbox"]').check();
+
+    // Submit
+    cy.get('[data-testid="register-button"]').click();
+
+    // Verify redirect to verification page
+    cy.url().should('include', '/verify-email');
+    cy.contains('Verification email sent').should('be.visible');
+
+    // Verify user in database (via API)
+    cy.request(`/api/test/users?email=${email}`).then((response) => {
+      expect(response.body.exists).to.be.true;
+      expect(response.body.user.verified).to.be.false;
+    });
+  });
+
+  it('validates password requirements', () => {
+    cy.get('[data-testid="password"]').type('weak');
+    cy.get('[data-testid="confirm-password"]').click();
+
+    cy.get('[data-testid="password-requirements"]')
+      .should('contain', 'At least 8 characters')
+      .and('contain', 'One uppercase letter')
+      .and('contain', 'One number');
   });
 });
 ```
@@ -116,19 +194,42 @@ export class CheckoutPage {
   constructor(page) {
     this.page = page;
     this.addressInput = page.locator('[data-testid="address"]');
+    this.cityInput = page.locator('[data-testid="city"]');
+    this.zipInput = page.locator('[data-testid="zip"]');
+    this.cardNumberInput = page.locator('[data-testid="card-number"]');
     this.placeOrderButton = page.locator('[data-testid="place-order"]');
   }
 
   async fillShipping(address, city, zip) {
     await this.addressInput.fill(address);
-    await this.page.fill('[data-testid="city"]', city);
-    await this.page.fill('[data-testid="zip"]', zip);
+    await this.cityInput.fill(city);
+    await this.zipInput.fill(zip);
+  }
+
+  async fillPayment(cardNumber, expiry, cvc) {
+    await this.cardNumberInput.fill(cardNumber);
+    await this.page.fill('[data-testid="card-expiry"]', expiry);
+    await this.page.fill('[data-testid="card-cvc"]', cvc);
   }
 
   async placeOrder() {
     await this.placeOrderButton.click();
   }
 }
+
+// tests/checkout.spec.js
+import { CheckoutPage } from '../pages/CheckoutPage';
+
+test('checkout with page object', async ({ page }) => {
+  const checkout = new CheckoutPage(page);
+
+  await page.goto('/checkout');
+  await checkout.fillShipping('123 Test St', 'Test City', '12345');
+  await checkout.fillPayment('4242424242424242', '12/25', '123');
+  await checkout.placeOrder();
+
+  await expect(page).toHaveURL(/\/order-confirmation/);
+});
 ```
 
 ## 最佳實踐
@@ -136,36 +237,46 @@ export class CheckoutPage {
 ### 1. 使用 Data-TestId 屬性
 
 ```html
-<!-- 好：穩定的選擇器 -->
-<button data-testid="submit-order">下訂單</button>
+<!-- Good: Stable selectors -->
+<button data-testid="submit-order">Place Order</button>
 
-<!-- 不好：脆弱的選擇器 -->
-<button class="btn btn-primary order-btn">下訂單</button>
+<!-- Bad: Fragile selectors -->
+<button class="btn btn-primary order-btn">Place Order</button>
 ```
 
 ### 2. 隔離測試資料
 
 ```javascript
 test.beforeEach(async ({ request }) => {
-  // 透過 API 建立隔離的測試資料
+  // Create isolated test data via API
   const response = await request.post('/api/test/setup', {
     data: { scenario: 'checkout-test' }
   });
   testData = await response.json();
+});
+
+test.afterEach(async ({ request }) => {
+  // Cleanup
+  await request.post('/api/test/cleanup', {
+    data: { testId: testData.id }
+  });
 });
 ```
 
 ### 3. 處理不穩定性
 
 ```javascript
-// 重試不穩定的斷言
+// Retry flaky assertions
 await expect(async () => {
   const count = await page.locator('.item').count();
   expect(count).toBe(3);
 }).toPass({ timeout: 10000 });
 
-// 等待網路閒置
+// Wait for network idle
 await page.waitForLoadState('networkidle');
+
+// Explicit waits for animations
+await page.waitForTimeout(300); // Only when necessary
 ```
 
 ### 4. 平行執行測試
@@ -181,6 +292,56 @@ export default {
     { name: 'mobile', use: { ...devices['iPhone 12'] } },
   ],
 };
+```
+
+### 5. 視覺回歸測試
+
+```javascript
+test('homepage visual regression', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('homepage.png', {
+    maxDiffPixels: 100
+  });
+});
+```
+
+## CI/CD 整合
+
+```yaml
+# .github/workflows/e2e.yml
+name: E2E Tests
+
+on: [push, pull_request]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start application
+        run: npm run start:test &
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+      - name: Wait for app
+        run: npx wait-on http://localhost:3000
+
+      - name: Run E2E tests
+        run: npx playwright test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
 ```
 
 ## 常見框架

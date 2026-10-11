@@ -2,7 +2,8 @@
 source: ../../../../options/project-structure/python.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 13b274f574f2
 status: current
 ---
 
@@ -31,13 +32,13 @@ status: current
 ```
 project-root/
 ├── src/
-│   └── myproject/            # 主套件（套件名稱）
+│   └── myproject/            # Main package (package name)
 │       ├── __init__.py
-│       ├── main.py           # 應用程式進入點
-│       ├── config/           # 設定
+│       ├── main.py           # Application entry point
+│       ├── config/           # Configuration
 │       │   ├── __init__.py
 │       │   └── settings.py
-│       ├── modules/          # 功能模組
+│       ├── modules/          # Feature modules
 │       │   ├── __init__.py
 │       │   ├── users/
 │       │   │   ├── __init__.py
@@ -46,21 +47,25 @@ project-root/
 │       │   │   ├── routes.py
 │       │   │   └── schemas.py
 │       │   └── products/
-│       ├── shared/           # 共用工具
+│       │       └── ...
+│       ├── shared/           # Shared utilities
 │       │   ├── __init__.py
 │       │   ├── exceptions.py
 │       │   └── utils.py
-│       └── infrastructure/   # 外部服務
+│       └── infrastructure/   # External services
 │           ├── __init__.py
 │           └── database.py
-├── tests/                    # 測試
+├── tests/                    # Tests
 │   ├── __init__.py
 │   ├── conftest.py           # pytest fixtures
 │   ├── unit/
+│   │   └── test_users.py
 │   └── integration/
-├── scripts/                  # 工具腳本
-├── docs/                     # 文件
-├── pyproject.toml            # 專案設定
+│       └── test_api.py
+├── scripts/                  # Utility scripts
+├── docs/                     # Documentation
+├── pyproject.toml            # Project configuration
+├── requirements.txt          # Dependencies (or use Poetry)
 ├── .env.example
 └── README.md
 ```
@@ -79,15 +84,15 @@ project-root/
 ## 匯入順序
 
 ```python
-# 標準函式庫
+# Standard library
 import os
 from typing import Optional, List
 
-# 第三方套件
+# Third-party packages
 import requests
 from fastapi import FastAPI, HTTPException
 
-# 本地模組
+# Local modules
 from myproject.modules.users import UserService
 from myproject.shared.utils import format_date
 ```
@@ -100,6 +105,7 @@ from myproject.shared.utils import format_date
 # src/myproject/modules/users/models.py
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 @dataclass
 class User:
@@ -107,6 +113,13 @@ class User:
     email: str
     name: str
     created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CreateUserInput:
+    email: str
+    name: str
+    password: str
 ```
 
 ### 服務
@@ -122,11 +135,17 @@ class UserService:
         self._repository = repository
 
     async def create_user(self, input: CreateUserInput) -> User:
-        """建立新使用者。"""
+        """Create a new user."""
+        # Validate email uniqueness
         existing = await self._repository.find_by_email(input.email)
         if existing:
             raise ValueError("Email already registered")
+
         return await self._repository.create(input)
+
+    async def get_user_by_id(self, user_id: str) -> Optional[User]:
+        """Retrieve user by ID."""
+        return await self._repository.find_by_id(user_id)
 ```
 
 ### 路由（FastAPI）
@@ -136,6 +155,7 @@ class UserService:
 from fastapi import APIRouter, HTTPException, Depends
 from .services import UserService
 from .schemas import UserCreate, UserResponse
+from myproject.shared.deps import get_user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -149,6 +169,49 @@ async def create_user(
         return user
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user(
+    user_id: str,
+    service: UserService = Depends(get_user_service)
+):
+    user = await service.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+```
+
+### Schema（Pydantic）
+
+```python
+# src/myproject/modules/users/schemas.py
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    name: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+```
+
+### 模組初始化
+
+```python
+# src/myproject/modules/users/__init__.py
+from .models import User, CreateUserInput
+from .services import UserService
+from .routes import router as user_router
+
+__all__ = ["User", "CreateUserInput", "UserService", "user_router"]
 ```
 
 ## 設定
@@ -159,17 +222,20 @@ async def create_user(
 [project]
 name = "myproject"
 version = "1.0.0"
+description = "My Python project"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.100.0",
     "uvicorn>=0.23.0",
     "pydantic>=2.0.0",
+    "sqlalchemy>=2.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
 ]
@@ -177,6 +243,98 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+```
+
+### 設定值
+
+```python
+# src/myproject/config/settings.py
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+class Settings(BaseSettings):
+    app_name: str = "My Project"
+    debug: bool = False
+    database_url: str
+    redis_url: str = "redis://localhost:6379"
+    secret_key: str
+
+    class Config:
+        env_file = ".env"
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+```
+
+## 測試
+
+### conftest.py
+
+```python
+# tests/conftest.py
+import pytest
+from fastapi.testclient import TestClient
+from myproject.main import create_app
+
+@pytest.fixture
+def app():
+    return create_app()
+
+@pytest.fixture
+def client(app):
+    return TestClient(app)
+
+@pytest.fixture
+def test_user():
+    return {
+        "email": "test@example.com",
+        "name": "Test User",
+        "password": "testpass123"
+    }
+```
+
+### 單元測試
+
+```python
+# tests/unit/test_user_service.py
+import pytest
+from myproject.modules.users import UserService
+from unittest.mock import Mock, AsyncMock
+
+@pytest.fixture
+def mock_repository():
+    repo = Mock()
+    repo.find_by_email = AsyncMock(return_value=None)
+    repo.create = AsyncMock()
+    return repo
+
+@pytest.fixture
+def user_service(mock_repository):
+    return UserService(mock_repository)
+
+@pytest.mark.asyncio
+async def test_create_user_success(user_service, mock_repository):
+    # Arrange
+    input_data = CreateUserInput(
+        email="test@example.com",
+        name="Test",
+        password="pass123"
+    )
+
+    # Act
+    await user_service.create_user(input_data)
+
+    # Assert
+    mock_repository.create.assert_called_once()
 ```
 
 ## 最佳實踐
@@ -184,11 +342,11 @@ asyncio_mode = "auto"
 ### 1. 使用 src 佈局
 
 ```
-# 防止意外匯入未安裝的套件
+# Prevents accidental imports of uninstalled package
 project/
 ├── src/
-│   └── myproject/  # 套件在此
-└── tests/          # 測試匯入已安裝的套件
+│   └── myproject/  # Package lives here
+└── tests/          # Tests import installed package
 ```
 
 ### 2. 處處使用類型提示
@@ -206,7 +364,7 @@ def get_users(
 ### 3. __init__.py 作為公開 API
 
 ```python
-# 只匯出需要的內容
+# Only export what's needed
 from .models import User
 from .services import UserService
 

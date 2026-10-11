@@ -2,7 +2,8 @@
 source: ../../../../options/git-workflow/gitflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4770d4d33ca8
 status: current
 ---
 
@@ -16,127 +17,154 @@ status: current
 
 ## 概述
 
-GitFlow 是一個嚴謹的分支模型，專為有排程發布週期的專案設計。它定義了功能開發、發布準備和維護的具體分支角色。
+GitFlow 是一種專為排程發布專案設計的分支模型。它為管理具有多條平行開發線的大型專案提供了穩健的框架。
 
 ## 適用情境
 
-- 有排程發布週期的專案
-- 需要同時維護多個版本的軟體
-- 企業級應用程式
-- 需要嚴格品質控管的團隊
+- 排程發布（每月或更長的週期）
+- 多版本維護
+- 大型團隊（10 位以上開發者）
+- 具有正式發布流程的企業環境
 
 ## 分支架構
 
+| 分支 | 用途 | 生命週期 | 基底 | 合併至 |
+|------|------|----------|------|--------|
+| `main` | 生產版本 | 永久 | - | - |
+| `develop` | 整合分支 | 永久 | main | - |
+| `feature/*` | 新功能 | 短期 | develop | develop |
+| `release/*` | 發布準備 | 中期（1-2 週） | develop | main, develop |
+| `hotfix/*` | 緊急修復 | 極短 | main | main, develop |
+
+## 分支圖
+
 ```
-main ────●────────●────────●──────── (生產版本)
-         │        │        │
-         │   release/1.0   │
-         │   ┌────●────┐   │
-         │   │         │   │
-develop ─●───●─────────●───●──────── (開發主線)
-         │             │
-    feature/a     feature/b
-    ┌────●────┐   ┌────●────┐
+main     ─────●─────────────●─────────●─────
+              │             │         │
+              │    release/1.0        │
+              │     ┌───●───┐        hotfix/fix
+              │     │       │         ┌─●─┐
+develop ──●───●─────●───────●─────────●───●──
+          │                           │
+       feature/A                   feature/B
+        ┌──●──┐                     ┌──●──┐
 ```
 
-## 分支類型
+## 核心原則
 
-| 分支 | 用途 | 生命週期 |
-|------|------|----------|
-| `main` | 生產版本，每個 commit 都是發布 | 永久 |
-| `develop` | 開發整合分支 | 永久 |
-| `feature/*` | 新功能開發 | 臨時 |
-| `release/*` | 發布準備 | 臨時 |
-| `hotfix/*` | 緊急生產修復 | 臨時 |
+1. **絕不直接提交到 main** - 使用 release 或 hotfix 分支
+2. **Develop 是整合分支** - 所有功能先合併到這裡
+3. **Release 分支凍結功能** - 只允許錯誤修復
+4. **Hotfix 同時合併到 main 與 develop** - 保持分支同步
 
-## 工作流程
+## 工作流程：功能開發
 
-### 功能開發
+### 1. 開始功能
 
 ```bash
-# 從 develop 建立功能分支
 git checkout develop
 git pull origin develop
-git checkout -b feature/shopping-cart
+git checkout -b feature/user-dashboard
+```
 
-# 開發完成後合併回 develop
+### 2. 開發功能
+
+```bash
+# Make commits
+git commit -m "feat(dashboard): add widget system"
+git commit -m "feat(dashboard): add chart component"
+```
+
+### 3. 完成功能
+
+```bash
 git checkout develop
-git merge --no-ff feature/shopping-cart
+git merge --no-ff feature/user-dashboard
+git branch -d feature/user-dashboard
 git push origin develop
-git branch -d feature/shopping-cart
 ```
 
-### 發布準備
+## 工作流程：發布
+
+### 1. 建立 Release 分支
 
 ```bash
-# 從 develop 建立發布分支
 git checkout develop
-git checkout -b release/1.2.0
+git checkout -b release/v1.2.0
+```
 
-# 進行發布準備（版本號更新、文件等）
+### 2. 準備發布
+
+```bash
+# Update version numbers
+# Update CHANGELOG
+# Bug fixes only - no new features!
 git commit -m "chore: bump version to 1.2.0"
-
-# 發布就緒後，合併到 main 和 develop
-git checkout main
-git merge --no-ff release/1.2.0
-git tag -a v1.2.0 -m "Release 1.2.0"
-
-git checkout develop
-git merge --no-ff release/1.2.0
-
-git branch -d release/1.2.0
 ```
 
-### 緊急修復
+### 3. 完成發布
 
 ```bash
-# 從 main 建立 hotfix 分支
+# Merge to main
 git checkout main
-git checkout -b hotfix/security-fix
+git merge --no-ff release/v1.2.0
+git tag -a v1.2.0 -m "Release v1.2.0"
 
-# 修復後合併到 main 和 develop
-git checkout main
-git merge --no-ff hotfix/security-fix
-git tag -a v1.2.1 -m "Hotfix 1.2.1"
-
+# Merge back to develop
 git checkout develop
-git merge --no-ff hotfix/security-fix
+git merge --no-ff release/v1.2.0
 
-git branch -d hotfix/security-fix
+# Cleanup
+git branch -d release/v1.2.0
+git push origin main develop --tags
 ```
 
-## 版本標籤
+## 工作流程：緊急修復
+
+### 1. 建立 Hotfix
 
 ```bash
-# 建立標籤
-git tag -a v1.0.0 -m "版本 1.0.0"
+git checkout main
+git checkout -b hotfix/security-patch
+```
 
-# 推送標籤
-git push origin v1.0.0
-git push origin --tags  # 推送所有標籤
+### 2. 修復並完成
+
+```bash
+# Make fix
+git commit -m "fix: patch XSS vulnerability"
+
+# Merge to main
+git checkout main
+git merge --no-ff hotfix/security-patch
+git tag -a v1.2.1 -m "Hotfix v1.2.1"
+
+# Merge to develop
+git checkout develop
+git merge --no-ff hotfix/security-patch
+
+# Cleanup
+git branch -d hotfix/security-patch
 ```
 
 ## 優點
 
-| 優點 | 說明 |
-|------|------|
-| 清晰的分支角色 | 每種分支有明確用途 |
-| 支援多版本維護 | 可同時維護多個生產版本 |
-| 發布流程可控 | 有專門的發布準備階段 |
-| 適合大型團隊 | 結構化的協作流程 |
+- 開發與生產環境明確分離
+- 支援功能的平行開發
+- 非常適合排程發布
+- 易於維護多個版本
 
 ## 缺點
 
-| 缺點 | 說明 |
-|------|------|
-| 複雜度較高 | 需要維護多個長期分支 |
-| 分支管理開銷 | 需要頻繁合併 |
-| 不適合持續部署 | 發布週期較長 |
+- 分支結構複雜
+- 對小型團隊而言負擔較重
+- 可能導致長期存在的功能分支
+- 較容易發生合併衝突
 
 ## 相關選項
 
-- [GitHub Flow](./github-flow.md) - 更簡單的持續部署流程
-- [Trunk-Based](./trunk-based.md) - 最簡化的持續整合流程
+- [GitHub Flow](./github-flow.md) - 適用於持續部署的較簡單替代方案
+- [Trunk-Based Development](./trunk-based.md) - 適用於具備成熟 CI/CD 的團隊
 
 ---
 

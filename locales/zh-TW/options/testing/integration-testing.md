@@ -2,7 +2,8 @@
 source: ../../../../options/testing/integration-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4ac1711a8097
 status: current
 ---
 
@@ -53,13 +54,15 @@ status: current
 
 ```
         /\
-       /  \      E2E 測試（少）
+       /  \      E2E Tests (few)
       /----\
-     / ★★★ \    整合測試 ← 這一層
+     / ★★★ \    Integration Tests (this level)
     /--------\
-   /          \  單元測試（多）
+   /          \  Unit Tests (many)
   /------------\
 ```
+
+整合測試位於中間層：驗證元件之間的互動。
 
 ## 整合測試類型
 
@@ -68,7 +71,7 @@ status: current
 測試內部元件間的互動：
 
 ```javascript
-// 測試：UserService + UserRepository + Database
+// Test: UserService + UserRepository + Database
 describe('UserService Integration', () => {
   let userService;
   let database;
@@ -102,30 +105,62 @@ describe('UserService Integration', () => {
 使用真實服務測試 REST/GraphQL 端點：
 
 ```python
-# Python/pytest 範例
+# Python/pytest example
 class TestUserAPI:
-    def test_create_user_endpoint(self, test_client, test_database):
-        # 執行
-        response = test_client.post('/api/users', json={
+    @pytest.fixture(autouse=True)
+    def setup(self, test_client, test_database):
+        self.client = test_client
+        self.db = test_database
+
+    def test_create_user_endpoint(self):
+        # Act
+        response = self.client.post('/api/users', json={
             'name': 'John Doe',
             'email': 'john@example.com'
         })
 
-        # 驗證
+        # Assert
         assert response.status_code == 201
         assert response.json()['name'] == 'John Doe'
 
-        # 驗證資料庫
-        user = test_database.query(User).filter_by(email='john@example.com').first()
+        # Verify database
+        user = self.db.query(User).filter_by(email='john@example.com').first()
         assert user is not None
 ```
 
-### 3. 資料庫整合
+### 3. 服務整合
+
+測試微服務之間的通訊：
+
+```javascript
+describe('Order Service Integration', () => {
+  it('should process order with inventory check', async () => {
+    // Arrange
+    const inventoryService = new InventoryService(inventoryApi);
+    const paymentService = new PaymentService(paymentApi);
+    const orderService = new OrderService(inventoryService, paymentService);
+
+    // Act
+    const order = await orderService.processOrder({
+      productId: 'SKU-001',
+      quantity: 2,
+      paymentMethod: 'credit_card'
+    });
+
+    // Assert
+    expect(order.status).toBe('confirmed');
+    expect(order.inventoryReserved).toBe(true);
+    expect(order.paymentProcessed).toBe(true);
+  });
+});
+```
+
+### 4. 資料庫整合
 
 使用真實資料庫測試資料存取層：
 
 ```java
-// Java/JUnit 範例
+// Java/JUnit example
 @SpringBootTest
 @Transactional
 class UserRepositoryIntegrationTest {
@@ -135,17 +170,65 @@ class UserRepositoryIntegrationTest {
 
     @Test
     void shouldFindUsersByRole() {
-        // 安排
+        // Arrange
         userRepository.save(new User("admin", Role.ADMIN));
         userRepository.save(new User("user1", Role.USER));
+        userRepository.save(new User("user2", Role.USER));
 
-        // 執行
+        // Act
         List<User> admins = userRepository.findByRole(Role.ADMIN);
 
-        // 驗證
+        // Assert
         assertThat(admins).hasSize(1);
+        assertThat(admins.get(0).getUsername()).isEqualTo("admin");
     }
 }
+```
+
+## 測試環境設置
+
+### 資料庫設置
+
+```javascript
+// Using test containers (JavaScript)
+const { GenericContainer } = require('testcontainers');
+
+let postgresContainer;
+
+beforeAll(async () => {
+  postgresContainer = await new GenericContainer('postgres:14')
+    .withEnvironment({
+      POSTGRES_DB: 'testdb',
+      POSTGRES_USER: 'test',
+      POSTGRES_PASSWORD: 'test'
+    })
+    .withExposedPorts(5432)
+    .start();
+
+  process.env.DATABASE_URL = `postgresql://test:test@localhost:${postgresContainer.getMappedPort(5432)}/testdb`;
+});
+
+afterAll(async () => {
+  await postgresContainer.stop();
+});
+```
+
+### 外部服務的 API 模擬
+
+```javascript
+// Mock external APIs while using real internal services
+const nock = require('nock');
+
+beforeEach(() => {
+  // Mock external payment API
+  nock('https://api.payment-provider.com')
+    .post('/v1/charges')
+    .reply(200, { id: 'ch_test', status: 'succeeded' });
+});
+
+afterEach(() => {
+  nock.cleanAll();
+});
 ```
 
 ## 最佳實踐
@@ -155,8 +238,10 @@ class UserRepositoryIntegrationTest {
 ```javascript
 describe('Order Integration', () => {
   beforeEach(async () => {
-    // 每個測試都從乾淨狀態開始
+    // Clean slate for each test
     await database.truncate(['orders', 'order_items']);
+
+    // Seed required reference data
     await seedProducts();
   });
 });
@@ -167,7 +252,7 @@ describe('Order Integration', () => {
 ```python
 @pytest.fixture
 def db_session():
-    """提供測試的交易範圍。"""
+    """Provide a transactional scope for tests."""
     connection = engine.connect()
     transaction = connection.begin()
     session = Session(bind=connection)
@@ -182,21 +267,39 @@ def db_session():
 ### 3. 測試真實情境
 
 ```javascript
+// Good: Tests real workflow
 it('should handle checkout with out-of-stock item', async () => {
-  // 設置：庫存有限的產品
+  // Setup: Product with limited stock
   await inventory.setStock('SKU-001', 1);
 
-  // 第一筆訂單成功
+  // First order succeeds
   const order1 = await checkout.process({ sku: 'SKU-001', qty: 1 });
   expect(order1.status).toBe('confirmed');
 
-  // 第二筆訂單因庫存不足失敗
+  // Second order fails due to stock
   await expect(checkout.process({ sku: 'SKU-001', qty: 1 }))
     .rejects.toThrow('Out of stock');
 });
 ```
 
+### 4. 處理非同步操作
+
+```javascript
+// Wait for eventual consistency
+it('should update search index after product create', async () => {
+  const product = await productService.create({ name: 'Widget' });
+
+  // Wait for async index update
+  await waitFor(async () => {
+    const results = await searchService.search('Widget');
+    expect(results).toContainEqual(expect.objectContaining({ id: product.id }));
+  }, { timeout: 5000 });
+});
+```
+
 ## 應該測試什麼
+
+### 應該測試
 
 | 情境 | 原因 |
 |------|------|
@@ -205,6 +308,15 @@ it('should handle checkout with out-of-stock item', async () => {
 | 服務互動 | 驗證服務間合約 |
 | 交易邊界 | 確保資料一致性 |
 | 錯誤傳播 | 測試跨層錯誤處理 |
+
+### 不應該測試
+
+| 情境 | 原因 |
+|------|------|
+| 框架內部 | 信任框架 |
+| 正式環境中的第三方服務 | 使用模擬或沙箱 |
+| UI 渲染 | 使用 E2E 測試 |
+| 單元層級邏輯 | 使用單元測試 |
 
 ## 常見框架與工具
 

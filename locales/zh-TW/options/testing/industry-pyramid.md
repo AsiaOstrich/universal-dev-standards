@@ -2,6 +2,8 @@
 source: options/testing/industry-pyramid.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 4e96bd6a6f3f
 status: current
 ---
 # 業界測試金字塔

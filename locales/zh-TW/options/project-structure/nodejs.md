@@ -2,7 +2,8 @@
 source: ../../../../options/project-structure/nodejs.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 0250c4422107
 status: current
 ---
 
@@ -30,13 +31,13 @@ status: current
 ```
 project-root/
 ├── src/
-│   ├── index.ts              # 應用程式進入點
-│   ├── app.ts                # Express/Fastify app 設定
-│   ├── config/               # 設定檔
+│   ├── index.ts              # Application entry point
+│   ├── app.ts                # Express/Fastify app setup
+│   ├── config/               # Configuration files
 │   │   ├── index.ts
 │   │   ├── database.ts
 │   │   └── env.ts
-│   ├── modules/              # 功能模組（依功能組織）
+│   ├── modules/              # Feature modules (organized by feature)
 │   │   ├── users/
 │   │   │   ├── user.model.ts
 │   │   │   ├── user.service.ts
@@ -46,20 +47,35 @@ project-root/
 │   │   │   ├── user.test.ts
 │   │   │   └── index.ts
 │   │   ├── products/
+│   │   │   └── ...
 │   │   └── orders/
-│   ├── shared/               # 共用工具和類型
+│   │       └── ...
+│   ├── shared/               # Shared utilities and types
 │   │   ├── middleware/
+│   │   │   ├── auth.middleware.ts
+│   │   │   ├── error.middleware.ts
+│   │   │   └── validation.middleware.ts
 │   │   ├── utils/
+│   │   │   ├── logger.ts
+│   │   │   └── helpers.ts
 │   │   └── types/
-│   └── infrastructure/       # 外部服務整合
+│   │       └── index.ts
+│   └── infrastructure/       # External service integrations
 │       ├── database/
+│       │   ├── connection.ts
+│       │   └── migrations/
 │       ├── cache/
+│       │   └── redis.ts
 │       └── messaging/
-├── tests/                    # 整合/E2E 測試
-├── scripts/                  # 建置/部署腳本
-├── docs/                     # 文件
+│           └── queue.ts
+├── tests/                    # Integration/E2E tests
+│   ├── integration/
+│   └── e2e/
+├── scripts/                  # Build/deploy scripts
+├── docs/                     # Documentation
 ├── package.json
 ├── tsconfig.json
+├── .env.example
 └── README.md
 ```
 
@@ -86,7 +102,9 @@ project-root/
 | `.test.ts` | 測試檔案 |
 | `.middleware.ts` | Express/Fastify 中介軟體 |
 
-## 模組結構範例
+## 模組結構
+
+### 功能模組範例
 
 ```typescript
 // src/modules/users/index.ts
@@ -95,8 +113,100 @@ export { UserService } from './user.service';
 export { userRoutes } from './user.routes';
 export type { CreateUserDto, UpdateUserDto } from './user.dto';
 
-// 在其他模組中使用
+// Usage in other modules
 import { User, UserService } from '@/modules/users';
+```
+
+### 模型
+
+```typescript
+// src/modules/users/user.model.ts
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateUserInput {
+  email: string;
+  name: string;
+  password: string;
+}
+```
+
+### 服務
+
+```typescript
+// src/modules/users/user.service.ts
+import { User, CreateUserInput } from './user.model';
+import { UserRepository } from './user.repository';
+
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async createUser(input: CreateUserInput): Promise<User> {
+    // Business logic here
+    return this.userRepository.create(input);
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    return this.userRepository.findById(id);
+  }
+}
+```
+
+### 控制器
+
+```typescript
+// src/modules/users/user.controller.ts
+import { Request, Response, NextFunction } from 'express';
+import { UserService } from './user.service';
+
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  createUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await this.userService.createUser(req.body);
+      res.status(201).json(user);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await this.userService.getUserById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+```
+
+### 路由
+
+```typescript
+// src/modules/users/user.routes.ts
+import { Router } from 'express';
+import { UserController } from './user.controller';
+import { validateBody } from '@/shared/middleware/validation.middleware';
+import { createUserSchema } from './user.dto';
+
+export function createUserRoutes(controller: UserController): Router {
+  const router = Router();
+
+  router.post('/', validateBody(createUserSchema), controller.createUser);
+  router.get('/:id', controller.getUser);
+
+  return router;
+}
 ```
 
 ## 設定
@@ -111,7 +221,9 @@ import { User, UserService } from '@/modules/users';
     "build": "tsc",
     "test": "vitest",
     "test:watch": "vitest watch",
-    "lint": "eslint src --ext .ts"
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
   }
 }
 ```
@@ -123,13 +235,18 @@ import { User, UserService } from '@/modules/users';
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
 ```
 
@@ -138,12 +255,12 @@ import { User, UserService } from '@/modules/users';
 ### 1. 以功能組織
 
 ```
-# 好：依功能組織
+# Good: Organize by feature
 src/modules/users/
 src/modules/products/
 src/modules/orders/
 
-# 避免：依技術層組織
+# Avoid: Organize by technical layer
 src/models/
 src/services/
 src/controllers/
@@ -152,11 +269,11 @@ src/controllers/
 ### 2. Index 檔案作為公開 API
 
 ```typescript
-// 每個模組只暴露需要的內容
+// Each module exposes only what's needed
 // src/modules/users/index.ts
 export { UserService } from './user.service';
 export { User } from './user.model';
-// 內部實作保持私有
+// Internal implementation stays private
 ```
 
 ### 3. 測試與原始碼並置
@@ -164,7 +281,7 @@ export { User } from './user.model';
 ```
 src/modules/users/
 ├── user.service.ts
-├── user.service.test.ts  # 單元測試與原始碼並置
+├── user.service.test.ts  # Unit tests with source
 ├── user.controller.ts
 └── user.controller.test.ts
 ```

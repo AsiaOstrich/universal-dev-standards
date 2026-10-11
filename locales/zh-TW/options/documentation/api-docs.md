@@ -2,6 +2,8 @@
 source: options/documentation/api-docs.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 28d83ae2c8ee
 status: current
 ---
 

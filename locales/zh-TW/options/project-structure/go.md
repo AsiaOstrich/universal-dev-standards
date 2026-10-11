@@ -2,7 +2,8 @@
 source: ../../../../options/project-structure/go.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: f52fa284d2cd
 status: current
 ---
 
@@ -30,36 +31,38 @@ status: current
 
 ```
 project-root/
-├── cmd/                      # 應用程式進入點
+├── cmd/                      # Application entry points
 │   ├── api/
 │   │   └── main.go
 │   └── cli/
 │       └── main.go
-├── internal/                 # 私有應用程式碼
+├── internal/                 # Private application code
 │   ├── config/
 │   │   └── config.go
-│   ├── domain/               # 業務邏輯
+│   ├── domain/               # Business logic
 │   │   ├── user/
 │   │   │   ├── user.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   └── service_test.go
 │   │   └── product/
-│   ├── handler/              # HTTP 處理器
+│   │       └── ...
+│   ├── handler/              # HTTP handlers
 │   │   ├── user_handler.go
 │   │   └── middleware/
-│   ├── repository/           # 資料存取實作
+│   ├── repository/           # Data access implementations
 │   │   ├── postgres/
+│   │   │   └── user_repo.go
 │   │   └── redis/
 │   └── server/
 │       └── server.go
-├── pkg/                      # 公開可重用套件
+├── pkg/                      # Public reusable packages
 │   └── validator/
 │       └── validator.go
-├── api/                      # API 規格
+├── api/                      # API specifications
 │   └── openapi.yaml
-├── scripts/                  # 建置/部署腳本
-├── docs/                     # 文件
+├── scripts/                  # Build/deploy scripts
+├── docs/                     # Documentation
 ├── go.mod
 ├── go.sum
 ├── Makefile
@@ -108,11 +111,43 @@ func main() {
 
 ### internal/
 
-無法被其他專案匯入的私有程式碼。
+無法被其他專案匯入的私有程式碼：
+
+```go
+// internal/domain/user/user.go
+package user
+
+import "time"
+
+type User struct {
+    ID        string
+    Email     string
+    Name      string
+    CreatedAt time.Time
+}
+
+type CreateUserInput struct {
+    Email string
+    Name  string
+}
+```
 
 ### pkg/
 
-可被其他專案匯入的公開套件。
+可被其他專案匯入的公開套件：
+
+```go
+// pkg/validator/validator.go
+package validator
+
+import "regexp"
+
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
+func IsValidEmail(email string) bool {
+    return emailRegex.MatchString(email)
+}
+```
 
 ## 領域層
 
@@ -138,17 +173,25 @@ type User struct {
     Email     string
     Name      string
     CreatedAt time.Time
+    UpdatedAt time.Time
 }
 
 func NewUser(email, name string) (*User, error) {
     if !isValidEmail(email) {
         return nil, ErrInvalidEmail
     }
+
     return &User{
         Email:     email,
         Name:      name,
         CreatedAt: time.Now(),
+        UpdatedAt: time.Now(),
     }, nil
+}
+
+func (u *User) UpdateName(name string) {
+    u.Name = name
+    u.UpdatedAt = time.Now()
 }
 ```
 
@@ -164,6 +207,8 @@ type Repository interface {
     Create(ctx context.Context, user *User) error
     GetByID(ctx context.Context, id string) (*User, error)
     GetByEmail(ctx context.Context, email string) (*User, error)
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
 }
 ```
 
@@ -184,11 +229,13 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) CreateUser(ctx context.Context, input CreateUserInput) (*User, error) {
+    // Check if email exists
     existing, _ := s.repo.GetByEmail(ctx, input.Email)
     if existing != nil {
         return nil, ErrEmailExists
     }
 
+    // Create new user
     user, err := NewUser(input.Email, input.Name)
     if err != nil {
         return nil, err
@@ -197,7 +244,218 @@ func (s *Service) CreateUser(ctx context.Context, input CreateUserInput) (*User,
     if err := s.repo.Create(ctx, user); err != nil {
         return nil, err
     }
+
     return user, nil
+}
+
+func (s *Service) GetUser(ctx context.Context, id string) (*User, error) {
+    user, err := s.repo.GetByID(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+    if user == nil {
+        return nil, ErrUserNotFound
+    }
+    return user, nil
+}
+```
+
+## HTTP Handler
+
+```go
+// internal/handler/user_handler.go
+package handler
+
+import (
+    "encoding/json"
+    "net/http"
+    "myproject/internal/domain/user"
+)
+
+type UserHandler struct {
+    service *user.Service
+}
+
+func NewUserHandler(service *user.Service) *UserHandler {
+    return &UserHandler{service: service}
+}
+
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+    var input user.CreateUserInput
+    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+        http.Error(w, "invalid request body", http.StatusBadRequest)
+        return
+    }
+
+    u, err := h.service.CreateUser(r.Context(), input)
+    if err != nil {
+        switch err {
+        case user.ErrEmailExists:
+            http.Error(w, err.Error(), http.StatusConflict)
+        case user.ErrInvalidEmail:
+            http.Error(w, err.Error(), http.StatusBadRequest)
+        default:
+            http.Error(w, "internal error", http.StatusInternalServerError)
+        }
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(u)
+}
+
+func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+    id := r.PathValue("id") // Go 1.22+
+
+    u, err := h.service.GetUser(r.Context(), id)
+    if err != nil {
+        if err == user.ErrUserNotFound {
+            http.Error(w, err.Error(), http.StatusNotFound)
+            return
+        }
+        http.Error(w, "internal error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(u)
+}
+```
+
+## Repository 實作
+
+```go
+// internal/repository/postgres/user_repo.go
+package postgres
+
+import (
+    "context"
+    "database/sql"
+    "myproject/internal/domain/user"
+)
+
+type UserRepository struct {
+    db *sql.DB
+}
+
+func NewUserRepository(db *sql.DB) *UserRepository {
+    return &UserRepository{db: db}
+}
+
+func (r *UserRepository) Create(ctx context.Context, u *user.User) error {
+    query := `
+        INSERT INTO users (id, email, name, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5)
+    `
+    _, err := r.db.ExecContext(ctx, query,
+        u.ID, u.Email, u.Name, u.CreatedAt, u.UpdatedAt)
+    return err
+}
+
+func (r *UserRepository) GetByID(ctx context.Context, id string) (*user.User, error) {
+    query := `SELECT id, email, name, created_at, updated_at FROM users WHERE id = $1`
+
+    var u user.User
+    err := r.db.QueryRowContext(ctx, query, id).Scan(
+        &u.ID, &u.Email, &u.Name, &u.CreatedAt, &u.UpdatedAt)
+
+    if err == sql.ErrNoRows {
+        return nil, nil
+    }
+    if err != nil {
+        return nil, err
+    }
+    return &u, nil
+}
+```
+
+## 設定
+
+```go
+// internal/config/config.go
+package config
+
+import (
+    "os"
+    "strconv"
+)
+
+type Config struct {
+    Port        int
+    DatabaseURL string
+    LogLevel    string
+}
+
+func Load() (*Config, error) {
+    port, _ := strconv.Atoi(getEnv("PORT", "8080"))
+
+    return &Config{
+        Port:        port,
+        DatabaseURL: getEnv("DATABASE_URL", ""),
+        LogLevel:    getEnv("LOG_LEVEL", "info"),
+    }, nil
+}
+
+func getEnv(key, fallback string) string {
+    if value := os.Getenv(key); value != "" {
+        return value
+    }
+    return fallback
+}
+```
+
+## 測試
+
+```go
+// internal/domain/user/service_test.go
+package user_test
+
+import (
+    "context"
+    "testing"
+    "myproject/internal/domain/user"
+)
+
+type mockRepo struct {
+    users map[string]*user.User
+}
+
+func newMockRepo() *mockRepo {
+    return &mockRepo{users: make(map[string]*user.User)}
+}
+
+func (m *mockRepo) Create(ctx context.Context, u *user.User) error {
+    m.users[u.ID] = u
+    return nil
+}
+
+func (m *mockRepo) GetByEmail(ctx context.Context, email string) (*user.User, error) {
+    for _, u := range m.users {
+        if u.Email == email {
+            return u, nil
+        }
+    }
+    return nil, nil
+}
+
+func TestService_CreateUser(t *testing.T) {
+    repo := newMockRepo()
+    service := user.NewService(repo)
+
+    input := user.CreateUserInput{
+        Email: "test@example.com",
+        Name:  "Test User",
+    }
+
+    u, err := service.CreateUser(context.Background(), input)
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+
+    if u.Email != input.Email {
+        t.Errorf("expected email %s, got %s", input.Email, u.Email)
+    }
 }
 ```
 
