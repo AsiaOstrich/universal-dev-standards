@@ -2,7 +2,8 @@
 source: ../../../core/anti-sycophancy-prompting.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 860d9e77855b
 status: current
 ---
 

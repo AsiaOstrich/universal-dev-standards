@@ -2,7 +2,8 @@
 source: ../../../core/api-design-standards.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-06-24
+last_synced: 2026-10-11
+source_hash: c844144a19cb
 status: current
 ---
 

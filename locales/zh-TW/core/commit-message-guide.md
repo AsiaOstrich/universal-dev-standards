@@ -2,7 +2,8 @@
 source: ../../../core/commit-message-guide.md
 source_version: 1.3.0
 translation_version: 1.3.0
-last_synced: 2026-03-16
+last_synced: 2026-10-11
+source_hash: 2e552e4a7f41
 status: current
 ---
 
@@ -10,9 +11,12 @@ status: current
 
 > **語言**: [English](../../../core/commit-message-guide.md) | 繁體中文
 
-**版本**: 1.2.3
+**版本**: 1.3.0
 **最後更新**: 2025-12-24
 **適用範圍**: 所有使用 Git 版本控制的專案
+**範圍**: universal
+**業界標準**: Conventional Commits 1.0.0
+**參考資料**: [conventionalcommits.org](https://www.conventionalcommits.org/)
 
 ---
 
@@ -71,20 +75,20 @@ status: current
 
 使用繁體中文類型，適合偏好母語提交的本地團隊。
 
-| 類型   | 使用時機             |
-| ------ | -------------------- |
-| `新增` | 新功能               |
-| `修正` | Bug 修復             |
-| `重構` | 重構（無功能變更）   |
-| `文件` | 僅文件更新           |
-| `樣式` | 格式化（無邏輯變更） |
-| `測試` | 新增或更新測試       |
-| `效能` | 效能改進             |
-| `建置` | 建置系統或依賴       |
-| `整合` | CI/CD 管道變更       |
-| `維護` | 維護任務             |
-| `回退` | 回退先前提交         |
-| `安全` | 安全漏洞修復         |
+| 類型   | 使用時機             | 對應英文類型 |
+| ------ | -------------------- | ------------ |
+| `新增` | 新功能               | feat         |
+| `修正` | Bug 修復             | fix          |
+| `重構` | 重構                 | refactor     |
+| `文件` | 僅文件更新           | docs         |
+| `樣式` | 僅格式化             | style        |
+| `測試` | 新增或更新測試       | test         |
+| `效能` | 效能                 | perf         |
+| `建置` | 建置系統             | build        |
+| `整合` | CI/CD 變更           | ci           |
+| `維護` | 維護                 | chore        |
+| `回退` | 回退提交             | revert       |
+| `安全` | 安全修復             | security     |
 
 ### 選項 C: 雙語對照模式（推薦）
 
@@ -121,6 +125,8 @@ Implement Google OAuth2 authentication flow for user login.
 
 Closes #123
 ```
+
+> **注意**: 此設定在專案 manifest 中名為 `output_language`，同時控制 commit 訊息語言與文件語言。關於此設定如何影響文件，詳見 [documentation-writing-standards.md](documentation-writing-standards.md#documentation-language-configuration)。
 
 ### 語言選擇指南
 
@@ -221,16 +227,16 @@ database, config, middleware, api, tests, docs
 4. **無句點**: 結尾不加句點（例外：雙語模式使用句點作為分隔符）
 5. **語言**: 遵循專案政策（英文或母語）
 
-### 繁體中文範例
+### 良好範例
 
 ```
-新增(認證): 實作 OAuth2 Google 登入支援
-修正(API): 解決使用者 session 快取記憶體洩漏
-重構(資料庫): 提取查詢建構器為獨立類別
-文件(README): 更新 Node 20 安裝說明
-測試(付款): 新增退款流程單元測試
-效能(搜尋): 實作全文檢索索引
-建置(依賴): 升級 Express 至 4.18.2
+feat(auth): Add OAuth2 Google login support
+fix(api): Resolve memory leak in user session cache
+refactor(database): Extract query builder to separate class
+docs(readme): Update installation instructions for Node 20
+test(payment): Add unit tests for refund flow
+perf(search): Implement index for full-text search
+build(deps): Upgrade Express to 4.18.2
 ```
 
 ### 不良範例
@@ -308,23 +314,43 @@ database, config, middleware, api, tests, docs
 #### 範例 1: 含上下文的功能
 
 ```
-新增(通知): 實作電子郵件通知功能
+feat(payment): Add support for PayPal payment method
 
-為何需要此變更:
-- 使用者反饋希望收到訂單狀態更新通知
-- 減少客服查詢訂單狀態的工作量
-- 提升使用者體驗與滿意度
+Why this change is needed:
+- Customer survey shows 40% prefer PayPal
+- Competitor analysis indicates missing payment option
+- Q4 goal to increase payment method diversity
 
-此變更做了什麼:
-- 整合 SendGrid API 發送電子郵件
-- 新增 EmailTemplate 模組管理郵件範本
-- 實作訂單狀態變更時觸發通知
-- 新增使用者偏好設定以控制通知開關
+What this change does:
+- Integrate PayPal SDK v2.0
+- Add PayPal button to checkout page
+- Implement webhook for payment confirmation
+- Update payment history to show PayPal transactions
 
-技術備註:
-- 使用佇列機制避免阻塞主流程
-- 郵件發送失敗會重試 3 次
-- 範本支援多語言（繁中、英文）
+Technical notes:
+- Used sandbox environment for testing
+- Webhook signature validation implemented for security
+```
+
+#### 範例 2: 含根因分析的 Bug 修正
+
+```
+fix(api): Resolve race condition in concurrent user updates
+
+Why this occurred:
+- Two simultaneous PUT requests to /users/:id could overwrite each other
+- No optimistic locking or transaction isolation implemented
+- Last write wins, causing data loss
+
+What this fix does:
+- Add version field to User model
+- Implement optimistic locking check
+- Return 409 Conflict if version mismatch
+- Update API documentation with retry guidance
+
+Testing:
+- Added concurrent update test scenarios
+- Verified with load test (100 concurrent updates)
 ```
 
 ---
@@ -382,7 +408,13 @@ Closes #123
 
 ### 破壞性變更
 
-**重要**: 永遠在頁尾記錄破壞性變更。
+**關鍵**: 永遠在頁尾記錄破壞性變更，並附上遷移指引。
+
+**要求**:
+1. 在頁尾使用 `BREAKING CHANGE:` 前綴
+2. 描述變更了什麼以及原因
+3. **必須**包含具可執行步驟的遷移指南
+4. 盡可能提供變更前/後的範例
 
 **格式**:
 
@@ -390,22 +422,24 @@ Closes #123
 BREAKING CHANGE: <描述>
 
 遷移指南:
-- 步驟 1
-- 步驟 2
+- 步驟 1: <具體動作>
+- 步驟 2: <具體動作>
 ```
+
+> **為何必須提供遷移指南**: 沒有遷移路徑的破壞性變更會讓使用者受挫並拖慢採用速度。每個破壞性變更都**必須**明確告訴使用者該怎麼做。
 
 **範例**:
 
 ```
-feat(api): 變更使用者端點回應格式
+feat(api): Change user endpoint response format
 
-- 扁平化巢狀使用者物件結構
-- 移除已棄用的 `legacy_id` 欄位
-- 新增 `created_at` 和 `updated_at` 時間戳記
+- Flatten nested user object structure
+- Remove deprecated `legacy_id` field
+- Add `created_at` and `updated_at` timestamps
 
-BREAKING CHANGE: 使用者 API 回應格式已變更
+BREAKING CHANGE: User API response format changed
 
-舊格式:
+Old format:
 ```json
 {
   "data": {
@@ -418,7 +452,7 @@ BREAKING CHANGE: 使用者 API 回應格式已變更
 }
 ```
 
-新格式:
+New format:
 
 ```json
 {
@@ -429,11 +463,11 @@ BREAKING CHANGE: 使用者 API 回應格式已變更
 }
 ```
 
-遷移指南:
+Migration guide:
 
-- 更新 API 客戶端以移除 `.data` 包裝
-- 移除對 `legacy_id` 欄位的引用
-- 使用 `created_at` 而非 `createdAt`（snake_case）
+- Update API clients to remove `.data` wrapper
+- Remove references to `legacy_id` field
+- Use `created_at` instead of `createdAt` (snake_case)
 
 Closes #234
 
@@ -443,7 +477,55 @@ Closes #234
 
 ## 完整範例
 
-### 範例 1: 簡單修正（雙語對照）
+### 範例 1: 簡單修正（英文）
+
+```
+
+fix(auth): Correct JWT expiration time calculation
+
+The token was expiring 1 hour early due to timezone offset not being accounted for. Now using UTC time consistently.
+
+Fixes #445
+
+```
+
+---
+
+### 範例 2: 多部分功能（英文）
+
+```
+
+feat(export): Add CSV export functionality for user data
+
+Why this feature is needed:
+
+- Admins need to export user lists for compliance audits
+- Manual copy-paste from UI is error-prone
+- Requested by legal and compliance teams
+
+What this implements:
+
+- New `/api/users/export` endpoint
+- CSV generation using csv-writer library
+- Streaming response to handle large datasets
+- Date range filtering options
+- Column selection (PII vs non-PII fields)
+
+Technical notes:
+
+- Streaming prevents memory issues with 100k+ users
+- Export limited to admin role only
+- PII fields require additional permission flag
+- Rate limited to prevent abuse
+
+Closes #567
+Refs #234 (related compliance requirement)
+
+```
+
+---
+
+### 範例 3: 雙語對照模式 - 簡單修正
 
 ```
 
@@ -459,7 +541,7 @@ Fixes #445
 
 ---
 
-### 範例 2: 功能（雙語對照）
+### 範例 4: 雙語對照模式 - 功能
 
 ```
 
@@ -508,7 +590,7 @@ Refs #234
 
 ---
 
-### 範例 3: 含根因分析的 Bug 修正（雙語對照）
+### 範例 5: 雙語對照模式 - 含根因分析的 Bug 修正
 
 ```
 
@@ -552,7 +634,53 @@ Fixes #789
 
 ---
 
-### 範例 4: 破壞性變更（雙語對照）
+### 範例 6: 含破壞性變更的重構（英文）
+
+```
+
+refactor(database): Migrate from MySQL to PostgreSQL
+
+Why this refactoring:
+
+- PostgreSQL offers better JSON support for our use case
+- Need advanced indexing features for full-text search
+- Licensing considerations for cloud deployment
+
+What this changes:
+
+- Update database driver from mysql2 to pg
+- Convert MySQL-specific queries to PostgreSQL syntax
+- Update connection pooling configuration
+- Migrate schema using migration scripts
+- Update ORM configurations
+
+Migration:
+
+- Run `npm run db:backup` before upgrading
+- Run `npm run db:migrate` to apply schema changes
+- Update environment variables (see .env.example)
+
+BREAKING CHANGE: Database engine changed from MySQL to PostgreSQL
+
+Migration guide:
+
+1. Backup existing MySQL database
+2. Install PostgreSQL 15+
+3. Update .env:
+   - DATABASE_URL=postgresql://... (was mysql://...)
+   - Remove MYSQL_* variables
+4. Run migration: npm run db:migrate
+5. Verify data integrity: npm run db:verify
+
+Estimated downtime: 2-4 hours for production migration
+
+Closes #890
+
+```
+
+---
+
+### 範例 7: 雙語對照模式 - 破壞性變更
 
 ```
 
@@ -589,7 +717,7 @@ Estimated downtime: 2-4 hours
 變更內容:
 
 - 更新資料庫驅動從 mysql2 至 pg
-- 將 MySQL 專用查詢轉換為 PostgreSQL syntax
+- 將 MySQL 專用查詢轉換為 PostgreSQL 語法
 - 更新連線池設定
 
 破壞性變更: 資料庫引擎從 MySQL 變更為 PostgreSQL
@@ -627,9 +755,9 @@ update: changes
 **✅ 修正**:
 ```
 
-fix(login): 防止快速點擊時重複建立 session
-refactor(utils): 提取電子郵件驗證正規表示式至常數
-feat(profile): 新增含圖片壓縮的頭像上傳功能
+fix(login): Prevent duplicate session creation on rapid clicks
+refactor(utils): Extract email validation regex to constants
+feat(profile): Add avatar upload with image compression
 
 ```
 
@@ -648,10 +776,10 @@ feat: add login, fix bugs, refactor database, update docs
 **✅ 修正**: 拆分為多個 commit：
 ```
 
-feat(auth): 新增 OAuth2 登入支援
-fix(api): 解決使用者查詢空指標問題
-refactor(database): 提取連線池至獨立模組
-docs(api): 更新認證端點文件
+feat(auth): Add OAuth2 login support
+fix(api): Resolve null pointer in user lookup
+refactor(database): Extract connection pool to separate module
+docs(api): Update authentication endpoint documentation
 
 ```
 
@@ -670,10 +798,10 @@ fix: change line 45 from getUserById to getUserByEmail because the function was 
 **✅ 修正**:
 ```
 
-fix(api): 在密碼重設中使用正確的使用者查詢方法
+fix(api): Use correct user lookup method in password reset
 
-密碼重設流程使用電子郵件參數呼叫 getUserById，
-導致查詢失敗。現已正確呼叫 getUserByEmail。
+The password reset flow was calling getUserById with an email parameter,
+causing lookups to fail. Now correctly calls getUserByEmail.
 
 Fixes #789
 
@@ -691,7 +819,7 @@ refactor(database): migrate to PostgreSQL
 
 **問題**: 破壞性變更卻無遷移指南或上下文。
 
-**✅ 修正**: 加入含上下文和遷移指南的主體（參見上方範例 4）。
+**✅ 修正**: 加入含上下文和遷移指南的主體（參見上方範例 6）。
 
 ---
 
@@ -756,16 +884,16 @@ git-chglog --output CHANGELOG.md
 本專案使用**[英文 / 繁體中文 / 雙語對照]** commit 類型。
 
 ### 允許的類型
-- feat / 新增: 新功能
-- fix / 修正: Bug 修復
-- refactor / 重構: 程式碼重構
-- docs / 文件: 文件
-- test / 測試: 測試
-- perf / 效能: 效能改進
-- build / 建置: 建置系統
-- ci / 整合: CI/CD 變更
-- chore / 維護: 維護
-- security / 安全: 安全修復
+- feat: 新功能
+- fix: Bug 修復
+- refactor: 程式碼重構
+- docs: 文件
+- test: 測試
+- perf: 效能改進
+- build: 建置系統
+- ci: CI/CD 變更
+- chore: 維護
+- security: 安全修復
 
 ### 允許的範圍
 - auth: 認證模組
@@ -779,11 +907,11 @@ Commit 主旨行應使用**[英文/繁體中文/雙語]**。
 
 ### 範例
 
-**繁體中文**:
+**英文**:
 ```
 
-新增(認證): 實作 OAuth2 支援
-修正(API): 解決記憶體洩漏
+feat(auth): Add OAuth2 support
+fix(api): Resolve memory leak
 
 ```
 

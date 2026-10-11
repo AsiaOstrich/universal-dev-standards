@@ -1,18 +1,22 @@
 ---
 source: ../../../core/code-review-checklist.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-12
-status: stale
+source_version: 1.6.0
+translation_version: 1.6.0
+last_synced: 2026-10-11
+source_hash: 405318729fc5
+status: current
 ---
 
 # 程式碼審查檢查清單
 
 > **語言**: [English](../../../core/code-review-checklist.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2026-01-12
+**版本**: 1.6.0
+**最後更新**: 2026-10-08
 **適用範圍**: 所有進行程式碼審查的軟體專案
+**範圍**: universal
+**業界標準**: SWEBOK v4.0 第 10 章
+**參考資料**: [google.github.io](https://google.github.io/eng-practices/review/)
 
 ---
 
@@ -499,6 +503,12 @@ jobs:
 | 200-500 lines | 1 day | 2 days |
 | > 500 lines | 🚨 Consider splitting | 3+ days |
 
+> **來源與可設定性**：PR 大小分級反映實證觀察到的現象——變更超過約 200–400 行後，
+> 審查成效明顯下降（SmartBear/Cisco 程式碼審查研究；
+> [Google engineering practices](https://google.github.io/eng-practices/review/)）。
+> 回應時間目標為 UDS 預設值——請替換為團隊自己的審查 SLA。
+> **例外**：產生的或 vendored 的大量變更（lockfile、migration、snapshot）以抽查方式審查，不以行數計。
+
 ### 審查者可用性
 
 - Set "review hours" in team calendar
@@ -681,6 +691,9 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.6.0 | 2026-10-08 | 新增：合併風險（門與影響範圍）作為檢查項 11，並加入審查者／作者步驟——單向門須在合併前讓決策者知情；於「測試品質良好」新增預期值須獨立於被測程式碼（XSPEC-470 R1、R2） |
+| 1.5.0 | 2026-08-24 | 新增：指向 `deferred-item-exit`，適用於本次未改而被接受的非阻斷留言（XSPEC-391 R5） |
+| 1.4.0 | 2026-06-18 | 新增：PR 大小／回應時間門檻的來源與可設定性說明（SmartBear/Cisco 研究、Google 實務）及大量變更例外（XSPEC-292 T8） |
 | 1.3.0 | 2026-01-12 | 新增：完整重構 PR 段落，包含審查前檢查清單、審查重點、大型重構指南、警示信號及最佳實踐 |
 | 1.2.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 10 章（軟體品質）至參考資料 |
 | 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文標籤支援) |
@@ -693,7 +706,6 @@ Comment Prefixes:
 
 ## 相關標準
 
-- [Refactoring Standards](refactoring-standards.md) - 重構標準（遺留程式碼策略、大規模模式、度量指標）
 - [Testing Standards](testing-standards.md) - 測試標準 (UT/IT/ST/E2E)（或使用 `/testing-guide` 技能）
 - [Code Check-in Standards](checkin-standards.md) - 程式碼簽入標準
 - [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範

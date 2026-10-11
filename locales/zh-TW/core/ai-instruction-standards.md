@@ -2,36 +2,39 @@
 source: ../../../core/ai-instruction-standards.md
 source_version: 1.1.1
 translation_version: 1.1.1
-last_synced: 2026-08-19
+last_synced: 2026-10-11
+source_hash: 64bcd0b65483
 status: current
 ---
 
 # AI 指令檔案規範
 
-> **語言**: [English](../../../core/ai-instruction-standards.md) | 繁體中文
+> **語言**: [English](../../../core/ai-instruction-standards.md) | 繁體中文 | [简体中文](../../zh-CN/core/ai-instruction-standards.md)
 
-**版本**: 1.1.0
-**最後更新**: 2026-05-28
+**版本**: 1.1.1
+**最後更新**: 2026-08-19
 **適用範圍**: 所有使用 AI 編碼助手的專案
+**範圍**: partial
+**產業標準**: 無（新興 AI 工具實踐）
 
 ---
 
 ## 目的
 
-本規範定義建立和維護 AI 指令檔案（又稱「系統提示詞檔」）的最佳實踐。這些檔案引導 AI 助手理解專案特定的慣例、標準和工作流程。
+本規範定義建立和維護 AI 指令檔案（又稱「系統提示詞檔」）的最佳實踐。這些檔案引導 AI 助手理解專案特定的慣例、標準和工作流程。v1.1.0 將範圍延伸至 skill 層級指令檔（SKILL.md），並新增 i18n 策略。
 
 ---
 
 ## 支援的 AI 工具
 
-| AI 工具 | 指令檔案 | 格式 |
-|---------|---------|------|
-| Claude Code | `CLAUDE.md` | Markdown |
-| Cursor | `.cursorrules` | Markdown |
-| Windsurf | `.windsurfrules` | Markdown |
-| Cline | `.clinerules` | Markdown |
-| GitHub Copilot | `.github/copilot-instructions.md` | Markdown |
-| OpenCode | `.opencode/instructions.md` | Markdown |
+| AI 工具 | 指令檔案 | 格式 | Skill 層級指令 |
+|---------|---------|------|---------------|
+| Claude Code | `CLAUDE.md` | Markdown | `.claude/skills/{name}/SKILL.md` |
+| Cursor | `.cursorrules` | Markdown | n/a |
+| Windsurf | `.windsurfrules` | Markdown | n/a |
+| Cline | `.clinerules` | Markdown | n/a |
+| GitHub Copilot | `.github/copilot-instructions.md` | Markdown | n/a |
+| OpenCode | `.opencode/instructions.md` | Markdown | n/a |
 
 ---
 

@@ -2,7 +2,8 @@
 source: ../../../core/circuit-breaker.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 5e7ea0ed4762
 status: current
 ---
 
@@ -10,102 +11,62 @@ status: current
 
 > **語言**: [English](../../../core/circuit-breaker.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-15
-**適用範圍**: 所有依賴外部 API 或具備重試機制的 Agent 組件
-**Scope**: universal
-**來源**: XSPEC-036（claude-code-book Ch.2 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES）
+> **來源**: XSPEC-036 | **借鑑自**: claude-code-book Ch.2
 
----
+## 概述
 
-## 目的
+斷路器模式保護 Agent 系統，避免因重複失敗而引發 API 雪崩。連續 `failureThreshold` 次失敗後，斷路器開啟並立即拒絕所有請求——不必等待逾時。冷卻期過後，允許一次探測呼叫以測試是否恢復。
 
-通用斷路器模式：連續失敗後開路，防止 API 呼叫雪崩。
+實際數據：在引入斷路器之前，claude-code-book 量測到每天約 25 萬次 API 呼叫被浪費，涉及 1,279 個各自連續失敗超過 50 次的工作階段（最多：連續失敗 3,272 次）。
 
-任何依賴外部 API 或重試機制的 Agent 組件都應使用斷路器保護。實測：引入斷路器前每日浪費約 250K API 呼叫（1279 個 session 各超過 50 次連續失敗）。
+## 狀態
 
----
+```
+CLOSED ──(N consecutive failures)──→ OPEN
+OPEN   ──(cooldownMs elapsed)──→ HALF_OPEN
+HALF_OPEN ──(probe success)──→ CLOSED
+HALF_OPEN ──(probe failure)──→ OPEN
+```
 
-## 核心規範
-
-- 任何重試機制必須使用斷路器包裝，不得直接無限重試
-- 斷路器狀態必須透過遙測可觀測（`circuit_breaker_state_change` 事件）
-- OPEN 狀態下的請求必須立即失敗（fail fast），不等待 timeout
-- `failureThreshold` 預設值為 3，與 claude-code-book 及常見 Fix Loop 實作慣例一致
-- 斷路器必須按照「功能單元」建立，不得全域共享單一斷路器
-
----
-
-## 三態模型
-
-| 狀態 | 描述 | 轉換條件 |
-|------|------|----------|
-| **CLOSED**（閉路） | 正常運作，請求正常轉發 | 連續失敗次數 >= `failureThreshold` → OPEN |
-| **OPEN**（開路） | 立即拒絕所有請求，回傳 `CircuitOpenError` | 等待 `cooldownMs` 後 → HALF_OPEN |
-| **HALF_OPEN**（半開） | 允許一次探針呼叫 | 成功 → CLOSED；失敗 → OPEN |
-
----
-
-## 介面定義
-
-### CircuitBreaker
-
-| 欄位／方法 | 類型 | 說明 |
-|-----------|------|------|
-| `name` | `string` | 斷路器識別名稱 |
-| `state` | `CLOSED \| HALF_OPEN \| OPEN` | 目前狀態 |
-| `execute<T>(fn)` | `async () => Promise<T>` | 受保護的執行入口 |
-| `getState()` | `() => CircuitBreakerState` | 查詢目前狀態 |
-| `reset()` | `() => void` | 手動重設（管理員用） |
-
-### CircuitBreakerConfig
-
-| 欄位 | 類型 | 預設值 | 說明 |
-|------|------|--------|------|
-| `failureThreshold` | `number` | `3` | 連續失敗 N 次後開路 |
-| `cooldownMs` | `number` | `30000` | OPEN → HALF_OPEN 等待時間（毫秒） |
-| `successThreshold` | `number` | `1` | HALF_OPEN → CLOSED 需要的連續成功次數 |
-
-### CircuitOpenError
-
-| 欄位 | 類型 |
+| 狀態 | 行為 |
 |------|------|
-| `code` | `"CIRCUIT_OPEN"` |
-| `breakerName` | `string` |
-| `state` | `"OPEN"` |
-| `cooldownRemainingMs` | `number` |
+| **CLOSED** | 正常運作，請求照常轉送 |
+| **OPEN** | 所有請求立即以 `CircuitOpenError` 拒絕 |
+| **HALF_OPEN** | 允許一次探測請求；成功 → CLOSED，失敗 → OPEN |
 
----
+## 設定
 
-## 遙測事件
+| 參數 | 預設值 | 說明 |
+|------|--------|------|
+| `failureThreshold` | 3 | 開啟前的連續失敗次數 |
+| `cooldownMs` | 30000 | OPEN → HALF_OPEN 的等待時間（毫秒） |
+| `successThreshold` | 1 | 關閉所需的探測成功次數 |
 
-**`circuit_breaker_state_change`**（每次狀態轉換時上傳）
+## 介面
 
-| 欄位 | 類型 |
-|------|------|
-| `breaker_name` | `string` |
-| `from_state` | `CLOSED \| HALF_OPEN \| OPEN` |
-| `to_state` | `CLOSED \| HALF_OPEN \| OPEN` |
-| `failure_count` | `number` |
-| `timestamp` | `string` |
-
----
+```typescript
+interface CircuitBreaker {
+  readonly name: string;
+  readonly state: "CLOSED" | "HALF_OPEN" | "OPEN";
+  execute<T>(fn: () => Promise<T>): Promise<T>; // throws CircuitOpenError when OPEN
+  getState(): CircuitBreakerState;
+  reset(): void; // admin manual reset
+}
+```
 
 ## 適用場景
 
-- Fix Loop Agent 呼叫重試（採用層）
-- Judge / Quality Gate 重試（採用層）
-- LLM API 呼叫（不穩定保護；採用層）
-- Feedback Loop 重試（採用層）
-- FLARE 主動檢索重試（採用層）
-- AutoCompact 風格的對話壓縮（claude-code-book 為原始靈感來源）
+- Fix Loop（採用層）重試
+- LLM API 呼叫保護（採用層）
+- Feedback Loop（採用層）重試
+- FLARE 主動檢索（採用層）的檢索重試
+- 任何對外部依賴使用重試的組件
 
----
+## 參考資料
 
-## 錯誤碼
+- AI 最佳化版本：[ai/standards/circuit-breaker.ai.yaml](../../../ai/standards/circuit-breaker.ai.yaml)
+- XSPEC-036：跨專案規格
+- 借鑑自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.2 `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES`
 
-| 代碼 | 說明 |
-|------|------|
-| `CB-001` | `CIRCUIT_OPEN` — 斷路器開路，請求被拒絕 |
-| `CB-002` | `PROBE_FAILED` — HALF_OPEN 探針失敗，重新開路 |
-| `CB-003` | `INVALID_CONFIG` — `failureThreshold` 必須 >= 1 |
+
+**Scope**: universal

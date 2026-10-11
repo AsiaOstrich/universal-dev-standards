@@ -1,18 +1,22 @@
 ---
 source: ../../../core/checkin-standards.md
-source_version: 1.6.0
-translation_version: 1.6.0
-last_synced: 2026-04-20
-status: stale
+source_version: 1.8.0
+translation_version: 1.8.0
+last_synced: 2026-10-11
+source_hash: cba0d018453b
+status: current
 ---
 
 # 程式碼簽入檢查點標準
 
 > **語言**: [English](../../../core/checkin-standards.md) | 繁體中文
 
-**版本**: 1.5.0
-**最後更新**: 2026-03-18
+**版本**: 1.8.0
+**最後更新**: 2026-07-09
 **適用範圍**: 所有使用版本控制的軟體專案
+**Scope**: partial
+**業界標準**: SWEBOK v4.0 第 6 章
+**參考資料**: [computer.org](https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4)
 
 ---
 
@@ -101,7 +105,7 @@ pytest --cov=src tests/
 ```
 
 **驗證**:
-- Run all test suites locally
+- 在本機執行所有相關測試（參見上方「所有相關測試通過」——直接執行已變更程式碼的測試，以及受變更影響的測試；若專案有測試影響分析工具則加以使用）；當範圍不明確，或變更觸及共用／核心路徑時，改為執行完整測試套件
 - Review test coverage report
 - Ensure new code paths are tested
 
@@ -156,6 +160,12 @@ describe('Regression: [BUG-ID or description]', () => {
   - Cyclomatic complexity ≤10
   - No duplicated code blocks
 
+  > 以上門檻為 UDS 預設值，可依專案調整。循環複雜度
+  > ≤10 遵循 McCabe 的原始建議（McCabe, 1976）——也是多數
+  > linter（ESLint `complexity`、SonarQube）的預設值；方法長度與
+  > 巢狀深度限制則是以可讀性為目標的常見風格指南預設值，並非
+  > 硬性規則。請依你的語言／團隊調整。
+
 - [ ] **安全性已檢查**
   - No hardcoded secrets (passwords, API keys)
   - No SQL injection vulnerabilities
@@ -199,11 +209,11 @@ dotnet list package --vulnerable
   - Breaking changes noted
   - Setup instructions current
 
-- [ ] **CHANGELOG 已更新（如適用）**
-  - 對於使用者可感知的變更：已新增條目至 `[Unreleased]` 區段
+- [ ] **CHANGELOG 已更新（僅限發布前）**
+  - CHANGELOG 於發布準備期間更新，而非每次 commit 更新
+  - 對於使用者可感知的變更：發布前已新增條目至 `[Unreleased]` 區段
   - Breaking changes marked with **BREAKING** prefix
-  - 遵循 [versioning.md](versioning.md) 和 [changelog-standards.md](changelog-standards.md) 排除規則
-  - 注意：內部重構、僅測試、僅文件的變更通常不需要 CHANGELOG 條目
+  - 各工作流程的更新時機請參見 [changelog-standards.md](changelog-standards.md)
 
 **文件格式**:
 ```
@@ -485,7 +495,7 @@ git status
 
 ## 特殊情境處理
 
-### 緊急離開
+### 緊急離開（下班前）
 
 當需要暫時離開但工作未完成時:
 
@@ -911,8 +921,6 @@ obj/
 node_modules/
 ```
 
----
-
 ### 舊版專案檔案同步（project-file-sync）
 
 > **適用範圍**：.NET Framework、MSBuild `.csproj` 及任何需要明確登錄檔案的舊版格式。
@@ -1012,6 +1020,7 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 | 版本 | 日期 | 變更 |
 |---------|------|---------|
+| 1.7.0 | 2026-06-18 | 新增：程式碼異味門檻的來源與可調整說明（McCabe 1976 循環複雜度；linter 預設值）(XSPEC-292 T8) |
 | 1.5.0 | 2026-03-18 | 新增：AC 覆蓋率驗證、批次閾值觸發、自動簽入規則 |
 | 1.4.0 | 2026-01-16 | 新增：Bug 修復測試評估章節與決策矩陣 |
 | 1.3.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 6 章（軟體配置管理）至參考資料 |
@@ -1029,19 +1038,36 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ### 規則嚴重性分類
 
+將 lint 規則分為三個嚴重性層級，並明確定義 CI 行為：
+
 | 層級 | CI 行為 | 適用場景 | 範例 |
 |------|---------|----------|------|
 | **Error** | 阻擋 CI（build 失敗） | 可能的 Bug、安全問題 | 未使用變數、未處理 Promise、`eval` 使用 |
-| **Warning** | 通過但回報 | 品質建議 | 函式過長、巢狀過深、TODO 標記 |
-| **Info** | 靜默通過 | 風格偏好 | 行尾空白、import 排序 |
+| **Warning** | 通過但回報 | 品質建議，應修正 | 函式過長、巢狀過深、TODO 標記 |
+| **Info** | 靜默通過 | 風格偏好、資訊性 | 行尾空白、import 排序 |
+
+**規則分類決策樹：**
+
+```
+Could this rule violation cause a bug?
+├─ Yes → Error
+└─ No
+   ├─ Could it degrade maintainability?
+   │  ├─ Yes → Warning
+   │  └─ No → Info
+   └─ Does it involve security?
+      └─ Yes → Error
+```
 
 ### Auto-fix 策略
 
-| 類別 | 範例 | 允許自動修復 |
-|------|------|-------------|
-| **安全修復** | 縮排、分號、import 排序 | 是 |
-| **需確認** | 變數重命名、型別推斷 | 確認後修復 |
-| **禁止自動修復** | 移除未使用變數、重構複雜邏輯 | 否（需人工判斷） |
+並非所有 lint 規則都應自動修復。依安全性分類：
+
+| 類別 | 條件 | 範例 | 允許自動修復 |
+|------|------|------|-------------|
+| **✅ 可安全自動修復** | 修復結果確定，不改變語意 | 縮排、分號、import 排序、尾隨逗號 | 是 |
+| **⚠️ 需確認** | 修復可能改變語意 | 變數重命名、型別推斷 | 確認後修復 |
+| **❌ 禁止自動修復** | 修復需要理解上下文 | 移除未使用變數、重構複雜邏輯 | 否（需人工判斷） |
 
 **Auto-fix 時機：**
 
@@ -1053,20 +1079,51 @@ git commit -m "feat(module-c): add export to CSV feature"
 
 ### 團隊一致性原則
 
+目標不是通用的風格——而是**團隊內的一致性**：
+
 | 原則 | 說明 |
 |------|------|
 | **團隊決定** | 風格選擇由團隊投票，非個人偏好 |
 | **設定納入版控** | Lint 設定檔必須提交至 Git |
-| **決定後不辯論** | 採用後全員遵循，避免 bikeshedding |
+| **決定後不辯論（no bikeshedding）** | 採用後全員遵循，盡量減少風格爭論 |
 | **自動化優先** | 能由工具強制的規則不依賴人工審查 |
 | **新專案嚴格** | 新專案使用嚴格規則集；既有專案漸進採用 |
 
 ### 漸進採用
 
+既有專案導入 linting 時：
+
 1. **僅對新增/修改檔案套用嚴格規則** — 不要求一次修復整個 codebase
-2. **允許 `// eslint-disable-next-line` 但設上限** — 例如每專案 < 100 個
-3. **每季減少 disable 數量** — 每季減少 25%
-4. **全面強制** — 最終於所有檔案啟用
+2. **允許 `// eslint-disable-next-line` 但設上限** — 允許既有違規使用 disable 標記，但設定最大數量（例如每專案 < 100 個）
+3. **每季減少 disable 數量** — 每季將允許的 disable 數量減少 25%
+4. **全面強制** — 最終於所有檔案啟用完整強制
+
+### 語言無關的設定範本
+
+為任何語言設定 linting 時，可參考此語言無關的 YAML 範本：
+
+```yaml
+# Lint Configuration Strategy (language-agnostic)
+rules:
+  # Error-level: Block CI
+  security:        error   # Security-related checks (e.g., eval, SQL injection patterns)
+  possible-bugs:   error   # Likely bug patterns (e.g., unused vars, unreachable code)
+  type-safety:     error   # Type-related issues (if applicable)
+
+  # Warning-level: Report but pass CI
+  maintainability: warning # Complexity, duplication, long functions
+  naming:          warning # Naming conventions
+  documentation:   warning # Missing docs for public APIs
+
+  # Info-level: Silent
+  style:           info    # Formatting preferences
+  import-order:    info    # Import organization
+
+auto_fix:
+  on_save: true            # Format on save in editor
+  on_commit: true          # Fix safe rules in pre-commit hook
+  on_ci: false             # CI only checks, never fixes
+```
 
 ---
 
@@ -1076,10 +1133,11 @@ git commit -m "feat(module-c): add export to CSV feature"
 - [測試標準](testing-standards.md)（或使用 `/testing-guide` 技能）
 - [Commit 訊息規範](commit-message-guide.md)
 - [程式碼審查清單](code-review-checklist.md)
-- [部署標準](deployment-standards.md) - 品質關卡與部署就緒性
+- [部署標準](deployment-standards.md) - 品質關卡是部署就緒性的輸入
 - [驗收條件追溯標準](acceptance-criteria-traceability.md) - AC 覆蓋率驗證
 - [變更批次合併標準](change-batching-standards.md) - 批次閾值觸發
 - [Pipeline 整合標準](pipeline-integration-standards.md) - 自動簽入
+- [發布就緒關卡](release-readiness-gate.md) - **簽入 ≠ 發布就緒**：通過每次 commit 的關卡是上線的必要條件但非充分條件；發布時「完成」的意義請參見 16 維度發布關卡
 
 ---
 

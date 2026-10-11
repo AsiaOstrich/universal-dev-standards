@@ -2,7 +2,8 @@
 source: ../../../core/database-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-18
+last_synced: 2026-10-11
+source_hash: b21566b7d853
 status: current
 ---
 

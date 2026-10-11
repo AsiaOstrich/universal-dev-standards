@@ -2,7 +2,8 @@
 source: ../../../core/changelog-standards.md
 source_version: 1.0.2
 translation_version: 1.0.2
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: bb36e2ce7d8f
 status: current
 ---
 
@@ -13,6 +14,9 @@ status: current
 **版本**: 1.0.2
 **最後更新**: 2025-12-24
 **適用範圍**: 所有有版本發布的軟體專案
+**範圍**: universal
+**產業標準**: Keep a Changelog 1.1.0
+**參考資源**: [keepachangelog.com](https://keepachangelog.com/)
 
 ---
 
@@ -85,14 +89,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### 變更分類
 
-| 分類 | 使用時機 |
-|------|----------|
-| **Added** | 新功能 |
-| **Changed** | 現有功能的變更 |
-| **Deprecated** | 即將移除的功能 |
-| **Removed** | 已移除的功能 |
-| **Fixed** | 錯誤修復 |
-| **Security** | 安全性修補 |
+| 分類 | 用途 | 使用時機 |
+|------|------|----------|
+| **Added** | 新功能 | 為使用者新增的功能 |
+| **Changed** | 修改 | 現有功能的變更 |
+| **Deprecated** | 即將移除 | 未來將被移除的功能 |
+| **Removed** | 已移除的功能 | 本版本中移除的功能 |
+| **Fixed** | 錯誤修復 | 任何錯誤修復 |
+| **Security** | 安全性修補 | 弱點修復 |
 
 ### 版本標題格式
 
@@ -536,6 +540,7 @@ git ls-files | grep -E "path/to/file"
 - [Versioning Standard](versioning.md) - 語義化版本標準
 - [Commit Message Guide](commit-message-guide.md) - Commit 訊息規範
 - [Git Workflow Standards](git-workflow.md) - Git 工作流程標準
+- [Deployment Standards](deployment-standards.md) - 記錄已部署的變更
 
 ---
 
