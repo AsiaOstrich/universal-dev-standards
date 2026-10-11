@@ -2,11 +2,14 @@
 source: ../../../docs/WINDOWS-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4416025824b3
 status: current
 ---
 
 # Windows 開發指南
+
+> **語言**: [English](../../../docs/WINDOWS-GUIDE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/WINDOWS-GUIDE.md)
 
 本指南提供使用和貢獻 Universal Development Standards 的 Windows 特定說明。
 

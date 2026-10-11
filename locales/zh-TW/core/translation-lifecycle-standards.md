@@ -1,19 +1,21 @@
 ---
 source: ../../../core/translation-lifecycle-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-20
-status: stale
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-10-11
+source_hash: cac9ee7d0cc3
+status: current
 ---
 
 # 翻譯生命週期標準
 
 > **語言**: [English](../../../core/translation-lifecycle-standards.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-20
+**版本**: 1.0.1
+**最後更新**: 2026-08-12
 **狀態**: Trial（到期 2026-10-20）
 **適用範圍**: 所有具備多語言文件的專案
+**Scope**: universal
 **來源**: UDS BUG-A06 事後分析（2026-04-20）
 **父標準**: [documentation-lifecycle](documentation-lifecycle.md)
 
@@ -26,7 +28,7 @@ status: stale
 `documentation-lifecycle` 標準提到翻譯同步是 release gate 的一環，但未定義如何分類或回應不同程度的漂移。本標準填補這個缺口：翻譯檔案不存在與略微過時有本質差異，major 版本落差與 patch 升版也有本質差異。若不作區分，團隊要麼過度阻塞（任何過時都 fail），要麼阻塞不足（忽略所有過時直到成為用戶可見的問題）。
 
 **證據（BUG-A06 事後分析）**：
-1. UDS 在 3 個月內新增 32 個標準時，因缺乏 MISSING gate，翻譯全部缺失，直到 Q2 audit 才發現。
+1. UDS 在 3 個月持續新增標準的期間，因缺乏 MISSING gate 累積了 32 個缺失翻譯，直到 Q2 audit 才發現。
 2. `anti-hallucination.md` zh-CN 停在 1.5.0，來源已升至 1.5.1——新的 Agent 認識論校準框架段落在 zh-CN 版本中完全缺失，使用者看不到。
 
 ---
@@ -49,9 +51,9 @@ status: stale
 |------|------|-----------|------|
 | `MISSING` | 翻譯檔案不存在 | 1 | 發布前建立 |
 | `MAJOR` | 來源 MAJOR > 翻譯 MAJOR | 1 | 正式版發布前更新 |
-| `MINOR` | 來源 MINOR > 翻譯 MINOR（同 MAJOR）| 0 | 下次發布前更新（advisory）|
-| `PATCH` | 來源 PATCH > 翻譯 PATCH（同 MAJOR.MINOR）| 0 | 方便時更新（advisory）|
-| `CURRENT` | source_version == 目前來源版本 | 0 | 無需行動 |
+| `MINOR` | 來源 MINOR > 翻譯 MINOR | 0 | 下次發布前更新（advisory）|
+| `PATCH` | 來源 PATCH > 翻譯 PATCH | 0 | 方便時更新（advisory）|
+| `CURRENT` | 來源版本 == 翻譯的 source_version | 0 | 無需行動 |
 
 ### Semver 差異公式
 
@@ -72,9 +74,9 @@ diff_level = compare(
 |------|---------|
 | 新增標準到 `core/` | 在所有支援的語言建立翻譯（MISSING check 阻塞發布）|
 | 標準 PATCH 升版 | 方便時更新翻譯的 `source_version` + `last_synced` |
-| 標準 MINOR 升版（含新段落）| 更新翻譯內容 + frontmatter，下次發布前完成 |
-| 標準 MAJOR 升版（大改寫）| 更新翻譯內容 + frontmatter，當前發布前完成（阻塞）|
-| 手動更新翻譯 | 升版 `translation_version` + `last_synced` |
+| 標準 MINOR 升版 | 更新翻譯內容 + frontmatter，下次發布前完成 |
+| 標準 MAJOR 升版 | 更新翻譯內容 + frontmatter，當前發布前完成（阻塞）|
+| 手動更新翻譯 | 在 frontmatter 中升版 `translation_version` + `last_synced` |
 
 ---
 
@@ -107,7 +109,7 @@ status: current | outdated | draft           # 人類可讀狀態
 
 當 `core/*.md` 檔案被暫存時，pre-commit hook 執行 `check-translation-sync.sh` 並顯示 OUTDATED 警告。Hook **永不阻塞** commit（在 commit 時阻塞過於擾人）——純提醒用途。
 
-設定方式：`./scripts/install-hooks.sh`（clone 後執行一次）
+設定方式：`node scripts/install-hooks.mjs`（clone 後執行一次；`./scripts/install-hooks.sh` 是包裝同一套邏輯的 POSIX wrapper）
 
 ### Release Gate（`check-translation-sync.sh`）
 
@@ -119,9 +121,9 @@ bash scripts/check-translation-sync.sh
 # 僅 MINOR/PATCH 落差 → exit 0（附 advisory 輸出）
 ```
 
-### Version Bump 整合（`bump-version.sh`）
+### Version Bump 整合（`bump-version.mjs`）
 
-`bump-version.sh` 在更新版本檔案後自動執行 `check-translation-sync.sh`，在升版時即時顯示翻譯健康狀態快照——讓作者立即知道發布前需要更新什麼。
+`bump-version.mjs` 在更新版本檔案後自動執行 `check-translation-sync.sh`，在升版時即時顯示翻譯健康狀態快照——讓作者立即知道發布前需要更新什麼。`scripts/bump-version.sh` 是一個 exec `bump-version.mjs` 的輕量 POSIX wrapper——升版邏輯本身只存在於 `.mjs` 檔案中。
 
 ---
 
@@ -157,3 +159,13 @@ bash scripts/check-translation-sync.sh
 | `TRANS-002` | `MAJOR_VERSION_GAP` — 翻譯的 source_version 落後目前來源 MAJOR 版本 |
 | `TRANS-003` | `MISSING_FRONTMATTER` — 翻譯檔案缺少必要的 YAML frontmatter |
 | `TRANS-004` | `STALE_SOURCE_REF` — frontmatter 的 `source` 路徑指向不存在的檔案 |
+
+---
+
+## 參考資料
+
+- [documentation-lifecycle.md](documentation-lifecycle.md) — 父標準；觸發矩陣與檢查金字塔
+- [standard-admission-criteria.md](standard-admission-criteria.md) — 新標準如何被納入（觸發 TRANS-001）
+- `scripts/check-translation-sync.sh` — 本標準自動化規則的實作
+- `.githooks/pre-commit` — Pre-commit 整合
+- `scripts/install-hooks.mjs` — Hook 安裝（`scripts/install-hooks.sh` 是 POSIX wrapper）

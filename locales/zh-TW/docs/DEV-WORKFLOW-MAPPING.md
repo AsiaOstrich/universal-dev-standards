@@ -2,7 +2,8 @@
 source: ../../../docs/DEV-WORKFLOW-MAPPING.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-17
+last_synced: 2026-10-11
+source_hash: 719a5ce98047
 status: current
 ---
 

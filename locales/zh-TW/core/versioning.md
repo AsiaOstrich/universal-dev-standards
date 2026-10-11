@@ -2,7 +2,8 @@
 source: ../../../core/versioning.md
 source_version: 1.5.0
 translation_version: 1.5.0
-last_synced: 2026-07-01
+last_synced: 2026-10-11
+source_hash: 5c995171e2a4
 status: current
 ---
 
@@ -13,6 +14,9 @@ status: current
 **版本**: 1.5.0
 **最後更新**: 2026-07-01
 **適用範圍**: 所有有版本發布的軟體專案
+**範圍**: universal
+**業界標準**: Semantic Versioning 2.0.0
+**參考文獻**: [semver.org](https://semver.org/)
 
 ---
 
@@ -843,7 +847,7 @@ semver.major('2.3.1');  // 2
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.5.0 | 2026-07-01 | Added: 自動化工具新增 git-height 衍生版本工具（MinVer / Nerdbank.GitVersioning / GitVersion），適用 polyglot / .NET / JVM 專案（UDS #138 R2）；將「Build 身分可被觀測」提升為需求——已部署服務 MUST 透過可查詢 endpoint 暴露 `version + commit sha + build time`——並於 Phase 5 部署後驗證新增 commit-sha + build-time 斷言（UDS #138 R3） |
-| 1.4.0 | 2026-06-24 | Moved out (to single sources): API Versioning Strategies (de-duplicated), Deprecation Timeline + per-tier periods, Backward Compatibility Checklist, Migration Guide template — now owned by api-design-standards / deprecation-standards (XSPEC-298 R8, UDS #126) |
+| 1.4.0 | 2026-06-24 | Moved out (to single sources): API Versioning Strategies (de-duplicated), Deprecation Timeline + per-tier periods, Backward Compatibility Checklist, Migration Guide template — now owned by api-design-standards / deprecation-standards; versioning cross-references them (XSPEC-298 R8, UDS #126) |
 | 1.3.0 | 2026-06-23 | Added: Deployment Version Identity section; build-metadata-as-deployment-discriminator caveat (from UDS #138) |
 | 1.2.0 | 2025-12-30 | Added: API Versioning Strategies, Deprecation Timeline, Backward Compatibility Checklist |
 | 1.1.3 | 2025-12-24 | Added: Related Standards section |

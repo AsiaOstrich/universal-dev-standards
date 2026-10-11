@@ -2,7 +2,8 @@
 source: ../../../docs/USAGE-MODES-COMPARISON.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-12
+last_synced: 2026-10-11
+source_hash: 65e48ed292b6
 status: current
 ---
 

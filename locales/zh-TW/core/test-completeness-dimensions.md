@@ -2,7 +2,8 @@
 source: ../../../core/test-completeness-dimensions.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-24
+last_synced: 2026-10-11
+source_hash: 13876de2fdea
 status: current
 ---
 
@@ -11,6 +12,9 @@ status: current
 **版本**: 1.1.0
 **最後更新**: 2026-01-24
 **適用範圍**: 所有需要測試的軟體專案
+**範圍**: 通用 (Universal)
+**業界標準**: ISTQB AI Testing Syllabus
+**參考**: [istqb.org](https://istqb.org/certifications/certified-tester-ai-testing-ct-ai/)
 
 [English](../../../core/test-completeness-dimensions.md) | [繁體中文](.)
 
@@ -432,6 +436,7 @@ AI 程式碼助手可以快速生成測試，但數量 ≠ 品質。此維度確
 | **斷言深度** | 只有 `result != null` | 驗證具體的值和狀態 |
 | **獨立性** | 測試依賴執行順序 | 每個測試自成一體 |
 | **命名** | `test1`, `test2` | 描述性: `should_reject_invalid_email` |
+| **覆蓋意圖** | 覆蓋程式行，而非行為 | 有意義地覆蓋所有程式路徑 |
 
 **AI 測試生成檢核清單**:
 
@@ -439,19 +444,62 @@ AI 程式碼助手可以快速生成測試，但數量 ≠ 品質。此維度確
 □ 測試目的驗證
   □ 測試是否驗證有意義的行為？
   □ bug 會導致測試失敗嗎？
+  □ 測試是否測對了東西？
 
 □ 斷言品質
   □ 斷言是否具體（不只是「非空」）？
   □ 斷言是否驗證預期的輸出值？
+  □ 斷言是否涵蓋邊界案例？
 
 □ 測試獨立性
   □ 測試可以任意順序執行嗎？
   □ 每個測試都設定自己的資料嗎？
+  □ 測試之間沒有共用的可變狀態？
 
 □ 變異分數
   □ 程式碼中的變異會被捕捉嗎？
   □ 邏輯變更時測試會失敗嗎？
 ```
+
+**範例 - 評估 AI 生成的測試**:
+
+```csharp
+// ❌ Poor AI-generated test - tests almost nothing
+[Fact]
+public void CalculateDiscount_Test()
+{
+    var service = new PricingService();
+    var result = service.CalculateDiscount(100, "VIP");
+    Assert.NotNull(result);  // Only checks not null!
+}
+
+// ✅ Good test - verifies specific business logic
+[Fact]
+public void CalculateDiscount_VipCustomer_Returns20PercentDiscount()
+{
+    // Arrange
+    var service = new PricingService();
+    var originalPrice = 100m;
+    var customerType = "VIP";
+
+    // Act
+    var result = service.CalculateDiscount(originalPrice, customerType);
+
+    // Assert
+    result.DiscountAmount.Should().Be(20m);       // VIP gets 20%
+    result.FinalPrice.Should().Be(80m);
+    result.DiscountType.Should().Be("VIP_DISCOUNT");
+}
+```
+
+**AI 測試品質指標**:
+
+| 指標 | 目標 | 衡量方式 |
+|------|------|----------|
+| 變異分數 | > 80% | 被殺死的變異 / 總變異數 |
+| 斷言密度 | 每個測試 > 2 個 | 斷言數 / 測試數 |
+| 行為覆蓋率 | 100% | 已測試的業務規則 / 總業務規則 |
+| 邊界案例覆蓋率 | > 90% | 已測試的邊界案例 / 已識別的邊界案例 |
 
 ---
 
@@ -462,17 +510,23 @@ AI 程式碼助手可以快速生成測試，但數量 ≠ 品質。此維度確
 變異測試透過在程式碼中引入小變更（變異）來驗證測試有效性，並檢查測試是否能捕捉它們。
 
 ```
-原始程式碼    變異        變異後程式碼
-──────────  ──────►    ──────────
-if (x > 0)             if (x >= 0)  ← 變異
-
-           執行測試
-           ──────────►
-
-測試失敗？ → 變異被殺死 ✅ (測試有效)
-測試通過？ → 變異存活 ❌ (測試薄弱)
-
-變異分數 = 被殺死的變異 / 總變異數
+┌─────────────────────────────────────────────────────────────┐
+│                       變異測試流程                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   原始程式碼        變異          變異後程式碼               │
+│   ──────────────   ──────►       ──────────────             │
+│   if (x > 0)                     if (x >= 0)  ← 變異        │
+│                                                              │
+│                    執行測試                                  │
+│                    ──────────►                               │
+│                                                              │
+│   測試失敗？      → 變異被殺死 ✅（測試有效）               │
+│   測試通過？      → 變異存活 ❌（測試薄弱）                 │
+│                                                              │
+│   變異分數 = 被殺死的變異 / 總變異數                         │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### 常見變異運算子
@@ -483,6 +537,8 @@ if (x > 0)             if (x >= 0)  ← 變異
 | 否定 | `true` | `false` | 布林邏輯 |
 | 算術 | `+` | `-` | 數學運算 |
 | 回傳 | `return x` | `return null` | 回傳值使用 |
+| 移除呼叫 | `validate()` | （移除） | 副作用 |
+| 常數 | `0` | `1` | 魔術數字使用 |
 
 ### 變異測試工具
 
@@ -492,6 +548,7 @@ if (x > 0)             if (x >= 0)  ← 變異
 | JavaScript/TypeScript | Stryker | https://stryker-mutator.io/ |
 | C# | Stryker.NET | https://stryker-mutator.io/docs/stryker-net/ |
 | Python | mutmut | https://github.com/boxed/mutmut |
+| Go | go-mutesting | https://github.com/zimmski/go-mutesting |
 
 ### 解讀結果
 
@@ -501,6 +558,38 @@ if (x > 0)             if (x >= 0)  ← 變異
 | 80-90% | 良好 | 檢視存活的變異 |
 | 60-80% | 尚可 | 新增缺少的測試案例 |
 | < 60% | 不佳 | 有重大測試缺口 |
+
+### 範例：Stryker 設定
+
+```json
+// stryker.config.json (JavaScript/TypeScript)
+{
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress"],
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 50
+  }
+}
+```
+
+### 何時使用變異測試
+
+| 情境 | 建議 |
+|------|------|
+| 關鍵業務邏輯 | ✅ 是 |
+| 安全敏感程式碼 | ✅ 是 |
+| AI 生成測試之後 | ✅ 是 |
+| 簡單的 CRUD 操作 | ⚠️ 選擇性 |
+| UI/呈現層程式碼 | ❌ 通常不值得 |
 
 ---
 

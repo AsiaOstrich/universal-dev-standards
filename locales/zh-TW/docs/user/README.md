@@ -2,6 +2,8 @@
 source: docs/user/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: df4b49a1bde6
 status: current
 ---
 

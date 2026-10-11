@@ -2,7 +2,8 @@
 source: ../../../core/verification-evidence.md
 source_version: 1.3.0
 translation_version: 1.3.0
-last_synced: 2026-08-14
+last_synced: 2026-10-11
+source_hash: 662e9f58b380
 status: current
 ---
 
