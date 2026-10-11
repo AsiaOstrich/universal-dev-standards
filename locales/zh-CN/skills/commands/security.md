@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/security.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 6362f4f8221b
 status: current
 ---
 
@@ -54,7 +55,7 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 - IF High → 标记为重要，建议尽快修复
 - ELSE → 列入报告，建议排期修复
 
-**STOP**: 报告展示后等待用户决定
+🛑 **STOP**: 报告展示后等待用户决定
 
 ### Stop Points | 停止点
 

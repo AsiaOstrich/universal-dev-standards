@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/scan.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 31b6b2d2d6c9
 status: current
 ---
 
@@ -55,7 +56,7 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 - IF 仅 Medium/Low → 列入报告，建议排期处理
 - IF 发现机密泄漏 → 立即警告，建议轮换密钥
 
-**STOP**: 报告展示后等待用户决定修复优先顺序
+🛑 **STOP**: 报告展示后等待用户决定修复优先顺序
 
 ### Stop Points | 停止点
 

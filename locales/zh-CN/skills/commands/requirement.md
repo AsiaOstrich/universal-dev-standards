@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/requirement.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: ae753f750fe7
 status: current
 ---
 
@@ -55,6 +56,44 @@ So that [benefit].
 - `/requirement` - 交互式需求撰写向导
 - `/requirement user login` - 为特定功能撰写需求
 - `/requirement "users can export data"` - 基于描述撰写
+
+## AI Agent Behavior | AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/requirement` | 询问用户要定义的功能，开始交互式需求撰写 |
+| `/requirement <feature>` | 以指定功能为目标，开始收集信息 |
+| `/requirement "description"` | 从描述中提取需求，生成用户故事 |
+
+### Interaction Script | 交互脚本
+
+1. 收集功能描述和用户角色
+2. 引导定义 As a / I want / So that
+3. 引导定义 Acceptance Criteria（GWT 格式）
+4. 以 INVEST 准则逐项验证
+
+**Decision: INVEST 验证结果**
+- IF 全部通过 → 展示完整需求文件
+- IF 有项目未通过 → 指出哪些未通过，建议修改方式
+
+🛑 **STOP**: 展示需求文件后等待用户确认写入
+
+### Stop Points | 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 需求文件生成后 | 确认内容正确并写入 |
+
+### Error Handling | 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 用户描述过于模糊 | 提出具体问题厘清范围 |
+| AC 无法用 GWT 格式表达 | 协助转换，展示转换建议 |
 
 ## Reference | 参考
 

@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/update.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 0c0077e52f66
 status: current
 ---
 
@@ -50,9 +51,9 @@ Pre-release 版本按稳定度排序（由低到高）：
 
 | Type | Stability | Description | 说明 |
 |------|-----------|-------------|------|
-| alpha | Early | Features may be incomplete, for internal testing | 功能可能不完整，供内部测试 |
-| beta | Testing | Features complete, may have bugs, for early adopters | 功能大致完成，可能有 bug，供早期采用者 |
-| rc | Near-stable | Release candidate, close to stable, for beta testers | 候选发布版，接近正式版，供 beta 测试者 |
+| alpha | 🔴 Early | Features may be incomplete, for internal testing | 功能可能不完整，供内部测试 |
+| beta | 🟡 Testing | Features complete, may have bugs, for early adopters | 功能大致完成，可能有 bug，供早期采用者 |
+| rc | 🟢 Near-stable | Release candidate, close to stable, for beta testers | 候选发布版，接近正式版，供 beta 测试者 |
 
 Version comparison: `alpha < beta < rc < stable`
 
@@ -74,15 +75,15 @@ Detect the version type from `uds check` output and display the specific type na
 
 | Detected Type | Option Label | Description |
 |---------------|--------------|-------------|
-| `X.Y.Z-alpha.N` | **Update to Alpha** | 更新至 alpha 版本 X.Y.Z-alpha.N（早期测试） |
-| `X.Y.Z-beta.N` | **Update to Beta** | 更新至 beta 版本 X.Y.Z-beta.N（功能大致完成） |
-| `X.Y.Z-rc.N` | **Update to RC** | 更新至 RC 版本 X.Y.Z-rc.N（接近稳定） |
+| `X.Y.Z-alpha.N` | **Update to Alpha** | 更新至 alpha 版本 X.Y.Z-alpha.N（🔴 早期测试） |
+| `X.Y.Z-beta.N` | **Update to Beta** | 更新至 beta 版本 X.Y.Z-beta.N（🟡 功能大致完成） |
+| `X.Y.Z-rc.N` | **Update to RC** | 更新至 RC 版本 X.Y.Z-rc.N（🟢 接近稳定） |
 
 Always include **Skip** option: 目前不更新。
 
 **Example AskUserQuestion for beta version:**
 - Question: "有新的 beta 版本可用：3.5.1-beta.3 → 3.5.1-beta.15。您想如何处理？"
-- Option 1: "更新至 Beta (建议)" - "更新标准至 3.5.1-beta.15 版本（功能大致完成）"
+- Option 1: "更新至 Beta (建议)" - "更新标准至 3.5.1-beta.15 版本（🟡 功能大致完成）"
 - Option 2: "暂时跳过" - "目前不进行更新，维持现有版本"
 
 ### Step 3: Execute Update | 步骤 3：执行更新
@@ -337,6 +338,67 @@ Skills are managed separately:
 
 **"Skills previously declined"**
 - 运行 `/config skills` 重新安装被拒绝的 Skills
+
+## AI Agent Behavior | AI 代理行为
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 进入路由
+
+| Input | AI Action | AI 行为 |
+|-------|-----------|--------|
+| `/update` | 检查状态 → 询问更新偏好 → 执行 → 检查 Skills/Commands | Check, ask, execute, post-check |
+| `/update --yes` | 跳过确认直接更新（不自动安装 Skills） | Update without confirmation |
+| `/update --beta` | 检查 beta 版本更新 | Check beta updates |
+| `/update --skills` | 仅更新 Skills | Update Skills only |
+| `/update --commands` | 仅更新 Commands | Update Commands only |
+| `/update --offline` | 跳过 npm registry 检查 | Skip network check |
+
+### Interaction Script | 交互脚本
+
+1. 执行 `uds check --summary` 显示当前状态
+
+**Decision: 有无可用更新**
+- IF 已是最新 → 显示「Already up to date」，跳至 Step 4 检查 Skills/Commands
+- IF 有更新 → 进入 Step 2
+
+2. 询问更新偏好（AskUserQuestion）
+
+**Decision: 版本类型**
+- IF stable 可用 → 选项：Update Now（推荐）/ Check Beta / Skip
+- IF 仅 pre-release → 显示具体类型：Update to Alpha/Beta/RC / Skip
+
+🛑 **STOP**: 展示版本信息后等待用户选择
+
+3. 执行更新 `uds update --yes` 或 `uds update --beta --yes`
+
+4. 检查 Skills/Commands 状态（Smart Grouping 策略）
+   - 检测缺少的 Skills → 使用 Smart Grouping 询问安装
+   - 检测缺少的 Commands → 使用 Smart Grouping 询问安装
+   - 已拒绝的工具不再显示
+
+**IMPORTANT**: AskUserQuestion 最多 4 个选项。3+ 工具时必须使用两阶段策略。
+
+🛑 **STOP**: 每个 Skills/Commands 安装决策点等待用户选择
+
+5. 说明结果（更新内容、安装结果、下一步）
+
+### Stop Points | 停止点
+
+| Stop Point | 等待内容 |
+|-----------|---------|
+| 更新偏好选择 | 用户选择更新版本或跳过 |
+| Skills 安装询问 | 用户选择安装位置或跳过 |
+| Commands 安装询问 | 用户选择安装位置或跳过 |
+
+### Error Handling | 错误处理
+
+| Error Condition | AI Action |
+|-----------------|-----------|
+| 标准未初始化 | 提示执行 `/init` |
+| npm registry 无法连接 | 建议加 `--offline`，或稍后重试 |
+| 更新失败（写入错误） | 显示错误，建议检查文件权限 |
+| Skills 之前被拒绝 | 不再询问，提示可通过 `/config skills` 重新安装 |
 
 ## Reference | 参考
 

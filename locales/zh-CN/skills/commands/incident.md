@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/incident.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: cfeb8bfbdecb
 status: current
 ---
 
@@ -54,7 +55,7 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 - IF SEV1/SEV2 → 立即列出紧急行动清单，建议通知相关人员
 - IF SEV3/SEV4 → 按标准流程排查
 
-**STOP**: 严重程度评估后等待用户确认
+🛑 **STOP**: 严重程度评估后等待用户确认
 
 #### MITIGATE
 1. 建议即时缓解措施
@@ -64,13 +65,13 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 1. 引导根因分析（5 Whys）
 2. 建议修复方案
 
-**STOP**: 修复方案确认后等待用户确认实施
+🛑 **STOP**: 修复方案确认后等待用户确认实施
 
 #### POST-MORTEM
 1. 收集时间线、根因、影响
 2. 生成事后复盘文档
 
-**STOP**: 文档生成后等待用户确认写入
+🛑 **STOP**: 文档生成后等待用户确认写入
 
 ### Stop Points | 停止点
 

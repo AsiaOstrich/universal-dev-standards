@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/metrics.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 8084a4191ee0
 status: current
 ---
 
@@ -53,7 +54,7 @@ COLLECT ──► ANALYZE ──► REPORT ──► TREND
 3. 分析趋势和异常
 4. 生成报告
 
-**STOP**: 报告展示后等待用户决定是否采取行动
+🛑 **STOP**: 报告展示后等待用户决定是否采取行动
 
 ### Stop Points | 停止点
 

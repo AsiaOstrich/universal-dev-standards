@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/init.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 3d1e8f297831
 status: current
 ---
 
@@ -262,6 +263,61 @@ Options:
 - Skills（通过 Plugin Marketplace 或本地安装）
 - Commands（针对支持的 AI 工具）
 - `manifest.json` 用于追踪安装
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 | 说明 |
+|------|---------|------|
+| `/init` | 进入互动模式，逐步询问 13 个配置问题 | 13 步骤互动配置 |
+| `/init --yes` | 使用所有默认值直接执行 | 全部采用默认值 |
+| `/init --level N` | 设定采用层级，其余进入互动或搭配 `--yes` | 指定层级，其余互动或采用默认值 |
+| `/init --level N --yes` | 指定层级 + 所有默认值直接执行 | 指定层级 + 全部默认值 |
+
+### 交互脚本
+
+**Decision: 互动 vs 快速模式**
+- IF `--yes` 存在 → 使用默认值直接执行，跳过所有 AskUserQuestion
+- ELSE → 进入 13 步骤互动流程
+
+#### 互动流程（13 步骤）
+
+1. **检测专案** — 自动检测语言、框架、AI 工具
+2. **AI 工具选择** — 多选，预选检测到的工具
+3. **Skills 安装** — Smart Grouping（1-2 工具合并 / 3+ 工具两阶段）
+4. **Commands 安装** — Smart Grouping（同上策略）
+5. **标准范围** — Lean（建议）或 Complete
+6. **采用层级** — Level 1/2/3
+7. **标准格式** — AI / Human / Both
+8. **标准选项** — Git Workflow、Merge Strategy、Commit Language、Test Levels
+9. **语言扩展** — 检测到语言时询问
+10. **框架扩展** — 检测到框架时询问
+11. **地区设定** — English / Traditional Chinese
+12. **内容模式** — Standard / Minimal
+13. **确认并执行** — 展示摘要，确认后一次执行所有安装
+
+**IMPORTANT**: AskUserQuestion 最多 4 个选项。3+ 工具时必须使用 Smart Grouping 两阶段策略。
+
+🛑 **STOP**: 步骤 13 展示配置摘要后等待用户确认再执行安装
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 配置摘要展示后 | 确认安装或修改配置 |
+| 检测到已有 `.standards/` | 询问是否覆写或跳过 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 已有 `.standards/` 目录 | 提示使用 `/update` 更新，或确认覆写 |
+| 无法检测专案语言 | 跳过语言扩展步骤，继续流程 |
+| npm/npx 不可用 | 提示安装 Node.js >= 18 |
+| AskUserQuestion 超过 4 个选项 | 使用 Smart Grouping 拆分为多阶段 |
 
 ## 参考
 

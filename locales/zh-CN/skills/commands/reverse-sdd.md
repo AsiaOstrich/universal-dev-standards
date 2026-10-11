@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/reverse-sdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 1e59164e7709
 status: current
 ---
 
@@ -52,6 +53,48 @@ Source Code ──► Analyze ──► Extract Requirements ──► Generate 
 |---------|---------|------|
 | `/reverse-sdd src/auth/` | Reverse engineer auth module | 逆向工程 auth 模块 |
 | `/reverse-sdd` | Interactive — ask for target | 交互式 — 询问目标 |
+
+## AI Agent Behavior | AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/reverse-sdd` | 询问用户要分析的源代码路径 |
+| `/reverse-sdd <path>` | 直接分析指定路径 |
+
+### Interaction Script | 交互脚本
+
+1. 扫描目标路径的代码结构和依赖关系
+2. 提取隐含需求、API 契约、业务规则
+3. 为每项发现分类确定性：`[Confirmed]`、`[Inferred]`、`[Assumption]`
+
+**Decision: 确定性门槛**
+- IF 有对应测试佐证 → `[Confirmed]`
+- IF 从代码逻辑推断 → `[Inferred]`
+- IF 无直接证据 → `[Assumption]`
+
+4. 生成 SDD 格式的规格文件
+5. 展示结果（含确定性标记）
+
+🛑 **STOP**: 展示生成的 spec 后等待用户审查并确认写入
+
+### Stop Points | 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 生成 spec 后 | 用户审查确定性标记，确认写入 |
+
+### Error Handling | 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 路径不存在 | 告知并询问正确路径 |
+| 代码过大（>50 文件） | 建议缩小范围，或列出模块供选择 |
+| 无法识别编程语言 | 询问用户确认语言 |
+| 所有发现都是 `[Assumption]` | 警告信心不足，建议人工审查后再使用 |
 
 ## Reference | 参考
 
