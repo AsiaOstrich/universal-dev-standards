@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/atdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: c056275ece8c
 status: experimental
 ---
 
@@ -154,6 +155,75 @@ ATDD Level (Business Acceptance)
 - [ ] 展示环境就绪
 - [ ] 测试显示通过
 - [ ] PO 正式验收
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/atdd` | 询问用户故事，进入 🤝 WORKSHOP |
+| `/atdd "user story"` | 以指定故事为目标，进入 🤝 WORKSHOP |
+| `/atdd <story-id>` | 加载现有故事，判断进入哪个阶段 |
+
+### 交互脚本
+
+#### 🤝 WORKSHOP Phase
+
+1. 请用户描述用户故事（As a / I want / So that）
+2. 引导定义验收条件（Given-When-Then）
+3. 记录 Out of Scope 项目
+
+**Decision: PO 角色**
+- IF 用户是 PO → 直接收集 AC
+- IF 用户是开发者 → AI 模拟 PO 视角提出质疑和补充
+- ELSE → 建议邀请 PO 参与，或由 AI 辅助
+
+🛑 **STOP**: AC 定义完成后展示用户故事文件，等待确认
+
+#### 🧪 DISTILLATION Phase
+
+1. 将 AC 转换为可执行的测试格式
+2. 消除歧义
+3. 展示可执行测试
+
+🛑 **STOP**: 展示测试后等待用户（或 PO）签核
+
+#### 💻 DEVELOPMENT Phase
+
+1. 运行验收测试（预期失败）
+2. 使用 BDD/TDD 实现功能
+3. 迭代直到所有测试通过
+
+🛑 **STOP**: 所有测试通过后等待用户确认进入 DEMO
+
+#### 🎬 DEMO Phase
+
+1. 展示通过的测试结果
+2. 展示可运作的功能
+3. 等待 PO 正式验收
+
+🛑 **STOP**: 等待用户确认 PO 已验收
+
+### 停止点
+
+| 阶段 | 停止点 | 等待内容 |
+|------|--------|---------|
+| WORKSHOP | AC 定义后 | 确认用户故事 |
+| DISTILLATION | 测试转换后 | PO 签核 |
+| DEVELOPMENT | 所有测试通过后 | 确认进入 DEMO |
+| DEMO | 功能展示后 | PO 正式验收 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 用户故事不符合 INVEST 准则 | 指出哪些准则未满足，建议修改 |
+| PO 不在场 | AI 模拟 PO 视角提问，标记 `[Needs PO Confirmation]` |
+| 验收测试无法自动化 | 建议手动测试替代方案，产出测试检查清单 |
+| DEVELOPMENT 阶段反复失败 | 回到 WORKSHOP 重新审视 AC 是否合理 |
 
 ## 参考
 

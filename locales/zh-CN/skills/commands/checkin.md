@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/checkin.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: e46beebc25e2
 ---
 
 ---
@@ -52,6 +53,49 @@ description: "[UDS] Pre-commit quality gates verification"
 ## 后续步骤
 
 验证通过后，执行 `/commit` 创建提交消息。
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/checkin` | 自动执行所有品质关卡检查 |
+
+### 交互脚本
+
+1. 执行 `git status` 确认有待提交的变更
+2. 依序检查每个品质关卡：
+   - Build → Tests → Coverage → Code Quality → Security → Documentation → Workflow
+3. 为每个关卡标记 ✅ PASS / ❌ FAIL
+4. 生成摘要报告
+
+**Decision: 测试命令检测**
+- IF 专案有 `package.json` → 使用 `npm test`
+- IF 专案有 `pyproject.toml` → 使用 `pytest`
+- IF 无法检测 → 询问用户
+
+**Decision: 检查结果**
+- IF 全部通过 → 建议执行 `/commit`
+- IF 有 FAIL → 列出失败项目和修复建议，不建议 commit
+
+🛑 **STOP**: 报告展示后等待用户决定（修复 or 强制 commit）
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 品质报告展示后 | 用户决定修复或 commit |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 无待提交变更 | 告知无变更可检查 |
+| 测试命令执行失败 | 报告错误，建议检查测试环境 |
+| lint 工具未安装 | 跳过该关卡，标记 ⚠️ SKIP |
 
 ## 参考
 

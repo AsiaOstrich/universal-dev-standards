@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/e2e.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-10
+last_synced: 2026-10-11
+source_hash: 3f1c7685057c
 status: experimental
 description: "[UDS] 从 BDD 场景生成 E2E 测试骨架，支持框架检测"
 ---
@@ -70,6 +71,52 @@ status: experimental
 - **必须**参考 `cli/src/utils/e2e-analyzer.js` 和 `cli/src/utils/e2e-detector.js` 的分类逻辑
 - **不得**捏造项目中不存在的测试 helper 或 import 路径
 
+## 范例
+
+### 从 feature 文件生成 E2E
+
+```
+/e2e tests/features/SPEC-AUTH-001-login.feature
+```
+
+输出：
+```
+📊 AC 适用性分析结果：
+┌──────────────────────────────┬──────────────────┬───────────────────────────────┐
+│ Scenario                     │ Category         │ Reason                        │
+├──────────────────────────────┼──────────────────┼───────────────────────────────┤
+│ Successful login             │ e2e-suitable     │ Multi-step user flow          │
+│ Failed login                 │ e2e-suitable     │ UI interaction detected       │
+│ Password validation          │ unit-suitable    │ Pure validation logic         │
+└──────────────────────────────┴──────────────────┴───────────────────────────────┘
+
+🔍 框架检测：Playwright (auto-detected from package.json)
+📁 既有模式：3 E2E tests found, using @playwright/test
+
+✅ 已生成 E2E 骨架（2 scenarios, 1 skipped）
+```
+
+### 分析覆盖差距
+
+```
+/e2e --analyze
+```
+
+输出：
+```
+📊 E2E 覆盖差距报告：
+┌──────────────────────────────┬──────────┬───────────────────┐
+│ Feature File                 │ E2E Test │ Status            │
+├──────────────────────────────┼──────────┼───────────────────┤
+│ login.feature                │ ✅       │ Covered           │
+│ checkout.feature             │ ❌       │ Missing           │
+│ registration.feature         │ ❌       │ Missing           │
+└──────────────────────────────┴──────────┴───────────────────┘
+
+覆盖率：1/3 (33%)
+建议：执行 /ac-coverage-assistant 获取 AC 层级追踪。
+```
+
 ## AI 代理行为
 
 > 遵循 [AI 命令行为标准](../../../../core/ai-command-behavior.md)
@@ -83,6 +130,43 @@ status: experimental
 | `/e2e <spec-file>` | 检测到 `SPEC-XXX.md` 格式，委派至 `/derive e2e` |
 | `/e2e --analyze` | 进入分析模式，扫描覆盖差距 |
 | `/e2e --analyze <feature>` | 分析指定 feature 的 AC 适用性 |
+
+### 交互脚本
+
+#### Phase 1: AC 适用性分析
+
+1. 读取 `.feature` 文件，解析所有 Scenario
+2. 使用分类逻辑（E2E/Integration/Unit keywords + step count）分类每个 Scenario
+3. 以表格展示分类结果
+
+**Decision: 无 E2E 适合的场景**
+- IF 所有场景都非 `e2e-suitable` → 通知用户，建议使用 `/tdd` 或 `/bdd` 替代
+- IF 部分适合 → 仅处理 `e2e-suitable` 场景，列出跳过的场景及原因
+
+🛑 **STOP**: 展示分类结果后等待用户确认继续
+
+#### Phase 2: 框架检测与模式分析
+
+1. 检测项目使用的 E2E 框架（package.json dependencies）
+2. 扫描既有 E2E 测试目录，提取 import、helper、编码惯例
+
+**Decision: 多框架检测**
+- IF 检测到多个框架 → 列出选项，询问用户选择
+- IF 未检测到框架 → 询问用户指定，或默认使用 Vitest
+
+#### Phase 3: 骨架生成
+
+1. 使用框架模板生成 E2E 测试骨架
+2. 包含 `[TODO]` 标记、traceability tags（`@SPEC-XXX @AC-N`）
+3. 包含 fixture/setup 引导（beforeAll/beforeEach）
+4. 展示生成的代码
+
+🛑 **STOP**: 展示生成的骨架后等待用户确认写入
+
+#### Phase 4: 完成与下一步
+
+1. 写入文件（经用户确认）
+2. 建议下一步操作
 
 ### 停止点
 

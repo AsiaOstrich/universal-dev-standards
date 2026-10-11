@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/commit.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 52ed032c7e07
 ---
 
 ---
@@ -75,6 +76,60 @@ argument-hint: "[变更描述 | description of changes]"
 
 - `/commit` - 自动分析变更并建议提交消息
 - `/commit fix login bug` - 根据提供的描述生成消息
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/commit` | 执行 Pre-Flight Checks → 分析 staged 变更 → 生成 commit message → 等待确认 |
+| `/commit <description>` | 以描述为基础，结合 staged diff 生成 commit message → 等待确认 |
+
+### 交互脚本
+
+1. 执行 `git diff --cached --stat` 确认有 staged 变更
+2. 执行 `git status` 和 `git diff --staged` 了解变更内容
+3. 判断 commit 类型（feat/fix/refactor/docs/...）和范围
+
+**Decision: Pre-Flight Check 结果**
+- IF 无 staged 变更 → 引导用户 `git add`，停止
+- IF 有合并冲突标记 → 提示先解决冲突，停止
+- IF 类型为 feat/fix → 执行测试 + Spec 追踪评估
+
+4. 生成 commit message（subject + body + footer）
+5. 展示完整 message 供用户确认
+
+**Decision: Spec 追踪（仅 feat/fix）**
+- IF 有活跃 spec → 建议在 footer 加 `Refs: SPEC-XXX`
+- IF 无 spec 且变更显著（>3 个文件或新 API） → 建议 `/sdd`
+- 此为建议性（non-blocking），用户可忽略
+
+**Decision: UDS 上游文件检测**
+- IF staged 包含 `.standards/` 或 `.claude/skills/` → 显示 ⚠️「检测到 UDS 上游管理的文件被修改，建议执行 `/audit --friction` 回报上游」
+- 此为建议性（non-blocking），用户可忽略
+
+🛑 **STOP**: 展示 commit message 后等待用户确认或修改
+
+6. 用户确认后执行 `git commit`
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| Pre-Flight 失败 | 用户修复问题后重新执行 |
+| Message 展示后 | 确认 message 正确，或要求修改 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 无 staged 变更 | 显示 `git add` 指引，不尝试 commit |
+| 合并冲突存在 | 提示解决冲突，列出冲突文件 |
+| 测试失败（feat/fix） | 显示失败摘要，建议修复后再 commit |
+| commit 执行失败 | 显示 git 错误消息，不重试 |
 
 ## 参考
 

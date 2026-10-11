@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/derive-all.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: df78a557d100
 ---
 
 ---
@@ -50,6 +51,46 @@ SPEC-XXX.md ──► /derive-bdd ──► /derive-tdd ──► [/derive-atdd]
 /derive-all specs/SPEC-001.md     # Step 3: Derive tests
 # Step 4: Implement — fill [TODO] markers
 ```
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/derive-all` | 列出 status=Approved 的 spec 供选择 |
+| `/derive-all <spec-file>` | 直接对指定 spec 执行完整推演 |
+
+### 交互脚本
+
+1. 读取并验证 spec（status = Approved）
+2. 依序执行：`/derive-bdd` → `/derive-tdd` → 询问是否需要 `/derive-atdd`
+
+**Decision: ATDD 推演**
+- IF 用户要求 → 执行 `/derive-atdd`
+- ELSE → 跳过 ATDD
+
+🛑 **STOP**: BDD + TDD 推演完成后，询问是否需要 ATDD 推演
+
+3. 生成 `DERIVATION-REPORT.md` 汇总所有输出
+4. 展示报告摘要
+
+🛑 **STOP**: 展示所有生成文件清单后等待用户确认写入
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 所有推演完成后 | 确认写入所有文件 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| Spec status ≠ Approved | 引导到 `/sdd approve` |
+| 子命令推演失败 | 报告哪个推演失败，已成功的仍保留，询问是否继续 |
 
 ## 参考
 

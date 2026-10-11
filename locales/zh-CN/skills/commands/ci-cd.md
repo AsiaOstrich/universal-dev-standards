@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/ci-cd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 8e14a81cd6e6
 status: current
 ---
 
@@ -57,7 +58,7 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 3. 逐阶段设计（BUILD→TEST→ANALYZE→DEPLOY→VERIFY）
 4. 展示完整管线配置
 
-**STOP**: 配置展示后等待用户确认写入
+🛑 **STOP**: 配置展示后等待用户确认写入
 
 ### Stop Points | 停止点
 

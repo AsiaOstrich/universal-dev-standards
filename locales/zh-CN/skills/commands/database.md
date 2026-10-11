@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/database.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 1f86a96977ee
 status: current
 ---
 
@@ -54,9 +55,9 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 3. 展示设计/计划结果
 
-**STOP**: 结果展示后等待用户确认
+🛑 **STOP**: 结果展示后等待用户确认
 
-**STOP**: 迁移脚本写入前等待用户确认
+🛑 **STOP**: 迁移脚本写入前等待用户确认
 
 ### Stop Points | 停止点
 

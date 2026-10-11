@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/derive-tdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 455bbcab0e1a
 status: current
 ---
 
@@ -47,6 +48,46 @@ describe('SPEC-001: [Feature Name]', () => {
 |---------|---------|------|
 | `/derive-tdd specs/SPEC-001.md` | Derive TDD from specific spec | 从特定规格推演 TDD |
 | `/derive-tdd` | Interactive — ask for spec file | 互动式 — 询问规格文件 |
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/derive-tdd` | 列出 status=Approved 的 spec 供选择 |
+| `/derive-tdd <spec-file>` | 直接从指定 spec 推演 TDD 骨架 |
+
+### 交互脚本
+
+1. 读取 spec，提取所有 AC
+2. 检测项目语言和测试框架
+
+**Decision: 语言/框架检测**
+- IF 找到 `vitest.config` / `jest.config` → 使用对应框架
+- IF 找到 `pytest.ini` / `pyproject.toml` → 使用 pytest
+- IF 无法检测 → 询问用户
+
+3. 将每个 AC 映射为 `describe`/`it` 区块（含 AAA 注释和 `[TODO]` 标记）
+4. 展示生成的测试文件内容
+
+🛑 **STOP**: 展示测试骨架后等待用户确认写入
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 测试骨架生成后 | 确认内容正确并写入 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| AC 过于抽象无法转为测试 | 标记 `[TODO: AC needs refinement]`，继续其余 AC |
+| 无法检测语言/框架 | 询问用户指定 |
+| Spec 无 AC | 告知并引导修改 spec |
 
 ## 参考
 

@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: c4295283e9a2
 status: current
 ---
 

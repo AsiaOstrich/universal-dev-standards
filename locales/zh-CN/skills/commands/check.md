@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/check.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 79bf24c39d52
 ---
 
 ---
@@ -210,6 +211,57 @@ Skills Status
 /check --diff           # Show file differences
 /check --migrate        # Upgrade manifest format
 ```
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/check` | 执行 `uds check`，检测到问题时进入互动修复模式 |
+| `/check --summary` | 执行 `uds check --summary`，显示精简状态 |
+| `/check --restore` | 执行 `uds check --restore`，还原所有修改/遗失文件 |
+| `/check --offline` | 执行 `uds check --offline`，跳过 npm registry 检查 |
+| `/check --migrate` | 执行 `uds check --migrate`，升级 manifest 格式 |
+
+### 交互脚本
+
+1. 执行 `uds check` 并解析输出
+2. 展示状态摘要（版本、等级、文件、Skills、Commands）
+
+**Decision: 检查结果**
+- IF 全部正常 → 显示绿色摘要，结束
+- IF 有修改/遗失文件 → 进入互动修复循环
+
+3. 互动修复循环（每个问题文件）：
+
+**Decision: 文件已修改**
+- 用户可选：View diff → Restore original → Keep current → Skip
+
+**Decision: 文件遗失**
+- 用户可选：Restore → Remove from tracking → Skip
+
+🛑 **STOP**: 每个问题文件逐一询问用户处理方式
+
+4. 所有文件处理完毕，显示最终状态
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 每个问题文件 | 用户选择处理方式 |
+| restore 操作前 | 确认还原（批次模式除外） |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 标准未初始化 | 提示执行 `/init` |
+| npm registry 无法连接 | 建议加 `--offline` 重试 |
+| manifest 格式过旧 | 建议执行 `--migrate` |
+| Skills 未安装 | 建议执行 `/update` 或 `/config skills` |
 
 ## 参考
 
