@@ -2,7 +2,8 @@
 source: ../../../core/documentation-structure.md
 source_version: 1.5.0
 translation_version: 1.5.0
-last_synced: 2026-03-17
+last_synced: 2026-10-11
+source_hash: 453295968842
 status: current
 ---
 
@@ -1393,6 +1394,14 @@ graduated-to: path/to/formal-doc.md  # 若已畢業
 
 文件中的程式碼範例應進行驗證，以防止與實際實作脫節：
 
+```markdown
+<!-- doctest: lang=bash, skip=false -->
+```bash
+npm install your-package
+npm test
+```
+```
+
 **驗證方式**:
 
 | 方式 | 說明 | 最適用於 |
@@ -1434,16 +1443,16 @@ graduated-to: path/to/formal-doc.md  # 若已畢業
 
 ## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
 | 1.5.0 | 2026-03-17 | 新增：Diátaxis 文件分類、LLM 發現檔案（llms.txt）、文件測試標準（5 層測試、追溯矩陣、CI/CD 整合） |
 | 1.4.0 | 2026-03-04 | 新增：開發中間產物（docs/working/）目錄與生命週期管理、擴展文件類型矩陣 |
-| 1.3.0 | 2026-01-24 | Added: 規格文件標準與 specs/ 目錄結構 |
-| 1.2.2 | 2025-12-24 | Added: Related Standards section |
-| 1.2.1 | 2025-12-12 | Added: Physical DFD layer, Flows vs Diagrams separation clarification |
-| 1.2.0 | 2025-12-11 | Added: Flow documentation standards, Cross-reference standards, Index document standards, CHANGELOG documentation integration, Document requirements matrix, DFD standards |
-| 1.1.0 | 2025-12-11 | Added: File naming conventions, Document version alignment standard |
-| 1.0.0 | 2025-11-12 | Initial documentation structure standard |
+| 1.3.0 | 2026-01-24 | 新增：規格文件標準與 specs/ 目錄結構 |
+| 1.2.2 | 2025-12-24 | 新增：相關標準章節 |
+| 1.2.1 | 2025-12-12 | 新增：實體 DFD 層級、釐清流程與圖表的分離 |
+| 1.2.0 | 2025-12-11 | 新增：流程文件規範、交叉連結規範、索引文件規範、CHANGELOG 文件變更整合、文件需求矩陣、DFD 規範 |
+| 1.1.0 | 2025-12-11 | 新增：檔案命名規範、文件版本對齊標準 |
+| 1.0.0 | 2025-11-12 | 初始文件結構標準 |
 
 ---
 

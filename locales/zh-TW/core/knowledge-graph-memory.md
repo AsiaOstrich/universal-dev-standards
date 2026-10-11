@@ -2,7 +2,8 @@
 source: ../../../core/knowledge-graph-memory.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-05-30
+last_synced: 2026-10-11
+source_hash: 6a5372029069
 status: current
 ---
 

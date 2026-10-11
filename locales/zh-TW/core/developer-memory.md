@@ -1,19 +1,21 @@
 ---
 source: ../../../core/developer-memory.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-02-07
-status: stale
+source_version: 1.2.1
+translation_version: 1.2.1
+last_synced: 2026-10-11
+source_hash: 4f480ae3038e
+status: current
 ---
 
 # 開發者持久記憶標準
 
 > [English](../../../core/developer-memory.md) | **繁體中文**
 
-**版本**: 1.0.0
-**最後更新**: 2026-02-07
+**版本**: 1.2.1
+**最後更新**: 2026-10-07
 **適用範圍**: 所有使用 AI 助手的軟體專案
 **範圍**: 通用 (Universal)
+**負責規格**: XSPEC-291（developer-memory 沒有專屬的功能 XSPEC；由 XSPEC-291 負責）
 **產業標準**: 無 (UDS 原創)
 
 ---
@@ -241,11 +243,13 @@ AI 掃描記憶庫並產生審查報告，涵蓋：
 
 #### 退役建議
 
-| 觸發條件 | 動作 |
-|---------|------|
-| `confidence < 0.2` | 建議退役 |
-| 超過 180 天未浮現且 `confidence < 0.5` | 建議退役 |
-| 5+ 筆 `invalid` 回饋 | 建議退役 |
+以下閾值為 UDS 預設值（可依專案設定）；每個值都記錄了理由，使其可供稽核而非任意設定。
+
+| 觸發條件 | 動作 | 理由 |
+|---------|------|------|
+| `confidence < 0.2` | 建議退役 | 一再被判定無效的知識，雜訊多於訊號 |
+| 超過 180 天未浮現且 `confidence < 0.5` | 建議退役 | 半年未被使用再加上低信心度，代表此記憶已與當前工作無關；180 天的時間窗與下方「過時偵測」的過時／衰減模型一致 |
+| 5+ 筆 `invalid` 回饋 | 建議退役 | 持續的負面回饋表示此記憶有誤或已過時 |
 
 #### 過時偵測
 
@@ -254,6 +258,26 @@ AI 掃描記憶庫並產生審查報告，涵蓋：
 | `validity.type == "versioned"` 且版本已過時 | 標記為過時 |
 | `validity.type == "temporal"` 且 `expires_at` 已過 | 標記為已過期 |
 | `validity.type == "evergreen"` | 跳過版本檢查 |
+| 被召回的記憶引用的檔案路徑或符號（函式／類別）已不存在於該位置，或已移動 | 標記為 `code-reference` 過時——見下方 |
+
+#### 程式碼參照過時（`code-reference`）
+
+程式碼會移動；針對舊位置記錄的記憶不會自行更新。此檢查用於捕捉以下情況：記憶的洞察仍然成立，但其引用（檔案路徑或函式／類別名稱）已不成立。
+
+此檢查沿用 **[Knowledge Graph Memory](knowledge-graph-memory.md) §2 已定義的兩種運作模式**，而不另創第三種：
+
+| 模式 | 時機 | 方式 |
+|------|------|------|
+| 降級模式（無圖引擎） | 任何工具皆可、無需額外設定——預設模式 | 使用記憶前，助手自行確認所引用的路徑／符號仍存在（`Glob`/`Grep`/`Read`）——與 §5 記憶驗證原則既有要求的機制相同 |
+| 引擎模式（已建立圖引擎索引，例如 [EngramGraph](https://github.com/AsiaOstrich/EngramGraph) 的 `egr refs check`） | 可用時 | 引擎回報每個引用的狀態：`present`／`moved`（附新位置）／`missing`／`unresolvable` |
+
+> 正確實作在兩種模式下產生相同形狀的答案（Knowledge Graph Memory §2.2）——引擎模式只是更快更完整，並非本質不同。
+
+**`unresolvable` 不得（MUST NOT）被視為 `present` 或 `missing`。** 它表示檢查器無法對該引用得出答案（例如超出索引範圍的跨 repo 參照，見 Knowledge Graph Memory §2.2 的跨域注意事項）——這種不確定性必須以獨立狀態傳達給助手，而不是悄悄變成偽陽性（視為仍有效）或偽陰性（視為已消失）。
+
+**時機**：此檢查作為 `proactive-surfacing`（§4.1）的一部分執行——在記憶顯示之前，而非之後。引用解析為 `missing` 的記憶，不會被當作沒有任何變化般悄悄浮現。
+
+**範圍（第一批）**：僅限檔案路徑與符號名稱（函式／類別名稱）。`file:line` 參照明確**不在範圍內**——行號會隨該檔案任何無關的編輯而漂移，這與「此檔案／符號已不存在」屬於不同種類的過時（見 DEC-115 OQ-1；預定於 2027-01-31 前重新檢視）。
 
 #### 修訂建議
 
@@ -284,6 +308,7 @@ AI 掃描記憶庫並產生審查報告，涵蓋：
 | 冷卻期 | 每條目 7 天 | 防止重複建議 |
 | 每次觸發上限 | 3–5 條 | 防止資訊過載 |
 | 溢出處理 | AI 歸納為分組洞察 | 當 > 5 個匹配時 |
+| 程式碼參照檢查 | 浮現前執行（§3.4 `code-reference` 過時檢查，降級或引擎模式） | 檔案／符號引用已無法解析的記憶，不得未加標記就浮現 |
 
 #### 浮現格式
 
@@ -337,7 +362,35 @@ AI 應偵測這些開發者信號並建議記錄：
 
 ---
 
-## 5. 雜訊控制
+## 5. Memory Verification Principle（記憶是線索，非結論）
+
+> 借鑑 lintsinghua/claude-code-book 記憶驗證原則。
+
+記憶提供方向，但**不能直接作為事實使用**。使用記憶前須獨立驗證：
+
+| 記憶內容 | 驗證方法 | 衝突時處理 |
+|---------|---------|-----------|
+| 檔案路徑 | 確認檔案仍存在（Glob/Read） | 標記記憶為 `needs-revision` |
+| 函式名稱/API flag | 確認仍存在（Grep/文件） | 標記記憶為 `needs-revision` |
+| 架構快照/Repo 狀態 | 優先信任 `git log`/原始碼 | 更新記憶為當前狀態 |
+| 套件版本/相依 | 確認 package.json/lockfile | 以實際版本為準 |
+
+### 禁止行為
+
+- 直接引用記憶中的具體 API/路徑/函式名稱推薦給使用者，未先驗證
+- 宣稱「根據記憶，X 存在」而未執行獨立確認
+- 因記憶內容與現況衝突時，選擇信任記憶而非當前觀察
+
+### 記憶用途場景
+
+記憶適合提供：
+- **搜尋方向**：「這類問題上次在 X 模組找到答案」
+- **模式線索**：「這個錯誤模式對應已知 pitfall MEM-2026-0042」
+- **決策背景**：「此設計決策的歷史背景是...」
+
+---
+
+## 6. 雜訊控制
 
 ### 推送層級
 
@@ -517,6 +570,7 @@ by_category:
 - [AI 指令標準](ai-instruction-standards.md) — Token 效率優化的記憶系統指令格式
 - [AI 友善架構](ai-friendly-architecture.md) — 支援記憶整合的專案結構
 - [文件撰寫標準](documentation-writing-standards.md) — 記憶條目的撰寫品質
+- [知識圖記憶](knowledge-graph-memory.md) — `code-reference` 過時檢查（§3.4）所沿用的降級／引擎雙模式來源
 
 ---
 
@@ -563,6 +617,38 @@ AI 載入 developer-memory.ai.yaml
 
 ---
 
+## 11. 工具採用範例：程式碼參照檢查（非規範性）
+
+本節示範一種將 `code-reference` 過時檢查（§3.4）接入工具自身自動化的方式。這僅是說明文件——UDS 不提供此 hook，`uds init`/`uds update` 也不會安裝它。
+
+### Claude Code
+
+Claude Code 的自動記憶位於 repo 之外的 `~/.claude/projects/<project-path>/memory/`。`SessionStart` hook 可在該 session 第一次浮現記憶前，對該目錄執行檢查；沒有圖引擎時則退回降級模式：
+
+```bash
+#!/usr/bin/env bash
+# Illustrative only — not installed by any UDS command.
+MEMORY_DIR="$HOME/.claude/projects/$(pwd | tr '/' '-')/memory"
+
+if command -v egr >/dev/null 2>&1 && [ -f .engram/graph.db ]; then
+  # Engine mode (§3.4): egr resolves each cited path/symbol.
+  egr refs check "$MEMORY_DIR"
+else
+  # Degraded mode (§3.4): no engine configured — nothing to run up
+  # front; the assistant verifies each citation itself before use (§5).
+  echo "[developer-memory] no graph engine detected; degraded mode applies"
+fi
+```
+
+### 其他工具
+
+沒有 session 啟動 hook 的工具，仍可透過以下任一方式符合本標準：
+
+- 在 repo 自身的指令檔（`CLAUDE.md`、`AGENTS.md`、`.cursorrules`、`.clinerules`、`.windsurfrules`、`copilot-instructions.md`、`GEMINI.md`、`.roo/rules/` 等）中加入規則，指示助手在依賴某筆記憶前先驗證其引用的路徑／符號；或
+- 以 pre-commit 檢查掃描 repo 自身的指令檔，找出已無法解析的引用。
+
+---
+
 ## 邊界：本標準不放什麼
 
 下面兩種資訊不在本標準的範圍內，寫進這裡是錯的：
@@ -576,6 +662,10 @@ AI 載入 developer-memory.ai.yaml
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.1 | 2026-10-07 | 新增：邊界章節——個人、跨專案、可識別的資訊，以及專案之間的協調，都不是記憶條目（XSPEC-460 R5；patch，無行為變更） |
+| 1.2.0 | 2026-09-25 | 新增：審查（§3.4）的 `code-reference` 過時檢查——引用已移動／遺失之檔案路徑或符號的記憶會在浮現前被標記；沿用 Knowledge Graph Memory 的降級／引擎雙模式而非另創第三種；`unresolvable` 不得被解讀為 present 或 missing；範圍僅限檔案路徑與符號名稱（`file:line` 明確排除，DEC-115 OQ-1）；§11 新增非規範性的 Claude Code 採用範例（DEC-115-L1） |
+| 1.1.1 | 2026-06-18 | 新增：指向 XSPEC-291 的 `Owning Spec` 標頭（patch，無行為變更；XSPEC-291 §11 處置） |
+| 1.1.0 | 2026-06-18 | 新增：退役建議閾值加上理由欄與可設定說明（XSPEC-292 T8） |
 | 1.0.0 | 2026-02-07 | 初始標準：schema、4 項操作、主動協議、雜訊控制、架構決策（Always-On Protocol） |
 
 ---
