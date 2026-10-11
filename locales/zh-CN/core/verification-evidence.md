@@ -1,17 +1,18 @@
 ---
 source: ../../../core/verification-evidence.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-07-17
-status: stale
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-10-11
+source_hash: 662e9f58b380
+status: current
 ---
 
 > **语言**: [English](../../../core/verification-evidence.md) | 简体中文
 
 # 验证证据标准
 
-**版本**: 1.2.0
-**最后更新**: 2026-07-17
+**版本**: 1.3.0
+**最后更新**: 2026-08-14
 **适用范围**: 所有 AI 辅助开发工作流
 **范围**: universal
 **灵感来源**: [Superpowers](https://github.com/obra/superpowers) — verification-before-completion (MIT)
@@ -40,6 +41,7 @@ status: stale
 | 环境层次 (Environment Layer) | 该证据是从哪个环境收集而来（`local` / `uat` / `prd`） |
 | 证据有效性 (Evidence Validity) | 证据*本身*是否可信 —— 即验证命令究竟有没有真的执行、有没有真的测到它声称测到的东西 |
 | 工具静默失败 (Silent Tool Failure) | 验证命令根本没跑起来，或跑了但什么都没测到，却产生了与真实结果无从分辨的输出 |
+| 证据新鲜度 (Evidence Freshness) | 证据是否由一次在受测代码、提示词或配置*最近一次编辑之后*执行的运行所产生 —— 而不是沿用针对较早状态的运行结果 |
 
 ---
 
@@ -169,7 +171,7 @@ status: stale
 
 这不是幻觉。幻觉是虚构你没查过的事。这是反过来：**你查了，而那个查询工具骗了你。** `anti-hallucination` 标准覆盖不到这一块 —— 该标准的每一条禁令都是某种形式的"不要编造"，而这里没有任何东西被编造。
 
-### 四条有效性规则
+### 五条有效性规则
 
 **1. 只有在"成功时返回 0"的工具上，`exit_code = 0` 才代表成功。**
 
@@ -186,6 +188,16 @@ status: stale
 **4. pipeline 的退出码不属于其中任何单一阶段。**
 
 在 `set -o pipefail` 下，`producer | grep -q pattern` 会继承 `producer` 的非零值，与 `grep` 有没有匹配到无关。当决策取决于内容时，**先捕获输出，再评估它** —— 不要让一个 pipeline 把两个问题压缩成一个数字。
+
+**5. 证据必须晚于它所验证对象的最后一次编辑。**
+
+在受测代码、提示词或配置最近一次变更*之前*捕获的验证运行，确实证明了某件事 —— 只是不是被主张的那件事。这个陷阱是静默的：完整套件跑出全绿，之后某样东西被编辑了（一个提示词、一个配置值、一个阈值），而在那次编辑之后只跑了较窄的检查（lint、部分套件）—— 但较早那次全绿的运行却被引用为当前状态的证据。**证据是在最后一次编辑之后捕获的单次新鲜执行，而不是恰好通过的最近一次执行。**
+
+### 过期证据 —— 一种失效样态
+
+规则 1–4 假设证据**在正确的地方**被收集且被正确解读。它们没有回答"**什么时候**"这个问题。一个执行了、测量正确、也返回真结果的命令，依然可能撑不起一个完成声明 —— 如果它跑完之后有东西又变了。
+
+**失效样态**：完整测试套件跑过且通过。之后，某个提示词或配置值被编辑 —— 没有任何测试直接覆盖那次编辑。提交前只跑了 `lint`，也通过。commit 引用"测试通过"作为证据。接着 CI 红在一个钉住刚刚被改掉那份内容的测试上 —— 那个"通过"的套件，跑的是一个在主张被提出时已经不存在的版本。
 
 ### 此失效模式的实例证据
 
@@ -216,8 +228,21 @@ status: stale
 | 有 `verification_evidence` 但 `exit_code ≠ 0` | 标记为**验证失败** —— **除非**已知该工具在受测状态下本就会以非零退出（证据有效性规则 1），此时改以输出判定 |
 | `exit_code = 0`，但该命令不可能测到它所声称的事 | 标记为**未验证** —— 一道在错的地方执行、或根本没执行的通过命令，不是证据 |
 | 证据主张"不存在"（`0`、空输出、"未找到"） | 在证明查询工具成功执行过之前，标记为**未验证** |
+| 证据的时间戳早于它所验证对象的最近一次编辑 | 标记为**过期** —— 在编辑之后重跑；不得引用较早的通过结果 |
 | 多个验证步骤 | **全部**步骤都必须通过 |
 | 代理提供的是错误命令的证据 | 标记为**未验证** |
+
+---
+
+## 窄覆盖必须登记，而非仅揭露
+
+证据有效性与环境分层责任矩阵都允许一个被记录下来的缺口 —— 一个无法验证某个维度的环境层次、一项测量范围窄于它所支撑主张的检查。单纯写下这个缺口本身并不够：文字说明比真正补上缺口便宜，而一个从未被重新检视的揭露，会悄悄变成"这份证据其实撑不起它被用来支撑的主张"的永久借口。
+
+**要求**：任何这一类已记录的缺口，必须同时登记到一份**带到期日的例外清册** —— 独立于标准正文或矩阵条目本身之外 —— 指名缺口、其成因，并附上复核或到期日期。只有一则脚注而没有对应清册条目，不满足本条。
+
+**可证伪条件**：一则清册条目连续两期审查都未变动，代表该揭露已经变成逃生口，本条对该条目失效 —— 不是"部分满足"，是失效。清册放在哪里、什么格式、多久审一次，留给采用项目自行决定；本标准只要求"有这么一份东西存在，且条目会动"。
+
+这与 [class-level-fix](../../../core/class-level-fix.md) 的窄覆盖规则是同一条要求，套用在验证证据而非类别层检查上：两种情况下，一个永远不必改变的揭露都不是揭露，是一份穿着揭露外衣的永久豁免。
 
 ---
 
@@ -235,6 +260,8 @@ status: stale
 | VE-008 | 证据主张"不存在"（`0`、空输出、"未找到"） | 在证明查询工具成功执行过之前一律无效。以不抑制 stderr 的方式重跑 | High |
 | VE-009 | 存在性／不存在性检查抑制了 stderr（`2>/dev/null` 或等价写法） | 证据不成立。以 stderr 可见的方式重跑 | High |
 | VE-010 | 证据的 `exit_code` 来自 pipeline（尤其是在 `pipefail` 下） | 该退出码不归属于任何单一阶段。改为捕获输出并评估内容 | Medium |
+| VE-011 | 证据的执行时间戳早于它所声称验证之产物的最近一次编辑 | 标记为**过期** —— 不是当前状态的有效证据；要求在编辑之后捕获一次新鲜的单次运行 | High |
+| VE-012 | 已记录的证据/覆盖缺口（environment-stratification ⚠️/❌，或任何窄于其所支撑主张的检查）在带日期的例外清册中没有条目 | 仅有揭露不满足本规则 —— 要求一则已登记、带日期、指名缺口及其复核/到期日的清册条目 | Required |
 
 ---
 
@@ -269,7 +296,7 @@ verification_evidence:
 ```yaml
 status: success
 message: "I've completed the task and everything should work now."
-# ❌ 没有 verification_evidence —— 违反铁律
+# ❌ No verification_evidence — violates Iron Law
 ```
 
 ### 不良：撑不起自身主张的证据
@@ -281,12 +308,12 @@ verification_evidence:
     exit_code: 0
     output: "0"
     timestamp: "2026-07-17T13:05:00Z"
-# ❌ 通过了铁律：证据存在、exit_code 是 0、输出很具体。
-# ❌ 违反 VE-008、VE-009、VE-010：
-#      - 主张"不存在"却未证明查询工具跑过（VE-008）
-#      - 抑制掉了那句"sudo: a terminal is required"的 stderr（VE-009）
-#      - 这个退出码是 pipeline 的，也就是 `wc -l` 的 —— `find` 根本没跑（VE-010）
-#    实际存在 31 个文件。目录被列为空的，是因为根本没人去看。
+# ❌ Passes the Iron Law: evidence exists, exit_code is 0, output is concrete.
+# ❌ Violates VE-008, VE-009, VE-010:
+#      - claims absence without showing the query tool ran (VE-008)
+#      - suppresses the stderr that said "sudo: a terminal is required" (VE-009)
+#      - the exit code is the pipeline's, i.e. `wc -l`'s — `find` never ran (VE-010)
+#    31 files were present. Directory listed as empty because nothing looked.
 ```
 
 ### 良好：同一道检查，改为有效版本
@@ -299,8 +326,8 @@ verification_evidence:
     output: "31"
     timestamp: "2026-07-17T13:07:00Z"
     environment_layer: "prd"
-# ✅ stderr 会浮现 sudo／权限失败，而不是打印出 0
-# ✅ 使用单引号，${...} 不会在传输前被本地 shell 展开
+# ✅ stderr would have surfaced a sudo/permission failure instead of printing 0
+# ✅ single-quoted so ${...} is not expanded by the local shell before transit
 ```
 
 ---
@@ -314,6 +341,7 @@ verification_evidence:
 - [测试标准](testing-standards.md) —— 产生多数证据的那些测试是怎么写的
 - [代理派遣与并行协调](agent-dispatch.md) —— 委派出去的工作会返回主张，那些主张需要套用本标准
 - [部署标准](deployment-standards.md) —— 定义 VE-005 / VE-006 所引用的"环境分层责任矩阵"
+- [类别层修复](../../../core/class-level-fix.md) —— 同一条"窄覆盖必须登记"的要求（VE-012），套用在类别层检查而非验证证据上
 
 ---
 
@@ -321,9 +349,3 @@ verification_evidence:
 
 - **Superpowers**: [verification-before-completion](https://github.com/obra/superpowers) (MIT)
 - **测试驱动开发**: RED-GREEN-REFACTOR 循环
-
----
-
-## 许可证
-
-本标准采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 发布。

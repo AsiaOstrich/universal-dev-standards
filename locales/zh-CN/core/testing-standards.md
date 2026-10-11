@@ -2,7 +2,8 @@
 source: ../../../core/testing-standards.md
 source_version: 3.2.0
 translation_version: 3.2.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 4d5d70b73aa6
 status: current
 ---
 
@@ -10,8 +11,8 @@ status: current
 
 > **语言**: [English](../../../core/testing-standards.md) | [繁體中文](../../zh-TW/core/testing-standards.md) | 简体中文
 
-**版本**: 3.1.0
-**最后更新**: 2026-03-24
+**版本**: 3.2.0
+**最后更新**: 2026-04-20
 **适用性**: 所有软件项目
 **范围**: universal
 **行业标准**: ISTQB CTFL v4.0, ISO/IEC/IEEE 29119
@@ -49,7 +50,6 @@ status: current
 ## 覆盖率目标（主要指标）
 
 > **覆盖率是测试质量的主要指标。** 更高的覆盖率代表更多代码受到测试保护。
-> **覆蓋率是測試品質的主要指標。** 更高的覆蓋率代表更多程式碼受到測試保護。
 
 | 指标 | 最低要求 | 标准 | 理想 |
 |------|----------|------|------|
@@ -245,18 +245,18 @@ E2E 环境前置检查（`globalSetup`、`beforeAll`）必须验证**所有受�
 
 **反模式** — 只验 login：
 ```ts
-// ❌ 即使功能页返回 500 也会通过
+// ❌ Passes even when feature pages return 500
 await page.goto('/login');
 expect(response.status()).toBe(200);
 ```
 
 **正确模式** — 明确的覆盖列表：
 ```ts
-// ✅ 验证套件涵盖的所有页面
+// ✅ Verify all pages covered by the suite
 const PAGES_UNDER_TEST = ['/login', '/dashboard', '/feature-x'];
 for (const path of PAGES_UNDER_TEST) {
   const res = await fetch(`${BASE_URL}${path}`);
-  expect(res.status).toBeLessThan(500); // 遇到 5xx 立即失败
+  expect(res.status).toBeLessThan(500); // fail fast on 5xx
 }
 ```
 
@@ -292,11 +292,11 @@ for (const path of PAGES_UNDER_TEST) {
 **规则**: 如果 Mock 的方法接受查询/过滤/谓词参数，你**必须**有一个对应的集成测试来验证查询逻辑。
 
 ```python
-# 示例 - Python
-# ❌ 此测试无法验证查询的正确性
+# Example - Python
+# ❌ This test cannot verify query correctness
 mock_repo.find.return_value = users
 
-# ✓ 添加集成测试来验证实际查询
+# ✓ Add integration test to verify actual query
 ```
 
 ---
@@ -315,10 +315,10 @@ mock_repo.find.return_value = users
 当实体同时具有代理键（自动生成的 ID）和业务标识符时，测试数据**必须**为每个键使用不同的值。
 
 ```python
-# ❌ 错误: id 等于 business_code — 映射错误不会被检测到
+# ❌ Wrong: id equals business_code - mapping errors undetected
 dept = Department(id=1, business_code=1)
 
-# ✓ 正确: 不同的值可以捕获映射错误
+# ✓ Correct: distinct values catch mapping errors
 dept = Department(id=1, business_code=1001)
 ```
 
@@ -327,11 +327,11 @@ dept = Department(id=1, business_code=1001)
 对于具有复合主键的实体，确保每条记录具有唯一的键组合。
 
 ```python
-# ❌ 键冲突
+# ❌ Key collision
 batch1 = BatchRecord(id=0, send_time=now)
-batch2 = BatchRecord(id=0, send_time=now)  # 冲突！
+batch2 = BatchRecord(id=0, send_time=now)  # Conflict!
 
-# ✓ 唯一组合
+# ✓ Unique combinations
 batch1 = BatchRecord(id=0, send_time=now + timedelta(seconds=1))
 batch2 = BatchRecord(id=0, send_time=now + timedelta(seconds=2))
 ```
@@ -398,9 +398,9 @@ batch2 = BatchRecord(id=0, send_time=now + timedelta(seconds=2))
 ### AAA 模式
 
 ```
-// Arrange - 设置测试数据和环境
-// Act - 执行被测行为
-// Assert - 验证结果
+// Arrange - Set up test data and environment
+// Act - Execute the behavior under test
+// Assert - Verify the result
 ```
 
 ### FIRST 原则
@@ -467,13 +467,13 @@ batch2 = BatchRecord(id=0, send_time=now + timedelta(seconds=2))
 
 ```
 tests/
-├── README.md                    # 测试概览和状态
-├── results/                     # 测试执行报告
-├── coverage/                    # 覆盖率报告
-├── docs/                        # 测试文档
-├── unit/                        # 单元测试
-├── integration/                 # 集成测试
-└── e2e/                         # 端到端测试
+├── README.md                    # Test overview and status
+├── results/                     # Test execution reports
+├── coverage/                    # Coverage reports
+├── docs/                        # Test documentation
+├── unit/                        # Unit tests
+├── integration/                 # Integration tests
+└── e2e/                         # End-to-end tests
 ```
 
 ---
@@ -486,35 +486,81 @@ tests/
 
 ### Session-Based Test Management (SBTM)
 
+每个探索式测试 session 都遵循 SBTM 框架：
+
 | 元素 | 说明 | 需求 |
 |------|------|------|
-| **Time Box** | 固定 60-90 分钟的 session | 必要 |
+| **Time Box** | 固定 60-90 分钟的 session 时长 | 必要 |
 | **Charter** | 明确的探索目标、测试区域与预期风险 | 必要 |
 | **Session Notes** | 步骤、观察、偏差与问题的结构化记录 | 必要 |
-| **Debrief** | Session 后与团队回顾 | 建议 |
+| **Debrief** | Session 结束后与团队或测试负责人进行回顾 | 建议 |
+
+**Charter 格式**：
+```
+Explore [target area]
+With [resources/techniques]
+To discover [expected information/risks]
+```
 
 ### 启发法（SFDPOT）
 
+使用 SFDPOT 助记法（James Bach 的 Heuristic Test Strategy Model）引导在六个维度上进行探索：
+
 | 维度 | 关注领域 | 示例问题 |
 |------|----------|----------|
-| Structure | 系统组件与其关系 | 存在哪些模块？如何连接？ |
-| Function | 系统提供的功能与能力 | 每个功能做什么？边界情况？ |
-| Data | 输入/输出数据、边界值 | 接受哪些数据类型？边界发生什么？ |
-| Platform | OS、浏览器、硬件差异 | 所有支持平台都能运作？ |
-| Operations | 安装、配置、维护、监控 | 能干净安装吗？如何维护？ |
-| Time | 并发、超时、排程、时区 | 并发访问时会发生什么？ |
+| Structure | 系统组件与其关系 | 存在哪些模块？它们如何连接？ |
+| Function | 系统提供的功能与能力 | 每个功能做什么？边界情况有哪些？ |
+| Data | 输入/输出数据、边界值、格式 | 接受哪些数据类型？在边界时会发生什么？ |
+| Platform | 操作系统、浏览器、硬件、环境差异 | 在所有支持的平台上都能运作吗？ |
+| Operations | 安装、配置、维护、监控 | 能否干净地安装？如何维护？ |
+| Time | 并发、超时、调度、时区 | 并发访问时会发生什么？超时如何处理？ |
+
+> **提示**：每个 session 至少使用 3 个 SFDPOT 维度，以确保覆盖面足够广。
+
+### Session 记录模板
+
+每个探索式测试 session **必须**使用以下模板产出 session 记录：
+
+| 字段 | 说明 | 必填 |
+|------|------|------|
+| **Charter** | 探索目标与范围 | 是 |
+| **Area** | 受测的功能区域或组件 | 是 |
+| **Duration** | 实际花费时间（在 60-90 分钟 time box 内） | 是 |
+| **Notes** | 执行步骤、观察结果、与 charter 的偏差 | 是 |
+| **Bugs Found** | 发现的缺陷清单及其严重程度 | 是 |
+| **Follow-up** | 后续行动项：新的 charter、自动化候选项、待解问题 | 是 |
+
+**Session 记录示例**：
+```markdown
+## Session Record
+- **Charter**: Explore login flow with invalid credentials to discover error handling gaps
+- **Area**: Authentication module
+- **Duration**: 75 minutes
+- **Notes**: Tested SQL injection, XSS in username, Unicode characters, empty fields...
+- **Bugs Found**: 2 (BUG-101: XSS not sanitized in error message, BUG-102: No rate limiting)
+- **Follow-up**: Write automated regression for BUG-101, new charter for password reset flow
+```
 
 ### 自动化互补
+
+探索式测试与自动化测试扮演互补的角色：
 
 | 方面 | 探索式测试 | 自动化测试 |
 |------|-----------|-----------|
 | **目的** | 发现未知缺陷 | 防止已知回归 |
-| **时机** | 新功能、风险区域、发布前 | 每次 build、CI |
-| **优势** | 创造力、适应性 | 速度、可重复性 |
+| **时机** | 新功能、风险区域、发布前 | 每次 build、持续集成 |
+| **优势** | 创造力、适应性、情境理解 | 速度、可重复性、覆盖率 |
+| **成本** | 每个 session 的人力投入 | 长期的维护成本 |
 
-**发现到保护循环**：探索 → 记录 → 自动化 → 保护 → 重复
+**发现到保护循环**：
 
-> **规则**：通过探索式测试发现的每个 Bug 应在同一 Sprint 内新增对应的自动化回归测试。
+1. **探索** — 执行探索式 session，发现新缺陷
+2. **报告** — 在 session 记录中记录发现的 Bug
+3. **自动化** — 将已确认的 Bug 转为自动化回归测试
+4. **保护** — 自动化测试防止未来 build 中再次发生
+5. **重复** — 新的探索式 session 聚焦于尚未探索的区域
+
+> **规则**：通过探索式测试发现的每个 Bug **应该**在同一 Sprint 内新增对应的自动化回归测试。这能把一次性的发现转化为永久的保护。
 
 ---
 
