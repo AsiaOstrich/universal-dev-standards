@@ -2,98 +2,85 @@
 source: ../../../core/failure-source-taxonomy.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 56c9d4057405
 status: current
 ---
 
-# 失败来源分类法
+# 失败来源分类法标准
 
 > **语言**: [English](../../../core/failure-source-taxonomy.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
-**适用范围**: universal
-**来源**: XSPEC-045（DEC-035 Recovery Recipe Registry）
+> **来源**: XSPEC-045 | **借鉴自**: ultraworkers/claw-code ROADMAP Phase 2 Failure Taxonomy
 
----
+## 概述
 
-## 目的
-
-失败来源分类法：8 类 `failureSource`，补充 `TaskStatus` 的 why 维度。
-
-`TaskStatus`（succeeded/failed/partial）只描述「是什么」，不描述「为什么失败」。本分类法定义 8 类失败来源，让 Recovery Recipe Registry（XSPEC-046）可以根据 `failureSource` 精准选择恢复策略，而不是对所有失败套用同一个回退逻辑。
-
----
-
-## 核心规范
-
-- 所有失败事件必须附带 `failureSource`（8 类之一）
-- `failureSource` 决定是否可重试（见下表）
-- Recovery Recipe 以 `failureSource` 为匹配键
-- 无法分类的失败标记为 `unknown`，触发人工检查点
-- 单次失败事件只能有一个 `failureSource`（不可多选）
-
----
+失败来源分类法在现有的 `TaskStatus`（是什么）之上，新增 `failureSource`（为什么）维度。结构化的失败来源让下游的恢复机制（Recovery Recipe Registry，XSPEC-046）能够精准匹配策略，避免对本质上不同的失败类型套用同一套重试逻辑。
 
 ## 8 类失败来源
 
-| failureSource | 可重试 | 说明 |
-|---------------|--------|------|
-| `transient_network` | ✅ | 短暂网络抖动，如 TCP 超时、DNS 解析失败 |
-| `rate_limit` | ✅ | 速率限制，如 429 Too Many Requests |
-| `upstream_unavailable` | ✅ | 上游服务不可达，断路器可处理 |
-| `tool_failure` | ✅ | 工具层失败，如 CLI 工具崩溃 |
-| `prompt_delivery` | ✅ | 提示词传递失败，可切换模型重试 |
-| `authentication` | ❌ | 凭证错误，重试不会变对 |
-| `validation` | ❌ | 输入验证失败，重试结果不变 |
-| `policy_violation` | ❌ | 安全策略拒绝，禁止绕过 |
-| `quota_exhausted` | ❌ | 配额耗尽，等待刷新 |
-| `model_degradation` | ✅ | 模型质量降级，可切换备用模型 |
-| `resource_exhaustion` | ❌ | 资源耗尽（内存/磁盘），需人工介入 |
-| `branch_divergence` | ✅ | 分支漂移，可 rebase 重试 |
-| `compilation` | ✅ | 编译错误，Fix Loop 可处理 |
-| `test_failure` | ✅ | 测试失败，Fix Loop 可处理 |
-| `unknown` | ❌ | 未能分类，触发人工检查点 |
+| 来源 | 说明 | 建议恢复方式 |
+|------|------|-------------|
+| `prompt_delivery` | 提示词未送达 LLM（API 4xx、空响应、解析错误） | retry 或 model_switch |
+| `model_degradation` | LLM 质量下降（重复输出、答非所问） | model_switch |
+| `branch_divergence` | 工作分支落后于基础分支 | rebase_and_retry |
+| `compilation` | 编译或类型检查错误（tsc、cargo、go build） | fix_loop |
+| `test_failure` | 测试失败（unit / integration / system / e2e） | fix_loop |
+| `tool_failure` | 工具层失败（MCP server 无响应、插件加载失败） | 先 circuit_breaker 再 retry |
+| `policy_violation` | 安全／治理策略拦截（Guardian deny、SafetyHook） | human_checkpoint |
+| `resource_exhaustion` | 资源耗尽（超出 token 预算、超时、USD 预算） | degraded_mode 或 human_checkpoint |
 
----
+## 优先级规则
 
-## 与 Recovery Recipe 的对应
+多个失败来源同时存在时，依下列规则处理：
 
-| failureSource | 推荐 Recovery Strategy |
-|---------------|----------------------|
-| `compilation` | `fix_loop` |
-| `test_failure` | `fix_loop` |
-| `model_degradation` | `model_switch` |
-| `branch_divergence` | `rebase_and_retry` |
-| `resource_exhaustion` | `degraded_mode` |
-| `policy_violation` | `human_checkpoint` |
-| `authentication` | `human_checkpoint` |
-| `transient_network` | `circuit_breaker` + retry |
-| `tool_failure` | `circuit_breaker` |
-| `prompt_delivery` | `model_switch` |
-| `unknown` | `human_checkpoint` |
+1. `branch_divergence` > `compilation` —— 分支漂移通常是编译失败的根因
+2. `policy_violation` > 其他 —— 安全优先，不得尝试绕过
+3. `resource_exhaustion` > 其他 —— 资源耗尽时重试没有意义
+4. 其余情况：采用最先检测到的来源
 
----
+## 类型
 
-## 遥测事件
+```typescript
+type FailureSource =
+  | "prompt_delivery"
+  | "model_degradation"
+  | "branch_divergence"
+  | "compilation"
+  | "test_failure"
+  | "tool_failure"
+  | "policy_violation"
+  | "resource_exhaustion";
 
-**`failure_classified`**（每次失败分类时上报）
+interface FailureDetail {
+  source: FailureSource;
+  raw_error: string;
+  detected_by: string;  // quality-gate / claude-adapter / safety-hook / branch-drift
+  timestamp: string;    // ISO 8601
+}
+```
 
-| 字段 | 类型 |
-|------|------|
-| `taskId` | `string` |
-| `failureSource` | `FailureSource` |
-| `isRetryable` | `boolean` |
-| `originalError` | `string` |
-| `timestamp` | `string` |
+## 指引
 
----
+- 所有失败结果都应附带 `failureSource`，以便精准匹配恢复策略
+- `failureSource` 是**可选**字段 —— 不得破坏没有此字段的既有代码
+- 单次失败事件中，选择最根本的来源作为 `failureSource`
+- `failureSource` 应由检测到该失败的组件设置
+- 各采用层各自独立定义自己的 `FailureSource` 类型（许可证隔离）
 
-## 错误码
+## 适用场景
 
-| 代码 | 说明 |
-|------|------|
-| `FST-001` | `UNCLASSIFIED_FAILURE` — 失败来源无法分类，标记为 unknown |
-| `FST-002` | `INVALID_FAILURE_SOURCE` — failureSource 不在 8 类定义内 |
-| `FST-003` | `MULTIPLE_SOURCES` — 单次失败标记了多个 failureSource（违规）|
+- 质量门禁（采用层）失败结果的信息补充
+- Pipeline Runner（采用层）`agent:error` 事件的 payload
+- Recovery Recipe Registry（XSPEC-046）的匹配键
+- 遥测失败分析的维度
+
+## 参考资料
+
+- AI 优化版：[ai/standards/failure-source-taxonomy.ai.yaml](../../../ai/standards/failure-source-taxonomy.ai.yaml)
+- XSPEC-045：跨项目规格
+- 依赖：Recovery Recipe Registry（XSPEC-046）
+- 借鉴自：[ultraworkers/claw-code](https://github.com/ultraworkers/claw-code) ROADMAP Phase 2 Failure Taxonomy
+
+
+**范围**: universal

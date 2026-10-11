@@ -2,95 +2,118 @@
 source: ../../../core/immutability-first.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 3678885d6b73
 status: current
 ---
 
-# 不可变性优先原则
+# 不可变性优先架构标准
 
 > **语言**: [English](../../../core/immutability-first.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
-**适用范围**: universal
-**来源**: XSPEC-068（DEC-043 Wave 1 可靠性套件）
+> **来源**: XSPEC-044 | **适用于**: TypeScript、并发系统
 
----
+## 概述
 
-## 目的
+不可变性优先（Immutability-First）是一项系统级设计原则，用于防止并发 Agent 环境中的竞态条件。所有数据流接口（DTO / Value Object）都必须以 `readonly` 声明字段，数组字段必须使用 `ReadonlyArray<T>`，对象的修改必须通过 spread 语法创建新对象，而不是原地修改。
 
-不可变性优先原则：DTO 字段 readonly，防止并发 Agent 竞态条件。
+缺少这项纪律时，并发的 Agent 编排（例如 `Promise.all` 批量执行）就有意外共享状态的风险：一个 Agent 的修改会悄悄影响另一个 Agent 对同一对象的视图。
 
-多个 Agent 并发执行时，共享状态的可变对象容易产生竞态条件（race condition）。本标准要求所有跨 Agent 边界传递的数据对象（DTO）默认使用 readonly 字段，并提供安全修改的替代模式（返回新实例而非原地修改）。
+## 规则
 
----
+| 规则 | 严重性 | 说明 |
+|------|--------|------|
+| **IMM-001** | required | DTO/Value Object 字段必须为 `readonly` |
+| **IMM-002** | required | 数组字段必须使用 `ReadonlyArray<T>`，而非 `T[]` |
+| **IMM-003** | required | 修改时使用 spread 语法创建新对象 |
+| **IMM-004** | required | 跨越并发边界的对象必须是深度不可变的 |
+| **IMM-005** | recommended | 嵌套对象字段以 `Readonly<T>` 包装 |
 
-## 核心规范
+## 示例
 
-- 所有 DTO（Data Transfer Object）字段默认必须声明为 `readonly`
-- 跨 Agent 边界传递的对象必须是不可变的（immutable）
-- 需要修改时，必须返回新实例（而非原地修改）
-- 深层嵌套对象的所有层级都必须是 readonly
-- 集合（数组/Map）使用 `ReadonlyArray` / `ReadonlyMap`
-
----
-
-## IMM 规则
-
-| 规则 | 说明 |
-|------|------|
-| `IMM-001` | DTO 所有字段声明为 `readonly` |
-| `IMM-002` | 嵌套对象使用 `Readonly<T>` 递归包装 |
-| `IMM-003` | 数组使用 `ReadonlyArray<T>` 而非 `T[]` |
-| `IMM-004` | 禁止对跨 Agent 边界的对象使用原地修改（`push`、`splice`、直接赋值）|
-| `IMM-005` | 需要修改时，使用展开运算符（spread）返回新实例 |
-
----
-
-## TypeScript 示例
+### IMM-001：DTO 字段 readonly
 
 ```typescript
-// 正确：不可变 DTO
+// ❌ Bad
 interface TaskResult {
-  readonly taskId: string;
-  readonly status: 'succeeded' | 'failed';
-  readonly outputs: ReadonlyArray<string>;
-  readonly metadata: Readonly<Record<string, unknown>>;
+  status: TaskStatus
+  cost_usd?: number
 }
 
-// 正确：通过展开运算符创建新实例
-function updateStatus(result: TaskResult, newStatus: TaskResult['status']): TaskResult {
-  return { ...result, status: newStatus };
+// ✅ Good
+interface TaskResult {
+  readonly status: TaskStatus
+  readonly cost_usd?: number
 }
-
-// 错误：原地修改（违反 IMM-004）
-// result.status = 'succeeded'; // TypeScript 会报错
 ```
 
----
+### IMM-002：数组字段使用 ReadonlyArray
 
-## 情境示例
+```typescript
+// ❌ Bad
+interface MemoryContext {
+  recentHistory: IterationRecord[]   // push/splice can corrupt shared state
+}
 
-**情境 1：并发 Agent 读取同一 DTO**
-- 条件：两个 Agent 并发读取 `TaskResult` 对象
-- 结果：因为字段是 readonly，无需加锁，不存在竞态条件
+// ✅ Good
+interface MemoryContext {
+  readonly recentHistory: ReadonlyArray<IterationRecord>
+}
+```
 
-**情境 2：需要更新状态**
-- 条件：Agent A 需要将 `TaskResult.status` 从 `failed` 改为 `succeeded`
-- 结果：通过 `{ ...result, status: 'succeeded' }` 返回新对象，不修改原始对象
+### IMM-003：以 Spread 语法进行修改
 
-**情境 3：集合操作**
-- 条件：需要向 `outputs` 数组添加新元素
-- 结果：`{ ...result, outputs: [...result.outputs, newOutput] }`
+```typescript
+// ❌ Bad
+options.sessionId = forkId   // other holders see the change
 
----
+// ✅ Good
+const taskOptions = { ...options, sessionId: forkId }
+```
 
-## 错误码
+### IMM-004：并发边界上的深度不可变
 
-| 代码 | 说明 |
-|------|------|
-| `IMM-001` | `MUTABLE_DTO_FIELD` — DTO 字段缺少 readonly 声明 |
-| `IMM-002` | `MUTABLE_NESTED_OBJECT` — 嵌套对象未使用 Readonly 包装 |
-| `IMM-003` | `MUTABLE_ARRAY` — 使用可变数组而非 ReadonlyArray |
-| `IMM-004` | `IN_PLACE_MUTATION` — 对跨 Agent 边界对象执行原地修改 |
+```typescript
+// ✅ Good — each parallel task holds its own options snapshot
+const batchResults = await Promise.all(
+  batch.map(task => {
+    const taskOptions = { ...baseOptions, sessionId: forkId }
+    return executeOneTask(task, adapter, taskOptions, ...)
+  })
+)
+```
+
+### IMM-005：嵌套对象使用 Readonly<T>
+
+```typescript
+// ❌ Bad — metadata.score can still be mutated
+interface PipelineMemoryEntry {
+  readonly metadata: { score?: number }
+}
+
+// ✅ Good
+interface PipelineMemoryEntry {
+  readonly metadata: Readonly<{ score?: number; severity?: string }>
+}
+```
+
+## 何时适用
+
+- 设计新的 DTO / Value Object / Config 接口
+- 跨并发边界传递对象
+- 设计 Agent 之间的共享状态
+- 代码审查：检查接口是否遗漏 `readonly`
+
+## 例外
+
+- Builder Pattern 的可变 builder（`build()` 之后返回不可变结果）
+- 测试 fixture 的可变构建步骤（创建完成后视为不可变）
+- 性能关键的热路径（需要明确的 benchmark 证据）
+
+## 参考资料
+
+- AI 优化版：[ai/standards/immutability-first.ai.yaml](../../../ai/standards/immutability-first.ai.yaml)
+- XSPEC-044：跨项目规格
+
+
+**范围**: universal

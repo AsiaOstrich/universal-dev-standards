@@ -1,17 +1,18 @@
 ---
 source: ../../../core/requirement-engineering.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
-status: stale
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: e8d346f82f79
+status: current
 ---
 
 > **语言**: [English](../../../core/requirement-engineering.md) | 简体中文
 
 # 需求工程标准
 
-**版本**: 1.0.0
-**最后更新**: 2026-01-28
+**版本**: 1.1.0
+**最后更新**: 2026-07-10
 **适用范围**: 所有软件项目
 **范围**: universal
 **行业标准**: IEEE 830-1998, IEEE 29148-2018, SWEBOK v4.0
