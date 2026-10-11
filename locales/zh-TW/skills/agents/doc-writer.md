@@ -4,6 +4,8 @@ version: 1.1.0
 source: skills/agents/doc-writer.md
 source_version: 1.1.0
 translation_version: 1.0.0
+source_hash: 314a68dd12bc
+last_synced: 2026-10-11
 status: current
 description: |
   技術寫作、API 文件與使用者指南的文件撰寫專家。

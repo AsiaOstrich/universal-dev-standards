@@ -4,6 +4,8 @@ version: 1.1.0
 source: skills/agents/reviewer.md
 source_version: 1.1.0
 translation_version: 1.0.0
+source_hash: d6df624691df
+last_synced: 2026-10-11
 status: current
 description: |
   程式碼審查專家，負責品質評估、security analysis 與最佳實踐落實。
@@ -178,7 +180,7 @@ Code Reviewer agent 專精於系統化 code review、security analysis 與品質
 |--------|---------|-----------------|
 | **❗ BLOCKING** | 合併前必須修正 | 必要 |
 | **⚠️ IMPORTANT** | 應該修正 | 強烈建議 |
-| **💡 SUGGESTION** | 有更好 | 選擇性 |
+| **💡 SUGGESTION** | 有會更好 | 選擇性 |
 | **❓ QUESTION** | 需要釐清 | 需討論 |
 | **📝 NOTE** | 供參考，無需行動 | 資訊性 |
 

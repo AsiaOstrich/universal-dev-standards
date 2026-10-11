@@ -2,7 +2,8 @@
 source: ../../../../options/testing/system-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: accc907c60d0
 status: current
 ---
 
@@ -36,6 +37,20 @@ status: current
 - 安全性測試
 - 發布前回歸測試
 
+## 在測試金字塔中的位置
+
+```
+        /\
+       /★★\     E2E/System Tests (this level)
+      /----\
+     /      \   Integration Tests
+    /--------\
+   /          \  Unit Tests
+  /------------\
+```
+
+系統測試位於頂端：涵蓋全面，但數量較少。
+
 ## 系統測試類型
 
 ### 1. 功能測試
@@ -53,6 +68,12 @@ Feature: 使用者註冊
     Then 我應該收到確認郵件
     And 我的帳戶應該在資料庫中建立
     And 我應該被重導到歡迎頁面
+
+  Scenario: 使用已存在的電子郵件註冊失敗
+    Given 已存在電子郵件為 "user@example.com" 的使用者
+    When 我嘗試以電子郵件 "user@example.com" 註冊
+    Then 我應該看到錯誤訊息 "Email already registered"
+    And 不應建立任何新帳戶
 ```
 
 ### 2. 效能測試
@@ -61,6 +82,9 @@ Feature: 使用者註冊
 
 ```javascript
 // k6 負載測試範例
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+
 export const options = {
   stages: [
     { duration: '2m', target: 100 },  // 升溫
@@ -74,6 +98,17 @@ export const options = {
     http_req_failed: ['rate<0.01'],    // 錯誤率低於 1%
   },
 };
+
+export default function () {
+  const res = http.get('https://api.example.com/products');
+
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+    'response time OK': (r) => r.timings.duration < 500,
+  });
+
+  sleep(1);
+}
 ```
 
 ### 3. 安全性測試
@@ -95,6 +130,20 @@ security_tests:
         - 登入並取得 session token
         - 驗證 token 在逾時後過期
         - 驗證登出時 token 失效
+
+  authorization:
+    - test: "角色型存取控制"
+      steps:
+        - 以一般使用者登入
+        - 嘗試存取僅限管理員的端點
+        - 驗證回應為 403 Forbidden
+
+  data_protection:
+    - test: "敏感資料加密"
+      steps:
+        - 建立帶有密碼的使用者
+        - 驗證密碼在資料庫中已雜湊
+        - 驗證 PII 在靜態儲存時已加密
 ```
 
 ### 4. 可靠性測試
@@ -117,6 +166,55 @@ class ReliabilityTest:
         response = app.client.get('/api/health')
         assert response.status_code == 200
         assert response.json()['database'] == 'degraded'
+
+        # 驗證故障轉移後的資料一致性
+        user = app.client.get('/api/users/1')
+        assert user.status_code == 200
+
+    def test_external_service_timeout(self):
+        """系統應能處理外部服務逾時。"""
+        # 安排
+        app = TestApplication()
+        app.mock_external_service('payment', delay=30)  # 延遲 30 秒
+
+        # 執行
+        response = app.client.post('/api/orders', json={
+            'items': [{'sku': 'ABC', 'qty': 1}]
+        }, timeout=10)
+
+        # 驗證：優雅處理逾時
+        assert response.status_code == 202  # 已接受，非同步處理中
+        assert 'retry' in response.json()
+```
+
+### 5. 相容性測試
+
+在不同環境中進行測試：
+
+```yaml
+# 跨瀏覽器／裝置測試矩陣
+compatibility_matrix:
+  browsers:
+    - Chrome (latest)
+    - Firefox (latest)
+    - Safari (latest)
+    - Edge (latest)
+
+  mobile:
+    - iOS Safari (iPhone 12+)
+    - Android Chrome (API 30+)
+
+  screen_sizes:
+    - 1920x1080 (Desktop)
+    - 1366x768 (Laptop)
+    - 768x1024 (Tablet)
+    - 375x667 (Mobile)
+
+  test_cases:
+    - 登入流程正確呈現
+    - 表單具備無障礙性
+    - 響應式版面正常運作
+    - 觸控互動功能正常
 ```
 
 ## 測試環境
@@ -130,6 +228,74 @@ class ReliabilityTest:
 | 規模 | 至少生產環境 10% 容量 |
 | 隔離 | 與開發/測試環境分離 |
 | 監控 | 啟用完整可觀測性 |
+
+### 環境建置
+
+```yaml
+# docker-compose.system-test.yml
+version: '3.8'
+
+services:
+  app:
+    image: myapp:${VERSION}
+    environment:
+      - DATABASE_URL=postgresql://db:5432/app
+      - REDIS_URL=redis://cache:6379
+      - ENV=system-test
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: postgres:14
+    volumes:
+      - ./test-data:/docker-entrypoint-initdb.d
+
+  cache:
+    image: redis:7
+
+  monitoring:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+```
+
+## 測試資料管理
+
+### 資料策略
+
+| 策略 | 使用情境 |
+|------|----------|
+| 匿名化生產資料 | 貼近真實的情境 |
+| 合成資料產生 | 規模測試 |
+| 子集擷取 | 特定工作流程 |
+| 按需建立 | 全新狀態的測試 |
+
+### 資料建置範例
+
+```python
+class SystemTestDataFactory:
+    def create_complete_test_scenario(self):
+        """建立完整的電子商務情境。"""
+        # 使用者
+        admin = self.create_user(role='admin')
+        customers = [self.create_user(role='customer') for _ in range(100)]
+
+        # 商品
+        categories = self.create_categories(count=10)
+        products = self.create_products(count=1000, categories=categories)
+
+        # 歷史資料
+        for customer in customers[:50]:
+            self.create_order_history(customer, products, count=5)
+
+        return {
+            'admin': admin,
+            'customers': customers,
+            'products': products,
+            'categories': categories
+        }
+```
 
 ## 測試報告
 
@@ -150,6 +316,14 @@ class ReliabilityTest:
 | 功能 | 145 | 3 | 2 |
 | 效能 | 12 | 0 | 0 |
 | 安全 | 28 | 1 | 0 |
+| 相容性 | 32 | 0 | 4 |
+
+## 失敗的測試
+### FUNC-042: 使用過期優惠券結帳
+- **預期**: 顯示錯誤訊息
+- **實際**: 系統錯誤 500
+- **優先級**: 高
+- **截圖**: [link]
 
 ## 效能指標
 - 平均回應時間: 234ms

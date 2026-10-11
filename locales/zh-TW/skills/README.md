@@ -2,7 +2,8 @@
 source: ../../../skills/README.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-06-20
+last_synced: 2026-10-11
+source_hash: f76e00f19dff
 status: current
 ---
 

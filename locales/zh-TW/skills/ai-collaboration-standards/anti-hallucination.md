@@ -2,7 +2,8 @@
 source: ../../../../skills/ai-collaboration-standards/anti-hallucination.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-25
+last_synced: 2026-10-11
+source_hash: e34fd2e822f8
 status: current
 ---
 
@@ -82,9 +83,11 @@ status: current
 
 ---
 
-### 3. 分類確定性級別
+### 3. 分類確定性級別（統一標籤系統）
 
 **規則**: 清楚區分已確認的事實、推論和未知項目。
+
+#### 確定性標籤（用於分析既有內容）
 
 | 標籤 | 使用時機 |
 |-----|----------|
@@ -94,14 +97,30 @@ status: current
 | `[Unknown]` | 資訊不可用 |
 | `[Need Confirmation]` | 需要使用者澄清 |
 
+#### 推演標籤（用於產生新內容）
+
+| 標籤 | 使用時機 |
+|-----|----------|
+| `[Source]` | 直接來自規格/需求的內容 |
+| `[Derived]` | 由來源內容轉換而來 |
+| `[Generated]` | AI 產生的結構 |
+| `[TODO]` | 需要人工實作 |
+
 **範例**:
 
 ```
+# 確定性標籤（分析）
 [Confirmed] src/database/connection.ts:12 - 使用 PostgreSQL 驅動程式 'pg'
 [Inferred] 基於 src/repositories/ 中的儲存庫模式，可能使用依賴注入
 [Assumption] 專案可能使用 OAuth2，但需要檢視認證配置
 [Unknown] API 速率限制策略未記錄
 [Need Confirmation] 新功能是否應支援多租戶?
+
+# 推演標籤（產生）
+[Source] 來自 SPEC-001 的功能標題
+[Derived] 由條列式 AC 轉換而來的 Gherkin 情境
+[Generated] 測試骨架結構
+[TODO] 實作實際的斷言
 ```
 
 ---
@@ -212,6 +231,7 @@ AI 助理絕對不能:
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-25 | 新增: 統一標籤系統，包含確定性標籤與推演標籤 |
 | 1.0.0 | 2025-12-24 | 新增: 標準章節（目的、相關標準、版本歷史、授權） |
 
 ---

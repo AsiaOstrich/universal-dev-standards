@@ -3,15 +3,16 @@ name: api-design
 source: ../../../../skills/api-design-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 11f1ca291530
 status: current
+scope: universal
 description: |
   引導 API 設計，遵循 REST、GraphQL 與 gRPC 最佳實踐。
   Use when: 設計 API、審查端點、API 版本策略決策。
   Not for: 驗證運行中的 API 是否符合消費端期待——請用 /contract-test；API 背後的 schema 設計——請用 /database。
   Keywords: API, REST, GraphQL, gRPC, endpoint, versioning, 介面設計, 端點, 版本策略.
 allowed-tools: Read, Grep, Glob
-scope: universal
 argument-hint: "[API endpoint or module | API 端點或模組]"
 ---
 
@@ -86,16 +87,18 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 
 ## 使用方式
 
-- `/api-design` - 互動式 API 設計引導
-- `/api-design /users` - 審查特定端點設計
-- `/api-design --graphql` - GraphQL Schema 設計引導
+```
+/api-design              - 互動式 API 設計引導
+/api-design /users       - 審查特定端點設計
+/api-design --graphql    - GraphQL Schema 設計引導
+```
 
 ## 下一步引導
 
 `/api-design` 完成後，AI 助手應建議：
 
 > **API 設計完成。建議下一步：**
-> - 執行 `/sdd` 建立正式規格文件
+> - 執行 `/sdd` 建立正式規格文件 ⭐ **推薦**
 > - 執行 `/testing` 規劃 API 測試策略
 > - 執行 `/docs` 產生 API 文件
 > - 審查安全性 → 執行 `/security`
@@ -103,3 +106,13 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 ## 參考
 
 - 核心規範：[api-design-standards.md](../../../../core/api-design-standards.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更說明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## 授權
+
+CC BY 4.0 — 文件內容

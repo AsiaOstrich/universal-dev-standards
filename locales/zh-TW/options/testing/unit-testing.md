@@ -2,7 +2,8 @@
 source: ../../../../options/testing/unit-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: a6f360d666c8
 status: current
 ---
 
@@ -40,13 +41,15 @@ status: current
 
 ```
         /\
-       /  \      E2E 測試（少）
+       /  \      E2E Tests (few)
       /----\
-     /      \    整合測試（中）
+     /      \    Integration Tests (some)
     /--------\
-   /          \  單元測試（多）← 這一層
+   /          \  Unit Tests (many)
   /------------\
 ```
+
+單元測試構成基礎層：快速、數量多且聚焦。
 
 ## 結構：Arrange-Act-Assert
 
@@ -66,6 +69,21 @@ describe('calculateDiscount', () => {
     expect(result).toBe(15);
   });
 });
+```
+
+```python
+# Python 範例
+def test_calculate_discount_applies_ten_percent_for_orders_over_100():
+    # Arrange（安排）
+    order_total = 150
+    discount_threshold = 100
+    discount_rate = 0.10
+
+    # Act（執行）
+    result = calculate_discount(order_total, discount_threshold, discount_rate)
+
+    # Assert（驗證）
+    assert result == 15
 ```
 
 ## 應該測試什麼
@@ -88,6 +106,7 @@ describe('calculateDiscount', () => {
 | 框架程式碼 | 已被框架測試 |
 | 簡單 getter/setter | 無邏輯可驗證 |
 | 外部系統 | 使用整合測試 |
+| 設定 | 測試行為，而非設定 |
 
 ## 模擬指南
 
@@ -104,23 +123,50 @@ const userService = new UserService(mockDatabase);
 
 ### 何時不使用模擬
 
-- 不要模擬被測試的單元
-- 不要模擬簡單的值物件
-- 不要模擬所有東西——某些真實物件是可以的
+```javascript
+// 不要模擬被測試的單元
+// 不要模擬簡單的值物件
+// 不要模擬所有東西——某些真實物件是可以的
+```
+
+### 模擬類型
+
+| 類型 | 目的 | 範例 |
+|------|------|------|
+| Stub | 回傳固定值 | `mockFn.mockReturnValue(42)` |
+| Mock | 驗證互動 | `expect(mockFn).toHaveBeenCalled()` |
+| Spy | 觀察真實實作 | `jest.spyOn(obj, 'method')` |
+| Fake | 簡化的實作 | 記憶體內資料庫 |
 
 ## 測試命名慣例
+
+### 格式選項
 
 ```javascript
 // 行為導向
 it('should return null when user is not found')
-// 當找不到使用者時應該回傳 null
 
 // Given-When-Then
 it('given an invalid email, when validating, then throws ValidationError')
-// 給定無效的 email，當驗證時，拋出 ValidationError
 
 // Method_Scenario_Expectation
 it('validateEmail_withInvalidFormat_throwsError')
+```
+
+### 好的命名
+
+```javascript
+it('calculates tax correctly for multiple items')
+it('throws error when dividing by zero')
+it('returns empty array when no matches found')
+```
+
+### 不好的命名
+
+```javascript
+it('test1')
+it('works')
+it('should work correctly')
 ```
 
 ## 覆蓋率指南
@@ -138,6 +184,74 @@ it('validateEmail_withInvalidFormat_throwsError')
 - 專注於有意義的測試，而非覆蓋率數字
 - 關鍵程式碼值得 100% 覆蓋
 - 不要只為了覆蓋率測試瑣碎程式碼
+
+## 最佳實踐
+
+### 1. 每個測試一個斷言（理想情況）
+
+```javascript
+// 好：聚焦的測試
+it('should return user name', () => {
+  const user = new User('John');
+  expect(user.getName()).toBe('John');
+});
+
+// 可接受：相關的多個斷言
+it('should create valid user', () => {
+  const user = new User('John', 'john@example.com');
+  expect(user.getName()).toBe('John');
+  expect(user.getEmail()).toBe('john@example.com');
+});
+```
+
+### 2. 測試行為，而非實作
+
+```javascript
+// 好：測試行為
+it('should mark order as paid', () => {
+  order.pay();
+  expect(order.isPaid()).toBe(true);
+});
+
+// 不好：測試實作細節
+it('should set _paid flag to true', () => {
+  order.pay();
+  expect(order._paid).toBe(true);
+});
+```
+
+### 3. 保持測試彼此獨立
+
+```javascript
+// 不好：測試依賴前一個測試
+let user;
+it('should create user', () => {
+  user = createUser();
+});
+it('should update user', () => {
+  user.update({ name: 'New' }); // 依賴前一個測試！
+});
+
+// 好：每個測試都是獨立的
+it('should update user name', () => {
+  const user = createUser();
+  user.update({ name: 'New' });
+  expect(user.name).toBe('New');
+});
+```
+
+### 4. 使用具描述性的測試資料
+
+```javascript
+// 不好
+const user = { a: 'b', c: 'd' };
+
+// 好
+const validUser = {
+  name: 'John Doe',
+  email: 'john@example.com'
+};
+```
 
 ## 常見框架
 

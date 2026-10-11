@@ -1,10 +1,13 @@
 ---
 name: ac-coverage
 source: ../../../../skills/ac-coverage/SKILL.md
-source_version: 1.0.0
+source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+status: current
+source_hash: 168298f3a994
 scope: universal
+anchor_standard: acceptance-criteria-traceability
 description: |
   [UDS] 分析驗收條件（AC）與測試之間的追蹤關係，並產生需求層級的覆蓋率報告。
   Use when: 稽核哪些驗收條件已有測試、從 SPEC 檔建立追蹤矩陣、發布前找出尚未被覆蓋的 AC。
@@ -17,6 +20,12 @@ argument-hint: "[規格檔案路徑]"
 # AC 覆蓋率助手
 
 > **語言**: [English](../../../../skills/ac-coverage/SKILL.md) | 繁體中文
+
+**版本**: 1.1.0
+**最後更新**: 2026-06-19
+**適用範圍**: Claude Code Skills
+
+> **核心標準**: 本技能實作 [驗收條件追溯標準](../../../../core/acceptance-criteria-traceability.md)。權威的方法論請參閱核心標準。
 
 分析驗收條件（AC）與測試之間的追蹤關係，並產生覆蓋率報告。
 
@@ -32,7 +41,7 @@ argument-hint: "[規格檔案路徑]"
 ## 工作流程
 
 1. **解析 SPEC** — 從規格檔案抽取 AC 定義（AC-1, AC-2, ...）
-2. **掃描測試** — 依標準連結慣例搜尋測試檔中的 `@AC` 與 `@SPEC` 標註
+2. **掃描測試** — 在測試檔中搜尋**標準合併標註** `@SPEC-<id> @AC-<n>`（單一合併標籤）
 3. **建立矩陣** — 將每個 AC 對應到其測試引用（檔案、測試名稱、行號）
 4. **分類狀態** — 將每個 AC 標記為 ✅ 已覆蓋、⚠️ 部分覆蓋、或 ❌ 未覆蓋
 5. **計算覆蓋率** — 套用公式：`覆蓋率 % = (已覆蓋 + 部分覆蓋 × 0.5) / 總數 × 100`
@@ -40,7 +49,9 @@ argument-hint: "[規格檔案路徑]"
 
 ## 連結標註慣例
 
-測試**必須**使用 **canonical 合併標註** `@SPEC-<id> @AC-<n>`（單一合併標籤、保持同一行；**勿**拆成 `@AC` / `@SPEC` 兩行）引用其來源 AC：
+測試**必須**使用**標準合併標註**引用其來源 AC：
+`@SPEC-<id> @AC-<n>`——單一合併標籤，例如 `@SPEC-001 @AC-1`。將歸屬資訊保持在**同一行**，
+正是正向推演與測試執行器的標籤過濾器所依賴的格式。**勿**拆成 `@AC` / `@SPEC` 兩行。
 
 ```typescript
 // TypeScript / JavaScript
