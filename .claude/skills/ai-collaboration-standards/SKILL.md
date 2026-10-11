@@ -1,16 +1,17 @@
 ---
 name: ai-collaboration-standards
+scope: universal
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 88f0d922412f
 status: current
 description: |
   防止 AI 幻覺，確保分析程式碼或提出建議時給出以證據為基礎的回應。
   Use when: 分析程式碼、提出建議、提供選項，或使用者詢問把握度／確定性時。
   Not for: 撰寫 AI 指令檔本身——請用 /ai-instruction-standards；審查具體的 diff——請用 /code-review。
   Keywords: certainty, assumption, inference, evidence, source, 證據, 假設, 推論, 確定性, 反幻覺.
-scope: universal
 ---
 
 # AI 協作標準
@@ -23,13 +24,27 @@ scope: universal
 
 ---
 
+## AI 技能層級
+
+本技能是三層 AI 協作系統的一部分：
+
+| 層級 | 技能 | Question it Answers | 回答的問題 |
+|-------|-------|-------------------|-----------|
+| **行為**（即時） | `/ai-collaboration`（本技能） | "How should AI respond accurately?" | 「AI 如何準確回應？」 |
+| **配置**（Session） | `/ai-instruction-standards` | "What to write in CLAUDE.md?" | 「CLAUDE.md 該寫什麼？」 |
+| **架構**（長期） | `/ai-friendly-architecture` | "How to structure code for AI?" | 「如何讓專案對 AI 友善？」 |
+
 ## 目的
 
 此技能確保 AI 助理提供準確、基於證據的回應，避免產生幻覺。
 
 ## 快速參考
 
-### 確定性標籤
+### 統一標籤系統
+
+此技能使用兩類互補的標籤：
+
+**第一類：確定性標籤**（用於分析既有內容）
 
 | 標籤 | 使用時機 |
 |-----|----------|
@@ -38,6 +53,24 @@ scope: universal
 | `[Assumption]` | 基於常見模式（需要驗證） |
 | `[Unknown]` | 資訊不可用 |
 | `[Need Confirmation]` | 需要使用者澄清 |
+
+**第二類：推演標籤**（用於產生新內容）
+
+| 標籤 | 使用時機 |
+|-----|----------|
+| `[Source]` | 直接來自規格/需求的內容 |
+| `[Derived]` | 由來源內容轉換而來 |
+| `[Generated]` | AI 產生的結構 |
+| `[TODO]` | 需要人工實作 |
+
+**何時使用哪一類**：
+
+| 工作流程 | 主要標籤 |
+|----------|--------------|
+| 程式碼分析 | 確定性標籤 |
+| 反向工程 | 確定性標籤 |
+| 正向推演 | 推演標籤 |
+| 規格產生 | 推演標籤 |
 
 ### 來源類型
 
@@ -159,6 +192,17 @@ This project uses **English** certainty tags.
 
 ---
 
+## 下一步引導
+
+`/ai-collaboration` 完成後，AI 助理應建議：
+
+> **AI 協作行為規範已掌握。建議下一步：**
+> - 執行 `/ai-instruction-standards` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **推薦** — 將協作標準寫入專案配置
+> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作
+> - 執行 `/code-review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析
+
+---
+
 ## 相關標準
 
 - [防幻覺標準](../../core/anti-hallucination.md)
@@ -171,6 +215,7 @@ This project uses **English** certainty tags.
 
 | 版本 | 日期 | 變更 |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | 新增：統一標籤系統，包含確定性與推演兩類標籤 |
 | 1.0.0 | 2025-12-24 | 新增：標準章節（目的、相關標準、版本歷史、授權） |
 
 ---
@@ -180,38 +225,3 @@ This project uses **English** certainty tags.
 此技能依據 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/ai-collaboration` completes, the AI assistant should suggest:
-
-> **AI 協作行為規範已掌握。建議下一步 / AI collaboration behavior standards understood. Suggested next steps:**
-> - 執行 `/ai-instruction-standards` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **Recommended / 推薦** — 將協作標準寫入專案配置 / Write collaboration standards into project configuration
-> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作 / Optimize AI collaboration at the architecture level
-> - 執行 `/code-review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析 / Practice evidence-based analysis
-
----
-
-## Related Standards
-
-- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
-- [Testing Standards](../../core/testing-standards.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tag categories |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

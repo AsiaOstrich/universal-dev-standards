@@ -3,7 +3,8 @@ name: ai-instruction-standards
 source: ../../../../skills/ai-instruction-standards/SKILL.md
 source_version: 2.0.0
 translation_version: 2.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 33473a56171a
 status: current
 scope: partial
 description: |
@@ -295,6 +296,16 @@ project/
 
 ---
 
+## 下一步引導
+
+`/ai-instruction-standards` 完成後，建議：
+
+> - 建立或更新專案的 `CLAUDE.md` / `AGENTS.md` ⭐ **推薦** — 立即套用標準
+> - 執行 `/ai-friendly-architecture` 在架構層面最佳化 AI 協作
+> - 執行 `/ai-collaboration` 檢視 AI 行為準則
+
+---
+
 ## 相關標準
 
 - [AI 指令檔案標準](../../core/ai-instruction-standards.md) - 核心標準
@@ -318,38 +329,3 @@ project/
 本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance
-
-After `/ai-instruction-standards` completes, suggest:
-
-> - Create or update project's `CLAUDE.md` / `AGENTS.md` ⭐ **Recommended** — Apply standards immediately
-> - Run `/ai-friendly-architecture` to optimize AI collaboration at the architecture level
-> - Run `/ai-collaboration` to review AI behavior guidelines
-
----
-
-## Related Standards
-
-- [AI Instruction File Standards](../../core/ai-instruction-standards.md) - Core standard
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Writing guidelines
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - AI accuracy rules
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) - Context optimization
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.0.0 | 2026-04-28 | Add Gemini CLI, OpenAI Codex CLI; update Cursor (MDC format, deprecated .cursorrules); update OpenCode (AGENTS.md primary); update Copilot (multiple file types); update Windsurf (Workflows); add AGENTS.md cross-tool standard section |
-| 1.0.0 | 2026-01-25 | Initial release |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
