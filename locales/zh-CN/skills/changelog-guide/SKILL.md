@@ -2,7 +2,8 @@
 source: ../../../../skills/changelog-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 99bb715ce149
 status: current
 description: |
   [UDS] 以 Keep a Changelog 格式生成并维护 CHANGELOG.md 条目。
@@ -39,12 +40,18 @@ description: |
 
 ```markdown
 ## [Unreleased]
+
 ### Added
 - Add user dashboard with customizable widgets (#123)
+
 ### Changed
 - **BREAKING**: Change API response format from XML to JSON (#789)
+
 ### Fixed
 - Fix memory leak when processing large files (#456)
+
+### Security
+- Fix SQL injection vulnerability in search endpoint (CVE-2025-12345)
 ```
 
 ### 撰写指南
@@ -64,7 +71,7 @@ description: |
 `/changelog` 完成后，AI 助手应建议：
 
 > **变更日志已更新。建议下一步：**
-> - 执行 `/release` 开始发布流程
+> - 执行 `/release` 开始发布流程 ⭐ **推荐**
 > - 执行 `/commit` 提交日志变更
 > - 审查日志条目确保用户导向语言
 

@@ -2,7 +2,8 @@
 source: ../../../../skills/ai-friendly-architecture/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 10c3c27a5183
 status: current
 scope: universal
 description: |
@@ -23,6 +24,16 @@ description: |
 ---
 
 > **核心标准**: 本技能实现 [AI 友善架构](../../../../core/ai-friendly-architecture.md)。完整方法论文档请参阅核心标准。
+
+## AI 技能层级
+
+本技能是三层 AI 协作体系的一部分：
+
+| 层级 | 技能 | 回答的问题 | 回答的问题（英文） |
+|-------|-------|-------------------|-----------|
+| **行为**（即时） | `/ai-collaboration` | 「AI 如何准确回应？」 | "How should AI respond accurately?" |
+| **配置**（会话） | `/ai-instruction-standards` | 「CLAUDE.md 该写什么？」 | "What to write in CLAUDE.md?" |
+| **架构**（长期） | `/ai-friendly-architecture`（本技能） | 「如何让项目对 AI 友善？」 | "How to structure code for AI?" |
 
 ## 目的
 
@@ -198,6 +209,17 @@ documentation:
 
 ---
 
+## 下一步引导
+
+`/ai-friendly-architecture` 完成后，AI 助手应建议：
+
+> **AI 友善架构指南已掌握。建议下一步：**
+> - 执行 `/sdd` 将 AI 友善架构设计纳入正式规格 ⭐ **推荐** — 确保架构决策有规格追踪
+> - 建立 `.ai-context.yaml` 和 `QUICK-REF.md` — 立即实现 AI 友善结构
+> - 执行 `/ai-instruction-standards` 更新 CLAUDE.md 以反映架构配置 — 让 AI 指令文件与架构保持同步
+
+---
+
 ## 相关标准
 
 - [AI 友善架构](../../../../core/ai-friendly-architecture.md) - 核心架构标准
@@ -220,38 +242,3 @@ documentation:
 本技能以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
 
 **来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/ai-friendly-architecture` completes, the AI assistant should suggest:
-
-> **AI 友善架構指南已掌握。建議下一步 / AI-friendly architecture guide understood. Suggested next steps:**
-> - 執行 `/sdd` 將 AI 友善架構設計納入正式規格 ⭐ **Recommended / 推薦** — 確保架構決策有規格追蹤 / Ensure architecture decisions are tracked in specs
-> - 建立 `.ai-context.yaml` 和 `QUICK-REF.md` — 立即實作 AI 友善結構 / Implement AI-friendly structure immediately
-> - 執行 `/ai-instruction-standards` 更新 CLAUDE.md 以反映架構配置 — 讓 AI 指令檔案與架構保持同步 / Keep AI instruction files in sync with architecture
-
----
-
-## Related Standards
-
-- [AI-Friendly Architecture](../../core/ai-friendly-architecture.md) - Core architecture standard
-- [Project Structure](../../core/project-structure.md) - Directory organization
-- [Documentation Structure](../../core/documentation-structure.md) - Documentation layering
-- [Anti-Hallucination](../../core/anti-hallucination.md) - AI accuracy standards
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2026-01-25 | Initial release |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

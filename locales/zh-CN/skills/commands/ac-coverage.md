@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/ac-coverage.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 149339949adc
 ---
 
 ---
@@ -88,6 +89,47 @@ argument-hint: "[spec file path | 规格文件路径]"
 > - 覆盖率达标 → 执行 `/checkin` 品质关卡
 > - 有未覆盖 AC → 执行 `/derive-tdd` 补齐测试
 > - 有部分覆盖 AC → 检查缺少的边界情况
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/ac-coverage` | 列出可用的 spec 文件供选择 |
+| `/ac-coverage <spec-file>` | 直接分析指定 spec 的 AC 覆盖率 |
+| `/ac-coverage <spec-file> --threshold N` | 使用自定义门槛 |
+
+### 交互脚本
+
+1. 读取 spec 文件，提取所有 AC
+2. 扫描测试文件中的 `@AC` 和 `@SPEC` 注解
+3. 建立 AC → Test 追踪矩阵
+4. 计算覆盖率
+5. 生成报告
+
+**Decision: 覆盖率结果**
+- IF 覆盖率 ≥ 门槛 → 标记 ✅，建议 `/checkin`
+- IF 有未覆盖 AC → 列出并建议 `/derive-tdd` 补测试
+- IF 有部分覆盖 AC → 建议检查缺少的边界情况
+
+🛑 **STOP**: 报告展示后等待用户决定下一步
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 报告展示后 | 用户决定补测试或继续 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| Spec 文件不存在 | 列出可用的 spec 文件 |
+| Spec 无 AC 定义 | 告知并引导修改 spec |
+| 测试文件无 `@AC` 注解 | 尝试以命名惯例匹配，标记 `[Inferred]` |
 
 ## 参考
 

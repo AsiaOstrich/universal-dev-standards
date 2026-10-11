@@ -2,7 +2,8 @@
 source: ../../../../skills/ci-cd-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: db7970b6ed79
 status: current
 description: |
   引导 CI/CD 流水线的设计、配置与优化。
@@ -122,7 +123,7 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 `/ci-cd` 完成后，AI 助手应建议：
 
 > **管线指引已提供。建议下一步：**
-> - 执行 `/deploy` 设定部署策略
+> - 执行 `/deploy` 设定部署策略 ⭐ **推荐**
 > - 执行 `/security` 检查管线安全
 > - 执行 `/testing` 设计测试策略
 > - 执行 `/commit` 创建规范化提交
@@ -131,3 +132,14 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 
 - 核心规范：[pipeline-integration-standards.md](../../../../core/pipeline-integration-standards.md)
 - 核心规范：[deployment-standards.md](../../../../core/deployment-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.1.0 | 2026-06-24 | 新增 CI 作业编排模式（触发分离、共享资源序列化、变更检测闸控、advisory 与 gating 作业、`npm ci` `EUSAGE` 排错）— UDS #126 → XSPEC-300 |
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## 授权
+
+CC BY 4.0 — 文档内容

@@ -2,7 +2,8 @@
 source: ../../../../skills/atdd-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 97eed4a329dc
 status: current
 description: |
   [UDS] 验收测试驱动开发（ATDD）的参考资料：INVEST 准则、Gherkin 验收条件格式与 Three Amigos 结构。
@@ -15,13 +16,22 @@ description: |
 
 > **语言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 简体中文
 
+> ⚠️ **状态：参考（仅供参考，非可执行流程）** — 5 阶段 ATDD 生命周期协调（WORKSHOP→DISTILLATION→DEVELOPMENT→DEMO→DONE、INVEST 验证、AC→Gherkin 转换、RED/GREEN 执行、PO sign-off gates）已于 2026-04-28 移至 **采用层（adoption layer，XSPEC-095）**。此处保留 INVEST 准则、ATDD 循环图、Gherkin AC 格式、Three Amigos 结构供参考。如需强制执行，请使用采用层的工具链。
+
 引导验收测试驱动开发（ATDD）流程，用于定义和验证用户故事。
 
 ## ATDD 循环
 
+```
 WORKSHOP ──► DISTILLATION ──► DEVELOPMENT ──► DEMO ──► DONE
+    ^                              │              │
+    └──────────────────────────────┴──────────────┘
+                  (Refinement needed)
+```
 
 ## 工作流程
+
+> 📖 以下为流程的**参考结构**，非可执行步骤；自动化／强制执行请用采用层工具链（XSPEC-095）。
 
 ### 1. WORKSHOP - 定义验收条件
 PO 提出用户故事，团队提出澄清问题，共同定义验收条件。
@@ -71,7 +81,7 @@ So that [benefit].
 `/atdd` 完成后，AI 助手应建议：
 
 > **验收测试已定义。建议下一步：**
-> - 执行 `/sdd` 建立规格文档
+> - 执行 `/sdd` 建立规格文档 ⭐ **推荐**
 > - 执行 `/bdd` 将 AC 转为 Gherkin 场景
 > - 执行 `/tdd` 直接实现验收测试
 
@@ -81,3 +91,7 @@ So that [benefit].
 - [ATDD 工作流程指南](./atdd-workflow.md) — 要完整跑一轮 ATDD 循环时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/atdd`](../../../../skills/commands/atdd.md#ai-agent-behavior--ai-代理行為)
