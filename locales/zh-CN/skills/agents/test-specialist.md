@@ -3,7 +3,9 @@ name: test-specialist
 version: 1.1.0
 source: skills/agents/test-specialist.md
 source_version: 1.1.0
-translation_version: 1.0.0
+translation_version: 1.1.0
+source_hash: 43095deb0e7c
+last_synced: 2026-10-11
 status: current
 description: |
   测试策略专家，负责测试设计、覆盖率分析与质量保证。

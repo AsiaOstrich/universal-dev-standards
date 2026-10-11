@@ -2,6 +2,8 @@
 source: options/project-structure/ruby.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: 55b0fc746e6d
+last_synced: 2026-10-11
 status: current
 ---
 # Ruby 项目结构

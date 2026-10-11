@@ -2,62 +2,78 @@
 source: ../../../../options/testing/e2e-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: bd8259ffd41b
 status: current
 ---
 
-# 端对端 (E2E) 测试
+# 端到端（E2E）测试
 
-> **语言**: [English](../../../../options/testing/e2e-testing.md) | 繁体中文
+> **语言**: [English](../../../../options/testing/e2e-testing.md) | 简体中文
 
-**上层标准**: [测试指南](../../../../core/testing-standards.md)
+**上层标准**: [测试指南](../../core/testing-standards.md)
 
 ---
 
-## 概述
+## 概览
 
-端对端 (E2E) 测试验证从开始到结束的完整使用者流程，模拟真实使用者与应用程式的互动。这些测试验证所有整合元件能共同运作以提供预期的使用者体验。
+端到端（E2E）测试从头到尾验证完整的用户工作流程，模拟真实用户与应用程序的交互。这类测试验证所有集成的组件能协同运作，交付预期的用户体验。
 
 ## 特性
 
 | 属性 | 值 |
-|------|------|
-| 范围 | 完整使用者旅程 |
-| 相依性 | 所有真实（类生产）|
+|-----------|-------|
+| 范围 | 完整的用户旅程 |
+| 依赖 | 全部真实（接近生产环境） |
 | 执行速度 | 每个测试数分钟 |
-| 环境 | 完整堆叠部署 |
-| 数量 | 仅关键路径 |
+| 环境 | 全栈部署 |
+| 数量 | 仅限关键路径 |
 
-## 适用情境
+## 最适用于
 
-- 关键业务流程（结帐、注册）
-- 使用者验收测试
-- 部署烟雾测试
-- 跨浏览器相容性
+- 关键业务工作流程（结账、注册）
+- 用户验收测试
+- 部署后的冒烟测试（smoke test）
+- 跨浏览器兼容性
 - 无障碍验证
 
-## 何时撰写 E2E 测试
+## 在测试金字塔中的位置
 
-### 应该撰写
+```
+        /\
+       /★★\     E2E Tests (this level - few but critical)
+      /----\
+     /      \   Integration Tests
+    /--------\
+   /          \  Unit Tests (many)
+  /------------\
+```
 
-| 情境 | 范例 |
-|------|------|
-| 关键营收路径 | 结帐、订阅 |
-| 使用者验证 | 登入、注册、密码重设 |
-| 核心功能 | 主要产品功能 |
-| 法规遵循 | GDPR 同意、无障碍 |
-| 跨系统流程 | 多服务交易 |
+E2E 测试：数量少，但对关键路径价值高。
 
-### 不应该撰写
+## 何时编写 E2E 测试
 
-| 情境 | 更好的替代方案 |
-|------|----------------|
-| 边界案例 | 单元测试 |
-| API 验证 | 整合测试 |
-| 元件行为 | 元件测试 |
-| 错误讯息 | 单元测试 |
+### 应该编写 E2E 测试的情况
 
-## 框架范例
+| 场景 | 示例 |
+|----------|---------|
+| 关键营收路径 | 结账、订阅 |
+| 用户认证 | 登录、注册、重置密码 |
+| 核心功能 | 产品主要功能 |
+| 法规合规 | GDPR 同意、无障碍 |
+| 跨系统工作流程 | 多服务事务 |
+
+### 不应编写 E2E 测试的情况
+
+| 场景 | 更好的替代方案 |
+|----------|-------------------|
+| 边界情况 | 单元测试 |
+| API 验证 | 集成测试 |
+| 组件行为 | 组件测试 |
+| 错误信息 | 单元测试 |
+| 内部逻辑 | 单元／集成测试 |
+
+## 框架示例
 
 ### Playwright（推荐）
 
@@ -65,9 +81,9 @@ status: current
 // tests/e2e/checkout.spec.js
 import { test, expect } from '@playwright/test';
 
-test.describe('结帐流程', () => {
+test.describe('Checkout Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // 以测试使用者登入
+    // Login as test user
     await page.goto('/login');
     await page.fill('[data-testid="email"]', 'test@example.com');
     await page.fill('[data-testid="password"]', 'testpass123');
@@ -75,40 +91,102 @@ test.describe('结帐流程', () => {
     await expect(page).toHaveURL('/dashboard');
   });
 
-  test('使用信用卡完成购买', async ({ page }) => {
-    // 加入购物车
+  test('complete purchase with credit card', async ({ page }) => {
+    // Add item to cart
     await page.goto('/products/widget-pro');
     await page.click('[data-testid="add-to-cart"]');
     await expect(page.locator('[data-testid="cart-count"]')).toHaveText('1');
 
-    // 前往结帐
+    // Go to checkout
     await page.click('[data-testid="checkout-button"]');
     await expect(page).toHaveURL('/checkout');
 
-    // 填写配送资讯
+    // Fill shipping info
     await page.fill('[data-testid="address"]', '123 Test St');
     await page.fill('[data-testid="city"]', 'Test City');
     await page.fill('[data-testid="zip"]', '12345');
     await page.click('[data-testid="continue-to-payment"]');
 
-    // 填写付款资讯（测试卡号）
+    // Fill payment info (test card)
     await page.fill('[data-testid="card-number"]', '4242424242424242');
     await page.fill('[data-testid="card-expiry"]', '12/25');
     await page.fill('[data-testid="card-cvc"]', '123');
 
-    // 完成购买
+    // Complete purchase
     await page.click('[data-testid="place-order"]');
 
-    // 验证成功
+    // Verify success
     await expect(page).toHaveURL(/\/order-confirmation/);
     await expect(page.locator('[data-testid="order-number"]')).toBeVisible();
+    await expect(page.locator('[data-testid="confirmation-email"]')).toContainText('test@example.com');
+  });
+
+  test('handles payment failure gracefully', async ({ page }) => {
+    await page.goto('/checkout');
+
+    // Use declined test card
+    await page.fill('[data-testid="card-number"]', '4000000000000002');
+    await page.fill('[data-testid="card-expiry"]', '12/25');
+    await page.fill('[data-testid="card-cvc"]', '123');
+
+    await page.click('[data-testid="place-order"]');
+
+    // Verify error handling
+    await expect(page.locator('[data-testid="payment-error"]')).toBeVisible();
+    await expect(page.locator('[data-testid="payment-error"]')).toContainText('Card declined');
+    await expect(page).toHaveURL('/checkout'); // Still on checkout
+  });
+});
+```
+
+### Cypress
+
+```javascript
+// cypress/e2e/user-registration.cy.js
+describe('User Registration', () => {
+  beforeEach(() => {
+    cy.visit('/register');
+  });
+
+  it('successfully registers a new user', () => {
+    const email = `test-${Date.now()}@example.com`;
+
+    // Fill registration form
+    cy.get('[data-testid="name"]').type('Test User');
+    cy.get('[data-testid="email"]').type(email);
+    cy.get('[data-testid="password"]').type('SecurePass123!');
+    cy.get('[data-testid="confirm-password"]').type('SecurePass123!');
+    cy.get('[data-testid="terms-checkbox"]').check();
+
+    // Submit
+    cy.get('[data-testid="register-button"]').click();
+
+    // Verify redirect to verification page
+    cy.url().should('include', '/verify-email');
+    cy.contains('Verification email sent').should('be.visible');
+
+    // Verify user in database (via API)
+    cy.request(`/api/test/users?email=${email}`).then((response) => {
+      expect(response.body.exists).to.be.true;
+      expect(response.body.user.verified).to.be.false;
+    });
+  });
+
+  it('validates password requirements', () => {
+    cy.get('[data-testid="password"]').type('weak');
+    cy.get('[data-testid="confirm-password"]').click();
+
+    cy.get('[data-testid="password-requirements"]')
+      .should('contain', 'At least 8 characters')
+      .and('contain', 'One uppercase letter')
+      .and('contain', 'One number');
   });
 });
 ```
 
 ## Page Object 模式
 
-使用 page object 组织测试以提高可维护性：
+使用 page object 组织测试，以提升可维护性：
 
 ```javascript
 // pages/CheckoutPage.js
@@ -116,19 +194,42 @@ export class CheckoutPage {
   constructor(page) {
     this.page = page;
     this.addressInput = page.locator('[data-testid="address"]');
+    this.cityInput = page.locator('[data-testid="city"]');
+    this.zipInput = page.locator('[data-testid="zip"]');
+    this.cardNumberInput = page.locator('[data-testid="card-number"]');
     this.placeOrderButton = page.locator('[data-testid="place-order"]');
   }
 
   async fillShipping(address, city, zip) {
     await this.addressInput.fill(address);
-    await this.page.fill('[data-testid="city"]', city);
-    await this.page.fill('[data-testid="zip"]', zip);
+    await this.cityInput.fill(city);
+    await this.zipInput.fill(zip);
+  }
+
+  async fillPayment(cardNumber, expiry, cvc) {
+    await this.cardNumberInput.fill(cardNumber);
+    await this.page.fill('[data-testid="card-expiry"]', expiry);
+    await this.page.fill('[data-testid="card-cvc"]', cvc);
   }
 
   async placeOrder() {
     await this.placeOrderButton.click();
   }
 }
+
+// tests/checkout.spec.js
+import { CheckoutPage } from '../pages/CheckoutPage';
+
+test('checkout with page object', async ({ page }) => {
+  const checkout = new CheckoutPage(page);
+
+  await page.goto('/checkout');
+  await checkout.fillShipping('123 Test St', 'Test City', '12345');
+  await checkout.fillPayment('4242424242424242', '12/25', '123');
+  await checkout.placeOrder();
+
+  await expect(page).toHaveURL(/\/order-confirmation/);
+});
 ```
 
 ## 最佳实践
@@ -136,39 +237,49 @@ export class CheckoutPage {
 ### 1. 使用 Data-TestId 属性
 
 ```html
-<!-- 好：稳定的选择器 -->
-<button data-testid="submit-order">下订单</button>
+<!-- Good: Stable selectors -->
+<button data-testid="submit-order">Place Order</button>
 
-<!-- 不好：脆弱的选择器 -->
-<button class="btn btn-primary order-btn">下订单</button>
+<!-- Bad: Fragile selectors -->
+<button class="btn btn-primary order-btn">Place Order</button>
 ```
 
-### 2. 隔离测试资料
+### 2. 隔离测试数据
 
 ```javascript
 test.beforeEach(async ({ request }) => {
-  // 透过 API 建立隔离的测试资料
+  // Create isolated test data via API
   const response = await request.post('/api/test/setup', {
     data: { scenario: 'checkout-test' }
   });
   testData = await response.json();
 });
+
+test.afterEach(async ({ request }) => {
+  // Cleanup
+  await request.post('/api/test/cleanup', {
+    data: { testId: testData.id }
+  });
+});
 ```
 
-### 3. 处理不稳定性
+### 3. 处理不稳定性（flakiness）
 
 ```javascript
-// 重试不稳定的断言
+// Retry flaky assertions
 await expect(async () => {
   const count = await page.locator('.item').count();
   expect(count).toBe(3);
 }).toPass({ timeout: 10000 });
 
-// 等待网路闲置
+// Wait for network idle
 await page.waitForLoadState('networkidle');
+
+// Explicit waits for animations
+await page.waitForTimeout(300); // Only when necessary
 ```
 
-### 4. 平行执行测试
+### 4. 并行执行测试
 
 ```javascript
 // playwright.config.js
@@ -183,25 +294,75 @@ export default {
 };
 ```
 
+### 5. 视觉回归测试
+
+```javascript
+test('homepage visual regression', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('homepage.png', {
+    maxDiffPixels: 100
+  });
+});
+```
+
+## CI/CD 集成
+
+```yaml
+# .github/workflows/e2e.yml
+name: E2E Tests
+
+on: [push, pull_request]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start application
+        run: npm run start:test &
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+      - name: Wait for app
+        run: npx wait-on http://localhost:3000
+
+      - name: Run E2E tests
+        run: npx playwright test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+```
+
 ## 常见框架
 
-| 框架 | 语言 | 最适合 |
-|------|------|--------|
-| Playwright | JS/TS/Python/C# | 跨浏览器、现代 |
-| Cypress | JavaScript | 元件 + E2E |
-| Selenium | 多语言 | 旧系统、企业 |
-| Puppeteer | JavaScript | Chrome 专用 |
+| 框架 | 语言 | 最适用于 |
+|-----------|----------|----------|
+| Playwright | JS/TS/Python/C# | 跨浏览器、现代化 |
+| Cypress | JavaScript | 组件 + E2E |
+| Selenium | 多种语言 | 遗留系统、企业 |
+| Puppeteer | JavaScript | 专用于 Chrome |
 
 ## 相关选项
 
-- [单元测试](./unit-testing.md) - 测试个别元件
-- [整合测试](./integration-testing.md) - 测试元件互动
+- [单元测试](./unit-testing.md) - 测试单个组件
+- [集成测试](./integration-testing.md) - 测试组件间的交互
 - [系统测试](./system-testing.md) - 测试完整系统
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
-**来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

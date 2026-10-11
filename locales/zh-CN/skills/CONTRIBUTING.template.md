@@ -2,24 +2,25 @@
 source: ../../../skills/CONTRIBUTING.template.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 65d1ee93bf8f
 status: current
 ---
 
 > **语言**: [English](../../../skills/CONTRIBUTING.template.md) | 简体中文
 
-# 貢獻指南範本
+# 贡献指南范本
 
-> 將此文件複制到您的项目中并命名为 `CONTRIBUTING.md`，然後根据需要进行自订。
-> 此範本包含 [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) 的配置區塊。
+> 将此文件复制到您的项目中并命名为 `CONTRIBUTING.md`，然后根据需要进行自定义。
+> 此范本包含 [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) 的配置区块。
 
 ---
 
 ## 停用的技能
 
 <!--
-所有技能预设为啟用。
-取消註解并列出您想要在此项目中停用的技能。
+所有技能默认为启用。
+取消注解并列出您想要在此项目中停用的技能。
 -->
 
 <!--
@@ -31,36 +32,36 @@ status: current
 
 ## 开发标准
 
-### Commit 消息语言
+### 输出语言
 
 此项目使用**英文** commit 类型。
-<!-- 选项：English | 简体中文 | Bilingual -->
+<!-- 选项：English | 繁体中文 | Bilingual -->
 
-#### 允許的类型
+#### 允许的类型
 
 | Type | 说明 |
 |------|------|
 | `feat` | 新功能 |
-| `fix` | 错误修復 |
-| `refactor` | 程序码重構 |
+| `fix` | 错误修复 |
+| `refactor` | 程序码重构 |
 | `docs` | 文件 |
 | `style` | 格式化 |
 | `test` | 测试 |
 | `perf` | 效能 |
 | `build` | 建置系统 |
 | `ci` | CI/CD 变更 |
-| `chore` | 維護 |
+| `chore` | 维护 |
 | `revert` | 还原提交 |
-| `security` | 安全性修復 |
+| `security` | 安全性修复 |
 
-#### 允許的範圍
+#### 允许的范围
 
-- `auth` - 认证模組
+- `auth` - 认证模组
 - `api` - API 层
 - `ui` - 使用者界面
-- `db` - 数据庫
+- `db` - 数据库
 - `core` - 核心功能
-<!-- 新增您项目特定的範圍 -->
+<!-- 新增您项目特定的范围 -->
 
 ---
 
@@ -69,13 +70,13 @@ status: current
 此项目使用**英文**确定性标签。
 <!-- 选项：English | 中文 -->
 
-#### 标签參考
+#### 标签参考
 
 | 标签 | 使用时机 |
 |------|----------|
-| `[Confirmed]` | 來自程序码/文件的直接证据 |
-| `[Inferred]` | 從证据进行邏辑推論 |
-| `[Assumption]` | 基於常見模式 |
+| `[Confirmed]` | 来自程序码/文件的直接证据 |
+| `[Inferred]` | 从证据进行逻辑推论 |
+| `[Assumption]` | 基于常见模式 |
 | `[Unknown]` | 信息不可用 |
 | `[Need Confirmation]` | 需要使用者确认 |
 
@@ -92,17 +93,17 @@ status: current
 
 格式：`<type>/<description>`
 
-| Type | 用途 | 範例 |
+| Type | 用途 | 范例 |
 |------|------|------|
 | `feature/` | 新功能 | `feature/oauth-login` |
-| `fix/` | 错误修復 | `fix/memory-leak` |
-| `hotfix/` | 緊急修復 | `hotfix/security-patch` |
-| `refactor/` | 程序码重構 | `refactor/extract-service` |
+| `fix/` | 错误修复 | `fix/memory-leak` |
+| `hotfix/` | 紧急修复 | `hotfix/security-patch` |
+| `refactor/` | 程序码重构 | `refactor/extract-service` |
 | `docs/` | 文件 | `docs/api-reference` |
-| `chore/` | 維護 | `chore/update-deps` |
-| `release/` | 發布准备 | `release/v1.2.0` |
+| `chore/` | 维护 | `chore/update-deps` |
+| `release/` | 发布准备 | `release/v1.2.0` |
 
-#### 合併策略
+#### 合并策略
 
 - Feature 分支：**Squash Merge**
 <!-- 选项：Merge Commit | Squash Merge | Rebase -->
@@ -111,41 +112,41 @@ status: current
 
 ## 程序码审查
 
-### 註解前綴
+### 评论前缀
 
-| 前綴 | 需要的动作 |
+| 前缀 | 需要的动作 |
 |------|-----------|
-| **BLOCKING** | 必須在合併前修復 |
-| **IMPORTANT** | 应該修復 |
-| **SUGGESTION** | 可選的改进 |
-| **QUESTION** | 需要釐清 |
+| **BLOCKING** | 必须在合并前修复 |
+| **IMPORTANT** | 应该修复 |
+| **SUGGESTION** | 可选的改进 |
+| **QUESTION** | 需要厘清 |
 | **NOTE** | 信息性 |
 
 ---
 
 ## 测试
 
-### 最低覆蓋率
+### 最低覆盖率
 
-| 层级 | 目標 |
+| 层级 | 目标 |
 |------|------|
 | Unit Tests | 80% |
 | Integration Tests | 60% |
-| E2E Tests | 关鍵路徑 |
+| E2E Tests | 关键路径 |
 
 ---
 
 ## Pull Request 流程
 
-1. 從 `main` 建立 feature 分支
+1. 从 `main` 建立 feature 分支
 2. 进行您的变更
-3. 确保所有测试通過
+3. 确保所有测试通过
 4. 提交 pull request
-5. 处理审查意見
-6. 核准後合併
+5. 处理审查意见
+6. 核准后合并
 
 ---
 
 ## 授权
 
-貢獻至此项目即表示您同意您的貢獻將依项目授权进行授权。
+贡献至此项目即表示您同意您的贡献将依项目授权进行授权。

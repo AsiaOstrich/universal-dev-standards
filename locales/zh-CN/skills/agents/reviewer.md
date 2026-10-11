@@ -3,7 +3,9 @@ name: reviewer
 version: 1.1.0
 source: skills/agents/reviewer.md
 source_version: 1.1.0
-translation_version: 1.0.0
+translation_version: 1.1.0
+source_hash: d6df624691df
+last_synced: 2026-10-11
 status: current
 description: |
   代码审查专家，负责质量评估、security analysis 与最佳实践落实。
@@ -178,7 +180,7 @@ Code Reviewer agent 专精于系统化 code review、security analysis 与质量
 |--------|---------|-----------------|
 | **❗ BLOCKING** | 合并前必须修正 | 必要 |
 | **⚠️ IMPORTANT** | 应该修正 | 强烈建议 |
-| **💡 SUGGESTION** | 有更好 | 可选 |
+| **💡 SUGGESTION** | 锦上添花 | 可选 |
 | **❓ QUESTION** | 需要澄清 | 需讨论 |
 | **📝 NOTE** | 供参考，无需行动 | 信息性 |
 

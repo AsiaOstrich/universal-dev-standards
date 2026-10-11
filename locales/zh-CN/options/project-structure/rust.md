@@ -2,6 +2,8 @@
 source: options/project-structure/rust.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: 53cbe60689dc
+last_synced: 2026-10-11
 status: current
 ---
 

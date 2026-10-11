@@ -2,73 +2,76 @@
 source: ../../../../options/testing/integration-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4ac1711a8097
 status: current
 ---
 
-# 整合测试 (IT/SIT)
+# 集成测试（IT/SIT）
 
-> **语言**: [English](../../../../options/testing/integration-testing.md) | 繁体中文
+> **语言**: [English](../../../../options/testing/integration-testing.md) | 简体中文
 
-**上层标准**: [测试指南](../../../../core/testing-standards.md)
+**上层标准**: [测试指南](../../core/testing-standards.md)
 
 ---
 
 ## 缩写说明
 
-整合测试层级在业界有两种常见的缩写：
+集成测试这一层级在业界有两种常见缩写：
 
-| 缩写 | 全名 | 常见用法 |
-|------|------|----------|
-| **IT** | Integration Testing | 敏捷/DevOps 社群（Martin Fowler、Google Testing Blog） |
-| **SIT** | System Integration Testing | 企业/ISTQB 环境、传统 QA 环境 |
+| 缩写 | 全称 | 常见用法 |
+|--------------|-----------|--------------|
+| **IT** | Integration Testing | Agile/DevOps 社区（Martin Fowler、Google Testing Blog） |
+| **SIT** | System Integration Testing | Enterprise/ISTQB 场景、传统 QA 环境 |
 
-两者指的是相同的测试概念。本文件交替使用 IT/SIT。
+两个术语指的是同一个测试概念。本文档交替使用 IT/SIT。
 
 ---
 
-## 概述
+## 概览
 
-整合测试验证不同模组、服务或元件是否能正确地协同运作。这些测试验证整合单元之间的互动和资料流，同时可能使用真实的相依性如资料库或外部服务。
+集成测试验证不同的模块、服务或组件能否正确协同运作。这类测试验证已集成单元之间的交互与数据流，并可能使用数据库或外部服务等真实依赖。
 
 ## 特性
 
 | 属性 | 值 |
-|------|------|
-| 范围 | 多个元件协同运作 |
-| 相依性 | 真实与模拟混合 |
-| 执行速度 | 秒到分钟 |
-| 隔离性 | 部分——测试真实整合 |
-| 数量 | 中等数量的测试 |
+|-----------|-------|
+| 范围 | 多个协同运作的组件 |
+| 依赖 | 真实与 mock 混合 |
+| 执行速度 | 数秒到数分钟 |
+| 隔离程度 | 部分隔离——测试真实的集成 |
+| 数量 | 适量的测试 |
 
-## 适用情境
+## 最适用于
 
-- 测试 API 端点与资料库
-- 验证服务间通讯
-- 验证层间资料流
-- 测试第三方整合
-- 验证设定和连线
+- 搭配数据库测试 API 端点
+- 验证服务之间的通信
+- 验证各层之间的数据流
+- 测试第三方集成
+- 验证配置与组件装配（wiring）
 
-## 测试金字塔位置
+## 在测试金字塔中的位置
 
 ```
         /\
-       /  \      E2E 测试（少）
+       /  \      E2E Tests (few)
       /----\
-     / ★★★ \    整合测试 ← 这一层
+     / ★★★ \    Integration Tests (this level)
     /--------\
-   /          \  单元测试（多）
+   /          \  Unit Tests (many)
   /------------\
 ```
 
-## 整合测试类型
+集成测试位于中间层：验证组件之间的交互。
 
-### 1. 元件整合
+## 集成测试的类型
 
-测试内部元件间的互动：
+### 1. 组件集成
+
+测试内部组件之间的交互：
 
 ```javascript
-// 测试：UserService + UserRepository + Database
+// Test: UserService + UserRepository + Database
 describe('UserService Integration', () => {
   let userService;
   let database;
@@ -97,35 +100,67 @@ describe('UserService Integration', () => {
 });
 ```
 
-### 2. API 整合
+### 2. API 集成
 
-使用真实服务测试 REST/GraphQL 端点：
+搭配真实服务测试 REST/GraphQL 端点：
 
 ```python
-# Python/pytest 范例
+# Python/pytest example
 class TestUserAPI:
-    def test_create_user_endpoint(self, test_client, test_database):
-        # 执行
-        response = test_client.post('/api/users', json={
+    @pytest.fixture(autouse=True)
+    def setup(self, test_client, test_database):
+        self.client = test_client
+        self.db = test_database
+
+    def test_create_user_endpoint(self):
+        # Act
+        response = self.client.post('/api/users', json={
             'name': 'John Doe',
             'email': 'john@example.com'
         })
 
-        # 验证
+        # Assert
         assert response.status_code == 201
         assert response.json()['name'] == 'John Doe'
 
-        # 验证资料库
-        user = test_database.query(User).filter_by(email='john@example.com').first()
+        # Verify database
+        user = self.db.query(User).filter_by(email='john@example.com').first()
         assert user is not None
 ```
 
-### 3. 资料库整合
+### 3. 服务集成
 
-使用真实资料库测试资料存取层：
+测试微服务之间的通信：
+
+```javascript
+describe('Order Service Integration', () => {
+  it('should process order with inventory check', async () => {
+    // Arrange
+    const inventoryService = new InventoryService(inventoryApi);
+    const paymentService = new PaymentService(paymentApi);
+    const orderService = new OrderService(inventoryService, paymentService);
+
+    // Act
+    const order = await orderService.processOrder({
+      productId: 'SKU-001',
+      quantity: 2,
+      paymentMethod: 'credit_card'
+    });
+
+    // Assert
+    expect(order.status).toBe('confirmed');
+    expect(order.inventoryReserved).toBe(true);
+    expect(order.paymentProcessed).toBe(true);
+  });
+});
+```
+
+### 4. 数据库集成
+
+搭配真实数据库测试数据访问层：
 
 ```java
-// Java/JUnit 范例
+// Java/JUnit example
 @SpringBootTest
 @Transactional
 class UserRepositoryIntegrationTest {
@@ -135,39 +170,89 @@ class UserRepositoryIntegrationTest {
 
     @Test
     void shouldFindUsersByRole() {
-        // 安排
+        // Arrange
         userRepository.save(new User("admin", Role.ADMIN));
         userRepository.save(new User("user1", Role.USER));
+        userRepository.save(new User("user2", Role.USER));
 
-        // 执行
+        // Act
         List<User> admins = userRepository.findByRole(Role.ADMIN);
 
-        // 验证
+        // Assert
         assertThat(admins).hasSize(1);
+        assertThat(admins.get(0).getUsername()).isEqualTo("admin");
     }
 }
 ```
 
+## 测试环境设置
+
+### 数据库设置
+
+```javascript
+// Using test containers (JavaScript)
+const { GenericContainer } = require('testcontainers');
+
+let postgresContainer;
+
+beforeAll(async () => {
+  postgresContainer = await new GenericContainer('postgres:14')
+    .withEnvironment({
+      POSTGRES_DB: 'testdb',
+      POSTGRES_USER: 'test',
+      POSTGRES_PASSWORD: 'test'
+    })
+    .withExposedPorts(5432)
+    .start();
+
+  process.env.DATABASE_URL = `postgresql://test:test@localhost:${postgresContainer.getMappedPort(5432)}/testdb`;
+});
+
+afterAll(async () => {
+  await postgresContainer.stop();
+});
+```
+
+### 为外部服务 mock API
+
+```javascript
+// Mock external APIs while using real internal services
+const nock = require('nock');
+
+beforeEach(() => {
+  // Mock external payment API
+  nock('https://api.payment-provider.com')
+    .post('/v1/charges')
+    .reply(200, { id: 'ch_test', status: 'succeeded' });
+});
+
+afterEach(() => {
+  nock.cleanAll();
+});
+```
+
 ## 最佳实践
 
-### 1. 隔离测试资料
+### 1. 隔离测试数据
 
 ```javascript
 describe('Order Integration', () => {
   beforeEach(async () => {
-    // 每个测试都从干净状态开始
+    // Clean slate for each test
     await database.truncate(['orders', 'order_items']);
+
+    // Seed required reference data
     await seedProducts();
   });
 });
 ```
 
-### 2. 使用交易进行清理
+### 2. 使用事务进行清理
 
 ```python
 @pytest.fixture
 def db_session():
-    """提供测试的交易范围。"""
+    """Provide a transactional scope for tests."""
     connection = engine.connect()
     transaction = connection.begin()
     session = Session(bind=connection)
@@ -179,52 +264,79 @@ def db_session():
     connection.close()
 ```
 
-### 3. 测试真实情境
+### 3. 测试贴近现实的场景
 
 ```javascript
+// Good: Tests real workflow
 it('should handle checkout with out-of-stock item', async () => {
-  // 设置：库存有限的产品
+  // Setup: Product with limited stock
   await inventory.setStock('SKU-001', 1);
 
-  // 第一笔订单成功
+  // First order succeeds
   const order1 = await checkout.process({ sku: 'SKU-001', qty: 1 });
   expect(order1.status).toBe('confirmed');
 
-  // 第二笔订单因库存不足失败
+  // Second order fails due to stock
   await expect(checkout.process({ sku: 'SKU-001', qty: 1 }))
     .rejects.toThrow('Out of stock');
 });
 ```
 
-## 应该测试什么
+### 4. 处理异步操作
 
-| 情境 | 原因 |
-|------|------|
-| 资料库查询 | 验证 SQL/ORM 正确运作 |
-| API 端点 | 测试路由、中介软体、回应 |
-| 服务互动 | 验证服务间合约 |
-| 交易边界 | 确保资料一致性 |
-| 错误传播 | 测试跨层错误处理 |
+```javascript
+// Wait for eventual consistency
+it('should update search index after product create', async () => {
+  const product = await productService.create({ name: 'Widget' });
+
+  // Wait for async index update
+  await waitFor(async () => {
+    const results = await searchService.search('Widget');
+    expect(results).toContainEqual(expect.objectContaining({ id: product.id }));
+  }, { timeout: 5000 });
+});
+```
+
+## 测试什么
+
+### 应该测试
+
+| 场景 | 原因 |
+|----------|-----|
+| 数据库查询 | 验证 SQL/ORM 正确运作 |
+| API 端点 | 测试路由、中间件、响应 |
+| 服务交互 | 验证服务之间的契约 |
+| 事务边界 | 确保数据一致性 |
+| 错误传播 | 测试跨层的错误处理 |
+
+### 不应测试
+
+| 场景 | 原因 |
+|----------|-----|
+| 框架内部实现 | 信任框架 |
+| 生产环境中的第三方服务 | 使用 mock 或沙箱 |
+| UI 渲染 | 使用 E2E 测试 |
+| 单元级逻辑 | 使用单元测试 |
 
 ## 常见框架与工具
 
 | 类别 | 工具 |
-|------|------|
-| 测试容器 | Testcontainers、Docker Compose |
-| HTTP 模拟 | nock、WireMock、responses |
-| 资料库 | H2（Java）、SQLite（测试模式）|
-| API 测试 | Supertest、REST Assured、httpx |
+|----------|-------|
+| 测试容器 | Testcontainers, Docker Compose |
+| HTTP Mock | nock, WireMock, responses |
+| 数据库 | H2 (Java), SQLite（测试模式） |
+| API 测试 | Supertest, REST Assured, httpx |
 
 ## 相关选项
 
-- [单元测试](./unit-testing.md) - 测试个别元件
+- [单元测试](./unit-testing.md) - 测试单个组件
 - [系统测试](./system-testing.md) - 测试完整系统
-- [E2E 测试](./e2e-testing.md) - 测试使用者流程
+- [E2E 测试](./e2e-testing.md) - 测试用户工作流程
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
-**来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -2,6 +2,8 @@
 source: options/project-structure/php.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: 8e4325bb47f6
+last_synced: 2026-10-11
 status: current
 ---
 
