@@ -2,7 +2,8 @@
 source: ../../../../options/git-workflow/github-flow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: b19d6c2614d2
 status: current
 ---
 
@@ -16,104 +17,121 @@ status: current
 
 ## 概述
 
-GitHub Flow 是一個輕量級、以分支為基礎的工作流程，支援定期部署的團隊和專案。它強調簡單性，只使用一個長期分支（main），並搭配短期功能分支。
+GitHub Flow 是一種輕量級、以分支為基礎的工作流程，專為定期部署的團隊設計。它易於理解與實施，非常適合持續部署環境。
 
 ## 適用情境
 
-- 持續部署環境
-- 小型到中型團隊
-- Web 應用程式和 SaaS 產品
-- 需要頻繁發布的專案
+- 持續部署（每天多次到每週一次）
+- Web 應用程式與 SaaS 產品
+- 小型到中型團隊（5-15 位開發者）
+- 具備完善 CI/CD 管線的專案
+
+## 分支架構
+
+| 分支 | 用途 | 生命週期 |
+|------|------|----------|
+| `main` | 隨時可部署的生產程式碼 | 永久 |
+| `feature/*` | 新功能或修復 | 短期（理想為 1-3 天） |
 
 ## 核心原則
 
-| 原則 | 說明 |
-|------|------|
-| Main 隨時可部署 | `main` 分支永遠處於可發布狀態 |
-| 功能分支 | 所有工作在功能分支上進行 |
-| Pull Request | 透過 PR 進行程式碼審查 |
-| 合併後立即部署 | 合併到 main 即觸發部署 |
+1. **Main 隨時可部署** - main 分支應始終處於可部署狀態
+2. **所有工作都開分支** - 任何新工作都建立分支
+3. **使用具描述性的名稱** - 分支名稱應描述該項工作
+4. **及早開啟 PR** - 透過 pull request 及早取得回饋
+5. **合併後部署** - 合併到 main 後立即部署
 
 ## 工作流程步驟
 
-### 1. 從 main 建立分支
+### 1. 建立功能分支
 
 ```bash
+# Start from latest main
 git checkout main
 git pull origin main
+
+# Create feature branch
 git checkout -b feature/user-authentication
 ```
 
 ### 2. 進行變更並提交
 
 ```bash
-# 進行變更
+# Make your changes
 git add .
 git commit -m "feat(auth): add login form component"
 
-# 持續提交
-git commit -m "feat(auth): add form validation"
-git commit -m "test(auth): add login form tests"
+# Continue making commits...
+git commit -m "feat(auth): add authentication service"
+git commit -m "test(auth): add login tests"
 ```
 
 ### 3. 推送並建立 Pull Request
 
 ```bash
-git push origin feature/user-authentication
-# 在 GitHub 上建立 Pull Request
+# Push branch to remote
+git push -u origin feature/user-authentication
+
+# Create PR via GitHub/GitLab UI
+# - Add description
+# - Request reviewers
+# - Link related issues
 ```
 
-### 4. 討論與審查
+### 4. 審查與合併
 
-- 團隊成員審查程式碼
-- 討論變更
-- 進行必要的修改
-- CI/CD 自動執行測試
+- 取得程式碼審查核准
+- 確保 CI 檢查通過
+- 透過 GitHub 介面合併（squash 或 merge commit）
 
-### 5. 合併並部署
+### 5. 部署與清理
 
 ```bash
-# 審查通過後，透過 GitHub 介面合併
-# 或使用命令列：
+# After merge, update local main
 git checkout main
-git merge --no-ff feature/user-authentication
-git push origin main
+git pull origin main
 
-# 刪除功能分支
+# Delete feature branch
 git branch -d feature/user-authentication
-git push origin --delete feature/user-authentication
 ```
 
 ## 分支命名慣例
 
-| 類型 | 格式 | 範例 |
-|------|------|------|
-| 功能 | `feature/<描述>` | `feature/user-profile` |
-| 錯誤修復 | `fix/<描述>` | `fix/login-redirect` |
-| 熱修復 | `hotfix/<描述>` | `hotfix/security-patch` |
-| 文件 | `docs/<描述>` | `docs/api-reference` |
+```
+<type>/<short-description>
+
+Examples:
+feature/oauth-login
+fix/memory-leak
+docs/api-reference
+refactor/user-service
+```
+
+## 合併策略建議
+
+| 合併類型 | 使用時機 |
+|----------|----------|
+| **Squash Merge** | 大多數功能分支（乾淨的歷史） |
+| **Merge Commit** | 需要保留 commit 歷史時 |
+| **Rebase + FF** | 生命週期極短的分支 |
 
 ## 優點
 
-| 優點 | 說明 |
-|------|------|
-| 簡單易學 | 只需記住一個流程 |
-| 快速迭代 | 支援持續部署 |
-| 清晰的審查流程 | PR 確保程式碼品質 |
-| 自動化友善 | 易於整合 CI/CD |
+- 易於理解與實施
+- 與 CI/CD 搭配良好
+- 鼓勵頻繁整合
+- 分支管理負擔最小
 
 ## 缺點
 
-| 缺點 | 說明 |
-|------|------|
-| 無發布分支 | 不適合需要版本控制的專案 |
-| 需要可靠的測試 | main 必須隨時可部署 |
-| 不適合多版本維護 | 難以同時維護多個生產版本 |
+- 沒有獨立的開發整合分支
+- 所有功能直接進入 main
+- 較不適合排程發布
 
 ## 相關選項
 
-- [GitFlow](./gitflow.md) - 適合有排程發布的專案
-- [Trunk-Based](./trunk-based.md) - 更簡化的持續整合流程
+- [GitFlow](./gitflow.md) - 適用於排程發布
+- [Trunk-Based Development](./trunk-based.md) - 適用於更頻繁的整合
 
 ---
 

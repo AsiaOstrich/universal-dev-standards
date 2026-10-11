@@ -2,6 +2,8 @@
 source: options/project-structure/swift.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: c684fc65fd90
 status: current
 ---
 # Swift 專案結構

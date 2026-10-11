@@ -2,7 +2,8 @@
 source: ../../../../options/git-workflow/merge-commit.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 375d47889710
 status: current
 ---
 
@@ -16,7 +17,7 @@ status: current
 
 ## 概述
 
-Merge commit（也稱為「true merge」或「merge with merge commit」）透過建立合併 commit 來保留功能分支的完整歷史。這維護了完整的開發歷史，並顯示分支合併的確切時間點。
+Merge commit（也稱為「true merge」或「merge with merge commit」）透過建立結合兩個分支的合併 commit，保留功能分支的完整歷史。這維護了完整的開發歷史，並顯示分支合併的確切時間點。
 
 ## 適用情境
 
@@ -29,10 +30,10 @@ Merge commit（也稱為「true merge」或「merge with merge commit」）透�
 ## 運作方式
 
 ```
-合併前：                合併後：
-main:    A---B---C      A---B---C---------M（合併 commit）
-              \                   \       /
-feature:       D---E---F           D---E---F
+Before merge:                After merge commit:
+main:    A---B---C           A---B---C---------M (merge commit)
+              \                       \       /
+feature:       D---E---F               D---E---F
 ```
 
 合併 commit `M` 有兩個父節點：`C`（來自 main）和 `F`（來自 feature）。
@@ -42,18 +43,18 @@ feature:       D---E---F           D---E---F
 ### 標準 Merge Commit
 
 ```bash
-# 確保 main 是最新的
+# Ensure main is up to date
 git checkout main
 git pull origin main
 
-# 使用 merge commit 合併功能分支
+# Merge feature branch with merge commit
 git merge feature/user-auth --no-ff
 
-# 這會開啟編輯器撰寫合併訊息
-# 或指定訊息：
+# This opens editor for merge commit message
+# Or specify inline:
 git merge feature/user-auth --no-ff -m "Merge feature/user-auth: Add OAuth support"
 
-# 推送
+# Push
 git push origin main
 ```
 
@@ -62,13 +63,43 @@ git push origin main
 `--no-ff`（no fast-forward）旗標確保永遠建立合併 commit：
 
 ```bash
-# 不使用 --no-ff（可能會 fast-forward）
+# Without --no-ff (may fast-forward if possible)
 git merge feature-branch
-# 結果：可能會或不會建立合併 commit
+# Result: May or may not create merge commit
 
-# 使用 --no-ff（永遠建立合併 commit）
+# With --no-ff (always creates merge commit)
 git merge --no-ff feature-branch
-# 結果：永遠建立合併 commit
+# Result: Always creates merge commit
+```
+
+### 透過 GitHub Pull Request
+
+1. 開啟 Pull Request
+2. 點選「Create a merge commit」（或「Merge pull request」）
+3. 視需要編輯合併 commit 訊息
+4. 確認合併
+
+## 合併 Commit 訊息
+
+### 預設格式
+
+```
+Merge branch 'feature/user-auth' into main
+```
+
+### 強化格式（建議）
+
+```
+Merge feature/user-auth: Implement OAuth authentication
+
+This merge adds:
+- Google OAuth integration
+- GitHub OAuth integration
+- Token refresh mechanism
+- Session management
+
+PR #123
+Reviewed-by: @teammate
 ```
 
 ## 優點
@@ -92,23 +123,103 @@ git merge --no-ff feature-branch
 
 ## 檢視合併歷史
 
+### 只顯示合併 Commit
+
 ```bash
-# 只列出合併 commit
+# List only merge commits
 git log --merges --oneline
 
-# 視覺化分支結構
+# Show merge commits with their parents
+git log --merges --format="%h %s (%p)"
+```
+
+### 視覺化分支結構
+
+```bash
+# ASCII graph of branches
 git log --oneline --graph
+
+# Simplified graph
+git log --oneline --graph --first-parent
+```
+
+### 檢視合併內容
+
+```bash
+# Show what was merged
+git show <merge-commit-sha>
+
+# Show changes from first parent (main)
+git diff <merge-commit>^1 <merge-commit>
+
+# Show changes from second parent (feature)
+git diff <merge-commit>^2 <merge-commit>
 ```
 
 ## 還原合併
 
 ```bash
-# 還原整個合併
+# Revert the entire merge
 git revert -m 1 <merge-commit-sha>
 
-# -m 1 表示保留第一個父節點（main 分支）
-# -m 2 會保留第二個父節點（feature 分支）
+# -m 1 means keep first parent (main branch)
+# -m 2 would keep second parent (feature branch)
 ```
+
+## 設定
+
+### 儲存庫設定（GitHub）
+
+```yaml
+# In repository settings > Pull Requests
+Allow merge commits: ✓
+Default commit message: Pull request title and description
+```
+
+### Git 設定
+
+```bash
+# Always use --no-ff for merges
+git config --global merge.ff false
+
+# Or per-repository
+git config merge.ff false
+```
+
+### Git 別名
+
+```bash
+# Add to ~/.gitconfig
+[alias]
+    mg = merge --no-ff
+    mgm = "!f() { git merge --no-ff -m \"Merge $1\" $1; }; f"
+```
+
+## 處理合併衝突
+
+合併過程中發生衝突時：
+
+```bash
+# Start merge
+git merge feature-branch
+
+# If conflicts:
+# 1. Edit conflicted files
+# 2. Mark as resolved
+git add <resolved-files>
+
+# 3. Complete merge
+git commit
+# Merge commit message will include conflict info
+```
+
+## 最佳實踐
+
+1. **使用有意義的合併訊息** - 描述該功能新增了什麼
+2. **保持分支更新** - 定期將 main 合併到功能分支
+3. **使用 `--no-ff`** - 確保永遠建立合併 commit
+4. **清理分支** - 合併後刪除功能分支
+5. **引用 issue** - 在合併訊息中包含 issue/PR 編號
 
 ## 相關選項
 

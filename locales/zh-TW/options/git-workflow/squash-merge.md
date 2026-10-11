@@ -2,7 +2,8 @@
 source: ../../../../options/git-workflow/squash-merge.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 9a4b55eed66f
 status: current
 ---
 
@@ -28,26 +29,45 @@ Squash merge 在合併時將功能分支的所有 commit 壓縮成單一 commit�
 ## 運作方式
 
 ```
-功能分支：              合併後的 main 分支：
-A---B---C---D            X---Y---Z（單一壓縮 commit）
+Feature branch:          Main branch after squash merge:
+A---B---C---D            X---Y---Z (single squashed commit)
     \                        |
-     E---F---G---H    →      S（包含 E+F+G+H）
-    （功能 commits）
+     E---F---G---H    →      S (contains E+F+G+H)
+     (feature commits)
 ```
 
 ## 工作流程
 
+### 建立 Pull Request
+
+```bash
+# Create feature branch
+git checkout -b feature/user-profile
+git checkout main
+git pull origin main
+
+# Make multiple commits during development
+git commit -m "wip: start user profile"
+git commit -m "add avatar upload"
+git commit -m "fix styling"
+git commit -m "add tests"
+git commit -m "fix test failure"
+
+# Push and create PR
+git push origin feature/user-profile
+```
+
 ### 透過 CLI 進行 Squash Merge
 
 ```bash
-# 切到 main 分支
+# On main branch
 git checkout main
 git pull origin main
 
 # Squash merge
 git merge --squash feature/user-profile
 
-# 建立有意義的單一 commit
+# Create single commit with meaningful message
 git commit -m "feat(users): add user profile with avatar upload
 
 - Add profile page component
@@ -56,13 +76,13 @@ git commit -m "feat(users): add user profile with avatar upload
 
 Closes #123"
 
-# 推送並清理
+# Push and clean up
 git push origin main
 git branch -d feature/user-profile
 git push origin --delete feature/user-profile
 ```
 
-### 透過 GitHub 進行
+### 透過 GitHub 進行 Squash Merge
 
 1. 開啟 Pull Request
 2. 點擊「Squash and merge」按鈕
@@ -75,14 +95,38 @@ git push origin --delete feature/user-profile
 進行 squash merge 時，撰寫完整的 commit 訊息：
 
 ```
-feat(scope): 簡潔描述
+feat(scope): concise description
 
-- 主要變更 1
-- 主要變更 2
-- 主要變更 3
+- Key change 1
+- Key change 2
+- Key change 3
 
 Closes #issue-number
 Co-authored-by: Name <email@example.com>
+```
+
+### 良好範例
+
+```
+feat(auth): implement OAuth2 login flow
+
+- Add Google and GitHub OAuth providers
+- Create secure token storage
+- Implement automatic token refresh
+- Add logout functionality
+
+Closes #456
+Reviewed-by: @teammate
+```
+
+### 不良範例
+
+```
+Squashed commit of the following:
+- wip
+- more wip
+- fix stuff
+- actually fix stuff
 ```
 
 ## 優點
@@ -92,16 +136,57 @@ Co-authored-by: Name <email@example.com>
 | 乾淨的歷史 | 主分支每個功能一個 commit |
 | 容易還原 | 單一 commit 還原整個功能 |
 | 簡化 bisect | 較少 commit 需要搜尋 |
-| 自由提交 | 開發者可頻繁提交不會雜亂 |
+| 自由提交 | 開發者可頻繁提交而不會讓歷史雜亂 |
 
 ## 缺點
 
 | 缺點 | 說明 |
 |------|------|
 | 失去細節 | 個別 commit 歷史遺失 |
-| 難以追蹤 | 無法追溯特定行到原始 commit |
+| 難以追蹤 | 無法用 blame 追溯特定行到原始 commit |
 | 大型 diff | 單一 commit 可能有大量變更 |
 | 失去脈絡 | 開發過程不被保留 |
+
+## 不適用的情況
+
+- 個別 commit 歷史很重要時
+- 長期存在且 commit 訊息具有價值的分支
+- 之後需要 cherry-pick 特定變更時
+- 有多位作者且需要標註貢獻的分支
+
+## 設定
+
+### GitHub 儲存庫設定
+
+```yaml
+# In repository settings > Pull Requests
+Allow squash merging: ✓
+Allow merge commits: ✗ (optional, for enforcement)
+Allow rebase merging: ✗ (optional, for enforcement)
+
+# Default commit message
+Default to pull request title and description
+```
+
+### Git 別名
+
+```bash
+# Add to ~/.gitconfig
+[alias]
+    squash = merge --squash
+    sm = "!f() { git merge --squash $1 && git commit; }; f"
+```
+
+## 保留共同作者
+
+當有多人參與同一分支的開發時：
+
+```bash
+git commit -m "feat: implement feature
+
+Co-authored-by: Alice <alice@example.com>
+Co-authored-by: Bob <bob@example.com>"
+```
 
 ## 相關選項
 
