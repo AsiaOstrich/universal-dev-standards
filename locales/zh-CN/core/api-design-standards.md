@@ -1,17 +1,18 @@
 ---
 source: ../../../core/api-design-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-23
-status: stale
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: c844144a19cb
+status: current
 ---
 
 # API 设计标准
 
 > **语言**: [English](../../../core/api-design-standards.md) | 简体中文
 
-> 版本: 1.0.0 | 最后更新: 2026-03-18
-
+**版本**: 1.1.0
+**最后更新**: 2026-06-24
 **适用范围**: 所有软件项目
 **范畴**: universal
 **业界标准**: OpenAPI 3.x, JSON:API 1.1, Google API Design Guide, RFC 7231 (HTTP 语义)
@@ -110,19 +111,19 @@ https://api.example.com/v1/resources
 ### 资源层级
 
 ```
-# 集合
+# Collection
 GET /users
 
-# 特定资源
+# Specific resource
 GET /users/123
 
-# 子资源集合（1 层嵌套）
+# Sub-resource collection (1 level nesting)
 GET /users/123/orders
 
-# 特定子资源（2 层嵌套 — 上限）
+# Specific sub-resource (2 level nesting — maximum)
 GET /users/123/orders/456
 
-# 避免更深层嵌套 — 使用顶层搭配筛选
+# Avoid deeper nesting — use top-level with filters
 GET /order-items?order_id=456
 ```
 
@@ -131,14 +132,14 @@ GET /order-items?order_id=456
 对于非 CRUD 操作，使用子资源动作：
 
 ```
-# 可接受的动作模式
+# Acceptable action patterns
 POST /users/123/activate
 POST /orders/456/cancel
 POST /reports/generate
 
-# 避免动词式 URL
-POST /activateUser          # 错误
-POST /cancelOrder           # 错误
+# Avoid verb-based URLs
+POST /activateUser          # Wrong
+POST /cancelOrder           # Wrong
 ```
 
 ---
@@ -157,11 +158,11 @@ POST /cancelOrder           # 错误
 ### 决策指南
 
 ```
-是否需要同时支持多个版本？
-├── 是 → URL 路径版本控制（最明确）
-└── 否 → 是否优先考虑干净的 URL？
-          ├── 是 → 头部版本控制
-          └── 否 → URL 路径版本控制（较简单）
+Do you need to support multiple versions concurrently?
+├── Yes → URL Path versioning (most explicit)
+└── No  → Do you prioritize clean URLs?
+          ├── Yes → Header versioning
+          └── No  → URL Path versioning (simpler)
 ```
 
 ### 建议方式：URL 路径版本控制
@@ -173,12 +174,14 @@ https://api.example.com/v2/users
 
 ### 版本生命周期
 
-| 阶段 | 持续时间 | 动作 |
-|------|----------|------|
+API 版本会经历四种状态。**持续时间**——并行支持窗口与弃用通知期——由 [弃用与日落标准](deprecation-standards.md#api-deprecation) 单一负责；本表仅定义各状态及其对应的 API 契约动作，使时间数值只存在于一处。
+
+| 阶段 | 状态 | API 契约动作 |
+|------|------|--------------|
 | **现行** | 积极开发中 | 完整支持、新功能 |
-| **支持中** | 后继版本发布后 6-12 个月 | 仅限错误修复、安全修补 |
-| **已弃用** | 3-6 个月通知期 | Sunset 头部、迁移指南 |
-| **已终止** | 弃用期结束后 | 返回 410 Gone 与迁移信息 |
+| **支持中** | 与后继版本并行维护 | 仅限错误修复、安全修补 |
+| **已弃用** | 已宣布停用 | `Deprecation` / `Sunset` 头部、发布迁移指南 |
+| **已终止** | 已移除 | 返回 `410 Gone` 与迁移信息 |
 
 ### 弃用头部
 
@@ -188,6 +191,88 @@ Deprecation: true
 Link: <https://api.example.com/v2/docs>; rel="successor-version"
 ```
 
+> 完整的弃用**流程**（分阶段的 Sunset 时间线）与**各 API 层级的最短通知期**
+> 由 [弃用与日落标准](deprecation-standards.md#api-deprecation) 规范。
+> 本标准负责以下 API 契约层面：如何在代码中弃用某个版本、
+> 哪些变更属于破坏性变更，以及如何撰写迁移文档。
+
+### 弃用 API 版本
+
+通过 SemVer 及 API 本身发出弃用信号，然后遵循弃用生命周期。版本推进方式对应 [语义化版本](versioning.md#incrementing-rules)：
+
+```
+v1.0.0 — Version introduced
+v1.5.0 — Deprecation announced (no later than the N-1 minor before removal)
+v2.0.0 — Version removed (breaking change → MAJOR bump)
+```
+
+标记已弃用的代码，让调用方在移除版本发布前就能及早看到警告：
+
+```javascript
+// v1.5.0 — add deprecation warning
+/**
+ * @deprecated Use authenticateV2() instead. Will be removed in v2.0.0
+ */
+function authenticate(username, password) {
+  console.warn('[DEPRECATED] authenticate() will be removed in v2.0.0. Use authenticateV2()');
+  return authenticateV2(username, password);
+}
+```
+
+### 向后兼容性检查清单
+
+发布前，对每项变更进行分类。第一个清单中的任何项目都属于**破坏性变更**，需要提升 MAJOR 版本（参见 [语义化版本](versioning.md#incrementing-rules)）；第二个清单中的任何项目都向后兼容，可在 MINOR 或 PATCH 版本中发布。
+
+**破坏性——未提升 MAJOR 版本时绝不允许：**
+- [ ] 移除公开 API 端点
+- [ ] 移除必要的请求字段
+- [ ] 新增必要的请求字段
+- [ ] 变更响应字段的类型
+- [ ] 变更错误码的含义
+- [ ] 移除消费端依赖的响应字段
+
+**向后兼容——可安全地在 MINOR 或 PATCH 版本中发布：**
+- [ ] 新增选用的请求字段
+- [ ] 新增响应字段
+- [ ] 新增端点
+- [ ] 新增错误码
+- [ ] 改进错误信息
+- [ ] 性能改进
+
+### API 迁移指南
+
+当 MAJOR 版本带有破坏性变更时，发布迁移指南，将每种旧用法对应到其替代方式：
+
+````markdown
+# Migration Guide: v1.x to v2.0
+
+## Breaking Changes
+
+### 1. authenticate() removed
+
+**Before (v1.x)**:
+```javascript
+const token = await authenticate('user', 'pass');
+```
+
+**After (v2.0)**:
+```javascript
+const token = await authenticateV2({ username: 'user', password: 'pass' });
+```
+
+### 2. API response format changed
+
+**Before (v1.x)**: `{ "data": { "user": {...} } }`
+**After (v2.0)**: `{ "user": {...} }`
+
+```javascript
+// Before
+const user = response.data.user;
+// After
+const user = response.user;
+```
+````
+
 ---
 
 ## 请求/响应标准
@@ -195,11 +280,11 @@ Link: <https://api.example.com/v2/docs>; rel="successor-version"
 ### 内容头部
 
 ```http
-# 请求
+# Request
 Content-Type: application/json
 Accept: application/json
 
-# 响应
+# Response
 Content-Type: application/json; charset=utf-8
 ```
 
@@ -332,49 +417,49 @@ GET /v1/events?limit=20&cursor=eyJpZCI6MTAwfQ==
 ### 筛选
 
 ```
-# 简单相等
+# Simple equality
 GET /v1/users?status=active
 
-# 括号表示法（推荐用于复杂筛选）
+# Bracket notation (recommended for complex filters)
 GET /v1/users?filter[status]=active&filter[role]=admin
 
-# 范围筛选
+# Range filters
 GET /v1/orders?filter[created_at][gte]=2026-01-01&filter[created_at][lte]=2026-03-18
 
-# 多值（逗号分隔）
+# Multiple values (comma-separated)
 GET /v1/users?filter[role]=admin,editor
 ```
 
 ### 排序
 
 ```
-# 升序（默认）
+# Ascending (default)
 GET /v1/users?sort=created_at
 
-# 降序（加 - 前缀）
+# Descending (prefix with -)
 GET /v1/users?sort=-created_at
 
-# 多字段排序（逗号分隔）
+# Multiple sort fields (comma-separated)
 GET /v1/users?sort=-created_at,last_name
 ```
 
 ### 字段选择（稀疏字段集）
 
 ```
-# 选择特定字段
+# Select specific fields
 GET /v1/users?fields=id,first_name,email
 
-# 依资源类型选择字段（JSON:API 风格）
+# Per-resource-type fields (JSON:API style)
 GET /v1/articles?fields[article]=title,body&fields[author]=name
 ```
 
 ### 搜索
 
 ```
-# 全文搜索
+# Full-text search
 GET /v1/users?q=john+doe
 
-# 范围搜索
+# Scoped search
 GET /v1/users?search[name]=john&search[email]=example.com
 ```
 
@@ -394,10 +479,10 @@ GET /v1/users?search[name]=john&search[email]=example.com
 ### API Key
 
 ```http
-# 头部（建议方式）
+# Header (preferred)
 Authorization: ApiKey sk_live_abc123def456
 
-# 查询参数（避免使用 — 会记录在服务器日志中）
+# Query parameter (avoid — logged in server logs)
 GET /v1/users?api_key=sk_live_abc123def456
 ```
 
@@ -528,7 +613,7 @@ X-RateLimit-Reset: 1711036800
 ### 常见错误类型
 
 ```json
-// 身份验证错误 (401)
+// Authentication Error (401)
 {
   "type": "https://api.example.com/errors/authentication-required",
   "title": "Authentication Required",
@@ -536,7 +621,7 @@ X-RateLimit-Reset: 1711036800
   "detail": "A valid access token is required to access this resource."
 }
 
-// 授权错误 (403)
+// Authorization Error (403)
 {
   "type": "https://api.example.com/errors/insufficient-permissions",
   "title": "Insufficient Permissions",
@@ -544,7 +629,7 @@ X-RateLimit-Reset: 1711036800
   "detail": "You do not have permission to delete this resource."
 }
 
-// 找不到资源 (404)
+// Not Found (404)
 {
   "type": "https://api.example.com/errors/resource-not-found",
   "title": "Resource Not Found",
@@ -560,7 +645,7 @@ X-RateLimit-Reset: 1711036800
 ### Schema 设计
 
 ```graphql
-# 类型使用 PascalCase
+# Use PascalCase for types
 type User {
   id: ID!
   firstName: String!
@@ -570,21 +655,21 @@ type User {
   orders(first: Int, after: String): OrderConnection!
 }
 
-# 使用描述性的 input 类型
+# Use descriptive input types
 input CreateUserInput {
   firstName: String!
   lastName: String!
   email: String!
 }
 
-# mutation 使用动词前缀
+# Use verb prefixes for mutations
 type Mutation {
   createUser(input: CreateUserInput!): CreateUserPayload!
   updateUser(id: ID!, input: UpdateUserInput!): UpdateUserPayload!
   deleteUser(id: ID!): DeleteUserPayload!
 }
 
-# Payload 类型含 userErrors
+# Payload types with userErrors
 type CreateUserPayload {
   user: User
   userErrors: [UserError!]!
@@ -669,21 +754,21 @@ package example.user.v1;
 option go_package = "example.com/api/user/v1;userv1";
 option java_package = "com.example.api.user.v1";
 
-// UserService 管理用户帐号。
+// UserService manages user accounts.
 service UserService {
-  // GetUser 依 ID 返回单一用户。
+  // GetUser returns a single user by ID.
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
 
-  // ListUsers 返回分页的用户清单。
+  // ListUsers returns a paginated list of users.
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
 
-  // CreateUser 创建新的用户帐号。
+  // CreateUser creates a new user account.
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
 
-  // UpdateUser 更新现有用户。
+  // UpdateUser updates an existing user.
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
 
-  // DeleteUser 移除用户帐号。
+  // DeleteUser removes a user account.
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
@@ -832,7 +917,7 @@ paths:
 | **HTTPS** | 所有 API 端点皆为必要 |
 | **TLS 版本** | TLS 1.2 最低要求，TLS 1.3 建议 |
 | **HSTS** | 包含 `Strict-Transport-Security` 头部 |
-| **凭证** | 有效的凭证，生产环境不使用自签凭证 |
+| **证书** | 有效的证书，生产环境不使用自签证书 |
 
 ### CORS 配置
 
@@ -849,7 +934,7 @@ Access-Control-Allow-Credentials: true
 | **不使用通配符（`*`）搭配 credentials** | 指定确切的来源 |
 | **限制方法** | 仅允许需要的 HTTP 方法 |
 | **限制头部** | 仅允许需要的自定义头部 |
-| **预检缓存** | 设定 `Max-Age` 以减少 OPTIONS 请求 |
+| **预检缓存** | 设置 `Max-Age` 以减少 OPTIONS 请求 |
 
 ### 输入验证
 
@@ -857,7 +942,7 @@ Access-Control-Allow-Credentials: true
 |------|----------|
 | **验证所有输入** | 服务器端验证所有参数 |
 | **使用允许清单** | 根据已知的正确模式验证 |
-| **限制请求大小** | 设定 `Content-Length` 限制（例如 1 MB） |
+| **限制请求大小** | 设置 `Content-Length` 限制（例如 1 MB） |
 | **消毒输出** | 防止响应中的注入攻击 |
 | **参数化查询** | 绝不将用户输入串接到查询中 |
 
@@ -883,8 +968,8 @@ Content-Security-Policy: default-src 'none'
 ### 响应结构
 
 ```
-成功 → { data, meta, links }
-错误 → { type, title, status, detail, errors, traceId }
+Success → { data, meta, links }
+Error   → { type, title, status, detail, errors, traceId }
 ```
 
 ### 必要头部
@@ -925,6 +1010,7 @@ Content-Security-Policy: default-src 'none'
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.1.0 | 2026-06-24 | 新增：弃用 API 版本、向后兼容性检查清单与 API 迁移指南（自 versioning.md 整合而来）；版本生命周期现将所有期间数值交由 deprecation-standards 作为单一事实来源（XSPEC-298 R8, UDS #126） |
 | 1.0.0 | 2026-03-18 | 初始版本 |
 
 ---

@@ -2,7 +2,8 @@
 source: ../../../core/documentation-lifecycle.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-27
+last_synced: 2026-10-11
+source_hash: 3b074ed1b0bb
 status: current
 ---
 
@@ -13,6 +14,9 @@ status: current
 **版本**: 1.0.0
 **最后更新**: 2026-03-27
 **适用范围**: 所有具有文档的软件项目
+**范围**: universal
+**行业标准**: ISO/IEC 26514（系统与软件工程 — 用户信息的设计与开发）、ISO/IEC 26515（敏捷文档）、Docs as Code
+**参考**: [documentation-structure.md](../../../core/documentation-structure.md)、[documentation-writing-standards.md](../../../core/documentation-writing-standards.md)
 
 ---
 
@@ -46,14 +50,14 @@ status: current
 > **越早发现文档问题，修复成本越低。**
 
 ```
-修复成本
+Cost to fix
      ^
-     |                                          ████ 发布
+     |                                          ████ Release
      |                              ████
-     |                  ████ PR 审查
+     |                  ████ PR Review
      |      ████
      | ████ Commit
-     +-----------------------------------------> 时间
+     +-----------------------------------------> Time
 ```
 
 在 commit 阶段检测（秒级、自动化）远比在 release 阶段检测（小时级、手动）成本低。下方的检查金字塔通过从快速/自动化到全面/手动的分层检查来实践此原则。
@@ -106,16 +110,16 @@ status: current
 
 ```
                 ┌──────────────────┐
-                │  Level 3         │  发布
-                │  全面检查         │  （小时级）
+                │  Level 3         │  Release
+                │  Comprehensive   │  (hours)
                 ├──────────────────┤
             ┌───┴──────────────────┴───┐
-            │  Level 2                 │  PR 审查
-            │  半自动化                 │  （分钟级）
+            │  Level 2                 │  PR Review
+            │  Semi-automated          │  (minutes)
             ├──────────────────────────┤
         ┌───┴──────────────────────────┴───┐
         │  Level 1                         │  Commit
-        │  自动化                           │  （秒级）
+        │  Automated                       │  (seconds)
         └──────────────────────────────────┘
 ```
 
@@ -254,12 +258,12 @@ status: current
 ### 决策流程图
 
 ```
-这是代码变更吗？
-├── 是 → 查阅触发条件 × 文档类型矩阵
-│         ├── 有 MUST 格子？→ 在同一 PR 中更新
-│         ├── 有 SHOULD 格子？→ 尽可能在同一 PR 中更新
-│         └── 全部 N/A？→ 不需要文档更新
-└── 否（纯文档变更）→ 遵循 documentation-writing-standards.md
+Is this a code change?
+├── Yes → Check the Trigger × Document Type Matrix
+│         ├── Any MUST cells? → Update in same PR
+│         ├── Any SHOULD cells? → Update in same PR if practical
+│         └── All N/A? → No documentation update needed
+└── No (docs-only change) → Follow documentation-writing-standards.md
 ```
 
 ### 最低可行文档检查

@@ -2,16 +2,17 @@
 source: ../../../core/database-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-23
+last_synced: 2026-10-11
+source_hash: b21566b7d853
 status: current
 ---
 
 # 数据库标准
 
-> **语言**: [English](../../../core/database-standards.md) | 简体中文
+> **语言**: [English](../../../core/database-standards.md) | [繁體中文](../../zh-TW/core/database-standards.md) | 简体中文
 
-> 版本: 1.0.0 | 最后更新: 2026-03-18
-
+**版本**: 1.0.0
+**最后更新**: 2026-03-18
 **适用性**: 所有软件项目
 **范围**: universal
 **产业标准**: ISO/IEC 9075 (SQL)、ACID 特性、BASE 定理
@@ -21,11 +22,11 @@ status: current
 
 ## 目的
 
-本标准定义数据库设计、查询、迁移与运维的指导方针，涵盖关系型与非关系型数据库。包含 Schema 设计原则、索引策略、迁移工作流程、查询最优化、事务管理与数据完整性 — 确保数据库具备高性能、可维护且安全的特性。
+本标准定义数据库设计、查询、迁移与运维的指导方针，涵盖关系型与非关系型数据库。包含 Schema 设计原则、索引策略、迁移工作流程、查询优化、事务管理与数据完整性 — 确保数据库具备高性能、可维护且安全的特性。
 
 **参考标准**:
 - [ISO/IEC 9075 — SQL 标准](https://www.iso.org/standard/76583.html)
-- [Use The Index, Luke — SQL 索引与调校](https://use-the-index-luke.com/)
+- [Use The Index, Luke — SQL 索引与调优](https://use-the-index-luke.com/)
 - [Martin Fowler — 演进式数据库设计](https://martinfowler.com/articles/evodb.html)
 - [Designing Data-Intensive Applications (Martin Kleppmann)](https://dataintensive.net/)
 
@@ -38,7 +39,7 @@ status: current
 | **数据完整性优先** | 约束、验证与引用完整性在数据库层级强制执行，而非仅在应用代码 |
 | **Schema 即代码** | 数据库 Schema 通过迁移脚本进行版本控制且可重现 |
 | **最小权限** | 数据库账号使用其功能所需的最低权限 |
-| **先量测再调校** | 使用 EXPLAIN 计划与指标后再进行最优化；避免过早最优化 |
+| **先测量再调优** | 使用 EXPLAIN 计划与指标后再进行优化；避免过早优化 |
 | **纵深防御** | 在多个层级使用加密、遮蔽与访问控制来保护敏感数据 |
 | **向后兼容** | Schema 变更必须在部署窗口期间维持向后兼容 |
 
@@ -48,7 +49,7 @@ status: current
 
 ### 正规化
 
-套用正规化以消除冗余并确保数据完整性。以第三正规形式（3NF）作为事务系统的基准。
+应用正规化以消除冗余并确保数据完整性。以第三正规形式（3NF）作为事务系统的基准。
 
 | 正规形式 | 规则 | 违反范例 |
 |----------|------|----------|
@@ -71,7 +72,7 @@ status: current
 **进行反正规化时：**
 - 记录数据来源（source of truth）与同步机制
 - 加入注释说明选择反正规化的原因
-- 实现一致性检查或校正排程
+- 实现一致性检查或对账作业
 
 ### 命名惯例
 
@@ -118,7 +119,7 @@ status: current
 | 分布式生成 | 需要协调 | 无需协调 |
 | 安全性 | 可预测（可枚举） | 不可猜测 |
 | URL 暴露 | 揭露记录数量 | 可安全用于公开 URL |
-| 合并/复写 | 容易冲突 | 无冲突 |
+| 合并/复制 | 容易冲突 | 无冲突 |
 
 **建议：**
 - 单一数据库系统的内部 ID 使用**自动递增**
@@ -126,14 +127,14 @@ status: current
 - 新项目考虑以 **UUIDv7** 为默认 — 兼具可排序性与唯一性
 
 ```sql
--- PostgreSQL：UUIDv7 作为主键
+-- PostgreSQL: UUIDv7 as primary key
 CREATE TABLE user_account (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email      VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- 自动递增替代方案
+-- Auto-increment alternative
 CREATE TABLE user_account (
     id         BIGSERIAL PRIMARY KEY,
     public_id  UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -161,13 +162,13 @@ CREATE TABLE user_account (
 复合索引的字段顺序影响重大。遵循**等值优先、范围最后**规则：
 
 ```sql
--- 查询模式：
+-- Query pattern:
 -- WHERE status = 'active' AND created_at > '2026-01-01' ORDER BY created_at
 
--- 正确：等值字段在前，范围/排序字段在后
+-- GOOD: equality columns first, range/sort columns last
 CREATE INDEX idx_order_status_created ON order_record (status, created_at);
 
--- 错误：范围字段在前，削弱等值筛选效果
+-- BAD: range column first eliminates effectiveness for equality filter
 CREATE INDEX idx_order_created_status ON order_record (created_at, status);
 ```
 
@@ -182,9 +183,9 @@ CREATE INDEX idx_order_created_status ON order_record (created_at, status);
 覆盖索引包含查询所需的所有字段，实现仅索引扫描：
 
 ```sql
--- 查询：SELECT email, first_name FROM user_account WHERE status = 'active';
+-- Query: SELECT email, first_name FROM user_account WHERE status = 'active';
 
--- 覆盖索引 — 无需回表查询
+-- Covering index — no table lookup needed
 CREATE INDEX idx_user_account_status_covering
     ON user_account (status) INCLUDE (email, first_name);
 ```
@@ -194,12 +195,12 @@ CREATE INDEX idx_user_account_status_covering
 对数据行的子集创建索引，以减少索引大小并改善写入性能：
 
 ```sql
--- 仅索引活跃记录（90% 的查询筛选 active）
+-- Only index active records (90% of queries filter on active)
 CREATE INDEX idx_order_active
     ON order_record (created_at)
     WHERE status = 'active';
 
--- 仅索引非 NULL 值
+-- Only index non-null values
 CREATE INDEX idx_user_account_phone
     ON user_account (phone_number)
     WHERE phone_number IS NOT NULL;
@@ -217,10 +218,10 @@ CREATE INDEX idx_user_account_phone
 | **索引字段上使用函数** | 索引被绕过 | 创建函数/表达式索引 |
 
 ```sql
--- 反模式：函数阻止索引使用
+-- Anti-pattern: function prevents index usage
 SELECT * FROM user_account WHERE LOWER(email) = 'test@example.com';
 
--- 解决方案：表达式索引
+-- Solution: expression index
 CREATE INDEX idx_user_account_email_lower ON user_account (LOWER(email));
 ```
 
@@ -243,7 +244,7 @@ CREATE INDEX idx_user_account_email_lower ON user_account (LOWER(email));
 ```
 YYYYMMDDHHMMSS_description.sql
 
-范例：
+Examples:
 20260318120000_create_user_account_table.sql
 20260318120100_add_email_index_to_user_account.sql
 20260318120200_add_phone_column_to_user_account.sql
@@ -264,21 +265,21 @@ YYYYMMDDHHMMSS_description.sql
 
 **第一阶段 — Expand（向后兼容）**
 ```sql
--- 新增字段（可为 NULL，尚无约束）
+-- Add new column (nullable, no constraint yet)
 ALTER TABLE user_account ADD COLUMN phone VARCHAR(20);
 ```
 
 **第二阶段 — Migrate（双写）**
 ```sql
--- 回填现有数据
+-- Backfill existing data
 UPDATE user_account SET phone = legacy_phone WHERE phone IS NULL;
 ```
 
 **第三阶段 — Contract（所有消费者更新后）**
 ```sql
--- 所有数据已填入后加入约束
+-- Add constraint now that all data is populated
 ALTER TABLE user_account ALTER COLUMN phone SET NOT NULL;
--- 移除旧字段（仅在确认无消费者使用后）
+-- Drop old column (only after verifying no consumers use it)
 ALTER TABLE user_account DROP COLUMN legacy_phone;
 ```
 
@@ -304,17 +305,17 @@ ALTER TABLE user_account DROP COLUMN legacy_phone;
 N+1 问题发生在代码执行一个查询获取清单，再对每个项目额外执行 N 个查询。
 
 ```sql
--- N+1 问题（应用程序发出 N 个查询）
--- 查询 1：SELECT * FROM order_record WHERE user_id = 42;
--- 查询 2..N：SELECT * FROM order_item WHERE order_id = ?;  (对每笔订单)
+-- N+1 PROBLEM (application issues N queries)
+-- Query 1: SELECT * FROM order_record WHERE user_id = 42;
+-- Query 2..N: SELECT * FROM order_item WHERE order_id = ?;  (for each order)
 
--- 解决方案：JOIN 或子查询
+-- SOLUTION: JOIN or subquery
 SELECT o.*, oi.*
 FROM order_record o
 JOIN order_item oi ON oi.order_id = o.id
 WHERE o.user_id = 42;
 
--- 或批次加载
+-- Or batch loading
 SELECT * FROM order_item
 WHERE order_id IN (SELECT id FROM order_record WHERE user_id = 42);
 ```
@@ -332,11 +333,11 @@ WHERE order_id IN (SELECT id FROM order_record WHERE user_id = 42);
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
 SELECT * FROM order_record WHERE status = 'pending' AND created_at > '2026-01-01';
 
--- 需关注的指标：
--- 大型数据表的 Seq Scan     → 缺少索引
--- 高行数的 Nested Loop      → 考虑 Hash Join
--- 高成本的 Sort             → 加入符合 ORDER BY 的索引
--- 行数（估计 vs 实际）       → 统计数据过时，执行 ANALYZE
+-- Key indicators to watch:
+-- Seq Scan on large tables   → missing index
+-- Nested Loop with high rows → consider Hash Join
+-- Sort with high cost        → add index matching ORDER BY
+-- Rows (estimated vs actual) → stale statistics, run ANALYZE
 ```
 
 ### 分页
@@ -347,16 +348,16 @@ SELECT * FROM order_record WHERE status = 'pending' AND created_at > '2026-01-01
 | **Keyset（游标）分页** | 性能一致、结果稳定 | 无法随机跳页、多字段排序时较复杂 | API、无限滚动、大型数据集 |
 
 ```sql
--- Offset 分页（大型数据表应避免）
+-- Offset-based (avoid for large tables)
 SELECT * FROM order_record ORDER BY id LIMIT 20 OFFSET 10000;
--- 性能劣化：数据库须扫描并丢弃 10,000 行
+-- Performance degrades: DB must scan and discard 10,000 rows
 
--- Keyset 分页（建议使用）
+-- Keyset-based (preferred)
 SELECT * FROM order_record
 WHERE id > :last_seen_id
 ORDER BY id
 LIMIT 20;
--- 无论页面深度，性能一致
+-- Consistent performance regardless of page depth
 ```
 
 ### 查询反模式
@@ -371,10 +372,10 @@ LIMIT 20;
 | `LIKE '%prefix'` | 前导通配符阻止索引使用 | 使用全文搜索或反向索引 |
 
 ```sql
--- 反模式：SQL 注入风险
+-- ANTI-PATTERN: SQL injection risk
 query = "SELECT * FROM user_account WHERE email = '" + email + "'";
 
--- 正确：参数化查询
+-- CORRECT: Parameterized query
 query = "SELECT * FROM user_account WHERE email = $1";
 params = [email];
 ```
@@ -409,15 +410,15 @@ params = [email];
 |------|----------|
 | **一致的锁定顺序** | 在所有事务中以相同顺序获取数据表/行的锁定 |
 | **短事务** | 尽可能保持事务简短；将非数据库工作移出事务外 |
-| **锁定超时** | 设定 `lock_timeout` 以快速失败而非无限等待 |
+| **锁定超时** | 设置 `lock_timeout` 以快速失败而非无限等待 |
 | **重试逻辑** | 对死锁错误（SQLSTATE 40P01）实现指数退避重试 |
 | **避免用户交互** | 绝不在等待用户输入时保持事务开启 |
 
 ```sql
--- 设定锁定超时以防止无限等待
+-- Set lock timeout to prevent indefinite waiting
 SET lock_timeout = '5s';
 
--- 保持事务简短
+-- Keep transactions short
 BEGIN;
     UPDATE account SET balance = balance - 100 WHERE id = 1;
     UPDATE account SET balance = balance + 100 WHERE id = 2;
@@ -435,16 +436,16 @@ COMMIT;
 | 死锁风险 | 无 | 可能 |
 
 ```sql
--- 乐观锁定
+-- Optimistic locking
 UPDATE order_record
 SET status = 'shipped', version = version + 1
 WHERE id = 42 AND version = 3;
--- 若受影响行数 = 0，表示另一个事务已修改 → 重试或错误
+-- If affected rows = 0, another transaction modified it → retry or error
 
--- 悲观锁定
+-- Pessimistic locking
 BEGIN;
 SELECT * FROM order_record WHERE id = 42 FOR UPDATE;
--- 行已锁定；其他事务等待
+-- Row is locked; other transactions wait
 UPDATE order_record SET status = 'shipped' WHERE id = 42;
 COMMIT;
 ```
@@ -455,7 +456,7 @@ COMMIT;
 
 | 判断条件 | 关系型 (SQL) | 文档型 (NoSQL) | 键值型 | 图形型 |
 |----------|-------------|---------------|--------|--------|
-| **数据结构** | 结构化、明确定义的 Schema | 半结构化、弹性 Schema | 简单的 key→value 配对 | 高度连结的实体 |
+| **数据结构** | 结构化、明确定义的 Schema | 半结构化、弹性 Schema | 简单的 key→value 配对 | 高度关联的实体 |
 | **一致性** | 强一致（ACID） | 最终一致（BASE），部分支持 ACID | 最终一致 | 依实现而异 |
 | **查询复杂度** | 复杂 JOIN、聚合 | 简单查询、嵌套文档 | 单键查询 | 关系遍历 |
 | **扩展模式** | 垂直扩展（scale-up） | 水平扩展（scale-out） | 水平扩展 | 依实现而异 |
@@ -466,13 +467,13 @@ COMMIT;
 ### 决策指南
 
 ```
-你的数据是否高度关联且需要复杂查询？
-├── 是 → 关系型 (SQL)
-└── 否 → 你的数据是否为简单的键值配对？
-          ├── 是 → 键值型存储
-          └── 否 → 关系是否为主要的查询模式？
-                    ├── 是 → 图形数据库
-                    └── 否 → 文档型数据库
+Is your data highly relational with complex queries?
+├── Yes → Relational (SQL)
+└── No  → Is your data simple key-value pairs?
+          ├── Yes → Key-Value store
+          └── No  → Are relationships the primary query pattern?
+                    ├── Yes → Graph database
+                    └── No  → Document database
 ```
 
 **Polyglot Persistence（多语言持久化）：** 许多系统受益于使用多种数据库类型。范例：
@@ -505,10 +506,10 @@ COMMIT;
 ```
 pool_size = (core_count * 2) + effective_spindle_count
 
-范例：
-- 4 核心服务器，SSD：    (4 * 2) + 1 = 9-10 个连接
-- 8 核心服务器，SSD：    (8 * 2) + 1 = 17 个连接
-- 4 核心服务器，4 HDD：  (4 * 2) + 4 = 12 个连接
+Examples:
+- 4-core server, SSD:    (4 * 2) + 1 = 9-10 connections
+- 8-core server, SSD:    (8 * 2) + 1 = 17 connections
+- 4-core server, 4 HDDs: (4 * 2) + 4 = 12 connections
 ```
 
 **重要：** 更多连接不一定更好。过多连接会导致：
@@ -519,13 +520,13 @@ pool_size = (core_count * 2) + effective_spindle_count
 ### 健康检查
 
 ```sql
--- 基本健康检查
+-- Basic health check
 SELECT 1;
 
--- 进阶健康检查（验证读写能力）
+-- Advanced health check (verify read/write capability)
 SELECT NOW();
 
--- 使用前的连接验证
+-- Connection validation before use
 SET statement_timeout = '2s';
 SELECT 1;
 ```
@@ -576,20 +577,20 @@ CREATE TABLE order_record (
 | 因素 | 软删除 | 硬删除 |
 |------|--------|--------|
 | 实现方式 | `deleted_at TIMESTAMPTZ` 字段 | `DELETE FROM table` |
-| 数据恢复 | 简单 — 设定 `deleted_at = NULL` | 需从备份还原 |
+| 数据恢复 | 简单 — 设置 `deleted_at = NULL` | 需从备份还原 |
 | 查询复杂度 | 每处都须加 `WHERE deleted_at IS NULL` | 查询较简单 |
 | 存储 | 随时间增长 | 回收空间 |
 | 合规性 | 保留审计轨迹 | 可能违反保留要求 |
 | 性能 | 大量软删除行的大型数据表 | 更干净的表统计数据 |
 
 ```sql
--- 软删除实现
+-- Soft delete implementation
 ALTER TABLE user_account ADD COLUMN deleted_at TIMESTAMPTZ;
 
--- 为活跃记录创建部分索引
+-- Create partial index for active records
 CREATE INDEX idx_user_account_active ON user_account (email) WHERE deleted_at IS NULL;
 
--- 应用程序查询模式
+-- Application query pattern
 SELECT * FROM user_account WHERE deleted_at IS NULL AND email = $1;
 ```
 
@@ -611,17 +612,17 @@ SELECT * FROM user_account WHERE deleted_at IS NULL AND email = $1;
 
 | 指标 | 定义 | 目标范例 |
 |------|------|----------|
-| **RPO**（恢复点目标） | 可接受的最大数据损失（时间） | 1 小时：每小时备份；0：持续复写 |
+| **RPO**（恢复点目标） | 可接受的最大数据损失（时间） | 1 小时：每小时备份；0：持续复制 |
 | **RTO**（恢复时间目标） | 可接受的最大停机时间 | 15 分钟：自动容错切换；4 小时：手动还原 |
 
-### 备份排程建议
+### 备份调度建议
 
 | 层级 | RPO | RTO | 策略 |
 |------|-----|-----|------|
-| **关键**（财务、医疗） | < 1 分钟 | < 15 分钟 | 同步复写 + 持续 WAL 归档 |
-| **重要**（电子商务、SaaS） | < 1 小时 | < 1 小时 | 流式复写 + 每小时 WAL 归档 |
+| **关键**（财务、医疗） | < 1 分钟 | < 15 分钟 | 同步复制 + 持续 WAL 归档 |
+| **重要**（电子商务、SaaS） | < 1 小时 | < 1 小时 | 流式复制 + 每小时 WAL 归档 |
 | **标准**（内部工具） | < 24 小时 | < 4 小时 | 每日完整 + 每小时增量 |
-| **低**（开发、预备环境） | < 1 周 | < 1 天 | 每周完整备份 |
+| **低**（开发、预发布环境） | < 1 周 | < 1 天 | 每周完整备份 |
 
 ### 备份测试
 
@@ -629,7 +630,7 @@ SELECT * FROM user_account WHERE deleted_at IS NULL AND email = $1;
 |------|------|
 | 还原测试至独立环境 | 每月 |
 | 还原后验证数据完整性 | 每次还原测试 |
-| 量测实际 RTO vs 目标 | 每季 |
+| 测量实际 RTO vs 目标 | 每季 |
 | 测试时间点恢复 | 每半年 |
 | 更新文档与执行手册 | 每次测试后 |
 
@@ -640,11 +641,11 @@ SELECT * FROM user_account WHERE deleted_at IS NULL AND email = $1;
 ### 字段层级加密
 
 ```sql
--- 写入时加密
+-- Encrypt at write time
 INSERT INTO user_account (email, ssn_encrypted)
 VALUES ($1, pgp_sym_encrypt($2, $encryption_key));
 
--- 读取时解密（仅授权角色可执行）
+-- Decrypt at read time (only by authorized roles)
 SELECT email, pgp_sym_decrypt(ssn_encrypted, $encryption_key) AS ssn
 FROM user_account WHERE id = $1;
 ```
@@ -661,7 +662,7 @@ FROM user_account WHERE id = $1;
 ### 数据遮蔽
 
 ```sql
--- 基于 View 的遮蔽，供客服人员使用
+-- View-based masking for support staff
 CREATE VIEW user_account_masked AS
 SELECT
     id,
@@ -671,7 +672,7 @@ SELECT
     created_at
 FROM user_account;
 
--- 仅授予客服团队访问遮蔽 View 的权限
+-- Grant support team access to masked view only
 GRANT SELECT ON user_account_masked TO support_role;
 ```
 
@@ -684,12 +685,12 @@ GRANT SELECT ON user_account_masked TO support_role;
 - [ ] 定义并执行保留策略
 - [ ] 支持数据主体请求（GDPR 删除权、访问权）
 - [ ] 记录所有对 PII 字段的访问
-- [ ] 在开发与预备环境中匿名化数据
+- [ ] 在开发与预发布环境中匿名化数据
 
 ### 审计日志
 
 ```sql
--- 审计日志数据表
+-- Audit log table
 CREATE TABLE audit_log (
     id          BIGSERIAL PRIMARY KEY,
     table_name  VARCHAR(100)  NOT NULL,
@@ -701,7 +702,7 @@ CREATE TABLE audit_log (
     changed_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 
--- 基于触发器的审计（PostgreSQL 范例）
+-- Trigger-based audit (PostgreSQL example)
 CREATE OR REPLACE FUNCTION audit_trigger_fn()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -737,7 +738,7 @@ $$ LANGUAGE plpgsql;
 |------|----------|----------|------|
 | **活跃连接数** | > 最大值的 70% | > 最大值的 90% | 数据库仪表板 |
 | **缓存/缓冲命中率** | < 95% | < 90% | `pg_stat_bgwriter`、InnoDB buffer pool |
-| **复写延迟** | > 1 秒 | > 10 秒 | 复写监控 |
+| **复制延迟** | > 1 秒 | > 10 秒 | 复制监控 |
 | **事务速率** | 偏离基线 > 20% | 偏离 > 50% | 应用程序指标 |
 | **锁定等待时间** | 平均 > 1 秒 | > 5 秒 | 锁定监控查询 |
 | **每分钟死锁数** | > 1 | > 5 | 数据库日志 |
@@ -747,21 +748,21 @@ $$ LANGUAGE plpgsql;
 ### 查询计划分析工作流程
 
 ```
-1. 识别慢查询（慢查询日志或 APM）
+1. Identify slow query (slow query log or APM)
    ↓
-2. 在预备环境以类生产数据执行 EXPLAIN ANALYZE
+2. Run EXPLAIN ANALYZE on staging with production-like data
    ↓
-3. 查找：
-   - 大型数据表的顺序扫描 → 加入索引
-   - 实际与估计行数差距大 → 执行 ANALYZE（更新统计数据）
-   - 大量迭代的 Nested Loop → 重构查询或加入索引
-   - 高成本的排序操作 → 加入符合排序顺序的索引
+3. Look for:
+   - Sequential scans on large tables → add index
+   - High actual vs estimated rows → run ANALYZE (update statistics)
+   - Nested loops with many iterations → restructure query or add index
+   - Sort operations with high cost → add index matching sort order
    ↓
-4. 套用修正（加入索引、改写查询、更新统计数据）
+4. Apply fix (add index, rewrite query, update statistics)
    ↓
-5. 重新执行 EXPLAIN ANALYZE 验证改善
+5. Re-run EXPLAIN ANALYZE to verify improvement
    ↓
-6. 部署并在生产环境监控执行时间
+6. Deploy and monitor execution time in production
 ```
 
 ---
@@ -771,34 +772,34 @@ $$ LANGUAGE plpgsql;
 ### Schema 设计
 
 ```
-✅ 所有标识符使用 snake_case
-✅ 单数数据表名称（user_account，非 user_accounts）
-✅ 外键使用 _id 后缀
-✅ 必有 id、created_at、updated_at 字段
-✅ 在数据库层级强制约束
-✅ 正规化至 3NF，反正规化须有文档记载的理由
+✅ Use snake_case for all identifiers
+✅ Singular table names (user_account, not user_accounts)
+✅ Use _id suffix for foreign keys
+✅ Always have id, created_at, updated_at columns
+✅ Enforce constraints at database level
+✅ Normalize to 3NF, denormalize with documented reasoning
 ```
 
 ### 查询
 
 ```
-✅ 务必使用参数化查询
-✅ 明确列出所需字段，而非 SELECT *
-✅ 使用 EXPLAIN ANALYZE 进行查询最优化
-✅ 大型数据集优先使用 Keyset 分页而非 Offset
-✅ 批次操作以预防 N+1 查询
-✅ 设定 statement_timeout 以防止失控查询
+✅ Always use parameterized queries
+✅ List specific columns instead of SELECT *
+✅ Use EXPLAIN ANALYZE for query optimization
+✅ Prefer keyset pagination over offset for large datasets
+✅ Batch operations to prevent N+1 queries
+✅ Set statement_timeout to prevent runaway queries
 ```
 
 ### 运维
 
 ```
-✅ 使用连接池（绝不创建每次请求的连接）
-✅ 版本控制所有迁移
-✅ 以类生产数据测试迁移
-✅ 使用 Expand-Contract 模式进行零停机 Schema 变更
-✅ 监控慢查询、连接数、缓存命中率
-✅ 定期测试备份还原
+✅ Use connection pooling (never open per-request connections)
+✅ Version-control all migrations
+✅ Test migrations with production-like data
+✅ Use expand-contract for zero-downtime schema changes
+✅ Monitor slow queries, connections, cache hit ratio
+✅ Test backup restoration regularly
 ```
 
 ---
@@ -806,7 +807,7 @@ $$ LANGUAGE plpgsql;
 ## 相关标准
 
 - [安全标准](../../../core/security-standards.md) — 数据加密、访问控制、PII 处理
-- [性能标准](../../../core/performance-standards.md) — 应用程序层级的性能最优化
+- [性能标准](../../../core/performance-standards.md) — 应用程序层级的性能优化
 - [日志标准](../../../core/logging-standards.md) — 数据库操作的结构化日志
 - [部署标准](../../../core/deployment-standards.md) — 数据库迁移作为部署管线的一部分
 
@@ -823,7 +824,7 @@ $$ LANGUAGE plpgsql;
 ## 参考资源
 
 - [ISO/IEC 9075 — SQL 标准](https://www.iso.org/standard/76583.html)
-- [Use The Index, Luke](https://use-the-index-luke.com/) — SQL 索引与调校
+- [Use The Index, Luke](https://use-the-index-luke.com/) — SQL 索引与调优
 - [SQL Style Guide](https://www.sqlstyle.guide/) — 一致的 SQL 格式
 - [Martin Fowler — 演进式数据库设计](https://martinfowler.com/articles/evodb.html)
 - [Designing Data-Intensive Applications](https://dataintensive.net/) — Martin Kleppmann
@@ -831,6 +832,6 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-## 授权
+## 许可
 
-本标准以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
+本标准以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。

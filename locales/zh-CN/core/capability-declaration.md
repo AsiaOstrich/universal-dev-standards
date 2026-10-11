@@ -2,122 +2,72 @@
 source: ../../../core/capability-declaration.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 5890495db0da
 status: current
 ---
 
-# Fail-Closed 能力声明标准
+# 能力声明标准
 
 > **语言**: [English](../../../core/capability-declaration.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
-**适用范围**: universal
-**来源**: XSPEC-068（DEC-043 Wave 1 可靠性套件）
+> **来源**: XSPEC-037 | **借鉴自**: claude-code-book Ch.3
 
----
+## 概述
 
-## 目的
+能力声明标准要求所有工具、Adapter 与 Agent 明确声明其安全属性。**所有属性默认取最保守的（Fail-Closed）值**——忘记声明能力的开发者得到的是安全的行为，而不是危险的行为。
 
-Fail-Closed 能力声明：工具 / Adapter 默认不安全，必须明确声明才视为安全。
+借鉴自 claude-code-book 的 `buildTool` 工厂设计：其中 `isConcurrencySafe()` 与 `isReadOnly()` 默认为 `false`，性能优化必须明确选择启用（opt-in）。
 
-各工具和 Adapter 的并发安全性、只读性等能力未明确声明，导致 Agent 编排时无法判断是否可并发调用。本标准要求所有工具和 Adapter 必须在接口中明确声明其能力属性，未声明的属性默认为 false（Fail-Closed）。
+## Fail-Closed 默认值
 
----
-
-## 核心规范
-
-- 所有工具（Tool）和 Adapter 必须声明能力接口（`CapabilityDeclaration`）
-- `isConcurrencySafe` 默认 `false`（未声明 = 不可并发）
-- `isReadOnly` 默认 `false`（未声明 = 可能修改状态）
-- `supportsPartialFailure` 默认 `false`
-- Agent 编排器在并发调用前必须检查 `isConcurrencySafe`
-
----
+```typescript
+const FAIL_CLOSED_DEFAULTS: CapabilityDeclaration = {
+  isConcurrencySafe: false,       // Cannot run in parallel
+  isReadOnly: false,              // Assumed to have side effects
+  requiresUserConfirmation: true, // Must confirm before execution
+  trustLevel: "untrusted",        // Maximum sandbox restrictions
+};
+```
 
 ## CapabilityDeclaration 接口
 
-```typescript
-interface CapabilityDeclaration {
-  toolId: string;
+| 字段 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `isConcurrencySafe` | boolean | **false** | 可安全地与其他操作并行执行 |
+| `isReadOnly` | boolean | **false** | 不产生任何持久性状态变更 |
+| `requiresUserConfirmation` | boolean | **true** | 执行前需要用户明确批准 |
+| `trustLevel` | enum | **untrusted** | 沙箱隔离级别 |
 
-  // 并发安全性：未声明默认 false
-  isConcurrencySafe: boolean;
+## 信任级别
 
-  // 只读性：未声明默认 false（可能有副作用）
-  isReadOnly: boolean;
+| 级别 | 说明 | 沙箱 |
+|------|------|------|
+| `trusted` | 内置或已审计的插件 | 无限制 |
+| `sandboxed` | 第三方工具 | 受限的执行环境 |
+| `untrusted` | 来源未知 | 最大限制（默认） |
 
-  // 是否支持部分失败（单个操作失败不影响其他）
-  supportsPartialFailure: boolean;
+## 常见工具声明
 
-  // 最大并发数（isConcurrencySafe=true 时有效）
-  maxConcurrency?: number;
+| 工具 | isConcurrencySafe | isReadOnly | requiresConfirmation | trustLevel |
+|------|-------------------|------------|---------------------|------------|
+| GrepTool | ✅ true | ✅ true | ❌ false | trusted |
+| GlobTool | ✅ true | ✅ true | ❌ false | trusted |
+| FileReadTool | ✅ true | ✅ true | ❌ false | trusted |
+| FileEditTool | ❌ false | ❌ false | ✅ true | trusted |
+| BashTool | ❌ false | ❌ false | ✅ true | sandboxed |
 
-  // 能力声明版本
-  declarationVersion: string;
-}
-```
+## 执行规范
 
----
+- **缺少声明**：使用 `FAIL_CLOSED_DEFAULTS`，并记录 `[WARN] Capability not declared for: {name}`
+- **虚假声明检测**：若声明 `isReadOnly: true` 却执行写入 → 记录 `CAPABILITY_MISMATCH` 事件，并回退为 Fail-Closed
+- **并发**：只有 `isConcurrencySafe: true` 的组件可以被批次放入并行执行
 
-## Fail-Closed 规则
+## 参考资料
 
-| 属性 | 默认值 | 含义 |
-|------|--------|------|
-| `isConcurrencySafe` | `false` | 未声明则禁止并发调用 |
-| `isReadOnly` | `false` | 未声明则假设有副作用，需额外谨慎 |
-| `supportsPartialFailure` | `false` | 未声明则任意失败视为全部失败 |
+- AI 优化版：[ai/standards/capability-declaration.ai.yaml](../../../ai/standards/capability-declaration.ai.yaml)
+- XSPEC-037：跨项目规格
+- 借鉴自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.3 `buildTool` Fail-Closed 工厂
 
----
 
-## 编排器检查流程
-
-```
-调用工具前：
-1. 读取工具的 CapabilityDeclaration
-2. 若需要并发调用且 isConcurrencySafe=false → 拒绝并发，改为串行
-3. 若工具未提供 CapabilityDeclaration → 视为 isConcurrencySafe=false
-4. 记录 capability_check_result 遥测事件
-```
-
----
-
-## 遥测事件
-
-**`capability_check_result`**（每次能力检查时上报）
-
-| 字段 | 类型 |
-|------|------|
-| `toolId` | `string` |
-| `checkType` | `concurrency\|readonly\|partial_failure` |
-| `declared` | `boolean` |
-| `decision` | `allowed\|denied` |
-| `timestamp` | `string` |
-
----
-
-## 情境示例
-
-**情境 1：并发安全检查**
-- 条件：Agent 编排器需要并发调用 `file-writer` 工具
-- `file-writer` 的 `isConcurrencySafe=false`
-- 结果：编排器改为串行调用，记录 `capability_check_result`（decision=denied）
-
-**情境 2：未声明能力（Fail-Closed）**
-- 条件：旧版工具未提供 `CapabilityDeclaration`
-- 结果：视为 `isConcurrencySafe=false, isReadOnly=false`，采用最保守策略
-
-**情境 3：只读工具并发**
-- 条件：`search-tool` 声明 `isReadOnly=true, isConcurrencySafe=true, maxConcurrency=5`
-- 结果：允许最多 5 个并发调用
-
----
-
-## 错误码
-
-| 代码 | 说明 |
-|------|------|
-| `CAP-001` | `MISSING_CAPABILITY_DECLARATION` — 工具未提供能力声明，采用 Fail-Closed |
-| `CAP-002` | `CONCURRENCY_DENIED` — isConcurrencySafe=false 但请求并发调用 |
-| `CAP-003` | `MAX_CONCURRENCY_EXCEEDED` — 并发数超过 maxConcurrency 限制 |
+**适用范围**: universal

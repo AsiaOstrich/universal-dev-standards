@@ -2,7 +2,8 @@
 source: ../../../core/circuit-breaker.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 5e7ea0ed4762
 status: current
 ---
 
@@ -10,97 +11,62 @@ status: current
 
 > **语言**: [English](../../../core/circuit-breaker.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
-**适用范围**: universal
-**来源**: XSPEC-068（DEC-043 Wave 1 可靠性套件）
+> **来源**: XSPEC-036 | **借鉴自**: claude-code-book Ch.2
 
----
+## 概述
 
-## 目的
+断路器（Circuit Breaker）模式保护 Agent 系统免于因反复失败而引发的 API 雪崩。连续失败达 `failureThreshold` 次后，断路器打开并立即拒绝所有请求——不必等待超时。冷却期过后，它允许一次探针调用来测试是否已恢复。
 
-通用断路器标准：三态状态机（CLOSED/HALF_OPEN/OPEN）、阈值配置、与遥测整合。
+真实数据：在引入断路器之前，claude-code-book 测得每天约有 25 万次浪费的 API 调用，来自 1,279 个各自连续失败超过 50 次的会话（最多：连续失败 3,272 次）。
 
-各模块各自实现断路器导致行为不一致（阈值不同、HALF_OPEN 探针逻辑各异、遥测事件命名混乱）。本标准提供统一的状态机定义、配置键名，以及必须上报的遥测事件，确保 采用层（pipeline / agent / telemetry）可互相理解断路器状态。
+## 状态
 
----
+```
+CLOSED ──(N consecutive failures)──→ OPEN
+OPEN   ──(cooldownMs elapsed)──→ HALF_OPEN
+HALF_OPEN ──(probe success)──→ CLOSED
+HALF_OPEN ──(probe failure)──→ OPEN
+```
 
-## 核心规范
-
-- 断路器必须实现三态：CLOSED / HALF_OPEN / OPEN
-- `failureThreshold`、`successThreshold`、`cooldownMs` 必须可配置，有默认值
-- 触发转换时必须上报 `circuit_state_change` 遥测事件
-- HALF_OPEN 状态下只允许单次探针请求（不允许并发探针）
-- 所有断路器实例必须可通过 `circuitId` 唯一标识
-
----
-
-## 状态机
-
-| 状态 | 说明 |
+| 状态 | 行为 |
 |------|------|
-| **CLOSED** | 正常状态，放行所有请求；连续失败计数 |
-| **HALF_OPEN** | 冷却后的探针状态；放行单次探针请求 |
-| **OPEN** | 开路状态，拒绝所有请求；等待冷却期 |
+| **CLOSED** | 正常运行，请求照常转发 |
+| **OPEN** | 所有请求立即以 `CircuitOpenError` 拒绝 |
+| **HALF_OPEN** | 允许一次探针请求；成功 → CLOSED，失败 → OPEN |
 
-### 状态转换规则
-
-```
-CLOSED → OPEN       : 连续失败 >= failureThreshold
-OPEN → HALF_OPEN    : 冷却期（cooldownMs）到期
-HALF_OPEN → CLOSED  : 探针成功 >= successThreshold
-HALF_OPEN → OPEN    : 探针失败（立即重新开路）
-```
-
----
-
-## 配置参数
+## 配置
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `failureThreshold` | `3` | 触发 OPEN 的连续失败次数 |
-| `successThreshold` | `1` | 从 HALF_OPEN 恢复到 CLOSED 所需的成功次数 |
-| `cooldownMs` | `30000` | OPEN 状态冷却时间（毫秒）|
-| `circuitId` | 必填 | 断路器唯一标识符 |
+| `failureThreshold` | 3 | 打开前允许的连续失败次数 |
+| `cooldownMs` | 30000 | OPEN → HALF_OPEN 的等待时间（毫秒） |
+| `successThreshold` | 1 | 关闭所需的探针成功次数 |
 
----
+## 接口
 
-## 遥测事件
+```typescript
+interface CircuitBreaker {
+  readonly name: string;
+  readonly state: "CLOSED" | "HALF_OPEN" | "OPEN";
+  execute<T>(fn: () => Promise<T>): Promise<T>; // throws CircuitOpenError when OPEN
+  getState(): CircuitBreakerState;
+  reset(): void; // admin manual reset
+}
+```
 
-**`circuit_state_change`**（每次状态转换时上报）
+## 适用场景
 
-| 字段 | 类型 |
-|------|------|
-| `circuitId` | `string` |
-| `fromState` | `CLOSED\|HALF_OPEN\|OPEN` |
-| `toState` | `CLOSED\|HALF_OPEN\|OPEN` |
-| `reason` | `string` |
-| `failureCount` | `number` |
-| `timestamp` | `string` |
+- Fix Loop（采用层）重试
+- LLM API 调用保护（采用层）
+- Feedback Loop（采用层）重试
+- FLARE 主动检索（采用层）检索重试
+- 任何对外部依赖使用重试的组件
 
----
+## 参考资料
 
-## 情境示例
+- AI 优化版：[ai/standards/circuit-breaker.ai.yaml](../../../ai/standards/circuit-breaker.ai.yaml)
+- XSPEC-036：跨项目规格
+- 借鉴自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.2 `MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES`
 
-**情境 1：CLOSED → OPEN**
-- 条件：连续 3 次调用下游 API 失败（failureThreshold=3）
-- 结果：断路器转 OPEN，后续请求立即回传 `CircuitOpenError`
 
-**情境 2：OPEN → HALF_OPEN → CLOSED**
-- 条件：冷却 30s 后放行探针请求，探针成功
-- 结果：断路器恢复 CLOSED，失败计数重置
-
-**情境 3：HALF_OPEN → OPEN（探针失败）**
-- 条件：探针请求失败
-- 结果：立即重新开路，重新进入冷却期
-
----
-
-## 错误码
-
-| 代码 | 说明 |
-|------|------|
-| `CB-001` | `CIRCUIT_OPEN` — 断路器为 OPEN 状态，请求被拒绝 |
-| `CB-002` | `PROBE_REJECTED` — HALF_OPEN 状态下拒绝并发探针 |
-| `CB-003` | `CONFIG_INVALID` — 断路器配置参数无效 |
+**适用范围**: universal
