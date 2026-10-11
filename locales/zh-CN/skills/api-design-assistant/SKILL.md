@@ -2,7 +2,8 @@
 source: ../../../../skills/api-design-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 11f1ca291530
 status: current
 description: |
   引导 API 设计，遵循 REST、GraphQL 与 gRPC 最佳实践。
@@ -91,7 +92,7 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 `/api-design` 完成后，AI 助手应建议：
 
 > **API 设计完成。建议下一步：**
-> - 执行 `/sdd` 建立正式规格文档
+> - 执行 `/sdd` 建立正式规格文档 ⭐ **推荐**
 > - 执行 `/testing` 规划 API 测试策略
 > - 执行 `/docs` 生成 API 文档
 > - 审查安全性 → 执行 `/security`
@@ -99,3 +100,13 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 ## 参考
 
 - 核心规范：[api-design-standards.md](../../../../core/api-design-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## 授权
+
+CC BY 4.0 — 文档内容

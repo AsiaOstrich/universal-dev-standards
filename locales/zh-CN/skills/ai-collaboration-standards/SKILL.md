@@ -2,7 +2,8 @@
 source: ../../../../skills/ai-collaboration-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 88f0d922412f
 status: current
 description: |
   防止 AI 幻觉，确保分析代码或提出建议时给出以证据为基础的回应。
@@ -16,81 +17,101 @@ description: |
 > **语言**: [English](../../../../skills/ai-collaboration-standards/SKILL.md) | 简体中文
 
 **版本**: 1.1.0
-**最後更新**: 2026-01-25
-**適用範圍**: Claude Code Skills
+**最后更新**: 2026-01-25
+**适用范围**: Claude Code Skills
 
 ---
 
+## AI 技能层级
+
+此技能是三层 AI 协作体系的一部分：
+
+| 层级 | 技能 | 回答的问题 | 回答的问题（英文） |
+|-------|-------|-------------------|-----------|
+| **行为**（即时） | `/ai-collaboration`（本技能） | 「AI 如何准确回应？」 | "How should AI respond accurately?" |
+| **配置**（会话） | `/ai-instruction-standards` | 「CLAUDE.md 该写什么？」 | "What to write in CLAUDE.md?" |
+| **架构**（长期） | `/ai-friendly-architecture` | 「如何让项目对 AI 友好？」 | "How to structure code for AI?" |
+
 ## 目的
 
-此技能确保 AI 助理提供准确、基於证据的响应，避免产生幻覺。
+此技能确保 AI 助理提供准确、基于证据的响应，避免产生幻觉。
 
-## 快速參考
+## 快速参考
 
-### 确定性标签
+### 统一标签体系
+
+此技能使用两类互补的标签：
+
+**第一类：确定性标签**（用于分析既有内容）
 
 | 标签 | 使用时机 |
 |-----|----------|
-| `[Confirmed]` | 來自程序码/文件的直接证据 |
-| `[Inferred]` | 基於证据的邏辑推論 |
-| `[Assumption]` | 基於常見模式（需要验证） |
+| `[Confirmed]` | 来自程序码/文件的直接证据 |
+| `[Inferred]` | 基于证据的逻辑推论 |
+| `[Assumption]` | 基于常见模式（需要验证） |
 | `[Unknown]` | 信息不可用 |
 | `[Need Confirmation]` | 需要使用者澄清 |
 
-### 來源类型
+**第二类：推导标签**（用于生成新内容）
 
-| 來源类型 | 标签 | 可靠性 |
+| 标签 | 使用时机 |
+|-----|----------|
+| `[Source]` | 直接来自规格/需求的内容 |
+| `[Derived]` | 由来源内容转换而来 |
+| `[Generated]` | AI 生成的结构 |
+| `[TODO]` | 需要人工实现 |
+
+**何时使用哪一类**：
+
+| 工作流程 | 主要标签 |
+|----------|--------------|
+| 代码分析 | 确定性标签 |
+| 逆向工程 | 确定性标签 |
+| 正向推导 | 推导标签 |
+| 规格生成 | 推导标签 |
+
+### 来源类型
+
+| 来源类型 | 标签 | 可靠性 |
 |-------------|-----|-------------|
 | 项目程序码 | `[Source: Code]` | ⭐⭐⭐⭐⭐ 最高 |
 | 项目文件 | `[Source: Docs]` | ⭐⭐⭐⭐ 高 |
 | 外部文件 | `[Source: External]` | ⭐⭐⭐⭐ 高 |
-| 网络搜尋 | `[Source: Search]` | ⭐⭐⭐ 中等 |
-| AI 知識 | `[Source: Knowledge]` | ⭐⭐ 低 |
+| 网络搜寻 | `[Source: Search]` | ⭐⭐⭐ 中等 |
+| AI 知识 | `[Source: Knowledge]` | ⭐⭐ 低 |
 | 使用者提供 | `[Source: User]` | ⭐⭐⭐ 中等 |
 
-### 核心規則
+### 核心规则
 
-1. **僅基於证据**: 只分析已明确读取的内容
-2. **引用來源**: 包含程序码參考的文件路徑和行号
-3. **分类确定性**: 为所有陳述標记确定性等级
-4. **永遠提供建议**: 在呈現选项时，包含建议选择及其理由
+1. **仅基于证据**: 只分析已明确读取的内容
+2. **引用来源**: 包含程序码参考的文件路径和行号
+3. **分类确定性**: 为所有陈述标记确定性等级
+4. **永远提供建议**: 在呈现选项时，包含建议选择及其理由
 
 ## 详细指南
 
-完整标准請參阅：
-- [防幻覺指南](./anti-hallucination.md)
-- [确定性标签參考](./certainty-labels.md)
+完整标准请参阅：
+- [防幻觉指南](./anti-hallucination.md)
+- [确定性标签参考](./certainty-labels.md)
 
-## 範例
+## 范例
 
 ### ✅ 正确响应
 
 ```
-[Confirmed] src/auth/service.ts:45 - JWT 验证使用 'jsonwebtoken' 函式庫
-[Inferred] 基於 src/repositories/ 中的储存庫模式，可能使用依賴注入
-[Need Confirmation] 新功能是否应支援多租戶？
+[Confirmed] src/auth/service.ts:45 - JWT 验证使用 'jsonwebtoken' 函式库
+[Inferred] 基于 src/repositories/ 中的储存库模式，可能使用依赖注入
+[Need Confirmation] 新功能是否应支援多租户？
 ```
 
 ### ❌ 错误响应
 
 ```
 系统使用 Redis 进行快取（程序码未审查）
-UserService 应該有 authenticate() 方法（API 未验证）
+UserService 应该有 authenticate() 方法（API 未验证）
 ```
 
-### ✅ 正确选项呈現
-
-```
-有三个选项：
-1. Redis 快取
-2. 记忆体快取
-3. 文件快取
-
-**建议：选项 1 (Redis)**：鑑於项目已有 Redis 基礎设施
-且需要跨实例快取共享，Redis 是最合適的选择。
-```
-
-### ❌ 错误选项呈現
+### ✅ 正确选项呈现
 
 ```
 有三个选项：
@@ -98,27 +119,39 @@ UserService 应該有 authenticate() 方法（API 未验证）
 2. 记忆体快取
 3. 文件快取
 
-請选择一个。
+**建议：选项 1 (Redis)**：鉴于项目已有 Redis 基础设施
+且需要跨实例快取共享，Redis 是最合适的选择。
+```
+
+### ❌ 错误选项呈现
+
+```
+有三个选项：
+1. Redis 快取
+2. 记忆体快取
+3. 文件快取
+
+请选择一个。
 ```
 
 ## 检查清单
 
-在做出任何陳述之前：
+在做出任何陈述之前：
 
-- [ ] 來源已验证 - 我是否已读取实际文件/文件？
-- [ ] 來源类型已標记 - 我是否指定了 `[Source: Code]`、`[Source: External]` 等？
-- [ ] 參考已引用 - 我是否包含了文件路徑和行号？
-- [ ] 确定性已分类 - 我是否標记为 `[Confirmed]`、`[Inferred]` 等？
-- [ ] 無捏造 - 我是否避免了虛構 API、设置或需求？
-- [ ] 包含建议 - 在呈現选项时，我是否包含了建议选择？
+- [ ] 来源已验证 - 我是否已读取实际文件/文件？
+- [ ] 来源类型已标记 - 我是否指定了 `[Source: Code]`、`[Source: External]` 等？
+- [ ] 参考已引用 - 我是否包含了文件路径和行号？
+- [ ] 确定性已分类 - 我是否标记为 `[Confirmed]`、`[Inferred]` 等？
+- [ ] 无捏造 - 我是否避免了虚构 API、设置或需求？
+- [ ] 包含建议 - 在呈现选项时，我是否包含了建议选择？
 
 ---
 
-## 设置檢测
+## 设置检测
 
 此技能支援项目特定的确定性标签语言设置。
 
-### 檢测順序
+### 检测顺序
 
 1. 检查 `CONTRIBUTING.md` 中的「Certainty Tag Language」章节
 2. 如果找到，使用指定的语言（English / 中文）
@@ -128,8 +161,8 @@ UserService 应該有 authenticate() 方法（API 未验证）
 
 如果未找到设置且情境不明确：
 
-1. 詢問使用者：「此项目尚未设置确定性标签语言偏好。您想使用哪一种？（English / 中文）」
-2. 使用者选择後，建议在 `CONTRIBUTING.md` 中记录：
+1. 询问使用者：「此项目尚未设置确定性标签语言偏好。您想使用哪一种？（English / 中文）」
+2. 使用者选择后，建议在 `CONTRIBUTING.md` 中记录：
 
 ```markdown
 ## Certainty Tag Language
@@ -138,7 +171,7 @@ This project uses **[English / 中文]** certainty tags.
 <!-- Options: English | 中文 -->
 ```
 
-### 设置範例
+### 设置范例
 
 在项目的 `CONTRIBUTING.md` 中：
 
@@ -157,9 +190,20 @@ This project uses **English** certainty tags.
 
 ---
 
+## 下一步引导
+
+`/ai-collaboration` 完成后，AI 助手应建议：
+
+> **AI 协作行为规范已掌握。建议下一步：**
+> - 执行 `/ai-instruction-standards` 建立或更新 CLAUDE.md 等 AI 指令文件 ⭐ **推荐** — 将协作标准写入项目配置
+> - 执行 `/ai-friendly-architecture` 设计 AI 友好架构 — 从长期架构层面优化 AI 协作
+> - 执行 `/code-review` 运用确定性标签进行代码审查 — 实践基于证据的分析
+
+---
+
 ## 相关标准
 
-- [防幻覺标准](../../../../core/anti-hallucination.md)
+- [防幻觉标准](../../../../core/anti-hallucination.md)
 - [程序码审查检查清单](../../../../core/code-review-checklist.md)
 - [测试标准](../../../../core/testing-standards.md)
 
@@ -169,47 +213,13 @@ This project uses **English** certainty tags.
 
 | 版本 | 日期 | 变更 |
 |---------|------|---------|
+| 1.1.0 | 2026-01-25 | 新增：统一标签体系，包含确定性与推导两类标签 |
 | 1.0.0 | 2025-12-24 | 新增：标准章节（目的、相关标准、版本历史、授权） |
 
 ---
 
 ## 授权
 
-此技能依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
+此技能依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 释出。
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/ai-collaboration` completes, the AI assistant should suggest:
-
-> **AI 協作行為規範已掌握。建議下一步 / AI collaboration behavior standards understood. Suggested next steps:**
-> - 執行 `/ai-instruction-standards` 建立或更新 CLAUDE.md 等 AI 指令檔案 ⭐ **Recommended / 推薦** — 將協作標準寫入專案配置 / Write collaboration standards into project configuration
-> - 執行 `/ai-friendly-architecture` 設計 AI 友善架構 — 從長期架構層面優化 AI 協作 / Optimize AI collaboration at the architecture level
-> - 執行 `/code-review` 運用確定性標籤進行程式碼審查 — 實踐基於證據的分析 / Practice evidence-based analysis
-
----
-
-## Related Standards
-
-- [Anti-Hallucination Standards](../../core/anti-hallucination.md)
-- [Code Review Checklist](../../core/code-review-checklist.md)
-- [Testing Standards](../../core/testing-standards.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-01-25 | Added: Unified Tag System with Certainty and Derivation tag categories |
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

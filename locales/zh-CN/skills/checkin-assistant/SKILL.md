@@ -2,7 +2,8 @@
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: f2ee56f211d6
 status: current
 description: |
   [UDS] 提交前质量关卡的参考资料：关卡定义、检查清单项目，以及绝不可提交的规则。
@@ -15,9 +16,14 @@ description: |
 
 > **语言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 简体中文
 
+> ⚠️ **状态：参考（仅供参考，非可执行流程）** — 签入流程协调（关卡执行序列、abort 逻辑）已于 2026-04-28 移至 **采用层（adoption layer，XSPEC-095）**。此处保留品质关卡定义、检查清单项、never-commit 规则供参考。
+> 如需强制执行，请使用你的采用层工具链。
+
 在提交代码前验证品质关卡，确保代码库的稳定性。
 
 ## 工作流程
+
+> 📖 以下为流程的**参考结构**，非可执行步骤；自动化／强制执行请用采用层工具链（XSPEC-095）。
 
 1. **检查 git 状态** - 执行 `git status` 和 `git diff` 了解待提交的变更
 2. **执行测试** - 执行 `npm test`（或项目测试指令）验证所有测试通过
@@ -57,7 +63,7 @@ description: |
 `/checkin` 完成后，AI 助手应建议：
 
 > **品质关卡验证完成。建议下一步：**
-> - 全部通过 ✅ → 执行 `/commit` 提交变更
+> - 全部通过 ✅ → 执行 `/commit` 提交变更 ⭐ **推荐**
 > - 有失败项目 ❌ → 修复问题后重新执行 `/checkin`
 > - 需要代码审查 → 执行 `/code-review` 进行自我审查
 > - UDS 安装有异常 → 执行 `/audit` 诊断问题
@@ -66,3 +72,7 @@ description: |
 
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[checkin-standards.md](../../../../core/checkin-standards.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/checkin`](../../../../skills/commands/checkin.md#ai-agent-behavior--ai-代理行為)

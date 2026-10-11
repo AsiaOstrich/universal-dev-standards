@@ -2,7 +2,8 @@
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: e573a23283c0
 status: current
 description: |
   [UDS] 系统性代码审查的参考资料：八大审查类别，以及 BLOCKING/IMPORTANT/SUGGESTION 评论前缀。
@@ -15,9 +16,14 @@ description: |
 
 > **语言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 简体中文
 
+> ⚠️ **状态：参考（仅供参考，非可执行流程）** — 代码审查流程协调（4 步骤序列、outcome gating）已于 2026-04-28 移至 **采用层（adoption layer，XSPEC-095）**。此处保留 8 大审查类别定义、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前缀语义供参考。
+> 如需强制执行，请使用你的采用层工具链。
+
 使用标准化的检查清单和评论前缀，执行系统性的代码审查。
 
 ## 工作流程
+
+> 📖 以下为流程的**参考结构**，非可执行步骤；自动化／强制执行请用采用层工具链（XSPEC-095）。
 
 1. **识别变更** - 通过 `git diff` 或 `git show` 取得待审查文件的差异
 2. **套用检查清单** - 系统性地检查每个审查类别
@@ -57,7 +63,7 @@ description: |
 
 > **代码审查完成。建议下一步：**
 > - 有 ❗ BLOCKING 项目 → 修复后重新执行 `/code-review`
-> - 全部通过 → 执行 `/checkin` 品质关卡
+> - 全部通过 → 执行 `/checkin` 品质关卡 ⭐ **推荐**
 > - 仅有 💡 SUGGESTION → 执行 `/commit` 提交变更
 > - 审查中发现规范不实用或缺失 → 执行 `/audit --report` 回报
 
@@ -66,3 +72,7 @@ description: |
 - [Pre-Commit Checklist（提交前检查清单）](./checkin-checklist.md) — 提交之前当作最后一道检查时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[code-review-checklist.md](../../../../core/code-review-checklist.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/code-review`](../../../../skills/commands/code-review.md#ai-agent-behavior--ai-代理行為)

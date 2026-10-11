@@ -2,7 +2,8 @@
 source: ../../../../skills/audit-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 406861ad5cff
 status: current
 description: |
   [UDS] 诊断 UDS 安装的健康状态，并向上游提交结构化反馈。
@@ -101,9 +102,11 @@ uds audit --report --dry-run
 
 ## 后续步骤
 
+执行审计后：
+
 | 发现 | 建议动作 |
 |------|---------|
-| 健康 ERROR | 执行 `uds init` 或 `uds check --restore` |
+| 健康 ERROR ⭐ **推荐** | 执行 `uds init` 或 `uds check --restore` |
 | 检测到模式 | 考虑通过 `--report` 请求新标准 |
 | 已修改标准 | 检视标准是否需要更多灵活性 |
 | 未使用标准 | 考虑以 `uds uninstall` 移除 |
