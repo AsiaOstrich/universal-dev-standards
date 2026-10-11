@@ -2,7 +2,8 @@
 source: ../../../core/workflow-enforcement.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 19303d93a884
 status: current
 ---
 
@@ -60,7 +61,7 @@ workflow:
 
 | 闸门类型 | 阻断 | 描述 |
 |---------|------|------|
-| **硬闸门** | 是 | 必须通过才能继续（例如：规格必须为已核准才能实作） |
+| **硬闸门** | 是 | 必须通过才能继续（例如：规格必须为已核准才能实现） |
 | **软闸门** | 否 | 建议性警告（例如：建议在 commit 中引用规格） |
 
 ## SDD 阶段闸门
@@ -76,12 +77,12 @@ discuss → create → review → approve → implement → verify
 | review | 规格存在且状态 = Draft |
 | approve | 规格存在且状态 = Review，所有评论已处理 |
 | implement | 规格存在且状态 = Approved |
-| verify | 实作存在，所有 AC 有代码 + 测试 |
+| verify | 实现存在，所有 AC 有代码 + 测试 |
 
 ## TDD 阶段闸门
 
 ```
-RED → GREEN → REFACTOR → (重复)
+RED → GREEN → REFACTOR → (repeat)
 ```
 
 | 阶段 | 前置条件 |
@@ -90,7 +91,7 @@ RED → GREEN → REFACTOR → (重复)
 | GREEN | 至少一个失败的测试存在（不是错误，而是断言失败） |
 | REFACTOR | 所有测试通过 |
 
-**关键强制规则**：AI 不得在失败测试存在之前撰写实作代码。这是 TDD 的基本契约。
+**关键强制规则**：AI 不得在失败测试存在之前撰写实现代码。这是 TDD 的基本契约。
 
 ## BDD 阶段闸门
 
@@ -101,9 +102,9 @@ DISCOVERY → FORMULATION → AUTOMATION → LIVING DOCS
 | 阶段 | 前置条件 |
 |------|---------|
 | DISCOVERY | 行为/功能已识别 |
-| FORMULATION | 探索阶段产出的具体范例存在 |
+| FORMULATION | 探索阶段产出的具体示例存在 |
 | AUTOMATION | 包含 Gherkin 场景的 `.feature` 文件存在 |
-| LIVING DOCS | 步骤定义已实作，所有场景通过 |
+| LIVING DOCS | 步骤定义已实现，所有场景通过 |
 
 ## 提交闸门
 
@@ -114,7 +115,7 @@ DISCOVERY → FORMULATION → AUTOMATION → LIVING DOCS
 | 测试通过 | 硬闸门 | feat/fix 提交 |
 | 规格引用 | 软闸门 | 有活跃规格的 feat/fix 提交 |
 
-## 实作注意事项
+## 实现注意事项
 
 ### 对于 AI 助手
 

@@ -2,23 +2,27 @@
 source: ../../../core/test-completeness-dimensions.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-24
+last_synced: 2026-10-11
+source_hash: 13876de2fdea
 status: current
 ---
 
 # 测试完整性维度
 
-**版本**: 1.0.0
-**最后更新**: 2025-12-24
-**适用范围**: 所有需要测试的软体专案
+**版本**: 1.1.0
+**最后更新**: 2026-01-24
+**适用范围**: 所有有测试需求的软件项目
+**范围**: universal
+**行业标准**: ISTQB AI Testing Syllabus
+**参考资料**: [istqb.org](https://istqb.org/certifications/certified-tester-ai-testing-ct-ai/)
 
-[English](../../../core/test-completeness-dimensions.md) | [繁体中文](.)
+[English](../../../core/test-completeness-dimensions.md) | [繁體中文](../../zh-TW/core/test-completeness-dimensions.md) | 简体中文
 
 ---
 
 ## 目的
 
-本文件定义评估测试完整性的系统性框架。为开发者提供检核清单，确保测试覆盖多个维度。
+本文档定义评估测试完整性的系统性框架。为开发者提供检查清单，确保测试在多个维度上得到全面覆盖。
 
 ---
 
@@ -27,18 +31,18 @@ status: current
 完整的测试套件应为每个功能涵盖以下 8 个维度：
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                    测试完整性 = 8 个维度                           │
-├──────────────────────────────────────────────────────────────────┤
-│  1. 正向路径          正常预期行为                                 │
-│  2. 边界条件          最小/最大值、限制                            │
-│  3. 错误处理          无效输入、异常状况                           │
-│  4. 权限验证          角色访问控制                                 │
-│  5. 状态转换          前后验证                                     │
-│  6. 验证逻辑          格式、业务规则                               │
-│  7. 集成验证          实际查询验证                                 │
-│  8. AI 生成质量       AI 测试的有效性评估                          │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│              Test Completeness = 8 Dimensions                │
+├─────────────────────────────────────────────────────────────┤
+│  1. Happy Path        Normal expected behavior              │
+│  2. Boundary          Min/max values, limits                │
+│  3. Error Handling    Invalid input, exceptions             │
+│  4. Authorization     Role-based access control             │
+│  5. State Changes     Before/after verification             │
+│  6. Validation        Format, business rules                │
+│  7. Integration       Real query verification               │
+│  8. AI Generation     AI-generated test quality (NEW)       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -47,15 +51,15 @@ status: current
 
 ### 1. 正向路径
 
-测试使用有效输入的正常预期流程。
+使用有效输入测试正常的预期流程。
 
-**测试内容**:
+**测试内容**：
 - 有效输入产生预期输出
-- 成功状态码/回应
-- 资料正确建立/修改
+- 成功状态码/响应
+- 数据被正确创建/修改
 - 副作用如预期发生
 
-**范例**:
+**示例**：
 ```csharp
 [Fact]
 public async Task CreateUser_WithValidData_ReturnsSuccess()
@@ -83,14 +87,14 @@ public async Task CreateUser_WithValidData_ReturnsSuccess()
 
 测试有效范围边缘的值。
 
-**测试内容**:
+**测试内容**：
 - 最小有效值
 - 最大有效值
 - 略小于最小值（无效）
 - 略大于最大值（无效）
 - 空集合 vs. 单一项目 vs. 多个项目
 
-**范例**:
+**示例**：
 ```csharp
 [Theory]
 [InlineData(0, false)]      // Below minimum
@@ -127,14 +131,14 @@ public async Task BatchProcess_ExceedingLimit_ReturnsError()
 
 测试系统如何处理无效输入和异常状况。
 
-**测试内容**:
+**测试内容**：
 - 无效输入格式
-- 缺少必填栏位
-- 重复资料冲突
+- 缺少必填字段
+- 重复数据冲突
 - 资源未找到
 - 外部服务故障
 
-**范例**:
+**示例**：
 ```csharp
 [Fact]
 public async Task CreateUser_DuplicateEmail_ReturnsConflict()
@@ -189,15 +193,15 @@ public async Task CreateUser_MissingRequiredFields_ReturnsValidationError()
 
 ### 4. 权限验证
 
-测试每个操作的角色存取控制。
+测试每个操作的基于角色的访问控制。
 
-**测试内容**:
+**测试内容**：
 - 每个角色允许的操作
-- 每个角色拒绝的操作
-- 未认证存取
-- 跨租户/跨使用者资料存取
+- 每个角色被拒绝的操作
+- 未认证访问
+- 跨租户/跨用户数据访问
 
-**权限测试矩阵**:
+**权限测试矩阵**：
 
 为每个功能建立矩阵：
 
@@ -208,9 +212,9 @@ public async Task CreateUser_MissingRequiredFields_ReturnsValidationError()
 | Update | ✅ | ⚠️ Own dept | ❌ | ❌ |
 | Delete | ✅ | ❌ | ❌ | ❌ |
 
-每个储存格应有对应的测试案例。
+每个单元格都应有对应的测试用例。
 
-**范例**:
+**示例**：
 ```csharp
 [Fact]
 public async Task DeleteUser_AsAdmin_Succeeds()
@@ -257,15 +261,15 @@ public async Task GetUsers_AsManager_ReturnsOnlyDepartmentMembers()
 
 ### 5. 状态转换
 
-验证操作正确修改系统状态。
+验证操作是否正确修改系统状态。
 
-**测试内容**:
-- 操作前状态
-- 操作后状态
-- 状态转换（enabled → disabled, pending → approved）
-- 幂等性（重复操作有相同结果）
+**测试内容**：
+- 操作前的状态
+- 操作后的状态
+- 状态转换（enabled → disabled，pending → approved）
+- 幂等性（重复操作得到相同结果）
 
-**范例**:
+**示例**：
 ```csharp
 [Fact]
 public async Task DisableUser_UpdatesStateCorrectly()
@@ -305,13 +309,13 @@ public async Task EnableUser_FromDisabledState_UpdatesStateCorrectly()
 
 测试业务规则和格式验证。
 
-**测试内容**:
+**测试内容**：
 - 格式验证（email、phone 等）
 - 业务规则验证
-- 跨栏位验证
-- 特定领域限制
+- 跨字段验证
+- 特定领域约束
 
-**范例**:
+**示例**：
 ```csharp
 [Theory]
 [InlineData("user@example.com", true)]
@@ -367,19 +371,19 @@ public async Task CreateOrder_QuantityExceedsStock_ReturnsBusinessRuleError()
 
 ### 7. 集成验证
 
-验证实际资料库查询和外部集成正确运作。
+验证实际的数据库查询和外部集成是否正确运作。
 
-**何时需要**:
+**何时需要**：
 
-根据[测试标准](testing-standards.md)（或 `/testing-guide` 技能），如果单元测试对查询参数使用万用匹配器（`It.IsAny<>`, `any()`, `Arg.Any<>`），必须有集成测试。
+根据[测试标准](testing-standards.md)（或 `/testing-guide` 技能），如果单元测试对查询参数使用通配匹配器（`It.IsAny<>`、`any()`、`Arg.Any<>`），则必须有集成测试。
 
-**测试内容**:
-- 查询述词回传正确资料
-- 实体关联正确载入
+**测试内容**：
+- 查询谓词返回正确数据
+- 实体关联被正确加载
 - 分页正确运作
 - 排序和筛选正确运作
 
-**范例**:
+**示例**：
 ```csharp
 // Unit test - cannot verify query logic
 [Fact]
@@ -418,165 +422,230 @@ public async Task GetActiveUsers_RealDatabase_ReturnsOnlyActiveUsers()
 
 ### 8. AI 生成质量
 
-评估 AI 生成测试的有效性和可维护性。
+评估 AI 生成测试的质量与有效性。
 
-**何时需要**:
+**为何此维度重要**：
 
-当使用 AI 工具（GitHub Copilot、Claude、ChatGPT）生成测试时，需评估其质量。
+AI 编程助手可以快速生成测试，但数量 ≠ 质量。此维度确保 AI 生成的测试提供真正的价值。
 
-**评估标准**:
+**质量评估标准**：
 
-| 标准 | 说明 | 通过条件 |
-|------|------|---------|
-| **意图清晰** | 测试目的明确 | 测试名称描述行为 |
-| **独立性** | 测试互不依赖 | 可单独执行通过 |
-| **断言有效** | 断言验证正确行为 | 非仅检查 "not null" |
-| **边界覆盖** | 含边界案例 | 最小/最大值已测试 |
-| **可读性** | 代码易理解 | 无需注释即可理解 |
+| 标准 | 低质量 | 高质量 |
+|------|--------|--------|
+| **测试目的** | 测试显而易见的 getter/setter | 测试业务逻辑与边界情况 |
+| **断言深度** | 仅有 `result != null` | 验证具体的值与状态 |
+| **独立性** | 测试依赖执行顺序 | 每个测试自给自足 |
+| **命名** | `test1`、`test2` | 描述性名称：`should_reject_invalid_email` |
+| **覆盖意图** | 覆盖代码行而非行为 | 有意义地覆盖所有代码路径 |
 
-**评估范例**:
+**AI 测试生成检查清单**：
+
+```
+□ Test Purpose Verification
+  □ Does the test verify meaningful behavior?
+  □ Would a bug cause the test to fail?
+  □ Is the test testing the right thing?
+
+□ Assertion Quality
+  □ Are assertions specific (not just "not null")?
+  □ Do assertions verify the expected output values?
+  □ Are edge cases in assertions covered?
+
+□ Test Independence
+  □ Can tests run in any order?
+  □ Does each test set up its own data?
+  □ No shared mutable state between tests?
+
+□ Mutation Score
+  □ Would mutations in the code be caught?
+  □ Does the test fail when logic is changed?
+```
+
+**示例 - 评估 AI 生成的测试**：
 
 ```csharp
-// ❌ 差：AI 生成的低质量测试
+// ❌ Poor AI-generated test - tests almost nothing
 [Fact]
-public void Test1()
+public void CalculateDiscount_Test()
 {
-    var result = _service.Process(null);
-    Assert.NotNull(result);  // 仅检查非空
+    var service = new PricingService();
+    var result = service.CalculateDiscount(100, "VIP");
+    Assert.NotNull(result);  // Only checks not null!
 }
 
-// ✅ 好：AI 生成的高质量测试
+// ✅ Good test - verifies specific business logic
 [Fact]
-public void Process_WithEmptyInput_ReturnsEmptyResult()
+public void CalculateDiscount_VipCustomer_Returns20PercentDiscount()
 {
     // Arrange
-    var input = Array.Empty<Item>();
+    var service = new PricingService();
+    var originalPrice = 100m;
+    var customerType = "VIP";
 
     // Act
-    var result = _service.Process(input);
+    var result = service.CalculateDiscount(originalPrice, customerType);
 
     // Assert
-    result.Should().BeEmpty();
-    result.ProcessedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+    result.DiscountAmount.Should().Be(20m);       // VIP gets 20%
+    result.FinalPrice.Should().Be(80m);
+    result.DiscountType.Should().Be("VIP_DISCOUNT");
 }
 ```
 
-**AI 测试反模式**:
+**AI 测试质量指标**：
 
-| 反模式 | 问题 | 修正 |
-|--------|------|------|
-| 仅检查非空 | 无实际验证 | 断言具体值 |
-| 硬编码魔术值 | 难以维护 | 使用常量或工厂 |
-| 测试名称如 `Test1` | 无法理解意图 | 使用描述性名称 |
-| 无边界案例 | 覆盖不完整 | 加入边界测试 |
+| 指标 | 目标 | 测量方式 |
+|------|------|---------|
+| 变异分数 | > 80% | 被杀死的变异 / 变异总数 |
+| 断言密度 | 每个测试 > 2 | 断言数 / 测试数 |
+| 行为覆盖率 | 100% | 已测试的业务规则 / 规则总数 |
+| 边界情况覆盖率 | > 90% | 已测试的边界情况 / 已识别的边界情况 |
 
 ---
 
 ## Mutation Testing
 
-### 概念
+### 概述
 
-Mutation Testing 通过在代码中引入小变异（mutations）来评估测试质量。如果测试套件未能检测到变异，表示测试不够强健。
+Mutation Testing（变异测试）通过对代码引入微小改动（变异），并检查测试是否能捕获这些改动，来验证测试的有效性。
 
-### 变异操作符
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Mutation Testing Flow                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   Original Code    Mutate        Mutated Code               │
+│   ──────────────   ──────►       ──────────────             │
+│   if (x > 0)                     if (x >= 0)  ← mutation    │
+│                                                              │
+│                    Run Tests                                 │
+│                    ──────────►                               │
+│                                                              │
+│   Test FAILS?     → Mutation KILLED ✅ (test is effective)  │
+│   Test PASSES?    → Mutation SURVIVED ❌ (test is weak)     │
+│                                                              │
+│   Mutation Score = Killed / Total Mutations                  │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
 
-| 操作符 | 原始 | 变异 |
-|--------|------|------|
-| 关系运算符 | `>` | `>=`, `<`, `==` |
-| 算术运算符 | `+` | `-`, `*` |
-| 逻辑运算符 | `&&` | `\|\|` |
-| 返回值 | `return x` | `return null` |
-| 条件边界 | `i < 10` | `i <= 10` |
+### 常见变异操作符
 
-### 工具推荐
+| 操作符 | 原始 | 变异后 | 测试应捕获 |
+|--------|------|--------|-----------|
+| 边界 | `>` | `>=` | 差一错误（off-by-one） |
+| 取反 | `true` | `false` | 布尔逻辑 |
+| 算术 | `+` | `-` | 数学运算 |
+| 返回值 | `return x` | `return null` | 返回值的使用 |
+| 移除调用 | `validate()` | （已移除） | 副作用 |
+| 常量 | `0` | `1` | 魔术数字的使用 |
+
+### Mutation Testing 工具
 
 | 语言 | 工具 | 链接 |
 |------|------|------|
-| JavaScript/TypeScript | Stryker | stryker-mutator.io |
-| Java | PIT | pitest.org |
-| C# | Stryker.NET | stryker-mutator.io/docs/stryker-net |
-| Python | mutmut | github.com/boxed/mutmut |
+| Java | PIT | https://pitest.org/ |
+| JavaScript/TypeScript | Stryker | https://stryker-mutator.io/ |
+| C# | Stryker.NET | https://stryker-mutator.io/docs/stryker-net/ |
+| Python | mutmut | https://github.com/boxed/mutmut |
+| Go | go-mutesting | https://github.com/zimmski/go-mutesting |
 
 ### 结果解读
 
-| 指标 | 意义 | 目标 |
-|------|------|------|
-| 杀死的变异 | 测试检测到变异 | 越高越好 |
-| 存活的变异 | 测试未检测到 | 需要加强测试 |
-| 变异分数 | 杀死数 / 总数 | > 80% |
+| 变异分数 | 解读 | 行动 |
+|----------|------|------|
+| > 90% | 优秀 | 维持此水平 |
+| 80-90% | 良好 | 检查存活的变异 |
+| 60-80% | 尚可 | 补充缺失的测试用例 |
+| < 60% | 较差 | 存在明显的测试缺口 |
 
-### 范例配置 (Stryker)
+### 示例：Stryker 配置
 
 ```json
+// stryker.config.json (JavaScript/TypeScript)
 {
-  "stryker": {
-    "mutate": ["src/**/*.ts", "!src/**/*.spec.ts"],
-    "testRunner": "jest",
-    "reporters": ["html", "clear-text"],
-    "thresholds": {
-      "high": 80,
-      "low": 60,
-      "break": 50
-    }
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress"],
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": 50
   }
 }
 ```
 
+### 何时使用 Mutation Testing
+
+| 场景 | 建议 |
+|------|------|
+| 关键业务逻辑 | ✅ 是 |
+| 安全敏感代码 | ✅ 是 |
+| AI 生成测试之后 | ✅ 是 |
+| 简单 CRUD 操作 | ⚠️ 可选 |
+| UI/展示层代码 | ❌ 通常不值得 |
+
 ---
 
-## 测试案例设计清单
+## 测试用例设计清单
 
-使用此清单检核每个功能的完整性：
+对每个功能使用此清单以确保完整性：
 
 ```
-功能: ___________________
+Feature: ___________________
 
-□ 正向路径
-  □ 有效输入产生预期成功
-  □ 回传/建立正确资料
-  □ 副作用如预期发生
+□ Happy Path
+  □ Valid input produces expected success
+  □ Correct data is returned/created
+  □ Side effects occur as expected
 
-□ 边界条件
-  □ 最小有效值
-  □ 最大有效值
-  □ 空集合
-  □ 单一项目集合
-  □ 大型集合（如适用）
+□ Boundary Conditions
+  □ Minimum valid value
+  □ Maximum valid value
+  □ Empty collection
+  □ Single item collection
+  □ Large collection (if applicable)
 
-□ 错误处理
-  □ 无效输入格式
-  □ 缺少必填栏位
-  □ 重复/冲突情境
-  □ 未找到情境
-  □ 外部服务故障（如适用）
+□ Error Handling
+  □ Invalid input format
+  □ Missing required fields
+  □ Duplicate/conflict scenarios
+  □ Not found scenarios
+  □ External service failure (if applicable)
 
-□ 权限验证
-  □ 每个允许角色已测试
-  □ 每个拒绝角色已测试
-  □ 未认证存取已测试
-  □ 跨边界存取已测试
+□ Authorization
+  □ Each permitted role tested
+  □ Each denied role tested
+  □ Unauthenticated access tested
+  □ Cross-boundary access tested
 
-□ 状态变更
-  □ 初始状态已验证
-  □ 最终状态已验证
-  □ 所有有效状态转换已测试
+□ State Changes
+  □ Initial state verified
+  □ Final state verified
+  □ All valid state transitions tested
 
-□ 验证
-  □ 格式验证（email、phone 等）
-  □ 业务规则验证
-  □ 跨栏位验证
+□ Validation
+  □ Format validation (email, phone, etc.)
+  □ Business rule validation
+  □ Cross-field validation
 
-□ 集成（如果单元测试使用万用匹配器）
-  □ 查询述词已验证
-  □ 实体关联已验证
-  □ 分页已验证
-  □ 排序/筛选已验证
+□ Integration (if UT uses wildcards)
+  □ Query predicates verified
+  □ Entity relationships verified
+  □ Pagination verified
+  □ Sorting/filtering verified
 
-□ AI 生成质量（如使用 AI 生成测试）
-  □ 测试意图清晰
-  □ 断言验证具体值
-  □ 包含边界案例
-  □ 测试名称描述行为
+□ AI Generation Quality (if AI-generated)
+  □ Tests verify meaningful behavior
+  □ Assertions are specific (not just "not null")
+  □ Mutation score > 80%
+  □ Edge cases covered
 ```
 
 ---
@@ -585,16 +654,16 @@ Mutation Testing 通过在代码中引入小变异（mutations）来评估测试
 
 对于有定义错误码的 API，确保每个错误码都有测试：
 
-| 代码 | 意义 | 测试情境 |
+| 代码 | 意义 | 测试场景 |
 |------|------|----------|
 | 200 | 成功 | 正向路径测试 |
-| 400 | 错误请求 | 无效格式、缺少栏位 |
+| 400 | 错误请求 | 无效格式、缺少字段 |
 | 401 | 未认证 | 无效/缺少 token |
-| 403 | 禁止 | 有效 token、权限不足 |
+| 403 | 禁止访问 | 有效 token、权限不足 |
 | 404 | 未找到 | 不存在的资源 |
-| 409 | 冲突 | 重复资料 |
+| 409 | 冲突 | 重复数据 |
 | 422 | 无法处理 | 违反业务规则 |
-| 500 | 服务器错误 | 例外处理 |
+| 500 | 服务器错误 | 异常处理 |
 
 ---
 
@@ -611,7 +680,7 @@ Mutation Testing 通过在代码中引入小变异（mutations）来评估测试
 | 后台任务 | 1, 3, 5, 8* |
 | 外部集成 | 1, 3, 7, 8* |
 
-*维度 8 仅在使用 AI 生成测试时适用
+*维度 8（AI 生成质量）仅在测试由 AI 生成时适用
 
 ---
 
@@ -620,21 +689,23 @@ Mutation Testing 通过在代码中引入小变异（mutations）来评估测试
 避免这些常见错误：
 
 ```
-❌ 只测试正向路径
+❌ Testing only happy path
 
-❌ 多角色系统缺少权限测试
+❌ Missing authorization tests for multi-role systems
 
-❌ 未验证状态变更
+❌ Not verifying state changes
 
-❌ 单元测试使用万用匹配器但无对应集成测试
+❌ Using wildcards in UT without corresponding IT
 
-❌ 测试数据的 ID 与业务标识码使用相同值
+❌ Same values for ID and business identifier in test data
 
-❌ 测试实现细节而非行为
+❌ Testing implementation details instead of behavior
 
-❌ 盲目信任 AI 生成的测试而不审查
+❌ Accepting AI-generated tests without review
 
-❌ AI 测试仅检查非空而无具体断言
+❌ Assuming high line coverage means effective tests
+
+❌ Skipping mutation testing for critical code
 ```
 
 ---
@@ -643,8 +714,18 @@ Mutation Testing 通过在代码中引入小变异（mutations）来评估测试
 
 - [测试驱动开发](test-driven-development.md) - TDD/BDD/ATDD 方法论
 - [测试标准](testing-standards.md) - 核心测试标准（或使用 `/testing-guide` 技能）
-- [程序码审查清单](code-review-checklist.md) - 审查测试完整性
-- [签入标准](checkin-standards.md) - 提交前测试需求
+- [代码审查检查清单](code-review-checklist.md) - 审查测试完整性
+- [签入标准](checkin-standards.md) - 提交前测试要求
+
+---
+
+## 参考资料
+
+- [ISTQB AI Testing Syllabus](https://www.istqb.org/certifications/ai-testing) - 基础级 AI 测试认证
+- [Stryker Mutation Testing](https://stryker-mutator.io/) - 多语言 Mutation Testing 框架
+- [PIT Mutation Testing](https://pitest.org/) - Java Mutation Testing
+- [Google Testing Blog - Mutation Testing](https://testing.googleblog.com/2021/04/mutation-testing.html) - Google 对 Mutation Testing 的观点
+- [ISTQB Foundation Level Syllabus](https://www.istqb.org/certifications/certified-tester-foundation-level) - 核心测试概念
 
 ---
 
@@ -652,17 +733,8 @@ Mutation Testing 通过在代码中引入小变异（mutations）来评估测试
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.1.0 | 2026-01-24 | 新增：第 8 维度 AI 生成质量、Mutation Testing 章节 |
+| 1.1.0 | 2026-01-24 | 新增：第 8 维度（AI 生成质量）、Mutation Testing 章节 |
 | 1.0.0 | 2025-12-24 | 初始发布，包含 7 维度框架 |
-
----
-
-## 参考资料
-
-- [ISTQB AI Testing Guidelines](https://www.istqb.org/) - 软件测试认证
-- [Stryker Mutator](https://stryker-mutator.io/) - JavaScript/TypeScript Mutation Testing
-- [PIT Mutation Testing](https://pitest.org/) - Java Mutation Testing
-- [Mutation Testing 概念](https://en.wikipedia.org/wiki/Mutation_testing) - Wikipedia
 
 ---
 

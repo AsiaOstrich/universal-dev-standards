@@ -2,107 +2,71 @@
 source: ../../../core/token-budget.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 72030e8c343a
 status: current
 ---
 
-# Token 预算标准
+# Token 预算区间标准
 
 > **语言**: [English](../../../core/token-budget.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
+> **来源**: XSPEC-036 | **借鉴自**: claude-code-book Ch.7
+
+## 概述
+
+Token 预算区间模型将 token 用量划分为四个递进区间，每个区间触发逐步加强的保护策略。这能避免「一切正常直到突然崩溃」的失败模式，让系统在触及硬性上限之前有时间优雅降级。
+
+## 区间
+
+| 区间 | 范围 | 行为 | 日志级别 |
+|------|-------|--------|-----------|
+| **SAFE** | 0–84% | 正常运行 | — |
+| **WARNING** | 85–89% | 发出事件，通知协调者 | info |
+| **DANGER** | 90–94% | 触发轻量压缩（Snip） | warn |
+| **BLOCKING** | 95–100% | 拒绝新请求，返回错误 | error |
+
+## 常量
+
+```typescript
+const TOKEN_BUDGET_ZONE = {
+  WARNING_THRESHOLD: 0.85,
+  DANGER_THRESHOLD: 0.90,
+  BLOCKING_THRESHOLD: 0.95,
+} as const;
+
+type TokenBudgetZone = "safe" | "warning" | "danger" | "blocking";
+```
+
+## DANGER 区行为
+
+进入 DANGER 区（90–94%）时：
+1. **Tool Result Snip**：截断大型工具输出，保留摘要
+2. **降低 maxToolRounds**：对剩余 Agent 削减 20%
+3. **持久化到磁盘**：将重要输出移出上下文
+
+## 压缩后预算
+
+压缩操作需要输出空间才能成功。预留常量如下：
+
+| 常量 | 值 | 用途 |
+|----------|-------|---------|
+| `MAX_FILES_TO_RESTORE` | 5 | 压缩后最多恢复的文件数 |
+| `TOTAL_TOKEN_BUDGET` | 50,000 | 压缩后的总 token 预算 |
+| `MAX_TOKENS_PER_FILE` | 5,000 | 单一文件的 token 上限 |
+
+## 适用场景
+
+- 任务执行的 token 监控（采用层）
+- 多 Agent 管道的累积上下文管理（采用层）
+- PipelineMemory Snip 触发条件（采用层）
+- 任何具有 `maxTotalTokens` 限制的环境
+
+## 参考资料
+
+- AI 优化版：[ai/standards/token-budget.ai.yaml](../../../ai/standards/token-budget.ai.yaml)
+- XSPEC-036：跨项目规格
+- 借鉴自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.7 四区上下文管理
+
+
 **适用范围**: universal
-**来源**: XSPEC-068（DEC-043 Wave 1 可靠性套件）
-
----
-
-## 目的
-
-Token 阈值四区模型（SAFE/WARNING/DANGER/BLOCKING），统一各采用层的 token 用量管控行为。
-
-各 Agent 对于「快用完 token 了」的处理方式各异（有的直接截断、有的无警告、有的在最后才通知）。本标准定义四个阈值区间，确保所有 Agent 在进入不同区间时采取一致的行为（警告、简化输出、阻塞）。
-
----
-
-## 核心规范
-
-- 所有 Agent 必须实现四区 token 预算模型
-- 进入 WARNING 区必须产生结构化日志（非中断）
-- 进入 DANGER 区必须切换为简化输出模式
-- 进入 BLOCKING 区必须拒绝新任务，等待预算刷新
-- 阈值比例可配置，默认值如下
-
----
-
-## 四区模型
-
-| 区间 | 范围（已用比例） | 行为 |
-|------|----------------|------|
-| **SAFE** | 0% – 60% | 正常执行，无特殊处理 |
-| **WARNING** | 60% – 80% | 产生 `token_budget_warning` 遥测事件；继续执行 |
-| **DANGER** | 80% – 95% | 切换简化输出模式；省略详细说明；继续执行 |
-| **BLOCKING** | 95% – 100% | 拒绝新任务；回传 `TOKEN_BUDGET_EXHAUSTED`；等待刷新 |
-
----
-
-## 配置参数
-
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `warningThreshold` | `0.60` | 进入 WARNING 区的比例阈值 |
-| `dangerThreshold` | `0.80` | 进入 DANGER 区的比例阈值 |
-| `blockingThreshold` | `0.95` | 进入 BLOCKING 区的比例阈值 |
-| `totalBudget` | 由模型/配置决定 | Token 总预算上限 |
-
----
-
-## 简化输出模式（DANGER 区）
-
-进入 DANGER 区后，Agent 必须：
-
-1. 省略详细的推理说明（只保留结论）
-2. 压缩示例代码（省略注释和空行）
-3. 不启动需要大量 token 的子任务
-4. 在输出开头标注 `[DANGER MODE]`
-
----
-
-## 遥测事件
-
-**`token_budget_warning`**（进入 WARNING 或以上区间时上报）
-
-| 字段 | 类型 |
-|------|------|
-| `agentId` | `string` |
-| `zone` | `WARNING\|DANGER\|BLOCKING` |
-| `usedTokens` | `number` |
-| `totalBudget` | `number` |
-| `usedRatio` | `number` |
-| `timestamp` | `string` |
-
----
-
-## 情境示例
-
-**情境 1：进入 WARNING 区**
-- 条件：已用 token 占比达 62%
-- 结果：上报 `token_budget_warning`（zone=WARNING），继续正常执行
-
-**情境 2：进入 DANGER 区**
-- 条件：已用 token 占比达 83%
-- 结果：切换简化输出模式，输出标注 `[DANGER MODE]`
-
-**情境 3：进入 BLOCKING 区**
-- 条件：已用 token 占比达 96%
-- 结果：拒绝新任务，回传 `TOKEN_BUDGET_EXHAUSTED`，等待下一个预算周期
-
----
-
-## 错误码
-
-| 代码 | 说明 |
-|------|------|
-| `TOKEN-001` | `TOKEN_BUDGET_EXHAUSTED` — 已进入 BLOCKING 区，拒绝新任务 |
-| `TOKEN-002` | `TOKEN_BUDGET_CONFIG_INVALID` — 阈值配置无效（如 warningThreshold > dangerThreshold）|

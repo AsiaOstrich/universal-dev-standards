@@ -2,7 +2,8 @@
 source: ../../../core/workflow-state-protocol.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-17
+last_synced: 2026-10-11
+source_hash: 3df217d7c9e2
 status: current
 ---
 
@@ -213,12 +214,12 @@ decisions:
 
 ```
 project-root/
-├── .workflow-state/           # 工作流程状态目录
-│   ├── sdd-SPEC-042.yaml     # 活跃的 SDD 工作流程状态
-│   ├── sdd-SPEC-042.log.yaml # SPEC-042 的事件日志
-│   ├── sdd-SPEC-038.yaml     # 已完成的工作流程（status: completed）
-│   └── feature-dev-auth.yaml  # 功能开发工作流程状态
-├── .gitignore                 # 应包含 .workflow-state/
+├── .workflow-state/           # Workflow state directory
+│   ├── sdd-SPEC-042.yaml     # Active SDD workflow state
+│   ├── sdd-SPEC-042.log.yaml # Event log for SPEC-042
+│   ├── sdd-SPEC-038.yaml     # Completed workflow (status: completed)
+│   └── feature-dev-auth.yaml  # Feature dev workflow state
+├── .gitignore                 # Should include .workflow-state/
 └── ...
 ```
 
@@ -245,7 +246,7 @@ project-root/
 | 讨论 | 创建状态文件，记录灰色地带和范围决策 |
 | 提案 | 更新规格产物路径 |
 | 审查 | 记录审查意见和迭代次数 |
-| 实施 | 追踪 AC 进度、记录 commits |
+| 实施 | 跟踪 AC 进度、记录 commits |
 | 验证 | 记录迭代计数（用于循环上限）、记录结果 |
 | 归档 | 将状态设为 `completed`，最终事件日志条目 |
 
