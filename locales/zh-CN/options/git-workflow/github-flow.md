@@ -2,13 +2,14 @@
 source: ../../../../options/git-workflow/github-flow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: b19d6c2614d2
 status: current
 ---
 
-# GitHub Flow 工作流程
+# GitHub Flow
 
-> **语言**: [English](../../../../options/git-workflow/github-flow.md) | 繁体中文
+> **语言**: [English](../../../../options/git-workflow/github-flow.md) | 简体中文
 
 **上层标准**: [Git 工作流程](../../../../core/git-workflow.md)
 
@@ -16,109 +17,126 @@ status: current
 
 ## 概述
 
-GitHub Flow 是一个轻量级、以分支为基础的工作流程，支援定期部署的团队和专案。它强调简单性，只使用一个长期分支（main），并搭配短期功能分支。
+GitHub Flow 是一种轻量级、基于分支的工作流程，专为定期部署的团队而设计。它易于理解和实施，非常适合持续部署环境。
 
-## 适用情境
+## 适用场景
 
-- 持续部署环境
-- 小型到中型团队
-- Web 应用程式和 SaaS 产品
-- 需要频繁发布的专案
+- 持续部署（从每天多次到每周一次）
+- Web 应用和 SaaS 产品
+- 中小型团队（5-15 名开发者）
+- 具备完善 CI/CD 流水线的项目
+
+## 分支结构
+
+| 分支 | 用途 | 生命周期 |
+|------|------|----------|
+| `main` | 始终可部署的生产代码 | 永久 |
+| `feature/*` | 新功能或修复 | 短期（理想为 1-3 天） |
 
 ## 核心原则
 
-| 原则 | 说明 |
-|------|------|
-| Main 随时可部署 | `main` 分支永远处于可发布状态 |
-| 功能分支 | 所有工作在功能分支上进行 |
-| Pull Request | 透过 PR 进行程式码审查 |
-| 合并后立即部署 | 合并到 main 即触发部署 |
+1. **main 始终可部署** - main 分支应始终处于可部署状态
+2. **一切工作都建分支** - 任何新工作都要创建分支
+3. **使用描述性名称** - 分支名称应描述所做的工作
+4. **尽早开启 PR** - 通过 pull request 尽早获得反馈
+5. **合并后即部署** - 合并到 main 后立即部署
 
 ## 工作流程步骤
 
-### 1. 从 main 建立分支
+### 1. 创建功能分支
 
 ```bash
+# Start from latest main
 git checkout main
 git pull origin main
+
+# Create feature branch
 git checkout -b feature/user-authentication
 ```
 
 ### 2. 进行变更并提交
 
 ```bash
-# 进行变更
+# Make your changes
 git add .
 git commit -m "feat(auth): add login form component"
 
-# 持续提交
-git commit -m "feat(auth): add form validation"
-git commit -m "test(auth): add login form tests"
+# Continue making commits...
+git commit -m "feat(auth): add authentication service"
+git commit -m "test(auth): add login tests"
 ```
 
-### 3. 推送并建立 Pull Request
+### 3. 推送并创建 Pull Request
 
 ```bash
-git push origin feature/user-authentication
-# 在 GitHub 上建立 Pull Request
+# Push branch to remote
+git push -u origin feature/user-authentication
+
+# Create PR via GitHub/GitLab UI
+# - Add description
+# - Request reviewers
+# - Link related issues
 ```
 
-### 4. 讨论与审查
+### 4. 审查与合并
 
-- 团队成员审查程式码
-- 讨论变更
-- 进行必要的修改
-- CI/CD 自动执行测试
+- 获得代码审查批准
+- 确保 CI 检查通过
+- 通过 GitHub 界面合并（squash 或 merge commit）
 
-### 5. 合并并部署
+### 5. 部署与清理
 
 ```bash
-# 审查通过后，透过 GitHub 介面合并
-# 或使用命令列：
+# After merge, update local main
 git checkout main
-git merge --no-ff feature/user-authentication
-git push origin main
+git pull origin main
 
-# 删除功能分支
+# Delete feature branch
 git branch -d feature/user-authentication
-git push origin --delete feature/user-authentication
 ```
 
-## 分支命名惯例
+## 分支命名约定
 
-| 类型 | 格式 | 范例 |
-|------|------|------|
-| 功能 | `feature/<描述>` | `feature/user-profile` |
-| 错误修复 | `fix/<描述>` | `fix/login-redirect` |
-| 热修复 | `hotfix/<描述>` | `hotfix/security-patch` |
-| 文件 | `docs/<描述>` | `docs/api-reference` |
+```
+<type>/<short-description>
+
+Examples:
+feature/oauth-login
+fix/memory-leak
+docs/api-reference
+refactor/user-service
+```
+
+## 合并策略建议
+
+| 合并类型 | 使用时机 |
+|----------|----------|
+| **Squash Merge** | 大多数功能分支（历史记录整洁） |
+| **Merge Commit** | 需要保留提交历史时 |
+| **Rebase + FF** | 生命周期极短的分支 |
 
 ## 优点
 
-| 优点 | 说明 |
-|------|------|
-| 简单易学 | 只需记住一个流程 |
-| 快速迭代 | 支援持续部署 |
-| 清晰的审查流程 | PR 确保程式码品质 |
-| 自动化友善 | 易于整合 CI/CD |
+- 易于理解和实施
+- 与 CI/CD 配合良好
+- 鼓励频繁集成
+- 分支管理开销极小
 
 ## 缺点
 
-| 缺点 | 说明 |
-|------|------|
-| 无发布分支 | 不适合需要版本控制的专案 |
-| 需要可靠的测试 | main 必须随时可部署 |
-| 不适合多版本维护 | 难以同时维护多个生产版本 |
+- 没有独立的开发分支用于集成
+- 所有功能直接进入 main
+- 不太适合按计划发布
 
 ## 相关选项
 
-- [GitFlow](./gitflow.md) - 适合有排程发布的专案
-- [Trunk-Based](./trunk-based.md) - 更简化的持续整合流程
+- [GitFlow](./gitflow.md) - 适用于按计划发布
+- [Trunk-Based Development](./trunk-based.md) - 适用于更频繁的集成
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
 **来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

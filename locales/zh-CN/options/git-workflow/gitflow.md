@@ -2,13 +2,14 @@
 source: ../../../../options/git-workflow/gitflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4770d4d33ca8
 status: current
 ---
 
-# GitFlow 工作流程
+# GitFlow
 
-> **语言**: [English](../../../../options/git-workflow/gitflow.md) | 繁体中文
+> **语言**: [English](../../../../options/git-workflow/gitflow.md) | 简体中文
 
 **上层标准**: [Git 工作流程](../../../../core/git-workflow.md)
 
@@ -16,132 +17,159 @@ status: current
 
 ## 概述
 
-GitFlow 是一个严谨的分支模型，专为有排程发布周期的专案设计。它定义了功能开发、发布准备和维护的具体分支角色。
+GitFlow 是一种为按计划发布的项目而设计的分支模型。它为管理具有多条并行开发线的大型项目提供了稳健的框架。
 
-## 适用情境
+## 适用场景
 
-- 有排程发布周期的专案
-- 需要同时维护多个版本的软体
-- 企业级应用程式
-- 需要严格品质控管的团队
+- 按计划发布（每月或更长的周期）
+- 需要维护多个版本
+- 大型团队（10 名以上开发者）
+- 具有正式发布流程的企业环境
 
-## 分支架构
+## 分支结构
+
+| 分支 | 用途 | 生命周期 | 基于 | 合并到 |
+|------|------|----------|------|--------|
+| `main` | 生产发布 | 永久 | - | - |
+| `develop` | 集成分支 | 永久 | main | - |
+| `feature/*` | 新功能 | 短期 | develop | develop |
+| `release/*` | 发布准备 | 中期（1-2 周） | develop | main, develop |
+| `hotfix/*` | 紧急修复 | 极短 | main | main, develop |
+
+## 分支示意图
 
 ```
-main ────●────────●────────●──────── (生产版本)
-         │        │        │
-         │   release/1.0   │
-         │   ┌────●────┐   │
-         │   │         │   │
-develop ─●───●─────────●───●──────── (开发主线)
-         │             │
-    feature/a     feature/b
-    ┌────●────┐   ┌────●────┐
+main     ─────●─────────────●─────────●─────
+              │             │         │
+              │    release/1.0        │
+              │     ┌───●───┐        hotfix/fix
+              │     │       │         ┌─●─┐
+develop ──●───●─────●───────●─────────●───●──
+          │                           │
+       feature/A                   feature/B
+        ┌──●──┐                     ┌──●──┐
 ```
 
-## 分支类型
+## 核心原则
 
-| 分支 | 用途 | 生命周期 |
-|------|------|----------|
-| `main` | 生产版本，每个 commit 都是发布 | 永久 |
-| `develop` | 开发整合分支 | 永久 |
-| `feature/*` | 新功能开发 | 临时 |
-| `release/*` | 发布准备 | 临时 |
-| `hotfix/*` | 紧急生产修复 | 临时 |
+1. **永远不要直接提交到 main** - 使用 release 或 hotfix 分支
+2. **develop 是集成分支** - 所有功能都先合并到这里
+3. **release 分支冻结功能** - 只允许修复缺陷
+4. **hotfix 同时合并到 main 和 develop** - 保持分支同步
 
-## 工作流程
+## 工作流程：功能开发
 
-### 功能开发
+### 1. 开始功能
 
 ```bash
-# 从 develop 建立功能分支
 git checkout develop
 git pull origin develop
-git checkout -b feature/shopping-cart
+git checkout -b feature/user-dashboard
+```
 
-# 开发完成后合并回 develop
+### 2. 开发功能
+
+```bash
+# Make commits
+git commit -m "feat(dashboard): add widget system"
+git commit -m "feat(dashboard): add chart component"
+```
+
+### 3. 完成功能
+
+```bash
 git checkout develop
-git merge --no-ff feature/shopping-cart
+git merge --no-ff feature/user-dashboard
+git branch -d feature/user-dashboard
 git push origin develop
-git branch -d feature/shopping-cart
 ```
 
-### 发布准备
+## 工作流程：发布
+
+### 1. 创建发布分支
 
 ```bash
-# 从 develop 建立发布分支
 git checkout develop
-git checkout -b release/1.2.0
+git checkout -b release/v1.2.0
+```
 
-# 进行发布准备（版本号更新、文件等）
+### 2. 准备发布
+
+```bash
+# Update version numbers
+# Update CHANGELOG
+# Bug fixes only - no new features!
 git commit -m "chore: bump version to 1.2.0"
-
-# 发布就绪后，合并到 main 和 develop
-git checkout main
-git merge --no-ff release/1.2.0
-git tag -a v1.2.0 -m "Release 1.2.0"
-
-git checkout develop
-git merge --no-ff release/1.2.0
-
-git branch -d release/1.2.0
 ```
 
-### 紧急修复
+### 3. 完成发布
 
 ```bash
-# 从 main 建立 hotfix 分支
+# Merge to main
 git checkout main
-git checkout -b hotfix/security-fix
+git merge --no-ff release/v1.2.0
+git tag -a v1.2.0 -m "Release v1.2.0"
 
-# 修复后合并到 main 和 develop
-git checkout main
-git merge --no-ff hotfix/security-fix
-git tag -a v1.2.1 -m "Hotfix 1.2.1"
-
+# Merge back to develop
 git checkout develop
-git merge --no-ff hotfix/security-fix
+git merge --no-ff release/v1.2.0
 
-git branch -d hotfix/security-fix
+# Cleanup
+git branch -d release/v1.2.0
+git push origin main develop --tags
 ```
 
-## 版本标签
+## 工作流程：紧急修复
+
+### 1. 创建 hotfix 分支
 
 ```bash
-# 建立标签
-git tag -a v1.0.0 -m "版本 1.0.0"
+git checkout main
+git checkout -b hotfix/security-patch
+```
 
-# 推送标签
-git push origin v1.0.0
-git push origin --tags  # 推送所有标签
+### 2. 修复并完成
+
+```bash
+# Make fix
+git commit -m "fix: patch XSS vulnerability"
+
+# Merge to main
+git checkout main
+git merge --no-ff hotfix/security-patch
+git tag -a v1.2.1 -m "Hotfix v1.2.1"
+
+# Merge to develop
+git checkout develop
+git merge --no-ff hotfix/security-patch
+
+# Cleanup
+git branch -d hotfix/security-patch
 ```
 
 ## 优点
 
-| 优点 | 说明 |
-|------|------|
-| 清晰的分支角色 | 每种分支有明确用途 |
-| 支援多版本维护 | 可同时维护多个生产版本 |
-| 发布流程可控 | 有专门的发布准备阶段 |
-| 适合大型团队 | 结构化的协作流程 |
+- 开发与生产之间界限清晰
+- 支持功能的并行开发
+- 非常适合按计划发布
+- 易于维护多个版本
 
 ## 缺点
 
-| 缺点 | 说明 |
-|------|------|
-| 复杂度较高 | 需要维护多个长期分支 |
-| 分支管理开销 | 需要频繁合并 |
-| 不适合持续部署 | 发布周期较长 |
+- 分支结构复杂
+- 对小型团队而言开销较大
+- 可能导致长期存在的功能分支
+- 更容易出现合并冲突
 
 ## 相关选项
 
-- [GitHub Flow](./github-flow.md) - 更简单的持续部署流程
-- [Trunk-Based](./trunk-based.md) - 最简化的持续整合流程
+- [GitHub Flow](./github-flow.md) - 适用于持续部署的更简单替代方案
+- [Trunk-Based Development](./trunk-based.md) - 适用于 CI/CD 成熟的团队
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
 **来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

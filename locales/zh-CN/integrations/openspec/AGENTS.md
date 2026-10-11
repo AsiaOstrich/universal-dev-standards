@@ -2,11 +2,17 @@
 source: ../../../../integrations/openspec/AGENTS.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-23
+last_synced: 2026-10-11
+source_hash: 1086b42e1acf
 status: current
 ---
 
 # OpenSpec 指令
+
+> **语言**: [English](../../../../integrations/openspec/AGENTS.md) | [繁體中文](../../../zh-TW/integrations/openspec/AGENTS.md) | 简体中文
+
+**版本**: 1.1.0
+**最后更新**: 2026-03-23
 
 使用 OpenSpec 进行规格驱动开发的 AI 编码助手指令。
 
@@ -66,6 +72,26 @@ status: current
 - 如功能有变更则更新 `specs/`
 - 对于纯工具类变更使用 `openspec archive <change-id> --skip-specs --yes`（始终明确传递 change ID）
 - 执行 `openspec validate --strict` 确认归档的变更通过检查
+
+## 工作流程强制关卡
+
+**关键**：在执行任何工作流程阶段之前，你必须检查前置条件。
+
+### 阶段关卡
+
+| 阶段 | 前置条件 | 失败时 |
+|-------|-------------|------------|
+| 阶段 2（实现） | 提案已核准 | → 先分享提案以供审查 |
+| 阶段 3（归档） | 所有任务已完成 | → 完成剩余任务 |
+| Commit（feat/fix） | 检查活跃变更 | → 建议引用 change-id |
+
+### 会话开始协议
+会话开始时，检查活跃变更：`openspec list`
+若发现活跃变更 → 告知用户并提供继续执行的选项。
+
+参考：`.standards/workflow-enforcement.ai.yaml`
+
+---
 
 ## 任何任务之前
 
@@ -322,5 +348,24 @@ openspec show [item]       # 查看详情
 openspec validate --strict # 是否正确？
 openspec archive <change-id> [--yes|-y]  # 标记完成（添加 --yes 用于自动化）
 ```
+
+---
+
+## AI 响应导航
+
+**规则**：每个实质性的 AI 响应结尾都必须包含导航区块（Navigation Footer），建议下一步行动。
+
+**关键行为**：
+- 在完成任务、提供分析、提出问题或报告错误后，附加导航建议
+- 提供多个选项时，以 ⭐ 标记推荐选项
+- 使用情境模板（任务完成、用户提问、错误/失败、进行中、信息性回复）
+- 依情境调整选项数量（1-5 个，绝不超过 5 个）
+- 适用时，建议中优先使用斜杠命令
+
+**豁免**：极短的确认（"OK"、"Done"）可省略导航。
+
+参考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
+
+---
 
 记住：规格是真相。变更是提案。保持同步。

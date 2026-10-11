@@ -2,13 +2,14 @@
 source: ../../../../options/git-workflow/merge-commit.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 375d47889710
 status: current
 ---
 
 # Merge Commit 合并策略
 
-> **语言**: [English](../../../../options/git-workflow/merge-commit.md) | 繁体中文
+> **语言**: [English](../../../../options/git-workflow/merge-commit.md) | 简体中文
 
 **上层标准**: [Git 工作流程](../../../../core/git-workflow.md)
 
@@ -16,99 +17,209 @@ status: current
 
 ## 概述
 
-Merge commit（也称为「true merge」或「merge with merge commit」）透过建立合并 commit 来保留功能分支的完整历史。这维护了完整的开发历史，并显示分支合并的确切时间点。
+Merge commit（也称为“true merge”或“merge with merge commit”）通过创建一个合并两个分支的合并 commit 来保留功能分支的完整历史。这样可以维护完整的开发历史，并准确显示分支合并的时间点。
 
-## 适用情境
+## 适用场景
 
-- 重视完整历史保留的团队
-- 需要审计轨迹的专案
-- 长期执行的功能分支
-- 个别 commit 有意义讯息时
-- 使用 `git bisect` 除错时
+- 重视完整保留历史的团队
+- 需要审计轨迹的项目
+- 长期存在的功能分支
+- 各个 commit 都有有意义的提交信息时
+- 使用 `git bisect` 调试时
 
-## 运作方式
+## 工作原理
 
 ```
-合并前：                合并后：
-main:    A---B---C      A---B---C---------M（合并 commit）
-              \                   \       /
-feature:       D---E---F           D---E---F
+Before merge:                After merge commit:
+main:    A---B---C           A---B---C---------M (merge commit)
+              \                       \       /
+feature:       D---E---F               D---E---F
 ```
 
-合并 commit `M` 有两个父节点：`C`（来自 main）和 `F`（来自 feature）。
+合并 commit `M` 有两个父提交：`C`（来自 main）和 `F`（来自 feature）。
 
 ## 工作流程
 
 ### 标准 Merge Commit
 
 ```bash
-# 确保 main 是最新的
+# Ensure main is up to date
 git checkout main
 git pull origin main
 
-# 使用 merge commit 合并功能分支
+# Merge feature branch with merge commit
 git merge feature/user-auth --no-ff
 
-# 这会开启编辑器撰写合并讯息
-# 或指定讯息：
+# This opens editor for merge commit message
+# Or specify inline:
 git merge feature/user-auth --no-ff -m "Merge feature/user-auth: Add OAuth support"
 
-# 推送
+# Push
 git push origin main
 ```
 
-### `--no-ff` 旗标
+### `--no-ff` 参数
 
-`--no-ff`（no fast-forward）旗标确保永远建立合并 commit：
+`--no-ff`（no fast-forward）参数确保总是创建合并 commit：
 
 ```bash
-# 不使用 --no-ff（可能会 fast-forward）
+# Without --no-ff (may fast-forward if possible)
 git merge feature-branch
-# 结果：可能会或不会建立合并 commit
+# Result: May or may not create merge commit
 
-# 使用 --no-ff（永远建立合并 commit）
+# With --no-ff (always creates merge commit)
 git merge --no-ff feature-branch
-# 结果：永远建立合并 commit
+# Result: Always creates merge commit
+```
+
+### 通过 GitHub Pull Request
+
+1. 打开 Pull Request
+2. 点击“Create a merge commit”（或“Merge pull request”）
+3. 可选择编辑合并 commit 信息
+4. 确认合并
+
+## 合并 Commit 信息
+
+### 默认格式
+
+```
+Merge branch 'feature/user-auth' into main
+```
+
+### 增强格式（推荐）
+
+```
+Merge feature/user-auth: Implement OAuth authentication
+
+This merge adds:
+- Google OAuth integration
+- GitHub OAuth integration
+- Token refresh mechanism
+- Session management
+
+PR #123
+Reviewed-by: @teammate
 ```
 
 ## 优点
 
 | 优点 | 说明 |
 |------|------|
-| 完整历史 | 所有 commit 保留可见 |
-| 清楚的合并点 | 容易看出功能整合时间 |
-| 容易归属 | 每个 commit 显示作者 |
-| 有效的 bisect | `git bisect` 有完整细节 |
-| 还原弹性 | 可还原合并或个别 commit |
+| 完整历史 | 所有 commit 均被保留且可见 |
+| 清晰的合并点 | 容易看出功能何时被集成 |
+| 易于追溯作者 | 每个 commit 都显示其作者 |
+| 高效的 bisect | `git bisect` 可以按完整粒度工作 |
+| 灵活的回滚 | 可以回滚整个合并或单个 commit |
 
 ## 缺点
 
 | 缺点 | 说明 |
 |------|------|
-| 非线性历史 | 分支结构可能复杂 |
-| 更多 commit | 主分支累积许多 commit |
-| 较难阅读 | `git log` 显示交错 commit |
-| 合并冲突 | 冲突在合并 commit 解决 |
+| 非线性历史 | 分支结构可能很复杂 |
+| commit 更多 | 主分支会累积大量 commit |
+| 较难阅读 | `git log` 显示交错的 commit |
+| 合并冲突 | 冲突在合并 commit 中解决 |
 
-## 检视合并历史
+## 查看合并历史
+
+### 仅显示合并 Commit
 
 ```bash
-# 只列出合并 commit
+# List only merge commits
 git log --merges --oneline
 
-# 视觉化分支结构
-git log --oneline --graph
+# Show merge commits with their parents
+git log --merges --format="%h %s (%p)"
 ```
 
-## 还原合并
+### 可视化分支结构
 
 ```bash
-# 还原整个合并
+# ASCII graph of branches
+git log --oneline --graph
+
+# Simplified graph
+git log --oneline --graph --first-parent
+```
+
+### 查看合并的内容
+
+```bash
+# Show what was merged
+git show <merge-commit-sha>
+
+# Show changes from first parent (main)
+git diff <merge-commit>^1 <merge-commit>
+
+# Show changes from second parent (feature)
+git diff <merge-commit>^2 <merge-commit>
+```
+
+## 回滚合并
+
+```bash
+# Revert the entire merge
 git revert -m 1 <merge-commit-sha>
 
-# -m 1 表示保留第一个父节点（main 分支）
-# -m 2 会保留第二个父节点（feature 分支）
+# -m 1 means keep first parent (main branch)
+# -m 2 would keep second parent (feature branch)
 ```
+
+## 配置
+
+### 仓库设置（GitHub）
+
+```yaml
+# In repository settings > Pull Requests
+Allow merge commits: ✓
+Default commit message: Pull request title and description
+```
+
+### Git 配置
+
+```bash
+# Always use --no-ff for merges
+git config --global merge.ff false
+
+# Or per-repository
+git config merge.ff false
+```
+
+### Git 别名
+
+```bash
+# Add to ~/.gitconfig
+[alias]
+    mg = merge --no-ff
+    mgm = "!f() { git merge --no-ff -m \"Merge $1\" $1; }; f"
+```
+
+## 处理合并冲突
+
+合并过程中发生冲突时：
+
+```bash
+# Start merge
+git merge feature-branch
+
+# If conflicts:
+# 1. Edit conflicted files
+# 2. Mark as resolved
+git add <resolved-files>
+
+# 3. Complete merge
+git commit
+# Merge commit message will include conflict info
+```
+
+## 最佳实践
+
+1. **使用有意义的合并信息** - 描述该功能新增了什么
+2. **保持分支最新** - 定期将 main 合并到功能分支
+3. **使用 `--no-ff`** - 确保总是创建合并 commit
+4. **清理分支** - 合并后删除功能分支
+5. **引用 issue** - 在合并信息中包含 issue/PR 编号
 
 ## 相关选项
 
@@ -117,8 +228,8 @@ git revert -m 1 <merge-commit-sha>
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
 **来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
