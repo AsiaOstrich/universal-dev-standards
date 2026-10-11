@@ -2,7 +2,8 @@
 source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
-last_synced: 2026-09-29
+last_synced: 2026-10-11
+source_hash: 2316d0bfc18c
 status: current
 ---
 
@@ -838,7 +839,9 @@ uds init --experimental
 | 強制執行 Hooks | `--with-hooks` | 安裝強制執行 hooks（commit-msg、security、logging） |
 | 內容佈局 | `--content-layout` | 內容佈局（`flat`、`layered`）- 預設：`flat` |
 | Claude Code 目標檔 | `--claude-target` | Claude Code 整合內容要寫到哪裡：`project`（`CLAUDE.md`，預設）或 `local`（`CLAUDE.local.md`） |
+| 介面語言 | `--ui-lang` | 提示訊息的介面語言（`en`、`zh-tw`、`auto`）- 預設：`auto` |
 | 模式（已棄用） | `-m, --mode` | 安裝模式（skills, full）- 請改用 `--skills-location` |
+| 強制覆寫 | `-f, --force` | 覆寫既有配置（供 `uds ai-context init` 使用） |
 
 ### 提交前標準檢查（git hook 接線）
 
@@ -858,7 +861,7 @@ git repo 就會執行。Node.js 專案（偵測到 `package.json`）寫入
   這是錦上添花，不是這道接線能不能生效的關鍵。
 - **覆蓋你自己的 git hook 設定。** 若 `core.hooksPath` 已經指向別處，或
   `.git/hooks/pre-commit` 已經存在，`uds init` 會兩者都不動，並印出檢查
-  **未啟用**及原因。
+  **未啟用**，並附上原因與手動修復方式。
 
 `git config core.hooksPath` 是**本機、per-clone 的設定——不會進版控。**
 跑 `uds init` 只會讓「跑過這個指令的那個 clone」生效；其他人 clone 這個
@@ -988,6 +991,12 @@ uds init -y --content-layout layered
 
 # 繁體中文團隊
 uds init -y --output-lang traditional-chinese --locale zh-tw
+
+# 強制使用英文提示
+uds init --ui-lang en
+
+# 強制使用繁體中文提示
+uds init --ui-lang zh-tw
 
 # PHP 專案
 uds init -y --lang php --framework fat-free

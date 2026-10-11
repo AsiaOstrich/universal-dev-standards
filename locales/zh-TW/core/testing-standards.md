@@ -2,7 +2,8 @@
 source: ../../../core/testing-standards.md
 source_version: 3.2.0
 translation_version: 3.2.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 4d5d70b73aa6
 status: current
 ---
 
@@ -10,8 +11,8 @@ status: current
 
 > **Language**: [English](../../../core/testing-standards.md) | 繁體中文
 
-**版本**: 3.1.0
-**最後更新**: 2026-03-25
+**版本**: 3.2.0
+**最後更新**: 2026-04-20
 **適用範圍**: 所有軟體專案
 **Scope**: universal
 **產業標準**: ISTQB CTFL v4.0, ISO/IEC/IEEE 29119
@@ -482,39 +483,85 @@ tests/
 
 > **參考**：ISTQB CTFL v4.0 §4.4、James Bach 的 Session-Based Test Management (SBTM)
 
-探索式測試是一種結構化方法，測試設計、執行與學習同時進行，透過發現腳本測試無法預見的未知缺陷來補充自動化測試。
+探索式測試是一種結構化方法，測試設計、執行與學習同時進行。它透過發現腳本測試無法預見的未知缺陷，來補充自動化測試。
 
 ### Session-Based Test Management (SBTM)
 
+每個探索式測試 session 都遵循 SBTM 框架：
+
 | 元素 | 說明 | 需求 |
 |------|------|------|
-| **Time Box** | 固定 60-90 分鐘的 session | 必要 |
+| **Time Box** | 固定 60-90 分鐘的 session 時長 | 必要 |
 | **Charter** | 明確的探索目標、測試區域與預期風險 | 必要 |
 | **Session Notes** | 步驟、觀察、偏差與問題的結構化記錄 | 必要 |
-| **Debrief** | Session 後與團隊回顧 | 建議 |
+| **Debrief** | Session 後與團隊或測試負責人回顧 | 建議 |
+
+**Charter 格式**：
+```
+Explore [target area]
+With [resources/techniques]
+To discover [expected information/risks]
+```
 
 ### 啟發法（SFDPOT）
+
+使用 SFDPOT 助記法（James Bach 的 Heuristic Test Strategy Model）引導從六個維度進行探索：
 
 | 維度 | 關注領域 | 範例問題 |
 |------|----------|----------|
 | Structure | 系統元件與其關係 | 存在哪些模組？如何連接？ |
-| Function | 系統提供的功能與能力 | 每個功能做什麼？邊界情況？ |
-| Data | 輸入/輸出資料、邊界值 | 接受哪些資料類型？邊界發生什麼？ |
-| Platform | OS、瀏覽器、硬體差異 | 所有支援平台都能運作？ |
+| Function | 系統提供的功能與能力 | 每個功能做什麼？有哪些邊界情況？ |
+| Data | 輸入/輸出資料、邊界值、格式 | 接受哪些資料類型？在邊界會發生什麼？ |
+| Platform | OS、瀏覽器、硬體、環境差異 | 在所有支援的平台上都能運作嗎？ |
 | Operations | 安裝、設定、維護、監控 | 能乾淨安裝嗎？如何維護？ |
-| Time | 並發、逾時、排程、時區 | 並發存取時會發生什麼？ |
+| Time | 並發、逾時、排程、時區 | 並發存取時會發生什麼？逾時如何處理？ |
+
+> **提示**：每個 session 至少使用 3 個 SFDPOT 維度，以確保廣泛的覆蓋。
+
+### Session 記錄範本
+
+每個探索式測試 session **必須**使用此範本產出 session 記錄：
+
+| 欄位 | 說明 | 必要 |
+|------|------|------|
+| **Charter** | 探索目標與範圍 | 是 |
+| **Area** | 受測的功能區域或元件 | 是 |
+| **Duration** | 實際花費時間（在 60-90 分鐘 time box 內） | 是 |
+| **Notes** | 執行步驟、觀察、與 charter 的偏差 | 是 |
+| **Bugs Found** | 發現的缺陷清單及其嚴重度 | 是 |
+| **Follow-up** | 待辦事項：新 charter、自動化候選項目、待釐清問題 | 是 |
+
+**Session 記錄範例**：
+```markdown
+## Session Record
+- **Charter**: Explore login flow with invalid credentials to discover error handling gaps
+- **Area**: Authentication module
+- **Duration**: 75 minutes
+- **Notes**: Tested SQL injection, XSS in username, Unicode characters, empty fields...
+- **Bugs Found**: 2 (BUG-101: XSS not sanitized in error message, BUG-102: No rate limiting)
+- **Follow-up**: Write automated regression for BUG-101, new charter for password reset flow
+```
 
 ### 自動化互補
+
+探索式測試與自動化測試扮演互補的角色：
 
 | 面向 | 探索式測試 | 自動化測試 |
 |------|-----------|-----------|
 | **目的** | 發現未知缺陷 | 防止已知回歸 |
-| **時機** | 新功能、風險區域、發布前 | 每次 build、CI |
-| **優勢** | 創造力、適應性 | 速度、可重複性 |
+| **時機** | 新功能、風險區域、發布前 | 每次 build、持續整合 |
+| **優勢** | 創造力、適應性、情境理解 | 速度、可重複性、覆蓋率 |
+| **成本** | 每個 session 的人力投入 | 長期的維護成本 |
 
-**發現到保護循環**：探索 → 記錄 → 自動化 → 保護 → 重複
+**發現到保護循環**：
 
-> **規則**：透過探索式測試發現的每個 Bug 應在同一 Sprint 內新增對應的自動化迴歸測試。
+1. **探索** — 進行探索式 session，發現新缺陷
+2. **回報** — 在 session 記錄中記錄發現的 Bug
+3. **自動化** — 將已確認的 Bug 轉為自動化迴歸測試
+4. **保護** — 自動化測試防止問題在未來的 build 中再次發生
+5. **重複** — 新的探索式 session 聚焦於尚未探索的區域
+
+> **規則**：透過探索式測試發現的每個 Bug **應該**在同一 Sprint 內新增對應的自動化迴歸測試。這能將一次性的發現轉化為永久的保護。
 
 ---
 

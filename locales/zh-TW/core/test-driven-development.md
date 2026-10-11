@@ -2,7 +2,8 @@
 source: ../../../core/test-driven-development.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 1e7fecd7c0f3
 status: current
 ---
 
@@ -14,6 +15,7 @@ status: current
 **最後更新**: 2026-01-25
 **適用性**: 所有採用測試驅動開發的專案
 **範圍**: 通用 (Universal)
+**業界標準**: 無（Kent Beck 實踐，1999）
 
 ---
 
@@ -46,4 +48,5 @@ TDD 是傳統測試驅動開發家族的一部分（與 BDD 和 ATDD 並列）�
 ## 相關標準
 
 - [測試標準](testing-standards.md)
+- [行為驅動開發](behavior-driven-development.md)
 - [規格驅動開發](spec-driven-development.md)

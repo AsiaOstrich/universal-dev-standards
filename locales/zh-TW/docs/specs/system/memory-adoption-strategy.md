@@ -2,6 +2,8 @@
 source: docs/specs/system/memory-adoption-strategy.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: d38e219de7d9
 status: current
 ---
 

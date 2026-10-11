@@ -2,10 +2,18 @@
 source: docs/USER-MANUAL.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 5c3253bd60b5
 status: current
 ---
 
-# 使用者手冊
+> **⚠️ 已棄用（DEPRECATED）** — 本手冊已過時（最後更新於 2026-03-24），不再維護。
+> 最新指南請參閱新版使用者文件 **[docs/user/README.md](user/README.md)**。
+> 封存位置：[docs/archive/USER-MANUAL-2026-03-24.md](../../../docs/archive/USER-MANUAL-2026-03-24.md)
+
+---
+
+# 使用者手冊（已封存）
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-24

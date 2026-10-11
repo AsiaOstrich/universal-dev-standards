@@ -2,7 +2,8 @@
 source: ../../../core/workflow-enforcement.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 19303d93a884
 status: current
 ---
 
