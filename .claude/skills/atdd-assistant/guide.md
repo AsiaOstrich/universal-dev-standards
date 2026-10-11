@@ -1,8 +1,9 @@
 ---
-source: ../../../../skills/atdd-assistant/SKILL.md
+source: ../../../../skills/atdd-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-10-11
+source_hash: 10e5e8da5ac4
 status: current
 scope: partial
 description: |
@@ -13,7 +14,7 @@ description: |
 
 # ATDD 助手
 
-> **語言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/atdd-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-19
@@ -257,6 +258,21 @@ TDD 層級（實作）
   └──▶ PO 驗收
 ```
 
+### ATDD + SDD 整合
+
+```markdown
+# 將 ATDD 連結至 SDD 規格
+
+## 用戶故事: US-123
+
+**規格參考**: SPEC-001
+
+### AC-1: 實作 SPEC-001 第 3.1 節
+**Given** [來自規格需求]
+**When** [依規格的動作]
+**Then** [依規格的預期]
+```
+
 ---
 
 ## 配置偵測
@@ -308,8 +324,8 @@ TDD 層級（實作）
 
 相關標準：
 - [BDD 標準](../../../../core/behavior-driven-development.md)
-- [TDD 標準](../../core/test-driven-development.md)
-- [測試標準](../../core/testing-standards.md)
+- [TDD 標準](../../../../core/test-driven-development.md)
+- [測試標準](../../../../core/testing-standards.md)
 
 ---
 
@@ -345,9 +361,9 @@ TDD 層級（實作）
 
 - [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - 核心 ATDD 標準
 - [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 標準
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 標準
-- [規格驅動開發](../../core/spec-driven-development.md) - SDD 工作流程
-- [測試標準](../../core/testing-standards.md) - 測試框架
+- [測試驅動開發](../../../../core/test-driven-development.md) - TDD 標準
+- [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 工作流程
+- [測試標準](../../../../core/testing-standards.md) - 測試框架
 - [BDD 助手](../bdd-assistant/SKILL.md) - BDD 技能
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
 

@@ -2,7 +2,8 @@
 source: ../../../../skills/bdd-assistant/bdd-workflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-10-11
+source_hash: 99c24f7db172
 status: current
 ---
 

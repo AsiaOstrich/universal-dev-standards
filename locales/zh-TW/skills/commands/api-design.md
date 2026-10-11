@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/api-design.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 87c3d9df679c
 status: current
 ---
 
 ---
-description: "[UDS] Guide API design following REST, GraphQL and gRPC best practices"
+description: "[UDS] 引導 API 設計，遵循 REST、GraphQL 與 gRPC 最佳實踐"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[API endpoint or module | API 端點或模組]"
 ---

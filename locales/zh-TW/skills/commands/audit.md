@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/audit.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 7a3738e15665
 status: current
 ---
 
 ---
-description: "[UDS] UDS health check and feedback system, diagnose installation integrity and detect development patterns"
+description: "[UDS] UDS 健康檢查與回饋系統，診斷安裝完整性並偵測開發模式"
 allowed-tools: Read, Grep, Glob, Bash(git log:*, uds audit:*)
 argument-hint: "[--health | --patterns | --friction | --report]"
 ---
