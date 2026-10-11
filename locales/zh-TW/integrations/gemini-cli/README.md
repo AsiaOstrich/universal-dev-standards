@@ -2,7 +2,8 @@
 source: ../../../../integrations/gemini-cli/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: b14a6bca6aa3
 status: current
 ---
 
@@ -19,6 +20,12 @@ status: current
 >
 > **要遷移？** 見[根 README](../../../../README.md#-ai-工具支援) 的 Antigravity 條目。
 > 注意 UDS 尚未驗證 Antigravity 的 skill 安裝路徑，因此 `uds init` 不會為它安裝 skills。
+
+> **語言**: [English](../../../../integrations/gemini-cli/README.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/gemini-cli/README.md)
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-09
+**狀態**: 2026-07-23 凍結
 
 本目錄提供將通用文件規範與 [Gemini CLI](https://geminicli.com/) 整合的資源。
 

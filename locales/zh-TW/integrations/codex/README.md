@@ -2,11 +2,17 @@
 source: ../../../../integrations/codex/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 75de1661b8b0
 status: current
 ---
 
 # OpenAI Codex 整合
+
+> **語言**: [English](../../../../integrations/codex/README.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/codex/README.md)
+
+**版本**: 1.0.0
+**最後更新**: 2026-01-09
 
 本目錄提供將通用開發規範與 OpenAI Codex CLI 整合的資源。
 

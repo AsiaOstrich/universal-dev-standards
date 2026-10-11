@@ -2,11 +2,17 @@
 source: ../../../../integrations/openspec/AGENTS.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-23
+last_synced: 2026-10-11
+source_hash: 1086b42e1acf
 status: current
 ---
 
 # OpenSpec 指令
+
+> **語言**: [English](../../../../integrations/openspec/AGENTS.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/openspec/AGENTS.md)
+
+**版本**: 1.1.0
+**最後更新**: 2026-03-23
 
 使用 OpenSpec 進行規格驅動開發的 AI 編碼助手指令。
 
@@ -66,6 +72,26 @@ status: current
 - 如功能有變更則更新 `specs/`
 - 對於純工具類變更使用 `openspec archive <change-id> --skip-specs --yes`（始終明確傳遞 change ID）
 - 執行 `openspec validate --strict` 確認封存的變更通過檢查
+
+## 工作流程強制閘門
+
+**關鍵**：在執行任何工作流程階段之前，你必須檢查先決條件。
+
+### 階段閘門
+
+| 階段 | 先決條件 | 失敗時 |
+|-------|-------------|------------|
+| 階段 2（實作） | 提案已核准 | → 先分享提案以供審查 |
+| 階段 3（封存） | 所有任務已完成 | → 完成剩餘任務 |
+| Commit (feat/fix) | 檢查活躍變更 | → 建議引用 change-id |
+
+### 會話啟動協定
+會話開始時，檢查活躍變更：`openspec list`
+若發現活躍變更 → 告知使用者並提供繼續執行的選項。
+
+參考：`.standards/workflow-enforcement.ai.yaml`
+
+---
 
 ## 任何任務之前
 
@@ -322,5 +348,24 @@ openspec show [item]       # 查看詳情
 openspec validate --strict # 是否正確？
 openspec archive <change-id> [--yes|-y]  # 標記完成（添加 --yes 用於自動化）
 ```
+
+---
+
+## AI 回應導航
+
+**規則**：每個實質性的 AI 回應結尾都必須包含導航區塊（Navigation Footer），建議下一步行動。
+
+**關鍵行為**：
+- 在完成任務、提供分析、提出問題或回報錯誤後，附加導航建議
+- 提供多個選項時，以 ⭐ 標記推薦選項
+- 使用情境範本（任務完成、使用者提問、錯誤/失敗、進行中、資訊性回覆）
+- 依情境調整選項數量（1-5 個，絕不超過 5 個）
+- 適用時，建議中優先使用斜線指令
+
+**豁免**：極短的確認（"OK"、"Done"）可省略導航。
+
+參考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
+
+---
 
 記住：規格是真相。變更是提案。保持同步。

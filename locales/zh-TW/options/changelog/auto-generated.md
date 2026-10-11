@@ -2,6 +2,8 @@
 source: options/changelog/auto-generated.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 1e26eaa6124f
 status: current
 ---
 

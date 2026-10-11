@@ -2,11 +2,17 @@
 source: ../../../../integrations/opencode/README.md
 source_version: 1.3.0
 translation_version: 1.3.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: fb7f9eabbeea
 status: current
 ---
 
 # OpenCode 整合
+
+> **語言**: [English](../../../../integrations/opencode/README.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/opencode/README.md)
+
+**版本**: 1.3.0
+**最後更新**: 2026-01-13
 
 本目錄提供將通用開發規範與 OpenCode 整合的資源。
 

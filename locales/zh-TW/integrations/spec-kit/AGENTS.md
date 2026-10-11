@@ -2,13 +2,14 @@
 source: ../../../../integrations/spec-kit/AGENTS.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-23
+last_synced: 2026-10-11
+source_hash: 261f059af260
 status: current
 ---
 
 # Spec Kit 指令
 
-> **語言**: [English](../../../../integrations/spec-kit/AGENTS.md) | 繁體中文
+> **語言**: [English](../../../../integrations/spec-kit/AGENTS.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/spec-kit/AGENTS.md)
 
 **版本**: 1.1.0
 **最後更新**: 2026-03-23
@@ -239,6 +240,23 @@ Refs: SPEC-001
 - [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 方法論
 - [提交訊息指南](../../../../core/commit-message-guide.md) - 提交慣例
 - [程式碼簽入標準](../../../../core/checkin-standards.md) - 簽入要求
+
+---
+
+## AI 回應導航
+
+**規則**：每個實質性的 AI 回應結尾都必須包含導航區塊（Navigation Footer），建議下一步行動。
+
+**關鍵行為**：
+- 在完成任務、提供分析、提出問題或回報錯誤後，附加導航建議
+- 提供多個選項時，以 ⭐ 標記推薦選項
+- 使用情境範本（任務完成、使用者提問、錯誤/失敗、進行中、資訊性回覆）
+- 依情境調整選項數量（1-5 個，絕不超過 5 個）
+- 適用時，建議中優先使用斜線指令
+
+**豁免**：極短的確認（"OK"、"Done"）可省略導航。
+
+參考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
 
 ---
 
