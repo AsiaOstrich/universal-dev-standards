@@ -2,7 +2,8 @@
 source: ../../../core/branch-completion.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-24
+last_synced: 2026-10-11
+source_hash: 630cbaa0dc61
 status: current
 ---
 
@@ -70,50 +71,104 @@ status: current
 
 ```bash
 git checkout main
-git merge feature/my-feature
+git merge --no-ff feature/my-feature
 git branch -d feature/my-feature
+# If worktree exists:
+git worktree remove .worktrees/my-feature
 ```
+
+**何时使用**：小型变更、个人工作、无需审查。
 
 ### 选项 2：创建 Pull Request
 
-推送分支并创建 PR 进行代码审查。
+推送分支并创建 Pull Request 进行审查。
 
 ```bash
 git push -u origin feature/my-feature
-gh pr create --title "功能描述" --body "变更说明"
+gh pr create --title "feat: add my feature" --body "..."
 ```
 
-### 选项 3：Squash 合并
+**何时使用**：团队项目、需要审查的变更、CI/CD 流水线。
 
-将所有提交压缩为单一提交后合并。
+### 选项 3：保持现状
+
+保留分支，不合并也不创建 PR。
+
+- 记录分支状态与延后的原因
+- 设置提醒以便日后回顾
+
+**何时使用**：进行中的工作、等待依赖、探索替代方案。
+
+### 选项 4：丢弃
+
+删除分支及其所有变更。
+
+**安全要求**：用户必须通过输入分支名称来**明确确认**。
+
+```
+⚠️  You are about to discard branch 'feature/my-feature'.
+    This will permanently delete all uncommitted and committed changes on this branch.
+    Type the branch name to confirm: feature/my-feature
+```
 
 ```bash
+# After confirmation:
 git checkout main
-git merge --squash feature/my-feature
-git commit -m "feat: 功能描述"
-git branch -d feature/my-feature
+git branch -D feature/my-feature
+# If worktree exists:
+git worktree remove .worktrees/my-feature
 ```
 
-### 选项 4：丢弃分支
+**何时使用**：已放弃的实验、已被取代的做法。
 
-安全丢弃不再需要的分支。
+丢弃操作需要用户明确确认（输入分支名称），防止误删。
 
-⚠️ **丢弃确认**：必须明确输入确认才能删除。
+---
 
-```bash
-git branch -D feature/my-feature        # 本地删除
-git push origin --delete feature/my-feature  # 远程删除
+## 决策流程
+
+```
+Prerequisites pass?
+  ├── No → Fix issues first
+  └── Yes → Choose completion option:
+        ├── 1. Merge locally
+        ├── 2. Create PR
+        ├── 3. Keep as-is
+        └── 4. Discard (requires confirmation)
 ```
 
 ---
 
-## 相关标准
+## Worktree 整合
 
-- [Git Worktree 隔离](git-worktree.md)
-- [代理派遣与并行协调](agent-dispatch.md)
+若分支有关联的 worktree，必须在完成流程中一并清理该 worktree：
+
+| 完成选项 | Worktree 操作 |
+|---------|--------------|
+| 本地合并 | 合并后移除 worktree |
+| 创建 PR | 保留 worktree 直到 PR 合并 |
+| 保持现状 | 保留 worktree |
+| 丢弃 | 立即移除 worktree |
 
 ---
 
-## 许可证
+## 规则
 
-本标准采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 发布。
+| ID | 触发条件 | 动作 | 优先级 |
+|----|---------|------|--------|
+| BC-001 | 用户选择丢弃 | 要求输入分支名称确认 | Critical |
+| BC-002 | 分支有关联的 worktree | 完成时清理 worktree | High |
+| BC-003 | 前置条件未满足 | 阻止完成，显示失败的检查项 | High |
+| BC-004 | 分支闲置 14 天以上 | 通知用户完成或丢弃 | Medium |
+
+---
+
+## 参考资料
+
+- **Superpowers**：[finishing-a-development-branch](https://github.com/obra/superpowers) (MIT)
+- **Git Flow**：分支生命周期管理
+- **Trunk-Based Development**：短生命周期分支模式
+
+---
+
+> **分支完成 ≠ 发布就绪。** 分支完成代表其自身的所有质量关卡都已通过，并不代表产品已可交付。正式部署前必须通过的 16 维度发布关卡，请参阅 `release-readiness-gate.md`。

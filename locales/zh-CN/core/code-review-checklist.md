@@ -1,18 +1,22 @@
 ---
 source: ../../../core/code-review-checklist.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-12
-status: stale
+source_version: 1.6.0
+translation_version: 1.6.0
+last_synced: 2026-10-11
+source_hash: 405318729fc5
+status: current
 ---
 
 # 代码审查检查清单
 
-> **语言**: [English](../../../core/code-review-checklist.md) | [简体中文](../../zh-TW/core/code-review-checklist.md) | 简体中文
+> **语言**: [English](../../../core/code-review-checklist.md) | [繁體中文](../../zh-TW/core/code-review-checklist.md) | 简体中文
 
-**版本**: 1.3.0
-**最后更新**: 2026-01-12
+**版本**: 1.6.0
+**最后更新**: 2026-10-08
 **适用范围**: 所有进行代码审查的软件项目
+**Scope**: universal
+**业界标准**: SWEBOK v4.0 第 10 章
+**参考资料**: [google.github.io](https://google.github.io/eng-practices/review/)
 
 ---
 
@@ -298,7 +302,9 @@ Is there a specific reason for this approach?
 📝 NOTE: This is a clever solution! Nice use of reduce here.
 ```
 
-> 此评论前缀方式与 [Conventional Comments](https://conventionalcomments.org/) 规范一致，该规范在团队和工具间标准化了审查回馈格式。
+> 此评论前缀方式与 [Conventional Comments](https://conventionalcomments.org/) 规范一致，该规范在团队和工具间标准化了审查反馈格式。
+
+> 审查产出的**延后项目**——本次变更中未作修改而被接受的非阻塞评论（`⚠️ IMPORTANT`、`💡 SUGGESTION`、`[SUGGESTION]`、`[NIT]`）——适用 [deferred-item-exit](deferred-item-exit.md)。
 
 ### 替代方案：文字标签
 
@@ -306,24 +312,24 @@ Is there a specific reason for this approach?
 
 | 标签 | 意义 | Action |
 |------|------|--------|
-| `[必要]` | 必须修正才能合并 | 🔴 Required |
-| `[建议]` | 建议修正但非阻挡 | 🟡 Recommended |
-| `[问题]` | 需要澄清 | 🔵 Discuss |
+| `[REQUIRED]` | 必须修正才能合并 | 🔴 Required |
+| `[SUGGESTION]` | 建议修正但非阻塞 | 🟡 Recommended |
+| `[QUESTION]` | 需要澄清 | 🔵 Discuss |
 | `[NIT]` | 小建议，可忽略 | 🟢 Optional |
-| `[赞]` | 正面回馈 | ⚪ Informational |
+| `[PRAISE]` | 正面反馈 | ⚪ Informational |
 
 **评论示例**
 
 ```markdown
-[必要] 此处有 SQL 注入风险。
+[REQUIRED] Potential SQL injection vulnerability here.
 
-[建议] 可考虑使用 StringBuilder 提升性能。
+[SUGGESTION] Consider using StringBuilder for better performance.
 
-[问题] 当输入为 null 时，预期行为是什么？
+[QUESTION] What's the intended behavior when input is null?
 
-[NIT] 变量名称可以更明确。
+[NIT] Variable name could be more descriptive.
 
-[赞] 优雅的解法！重构得很好。
+[PRAISE] Elegant solution! Nice refactoring.
 ```
 
 ---
@@ -359,7 +365,7 @@ Is there a specific reason for this approach?
 3. Acknowledge good code
 4. Suggest alternatives when criticizing
 
-#### Step 5: 核准或要求变更
+#### Step 5: 批准或要求变更
 
 - **Approve**: If no blocking issues
 - **Request Changes**: If blocking issues present
@@ -394,7 +400,7 @@ Is there a specific reason for this approach?
 
 ## 审查自动化
 
-### 自动化检查
+### 自动化检查（CI/CD）
 
 Configure these checks to run automatically:
 
@@ -497,6 +503,12 @@ jobs:
 | 200-500 lines | 1 day | 2 days |
 | > 500 lines | 🚨 Consider splitting | 3+ days |
 
+> **来源与可配置性**：规模分级反映了实证观察到的现象——变更超过约 200–400 行后，
+> 审查效果明显下降（SmartBear/Cisco 代码审查研究；[Google engineering practices](https://google.github.io/eng-practices/review/)）。
+> 响应时间目标为 UDS 默认值——请替换为团队自己的审查 SLA。
+> **例外**：生成的或第三方引入的批量变更（lockfile、
+> 迁移、快照）以抽查方式审查，而非按行数计算。
+
 ### 审查者可用性
 
 - Set "review hours" in team calendar
@@ -548,7 +560,7 @@ jobs:
 #### 审查重点
 
 - [ ] **代码异味已处理**：修复了哪些异味？（Long Method、Duplicate Code 等）
-- [ ] **重构模式正确**：是否套用了正确的技术？
+- [ ] **重构模式正确**：是否应用了正确的技术？
 - [ ] **命名改善**：新名称是否有意义且一致？
 - [ ] **复杂度降低**：代码是否可量化地更简单？（考虑 cyclomatic complexity）
 - [ ] **耦合降低**：依赖关系是否更清晰？
@@ -558,7 +570,7 @@ jobs:
 - [ ] **计划已记录**：链接到重构计划或设计文档
 - [ ] **增量提交**：每个 commit 可独立审查
 - [ ] **回滚策略**：如何在问题发生时恢复？
-- [ ] **性能评估**：是否影响运行时期性能？
+- [ ] **性能评估**：是否影响运行时性能？
 - [ ] **特征测试**：遗留代码已受行为捕捉测试保护
 
 #### 警示信号
@@ -679,9 +691,12 @@ Comment Prefixes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.6.0 | 2026-10-08 | 新增：合并风险（门与影响范围）作为检查清单第 11 项，并加入审查者/作者步骤——单向门必须在合并前让决策者知情；在“测试质量良好”中新增预期值须独立于被测代码（XSPEC-470 R1、R2） |
+| 1.5.0 | 2026-08-24 | 新增：对于未作修改而被接受的非阻塞评论，指向 `deferred-item-exit`（XSPEC-391 R5） |
+| 1.4.0 | 2026-06-18 | 新增：PR 规模/响应时间阈值的来源与可配置性说明（SmartBear/Cisco 研究、Google 实践）+ 批量变更例外（XSPEC-292 T8） |
 | 1.3.0 | 2026-01-12 | 新增：完整重构 PR 段落，包含审查前检查清单、审查重点、大型重构指南、警示信号及最佳实践 |
 | 1.2.0 | 2026-01-05 | 新增：SWEBOK v4.0 第 10 章（软件质量）至参考资料 |
-| 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文标签支援) |
+| 1.1.0 | 2025-12-22 | Added: Alternative text labels section for review comments (中文标签支持) |
 | 1.0.3 | 2025-12-16 | Clarified: CHANGELOG section aligned with changelog-standards.md, use markdown links for cross-references |
 | 1.0.2 | 2025-12-05 | Added: Reference to testing-standards.md |
 | 1.0.1 | 2025-12-04 | Updated: GitHub Actions checkout to v4, cross-reference to versioning.md |
@@ -691,7 +706,6 @@ Comment Prefixes:
 
 ## 相关标准
 
-- [Refactoring Standards](refactoring-standards.md) - 重构标准（遗留代码策略、大规模模式、度量指标）
 - [Testing Standards](testing-standards.md) - 测试标准 (UT/IT/ST/E2E)（或使用 `/testing-guide` 技能）
 - [Code Check-in Standards](checkin-standards.md) - 代码签入标准
 - [Commit Message Guide](commit-message-guide.md) - Commit 消息规范

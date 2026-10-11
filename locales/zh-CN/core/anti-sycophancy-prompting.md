@@ -2,7 +2,8 @@
 source: ../../../core/anti-sycophancy-prompting.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 860d9e77855b
 status: current
 ---
 
@@ -20,9 +21,9 @@ status: current
 
 ## 目的
 
-本标准定义一套技法与规则，用于设计能让 LLM 给出真实、批判性回应的提示词，而非迎合使用者的隐含偏好。
+本标准定义一套技法与规则，用于设计能让 LLM 给出真实、批判性回应的提示词，而非迎合用户的隐含偏好。
 
-LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人愉快的回应高分，导致模型将「让使用者满意」置于「准确性」之上。
+LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人愉快的回应高分，导致模型将「让用户满意」置于「准确性」之上。
 
 ---
 
@@ -40,31 +41,31 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 
 **Prompt 模板**：
 ```
-不要评估好坏。
-针对以下想法，列出最致命的 3 个质疑：[你的想法]
-每个质疑必须有技术依据，且让我无法轻易反驳。
+Do not evaluate whether this is good or bad.
+List the 3 most fatal objections to: [idea]
+Each objection must be technically grounded and non-trivial to dismiss.
 ```
 
 ---
 
 ### 2. 先问立场防锚定协议（REQ-2）
 
-在使用者揭示立场前先取得 LLM 的独立判断，防止锚定效应。
+在用户揭示立场前先取得 LLM 的独立判断，防止锚定效应。
 
 | 步骤 | 动作 |
 |------|------|
 | 1 | 在未揭示偏好的情况下询问中立比较 |
 | 2 | 取得独立判断 |
-| 3 | 揭示使用者立场 |
+| 3 | 揭示用户立场 |
 | 4 | 若模型改变立场，要求提出明确的技术理由 |
 
 **工作流程**：
 ```
-回合 1：「针对 [情境]，[A] 和 [B] 哪个更好？」
-→ 等待独立判断
+Round 1: "Compare [A] vs [B] for [context]. Which is better?"
+→ Wait for independent judgment
 
-回合 2：「我倾向 [A]。这改变你的评估吗？为什么？」
-→ 模型若改口必须以技术事实为依据
+Round 2: "I prefer [A]. Does this change your assessment? Why?"
+→ Model must justify any position change with technical facts
 ```
 
 ---
@@ -75,11 +76,11 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 
 **必要格式**：
 ```
-| 支持这个决策的论点 | 反对这个决策的论点 |
-|-------------------|-------------------|
-| [同等份量的内容]   | [同等份量的内容]   |
+| Arguments FOR the decision | Arguments AGAINST the decision |
+|---------------------------|-------------------------------|
+| [Equal weight content]    | [Equal weight content]        |
 
-净建议：[必须明确表态，可以是「建议反对」]
+Net Recommendation: [Must take a clear stance, may recommend against]
 ```
 
 **规则**：
@@ -95,9 +96,9 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 
 **格式**：
 ```
-建议：[具体行动]
-信心：[1-5] — [不确定性原因]
-未知：[哪些信息会改变这个评估]
+Recommendation: [specific action]
+Confidence: [1-5] — [reason for uncertainty]
+Unknown: [what information would change this assessment]
 ```
 
 **信心度定义**：
@@ -124,7 +125,7 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 | 信号类型 | 检测规则 |
 |----------|----------|
 | 正向开场 | 回应前 50 个 token 包含迎合性词语（如「很好」「有趣」「当然」「当然可以」） |
-| 立场翻转 | 使用者揭示偏好后，模型在没有新技术证据的情况下改变立场 |
+| 立场翻转 | 用户揭示偏好后，模型在没有新技术证据的情况下改变立场 |
 | 风险淡化 | 句式：「虽然有些小问题，但整体上...」而未说明具体问题 |
 | 缺乏量化 | 重要建议缺少信心评分或具体度量指标 |
 
@@ -145,9 +146,9 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 
 ## 与 Agent Prompt 的整合
 
-套用至 AI Agent 时：
+应用至 AI Agent 时：
 
-| Agent 类型 | 套用规则 |
+| Agent 类型 | 应用规则 |
 |------------|----------|
 | 代码审查 Agent | REQ-1（Socratic）+ REQ-3（双栏）+ REQ-5（检测） |
 | 架构建议 Agent | REQ-2（先问立场）+ REQ-4（信心度）+ REQ-5（检测） |
@@ -159,18 +160,18 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 ## 完整防迎合 Prompt 模板
 
 ```
-你是一位对我毫无感情的领域专家。
-你的职责是找出我思考中的盲点，不是让我感觉良好。
+You are a domain expert with no emotional investment in my satisfaction.
+Your role is to identify flaws in my thinking, not to make me feel good.
 
-规则：
-- 禁止以正向词语开场（很好、有趣、不错、当然）
-- 每个建议必须附上信心等级（1-5）和你不确定的地方
-- 若你认为我的方向是错的，直接说
+Rules:
+- Do NOT open with positive phrases (good, interesting, nice, certainly)
+- Every recommendation must include a confidence level (1-5) and what you are uncertain about
+- If my direction is wrong, say so directly
 
-我的问题：[问题]
+My question: [question]
 
-请先列出这个问题中我可能持有的错误假设，
-再给出你认为正确的建议。
+First, list the incorrect assumptions I may be holding about this problem.
+Then give your honest recommendation.
 ```
 
 ---
@@ -179,10 +180,10 @@ LLM 的迎合性源自 RLHF 训练目标：人类评分者倾向于给予令人�
 
 - [ ] 提示词未邀请认同（「这样好吗？」）
 - [ ] 明确禁止正向开场词语
-- [ ] 在揭示使用者偏好前先取得模型的独立立场（若适用）
+- [ ] 在揭示用户偏好前先取得模型的独立立场（若适用）
 - [ ] 评估任务强制使用双栏格式
 - [ ] 重要建议需要信心等级
-- [ ] 对输出套用迎合性检测，再呈现给使用者
+- [ ] 对输出应用迎合性检测，再呈现给用户
 
 ---
 
