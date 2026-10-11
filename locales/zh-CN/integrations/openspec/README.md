@@ -2,11 +2,17 @@
 source: ../../../../integrations/openspec/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 423378ef4af1
 status: current
 ---
 
 # OpenSpec 集成
+
+> **语言**: [English](../../../../integrations/openspec/README.md) | [繁體中文](../../../zh-TW/integrations/openspec/README.md) | 简体中文
+
+**版本**: 1.0.0
+**最后更新**: 2025-12-30
 
 本目录包含 [OpenSpec](https://github.com/openspec) 的集成文件，这是一个用于规格驱动开发的规格管理工具。
 

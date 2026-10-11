@@ -2,6 +2,8 @@
 source: options/documentation/wiki-style.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 531286914206
 status: current
 ---
 

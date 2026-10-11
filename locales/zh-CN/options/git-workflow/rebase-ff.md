@@ -2,13 +2,14 @@
 source: ../../../../options/git-workflow/rebase-ff.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: b0c321db93d1
 status: current
 ---
 
 # Rebase and Fast-Forward 策略
 
-> **语言**: [English](../../../../options/git-workflow/rebase-ff.md) | 繁体中文
+> **语言**: [English](../../../../options/git-workflow/rebase-ff.md) | 简体中文
 
 **上层标准**: [Git 工作流程](../../../../core/git-workflow.md)
 
@@ -16,145 +17,259 @@ status: current
 
 ## 概述
 
-Rebase and fast-forward 是一种合并策略，透过将功能分支的 commit 重新播放到目标分支上方，建立完全线性的历史。结果是干净、直线的历史，所有 commit 看起来像是在单一分支上依序完成的。
+Rebase and fast-forward 是一种合并策略，它将功能分支的 commit 重放到目标分支之上，从而形成完全线性的历史。结果是一条干净、笔直的历史线，所有 commit 看起来就像是在同一个分支上依次提交的。
 
-## 适用情境
+## 适用场景
 
 - 偏好线性历史的团队
-- 大量依赖 `git bisect` 的专案
-- 想要干净、可读日志的开发者
-- 有高程式码品质标准的开源专案
+- 高度依赖 `git bisect` 的项目
+- 希望日志干净、易读的开发者
+- 代码质量标准较高的开源项目
 
-## 运作方式
+## 工作原理
 
 ```
-rebase 前：              rebase + fast-forward 后：
-main:    A---B---C       A---B---C---D'---E'---F'
-              \                         (rebased commits)
+Before rebase:               After rebase + fast-forward:
+main:    A---B---C           A---B---C---D'---E'---F'
+              \                              (rebased commits)
 feature:       D---E---F
 ```
 
-Commit D、E、F 被「重新播放」为 D'、E'、F' 在 C 之上。
+commit D、E、F 被“重放”为 C 之上的 D'、E'、F'。
 
 ## 工作流程
 
-### 合并前的互动式 Rebase
+### 合并前的交互式 Rebase
 
 ```bash
-# 在功能分支上开始
+# Start on feature branch
 git checkout feature/user-profile
 
-# 取得最新变更
+# Fetch latest changes
 git fetch origin
 
-# Rebase 到 main 上
+# Rebase onto main
 git rebase origin/main
 
-# 如有冲突，解决后继续
+# If conflicts occur, resolve and continue
 git add <resolved-files>
 git rebase --continue
 
-# 或需要时中止
+# Or abort if needed
 git rebase --abort
 ```
 
 ### Fast-Forward 合并
 
 ```bash
-# 切换到 main
+# Switch to main
 git checkout main
 git pull origin main
 
-# Fast-forward 合并（只在 feature 领先时有效）
+# Fast-forward merge (only works if feature is ahead)
 git merge --ff-only feature/user-profile
 
-# 推送
+# Push
 git push origin main
 
-# 清理
+# Clean up
 git branch -d feature/user-profile
 ```
 
-### Rebase 后的 Force Push
+### Rebase 后强制推送
 
-当你 rebase 了已推送的分支：
+当你对一个已经推送过的分支执行 rebase 时：
 
 ```bash
-# rebase 后
+# After rebasing
 git push --force-with-lease origin feature/user-profile
 
-# --force-with-lease 比 --force 安全
-# 如果其他人推送到该分支会失败
+# --force-with-lease is safer than --force
+# It fails if someone else pushed to the branch
 ```
 
-## 互动式 Rebase
+## 交互式 Rebase
 
-合并前清理 commit：
+在合并前整理 commit：
 
 ```bash
-# 互动式 rebase 最近 4 个 commit
+# Rebase last 4 commits interactively
 git rebase -i HEAD~4
 
-# 或从分支点 rebase
+# Or rebase from branch point
 git rebase -i main
 ```
 
-### 常用清理模式
+### 交互式 Rebase 命令
 
 ```
+pick   abc1234 feat: add user model
+squash def5678 fix typo
+reword ghi9012 add user service
+drop   jkl3456 wip - remove this
+
+# Commands:
+# p, pick   = use commit
+# r, reword = use commit, but edit message
+# e, edit   = use commit, but stop for amending
+# s, squash = meld into previous commit
+# f, fixup  = like squash, but discard message
+# d, drop   = remove commit
+```
+
+### 常用整理模式
+
+```bash
+# Combine fixup commits
 pick abc1234 feat: add user model
 fixup def5678 fix typo in user model
 fixup ghi9012 another fix
 
-# 结果：单一干净的 commit
+# Result: single clean commit
+
+# Reorder and edit
+pick abc1234 feat: add user model
+reword def5678 feat: add user validation
+pick ghi9012 test: add user tests
 ```
 
 ## 优点
 
 | 优点 | 说明 |
 |------|------|
-| 线性历史 | 容易阅读和理解 |
-| 干净日志 | `git log` 显示直线 |
-| 有效的 bisect | 清楚的变更进程 |
-| 原子 commit | 每个 commit 独立完整 |
-| 无合并 commit | 更干净的储存库 |
+| 线性历史 | 易于阅读和理解 |
+| 干净的日志 | `git log` 呈现一条直线 |
+| 高效的 bisect | 变更的演进清晰明了 |
+| 原子化 commit | 每个 commit 都是自包含的 |
+| 没有合并 commit | 仓库更整洁 |
 
 ## 缺点
 
 | 缺点 | 说明 |
 |------|------|
-| 重写历史 | Commit SHA 在 rebase 后改变 |
-| 需要 force push | rebase 已推送的分支后 |
+| 改写历史 | rebase 后 commit SHA 会改变 |
+| 需要强制推送 | 对已推送的分支执行 rebase 后 |
 | 冲突解决 | 可能需要多次解决冲突 |
-| 失去合并脉络 | 无分支合并时间记录 |
-| 共享时危险 | 可能对协作者造成问题 |
+| 丢失合并上下文 | 没有记录分支何时合并 |
+| 共享时有风险 | 可能给协作者带来问题 |
 
-## Rebase 的黄金法则
+## 安全规则
 
-**永远不要 rebase 已推送到共享分支的 commit。**
+### Rebase 的黄金法则
+
+**永远不要对已推送到共享分支的 commit 执行 rebase。**
 
 ```bash
-# 安全：rebase 本地 commit
-git rebase main  # 如果功能分支未推送
+# SAFE: Rebase local-only commits
+git rebase main  # If feature branch is not pushed
 
-# 注意：rebase 已推送的功能分支
+# CAUTION: Rebase pushed feature branch
 git rebase main
-git push --force-with-lease  # 只有在你是唯一工作者时
+git push --force-with-lease  # Only if you're the only one working on it
 
-# 危险：永远不要这样做
+# DANGEROUS: Never do this
 git checkout main
-git rebase feature  # 永远不要 rebase main/master！
+git rebase feature  # Never rebase main/master!
+```
+
+### 使用 `--force-with-lease`
+
+```bash
+# Safer than --force
+git push --force-with-lease origin feature-branch
+
+# Fails if remote has commits you don't have locally
+# Prevents overwriting others' work
+```
+
+## 配置
+
+### 仓库设置（GitHub）
+
+```yaml
+# In repository settings > Pull Requests
+Allow rebase merging: ✓
+Allow merge commits: ✗ (for enforcement)
+Allow squash merging: ✗ (for enforcement)
+```
+
+### Git 配置
+
+```bash
+# Default to rebase when pulling
+git config --global pull.rebase true
+
+# Auto-stash before rebase
+git config --global rebase.autoStash true
+
+# Auto-squash fixup commits
+git config --global rebase.autoSquash true
+```
+
+### Git 别名
+
+```bash
+# Add to ~/.gitconfig
+[alias]
+    rb = rebase
+    rbi = rebase -i
+    rbc = rebase --continue
+    rba = rebase --abort
+    fpush = push --force-with-lease
+```
+
+## Rebase 过程中处理冲突
+
+```bash
+# Start rebase
+git rebase main
+
+# When conflict occurs:
+# 1. Edit conflicted files
+# 2. Stage resolved files
+git add <resolved-files>
+
+# 3. Continue rebase
+git rebase --continue
+
+# Repeat for each conflicting commit
+
+# If you want to skip a commit
+git rebase --skip
+
+# If you want to abort entirely
+git rebase --abort
+```
+
+## Autosquash 工作流程
+
+使用 commit 信息前缀实现自动压缩：
+
+```bash
+# Original commit
+git commit -m "feat: add user model"
+
+# Later fixup (will auto-squash)
+git commit --fixup=<original-sha>
+# Creates: "fixup! feat: add user model"
+
+# Or squash with custom message
+git commit --squash=<original-sha>
+# Creates: "squash! feat: add user model"
+
+# Auto-squash during rebase
+git rebase -i --autosquash main
 ```
 
 ## 相关选项
 
-- [Squash Merge](./squash-merge.md) - 单一 commit，更简单的工作流程
+- [Squash Merge](./squash-merge.md) - 单一 commit，工作流程更简单
 - [Merge Commit](./merge-commit.md) - 保留分支历史
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
 **来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

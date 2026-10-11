@@ -2,161 +2,242 @@
 source: ../../../../options/commit-message/traditional-chinese.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 9e6c32b9a52e
 status: current
 ---
 
-# 繁体中文 Commit 讯息
+# 繁体中文 Commit 消息
 
-> **语言**: [English](../../../../options/commit-message/traditional-chinese.md) | 繁体中文
+> **语言**: [English](../../../../options/commit-message/traditional-chinese.md) | 简体中文
 
-**上层标准**: [Commit 讯息指南](../../../../core/commit-message-guide.md)
+**上层标准**: [Commit 消息指南](../../../../core/commit-message-guide.md)
 
 ---
 
 ## 概述
 
-本选项定义以繁体中文撰写 commit 讯息的标准。适合以中文为主要沟通语言的团队，让 commit 历史更容易阅读和理解。
+本选项定义使用繁体中文撰写 commit 消息的标准。适合以中文为主要沟通语言的团队，使 commit 历史更易于阅读和理解。
 
-## 适用情境
+## 适用场景
 
 - 台湾或香港的开发团队
-- 内部专案（非开源）
-- 中文为主要语言的组织
-- 需要非技术人员阅读 commit 历史的专案
+- 内部项目（非开源）
+- 以中文为主要语言的组织
+- 需要非技术人员阅读 commit 历史的项目
 
 ## 格式
 
 ### 基本结构
 
 ```
-<类型>(<范围>): <主题>
+<類型>(<範圍>): <主題>
 
-<内文>
+<內文>
 
-<页尾>
+<頁尾>
 ```
 
-### 组成元素
+### 组成部分
 
-| 元素 | 必填 | 说明 |
-|------|------|------|
-| 类型 | 是 | 变更类别（feat、fix、docs 等）|
-| 范围 | 否 | 影响的模组或元件 |
+| 组成部分 | 必填 | 说明 |
+|----------|------|------|
+| 类型 | 是 | 变更类别（feat、fix、docs 等） |
+| 范围 | 否 | 受影响的模块或组件 |
 | 主题 | 是 | 简短描述 |
-| 内文 | 否 | 详细说明 |
-| 页尾 | 否 | 参考连结、重大变更 |
+| 正文 | 否 | 详细说明 |
+| 页脚 | 否 | 引用链接、破坏性变更 |
 
 ## Commit 类型
 
-| 类型 | 中文说明 | 范例 |
+| 类型 | 中文说明 | 示例 |
 |------|----------|------|
-| `feat` | 新功能 | `feat: 新增使用者验证功能` |
-| `fix` | 错误修复 | `fix: 修正登入逾时问题` |
-| `docs` | 文件更新 | `docs: 更新 API 参考文件` |
-| `style` | 格式调整 | `style: 修正工具模组缩排` |
-| `refactor` | 程式码重构 | `refactor: 简化验证逻辑` |
-| `perf` | 效能优化 | `perf: 优化资料库查询` |
-| `test` | 测试相关 | `test: 新增验证模组单元测试` |
-| `chore` | 维护作业 | `chore: 更新相依套件` |
+| `feat` | 新功能 | `feat: 新增使用者驗證功能` |
+| `fix` | 缺陷修复 | `fix: 修正登入逾時問題` |
+| `docs` | 文档更新 | `docs: 更新 API 參考文件` |
+| `style` | 格式调整 | `style: 修正工具模組縮排` |
+| `refactor` | 代码重构 | `refactor: 簡化驗證邏輯` |
+| `perf` | 性能优化 | `perf: 優化資料庫查詢` |
+| `test` | 测试相关 | `test: 新增驗證模組單元測試` |
+| `chore` | 维护工作 | `chore: 更新相依套件` |
+| `ci` | CI/CD 变更 | `ci: 新增 GitHub Actions 工作流程` |
+| `build` | 构建系统 | `build: 設定 webpack 生產環境` |
 
 ## 撰写指南
 
 ### 主题行
 
-1. **使用动词开头**：「新增功能」而非「功能新增」
-2. **保持简洁**：50 字元以内
-3. **不加句号**：「新增功能」而非「新增功能。」
-4. **具体明确**：「修正使用者服务空指标问题」而非「修正错误」
+1. **以动词开头**：写“新增功能”而不是“功能新增”
+2. **保持简洁**：50 个字符以内
+3. **不加句号**：写“新增功能”而不是“新增功能。”
+4. **具体明确**：写“修正用户服务空指针问题”而不是“修正错误”
 
-### 内文
+### 正文
 
-1. **每行 72 字元**：保持终端机可读性
+1. **每行 72 个字符**：保持在终端中的可读性
 2. **说明原因**：解释为什么要做这个变更
 3. **使用列表**：多项变更时使用项目符号
-4. **空行分隔**：与主题行以空行分隔
+4. **空行分隔**：与主题行之间用空行分隔
 
-## 范例
+### 页脚
+
+1. **引用 issue**：`關閉 #123`、`修復 #456`
+2. **破坏性变更**：`重大變更: 說明`
+3. **共同作者**：`Co-authored-by: 姓名 <email>`
+
+## 示例
 
 ### 简单功能
 
 ```
-feat(auth): 新增密码强度指示器
+feat(auth): 新增密碼強度指示器
 
-- 在密码输入时显示强度条
-- 输入时显示密码要求
-- 阻止提交弱密码
+- 在密碼輸入時顯示強度條
+- 輸入時顯示密碼要求
+- 阻止提交弱密碼
 
-关闭 #234
+關閉 #234
 ```
 
-### 错误修复
+### 缺陷修复
 
 ```
-fix(api): 处理付款闸道的空值回应
+fix(api): 處理付款閘道的空值回應
 
-付款闸道在服务降级时偶尔会回传 null 而非错误物件，
-这导致结帐流程出现未处理的例外。
+付款閘道在服務降級時偶爾會回傳 null 而非錯誤物件，
+這導致結帳流程出現未處理的例外。
 
-新增空值检查和适当的错误处理，优雅地处理此边缘案例。
+新增空值檢查和適當的錯誤處理，優雅地處理此邊緣案例。
 
-修复 #567
+修復 #567
 ```
 
-### 重大变更
+### 破坏性变更
 
 ```
-feat(api): 将验证改为 JWT 权杖
+feat(api): 將驗證改為 JWT 權杖
 
-重大变更：移除基于 Session 的验证。
-所有 API 客户端必须使用 JWT 权杖进行验证。
+重大變更：移除基於 Session 的驗證。
+所有 API 客戶端必須使用 JWT 權杖進行驗證。
 
-迁移指南：
-1. 从 /auth/token 端点取得 JWT 权杖
-2. 在 Authorization 标头中包含权杖
-3. 移除 session cookie 处理
+遷移指南：
+1. 從 /auth/token 端點取得 JWT 權杖
+2. 在 Authorization 標頭中包含權杖
+3. 移除 session cookie 處理
 
-关闭 #789
+關閉 #789
 ```
 
-## 反面教材
-
-### 不良范例
+### 文档更新
 
 ```
-# 太笼统
-fix: 修正错误
+docs(readme): 新增 Windows 安裝說明
 
-# 没有说明
-更新使用者服务
-
-# 无意义
-进行中
-杂项变更
+- 新增 PowerShell 指令
+- 包含 WSL 設定指南
+- 新增疑難排解章節
 ```
 
-### 改善范例
+### 代码重构
 
 ```
-# 具体明确
-fix(auth): 防止档案上传期间 session 逾时
+refactor(core): 將驗證抽取至獨立模組
 
-# 简洁并在内文补充细节
-feat(users): 新增个人头像上传功能
+將驗證邏輯從 UserService 移至專門的 ValidationService，
+以獲得更好的關注點分離和可重用性。
+
+無功能性變更。
+```
+
+## 反面示例
+
+### 错误示例
+
+```
+# 太籠統
+fix: 修正錯誤
+
+# 沒有說明
+更新使用者服務
+
+# 太冗長
+feat: 新增一個允許使用者上傳他們的個人頭像並自動調整大小為多種尺寸的新功能
+
+# 無意義
+進行中
+雜項變更
+暫存
+```
+
+### 改进示例
+
+```
+# 具體明確
+fix(auth): 防止檔案上傳期間 session 逾時
+
+# 簡潔並在內文補充細節
+feat(users): 新增個人頭像上傳功能
 
 支援 JPEG、PNG 和 WebP 格式。
-图片自动调整为 100x100、200x200 和 400x400 像素。
+圖片自動調整為 100x100、200x200 和 400x400 像素。
+
+# 包含類型
+refactor(users): 簡化服務層
+
+# 目的清晰
+feat(cache): 新增 Redis 支援 session 儲存
+```
+
+## 配置
+
+### Git Commit 模板
+
+创建 `~/.gitmessage`：
+
+```
+# <類型>(<範圍>): <主題>
+# |<----  最多使用 50 個字元  ---->|
+
+# 說明為什麼要做這個變更
+# |<----   每行盡量限制在 72 個字元   ---->|
+
+# 提供相關議題或 PR 的連結
+# 例如：關閉 #23
+```
+
+配置 git：
+
+```bash
+git config --global commit.template ~/.gitmessage
+```
+
+### Commitlint 配置
+
+```javascript
+// commitlint.config.js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    'header-max-length': [2, 'always', 72],
+    'body-max-line-length': [2, 'always', 72],
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build']
+    ]
+  }
+};
 ```
 
 ## 相关选项
 
-- [英文](./english.md) - 英文 Commit 讯息
-- [双语](./bilingual.md) - 中英双语格式
+- [English](./english.md) - 英文 Commit 消息
+- [Bilingual](./bilingual.md) - 中英双语格式
 
 ---
 
-## 授权条款
+## 许可
 
-本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权条款。
+本文档采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
 
 **来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

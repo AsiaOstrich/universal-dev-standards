@@ -2,6 +2,8 @@
 source: options/documentation/api-docs.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 28d83ae2c8ee
 status: current
 ---
 
@@ -9,7 +11,7 @@ status: current
 
 > **语言**: [English](../../../../options/documentation/api-docs.md) | 简体中文
 
-**Parent Standard**: [Documentation Structure](../../core/documentation-structure.md)
+**上层标准**: [Documentation Structure](../../core/documentation-structure.md)
 
 ---
 

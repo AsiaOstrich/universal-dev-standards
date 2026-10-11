@@ -2,11 +2,17 @@
 source: ../../../../integrations/spec-kit/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 626f8c0882a7
 status: current
 ---
 
 # Spec Kit 集成
+
+> **语言**: [English](../../../../integrations/spec-kit/README.md) | [繁體中文](../../../zh-TW/integrations/spec-kit/README.md) | 简体中文
+
+**版本**: 1.0.0
+**最后更新**: 2025-12-30
 
 本目录包含 [Spec Kit](https://github.com/spec-kit/spec-kit) 的集成文件，这是一个用于规格驱动开发的轻量级规格追踪工具。
 
