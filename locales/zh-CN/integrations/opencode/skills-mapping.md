@@ -2,11 +2,17 @@
 source: ../../../../integrations/opencode/skills-mapping.md
 source_version: 1.5.0
 translation_version: 1.5.0
-last_synced: 2026-02-05
+last_synced: 2026-10-11
+source_hash: 075690424b9e
 status: current
 ---
 
 # Skills 移植指南
+
+> **语言**: [English](../../../../integrations/opencode/skills-mapping.md) | [繁體中文](../../../zh-TW/integrations/opencode/skills-mapping.md) | 简体中文
+
+**版本**: 1.5.0
+**最后更新**: 2026-02-05
 
 本文档将 Claude Code 技能对应到 OpenCode 的等效实现方式。
 
@@ -82,7 +88,7 @@ OpenCode 支持与 Claude Code 相同的技能调用语法：
 | `/release` | `/release` 或 `skill("release-standards")` | 相同 |
 | `/changelog` | `/changelog` 或 `skill("changelog-guide")` | 相同 |
 | `/docs` | `/docs` 或 `skill("documentation-guide")` | 相同 |
-| `/sdd` | `/sdd` 或 `skill("spec-driven-dev")` | 相同 |
+| `/spec` | `/spec` 或 `skill("spec-driven-dev")` | 相同 |
 | `/methodology` | `/methodology` 或 `skill("methodology-system")` | 相同 |
 | `/bdd` | `/bdd` 或 `skill("bdd-assistant")` | 相同 |
 | `/atdd` | `/atdd` 或 `skill("atdd-assistant")` | 相同 |

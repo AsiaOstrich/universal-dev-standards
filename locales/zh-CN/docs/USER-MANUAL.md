@@ -2,10 +2,18 @@
 source: docs/USER-MANUAL.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 5c3253bd60b5
 status: current
 ---
 
-# 用户手册
+> **⚠️ 已弃用** — 本手册已过时（最后更新于 2026-03-24），不再维护。
+> 当前指南请参阅新版用户文档 **[docs/user/README.md](user/README.md)**。
+> 归档位置：[docs/archive/USER-MANUAL-2026-03-24.md](../../../docs/archive/USER-MANUAL-2026-03-24.md)
+
+---
+
+# 用户手册（已归档）
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-24
@@ -47,7 +55,7 @@ Universal Development Standards 是一套为 AI 时代设计的**语言无关、
 |------|------|------|
 | **Core Standards** | 53 | 通用开发准则（Markdown） |
 | **AI Skills** | 43 | 交互式技能（YAML） |
-| **Slash Commands** | 30 | 日常开发快速操作指令 |
+| **Slash Commands** | 45 | 日常开发快速操作指令 |
 | **CLI Commands** | 6 | 命令行工具 |
 
 **三大特性：**
@@ -602,7 +610,7 @@ Refs: SPEC-001
 >
 > **以上集成目前没有任何一个通过行为验证**——「状态」栏说的是**我们写的那份集成**有多完整，
 > 不是该工具是否曾被实测。完整清单、两套图例与验证排程见
-> [README](../../README.md#-ai-工具支持)；验证程序见
+> [README](../README.md#-ai-工具支持)；验证程序见
 > [Integration Verification](../../../docs/reference/INTEGRATION-VERIFICATION.md)。
 
 > **一套标准，多工具通用** — 换 AI 工具不需要重学标准。

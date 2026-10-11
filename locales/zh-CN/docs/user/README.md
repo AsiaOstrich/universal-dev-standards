@@ -2,6 +2,8 @@
 source: docs/user/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: df4b49a1bde6
 status: current
 ---
 
@@ -17,8 +19,8 @@ status: current
 
 刚安装完 UDS？从这里开始：
 
-1. **[GETTING-STARTED.md](../../../../docs/user/GETTING-STARTED.md)** — 5 分钟导览：安装 → 初始化 → 第一份 spec → 第一次 commit（简中翻译进行中）
-2. **[GLOSSARY.md](../../../../docs/user/GLOSSARY.md)** — 什么是 Skill？Standard？Tier？所有 UDS 术语的定义（简中翻译进行中）
+1. **[GETTING-STARTED.md](GETTING-STARTED.md)** — 5 分钟导览：安装 → 初始化 → 第一份 spec → 第一次 commit
+2. **[GLOSSARY.md](GLOSSARY.md)** — 什么是 Skill？Standard？Tier？所有 UDS 术语的定义
 3. **[SKILLS-INDEX.md](../../../../docs/user/SKILLS-INDEX.md)** — 按 Tier 与分类浏览全部 55 个 skill（自动生成，仅英文）
 
 ---

@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/copilot-instructions.md
 source_version: 2.1.0
 translation_version: 2.1.0
-last_synced: 2026-01-25
+last_synced: 2026-10-11
+source_hash: 58a42d321f4b
 status: current
 ---
 
 # GitHub Copilot 指令
+
+> **语言**: [English](../../../../integrations/github-copilot/copilot-instructions.md) | [繁體中文](../../../zh-TW/integrations/github-copilot/copilot-instructions.md) | 简体中文
+
+**版本**: 2.1.0
+**最后更新**: 2026-01-25
 
 本文件定义 GitHub Copilot Chat 的自定义指令，以确保符合通用开发规范。
 
@@ -17,6 +23,11 @@ status: current
 ---
 
 # 通用开发规范合规
+
+> **核心规范使用规则**：
+> 在验证规范、检查代码或执行任务时，**优先**阅读 `core/` 中的精简规则（例如 `core/testing-standards.md`）。
+> **仅在**明确要求教学内容、详细说明或教程时，才阅读 `core/guides/` 或 `methodologies/guides/`。
+> 这可确保 token 效率与聚焦的上下文。
 
 您是专业的 AI 编程助手。您必须遵循本项目定义的**通用开发规范**。
 
@@ -106,7 +117,33 @@ docs(readme): 更新安装说明
 
 ---
 
-## 4. 测试驱动开发 (TDD)
+## 4. 工作流程强制关卡
+
+**关键**：在执行任何工作流程阶段命令之前，您必须检查前置条件。
+
+### 会话开始协议
+会话开始时，检查进行中的工作流程：`ls .workflow-state/*.yaml 2>/dev/null`
+若发现进行中的工作流程 → 告知用户并提供恢复选项。
+
+### 阶段关卡
+
+| 工作流程 | 阶段 | 前置条件 | 失败时 |
+|---------|-------|-------------|------------|
+| SDD | implement | 规格状态 = Approved | → `/sdd approve` |
+| SDD | verify | 所有 AC 都有代码 + 测试 | → `/sdd implement` |
+| TDD | GREEN | 已存在失败的测试 | → 停留在 RED |
+| TDD | REFACTOR | 所有测试通过 | → 停留在 GREEN |
+| BDD | AUTOMATION | `.feature` 文件已存在 | → FORMULATION |
+| Commit | feat/fix | 检查进行中的规格 | → 建议 `Refs: SPEC-XXX` |
+
+**绝不**在失败的测试存在之前编写实现代码（TDD）。
+**绝不**在 `.feature` 文件存在之前编写步骤定义（BDD）。
+
+参考：`.standards/workflow-enforcement.ai.yaml`
+
+---
+
+## 5. 测试驱动开发 (TDD)
 
 参考：`.standards/test-driven-development.md`
 
@@ -134,11 +171,11 @@ docs(readme): 更新安装说明
 
 ---
 
-## 5. 测试覆盖：7 维度
+## 6. 测试覆盖：8 维度
 
 参考：`.standards/test-completeness-dimensions.md`
 
-### 七个维度
+### 八个维度
 
 | # | 维度 | 测试内容 |
 |---|------|----------|
@@ -149,20 +186,23 @@ docs(readme): 更新安装说明
 | 5 | **状态变更** | 前/后状态 |
 | 6 | **验证** | 格式、业务规则 |
 | 7 | **集成** | 真实 DB/API 调用 |
+| 8 | **AI 生成** | AI 生成测试的质量 |
 
 ### 功能类型 → 必要维度
 
 | 功能类型 | 必要维度 |
 |----------|----------|
-| CRUD API | 1, 2, 3, 4, 6, 7 |
-| 查询/搜索 | 1, 2, 3, 4, 7 |
-| 状态机 | 1, 3, 4, 5, 6 |
-| 验证 | 1, 2, 3, 6 |
-| 后台任务 | 1, 3, 5 |
+| CRUD API | 1, 2, 3, 4, 6, 7, 8* |
+| 查询/搜索 | 1, 2, 3, 4, 7, 8* |
+| 状态机 | 1, 3, 4, 5, 6, 8* |
+| 验证 | 1, 2, 3, 6, 8* |
+| 后台任务 | 1, 3, 5, 8* |
+
+*维度 8 适用于测试由 AI 生成的情况
 
 ---
 
-## 6. 签入前检查清单
+## 7. 签入前检查清单
 
 参考：`.standards/checkin-standards.md`
 
@@ -193,7 +233,7 @@ docs(readme): 更新安装说明
 
 ---
 
-## 7. 需求撰写 (INVEST)
+## 8. 需求撰写 (INVEST)
 
 参考：`.standards/requirement-writing.md`
 
@@ -227,13 +267,30 @@ docs(readme): 更新安装说明
 
 ---
 
-## 8. 规格驱动开发 (SDD) 优先
+## 9. 规格驱动开发 (SDD) 优先
 
 **规则**：当项目集成了 SDD 工具（OpenSpec、Spec Kit 等）时，优先使用其命令而非手动编辑文件。
 
 **检测**：
 - OpenSpec：`openspec/` 目录或 `openspec.json`
 - Spec Kit：`specs/` 目录或 `.speckit` 配置
+
+---
+
+## 10. AI 响应导航
+
+**规则**：每个实质性的 AI 响应结尾必须包含导航区块（Navigation Footer），建议下一步行动。
+
+**关键行为**：
+- 在完成任务、提供分析、提出问题或报告错误后，附加导航建议
+- 提供多个选项时，以 ⭐ 标示推荐选项
+- 使用情境模板（任务完成、用户提问、错误/失败、进行中、信息性回复）
+- 依情境调整选项数量（1-5 个，绝不超过 5 个）
+- 适用时，建议中优先使用斜杠命令
+
+**豁免**：极短的确认回复（"OK"、"Done"）可省略导航。
+
+参考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
 
 ---
 
@@ -252,6 +309,7 @@ docs(readme): 更新安装说明
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 2.1.0 | 2026-01-25 | 更新：测试覆盖 7 维度 → 8 维度（新增 AI 生成） |
 | 2.0.0 | 2026-01-13 | 重大增强：新增 TDD、测试覆盖、代码审查、签入、需求章节 |
 | 1.0.1 | 2025-12-24 | 新增：相关标准、版本历史、授权章节 |
 | 1.0.0 | 2025-12-23 | 初始 GitHub Copilot 集成 |
@@ -261,3 +319,79 @@ docs(readme): 更新安装说明
 ## 授权
 
 本文档以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
+
+
+## 可用的 UDS 斜杠命令
+
+> 为 SPEC-INTSYNC-001 同步合规自动生成的索引。权威描述位于 `skills/commands/*.md` 与 `skills/commands/COMMAND-INDEX.json`。
+
+### core
+
+- `/commit`
+- `/code-review`
+- `/sdd`
+- `/check`
+- `/init`
+- `/update`
+- `/config`
+
+### testing
+
+- `/tdd`
+- `/bdd`
+- `/atdd`
+- `/e2e`
+- `/coverage`
+- `/ac-coverage`
+- `/derive`
+- `/derive-bdd`
+- `/derive-tdd`
+- `/derive-atdd`
+- `/derive-all`
+- `/journey-test`
+
+### quality
+
+- `/checkin`
+- `/refactor`
+- `/scan`
+- `/security`
+- `/reverse`
+- `/reverse-sdd`
+- `/reverse-bdd`
+- `/reverse-tdd`
+
+### docs
+
+- `/docs`
+- `/docgen`
+- `/changelog`
+- `/requirement`
+- `/brainstorm`
+- `/sdd-retro`
+- `/pr`
+
+### ops
+
+- `/observability`
+- `/slo`
+- `/runbook`
+- `/incident`
+- `/metrics`
+- `/durable`
+- `/ci-cd`
+
+### methodology
+
+- `/methodology`
+- `/dev-workflow`
+- `/discover`
+- `/release`
+- `/audit`
+- `/migrate`
+- `/skill-builder`
+
+### reference
+
+- `/database`
+- `/api-design`

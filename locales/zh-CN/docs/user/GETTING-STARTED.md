@@ -2,6 +2,8 @@
 source: docs/user/GETTING-STARTED.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: a71a0848b809
 status: current
 ---
 

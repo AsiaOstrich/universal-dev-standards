@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/README.md
 source_version: 2.0.0
 translation_version: 2.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: f26fabd741cf
 status: current
 ---
 
 # GitHub Copilot 集成
+
+> **语言**: [English](../../../../integrations/github-copilot/README.md) | [繁體中文](../../../zh-TW/integrations/github-copilot/README.md) | 简体中文
+
+**版本**: 2.0.0
+**最后更新**: 2026-01-13
 
 本目录提供将通用开发规范与 [GitHub Copilot](https://github.com/features/copilot) 集成的资源。
 
@@ -156,7 +162,7 @@ Copilot:     "Help me implement using TDD (Red-Green-Refactor)..."
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 2.0.0 | 2026-01-13 | 重大增强：新增 README、Chat 参考、skills 对照；增强指令内容 |
+| 2.0.0 | 2026-01-13 | 重大增强：新增 README、Chat 参考、skills 对照；以 TDD、覆盖率、审查章节增强指令内容 |
 | 1.0.1 | 2025-12-24 | 新增：相关标准、版本历史、授权章节 |
 | 1.0.0 | 2025-12-23 | 初始 GitHub Copilot 集成 |
 

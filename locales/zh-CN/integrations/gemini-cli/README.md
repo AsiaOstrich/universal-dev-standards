@@ -2,7 +2,8 @@
 source: ../../../../integrations/gemini-cli/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: b14a6bca6aa3
 status: current
 ---
 
@@ -17,8 +18,14 @@ status: current
 > repo 根目录的 `.gemini/` 树亦同——完整理由与「为何一个月无人察觉」记于
 > [`.gemini/DEPRECATED.md`](../../../../.gemini/DEPRECATED.md)。
 >
-> **要迁移？** 见[根 README](../../../../README.md#-ai-工具支持) 的 Antigravity 条目。
+> **要迁移？** 见[根 README](../../README.md#-ai-工具支持) 的 Antigravity 条目。
 > 注意 UDS 尚未验证 Antigravity 的 skill 安装路径，因此 `uds init` 不会为它安装 skills。
+
+> **语言**: [English](../../../../integrations/gemini-cli/README.md) | [繁體中文](../../../zh-TW/integrations/gemini-cli/README.md) | 简体中文
+
+**版本**: 1.0.0
+**最后更新**: 2026-01-09
+**状态**: 已于 2026-07-23 冻结
 
 本目录提供将通用文档规范与 [Gemini CLI](https://geminicli.com/) 集成的资源。
 

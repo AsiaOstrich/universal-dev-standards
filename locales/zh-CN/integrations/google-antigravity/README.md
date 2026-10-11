@@ -2,11 +2,17 @@
 source: ../../../../integrations/google-antigravity/README.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 08f15cd1bc9d
 status: current
 ---
 
 # Google Antigravity 集成
+
+> **语言**: [English](../../../../integrations/google-antigravity/README.md) | [繁體中文](../../../zh-TW/integrations/google-antigravity/README.md) | 简体中文
+
+**版本**: 1.1.0
+**最后更新**: 2026-01-09
 
 本目录提供将通用文档规范与 Google Antigravity 集成的资源。
 
