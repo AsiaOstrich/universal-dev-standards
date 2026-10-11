@@ -2,6 +2,8 @@
 source: skills/testing-guide/testing-theory.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: dc434451d597
 status: current
 ---
 
@@ -96,7 +98,7 @@ status: current
 │  └── Compare against known-correct implementation            │
 │                                                              │
 │  Metamorphic Oracle                                          │
-│  └── Verify relationships between outputs                   │
+│  └── Verify relationships between outputs                    │
 │      (e.g., sort(sort(x)) == sort(x))                       │
 │                                                              │
 │  Statistical Oracle                                          │

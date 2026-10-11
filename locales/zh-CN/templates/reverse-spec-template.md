@@ -2,7 +2,8 @@
 source: ../../../templates/reverse-spec-template.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-19
+last_synced: 2026-10-11
+source_hash: 757daa9f44a3
 status: current
 ---
 
@@ -197,6 +198,33 @@ status: current
 
 ---
 
+## E2E 场景（必填）
+
+> 定义用户或调用者视角的端到端场景。至少填写 1 条 Happy Path。
+> 若确实不需要 E2E，填写 `e2e_not_required_reason` 并留空 Scenarios 区块。
+
+**e2e_not_required_reason**（若 Scenarios 为空，此栏必填）：
+<!-- 有效理由：纯内部工具函数 | 已被 SPEC-NNN E2E 涵盖，见 [SPEC-NNN] -->
+<!-- 无效理由：「之后再补」「现在没空」 -->
+
+### Happy Path: [场景名称]
+
+```gherkin
+Given [用户或系统状态前提]
+When  [触发动作或 API 调用]
+Then  [可观察的预期结果：HTTP status、数据库状态、响应 body]
+```
+
+### Error Path: [场景名称]（建议：安全相关、Quota、计费功能必填）
+
+```gherkin
+Given [异常前提条件]
+When  [触发动作]
+Then  [预期错误处理：status code、错误消息、无副作用]
+```
+
+---
+
 ## 验收标准
 
 ### 从测试提取
@@ -272,6 +300,27 @@ status: current
 | 问题 | 严重性 | 备注 |
 |------|--------|------|
 | <!-- 新增问题 --> | 低/中/高 | <!-- 额外背景 --> |
+
+---
+
+## 假设与待解问题
+
+### 假设
+
+| # | 假设 | 影响范围 | 验证方法 | 状态 |
+|---|------|----------|----------|------|
+| A1 | [假设] <!-- 描述假设 --> | <!-- 受影响区域 --> | <!-- 如何验证 --> | 未验证 |
+
+<!-- 范例：
+| A1 | [假设] 认证中间件在请求到达 controller 之前验证 JWT | AuthController, UserController | 检查 app.ts 中的中间件链 | 未验证 |
+| A2 | [假设] 所有查询模式都有对应的数据库索引 | 性能 | 对常用查询执行 EXPLAIN | 未验证 |
+-->
+
+### 待解问题
+
+| # | 问题 | 受影响区域 | 负责人 | 期限 |
+|---|------|------------|--------|------|
+| Q1 | [需确认] <!-- 问题 --> | <!-- 区域 --> | <!-- 谁 --> | <!-- 何时 --> |
 
 ---
 

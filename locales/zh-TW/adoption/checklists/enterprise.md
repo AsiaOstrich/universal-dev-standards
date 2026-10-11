@@ -1,26 +1,27 @@
 ---
 source: ../../../../adoption/checklists/enterprise.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-10-11
+source_hash: 8a0f688e3ba8
 status: current
 ---
 
-# 等級三：企業採用檢查清單
+# 完整採用檢查清單
 
 > **語言**: [English](../../../../adoption/checklists/enterprise.md) | 繁體中文
 
-> 企業或受監管專案的全面標準
+> 適用於所有專案的全面標準
 >
-> 設置時間：1-2 天
+> 快速設置：`npx universal-dev-standards init`
 
 ---
 
 ## 前置條件
 
-- [ ] 等級二（推薦）已完成
-- [ ] 利害關係人已批准全面採用
-- [ ] 已分配時間進行文件審查
+- [ ] 已初始化 Git 儲存庫
+- [ ] 已安裝 Claude Code（用於 Skills）
+- [ ] 利害關係人已批准採用
 
 ---
 
