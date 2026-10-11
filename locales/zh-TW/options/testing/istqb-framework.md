@@ -2,6 +2,8 @@
 source: options/testing/istqb-framework.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: b21c4ba198a1
+last_synced: 2026-10-11
 status: current
 ---
 

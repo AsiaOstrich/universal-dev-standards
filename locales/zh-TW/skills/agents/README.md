@@ -2,7 +2,8 @@
 source: ../../../../skills/agents/README.md
 source_version: 1.1.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-10-11
+source_hash: 3783bc43d9d6
 status: current
 ---
 
@@ -130,6 +131,102 @@ allowed-tools:
 | `hierarchical` | 先分析高層結構，然後深入細節 | 架構分析、系統設計 |
 | `parallel` | 同時處理多個區段 | 獨立模組分析、規格審查 |
 | `sequential` | 依序處理區段，保留上下文 | 程式碼審查、逐步分析 |
+
+#### 配置範例
+
+```yaml
+# 架構分析用（需要先看整體）
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: hierarchical
+
+# 程式碼審查用（循序處理）
+context-strategy:
+  mode: chunked
+  max-chunk-size: 30000
+  overlap: 200
+  analysis-pattern: sequential
+
+# 文件撰寫用（需要完整上下文）
+context-strategy:
+  mode: full
+  analysis-pattern: hierarchical
+```
+
+### 代理簽章（v1.2.0，DSPy 啟發）
+
+選用的 `signatures` 欄位為代理操作定義結構化的輸入／輸出契約，讓代理輸出可被驗證，並使其在工作流程中的組合更清楚。
+
+```yaml
+---
+name: spec-analyst
+# ... 其他欄位 ...
+
+signatures:
+  forward-analysis:
+    description: Transform requirements into a specification document
+    inputs:
+      - name: feature_request
+        type: text
+        required: true
+        description: User's feature request or requirement description
+      - name: codebase_context
+        type: file_list
+        required: false
+        description: Relevant source files for context
+    outputs:
+      - name: spec_document
+        type: markdown
+        validation: "Contains Summary, Motivation, Acceptance Criteria sections"
+      - name: read_first_list
+        type: yaml_list
+        validation: "Each entry has path and reason fields"
+
+  reverse-analysis:
+    description: Extract specification from existing code
+    inputs:
+      - name: source_files
+        type: file_list
+        required: true
+    outputs:
+      - name: reverse_spec
+        type: markdown
+        validation: "Contains Discovered Behaviors, Business Rules, Gaps sections"
+      - name: certainty_report
+        type: table
+        validation: "Each item tagged [Confirmed], [Inferred], [Assumption], or [Unknown]"
+---
+```
+
+#### 簽章欄位
+
+| 欄位 | 型別 | 描述 |
+|------|------|------|
+| `inputs[].name` | string | 輸入參數名稱 |
+| `inputs[].type` | string | `text`、`markdown`、`file_list`、`yaml_list`、`json` |
+| `inputs[].required` | boolean | 此輸入是否為必填 |
+| `outputs[].name` | string | 輸出產物名稱 |
+| `outputs[].type` | string | 輸出格式類型 |
+| `outputs[].validation` | string | 人類可讀的驗證準則 |
+
+#### 好處
+
+- **可組合性**：工作流程可驗證某步驟的輸出是否符合下一步驟預期的輸入
+- **文件化**：簽章可作為代理能力的 API 契約
+- **可驗證性**：輸出驗證準則讓品質檢查具確定性
+
+---
+
+### 跨工具執行模式
+
+| AI 工具 | 執行模式 | 運作方式 |
+|---------|---------|---------|
+| Claude Code | `task` | 使用 Task 工具產生獨立子代理 |
+| OpenCode | `task` | 類似的 Task 工具支援 |
+| Cursor / Windsurf | `inline` | 將 AGENT.md 注入為上下文前綴 |
+| Copilot / Gemini | `inline` | 轉換為提示詞片段 |
 
 ## 內建代理
 
@@ -269,6 +366,7 @@ steps:
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.2.0 | 2026-03-17 | 新增代理簽章（DSPy 啟發的結構化 I/O 契約） |
 | 1.1.0 | 2026-01-21 | 新增 RLM 啟發的 context-strategy 配置 |
 | 1.0.0 | 2026-01-20 | 初始發布 |
 

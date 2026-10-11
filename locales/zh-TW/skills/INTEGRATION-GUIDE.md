@@ -2,7 +2,8 @@
 source: ../../../skills/INTEGRATION-GUIDE.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-07
+last_synced: 2026-10-11
+source_hash: 648c6e584d23
 status: current
 ---
 
