@@ -2,7 +2,8 @@
 source: ../../../core/security-decision.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: dac1cdefe950
 status: current
 ---
 
@@ -10,45 +11,57 @@ status: current
 
 > **語言**: [English](../../../core/security-decision.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-15
-**適用範圍**: 所有多來源安全決策仲裁場景
-**Scope**: universal
-**來源**: XSPEC-037（claude-code-book Ch.4 deny>ask>allow pipeline）
+> **來源**: XSPEC-037 | **借鑑自**: claude-code-book Ch.4
 
----
+## 概述
 
-## 目的
+安全決策標準定義三態決策模型（`deny` / `ask` / `allow`），並以鐵律規範優先級：**deny 永遠勝出**，無論來源的優先級為何。這表示低優先級使用者設定中的 `deny`，會覆蓋高優先級政策設定中的 `allow`。
 
-安全決策鐵律：`deny > ask > allow` 三態優先級仲裁。
+## 三態
 
-多來源安全決策的仲裁規則：`deny` 永遠勝出，無論來源優先級。三態語義（deny / ask / allow）比布林值更精確，支援「需使用者確認」的中間狀態。
-
----
-
-## 核心規範
-
-- 所有安全決策仲裁必須遵循 `deny > ask > allow` 優先級，無例外
-- `deny` 的勝出不受規則來源優先級影響（低優先級的 deny 可以覆蓋高優先級的 allow）
-- `ask` 狀態在 CI / 無人值守模式下必須等同 `deny`（無法互動確認）
-- 決策結果必須記錄來源規則列表（可追蹤性）
-- `projectSettings` 來源的安全提升操作必須被拒絕（信任半徑保護）
-
----
-
-## 三態決策類型
-
-| 決策 | 優先級 | 描述 |
+| 決策 | 優先級 | 行為 |
 |------|--------|------|
-| `deny` | 1（最高） | 明確拒絕，立即阻止操作。任何來源的 deny 都使最終決策為 deny |
-| `ask` | 2 | 需要使用者確認才能繼續。CI 模式下等同 deny（無法互動） |
-| `allow` | 3（最低） | 允許操作繼續。所有規則都為 allow 時才能執行 |
-
----
+| `deny` | 1（最高） | 立即阻擋，不再進一步評估 |
+| `ask` | 2 | 暫停並請求使用者確認 |
+| `allow` | 3（最低） | 允許操作繼續 |
 
 ## 仲裁規則
 
+```
+if any rule has deny → final decision: deny
+else if any rule has ask → final decision: ask
+else → final decision: allow
+```
+
+**不變式**：deny 勝出不受來源優先級影響。
+
+## CI 模式
+
+在非互動（CI/CD）環境中，`ask` 視同 `deny` — 由於沒有提供人工確認的機制，操作必須被阻擋。
+
+## projectSettings 信任半徑
+
+來自 `projectSettings`（`.adoption/` 類型目錄）的設定，會被排除於安全敏感操作之外，以防止惡意 repository 注入：
+
+**來自 projectSettings 而被阻擋的操作**：
+- 將 `requiresUserConfirmation` 設為 `false`
+- 將記憶體路徑重定向到專案目錄外
+- 將工具白名單擴充超出 userSettings 範圍
+- 將 deny 規則降級為 allow
+
+日誌：`[WARN] projectSettings security override rejected: {operation}`
+
+## 介面
+
 ```typescript
+type SecurityDecision = "deny" | "ask" | "allow";
+
+interface SecurityDecisionRule {
+  source: string;        // user | project | policy | builtin
+  decision: SecurityDecision;
+  reason?: string;
+}
+
 function arbitrate(rules: SecurityDecisionRule[]): SecurityDecision {
   if (rules.some(r => r.decision === "deny")) return "deny";
   if (rules.some(r => r.decision === "ask")) return "ask";
@@ -56,65 +69,11 @@ function arbitrate(rules: SecurityDecisionRule[]): SecurityDecision {
 }
 ```
 
-**不變式**：`deny` 勝出不受 `source` 優先級影響。
+## 參考資料
 
----
+- AI 最佳化版本：[ai/standards/security-decision.ai.yaml](../../../ai/standards/security-decision.ai.yaml)
+- XSPEC-037：跨專案規格
+- 借鑑自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.4 四階段權限管線
 
-## 介面定義
 
-### SecurityDecision
-
-```
-deny | ask | allow
-```
-
-### SecurityDecisionRule
-
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| `source` | `string` | 規則來源（user / project / policy / builtin） |
-| `decision` | `SecurityDecision` | 決策值 |
-| `reason` | `string`（可選） | 用於日誌和使用者說明 |
-
-### SecurityDecisionResult
-
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| `final_decision` | `SecurityDecision` | 最終決策 |
-| `winning_rules` | `SecurityDecisionRule[]` | 觸發最終決策的規則 |
-| `all_rules` | `SecurityDecisionRule[]` | 所有評估的規則（審計用） |
-| `ci_mode_override` | `boolean` | `true` 時 ask → deny |
-
----
-
-## 信任半徑保護
-
-`projectSettings` 在安全敏感操作中被排除（防止惡意 repo 注入）。
-
-**被阻擋的操作**：
-
-- 將 `requiresUserConfirmation` 設為 `false`
-- 記憶體路徑重定向到專案目錄外（如 `~/.ssh`）
-- 工具白名單擴充超出 `userSettings` 允許的範圍
-- 安全規則降級（deny → allow）
-
-拒絕時記錄 `warn` 等級日誌：`[WARN] projectSettings security override rejected: {operation}`
-
----
-
-## 適用組件
-
-- Safety Hook（採用層）
-- CommandPolicy（採用層）
-- Governance Framework（採用層；OPA / Cedar / 自訂 policy engine 皆可）
-- 任何多來源規則合併的安全仲裁場景
-
----
-
-## 錯誤碼
-
-| 代碼 | 說明 |
-|------|------|
-| `SD-001` | `SECURITY_DENIED` — deny 決策，操作被阻止 |
-| `SD-002` | `SECURITY_ASK_CI` — ask 在 CI 模式下被視為 deny |
-| `SD-003` | `TRUST_RADIUS_VIOLATION` — projectSettings 嘗試安全提升，已拒絕 |
+**Scope**: universal

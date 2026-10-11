@@ -1,22 +1,34 @@
 ---
 source: ../../../core/supply-chain-security-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-10
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: 25ea1d1d96a9
 status: current
 ---
 
 # 供應鏈安全標準
 
-> 版本: 1.1.0 | 最後更新: 2026-08-04
+> **語言**: [English](../../../core/supply-chain-security-standards.md) | 繁體中文
+
+**版本**: 1.1.0
+**最後更新**: 2026-08-04
+**適用性**: 所有具有外部相依性的軟體專案
+**範圍**: universal
+**產業標準**: SLSA, SPDX, CycloneDX, OpenSSF Scorecard
+**參考**: [slsa.dev](https://slsa.dev/), [spdx.dev](https://spdx.dev/), [cyclonedx.org](https://cyclonedx.org/)
+
+---
 
 ## 概述
 
 本文件定義供應鏈安全標準，涵蓋軟體物料清單（SBOM）、相依性稽核、SLSA 成熟度等級、授權合規與相依性健康評估。
 
+---
+
 ## 軟體物料清單（SBOM）
 
-### 格式比較
+### SBOM 格式比較
 
 | 面向 | SPDX | CycloneDX |
 |------|------|-----------|
@@ -24,12 +36,21 @@ status: current
 | **主要焦點** | 授權合規 + 安全 | 安全 + 元件分析 |
 | **格式** | JSON, RDF, YAML, Tag-Value | JSON, XML, Protobuf |
 | **ISO 標準** | ISO/IEC 5962:2021 | ECMA-424 |
+| **生態系** | 在開源治理領域較強 | 在 DevSecOps 工具鏈較強 |
 
-### 需求
+### 選擇指引
+
+- **選擇 SPDX**：當授權合規是主要考量，或需要 ISO 認證時
+- **選擇 CycloneDX**：當安全分析與 DevSecOps 整合是優先事項時
+- **兩種格式皆可**；組織內保持一致比選哪一種更重要
+
+### SBOM 需求
 
 - 每次發布必須包含 SBOM，列出所有直接與間接相依性
 - SBOM 必須包含：元件名稱、版本、供應商、授權、已知漏洞
 - SBOM 應作為 CI/CD Pipeline 的一部分自動產生
+
+---
 
 ## 相依性稽核
 
@@ -42,7 +63,20 @@ status: current
 | **維護狀態** | 最後提交日期、開放 Issue、維護者數量 | 超過 2 年未維護: 警告 |
 | **版本時效** | 落後最新版本多少個 Major/Minor | 落後 Major > 2: 警告 |
 
+### 稽核頻率
+
+| 觸發時機 | 動作 |
+|---------|------|
+| 每次 CI 建構 | 漏洞掃描（自動化） |
+| 每週 | 完整稽核報告（自動化） |
+| 發布前 | 人工審查所有警告 |
+| 收到安全公告時 | 立即評估受影響的相依性 |
+
+---
+
 ## SLSA 等級
+
+Supply-chain Levels for Software Artifacts（軟體產物供應鏈等級）定義建構完整性的成熟度等級：
 
 | 等級 | 需求 | 適用情境 |
 |------|------|---------|
@@ -51,26 +85,53 @@ status: current
 | **L3 — Hardened Builds** | 隔離、短暫的建構環境；不可偽造的 Provenance | 安全關鍵應用 |
 | **L4 — Two-Party Review** | 所有變更需兩人審查；密封式建構 | 基礎設施、金融系統 |
 
+### 進階路徑
+
+從 L1 開始，依風險概況逐步採用更高等級：
+
+```
+L1 (All projects) → L2 (CI/CD projects) → L3 (Security-critical) → L4 (High-assurance)
+```
+
+---
+
 ## 授權合規
 
 ### 授權類別矩陣
 
 | 類別 | 範例 | 相容性 | 風險 |
 |------|------|--------|------|
-| **寬鬆式** | MIT, Apache-2.0, BSD | 幾乎與所有授權相容 | 低 |
-| **弱 Copyleft** | LGPL-2.1, MPL-2.0 | 作為函式庫使用時相容 | 中 |
+| **寬鬆式** | MIT, Apache-2.0, BSD-2/3 | 幾乎與所有授權相容 | 低 |
+| **弱 Copyleft** | LGPL-2.1, MPL-2.0 | 作為函式庫使用（未修改）時相容 | 中 |
 | **強 Copyleft** | GPL-2.0, GPL-3.0 | 衍生作品須使用相同授權 | 高 |
 | **網路 Copyleft** | AGPL-3.0 | Copyleft 延伸至網路互動 | 極高 |
 | **專有** | 自訂、無授權 | 未經明確許可不得使用 | 阻擋 |
+
+### 合規規則
+
+- **寬鬆式 + 寬鬆式**：一律相容
+- **寬鬆式 + Copyleft**：遵守 Copyleft 條款即相容
+- **Copyleft + 不同的 Copyleft**：經常不相容——需法務審查
+- **SaaS 中的 AGPL**：會對整個服務觸發 Copyleft——需審慎評估
+- **無授權**：視為專有——未經明確許可不得使用
+
+---
 
 ## 相依性更新策略
 
 | 更新類型 | 策略 | 自動化 |
 |---------|------|--------|
-| **Patch** (x.y.Z) | CI 通過後自動合併 | 全自動 |
+| **Patch** (x.y.Z) | CI 通過後自動合併 | 全自動（Dependabot/Renovate） |
 | **Minor** (x.Y.0) | 自動建立 PR，人工審查 | 半自動 |
-| **Major** (X.0.0) | 人工評估，遷移計畫 | 手動 |
+| **Major** (X.0.0) | 人工評估，遷移計畫 | 手動，並審閱變更日誌 |
 | **鎖定策略** | 提交 lock 檔——**若你發布套件，另須驗證消費端會解析到什麼**（見下） | lock 檔進版控；發版時檢查消費端解析 |
+
+### 更新規則
+
+- lock 檔必須提交至版本控制
+- Patch 更新應在 7 天內套用
+- 安全修補必須在 48 小時（Critical）或 7 天（High）內套用
+- Major 版本升級應每季評估
 
 ### lock 檔約束不了你的使用者
 
@@ -105,6 +166,54 @@ tarball、PyPI wheel、Ruby gem 都不帶 lock 檔。消費端是**在他們安�
 > **適用於發布出去的產物，不適用於應用程式。** 一個部署出去的服務會連同 lock 檔一起
 > 出貨，因此它的建置與執行看到的是同一組版本。本節談的是**別人會安裝的套件**。
 
+---
+
+## CI/CD 整合
+
+### Pipeline 安全關卡
+
+相依性掃描必須整合進 CI/CD：
+
+```
+PR Created → Dependency Scan → Results
+                                  │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+              Critical         High           Medium/Low
+              → Block PR       → Warn +       → Log only
+                               Create Ticket
+```
+
+### 必要的 Pipeline 步驟
+
+1. **SBOM 產生** — 每次建構都產出 SBOM
+2. **漏洞掃描** — 比對 CVE 資料庫
+3. **授權掃描** — 驗證授權相容性
+4. **相依性新鮮度** — 回報過時的相依性
+
+---
+
+## 相依性健康評估
+
+### 健康指標
+
+| 指標 | 健康 | 警告 | 不健康 |
+|------|------|------|--------|
+| **最後更新日期** | < 6 個月 | 6-24 個月 | > 24 個月 |
+| **已知 CVE** | 0 個 Critical/High | 1-2 個 High | 任何未修補的 Critical |
+| **維護者數量** | ≥ 3 | 2 | 1（巴士因子風險） |
+| **社群活躍度** | Issue/PR 活躍 | 回應緩慢 | 已棄置 |
+| **下載趨勢** | 穩定或成長 | 下降 | 接近零 |
+
+### 健康分數
+
+將各指標合併為整體健康分數：
+- **綠燈**（健康）：所有指標皆無警告
+- **黃燈**（注意）：1-2 項警告等級指標
+- **紅燈**（需採取行動）：任何不健康指標或 Critical CVE
+
+---
+
 ## 快速參考卡
 
 ```
@@ -116,9 +225,27 @@ Critical CVE？ → 48 小時內修補
 
 ---
 
+## 參考資料
+
+- [SLSA Framework](https://slsa.dev/) — Supply-chain Levels for Software Artifacts
+- [SPDX Specification](https://spdx.dev/) — Software Package Data Exchange
+- [CycloneDX](https://cyclonedx.org/) — OWASP 軟體物料清單標準
+- [OpenSSF Scorecard](https://securityscorecards.dev/) — 自動化安全健康檢查
+
+---
+
 **相關標準：**
 - [安全標準](security-standards.md) - 應用程式安全
 - [容器化標準](containerization-standards.md) - 映像檔漏洞掃描
+- [棄用標準](deprecation-standards.md) - 相依性停用通知
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 變更內容 |
+|------|------|----------|
+| 1.0.0 | 2026-04-01 | 初始發布 |
 
 ---
 

@@ -2,7 +2,8 @@
 source: ../../../core/structured-task-definition.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 8dae927b8e17
 status: current
 ---
 
