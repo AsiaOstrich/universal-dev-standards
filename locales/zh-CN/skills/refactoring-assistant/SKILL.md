@@ -2,7 +2,8 @@
 source: ../../../../skills/refactoring-assistant/SKILL.md
 source_version: 2.0.0
 translation_version: 2.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 22be2c4ae81e
 status: current
 description: |
   [UDS] 引导重构决策与策略选择，包含「重构还是重写」这个判断。
@@ -62,12 +63,27 @@ description: |
 4. **执行** - 遵循逐步工作流程，包含安全检查
 5. **验证** - 执行测试以确认行为未被改变
 
+## 使用示例
+
+```
+User: /refactor src/legacy-auth/
+AI: 正在分析 src/legacy-auth/...
+    测试覆盖率：23% — 建议采用安全优先的做法。
+    建议策略：特征化测试 + 准备式重构
+```
+
+```
+User: /refactor decide
+AI: 我来帮你决定该重构还是重写。
+    问题 1：这段代码目前是否在生产环境中正常运行？[Y/N]
+```
+
 ## 下一步引导
 
 `/refactor` 完成后，AI 助手应建议：
 
 > **重构完成。建议下一步：**
-> - 执行 `/checkin` 通过品质关卡
+> - 执行 `/checkin` 通过品质关卡 ⭐ **推荐**
 > - 执行 `/coverage` 确认重构后覆盖率不下降
 > - 执行 `/commit` 提交重构变更
 
@@ -75,3 +91,7 @@ description: |
 
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[refactoring-standards.md](../../../../core/refactoring-standards.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/refactor`](../commands/refactor.md#ai-代理行为)

@@ -2,7 +2,8 @@
 source: ../../../../skills/project-discovery/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: c52920f316a7
 status: current
 description: |
   [UDS] 在既有代码库新增功能之前，评估项目健康度、架构与风险。
@@ -113,7 +114,7 @@ docs/risks/
 `/discover` 完成后，AI 助手应根据评估结果建议：
 
 > **根据评估结果，建议下一步：**
-> - **新功能** → 执行 `/sdd` 建立规格
+> - **新功能** → 执行 `/sdd` 建立规格 ⭐ **推荐**
 > - **遗留代码** → 执行 `/reverse spec` 提取现有行为
 > - **重构** → 执行 `/refactor decide` 选择策略
 > - **快速修复** → 执行 `/tdd` 撰写针对性测试并修复
@@ -122,4 +123,9 @@ docs/risks/
 
 ## 参考
 
+- 分步工作流程：[workflow.md](../../../../skills/project-discovery/workflow.md) — 依序列出探索步骤（代码健康度、架构、文档盘点、审查快照、依赖与安全）。实际执行探索时阅读，而非在决定要不要执行时阅读。
 - 详细指南：[guide.md](./guide.md)
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/discover`](../commands/discover.md#ai-代理行为)

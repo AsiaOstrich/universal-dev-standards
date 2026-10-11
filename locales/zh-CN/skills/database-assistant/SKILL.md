@@ -2,7 +2,8 @@
 source: ../../../../skills/database-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 1cf7bf71b996
 status: current
 description: |
   引导数据库设计、迁移与查询优化。
@@ -79,9 +80,11 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 ## 使用方式
 
-- `/database` - 交互式数据库设计引导
-- `/database schema` - 审查 Schema 设计
-- `/database --migration` - 迁移规划助手
+```
+/database                - 交互式数据库设计引导
+/database schema         - 审查 Schema 设计
+/database --migration    - 迁移规划助手
+```
 
 ## 下一步引导
 
@@ -89,10 +92,20 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 > **数据库设计完成。建议下一步：**
 > - 执行 `/security` 检查数据保护措施
-> - 执行 `/testing` 规划数据库测试策略
+> - 执行 `/testing` 规划数据库测试策略 ⭐ **推荐**
 > - 执行 `/checkin` 确认迁移符合提交规范
 > - 生成 API 端点 → 执行 `/api-design`
 
 ## 参考
 
 - 核心规范：[database-standards.md](../../../../core/database-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## 许可
+
+CC BY 4.0 — 文档内容
