@@ -3,7 +3,9 @@ name: spec-analyst
 version: 1.1.0
 source: skills/agents/spec-analyst.md
 source_version: 1.1.0
-translation_version: 1.0.0
+translation_version: 1.1.0
+source_hash: 2dc20658b262
+last_synced: 2026-10-11
 status: current
 description: |
   用于需求提取与 spec 生成的规格分析专家。

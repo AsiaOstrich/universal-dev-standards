@@ -1,8 +1,9 @@
 ---
 source: ../../../../skills/agents/README.md
 source_version: 1.1.0
-translation_version: 1.0.0
-last_synced: 2026-02-05
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: 3783bc43d9d6
 status: current
 ---
 
@@ -26,58 +27,58 @@ UDS 代理是专门的 AI 子代理，可以协调处理复杂的开发工作流
 
 ```yaml
 ---
-# === 必填字段 ===
-name: agent-name              # 唯一标识符（kebab-case）
-version: 1.0.0                # 语义版本
-description: |                # 用于 AI 匹配的多行描述
-  代理目的的简要描述。
-  关键字: keyword1, keyword2, keyword3.
+# === REQUIRED FIELDS ===
+name: agent-name              # Unique identifier (kebab-case)
+version: 1.0.0                # Semantic version
+description: |                # Multi-line description for AI matching
+  Brief description of the agent's purpose.
+  Keywords: keyword1, keyword2, keyword3.
 
-# === 角色配置 ===
+# === ROLE CONFIGURATION ===
 role: specialist              # orchestrator | specialist | reviewer
-expertise:                    # 领域专长
+expertise:                    # Domain expertise areas
   - system-design
   - api-design
   - database-modeling
 
-# === 工具权限（Claude Code Task 工具）===
-# 指定此代理可以使用哪些工具
+# === TOOL PERMISSIONS (Claude Code Task tool) ===
+# Specify which tools this agent can use
 allowed-tools:
-  - Read                      # 文件读取
-  - Glob                      # 模式匹配
-  - Grep                      # 内容搜索
-  - Bash(git:*)               # 仅 Git 命令
-  - WebFetch                  # 网页抓取
-  - WebSearch                 # 网页搜索
-disallowed-tools:             # 明确封锁的工具
-  - Write                     # 不可写入文件
-  - Edit                      # 不可编辑文件
+  - Read                      # File reading
+  - Glob                      # Pattern matching
+  - Grep                      # Content search
+  - Bash(git:*)               # Git commands only
+  - WebFetch                  # Web fetching
+  - WebSearch                 # Web search
+disallowed-tools:             # Explicitly blocked tools
+  - Write                     # No file writing
+  - Edit                      # No file editing
 
-# === 技能依赖 ===
-# 为此代理提供上下文/知识的技能
+# === SKILL DEPENDENCIES ===
+# Skills that provide context/knowledge to this agent
 skills:
-  - spec-driven-dev           # 技能名称引用
+  - spec-driven-dev           # Skill name reference
   - testing-guide
 
-# === 模型偏好（仅 Claude Code）===
-model: claude-sonnet-4-20250514  # 偏好模型
-temperature: 0.3              # 响应创造性（0.0-1.0）
+# === MODEL PREFERENCES (Claude Code only) ===
+model: claude-sonnet-4-20250514  # Preferred model
+temperature: 0.3              # Response creativity (0.0-1.0)
 
-# === 上下文策略（RLM 启发）===
-# 处理大型代码库和长上下文的配置
+# === CONTEXT STRATEGY (RLM-inspired) ===
+# Configuration for handling large codebases and long contexts
 context-strategy:
   mode: adaptive              # full | chunked | adaptive
-  max-chunk-size: 50000       # 每个区块的最大 token 数
-  overlap: 500                # 区块间的 token 重叠
+  max-chunk-size: 50000       # Maximum tokens per chunk
+  overlap: 500                # Token overlap between chunks
   analysis-pattern: hierarchical  # hierarchical | parallel | sequential
 
-# === 触发条件 ===
+# === TRIGGER CONDITIONS ===
 triggers:
-  keywords:                   # 这些关键字自动启动
+  keywords:                   # Auto-activate on these keywords
     - architecture
     - system design
-    - 架构设计
-  commands:                   # 调用此代理的斜线命令
+    - 架構設計
+  commands:                   # Slash commands that invoke this agent
     - /architect
 ---
 ```
@@ -85,7 +86,7 @@ triggers:
 ### 角色类型
 
 | 角色 | 描述 | 使用案例 |
-|------|------|---------|
+|------|-------------|----------|
 | `orchestrator` | 协调多个代理 | 复杂工作流程、功能开发 |
 | `specialist` | 特定领域的深度专业 | 架构、测试、文档 |
 | `reviewer` | 评估并提供反馈 | 代码审查、规格审查、PR 审查 |
@@ -93,22 +94,22 @@ triggers:
 ### 工具权限模式
 
 ```yaml
-# 完全工具访问（未指定时的默认）
+# Full tool access (default if not specified)
 allowed-tools: [*]
 
-# 只读代理
+# Read-only agent
 allowed-tools: [Read, Glob, Grep]
 disallowed-tools: [Write, Edit, Bash]
 
-# 仅限 Git 的 bash 访问
+# Git-only bash access
 allowed-tools:
-  - Bash(git:*)     # 仅 git 命令
-  - Bash(npm:test)  # 仅 npm test
+  - Bash(git:*)     # Only git commands
+  - Bash(npm:test)  # Only npm test
 
-# 特定文件模式
+# Specific file patterns
 allowed-tools:
-  - Write(*.md)     # 仅 markdown 文件
-  - Edit(src/**)    # 仅 src 目录
+  - Write(*.md)     # Only markdown files
+  - Edit(src/**)    # Only src directory
 ```
 
 ### 上下文策略配置（RLM 启发）
@@ -118,7 +119,7 @@ allowed-tools:
 #### 模式选项
 
 | 模式 | 描述 | 使用案例 |
-|------|------|---------|
+|------|-------------|----------|
 | `full` | 一次加载完整上下文 | 小项目、文档任务 |
 | `chunked` | 将上下文分成固定大小的区块 | 顺序代码审查、大型文件分析 |
 | `adaptive` | 根据内容结构动态调整 | 复杂分析、架构探索 |
@@ -126,49 +127,145 @@ allowed-tools:
 #### 分析模式
 
 | 模式 | 描述 | 最适合 |
-|------|------|--------|
+|---------|-------------|----------|
 | `hierarchical` | 先分析高层结构，然后深入细节 | 架构分析、系统设计 |
 | `parallel` | 同时处理多个区段 | 独立模块分析、规格审查 |
 | `sequential` | 依序处理区段，保留上下文 | 代码审查、逐步分析 |
 
+#### 配置示例
+
+```yaml
+# For architecture analysis (need overview first)
+context-strategy:
+  mode: adaptive
+  max-chunk-size: 50000
+  overlap: 500
+  analysis-pattern: hierarchical
+
+# For code review (sequential processing)
+context-strategy:
+  mode: chunked
+  max-chunk-size: 30000
+  overlap: 200
+  analysis-pattern: sequential
+
+# For documentation (need full context)
+context-strategy:
+  mode: full
+  analysis-pattern: hierarchical
+```
+
+### 代理签名（v1.2.0，DSPy 启发）
+
+可选的 `signatures` 字段为代理操作定义结构化的输入／输出契约，从而能够验证代理输出，并让工作流程中的组合更清晰。
+
+```yaml
+---
+name: spec-analyst
+# ... other fields ...
+
+signatures:
+  forward-analysis:
+    description: Transform requirements into a specification document
+    inputs:
+      - name: feature_request
+        type: text
+        required: true
+        description: User's feature request or requirement description
+      - name: codebase_context
+        type: file_list
+        required: false
+        description: Relevant source files for context
+    outputs:
+      - name: spec_document
+        type: markdown
+        validation: "Contains Summary, Motivation, Acceptance Criteria sections"
+      - name: read_first_list
+        type: yaml_list
+        validation: "Each entry has path and reason fields"
+
+  reverse-analysis:
+    description: Extract specification from existing code
+    inputs:
+      - name: source_files
+        type: file_list
+        required: true
+    outputs:
+      - name: reverse_spec
+        type: markdown
+        validation: "Contains Discovered Behaviors, Business Rules, Gaps sections"
+      - name: certainty_report
+        type: table
+        validation: "Each item tagged [Confirmed], [Inferred], [Assumption], or [Unknown]"
+---
+```
+
+#### 签名字段
+
+| 字段 | 类型 | 描述 |
+|-------|------|-------------|
+| `inputs[].name` | string | 输入参数名称 |
+| `inputs[].type` | string | `text`、`markdown`、`file_list`、`yaml_list`、`json` |
+| `inputs[].required` | boolean | 此输入是否为必填 |
+| `outputs[].name` | string | 输出产物名称 |
+| `outputs[].type` | string | 输出格式类型 |
+| `outputs[].validation` | string | 人类可读的验证标准 |
+
+#### 好处
+
+- **可组合性**：工作流程可验证某一步骤的输出是否符合下一步骤预期的输入
+- **文档化**：签名可作为代理能力的 API 契约
+- **验证**：输出验证标准使确定性的质量检查成为可能
+
+---
+
+### 跨工具执行模式
+
+| AI 工具 | 执行模式 | 运作方式 |
+|---------|---------------|--------------|
+| Claude Code | `task` | 使用 Task 工具生成独立的子代理 |
+| OpenCode | `task` | 类似的 Task 工具支持 |
+| Cursor / Windsurf | `inline` | 将 AGENT.md 作为上下文前缀注入 |
+| Copilot / Gemini | `inline` | 转换为提示词片段 |
+
 ## 内建代理
 
 | 代理 | 角色 | 描述 |
-|------|------|------|
-| [code-architect](../../../../skills/agents/code-architect.md) | specialist | 软件架构和系统设计 |
-| [test-specialist](../../../../skills/agents/test-specialist.md) | specialist | 测试策略和测试实现 |
-| [reviewer](../../../../skills/agents/reviewer.md) | reviewer | 代码审查和质量评估 |
-| [doc-writer](../../../../skills/agents/doc-writer.md) | specialist | 文档和技术写作 |
-| [spec-analyst](../../../../skills/agents/spec-analyst.md) | specialist | 规格分析和需求萃取 |
+|-------|------|-------------|
+| [code-architect](./code-architect.md) | specialist | 软件架构和系统设计 |
+| [test-specialist](./test-specialist.md) | specialist | 测试策略和测试实现 |
+| [reviewer](./reviewer.md) | reviewer | 代码审查和质量评估 |
+| [doc-writer](./doc-writer.md) | specialist | 文档和技术写作 |
+| [spec-analyst](./spec-analyst.md) | specialist | 规格分析和需求萃取 |
 
 ## 使用方式
 
 ### CLI 安装
 
 ```bash
-# 列出可用的代理
+# List available agents
 uds agent list
 
-# 将特定代理安装到项目
+# Install specific agent to project
 uds agent install code-architect
 
-# 安装所有代理
+# Install all agents
 uds agent install all
 
-# 安装到用户目录（全局）
+# Install to user directory (global)
 uds agent install code-architect --global
 ```
 
 ### 在 Claude Code 中直接调用
 
 ```
-/architect [任务描述]
+/architect [task description]
 ```
 
 或通过自然语言触发：
 
 ```
-请帮我设计新认证系统的架构。
+Please help me design the architecture for a new authentication system.
 ```
 
 ## 创建自定义代理
@@ -176,7 +273,7 @@ uds agent install code-architect --global
 ### 1. 创建 AGENT.md 文件
 
 ```bash
-# 在你的项目中
+# In your project
 mkdir -p .claude/agents
 touch .claude/agents/my-agent.md
 ```
@@ -188,8 +285,8 @@ touch .claude/agents/my-agent.md
 name: my-custom-agent
 version: 1.0.0
 description: |
-  针对特定项目需求的自定义代理。
-  关键字: custom, specific, project.
+  Custom agent for specific project needs.
+  Keywords: custom, specific, project.
 
 role: specialist
 expertise: [domain-specific]
@@ -205,28 +302,28 @@ triggers:
 ### 3. 撰写代理指令
 
 ```markdown
-# 我的自定义代理
+# My Custom Agent
 
-## 目的
+## Purpose
 
-描述此代理的功能。
+Describe what this agent does.
 
-## 工作流程
+## Workflow
 
-1. 步骤一
-2. 步骤二
-3. 步骤三
+1. Step one
+2. Step two
+3. Step three
 
-## 指南
+## Guidelines
 
-- 指南 1
-- 指南 2
+- Guideline 1
+- Guideline 2
 ```
 
 ## 代理 vs 技能比较
 
 | 方面 | 技能 | 代理 |
-|------|------|------|
+|--------|-------|-------|
 | **目的** | 提供知识/上下文 | 执行自主任务 |
 | **执行** | 作为上下文加载 | 作为子代理生成（或内嵌） |
 | **状态** | 无状态 | 可维护任务状态 |
@@ -243,24 +340,24 @@ triggers:
 name: feature-development
 steps:
   - agent: spec-analyst
-    task: 分析需求
+    task: Analyze requirements
   - agent: code-architect
-    task: 设计解决方案
+    task: Design solution
   - agent: test-specialist
-    task: 定义测试策略
-  - manual: 实现
+    task: Define test strategy
+  - manual: Implementation
   - agent: reviewer
-    task: 代码审查
+    task: Code review
 ```
 
-请参阅 [workflows/README.md](../../../../skills/workflows/README.md) 获取工作流程文档。
+请参阅 [workflows/README.md](../workflows/README.md) 获取工作流程文档。
 
 ---
 
 ## 相关资源
 
 - [技能文档](../README.md)
-- [工作流程文档](../../../../skills/workflows/README.md)
+- [工作流程文档](../workflows/README.md)
 - [AI 代理路径配置](../../../../cli/src/config/ai-agent-paths.js)
 
 ---
@@ -268,7 +365,8 @@ steps:
 ## 版本历史
 
 | 版本 | 日期 | 变更 |
-|------|------|------|
+|---------|------|---------|
+| 1.2.0 | 2026-03-17 | 添加代理签名（DSPy 启发的结构化输入／输出契约） |
 | 1.1.0 | 2026-01-21 | 添加 RLM 启发的 context-strategy 配置 |
 | 1.0.0 | 2026-01-20 | 初始发布 |
 

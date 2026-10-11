@@ -2,6 +2,8 @@
 source: options/testing/performance-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: a7f6b41531c8
+last_synced: 2026-10-11
 status: current
 ---
 # 性能测试（Performance Testing）

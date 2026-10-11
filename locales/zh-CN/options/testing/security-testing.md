@@ -2,6 +2,8 @@
 source: options/testing/security-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: 4328b0681664
+last_synced: 2026-10-11
 status: current
 ---
 # 安全测试（Security Testing）

@@ -2,6 +2,8 @@
 source: options/testing/contract-testing.md
 source_version: 1.0.0
 translation_version: 1.0.0
+source_hash: fd0ed0453447
+last_synced: 2026-10-11
 status: current
 ---
 

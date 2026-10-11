@@ -3,7 +3,9 @@ name: code-architect
 version: 1.1.0
 source: skills/agents/code-architect.md
 source_version: 1.1.0
-translation_version: 1.0.0
+translation_version: 1.1.0
+source_hash: 7c8d78dc5b73
+last_synced: 2026-10-11
 status: current
 description: |
   系统设计与技术规划的 software architecture 专家。
