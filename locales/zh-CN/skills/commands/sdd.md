@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/sdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 3e985d7d90bd
 status: current
 ---
 
@@ -61,6 +62,186 @@ grep -E "^- \[(x|X)\]" docs/specs/SPEC-XXX.md
 - **Mode: `off`** — 不检查
 
 检查项目配置：`.uds/config.yaml` → `workflow.enforcement_mode`
+
+---
+
+## AI Agent Behavior | AI 代理行为
+
+> Follows [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 进入路由
+
+| Input | AI Action | AI 行为 |
+|-------|-----------|--------|
+| `/sdd` | 1. 检查 `docs/specs/` 是否有进行中的 spec 2. **有进行中的 spec** → 显示状态摘要，问用户要继续哪个还是新建 3. **无进行中的 spec** → 问用户想做什么功能，进入 discuss | Check for in-progress specs; show status or start discuss |
+| `/sdd <feature-name>` | 进入 **discuss** 阶段（以 feature-name 为主题） | Enter discuss phase for feature |
+| `/sdd <phase>` | 进入指定 phase，执行 Pre-Flight Check。无指定 spec 时，列出该 phase 可操作的 spec 清单 | Enter specified phase, list eligible specs |
+| `/sdd <phase> <spec-file>` | 进入指定 phase，对指定 spec 执行 Pre-Flight Check 后开始 | Enter phase for specific spec |
+| `/sdd --evaluate` | 仅执行 Scope Evaluation（Phase 0），输出范围评估结果 | Run scope evaluation only |
+| `/sdd --sync-check` | 仅执行同步检查，输出同步状态 | Run sync check only |
+
+### Interaction Script | 交互脚本
+
+#### Phase 0.5: Discuss
+
+1. 读取相关代码和文件，建立对现状的理解
+2. 列出识别到的灰色地带（ambiguities），以编号问题呈现
+3. 逐一与用户讨论，收敛答案
+4. 锁定范围（In Scope / Out of Scope / Deferred）
+
+**Decision: 灰色地带解决程度**
+- IF 所有问题都有明确答案 → 输出 scope summary，建议进入 create
+- IF 仍有未解问题 → 列出剩余问题，问用户是否接受风险继续
+- IF 用户说「先这样」 → 记录未解问题为 `[OPEN]`，允许进入 create
+
+**Output format | 产出格式：**
+```markdown
+### Discuss Summary
+**Feature**: [name]
+**In Scope**: [list]
+**Out of Scope**: [list]
+**Deferred**: [list]
+**Open Questions**: [list or "None"]
+**read_first**: [file list]
+```
+
+🛑 **STOP**: 显示 Discuss Summary 后等待用户确认进入 create
+
+#### Phase 1: Create
+
+1. 基于 discuss 结论和 read_first 文件，撰写完整 spec
+2. 使用 Spec Document Structure 模板
+3. 所有 AC 使用 Given/When/Then 格式
+4. 为 spec 指定 ID（查看 `docs/specs/` 目录决定下一个编号）
+5. 撰写 Test Plan
+6. 填写 Assumptions & Open Questions（必填），使用 `[Assumption]`/`[Need Confirmation]` 标签
+7. IF spec 有 >3 ACs → 建议创建 `.ac.yaml` sidecar（参考 `specs/schemas/acceptance-criteria.schema.yaml`）
+8. IF spec 定义 API/data flow → 建议填写 I/O Contract 章节
+9. IF spec 涉及 AI Agent 行为 → 填写 AI Agent Behavior 章节
+
+**Decision: Spec 放置位置**
+- IF 是 CLI 相关 → `docs/specs/cli/`
+- IF 是 Core Standard 相关 → `docs/specs/standards/`
+- IF 是 Skill 相关 → `docs/specs/skills/`
+- IF 是架构相关 → `docs/specs/architecture/`
+- IF 是跨组件 → `docs/specs/system/`
+- ELSE → `docs/specs/`
+
+🛑 **STOP**: 撰写完 spec 后展示内容，等待用户确认再写入文件
+
+#### Phase 2: Review
+
+1. 读取指定 spec 文件
+2. 逐项检查以下维度：
+
+| 检查维度 | 检查内容 |
+|----------|---------|
+| Requirements 完整性 | 所有 REQ 都有 Scenario |
+| AC 可测试性 | 每个 AC 都是 Given/When/Then 格式 |
+| AC 覆盖率 | 每个 REQ 至少有一个 AC 对应 |
+| Technical Design 可行性 | 设计不依赖不存在的 API/工具 |
+| Test Plan 对应 | Test Plan 涵盖所有 AC |
+| 范围一致性 | 没有超出 discuss 锁定的范围 |
+| 无歧义 | 没有模糊用语（「等等」「适当地」） |
+| 假设标记完整性 | 所有假设都有 `[Assumption]` 标签和验证方式 |
+| 待厘清追踪 | 所有 `[Need Confirmation]` 项目有负责人和期限 |
+
+3. 输出 Review 结果表格
+4. 更新 spec status 为 `Review`
+
+**Decision: Review 结果**
+- IF 全部通过 → 建议进入 approve
+- IF 有 blocking issue → 列出问题，建议修改后重新 review
+- IF 只有 suggestion → 列出建议，用户可选择修改或直接 approve
+
+🛑 **STOP**: 显示 review 结果后等待用户决定
+
+#### Phase 3: Approve
+
+1. 读取 spec，确认 status = `Review`
+2. 逐项展示 Approval Checklist（5 项），标记通过/未通过
+3. 等待用户确认批准
+
+**Decision: Approval 结果**
+- IF 用户确认批准 → 更新 spec metadata（status, approved-date, approved-by）
+- IF 用户拒绝 → 记录原因，建议回到 review 或 create
+
+🛑 **STOP**: 展示 checklist 结果后等待用户明确说「批准」或「approved」
+
+#### Phase 4: Implement
+
+1. 读取 approved spec，列出所有 AC
+2. 产出实现计划：每个 AC 要改哪些文件、预估复杂度
+3. 等待用户确认计划
+
+🛑 **STOP**: 显示实现计划后等待用户确认
+
+4. 逐 AC 实现：
+   a. 编写代码
+   b. 编写对应测试
+   c. 执行测试确认通过
+   d. 更新 spec 中的 AC checkbox
+
+**Decision: Commit 节奏**
+- IF AC 之间相互独立 → 每完成一个 AC 就提示可以 commit
+- IF AC 之间紧耦合 → 合并完成后一起提示 commit
+- 不自动执行 git commit — 仅提示用户
+
+**Decision: 测试失败**
+- IF 测试失败 → 修复后重新测试，最多重试 3 次
+- IF 3 次仍失败 → 🛑 STOP，报告问题，等待用户指导
+
+🛑 **STOP**: 每个独立 AC 完成后暂停，展示进度，等待用户确认继续
+
+#### Phase 5: Verify
+
+1. 读取 spec，列出所有 AC
+2. 对每个 AC 收集证据：
+   - 代码位置（file:line）
+   - 测试位置（file:line）
+   - 测试结果（执行测试）
+3. 检查是否有偏差（Added / Modified / Omitted）
+4. 生成 Verification Report
+
+**Decision: 验证结果**
+- IF 全部 PASS → 更新 spec status 为 `Implemented`，建议归档
+- IF 有 FAIL → 列出失败项目，建议回到 implement 修复
+- IF 迭代次数 ≥ 3 → 🛑 STOP，强制升级（review spec / rethink / escalate）
+
+🛑 **STOP**: 显示 Verification Report 后等待用户决定下一步
+
+#### Phase 6: Archive
+
+1. 确认 spec status = `Implemented` 且 verify 通过
+2. 链接相关 commit/PR
+3. 更新 spec status 为 `Archived`
+
+🛑 **STOP**: 确认归档前等待用户确认
+
+### Stop Points Summary | 停止点总览
+
+| Phase | Stop Point | 等待内容 |
+|-------|-----------|---------|
+| discuss | Discuss Summary 输出后 | 确认进入 create |
+| create | Spec 撰写完成后 | 确认写入文件 |
+| review | Review 结果输出后 | 决定修改或进入 approve |
+| approve | Checklist 展示后 | 明确批准 |
+| implement | 实现计划展示后 | 确认开始实现 |
+| implement | 每个独立 AC 完成后 | 确认继续下一个 |
+| verify | Verification Report 输出后 | 决定归档或修复 |
+| archive | 归档前 | 确认归档 |
+
+### Error Handling | 错误处理
+
+| Error Condition | AI Action | AI 行为 |
+|-----------------|-----------|--------|
+| Pre-Flight Check 失败 | 说明哪个条件未满足，引导到正确的 phase | State failure, guide to correct phase |
+| Spec 文件不存在 | 列出可用的 spec 文件，或建议 `/sdd create` | List available specs or suggest create |
+| Spec status 不符合目标 phase | 显示当前 status，说明需要先完成哪个 phase | Show current status, explain required phase |
+| `docs/specs/` 目录不存在 | 自动创建目录，继续流程 | Create directory automatically |
+| 用户提供的 feature name 与现有 spec 重复 | 显示现有 spec，问用户是要继续还是新建 | Show existing spec, ask continue or create new |
+| 实现中测试反复失败（>3 次） | 停止自动修复，报告问题，等待用户指导 | Stop auto-fix, report issue, wait for guidance |
+| 非预期状态（无法判断正确行为） | 停止并询问用户，不猜测 | Stop and ask, never guess |
 
 ---
 

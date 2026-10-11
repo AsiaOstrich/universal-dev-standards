@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/pr.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 7239c7de4a8c
 status: current
 ---
 
@@ -51,14 +52,14 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 2. 分析 commits，生成 PR title 和 description
 3. 展示 PR 内容预览
 
-**STOP**: PR 内容确认后等待用户确认创建
+🛑 **STOP**: PR 内容确认后等待用户确认创建
 
 #### REVIEW
 1. 获取 PR 差异
 2. 执行代码审查（套用 `/code-review` 标准）
 3. 展示审查结果
 
-**STOP**: 审查结果展示后等待用户决定
+🛑 **STOP**: 审查结果展示后等待用户决定
 
 ### Stop Points | 停止点
 

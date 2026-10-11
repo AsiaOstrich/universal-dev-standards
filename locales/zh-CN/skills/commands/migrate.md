@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/migrate.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: eefe153b521c
 status: current
 ---
 
@@ -53,19 +54,19 @@ ASSESS ──► PLAN ──► PREPARE ──► MIGRATE ──► VERIFY ─�
 2. 评估风险矩阵（breaking changes、数据迁移、API 变更）
 3. 展示评估报告
 
-**STOP**: 评估报告后等待用户决定是否继续
+🛑 **STOP**: 评估报告后等待用户决定是否继续
 
 #### PLAN Phase
 1. 制定迁移计划（分阶段步骤）
 2. 定义回滚策略
 
-**STOP**: 计划确认后等待用户确认
+🛑 **STOP**: 计划确认后等待用户确认
 
 #### MIGRATE Phase
 1. 逐步执行迁移
 2. 每个步骤后验证
 
-**STOP**: 每个主要步骤完成后等待确认
+🛑 **STOP**: 每个主要步骤完成后等待确认
 
 #### VERIFY Phase
 1. 执行测试确认迁移成功
