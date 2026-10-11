@@ -1,20 +1,21 @@
 ---
 source: ../../../core/frontend-design-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-04-20
-status: stale
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: c9dc85d8ce95
+status: current
 ---
 
 # 前端設計標準
 
 > **語言**: [English](../../../core/frontend-design-standards.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-13
-**狀態**: Active
+**版本**: 1.1.0
+**最後更新**: 2026-07-10
 **適用範圍**: 所有具備前端使用者介面的專案
-**參考**: DEC-029（awesome-design-md, MIT）、DEC-030（OpenAI Frontend Guide）
+**範圍**: 通用 (Universal)
+**參考**: [DEC-029](https://github.com/VoltAgent/awesome-design-md)（awesome-design-md, MIT）、DEC-030（OpenAI Frontend Guide）
 
 ---
 
@@ -29,6 +30,29 @@ status: stale
 - 語意化 token 命名（框架無關）
 - 約束式提示：自由度越少 = UI 品質越高
 - 與原始碼同步進行版本控制
+
+---
+
+## 目錄
+
+1. [DESIGN.md 結構](#designmd-結構)
+2. [第 1 段：視覺主題與氛圍](#第-1-段視覺主題與氛圍)
+3. [第 2 段：色彩系統](#第-2-段色彩系統)
+4. [第 3 段：字型系統](#第-3-段字型系統)
+5. [第 4 段：元件樣式](#第-4-段元件樣式)
+6. [第 5 段：版面與間距](#第-5-段版面與間距)
+7. [第 6 段：層次感與陰影系統](#第-6-段層次感與陰影系統)
+8. [第 7 段：設計準則與反模式](#第-7-段設計準則與反模式)
+9. [第 8 段：響應式行為](#第-8-段響應式行為)
+10. [第 9 段：Agent 提示參考](#第-9-段agent-提示參考)
+11. [語意色彩 Token](#語意色彩-token)
+12. [字型角色](#字型角色)
+13. [間距尺度](#間距尺度)
+14. [UI 硬性約束](#ui-硬性約束)
+15. [反模式](#反模式)
+16. [選用擴充：Token 插值與結構化元件](#選用擴充token-插值與結構化元件)
+17. [DESIGN.md 檔案位置](#designmd-檔案位置)
+18. [驗證清單](#驗證清單)
 
 ---
 
@@ -403,6 +427,88 @@ DESIGN.md = 給 AI 讀的設計規格書
 
 ---
 
+## 選用擴充：Token 插值與結構化元件
+
+> **狀態**：選用，試行中（v1.1.0 新增，2026-07-10）。**不會**取代上述強制的 9 段式結構，也不會取代經治理收斂後的 5 token／4 角色／7 步驟尺度——這是一層附加的、機器可解析的結構，供希望 DESIGN.md 本身就承載結構化 token 參照（而不只是敘述文字）的專案使用。省略此擴充的 DESIGN.md 仍完全合規。
+>
+> **緣起**：2026-07-10 針對 [DEC-029](https://github.com/VoltAgent/awesome-design-md) 上游（已從 4,385★ 成長到 99,219★，現已正式成為 Google Stitch 的 DESIGN.md 格式）的重新對齊審查發現：上游格式已演進出 YAML frontmatter 的 token 字典與 `{category.token}` 插值語法，外加結構化的 `components:` 綁定區塊——這些都是本標準原本只有敘述文字的段落所不具備的能力。本標準以選用擴充而非破壞性變更的方式採納，與本標準刻意採取的 5 token 治理收斂一致（目標**不是**增加 token，而是讓這 5 個 token *可被參照*）。
+
+### Token 註冊表（YAML Frontmatter）
+
+DESIGN.md 可選擇以一個 YAML frontmatter 區塊開頭，以機器可解析的鍵值形式宣告第 2／3／5 段的語意 token（以及第 4 段的圓角尺度），讓工具無須重新解析敘述文字就能解析 `{category.token}` 參照。
+
+```yaml
+---
+colors:
+  background: "#0A0A0A"
+  surface: "#1A1A1A"
+  primary-text: "#F5F5F5"
+  muted-text: "#888888"
+  accent: "#6366F1"
+typography:
+  display: { size: "48px", weight: 700, line-height: 1.1 }
+  headline: { size: "24px", weight: 600, line-height: 1.3 }
+  body: { size: "16px", weight: 400, line-height: 1.6 }
+  caption: { size: "13px", weight: 400, line-height: 1.4 }
+rounded:
+  sm: "4px"
+  md: "8px"
+  lg: "12px"
+  pill: "9999px"
+spacing:
+  sm: "8px"
+  md: "24px"
+  lg: "48px"
+---
+```
+
+**規則**：
+- frontmatter 的鍵（`colors`、`typography`、`rounded`、`spacing`）與第 2／3／5 段已定義的 token 詞彙一對一對應——此區塊是以可解析形式**重述**那些 token，不會引入新的 token。`colors` 的值必須與 5 個強制語意 token 相符（外加任何已在使用中的選填延伸 token）。
+- frontmatter 為選用。沒有它的 DESIGN.md 仍然有效；需要插值支援的工具則要求必須有它。
+
+### 插值語法
+
+在敘述段落中（特別是第 4 段：元件樣式），以 `{category.token}` 參照 frontmatter 註冊表，而不是重述原始值：
+
+```markdown
+### Buttons
+- **Primary**: `{colors.accent}` background, `{colors.background}` text, `{rounded.md}` radius, `{spacing.sm}` padding
+```
+
+**規則**：
+- 語法為 `{category.token}`——category 對應 frontmatter 的頂層鍵，token 對應其下的鍵。
+- 參照 frontmatter 中不存在的 category／token 屬於驗證錯誤，而不是靜默退回預設值。
+- 插值是為了**文件／工具的清晰度**，不是執行期的樣板引擎——DESIGN.md 仍是靜態的規格檔。
+
+### 結構化元件區塊（選用）
+
+第 4 段（元件樣式）可選擇加入一個 `components:` 區塊，明確地把元件綁定到其 token 參照，以取代（或並列於）第 4 段範例中既有的敘述格式：
+
+```yaml
+components:
+  button-primary:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.background}"
+    rounded: "{rounded.md}"
+    padding: "{spacing.sm}"
+  card:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.md}"
+```
+
+**規則**：
+- 每個值都必須是 `{category.token}` 參照——在 `components:` 內使用原始 hex／px 值屬反模式（違背集中管理 token 的目的）。
+- 此區塊是對第 4 段敘述描述的補充，而非取代——採用此擴充的專案仍應為人類讀者填寫第 4 段的敘述欄位。
+
+### 非目標（明確不從上游採納）
+
+- **本標準不附帶 lint CLI**——上游生態系另有獨立的 `@google/design.md` npm 套件用於驗證；本標準不強制也不附帶特定的驗證器。專案可自行採用。
+- **不提供框架特定的匯出格式**（React／Vue／CSS-in-JS 產生器）——依本標準的核心原則（語意化 token 命名、框架無關）維持框架無關。
+- **不擴充 5／4／7 的 token 數量**——插值語法讓既有 token 可被參照，並不代表可以增加 token。治理收斂（token 越少 = AI 輸出越一致）的優先順序仍高於細緻度。
+
+---
+
 ## DESIGN.md 檔案位置
 
 DESIGN.md 必須放在**專案根目錄**，與 README.md 同層。
@@ -458,3 +564,9 @@ my-project/
 - [ ] 風格摘要存在（1–2 句）
 - [ ] 關鍵約束條列清單存在
 - [ ] 氛圍（tone）已定義
+
+### Token 插值擴充（選用——v1.1.0）
+- [ ] 若使用 frontmatter token 註冊表，所有 `colors` 鍵皆與 5 個強制語意 token 相符
+- [ ] 若使用 `{category.token}` 插值，每個參照都能解析到 frontmatter 條目（無懸空參照）
+- [ ] 若使用 `components:` 區塊，每個值都是 `{category.token}` 參照（無原始 hex／px 值）
+- [ ] 未採用此擴充**不算**合規失敗——它是選用的

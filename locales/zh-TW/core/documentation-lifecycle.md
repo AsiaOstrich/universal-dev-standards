@@ -2,7 +2,8 @@
 source: ../../../core/documentation-lifecycle.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-27
+last_synced: 2026-10-11
+source_hash: 3b074ed1b0bb
 status: current
 ---
 

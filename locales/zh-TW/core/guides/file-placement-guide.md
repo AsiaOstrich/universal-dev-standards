@@ -2,7 +2,8 @@
 source: ../../../../core/guides/file-placement-guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-04
+last_synced: 2026-10-11
+source_hash: ed790154a974
 status: current
 ---
 
@@ -147,6 +148,39 @@ status: current
 | `lib/` | **包裝依賴** | `lib/http-client/`（包裝 axios）、`lib/logger/` |
 | `internal/` | **套件私有**（Go 慣例） | `internal/parser/`（外部無法 import） |
 
+#### 決策圖
+
+```
+                    ┌─────────────────────┐
+                    │   New shared code    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ Is it stateless and  │
+                    │ has no business      │
+                    │ logic?               │
+                    └──────────┬──────────┘
+                          YES/ \NO
+                           /     \
+              ┌───────────▼┐   ┌─▼───────────────┐
+              │ Reusable   │   │ Used by 2+       │
+              │ across the │   │ modules?          │
+              │ project?   │   └──────┬───────────┘
+              └─────┬──────┘     YES/ \NO
+                YES/ \NO          /     \
+                 /     \   ┌─────▼──┐  ┌─▼──────────────┐
+          ┌─────▼──┐  ┌─▼─────┐│shared/│  │ Wrapping a     │
+          │utils/  │  │Tied to││       │  │ third-party    │
+          │        │  │layer? │└────────┘  │ dependency?    │
+          └────────┘  └──┬───┘            └──────┬─────────┘
+                    YES/ \NO                YES/ \NO
+                     /     \                 /     \
+              ┌─────▼───┐  ┌▼────────┐┌────▼──┐  ┌─▼──────────┐
+              │helpers/  │  │module/  ││lib/   │  │owning      │
+              │(in layer)│  │        │└───────┘  │module/      │
+              └──────────┘  └────────┘           └─────────────┘
+```
+
 #### 詳細標準
 
 **`utils/`** — 純工具函式
@@ -183,6 +217,28 @@ status: current
 
 工作文件從建立到畢業（或歸檔）遵循一個生命週期。
 
+### 狀態圖
+
+```
+  ┌──────────┐
+  │  draft   │ ← Initial creation
+  └────┬─────┘
+       │ Start active work
+  ┌────▼─────┐
+  │  active  │ ← Under discussion / development
+  └────┬─────┘
+       │
+  ┌────┴─────────────────┐
+  │                      │
+  ▼                      ▼
+┌──────────┐      ┌──────────┐
+│graduated │      │ archived │
+│          │      │          │
+└──────────┘      └──────────┘
+Creates formal     No longer
+document           relevant
+```
+
 ### 畢業路徑
 
 | 來源 | 目的地 | 觸發條件 |
@@ -210,7 +266,17 @@ status: current
 
 ### 步驟 1：盤點
 
-列出所有可能放錯位置的檔案。
+列出所有可能放錯位置的檔案：
+
+```bash
+# Find files at unexpected depths
+find . -maxdepth 1 -name "*.md" ! -name "README.md" ! -name "CONTRIBUTING.md" \
+  ! -name "CHANGELOG.md" ! -name "LICENSE" ! -name "SECURITY.md" ! -name "CODE_OF_CONDUCT.md"
+
+# Find orphaned docs not in docs/
+find . -name "*.md" -not -path "./docs/*" -not -path "./node_modules/*" \
+  -not -path "./.git/*" | head -20
+```
 
 ### 步驟 2：分類
 
@@ -283,6 +349,24 @@ git mv old/path/file.md new/path/file.md
    ├── README.md              # 目的、發現、結論、後續步驟
    ├── benchmark-results.txt
    └── test-script.sh
+```
+
+### ❌ 生成碼與原始碼混在一起
+
+```
+❌ src/
+   ├── api-client.ts          # Hand-written
+   ├── api-client.generated.ts # Generated — hard to tell apart
+   └── models/
+       ├── User.ts            # Hand-written
+       └── User.generated.ts  # Generated
+
+✅ src/
+   ├── api-client.ts
+   ├── models/User.ts
+   └── generated/
+       ├── api-client.ts      # Clearly separated
+       └── models/User.ts
 ```
 
 ---

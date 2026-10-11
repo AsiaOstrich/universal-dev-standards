@@ -2,7 +2,8 @@
 source: ../../../core/dual-phase-output.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 6a2398bdff72
 status: current
 ---
 
@@ -10,71 +11,21 @@ status: current
 
 > **語言**: [English](../../../core/dual-phase-output.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-15
-**適用範圍**: 所有需要 LLM 審查的場景（Judge、Evaluator、Guardian、AutoCompact）
-**Scope**: universal
-**來源**: XSPEC-035（claude-code-book Ch.7 formatCompactSummary dual-phase output）
+> **來源**: XSPEC-035 | **借鑑自**: claude-code-book Ch.7 AutoCompact
 
----
+## 概述
 
-## 目的
+雙階段 LLM 輸出模式要求 LLM 審查 Agent 在單一回應中產出兩個 XML 區塊：`<analysis>` 思考草稿（處理後丟棄）與 `<summary>` 結構化結論（保留）。如此能讓模型充分推理，同時避免思考過程累積在對話上下文中。
 
-雙階段 LLM 輸出模式：`<analysis>` 思考丟棄，`<summary>` 結構化保留。
+## 問題
 
-讓 LLM 充分推理的同時，避免思考過程累積在上下文中消耗 token 預算。
+審查 Agent（Judge、Evaluator、Guardian）通常產生 2000–5000 token 的回應，其中 50–70% 是會累積在對話歷史中的推理內容。在重複審查情境（Fix Loop 重試 3 次）下，每個任務會浪費 3000–10500 token。
 
----
+## 格式
 
-## 核心規範
-
-- 所有 LLM 審查 Agent 必須要求雙階段輸出格式（`<analysis>` + `<summary>`）
-- `<analysis>` 在後處理時必須丟棄，不得寫入持久化上下文或對話歷史
-- `<summary>` 必須包含結構化結論欄位（`decision`、`confidence`、`findings`、`next_action`）
-- 若回應缺少雙階段格式，後處理器必須降級相容（完整回應視為 summary）並記錄警告
-- `summary` 欄位命名需遵循本標準，各應用場景可擴充但不可刪減核心欄位
-
----
-
-## 輸出格式
-
-### `<analysis>` 標籤
-
-- **用途**：LLM 思考草稿 — 後處理時丟棄
-- **內容指引**：
-  - 逐條審查邏輯
-  - 邊界情境考量
-  - 替代方案比較
-
-### `<summary>` 標籤
-
-- **用途**：結構化結論 — 後處理時保留
-
-**核心欄位**（必填）：
-
-| 欄位 | 類型 | 值 |
-|------|------|-----|
-| `decision` | enum | `approved \| rejected \| needs_revision` |
-| `confidence` | enum | `high \| medium \| low` |
-| `findings` | array | `[type] description` 格式 |
-| `next_action` | string | 建議的後續行動 |
-
-**擴充欄位**（依場景新增，不可刪減核心欄位）：
-
-| 場景 | 額外欄位範例 |
-|------|------------|
-| 安全審查 | `severity: critical \| high \| medium \| low`, `cwe_ids: [CWE-NNN]` |
-| 品質審查 | `test_coverage: number`, `tech_debt_score: number` |
-
----
-
-## Prompt 模板
-
-```
-You MUST respond using EXACTLY this two-phase XML structure:
-
+```xml
 <analysis>
-[Your reasoning process — will be DISCARDED after processing]
+[Reasoning scratchpad — DISCARDED after processing]
 - Step-by-step evaluation
 - Edge case considerations
 - Alternative comparisons
@@ -87,46 +38,33 @@ findings:
   - [type] description
 next_action: [recommended follow-up action]
 </summary>
-
-IMPORTANT: The <analysis> block is your scratchpad. Only <summary> persists.
 ```
-
----
 
 ## 後處理規則
 
-| 步驟 | 動作 |
-|------|------|
-| 提取 summary | 用正則 `<summary>([\s\S]*?)</summary>` 擷取 |
-| 丟棄 analysis | 用正則 `<analysis>([\s\S]*?)</analysis>` 移除 |
-| 降級相容 | 若缺少 `<summary>` 標籤，完整回應視為 summary 內容，記錄 `warn` 日誌 |
+1. 擷取 `<summary>` 內容 → 持久化至上下文
+2. 丟棄 `<analysis>` 內容 → 絕不寫入對話歷史
+3. 若缺少 `<summary>` 標籤 → 降級處理：將完整回應視為 summary，並記錄 `[WARN] dual-phase format missing`
 
----
+## 擴充欄位
 
-## Token 節省估算
+各應用可在 `<summary>` 內新增欄位，但不得刪除核心欄位：
+- **安全（Guardian）**：`severity: critical | high | medium | low`、`cwe_ids: [CWE-NNN]`
+- **品質（Evaluator）**：`test_coverage: number`、`tech_debt_score: number`
 
-| 指標 | 數值 |
-|------|------|
-| `<analysis>` 佔一般審查回應比例 | 50–70% |
-| 每次審查節省 token | 1,000–3,500 |
-| Fix Loop 3 輪累計節省 | 3,000–10,500 |
-| 備註 | 節省效果在重複審查場景（Fix Loop、Feedback Loop）中累積 |
+## Token 影響
 
----
+| 情境 | 節省量 |
+|------|--------|
+| 單次審查 | 1000–3500 token |
+| Fix Loop（重試 3 次） | 3000–10500 token |
+| 多 Agent 管線（evaluator + guardian；採用層） | 每次執行 2000–7000 token |
 
-## 適用 Agent
+## 參考資料
 
-- Judge Agent（採用層）
-- Evaluator Agent（採用層）
-- Guardian Agent（採用層）
-- 任何 LLM 驅動的 AutoCompact／摘要組件
+- AI 最佳化版：[ai/standards/dual-phase-output.ai.yaml](../../../ai/standards/dual-phase-output.ai.yaml)
+- XSPEC-035：跨專案規格
+- 借鑑自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.7 `formatCompactSummary`
 
----
 
-## 錯誤碼
-
-| 代碼 | 說明 |
-|------|------|
-| `DPO-001` | `summary` 標籤缺失 — 降級相容已啟用 |
-| `DPO-002` | `analysis` 標籤缺失 — 完整回應照常處理 |
-| `DPO-003` | `summary` 必填欄位缺失 — 解析錯誤 |
+**Scope**: universal

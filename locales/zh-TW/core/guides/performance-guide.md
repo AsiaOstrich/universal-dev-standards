@@ -2,6 +2,8 @@
 source: core/guides/performance-guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 22e50e7f3f83
 status: current
 ---
 

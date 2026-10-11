@@ -2,7 +2,8 @@
 source: ../../../core/immutability-first.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 3678885d6b73
 status: current
 ---
 
@@ -10,99 +11,70 @@ status: current
 
 > **語言**: [English](../../../core/immutability-first.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-16
-**適用範圍**: TypeScript 介面、資料流設計、並行系統
-**Scope**: universal
-**來源**: XSPEC-044
+> **來源**: XSPEC-044 | **適用於**: TypeScript、並行系統
 
----
+## 概述
 
-## 目的
+不可變性優先（Immutability-First）是一項系統層級的設計原則，用以防止並行 Agent 環境中的競態條件。所有資料流介面（DTO / Value Object）都必須以 `readonly` 宣告欄位，陣列欄位必須使用 `ReadonlyArray<T>`，物件修改必須透過展開語法建立新物件，而非就地修改。
 
-系統級不可變性設計原則：DTO／Value Object 欄位一律 `readonly`，防止並行 Agent 環境下的競態條件。
+若缺乏此紀律，並行 Agent 編排（例如 `Promise.all` 批次執行）便有意外共享狀態的風險：某個 Agent 的修改會悄悄影響其他 Agent 所看到的同一個物件。
 
-資料流介面（DTO / Value Object）的欄位一律宣告為 `readonly`，陣列欄位使用 `ReadonlyArray<T>`，物件修改透過展開語法建立新物件，防止並行 Agent 環境下的意外狀態共享與競態條件。
+## 規則
 
----
+| 規則 | 嚴重度 | 說明 |
+|------|--------|------|
+| **IMM-001** | required | DTO/Value Object 欄位必須為 `readonly` |
+| **IMM-002** | required | 陣列欄位必須使用 `ReadonlyArray<T>`，而非 `T[]` |
+| **IMM-003** | required | 修改時使用展開語法建立新物件 |
+| **IMM-004** | required | 跨越並行邊界的物件必須為深層不可變 |
+| **IMM-005** | recommended | 巢狀物件欄位以 `Readonly<T>` 包裝 |
 
-## 核心規範
+## 範例
 
-- 資料流介面（DTO / Value Object）的所有欄位必須宣告 `readonly`
-- 介面中的陣列型欄位使用 `ReadonlyArray<T>` 而非可變的 `T[]`
-- 修改物件時使用物件展開語法建立新物件，不直接賦值給 `readonly` 欄位
-- 跨並行邊界（`Promise.all` / Worker Thread）傳遞的物件必須為深層不可變
-- 介面中的嵌套物件欄位使用 `Readonly<T>` 包裝（防止淺層保護不足）
+### IMM-001：DTO 欄位 readonly
 
----
-
-## 規則詳細說明
-
-### IMM-001：DTO 欄位 readonly（必要）
-
-資料流介面（Data Transfer Objects、Value Objects）的所有欄位必須宣告 `readonly`，防止並行 Agent 環境下的意外狀態共享與競態條件。
-
-**錯誤範例**：
 ```typescript
+// ❌ Bad
 interface TaskResult {
-  status: TaskStatus   // ← 可被意外修改
+  status: TaskStatus
   cost_usd?: number
 }
-```
 
-**正確範例**：
-```typescript
+// ✅ Good
 interface TaskResult {
-  readonly status: TaskStatus   // ← 型別安全保護
+  readonly status: TaskStatus
   readonly cost_usd?: number
 }
 ```
 
----
+### IMM-002：陣列欄位使用 ReadonlyArray
 
-### IMM-002：陣列欄位 ReadonlyArray（必要）
-
-介面中的陣列型欄位使用 `ReadonlyArray<T>` 而非可變的 `T[]`，防止 `push`/`splice`/`sort` 等就地修改操作破壞共享陣列。
-
-**錯誤範例**：
 ```typescript
+// ❌ Bad
 interface MemoryContext {
-  recentHistory: IterationRecord[]   // ← 可被 push/splice
+  recentHistory: IterationRecord[]   // push/splice can corrupt shared state
 }
-```
 
-**正確範例**：
-```typescript
+// ✅ Good
 interface MemoryContext {
   readonly recentHistory: ReadonlyArray<IterationRecord>
 }
 ```
 
----
+### IMM-003：以展開語法進行修改
 
-### IMM-003：展開語法替代就地修改（必要）
-
-修改物件時使用物件展開語法建立新物件，不直接賦值給 `readonly` 欄位，保留原始物件不變，同時建立可追蹤的修改歷程。
-
-**錯誤範例**：
 ```typescript
-options.sessionId = forkId   // ← 直接修改，其他持有者看到改變
+// ❌ Bad
+options.sessionId = forkId   // other holders see the change
+
+// ✅ Good
+const taskOptions = { ...options, sessionId: forkId }
 ```
 
-**正確範例**：
+### IMM-004：並行邊界的深層不可變
+
 ```typescript
-const taskOptions = { ...options, sessionId: forkId }   // ← 新物件
-```
-
----
-
-### IMM-004：並行邊界深層不可變（必要）
-
-跨並行邊界（`Promise.all` / Worker Thread）傳遞的物件必須為深層不可變，並行執行中無法預測存取順序，可變共享物件必然產生競態條件。
-
-**正確範例**：
-```typescript
-// 每個並行任務持有自己的 options 快照
+// ✅ Good — each parallel task holds its own options snapshot
 const batchResults = await Promise.all(
   batch.map(task => {
     const taskOptions = { ...baseOptions, sessionId: forkId }
@@ -111,49 +83,37 @@ const batchResults = await Promise.all(
 )
 ```
 
----
+### IMM-005：巢狀物件使用 Readonly<T>
 
-### IMM-005：嵌套物件 Readonly 包裝（建議）
-
-介面中的嵌套物件欄位使用 `Readonly<T>` 包裝，頂層 `readonly` 不防止嵌套物件欄位被修改（淺層保護不足）。
-
-**錯誤範例**：
 ```typescript
+// ❌ Bad — metadata.score can still be mutated
 interface PipelineMemoryEntry {
-  readonly metadata: { score?: number }   // ← metadata.score 仍可被修改
+  readonly metadata: { score?: number }
 }
-```
 
-**正確範例**：
-```typescript
+// ✅ Good
 interface PipelineMemoryEntry {
   readonly metadata: Readonly<{ score?: number; severity?: string }>
 }
 ```
 
----
-
 ## 適用時機
 
 - 設計新的 DTO / Value Object / Config 介面時
 - 跨並行邊界傳遞物件時
-- Agent 間共享狀態設計時
-- Code Review 時檢查介面是否遺漏 `readonly`
-
----
+- 設計 Agent 間的共享狀態時
+- Code Review：檢查介面是否遺漏 `readonly`
 
 ## 豁免情況
 
-- Builder Pattern 的 mutable builder 物件（在 `build()` 後回傳不可變結果）
-- 測試 fixture 的 mutable 建立步驟（建立後視為不可變）
-- 效能關鍵的熱路徑（需有明確的 benchmark 依據才可豁免）
+- Builder Pattern 的可變 builder（在 `build()` 後回傳不可變結果）
+- 測試 fixture 的可變建立步驟（建立後視為不可變）
+- 效能關鍵的熱路徑（需有明確的 benchmark 依據）
 
----
+## 參考資料
 
-## 錯誤碼
+- AI 最佳化版：[ai/standards/immutability-first.ai.yaml](../../../ai/standards/immutability-first.ai.yaml)
+- XSPEC-044：跨專案規格
 
-| 代碼 | 說明 |
-|------|------|
-| `IMM-E001` | `READONLY_VIOLATION` — 嘗試修改 readonly 欄位（TypeScript 編譯期捕獲） |
-| `IMM-E002` | `SHARED_MUTATION` — 跨並行邊界的就地修改導致競態條件 |
-| `IMM-E003` | `SHALLOW_READONLY` — 嵌套物件遺漏 `Readonly<T>` 包裝，淺層保護不足 |
+
+**Scope**: universal

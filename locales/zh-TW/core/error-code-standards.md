@@ -1,14 +1,25 @@
 ---
 source: ../../../core/error-code-standards.md
-source_version: 1.2.0
-translation_version: 1.2.0
-last_synced: 2026-03-18
-status: stale
+source_version: 1.2.1
+translation_version: 1.2.1
+last_synced: 2026-10-11
+source_hash: 52ddb355e07f
+status: current
 ---
 
 # 錯誤碼標準
 
-> 版本: 1.2.0 | 最後更新: 2026-03-18
+> **語言**: [English](../../../core/error-code-standards.md) | 繁體中文
+
+**版本**: 1.2.1
+**最後更新**: 2026-06-18
+**適用範圍**: 所有軟體專案
+**範疇**: universal
+**Owning Spec**: XSPEC-291（無專屬功能 XSPEC；本標準由 XSPEC-291 負責）
+**業界標準**: RFC 7807、RFC 9457
+**參考資料**: [datatracker.ietf.org](https://datatracker.ietf.org/doc/html/rfc7807)
+
+---
 
 ## 概述
 
@@ -31,7 +42,7 @@ status: stale
 ### 範例
 
 ```
-AUTH_VAL_001    → 驗證驗證錯誤
+AUTH_VAL_001    → 身份驗證的驗證錯誤
 PAY_SYS_503     → 支付系統不可用
 USR_BIZ_100     → 使用者業務規則違反
 API_NET_408     → API 網路逾時
