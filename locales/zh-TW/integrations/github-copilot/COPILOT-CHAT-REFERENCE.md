@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/COPILOT-CHAT-REFERENCE.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-24
+last_synced: 2026-10-11
+source_hash: 7e4353b83a35
 status: current
 ---
 
 # Copilot Chat 參考指南
+
+> **語言**: [English](../../../../integrations/github-copilot/COPILOT-CHAT-REFERENCE.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md)
+
+**版本**: 1.1.0
+**最後更新**: 2026-01-21
 
 本文件提供 GitHub Copilot Chat 的提示範本，以實現類似 Claude Code 斜線命令的功能。
 

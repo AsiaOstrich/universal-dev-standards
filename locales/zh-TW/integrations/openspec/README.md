@@ -2,11 +2,17 @@
 source: ../../../../integrations/openspec/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 423378ef4af1
 status: current
 ---
 
 # OpenSpec 整合
+
+> **語言**: [English](../../../../integrations/openspec/README.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/openspec/README.md)
+
+**版本**: 1.0.0
+**最後更新**: 2025-12-30
 
 本目錄包含 [OpenSpec](https://github.com/openspec) 的整合檔案，這是一個用於規格驅動開發的規格管理工具。
 

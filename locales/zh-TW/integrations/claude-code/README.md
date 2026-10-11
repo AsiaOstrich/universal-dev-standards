@@ -2,7 +2,8 @@
 source: ../../../../integrations/claude-code/README.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-09-18
+last_synced: 2026-10-11
+source_hash: 3308f2ae440b
 status: current
 ---
 

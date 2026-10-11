@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/README.md
 source_version: 2.0.0
 translation_version: 2.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: f26fabd741cf
 status: current
 ---
 
 # GitHub Copilot 整合
+
+> **語言**: [English](../../../../integrations/github-copilot/README.md) | 繁體中文 | [简体中文](../../../zh-CN/integrations/github-copilot/README.md)
+
+**版本**: 2.0.0
+**最後更新**: 2026-01-13
 
 本目錄提供將通用開發規範與 [GitHub Copilot](https://github.com/features/copilot) 整合的資源。
 
@@ -20,7 +26,7 @@ GitHub Copilot 是內建於 GitHub 和主流 IDE 的 AI 編程助手。此整合
 |------|------|
 | **[copilot-instructions.md](./copilot-instructions.md)** | Copilot Chat 自訂指令 |
 | **[COPILOT-CHAT-REFERENCE.md](./COPILOT-CHAT-REFERENCE.md)** | Chat 提示範本 |
-| **[skills-mapping.md](./skills-mapping.md)** | Skills 對照表 |
+| **[skills-mapping.md](./skills-mapping.md)** | Claude Code Skills 對照表 |
 
 ## 快速開始
 
@@ -156,7 +162,7 @@ Copilot:     "Help me implement using TDD (Red-Green-Refactor)..."
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
-| 2.0.0 | 2026-01-13 | 重大增強：新增 README、Chat 參考、skills 對照；增強指令內容 |
+| 2.0.0 | 2026-01-13 | 重大增強：新增 README、Chat 參考、skills 對照；以 TDD、覆蓋率、審查章節增強指令內容 |
 | 1.0.1 | 2025-12-24 | 新增：相關標準、版本歷史、授權章節 |
 | 1.0.0 | 2025-12-23 | 初始 GitHub Copilot 整合 |
 

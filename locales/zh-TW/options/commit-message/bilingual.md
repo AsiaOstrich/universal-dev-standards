@@ -2,7 +2,8 @@
 source: ../../../../options/commit-message/bilingual.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-07-09
+last_synced: 2026-10-11
+source_hash: 63b02832c937
 status: current
 ---
 
@@ -95,8 +96,22 @@ All clients must migrate to GraphQL by v3.0.
 Migration guide / 遷移指南：
 - Replace REST calls with GraphQL queries
 - 將 REST 呼叫替換為 GraphQL 查詢
+- Update authentication headers
+- 更新驗證標頭
 
 Closes #789
+```
+
+### 文件
+
+```
+docs(readme): update installation guide
+
+Add Docker-based installation instructions.
+Update system requirements section.
+
+新增基於 Docker 的安裝說明。
+更新系統需求章節。
 ```
 
 ### 精簡格式
@@ -113,12 +128,73 @@ docs: fix typo in README / 修正 README 錯字
 
 ## 撰寫指南
 
+### 主題行
+
 | 指南 | 說明 |
 |------|------|
-| 英文優先 | 英文放在中文之前 |
-| 各語言 50 字元 | 每種語言保持簡潔 |
-| 英文祈使語氣 | 使用動詞原形 |
-| 中文動詞開頭 | 新增、修正、更新等 |
+| 英文優先，中文其次 | 英文放在中文之前 |
+| 每種語言保持 50 字元以內 | 每種語言保持簡潔 |
+| 英文使用祈使語氣 | 使用動詞原形 |
+| 中文使用動詞開頭 | 新增、修正、更新等 |
+
+### 內文
+
+1. **清楚分隔段落** - 語言之間使用空行
+
+2. **維持平行內容** - 兩種語言應傳達相同資訊
+
+3. **英文優先** - 為保持一致性和工具相容性
+
+4. **避免逐字翻譯** - 自然地適應各語言
+
+## 設定
+
+### Git Commit 範本
+
+建立 `~/.gitmessage`：
+
+```
+# <type>(<scope>): <English subject>
+# |<----  Max 50 characters  ---->|
+
+# English description:
+
+
+# 中文說明：
+
+
+# References / 參考：
+# Closes #
+```
+
+設定：
+
+```bash
+git config --global commit.template ~/.gitmessage
+```
+
+### Commitlint 設定
+
+```javascript
+// commitlint.config.js
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+  rules: {
+    // @commitlint/config-conventional defaults both to 100, sized for
+    // English-only commits. A bilingual header/body line repeats the same
+    // content in English then Chinese, so 100 is too tight in practice —
+    // this repo's own history (measured over 300 commits) runs header
+    // p50=134/p95=192 and body-line p50=75/p95=110 characters.
+    'header-max-length': [2, 'always', 250],
+    'body-max-line-length': [2, 'always', 200],
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build']
+    ]
+  }
+};
+```
 
 ## 最佳實踐
 
@@ -153,6 +229,18 @@ docs: fix typo in README / 修正 README 錯字
 | CRUD 操作 | 不翻譯 |
 | Git 指令 | 不翻譯 |
 | 框架名稱 | 不翻譯 |
+
+範例：
+
+```
+feat(api): add GraphQL subscription support
+
+Implement real-time updates using GraphQL subscriptions.
+WebSocket connection handles reconnection automatically.
+
+實作使用 GraphQL subscriptions 的即時更新。
+WebSocket 連線自動處理重新連線。
+```
 
 ## 相關選項
 
