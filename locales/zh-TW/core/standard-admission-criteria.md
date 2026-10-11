@@ -2,7 +2,8 @@
 source: ../../../core/standard-admission-criteria.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: a3a8cddc8766
 status: current
 ---
 
@@ -10,29 +11,19 @@ status: current
 
 > **語言**: [English](../../../core/standard-admission-criteria.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-17
-**狀態**: Trial（到期 2026-10-17）
-**適用範圍**: universal
-**來源**: XSPEC-070（DEC-043 Wave 1 治理 Meta 套件）
+> **來源**: XSPEC-070 | **驅動**: DEC-043 Wave 1 治理 Meta 套件 | **狀態**: Trial（2026-04-17 ~ 2026-10-17）
 
----
-
-## 目的
+## 概述
 
 新標準納入 UDS 的四項條件。在 DEC-043 提出 60+ 候選新標準的背景下，需要一個明文的納入檢查清單，避免標準庫膨脹（重疊、未使用）與降低品質。本標準是 UDS 的治理層 meta 標準 — 用來「決定標準的標準」。每個候選新標準必須通過四項條件才能從 Proposed 進入 Trial。
 
----
-
-## 核心規範
+## 核心原則
 
 - **四項硬性條件**：所有候選新標準必須同時通過 Evidence / Scope / Non-overlapping / AI-executable
 - **拒絕理由必須具體**：不得以「不合適」之類籠統用詞結案，必須指出未通過的 criterion
 - **Admission ≠ Active**：通過 admission 僅代表可進 Trial，不代表直接 Active
 - **Self-applicability**：本標準也必須符合四項條件
 - **Backward compat**：既有 66 個 Active 標準不溯及既往
-
----
 
 ## 四項條件
 
@@ -66,7 +57,7 @@ status: current
 
 ### 4. AI-executable（AI 可消費）
 
-至少一個採用層元件（Quality Gate / Agent prompt / Skill / IDE rule）能消費：
+至少一個 Quality Gate（採用層）/ Agent prompt（採用層）/ Skill 能消費：
 
 - 定義清楚的 guidelines（每條可驗證）
 - 至少 2 個 Given-When-Then scenarios
@@ -75,8 +66,6 @@ status: current
 
 **拒絕範例**：只有抽象原則，無任何 AI 可執行的規則
 
----
-
 ## 拒絕協議
 
 1. 拒絕理由必須指出未通過的 criterion（evidence / scope / non-overlapping / ai-executable）
@@ -84,21 +73,26 @@ status: current
 3. 候選者可依理由修正後重新申請（不永久封鎖）
 4. 若拒絕理由涉及重疊，應建議改為擴充既有標準
 
----
-
-## 情境範例
+## 使用範例
 
 - **情境 1 — 通過**：`retry-standards` 申請。Evidence（XSPEC-067 Scenario 1-1/1-2）、Scope（universal）、Non-overlapping（與 circuit-breaker 互補）、AI-executable（9 guidelines + 3 scenarios）全通過 → 進入 Trial
 - **情境 2 — 因重疊拒絕**：`advanced-retry-with-jitter` 申請。與 `retry-standards` 重疊 > 30% → 拒絕，建議改為 Phase 2 擴充
 - **情境 3 — 因證據不足拒絕**：`universal-best-practices` 申請。僅「未來可能用到」類描述 → 拒絕，要求至少 2 個已發生案例
 
----
-
 ## 錯誤碼
 
-| 代碼 | 說明 |
-|------|------|
-| `ADMISSION-001` | `MISSING_EVIDENCE` — 未提供至少 2 個具體使用場景 |
-| `ADMISSION-002` | `SCOPE_UNDEFINED` — 未定義 meta.scope 或適用活動類型 |
-| `ADMISSION-003` | `OVERLAP_EXCEEDED` — 與既有標準重疊 > 30% |
-| `ADMISSION-004` | `NOT_AI_EXECUTABLE` — 無任何 AI 可消費的規則或 scenarios |
+- `ADMISSION-001` — `MISSING_EVIDENCE`
+- `ADMISSION-002` — `SCOPE_UNDEFINED`
+- `ADMISSION-003` — `OVERLAP_EXCEEDED`（> 30%）
+- `ADMISSION-004` — `NOT_AI_EXECUTABLE`
+
+## 參考資料
+
+- AI 最佳化版本: [ai/standards/standard-admission-criteria.ai.yaml](../../../ai/standards/standard-admission-criteria.ai.yaml)
+- XSPEC-070: DEC-043 Wave 1 治理 Meta 套件跨專案規格
+- DEC-043: UDS 覆蓋完整性路線圖（本標準是 Wave 1 前置條件）
+- 相關: `standard-lifecycle-management`, `skill-standard-alignment-check`, `adr-standards`
+- 業界: IETF RFC admission criteria, Python PEP process, W3C Recommendation Track
+
+
+**範圍**: universal

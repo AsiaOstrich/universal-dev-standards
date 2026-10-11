@@ -2,7 +2,8 @@
 source: ../../../core/reverse-engineering-standards.md
 source_version: 1.3.0
 translation_version: 1.3.0
-last_synced: 2026-08-20
+last_synced: 2026-10-11
+source_hash: 5d4bb821ae35
 status: current
 ---
 
@@ -11,6 +12,8 @@ status: current
 **版本**: 1.3.0
 **最後更新**: 2026-08-20
 **適用範圍**: 所有需要將程式碼轉換為規格文件的專案
+**範疇**: uds-specific
+**產業標準**: IEEE 830-1998、SWEBOK v4.0 第 9 章
 
 > **語言**: [English](../../../core/reverse-engineering-standards.md) | [繁體中文](reverse-engineering-standards.md)
 
@@ -516,6 +519,7 @@ Feature: 購物車
 - [測試驅動開發](test-driven-development.md) - 紅-綠-重構循環
 - [驗收測試驅動開發](../../../core/acceptance-test-driven-development.md) - 驗收條件
 - [程式碼審查清單](code-review-checklist.md) - 審查指南
+- [測試完整性維度](test-completeness-dimensions.md) - 維度 4（權限驗證）點名了跨租戶測試；授權範圍擷取則是決定你需要哪些此類測試的探索步驟
 
 ---
 

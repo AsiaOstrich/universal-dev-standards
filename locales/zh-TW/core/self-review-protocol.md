@@ -2,7 +2,8 @@
 source: ../../../core/self-review-protocol.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-07-09
+last_synced: 2026-10-11
+source_hash: 35603d9b6211
 status: current
 ---
 

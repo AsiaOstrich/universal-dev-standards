@@ -2,7 +2,8 @@
 source: ../../../core/project-structure.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-03-04
+last_synced: 2026-10-11
+source_hash: d7c93796b9e4
 status: current
 ---
 
@@ -11,6 +12,9 @@ status: current
 **版本**: 1.2.0
 **最後更新**: 2026-03-04
 **適用範圍**: 所有軟體專案
+**範圍**: partial
+**業界標準**: Maven Standard Directory Layout
+**參考**: [github.com](https://github.com/golang-standards/project-layout)
 
 [English](../../../core/project-structure.md) | **繁體中文**
 
@@ -234,6 +238,8 @@ project-root/
 
 ### 決策矩陣
 
+使用此矩陣判斷哪種做法適合你的專案：
+
 | 因素 | Monorepo 適合 | Polyrepo 適合 |
 |------|-------------|--------------|
 | **程式碼共享** | 高（共用函式庫、元件） | 低（獨立服務） |
@@ -241,20 +247,49 @@ project-root/
 | **發布節奏** | 協調發布 | 獨立發布 |
 | **CI/CD 複雜度** | 可接受統一管道 | 需要隔離管道 |
 | **儲存庫大小** | < 5GB，< 100萬檔案 | 大型資產、長歷史 |
+| **依賴管理** | 集中式版本控制 | 可接受各團隊自訂版本 |
+| **工具投資** | 願意投資於工具 | 偏好簡單的 git 工作流程 |
 
-### 快速選擇指南
+### 決策流程圖
 
-**選擇 Monorepo 當**:
-- 多個專案共享大量程式碼或依賴
-- 團隊願意投資於工具
-
-**選擇 Polyrepo 當**:
-- 團隊需要發布獨立性
-- 各專案完全獨立
+```
+┌─────────────────────────────────────────┐
+│ Do multiple projects share significant  │
+│ code or dependencies?                   │
+└───────────────┬─────────────────────────┘
+                │
+        ┌───────┴───────┐
+        ▼               ▼
+       YES              NO
+        │               │
+        ▼               ▼
+┌───────────────┐ ┌─────────────────────┐
+│ Consider      │ │ Do teams need       │
+│ MONOREPO      │ │ release independence│
+└───────┬───────┘ └──────────┬──────────┘
+        │                    │
+        ▼            ┌───────┴───────┐
+┌───────────────┐    ▼               ▼
+│ Can you invest│   YES              NO
+│ in tooling?   │    │               │
+└───────┬───────┘    ▼               ▼
+        │      ┌──────────┐   ┌──────────┐
+┌───────┴───────┐│ POLYREPO │   │ MONOREPO │
+▼               ▼└──────────┘   │ may work │
+YES            NO               └──────────┘
+│               │
+▼               ▼
+┌──────────┐  ┌──────────┐
+│ MONOREPO │  │ POLYREPO │
+│ (full)   │  │ (simpler)│
+└──────────┘  └──────────┘
+```
 
 ---
 
 ## Monorepo 工具比較
+
+### 工具選擇矩陣
 
 | 功能 | Turborepo | Nx | Lerna | Rush |
 |------|-----------|----|----|------|
@@ -263,7 +298,85 @@ project-root/
 | **建置速度** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
 | **遠端快取** | ✅ 內建 | ✅ Nx Cloud | ❌ 手動 | ✅ 內建 |
 | **程式碼生成** | ❌ | ✅ 豐富 | ❌ | ❌ |
+| **受影響範圍偵測** | ✅ | ✅ | ✅ | ✅ |
+| **框架支援** | 框架無關 | React、Angular 等 | 任意 | 任意 |
+| **維護者** | Vercel | Nrwl | Lerna-Lite fork | Microsoft |
 | **最適合** | 小中型團隊 | 大型團隊、企業 | 簡單發布 | 企業規模 |
+
+### 快速選擇指南
+
+**選擇 Turborepo 當**:
+- 你想要最少的設定
+- 主要需求是具備快取的快速建置
+- 團隊為小到中型（< 50 位開發者）
+- 你偏好慣例優於設定
+
+**選擇 Nx 當**:
+- 你需要程式碼生成與鷹架（scaffolding）
+- 你想要內建的框架整合
+- 團隊為大型或企業規模
+- 你需要進階的依賴圖視覺化
+
+**選擇 Lerna 當**:
+- 主要需求是發布 npm 套件
+- 你想要簡單、熟悉的工具
+- 你正從個別套件遷移過來
+
+**選擇 Rush 當**:
+- 你處於企業環境
+- 你需要嚴格的依賴隔離
+- 你有複雜的核准工作流程
+- 你大規模使用 pnpm
+
+### Turborepo 範例
+
+```json
+// turbo.json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**", "test/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
+```
+
+### Nx 範例
+
+```json
+// nx.json
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "production": ["default", "!{projectRoot}/**/*.spec.ts"]
+  },
+  "defaultBase": "main"
+}
+```
 
 ---
 
@@ -279,11 +392,56 @@ packages:
   - 'tools/*'
 ```
 
+```json
+// package.json (root)
+{
+  "name": "my-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  }
+}
+```
+
 ### Yarn Workspaces
 
 ```json
+// package.json (root)
 {
-  "workspaces": ["apps/*", "packages/*"]
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -pt run build",
+    "test": "yarn workspaces foreach run test"
+  }
+}
+```
+
+### npm Workspaces
+
+```json
+// package.json (root)
+{
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present"
+  }
 }
 ```
 
@@ -296,15 +454,22 @@ packages:
 基於套件的架構按**功能邊界**而非技術層次組織程式碼。每個套件是獨立的單元，有清晰的介面。
 
 ```
-傳統（分層）                    基於套件（按功能）
-─────────────                  ────────────────
-src/                           packages/
-├── controllers/               ├── authentication/
-├── services/                  │   ├── api/
-├── models/                    │   ├── domain/
-└── repositories/              │   └── infrastructure/
-                               ├── orders/
-                               └── shared/
+Traditional (Layer-based)          Package-based (Feature-based)
+─────────────────────────          ────────────────────────────
+src/                               packages/
+├── controllers/                   ├── authentication/
+│   ├── userController.js         │   ├── api/
+│   └── orderController.js        │   ├── domain/
+├── services/                      │   ├── infrastructure/
+│   ├── userService.js            │   └── index.ts
+│   └── orderService.js           ├── orders/
+├── models/                        │   ├── api/
+│   ├── user.js                   │   ├── domain/
+│   └── order.js                  │   ├── infrastructure/
+└── repositories/                  │   └── index.ts
+    ├── userRepository.js         └── shared/
+    └── orderRepository.js            ├── database/
+                                      └── utils/
 ```
 
 ### 好處
@@ -315,6 +480,62 @@ src/                           packages/
 | **獨立測試** | 可隔離測試套件 |
 | **平行開發** | 團隊可在不同套件上工作 |
 | **選擇性部署** | 只部署變更的套件 |
+| **程式碼所有權** | 每個套件的所有權清楚 |
+
+### 套件結構範本
+
+```
+packages/feature-name/
+├── package.json          # Package metadata
+├── tsconfig.json         # TypeScript config (if applicable)
+├── src/
+│   ├── index.ts          # Public API exports
+│   ├── api/              # External interfaces (REST, GraphQL, etc.)
+│   ├── domain/           # Business logic
+│   │   ├── entities/
+│   │   ├── services/
+│   │   └── events/
+│   └── infrastructure/   # External integrations
+│       ├── database/
+│       └── external-services/
+├── tests/
+│   ├── unit/
+│   └── integration/
+└── README.md             # Package documentation
+```
+
+### 公開 API 設計
+
+```typescript
+// packages/authentication/src/index.ts
+// Only export what other packages need
+
+// Domain types
+export type { User, AuthToken, AuthResult } from './domain/types';
+
+// Service interfaces
+export { AuthService } from './domain/services/auth-service';
+
+// API handlers (if needed by other packages)
+export { createAuthRouter } from './api/routes';
+
+// Do NOT export internal implementation details
+// ❌ export { hashPassword } from './infrastructure/crypto';
+```
+
+### 套件間依賴
+
+```json
+// packages/orders/package.json
+{
+  "name": "@myorg/orders",
+  "version": "1.0.0",
+  "dependencies": {
+    "@myorg/authentication": "workspace:*",
+    "@myorg/shared": "workspace:*"
+  }
+}
+```
 
 ---
 
