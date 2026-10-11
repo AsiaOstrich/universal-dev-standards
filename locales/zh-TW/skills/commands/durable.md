@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/durable.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 589fe302afa6
 status: current
 ---
 
 ---
-description: "[UDS] Guide workflow failure recovery with checkpoints, retries and rollback strategies"
+description: "[UDS] 引導工作流程故障恢復，包含檢查點、重試與回滾策略"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[workflow name or failure context | 工作流名稱或失敗情境]"
 ---

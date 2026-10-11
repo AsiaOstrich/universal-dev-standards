@@ -2,12 +2,14 @@
 source: ../../../../skills/commands/docgen.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: fd0be3c2b60b
+status: current
 ---
 
 ---
 name: docgen
-description: "[UDS] Generate usage documentation from project sources"
+description: "[UDS] 從專案原始檔產生使用文件"
 argument-hint: "[config file | 設定檔]"
 ---
 
@@ -62,6 +64,41 @@ sources:
     type: cli
 language: [en, zh-TW]
 ```
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/docgen` | 尋找預設設定檔 `.usage-docs.yaml`，找到則使用，否則詢問 |
+| `/docgen <config>` | 使用指定設定檔 |
+| `/docgen --format <type>` | 僅產生指定格式（cheatsheet / reference / usage-guide） |
+
+### 互動腳本
+
+1. 載入設定檔，解析來源和輸出設定
+2. 掃描來源檔案，擷取描述、選項、範例
+3. 依設定的格式產生文件
+4. 展示產生的檔案清單和預覽
+
+🛑 **STOP**：展示產生結果後等待使用者確認寫入
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 文件產生後 | 確認內容正確並寫入 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 設定檔不存在 | 建議建立 `.usage-docs.yaml`，提供範本 |
+| 來源目錄為空 | 告知無內容可擷取，列出已掃描的路徑 |
+| 輸出目錄不存在 | 自動建立目錄 |
 
 ## 參考
 

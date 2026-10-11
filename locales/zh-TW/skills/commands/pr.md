@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/pr.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 7239c7de4a8c
 status: current
 ---
 

@@ -2,11 +2,13 @@
 source: ../../../../skills/commands/config.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: f7ff4f12776e
+status: current
 ---
 
 ---
-description: [UDS] Configure project development standards
+description: "[UDS] 設定專案開發標準"
 allowed-tools: Read, Bash(uds config:*), Bash(uds configure:*), Bash(uds check:*)
 argument-hint: "[type] [--ai-tool <tool>]"
 ---
@@ -16,8 +18,6 @@ argument-hint: "[type] [--ai-tool <tool>]"
 > **Language**: [English](../../../../skills/commands/config.md) | 繁體中文
 
 配置當前專案的 Universal Development Standards 設定。
-
----
 
 ## 互動模式（預設）
 
@@ -201,6 +201,54 @@ CLI 在 `manifest.declinedFeatures` 中追蹤拒絕的 Skills/Commands：
 | `--skills-location <loc>` | Skills 安裝位置：project、user |
 | `--yes`, `-y` | 跳過確認提示 |
 | `-E`, `--experimental` | 啟用實驗性功能 |
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/config` | 顯示目前狀態 → 詢問配置類型 → 執行 |
+| `/config <type>` | 直接執行指定類型配置（如 `skills`、`ai_tools`） |
+| `/config --ai-tool <tool>` | 非互動式為特定工具安裝 Skills/Commands |
+
+### 互動腳本
+
+1. 執行 `uds check --summary` 顯示目前狀態
+
+**決策：有無指定 type**
+- IF 指定了 type → 直接執行 `uds configure --type <type>`
+- IF 指定了 `--ai-tool` → 非互動式執行安裝
+- ELSE → 進入互動流程
+
+2. 詢問配置類型（AskUserQuestion）：
+   - 基本選項 / AI 工具 / Skills / Commands / 進階 / 全部
+
+3. 根據選擇執行對應 CLI 命令
+
+**決策：Skills/Commands 配置**
+- IF 選擇 Skills → 顯示安裝狀態 + 拒絕狀態 → 動作選單
+- IF 選擇 Commands → 同上流程
+
+🛑 **STOP**：顯示目前狀態後等待使用者選擇配置類型
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 狀態顯示後 | 使用者選擇要配置的類型 |
+| Skills/Commands 動作選單 | 使用者選擇安裝/更新/重新安裝 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 標準未初始化 | 提示先執行 `/init` |
+| 無效的 config type | 列出可用類型供選擇 |
+| 指定的 AI tool 不支援 | 列出支援的工具清單 |
+| 之前拒絕的 Skills/Commands | 提示可透過此命令重新安裝 |
 
 ## 參考
 

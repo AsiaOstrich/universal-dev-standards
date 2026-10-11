@@ -2,13 +2,15 @@
 source: ../../../../skills/commands/derive.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 2f9bbee08f05
+status: current
 ---
 
 ---
 name: derive
-description: [UDS] Derive BDD scenarios, TDD skeletons, or ATDD tables from specifications.
-argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>] [--output-dir <dir>]"
+description: "[UDS] 從規格推演 BDD 場景、TDD 骨架或 ATDD 表格。"
+argument-hint: "[all|bdd|tdd|it|e2e|atdd] <spec-file> [--lang <lang>] [--framework <fw>] [--output-dir <dir>]"
 ---
 
 # 推演測試結構
@@ -27,9 +29,11 @@ argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>
 
 | 子命令 | 說明 | 輸出 |
 |--------|------|------|
-| `all` | 產生 BDD + TDD（預設） | `.feature` + `.test.*` |
+| `all` | 完整推演管線（BDD + TDD + IT + E2E + ATDD + 合約） | 所有格式 |
 | `bdd` | 僅產生 BDD 場景 | `.feature` |
 | `tdd` | 僅產生 TDD 骨架 | `.test.*` |
+| `it` | 產生整合測試骨架 | `.it.test.*` |
+| `e2e` | 產生 E2E 測試骨架 | `.e2e.test.*` |
 | `atdd` | 產生 ATDD 測試表格 | `.md`（Markdown 表格） |
 
 ### 選項
@@ -60,7 +64,7 @@ argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>
 ## 範例
 
 ```bash
-# 推演全部（BDD + TDD）
+# 完整推演管線（BDD + TDD + IT + E2E + ATDD + 合約）
 /derive all specs/SPEC-001.md
 
 # 僅推演 BDD 場景
@@ -69,9 +73,62 @@ argument-hint: "[all|bdd|tdd|atdd] <spec-file> [--lang <lang>] [--framework <fw>
 # 推演 Python 的 TDD
 /derive tdd specs/SPEC-001.md --lang python --framework pytest
 
+# 推演整合測試骨架
+/derive it specs/SPEC-001.md
+
+# 推演 E2E 測試骨架
+/derive e2e specs/SPEC-001.md
+
 # 推演 ATDD 表格供手動測試
 /derive atdd specs/SPEC-001.md
 ```
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/derive` | 列出 `docs/specs/` 中 status=Approved 的 spec，問使用者選擇 spec 和子命令 |
+| `/derive <subcommand> <spec-file>` | 直接對指定 spec 執行指定子命令 |
+| `/derive <subcommand>` | 執行指定子命令，列出可用 spec 供選擇 |
+| `/derive <spec-file>` | 對指定 spec 執行 `all`（預設子命令） |
+
+### 互動腳本
+
+1. 讀取 spec 檔案，驗證 status = Approved
+2. 擷取所有 AC，確認使用 GWT 格式
+
+**決策：AC 格式**
+- IF AC 使用 GWT 格式 → 直接推演
+- IF AC 不是 GWT 格式 → 嘗試轉換，標記 `[Derived]`，展示轉換結果
+- IF AC 無法轉換 → 🛑 STOP，請使用者先修改 spec 中的 AC 格式
+
+🛑 **STOP**：AC 格式轉換後展示結果，等待使用者確認轉換正確再繼續
+
+3. 依子命令分派到 `/derive-bdd`、`/derive-tdd`、`/derive-it`、`/derive-e2e`、`/derive-atdd`
+4. 驗證 1:1 對應（每個 AC 恰好一個測試/場景）
+5. 展示推演摘要
+
+🛑 **STOP**：展示生成的測試工件後等待使用者確認寫入
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| AC 格式轉換後 | 確認轉換結果 |
+| 測試工件生成後 | 確認寫入檔案 |
+
+### 錯誤處理
+
+| 錯誤情況 | AI 動作 |
+|----------|---------|
+| Spec status ≠ Approved | 告知當前 status，引導到 `/sdd approve` |
+| Spec 檔案不存在 | 列出可用 spec，或引導到 `/sdd create` |
+| AC 數量為 0 | 告知 spec 無 AC，引導修改 spec |
+| 1:1 對應驗證失敗 | 列出不對應項目，停止並報告 |
 
 ## 參考
 

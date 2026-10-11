@@ -2,11 +2,13 @@
 source: ../../../../skills/commands/coverage.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: a670799573a6
+status: current
 ---
 
 ---
-description: [UDS] Analyze test coverage and provide recommendations
+description: "[UDS] 分析測試覆蓋率並提供建議"
 allowed-tools: Read, Grep, Glob, Bash(npm run test:coverage:*), Bash(npx:*)
 argument-hint: "[file or module to analyze | 要分析的檔案或模組]"
 ---
@@ -16,8 +18,6 @@ argument-hint: "[file or module to analyze | 要分析的檔案或模組]"
 > **Language**: [English](../../../../skills/commands/coverage.md) | 繁體中文
 
 多維度分析測試覆蓋率並提供可執行的建議。
-
----
 
 ## 覆蓋率維度
 
@@ -70,6 +70,47 @@ argument-hint: "[file or module to analyze | 要分析的檔案或模組]"
 |-|-------------|----------------|
 | **層級** | 程式碼（line/branch/function）| 需求（AC 對測試）|
 | **問題** | 「多少程式碼被測試了？」| 「哪些 AC 有測試？」|
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/coverage` | 偵測測試框架，執行全專案覆蓋率分析 |
+| `/coverage <path>` | 僅分析指定模組/路徑 |
+| `/coverage --recommend` | 分析後重點輸出測試建議 |
+
+### 互動腳本
+
+1. 偵測專案測試框架和覆蓋率工具
+2. 執行覆蓋率報告
+3. 解析結果，識別低覆蓋率區域
+4. 依風險和重要性排序
+5. 提出具體測試建議
+
+**決策：覆蓋率結果**
+- IF 覆蓋率 ≥ 目標 → 展示摘要，標記 ✅
+- IF 覆蓋率 < 目標但 ≥ 60% → 展示差距，建議優先補測試的區域
+- IF 覆蓋率 < 60% → 警告，建議系統性補強計畫
+
+🛑 **STOP**：報告展示後等待使用者決定是否補寫測試
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 覆蓋率報告展示後 | 使用者決定是否補測試 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 無測試框架 | 詢問使用者選擇框架 |
+| 覆蓋率工具執行失敗 | 報告錯誤，建議手動檢查配置 |
+| 指定路徑不存在 | 列出可用路徑 |
 
 ## 參考
 
