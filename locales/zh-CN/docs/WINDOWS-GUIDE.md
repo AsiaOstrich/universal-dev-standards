@@ -2,11 +2,14 @@
 source: ../../../docs/WINDOWS-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4416025824b3
 status: current
 ---
 
 # Windows 开发指南
+
+> **语言**: [English](../../../docs/WINDOWS-GUIDE.md) | [繁體中文](../../zh-TW/docs/WINDOWS-GUIDE.md) | 简体中文
 
 本指南提供使用和贡献 Universal Development Standards 的 Windows 特定说明。
 
@@ -212,7 +215,7 @@ uds init --help
 
 ## 相关文件
 
-- [主 README](../../README.md) - 专案概述
+- [主 README](../README.md) - 专案概述
 - [CLI README](../../../cli/README.md) - CLI 文件
 - [采用指南](../adoption/ADOPTION-GUIDE.md) - 完整采用指南
 

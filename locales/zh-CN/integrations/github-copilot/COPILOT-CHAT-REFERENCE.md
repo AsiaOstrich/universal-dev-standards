@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/COPILOT-CHAT-REFERENCE.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-24
+last_synced: 2026-10-11
+source_hash: 7e4353b83a35
 status: current
 ---
 
 # Copilot Chat 参考指南
+
+> **语言**: [English](../../../../integrations/github-copilot/COPILOT-CHAT-REFERENCE.md) | [繁體中文](../../../zh-TW/integrations/github-copilot/COPILOT-CHAT-REFERENCE.md) | 简体中文
+
+**版本**: 1.1.0
+**最后更新**: 2026-01-21
 
 本文档提供 GitHub Copilot Chat 的提示模板，以实现类似 Claude Code 斜杠命令的功能。
 

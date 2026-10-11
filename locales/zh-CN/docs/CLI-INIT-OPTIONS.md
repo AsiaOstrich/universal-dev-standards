@@ -2,13 +2,14 @@
 source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
-last_synced: 2026-09-29
+last_synced: 2026-10-11
+source_hash: 2316d0bfc18c
 status: current
 ---
 
 # UDS CLI Init 选项完整指南
 
-> **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [简体中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
+> **语言**: [English](../../../docs/CLI-INIT-OPTIONS.md) | [繁體中文](../../zh-TW/docs/CLI-INIT-OPTIONS.md) | 简体中文
 >
 > **版本**: 3.7.1
 > **最后更新**: 2026-09-29
@@ -27,7 +28,7 @@ status: current
 6. [Extensions（扩展）](#6-extensions扩展)
 7. [Integration Configuration（集成配置）](#7-integration-configuration集成配置)
 8. [Content Mode（内容模式）](#8-content-mode内容模式)
-9. [Methodology（开发方法论）](#9-methodology开发方法论)
+9. [Methodology（开发方法论，实验性）](#9-methodology开发方法论实验性)
 10. [CLI 参数对照表](#10-cli-参数对照表)
 
 ---
@@ -465,7 +466,7 @@ main ─────────────────────────
 ```
 ? Select commit message language:
 ❯ English (推荐) - Standard international format
-  简体中文 (简体中文) - For Chinese-speaking teams
+  Traditional Chinese (繁体中文) - For Chinese-speaking teams
   Bilingual (双语) - Both English and Chinese
 ```
 
@@ -474,7 +475,7 @@ main ─────────────────────────
 | 语言 | 示例 | 适用情境 |
 |------|------|----------|
 | **English** (推荐) | `feat(auth): add OAuth2 support` | 国际团队、开源项目 |
-| **简体中文** | `新增(认证): 实作 OAuth2 支援` | 繁体中文团队 |
+| **Traditional Chinese** | `新增(认证): 实作 OAuth2 支援` | 繁体中文团队 |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | 双语环境 |
 
 ### 5.4 Test Levels
@@ -543,12 +544,12 @@ main ─────────────────────────
 #### 交互式提示
 
 ```
-? Use 简体中文 (简体中文) locale? (y/N)
+? Use Traditional Chinese (繁体中文) locale? (y/N)
 ```
 
 | 扩展 | 文件 | 说明 |
 |------|------|------|
-| **zh-TW** | `zh-cn.md` | 繁体中文本地化指引 |
+| **zh-TW** | `zh-tw.md` | 繁体中文本地化指引 |
 
 ### 自动检测
 
@@ -765,7 +766,7 @@ Minimal  Index
 
 ---
 
-## 9. Methodology（开发方法论）
+## 9. Methodology（开发方法论，实验性）
 
 ### 交互式提示
 
@@ -838,7 +839,9 @@ uds init --experimental
 | 强制执行 Hooks | `--with-hooks` | 安装强制执行 hooks（commit-msg、security、logging） |
 | 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
 | Claude Code 目标文件 | `--claude-target` | Claude Code 集成内容要写到哪里：`project`（`CLAUDE.md`，默认）或 `local`（`CLAUDE.local.md`） |
+| 界面语言 | `--ui-lang` | 提示界面语言（`en`、`zh-tw`、`auto`）- 默认：`auto` |
 | 模式（已弃用） | `-m, --mode` | 安装模式（skills, full）- 请改用 `--skills-location` |
+| 强制覆盖 | `-f, --force` | 覆盖现有配置（供 `uds ai-context init` 使用） |
 
 ### 提交前标准检查（git hook 接线）
 
@@ -858,7 +861,7 @@ uds init --experimental
   ——这是锦上添花，不是这道接线能否生效的关键。
 - **覆盖你自己的 git hook 设定。** 若 `core.hooksPath` 已经指向别处，或
   `.git/hooks/pre-commit` 已经存在，`uds init` 会两者都不动，并打印检查
-  **未启用**及原因。
+  **未启用**，附上原因与手动修复方式。
 
 `git config core.hooksPath` 是**本机、per-clone 的设定——不会进版控。**
 跑 `uds init` 只会让“跑过这个命令的那个 clone”生效；其他人 clone 这个
@@ -987,7 +990,13 @@ uds init -y --with-hooks
 uds init -y --content-layout layered
 
 # 繁体中文团队
-uds init -y --output-lang traditional-chinese --locale zh-cn
+uds init -y --output-lang traditional-chinese --locale zh-tw
+
+# 强制使用英文提示
+uds init --ui-lang en
+
+# 强制使用繁体中文提示
+uds init --ui-lang zh-tw
 
 # PHP 项目
 uds init -y --lang php --framework fat-free

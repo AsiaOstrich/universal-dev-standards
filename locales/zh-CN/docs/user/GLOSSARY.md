@@ -2,6 +2,8 @@
 source: docs/user/GLOSSARY.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 2371510bee49
 status: current
 ---
 

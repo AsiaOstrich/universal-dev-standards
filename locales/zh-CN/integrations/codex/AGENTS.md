@@ -2,19 +2,34 @@
 source: ../../../../integrations/codex/AGENTS.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-13
+last_synced: 2026-10-11
+source_hash: 1bb0a0d9a5bf
 status: current
 ---
 
 # 通用开发规范
 
+> **语言**: [English](../../../../integrations/codex/AGENTS.md) | [繁體中文](../../../zh-TW/integrations/codex/AGENTS.md) | 简体中文
+
+**版本**: 1.0.0
+**最后更新**: 2026-01-09
+
 本项目遵循通用文档规范，以确保高质量、无幻觉的代码与文档。
+
+---
+
+## 核心规范使用规则
+
+> **核心规范使用规则**：
+> 在验证规范、检查代码或执行任务时，**优先**阅读 `core/` 中的精简规则（例如 `core/testing-standards.md`）。
+> **仅在**明确要求教学内容、详细说明或教程时，才阅读 `core/guides/` 或 `methodologies/guides/`。
+> 这可确保 token 效率与上下文聚焦。
 
 ---
 
 ## 规格驱动开发 (SDD) 优先
 
-**规则**：当项目中集成了 SDD 工具（如 OpenSpec、Spec Kit 等）并提供特定命令时，你必须优先使用这些命令，而非手动编辑文件。
+**规则**：当项目中集成了 SDD 工具（如 OpenSpec、Spec Kit 等）并提供特定命令（例如 `/openspec` 或 `/sdd` 等斜杠命令）时，你必须优先使用这些命令，而非手动编辑文件。
 
 **检测方式**：
 - OpenSpec：检查是否有 `openspec/` 目录或 `openspec.json`
@@ -89,6 +104,32 @@ status: current
 
 ---
 
+## 工作流强制关卡
+
+**关键**：在执行任何工作流阶段命令之前，你必须检查前置条件。
+
+### 会话开始协议
+会话开始时，检查是否有进行中的工作流：`ls .workflow-state/*.yaml 2>/dev/null`
+若发现进行中的工作流 → 告知用户并提供继续执行的选项。
+
+### 阶段关卡
+
+| 工作流 | 阶段 | 前置条件 | 失败时 |
+|---------|-------|-------------|------------|
+| SDD | implement | 规格状态 = Approved | → `/sdd approve` |
+| SDD | verify | 所有 AC 均有代码 + 测试 | → `/sdd implement` |
+| TDD | GREEN | 已存在失败的测试 | → 停留在 RED |
+| TDD | REFACTOR | 所有测试通过 | → 停留在 GREEN |
+| BDD | AUTOMATION | `.feature` 文件存在 | → FORMULATION |
+| Commit | feat/fix | 检查进行中的规格 | → 建议 `Refs: SPEC-XXX` |
+
+**绝不**在失败的测试存在之前编写实现代码（TDD）。
+**绝不**在 `.feature` 文件存在之前编写步骤定义（BDD）。
+
+参考：`.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## 代码审查规范
 
 参考：`core/code-review-checklist.md`
@@ -99,6 +140,23 @@ status: current
 3. **性能** - 算法和查询是否高效？
 4. **可维护性** - 代码是否整洁、易读？
 5. **测试** - 测试覆盖率是否足够？
+
+---
+
+## AI 响应导航
+
+**规则**：每个实质性的 AI 响应结尾都必须包含导航区块（Navigation Footer），建议下一步行动。
+
+**关键行为**：
+- 在完成任务、提供分析、提出问题或报告错误后，附加导航建议
+- 提供多个选项时，以 ⭐ 标记推荐选项
+- 使用情境模板（任务完成、用户提问、错误/失败、进行中、信息性回复）
+- 依情境调整选项数量（1-5 个，绝不超过 5 个）
+- 适用时，建议中优先使用斜杠命令
+
+**豁免**：极短的确认（"OK"、"Done"）可省略导航。
+
+参考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
 
 ---
 
@@ -113,3 +171,79 @@ status: current
 ## 许可证
 
 本文档以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可发布。
+
+
+## Available UDS Slash Commands | UDS 可用命令
+
+> 为 SPEC-INTSYNC-001 同步合规自动生成的索引。权威描述位于 `skills/commands/*.md` 与 `skills/commands/COMMAND-INDEX.json`。
+
+### core
+
+- `/commit`
+- `/code-review`
+- `/sdd`
+- `/check`
+- `/init`
+- `/update`
+- `/config`
+
+### testing
+
+- `/tdd`
+- `/bdd`
+- `/atdd`
+- `/e2e`
+- `/coverage`
+- `/ac-coverage`
+- `/derive`
+- `/derive-bdd`
+- `/derive-tdd`
+- `/derive-atdd`
+- `/derive-all`
+- `/journey-test`
+
+### quality
+
+- `/checkin`
+- `/refactor`
+- `/scan`
+- `/security`
+- `/reverse`
+- `/reverse-sdd`
+- `/reverse-bdd`
+- `/reverse-tdd`
+
+### docs
+
+- `/docs`
+- `/docgen`
+- `/changelog`
+- `/requirement`
+- `/brainstorm`
+- `/sdd-retro`
+- `/pr`
+
+### ops
+
+- `/observability`
+- `/slo`
+- `/runbook`
+- `/incident`
+- `/metrics`
+- `/durable`
+- `/ci-cd`
+
+### methodology
+
+- `/methodology`
+- `/dev-workflow`
+- `/discover`
+- `/release`
+- `/audit`
+- `/migrate`
+- `/skill-builder`
+
+### reference
+
+- `/database`
+- `/api-design`

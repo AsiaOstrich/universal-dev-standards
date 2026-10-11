@@ -2,11 +2,17 @@
 source: ../../../../integrations/github-copilot/skills-mapping.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-02-05
+last_synced: 2026-10-11
+source_hash: f72ee3110bea
 status: current
 ---
 
 # Skills 迁移指南
+
+> **语言**: [English](../../../../integrations/github-copilot/skills-mapping.md) | [繁體中文](../../../zh-TW/integrations/github-copilot/skills-mapping.md) | 简体中文
+
+**版本**: 1.2.0
+**最后更新**: 2026-02-05
 
 本文档将 Claude Code 的 skills 对应到 GitHub Copilot 的等效实现和替代方案。
 

@@ -2,13 +2,28 @@
 source: ../../../../integrations/gemini-cli/GEMINI.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-24
+last_synced: 2026-10-11
+source_hash: 078673081b26
 status: current
 ---
 
 # 通用开发标准
 
+> **语言**: [English](../../../../integrations/gemini-cli/GEMINI.md) | [繁體中文](../../../zh-TW/integrations/gemini-cli/GEMINI.md) | 简体中文
+
+**版本**: 1.1.0
+**最后更新**: 2026-01-21
+
 本项目遵循通用文档规范，以确保高质量、无幻觉的代码与文档。
+
+---
+
+## 核心规范使用规则
+
+> **核心规范使用规则**：
+> 在验证规范、检查代码或执行任务时，**优先**阅读 `core/` 中的精简规则（例如 `core/testing-standards.md`）。
+> **仅在**明确要求教学内容、详细说明或教程时，才阅读 `core/guides/` 或 `methodologies/guides/`。
+> 这可确保 token 效率与上下文聚焦。
 
 ---
 
@@ -89,6 +104,32 @@ status: current
 
 ---
 
+## 工作流强制关卡
+
+**关键**：在执行任何工作流阶段命令之前，你必须检查前置条件。
+
+### 会话开始协议
+会话开始时，检查是否有进行中的工作流：`ls .workflow-state/*.yaml 2>/dev/null`
+若发现进行中的工作流 → 告知用户并提供继续执行的选项。
+
+### 阶段关卡
+
+| 工作流 | 阶段 | 前置条件 | 失败时 |
+|---------|-------|-------------|------------|
+| SDD | implement | 规格状态 = Approved | → `/sdd approve` |
+| SDD | verify | 所有 AC 均有代码 + 测试 | → `/sdd implement` |
+| TDD | GREEN | 已存在失败的测试 | → 停留在 RED |
+| TDD | REFACTOR | 所有测试通过 | → 停留在 GREEN |
+| BDD | AUTOMATION | `.feature` 文件存在 | → FORMULATION |
+| Commit | feat/fix | 检查进行中的规格 | → 建议 `Refs: SPEC-XXX` |
+
+**绝不**在失败的测试存在之前编写实现代码（TDD）。
+**绝不**在 `.feature` 文件存在之前编写步骤定义（BDD）。
+
+参考：`.standards/workflow-enforcement.ai.yaml`
+
+---
+
 ## 重构指南
 
 参考：`core/refactoring-standards.md`
@@ -117,6 +158,23 @@ status: current
 | 替换遗留系统 | **绞杀者无花果** |
 | 与遗留系统共存 | **防腐层** |
 | 未测试的遗留代码 | **先写特征测试** |
+
+---
+
+## AI 响应导航
+
+**规则**：每个实质性的 AI 响应结尾都必须包含导航区块（Navigation Footer），建议下一步行动。
+
+**关键行为**：
+- 在完成任务、提供分析、提出问题或报告错误后，附加导航建议
+- 提供多个选项时，以 ⭐ 标记推荐选项
+- 使用情境模板（任务完成、用户提问、错误/失败、进行中、信息性回复）
+- 依情境调整选项数量（1-5 个，绝不超过 5 个）
+- 适用时，建议中优先使用斜杠命令
+
+**豁免**：极短的确认（"OK"、"Done"）可省略导航。
+
+参考：`.standards/ai-response-navigation.ai.yaml`（或 `core/ai-response-navigation.md`）
 
 ---
 
