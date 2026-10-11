@@ -2,7 +2,9 @@
 source: ../../../../skills/commands/check.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 79bf24c39d52
+status: current
 ---
 
 ---
@@ -98,14 +100,14 @@ UDS Status Summary
 
 ## 選項
 
-| 選項 | 說明 |
-|------|------|
-| `--summary` | 顯示精簡狀態摘要 |
-| `--offline` | 跳過 npm registry 檢查 |
-| `--diff` | 顯示修改檔案的差異 |
-| `--restore` | 還原所有修改和遺失的檔案 |
-| `--restore-missing` | 僅還原遺失的檔案 |
-| `--migrate` | 遷移舊版 manifest 至 hash 追蹤 |
+| 選項 | Description | 說明 |
+|------|-------------|------|
+| `--summary` | Show compact status summary | 顯示精簡狀態摘要 |
+| `--offline` | Skip npm registry check | 跳過 npm registry 檢查 |
+| `--diff` | Show diff for modified files | 顯示修改檔案的差異 |
+| `--restore` | Restore all modified and missing files | 還原所有修改和遺失的檔案 |
+| `--restore-missing` | Restore only missing files | 僅還原遺失的檔案 |
+| `--migrate` | Migrate legacy manifest to hash-based tracking | 遷移舊版 manifest 至 hash 追蹤 |
 
 ## 輸出區段
 
@@ -120,12 +122,12 @@ UDS Status Summary
 
 顯示每個追蹤檔案的狀態：
 
-| 符號 | 意義 |
-|------|------|
-| ✓（綠色）| 未變更 |
-| ⚠（黃色）| 已修改 |
-| ✗（紅色）| 遺失 |
-| ?（灰色）| 存在但無 hash |
+| 符號 | Meaning | 意義 |
+|------|---------|------|
+| ✓（綠色）| Unchanged | 未變更 |
+| ⚠（黃色）| Modified | 已修改 |
+| ✗（紅色）| Missing | 遺失 |
+| ?（灰色）| Exists but no hash | 存在但無 hash |
 
 摘要格式：`{unchanged} 未變更、{modified} 已修改、{missing} 遺失`
 
@@ -174,12 +176,12 @@ Skills Status
 
 ## 狀態指示
 
-| 符號 | 意義 |
-|------|------|
-| ✓（綠色）| 一切正常 |
-| ⚠（黃色）| 警告，建議採取行動 |
-| ✗（紅色）| 錯誤，需要採取行動 |
-| ○（灰色）| 未安裝/配置 |
+| 符號 | Meaning | 意義 |
+|------|---------|------|
+| ✓（綠色）| All good | 一切正常 |
+| ⚠（黃色）| Warning, action recommended | 警告，建議採取行動 |
+| ✗（紅色）| Error, action required | 錯誤，需要採取行動 |
+| ○（灰色）| Not installed/configured | 未安裝/配置 |
 
 ## 常見問題
 
@@ -214,6 +216,57 @@ Skills Status
 /check --diff           # 顯示檔案差異
 /check --migrate        # 升級 manifest 格式
 ```
+
+## AI 代理行為
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 | AI Action |
+|-------|-----------|--------|
+| `/check` | 執行 `uds check`，偵測問題時進入互動修復模式 | Run full check, enter interactive mode on issues |
+| `/check --summary` | 執行 `uds check --summary`，顯示精簡狀態 | Show compact status |
+| `/check --restore` | 執行 `uds check --restore`，還原所有修改/遺失檔案 | Restore all files |
+| `/check --offline` | 執行 `uds check --offline`，跳過 npm registry 檢查 | Skip network check |
+| `/check --migrate` | 執行 `uds check --migrate`，升級 manifest 格式 | Migrate legacy manifest |
+
+### 互動腳本
+
+1. 執行 `uds check` 並解析輸出
+2. 展示狀態摘要（版本、層級、檔案、Skills、Commands）
+
+**Decision: 檢查結果**
+- IF 全部正常 → 顯示綠色摘要，結束
+- IF 有修改/遺失檔案 → 進入互動修復迴圈
+
+3. 互動修復迴圈（每個問題檔案）：
+
+**Decision: 檔案已修改**
+- 使用者可選：View diff → Restore original → Keep current → Skip
+
+**Decision: 檔案遺失**
+- 使用者可選：Restore → Remove from tracking → Skip
+
+🛑 **STOP**: 每個問題檔案逐一詢問使用者處理方式
+
+4. 所有檔案處理完畢，顯示最終狀態
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|-----------|---------|
+| 每個問題檔案 | 使用者選擇處理方式 |
+| restore 操作前 | 確認還原（批次模式除外） |
+
+### 錯誤處理
+
+| 錯誤情況 | AI 動作 |
+|-----------------|-----------|
+| 標準未初始化 | 提示執行 `/init` |
+| npm registry 無法連線 | 建議加 `--offline` 重試 |
+| manifest 格式過舊 | 建議執行 `--migrate` |
+| Skills 未安裝 | 建議執行 `/update` 或 `/config skills` |
 
 ## 參考
 

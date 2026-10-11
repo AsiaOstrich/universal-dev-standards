@@ -2,7 +2,8 @@
 source: ../../../../skills/code-review-assistant/review-checklist.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 0691a1cec031
 status: current
 ---
 

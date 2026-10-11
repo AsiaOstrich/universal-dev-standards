@@ -3,17 +3,24 @@ name: code-review
 source: ../../../../skills/code-review-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: e573a23283c0
 status: current
+scope: universal
 description: |
   [UDS] 系統性程式碼審查的參考資料：八大審查類別，以及 BLOCKING/IMPORTANT/SUGGESTION 評論前綴。
   Use when: 審查 pull request 或 diff、決定審查意見的措辭與優先序、與團隊議定審查範圍。
   Not for: 執行有關卡的審查流程——該部分已移至採用層（XSPEC-095）；提交前的關卡驗證——請用 /checkin。
   Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴, 審查清單.
 allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
-scope: universal
 argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 ---
+<!-- 棄用通知（XSPEC-086 Phase 4，2026-04-28）：
+  程式碼審查流程協調（4 步驟序列、outcome gating）已移至 adoption layer
+  （XSPEC-095，2026-04-28）。此 Skill 保留：8 大審查類別定義、
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意。
+  需要強制執行時，請使用你的 adoption layer 工具鏈。
+-->
 
 # 程式碼審查助手
 
@@ -24,6 +31,8 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 使用標準化的檢查清單和評論前綴，執行系統性的程式碼審查。
 
 ## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
 
 1. **識別變更** - 透過 `git diff` 或 `git show` 取得待審查檔案的差異
 2. **套用檢查清單** - 系統性地檢查每個審查類別
@@ -63,7 +72,7 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 
 > **程式碼審查完成。建議下一步：**
 > - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review`
-> - 全部通過 → 執行 `/checkin` 品質關卡
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **推薦**
 > - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更
 > - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報
 
@@ -72,3 +81,8 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 - [Pre-Commit Checklist（提交前檢查清單）](./checkin-checklist.md) — 提交之前當作最後一道檢查時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
+
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../../../../skills/commands/code-review.md#ai-agent-behavior--ai-代理行為)

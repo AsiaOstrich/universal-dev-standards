@@ -3,15 +3,16 @@ name: ci-cd
 source: ../../../../skills/ci-cd-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: db7970b6ed79
 status: current
+scope: universal
 description: |
   引導 CI/CD 管線的設計、設定與最佳化。
   Use when: 建置管線、縮短建置時間、設定部署階段。
   Not for: 沒有 CI/CD 平台的部署——請用 /deploy；版本號遞增與晉級——請用 /release。
   Keywords: CI/CD, pipeline, GitHub Actions, deployment, build, 持續整合, 持續部署, 管線.
 allowed-tools: Read, Grep, Glob
-scope: universal
 argument-hint: "[pipeline config or stage | Pipeline 配置或階段]"
 ---
 
@@ -28,13 +29,13 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 建置       測試      分析         部署       驗證
 ```
 
-| 階段 | 用途 | 關鍵活動 |
-|------|------|----------|
-| **Build** | 編譯與打包 | 安裝相依、編譯、產出成品 |
-| **Test** | 品質驗證 | 單元、整合、端對端測試 |
-| **Analyze** | 程式碼品質 | 程式碼檢查、安全掃描、覆蓋率 |
-| **Deploy** | 發布到環境 | 預備環境 → 正式環境部署 |
-| **Verify** | 部署後驗證 | 冒煙測試、健康檢查、監控 |
+| 階段 | 用途 | Key Activities | 關鍵活動 |
+|------|------|----------------|----------|
+| **Build** | 編譯與打包 | Dependency install, compilation, artifact creation | 安裝相依、編譯、產出成品 |
+| **Test** | 品質驗證 | Unit, integration, E2E tests | 單元、整合、端對端測試 |
+| **Analyze** | 程式碼品質 | Lint, security scan, coverage report | 程式碼檢查、安全掃描、覆蓋率 |
+| **Deploy** | 發布到環境 | Staging → Production rollout | 預備環境 → 正式環境部署 |
+| **Verify** | 部署後驗證 | Smoke tests, health checks, monitoring | 冒煙測試、健康檢查、監控 |
 
 ## DORA 指標快速參考
 
@@ -55,6 +56,8 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 - [ ] **密鑰管理** — 絕不寫死密鑰；使用 vault/環境變數
 - [ ] **分支保護** — 要求 CI 通過才能合併
 - [ ] **回滾策略** — 部署失敗時自動回滾
+
+快速失敗、快取相依、平行作業、不可變成品、環境一致、密鑰管理、分支保護、回滾策略。
 
 ## 平台專屬提示
 
@@ -116,22 +119,35 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 
 ## 使用方式
 
-- `/ci-cd` - 顯示完整管線指引
-- `/ci-cd github-actions` - GitHub Actions 專屬提示
-- `/ci-cd --optimize` - 管線優化建議
-- `/ci-cd build` - 建置階段最佳實踐
+```bash
+/ci-cd                     # 顯示完整管線指引
+/ci-cd github-actions      # GitHub Actions 專屬提示
+/ci-cd --optimize          # 管線優化建議
+/ci-cd build               # 建置階段最佳實踐
+```
 
 ## 下一步引導
 
 `/ci-cd` 完成後，AI 助手應建議：
 
 > **管線指引已提供。建議下一步：**
-> - 執行 `/deploy` 設定部署策略
-> - 執行 `/security` 檢查管線安全
-> - 執行 `/testing` 設計測試策略
-> - 執行 `/commit` 建立規範化提交
+> - 部署配置 → 執行 `/deploy` 設定部署策略 ⭐ **推薦**
+> - 安全掃描 → 執行 `/security` 檢查管線安全
+> - 測試設計 → 執行 `/testing` 設計測試策略
+> - 提交規範 → 執行 `/commit` 建立規範化提交
 
 ## 參考
 
 - 核心規範：[pipeline-integration-standards.md](../../../../core/pipeline-integration-standards.md)
 - 核心規範：[deployment-standards.md](../../../../core/deployment-standards.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 | 變更說明 |
+|------|------|------|----------|
+| 1.1.0 | 2026-06-24 | 新增 CI 作業編排模式（觸發分離、共享資源序列化、變更偵測閘控、advisory vs gating、`npm ci` `EUSAGE` 排錯）— UDS #126 → XSPEC-300 | 新增 CI 作業編排模式（UDS #126） |
+| 1.0.0 | 2026-03-24 | 初始版本 | 初始版本 |
+
+## 授權
+
+CC BY 4.0 — 文件內容

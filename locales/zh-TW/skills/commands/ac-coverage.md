@@ -2,11 +2,13 @@
 source: ../../../../skills/commands/ac-coverage.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-18
+last_synced: 2026-10-11
+source_hash: 149339949adc
+status: current
 ---
 
 ---
-description: "[UDS] Generate AC-to-test traceability matrix and coverage report"
+description: "[UDS] 產生 AC 與測試的追蹤矩陣及覆蓋率報告"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[規格檔案路徑 | spec file path]"
 ---
@@ -82,10 +84,53 @@ argument-hint: "[規格檔案路徑 | spec file path]"
 
 ## 下一步引導
 
+`/ac-coverage` 完成後，AI 助手應建議：
+
 > **AC 覆蓋率分析完成。建議下一步：**
 > - 覆蓋率達標 → 執行 `/checkin` 品質關卡
 > - 有未覆蓋 AC → 執行 `/derive-tdd` 補齊測試
 > - 有部分覆蓋 AC → 檢查缺少的邊界情況
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/ac-coverage` | 列出可用的 spec 檔案供選擇 |
+| `/ac-coverage <spec-file>` | 直接分析指定 spec 的 AC 覆蓋率 |
+| `/ac-coverage <spec-file> --threshold N` | 使用自訂門檻 |
+
+### 互動腳本
+
+1. 讀取 spec 檔案，擷取所有 AC
+2. 掃描測試檔案中的 `@AC` 和 `@SPEC` 註解
+3. 建立 AC → Test 追蹤矩陣
+4. 計算覆蓋率
+5. 生成報告
+
+**決策：覆蓋率結果**
+- IF 覆蓋率 ≥ 門檻 → 標記 ✅，建議 `/checkin`
+- IF 有未覆蓋 AC → 列出並建議 `/derive-tdd` 補測試
+- IF 有部分覆蓋 AC → 建議檢查缺少的邊界情況
+
+🛑 **STOP**：報告展示後等待使用者決定下一步
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 報告展示後 | 使用者決定補測試或繼續 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| Spec 檔案不存在 | 列出可用的 spec 檔案 |
+| Spec 無 AC 定義 | 告知並引導修改 spec |
+| 測試檔案無 `@AC` 註解 | 嘗試以命名慣例匹配，標記 `[Inferred]` |
 
 ## 參考
 

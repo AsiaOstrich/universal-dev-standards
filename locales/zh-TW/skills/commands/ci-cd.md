@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/ci-cd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 8e14a81cd6e6
 status: current
 ---
 

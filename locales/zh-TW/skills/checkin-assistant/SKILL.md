@@ -1,16 +1,25 @@
 ---
-name: checkin-assistant
+name: checkin
 source: ../../../../skills/checkin-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: f2ee56f211d6
 status: current
+scope: partial
 description: |
   [UDS] 提交前品質關卡的參考資料：關卡定義、檢查清單項目，以及絕不可提交的規則。
   Use when: 決定 commit 前必須通過哪些檢查、稽核專案實際強制了哪些品質關卡、確認是否已可簽入。
   Not for: 執行關卡流程或中止 commit——該部分已移至採用層（XSPEC-095）；找出並清除除錯殘留——請用 /sweep。
   Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 簽入, 提交前檢查, 品質關卡, 檢查清單.
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
 ---
+<!-- 棄用說明（XSPEC-086 Phase 4，2026-04-28）：
+  簽入工作流程協調（關卡執行序列、abort 邏輯）已移至採用層
+  （XSPEC-095，2026-04-28）。本 Skill 保留：品質關卡定義、檢查清單項目、
+  never-commit 規則。
+  需要強制執行時，請使用你的採用層工具鏈。
+-->
 
 # 簽入助手
 
@@ -21,6 +30,8 @@ description: |
 在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
 
 ## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
 
 1. **檢查 git 狀態** - 執行 `git status` 和 `git diff` 了解待提交的變更
 2. **執行測試** - 執行 `npm test`（或專案測試指令）驗證所有測試通過
@@ -60,7 +71,7 @@ description: |
 `/checkin` 完成後，AI 助手應建議：
 
 > **品質關卡驗證完成。建議下一步：**
-> - 全部通過 ✅ → 執行 `/commit` 提交變更
+> - 全部通過 ✅ → 執行 `/commit` 提交變更 ⭐ **推薦**
 > - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin`
 > - 需要程式碼審查 → 執行 `/code-review` 進行自我審查
 > - UDS 安裝有異常 → 執行 `/audit` 診斷問題
@@ -69,3 +80,8 @@ description: |
 
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[checkin-standards.md](../../../../core/checkin-standards.md)
+
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/checkin`](../../../../skills/commands/checkin.md#ai-agent-behavior--ai-代理行為)

@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/atdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: c056275ece8c
 status: experimental
 ---
 
 ---
-description: [UDS] Guide through Acceptance Test-Driven Development workflow
+description: "[UDS] 引導驗收測試驅動開發（ATDD）工作流程"
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[user story or feature to define | 要定義的使用者故事或功能]"
 status: experimental
@@ -111,14 +112,14 @@ status: experimental
 
 ## INVEST 準則
 
-| 準則 | 說明 |
-|------|------|
-| **I**ndependent | 可獨立開發 |
-| **N**egotiable | 細節可協商 |
-| **V**aluable | 提供商業價值 |
-| **E**stimable | 可估算 |
-| **S**mall | 一個 Sprint 可完成 |
-| **T**estable | 有明確驗收條件 |
+| 準則 | Description | 說明 |
+|------|-------------|------|
+| **I**ndependent | Can be developed independently | 可獨立開發 |
+| **N**egotiable | Details can be discussed | 細節可協商 |
+| **V**aluable | Delivers business value | 提供商業價值 |
+| **E**stimable | Can be estimated | 可估算 |
+| **S**mall | Fits in one sprint | 一個 Sprint 可完成 |
+| **T**estable | Clear acceptance criteria | 有明確驗收條件 |
 
 ## 與 BDD/TDD 整合
 
@@ -158,6 +159,75 @@ ATDD Level (Business Acceptance)
 - [ ] 展示環境已就緒
 - [ ] 展示測試通過
 - [ ] PO 正式接受
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/atdd` | 詢問使用者故事，進入 🤝 WORKSHOP |
+| `/atdd "user story"` | 以指定故事為目標，進入 🤝 WORKSHOP |
+| `/atdd <story-id>` | 載入現有故事，判斷進入哪個階段 |
+
+### 互動腳本
+
+#### 🤝 WORKSHOP 階段
+
+1. 請使用者描述使用者故事（As a / I want / So that）
+2. 引導定義驗收條件（Given-When-Then）
+3. 記錄 Out of Scope 項目
+
+**決策：PO 角色**
+- IF 使用者是 PO → 直接收集 AC
+- IF 使用者是開發者 → AI 模擬 PO 視角提出質疑和補充
+- ELSE → 建議邀請 PO 參與，或由 AI 輔助
+
+🛑 **STOP**：AC 定義完成後展示使用者故事文件，等待確認
+
+#### 🧪 DISTILLATION 階段
+
+1. 將 AC 轉換為可執行的測試格式
+2. 消除歧義
+3. 展示可執行測試
+
+🛑 **STOP**：展示測試後等待使用者（或 PO）簽核
+
+#### 💻 DEVELOPMENT 階段
+
+1. 執行驗收測試（預期失敗）
+2. 使用 BDD/TDD 實作功能
+3. 迭代直到所有測試通過
+
+🛑 **STOP**：所有測試通過後等待使用者確認進入 DEMO
+
+#### 🎬 DEMO 階段
+
+1. 展示通過的測試結果
+2. 展示可運作的功能
+3. 等待 PO 正式驗收
+
+🛑 **STOP**：等待使用者確認 PO 已驗收
+
+### 停止點
+
+| 階段 | 停止點 | 等待內容 |
+|------|--------|---------|
+| WORKSHOP | AC 定義後 | 確認使用者故事 |
+| DISTILLATION | 測試轉換後 | PO 簽核 |
+| DEVELOPMENT | 所有測試通過後 | 確認進入 DEMO |
+| DEMO | 功能展示後 | PO 正式驗收 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 使用者故事不符合 INVEST 準則 | 指出哪些準則未滿足，建議修改 |
+| PO 不在場 | AI 模擬 PO 視角提問，標記 `[Needs PO Confirmation]` |
+| 驗收測試無法自動化 | 建議手動測試替代方案，產出測試檢查清單 |
+| DEVELOPMENT 階段反覆失敗 | 回到 WORKSHOP 重新審視 AC 是否合理 |
 
 ## 參考
 

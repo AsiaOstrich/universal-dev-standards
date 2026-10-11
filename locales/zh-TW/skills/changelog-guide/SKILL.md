@@ -1,15 +1,18 @@
 ---
-name: changelog-guide
+name: changelog
 source: ../../../../skills/changelog-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 99bb715ce149
 status: current
+scope: partial
 description: |
   [UDS] 以 Keep a Changelog 格式產生並維護 CHANGELOG.md 條目。
   Use when: 從 commit 歷史撰寫變更日誌條目、填寫 Unreleased 區段、將變更分類為 Added/Changed/Fixed。
   Not for: 決定下一個版本號或執行發版——請用 /release；撰寫 commit message 本身——請用 /commit。
   Keywords: changelog, CHANGELOG.md, Keep a Changelog, release notes, unreleased, 變更日誌, 發布說明, 版本紀錄.
+allowed-tools: Read, Write, Grep, Bash(git log:*)
 ---
 
 # 變更日誌助手
@@ -40,12 +43,18 @@ description: |
 
 ```markdown
 ## [Unreleased]
+
 ### Added
 - Add user dashboard with customizable widgets (#123)
+
 ### Changed
 - **BREAKING**: Change API response format from XML to JSON (#789)
+
 ### Fixed
 - Fix memory leak when processing large files (#456)
+
+### Security
+- Fix SQL injection vulnerability in search endpoint (CVE-2025-12345)
 ```
 
 ### 撰寫指南
@@ -65,7 +74,7 @@ description: |
 `/changelog` 完成後，AI 助手應建議：
 
 > **變更日誌已更新。建議下一步：**
-> - 執行 `/release` 開始發布流程
+> - 執行 `/release` 開始發布流程 ⭐ **推薦**
 > - 執行 `/commit` 提交日誌變更
 > - 審查日誌條目確保使用者導向語言
 

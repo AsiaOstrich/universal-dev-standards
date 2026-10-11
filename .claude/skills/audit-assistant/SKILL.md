@@ -3,15 +3,16 @@ name: audit
 source: ../../../../skills/audit-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 406861ad5cff
 status: current
+scope: universal
 description: |
   [UDS] 診斷 UDS 安裝的健康狀態，並向上游提交結構化回饋。
   Use when: .standards/ 看起來壞掉或不同步、驗證 manifest 完整性、回報既有 UDS 標準用起來的摩擦點。
   Not for: 稽核你自己應用程式的程式碼品質——請用 /metrics 或 /code-review；相依套件與機密掃描——請用 /scan。
   Keywords: UDS audit, health check, manifest integrity, standards feedback, friction, 安裝健康, 標準稽核, 回饋, 完整性檢查.
 allowed-tools: Read, Grep, Glob, Bash(git log, uds audit)
-scope: universal
 argument-hint: "[--health | --patterns | --friction | --report]"
 ---
 
@@ -105,9 +106,11 @@ uds audit --report --dry-run
 
 ## 後續步驟
 
+執行審計後：
+
 | 發現 | 建議動作 |
 |------|---------|
-| 健康 ERROR | 執行 `uds init` 或 `uds check --restore` |
+| 健康 ERROR ⭐ **推薦** | 執行 `uds init` 或 `uds check --restore` |
 | 偵測到模式 | 考慮透過 `--report` 請求新標準 |
 | 已修改標準 | 檢視標準是否需要更多彈性 |
 | 未使用標準 | 考慮以 `uds uninstall` 移除 |

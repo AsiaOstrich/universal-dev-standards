@@ -1,9 +1,11 @@
 ---
-source: ../../../../skills/checkin-assistant/SKILL.md
+source: ../../../../skills/checkin-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-12
+last_synced: 2026-10-11
+source_hash: c408d7d9b5ab
 status: current
+scope: partial
 description: |
   引導提交前品質關卡和簽入工作流程。
   使用時機：提交程式碼、準備提交、品質關卡驗證。
@@ -12,7 +14,7 @@ description: |
 
 # 簽入助手
 
-> **語言**：[English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
+> **語言**：[English](../../../../skills/checkin-assistant/guide.md) | 繁體中文
 
 **版本**：1.0.0
 **最後更新**：2026-01-12
