@@ -2,7 +2,8 @@
 source: ../../../../core/guides/file-placement-guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-04
+last_synced: 2026-10-11
+source_hash: ed790154a974
 status: current
 ---
 
@@ -33,40 +34,40 @@ status: current
 从这里开始。识别文件的主要分类，然后沿着分支进行。
 
 ```
-你要放置什么类型的文件？
+What kind of file are you placing?
 │
-├── 代码（源代码、测试、脚本、生成代码）
-│   ├── 应用程序逻辑？ → src/{module}/
-│   ├── 测试文件？ → tests/（或依语言惯例放在源代码旁）
-│   ├── 脚本/工具？ → tools/ 或 scripts/
-│   ├── 生成代码？ → src/generated/{type}/
-│   └── 工具函数/辅助？ → 参见 §3 代码组织深入辨析
+├── CODE (source, test, script, generated)
+│   ├── Application logic? → src/{module}/
+│   ├── Test file? → tests/ (or alongside source, per language convention)
+│   ├── Script/tool? → tools/ or scripts/
+│   ├── Generated code? → src/generated/{type}/
+│   └── Utility/helper? → See §3 Code Organization Deep Dive
 │
-├── 文档（正式、工作中、参考）
-│   ├── 正式（稳定、版本化）？
-│   │   ├── 架构决策 → docs/ADR/NNN-title.md
-│   │   ├── 规格 → docs/specs/
-│   │   ├── API 参考 → docs/api-reference.md
-│   │   ├── 使用指南 → docs/
-│   │   └── 流程/图表 → docs/flows/ 或 docs/diagrams/
-│   └── 工作中（进行中、临时）？
-│       ├── 头脑风暴 → docs/working/brainstorms/
+├── DOCUMENTATION (formal, working, reference)
+│   ├── Formal (stable, versioned)?
+│   │   ├── Architecture decision → docs/ADR/NNN-title.md
+│   │   ├── Specification → docs/specs/
+│   │   ├── API reference → docs/api-reference.md
+│   │   ├── User guide → docs/
+│   │   └── Flow/diagram → docs/flows/ or docs/diagrams/
+│   └── Working (in-progress, temporary)?
+│       ├── Brainstorm → docs/working/brainstorms/
 │       ├── RFC → docs/working/rfcs/
-│       ├── 技术调查 → docs/working/investigations/
+│       ├── Investigation → docs/working/investigations/
 │       ├── POC → docs/working/poc/{name}/
-│       └── 会议记录 → docs/working/meeting-notes/
+│       └── Meeting notes → docs/working/meeting-notes/
 │
-├── 配置文件
-│   ├── 工具配置（linter、formatter、bundler） → 项目根目录 /
-│   ├── 应用程序运行时配置 → config/ 或 src/config/
-│   ├── 环境变量 → .env（gitignored）
-│   ├── CI/CD 管线 → .github/workflows/ 或 .gitlab-ci.yml
-│   └── 基础设施即代码 → infra/ 或 deploy/
+├── CONFIGURATION
+│   ├── Tool config (linter, formatter, bundler) → Project root /
+│   ├── App runtime config → config/ or src/config/
+│   ├── Environment variables → .env (gitignored)
+│   ├── CI/CD pipeline → .github/workflows/ or .gitlab-ci.yml
+│   └── Infrastructure as Code → infra/ or deploy/
 │
-└── 资源（静态文件、媒体）
-    ├── Web 公开资源 → public/ 或 static/
-    ├── 源资源（需处理） → assets/ 或 src/assets/
-    └── 文档图片 → docs/images/ 或 docs/diagrams/
+└── ASSET (static files, media)
+    ├── Web public assets → public/ or static/
+    ├── Source assets (needs processing) → assets/ or src/assets/
+    └── Documentation images → docs/images/ or docs/diagrams/
 ```
 
 ---
@@ -143,15 +144,48 @@ status: current
 | `utils/` | **无状态 + 通用** | `formatDate()`、`slugify()`、`retry()` |
 | `helpers/` | **层级绑定** | `tests/helpers/mockUser()`、`views/helpers/formatCurrency()` |
 | `shared/` | **跨模块边界** | `shared/types/User.ts`、`shared/constants/` |
-| `common/` | shared/ 的别名 | 避免使用；建议用 `shared/` |
+| `common/` | shared/ 的别名 | 避免使用；建议用 `shared/` 以求清晰 |
 | `lib/` | **包装依赖** | `lib/http-client/`（包装 axios）、`lib/logger/` |
-| `internal/` | **包私有**（Go 惯例） | `internal/parser/`（外部无法 import） |
+| `internal/` | **包私有**（Go 惯例） | `internal/parser/`（模块外部无法 import） |
+
+#### 决策图
+
+```
+                    ┌─────────────────────┐
+                    │   New shared code    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │ Is it stateless and  │
+                    │ has no business      │
+                    │ logic?               │
+                    └──────────┬──────────┘
+                          YES/ \NO
+                           /     \
+              ┌───────────▼┐   ┌─▼───────────────┐
+              │ Reusable   │   │ Used by 2+       │
+              │ across the │   │ modules?          │
+              │ project?   │   └──────┬───────────┘
+              └─────┬──────┘     YES/ \NO
+                YES/ \NO          /     \
+                 /     \   ┌─────▼──┐  ┌─▼──────────────┐
+          ┌─────▼──┐  ┌─▼─────┐│shared/│  │ Wrapping a     │
+          │utils/  │  │Tied to││       │  │ third-party    │
+          │        │  │layer? │└────────┘  │ dependency?    │
+          └────────┘  └──┬───┘            └──────┬─────────┘
+                    YES/ \NO                YES/ \NO
+                     /     \                 /     \
+              ┌─────▼───┐  ┌▼────────┐┌────▼──┐  ┌─▼──────────┐
+              │helpers/  │  │module/  ││lib/   │  │owning      │
+              │(in layer)│  │        │└───────┘  │module/      │
+              └──────────┘  └────────┘           └─────────────┘
+```
 
 #### 详细标准
 
 **`utils/`** — 纯工具函数
 - 无副作用、无状态、无业务逻辑
-- 可以被提取为 npm/pip 包
+- 可以被提取为 npm 包 / pip 包
 - 示例：`formatDate()`、`deepClone()`、`slugify()`、`retry()`
 - 反模式：`utils/userService.js`（有业务逻辑 → 属于 `services/`）
 
@@ -168,7 +202,7 @@ status: current
 - 示例：`shared/types/User.ts`、`shared/validation/email.ts`
 
 **`lib/`** — 包装/Vendored 库
-- 包装第三方依赖并加入项目特定默认
+- 包装第三方依赖并加入项目特定默认值
 - 提供稳定的内部接口，即使外部库变更
 - 示例：`lib/http-client/`（包装 axios）、`lib/logger/`（包装 winston）
 
@@ -182,6 +216,28 @@ status: current
 ## 4. 开发中间产物生命周期
 
 工作文件从创建到毕业（或归档）遵循一个生命周期。
+
+### 状态图
+
+```
+  ┌──────────┐
+  │  draft   │ ← Initial creation
+  └────┬─────┘
+       │ Start active work
+  ┌────▼─────┐
+  │  active  │ ← Under discussion / development
+  └────┬─────┘
+       │
+  ┌────┴─────────────────┐
+  │                      │
+  ▼                      ▼
+┌──────────┐      ┌──────────┐
+│graduated │      │ archived │
+│          │      │          │
+└──────────┘      └──────────┘
+Creates formal     No longer
+document           relevant
+```
 
 ### 毕业路径
 
@@ -210,7 +266,17 @@ status: current
 
 ### 步骤 1：盘点
 
-列出所有可能放错位置的文件。
+列出所有可能放错位置的文件：
+
+```bash
+# Find files at unexpected depths
+find . -maxdepth 1 -name "*.md" ! -name "README.md" ! -name "CONTRIBUTING.md" \
+  ! -name "CHANGELOG.md" ! -name "LICENSE" ! -name "SECURITY.md" ! -name "CODE_OF_CONDUCT.md"
+
+# Find orphaned docs not in docs/
+find . -name "*.md" -not -path "./docs/*" -not -path "./node_modules/*" \
+  -not -path "./.git/*" | head -20
+```
 
 ### 步骤 2：分类
 
@@ -219,11 +285,11 @@ status: current
 ### 步骤 3：移动
 
 ```bash
-# 创建目标目录
+# Create target directories
 mkdir -p docs/working/{brainstorms,investigations,rfcs,meeting-notes,poc}
 mkdir -p src/generated
 
-# 移动文件（之后更新引用）
+# Move files (update imports/references after)
 git mv old/path/file.md new/path/file.md
 ```
 
@@ -244,31 +310,31 @@ git mv old/path/file.md new/path/file.md
 ```
 ❌ project/
    ├── package.json
-   ├── brainstorm.md          # 应放在 docs/working/brainstorms/
-   ├── investigation-oom.md   # 应放在 docs/working/investigations/
-   ├── TODO.md                # 应在 issue tracker 中
-   └── notes.md               # 应放在 docs/working/
+   ├── brainstorm.md          # Should be in docs/working/brainstorms/
+   ├── investigation-oom.md   # Should be in docs/working/investigations/
+   ├── TODO.md                # Should be in issue tracker
+   └── notes.md               # Should be in docs/working/
 ```
 
 ### ❌ docs/ 作为垃圾桶
 
 ```
 ❌ docs/
-   ├── architecture.md        # ✓ 正确
+   ├── architecture.md        # ✓ Correct
    ├── brainstorm-2024.md     # → docs/working/brainstorms/
    ├── meeting-jan-15.md      # → docs/working/meeting-notes/
    ├── poc-redis.md           # → docs/working/poc/redis/
-   └── random-thoughts.md     # → docs/working/brainstorms/ 或删除
+   └── random-thoughts.md     # → docs/working/brainstorms/ or delete
 ```
 
 ### ❌ utils/ 作为万能桶
 
 ```
 ❌ src/utils/
-   ├── formatDate.js          # ✓ 正确（纯工具函数）
-   ├── userService.js         # → src/services/（有业务逻辑）
-   ├── database.js            # → src/config/ 或 lib/（基础设施）
-   └── authMiddleware.js      # → src/middleware/（层级特定）
+   ├── formatDate.js          # ✓ Correct (pure utility)
+   ├── userService.js         # → src/services/ (has business logic)
+   ├── database.js            # → src/config/ or lib/ (infrastructure)
+   └── authMiddleware.js      # → src/middleware/ (layer-specific)
 ```
 
 ### ❌ 目录没有 README
@@ -277,12 +343,30 @@ git mv old/path/file.md new/path/file.md
 ❌ docs/working/poc/redis-cache/
    ├── benchmark-results.txt
    ├── test-script.sh
-   └── （没有 README.md — 结论是什么？）
+   └── (no README.md — what was the conclusion?)
 
 ✅ docs/working/poc/redis-cache/
-   ├── README.md              # 目的、发现、结论、后续步骤
+   ├── README.md              # Purpose, findings, conclusion, next steps
    ├── benchmark-results.txt
    └── test-script.sh
+```
+
+### ❌ 生成代码与源代码混杂
+
+```
+❌ src/
+   ├── api-client.ts          # Hand-written
+   ├── api-client.generated.ts # Generated — hard to tell apart
+   └── models/
+       ├── User.ts            # Hand-written
+       └── User.generated.ts  # Generated
+
+✅ src/
+   ├── api-client.ts
+   ├── models/User.ts
+   └── generated/
+       ├── api-client.ts      # Clearly separated
+       └── models/User.ts
 ```
 
 ---

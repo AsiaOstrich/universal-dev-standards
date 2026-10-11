@@ -2,343 +2,237 @@
 source: ../../../core/git-workflow.md
 source_version: 1.4.0
 translation_version: 1.4.0
-last_synced: 2026-02-10
+last_synced: 2026-10-11
+source_hash: dbbce0815e5e
 status: current
 ---
 
-> **语言**: [English](../../../core/git-workflow.md) | [简体中文](../../zh-TW/core/git-workflow.md) | 简体中文
+> **语言**: [English](../../../core/git-workflow.md) | [繁體中文](../../zh-TW/core/git-workflow.md) | 简体中文
 
 # Git 工作流程标准
 
-**版本**: 1.0.0
-**最后更新**: 2025-12-30
+**版本**: 1.4.0
+**最后更新**: 2026-01-29
 **适用范围**: 所有使用 Git 进行版本控制的项目
+**范围**: 通用 (universal)
+**业界标准**: 无（业界通用实践）
+**参考资料**: [atlassian.com](https://www.atlassian.com/git/tutorials)
+
+> **详细说明与教程，请参阅 [Git 工作流程指南](../../../core/guides/git-workflow-guide.md)**
 
 ---
 
 ## 目的
 
-本标准定义 Git 分支策略和工作流程，确保团队协作的一致性和代码质量。
+本标准定义 Git 分支策略和工作流程，确保团队与项目之间具有一致且可预期的协作模式。
 
 ---
 
-## 工作流程选择
+## 工作流程策略选择
 
-### 决策矩阵
+**项目必须选择一种**工作流程策略并清楚记录。
 
-| 工作流程 | 团队规模 | 发布频率 | 复杂度 | 最适合 |
-|---------|---------|---------|--------|-------|
-| GitHub Flow | 小型 | 持续 | 低 | SaaS、Web 应用 |
-| Git Flow | 中大型 | 定期 | 高 | 产品软件 |
-| Trunk-Based | 任意 | 持续 | 中 | DevOps 成熟团队 |
-| GitLab Flow | 中型 | 环境驱动 | 中 | 多环境部署 |
-
----
-
-## GitHub Flow（推荐）
-
-最简单的工作流程，适合持续部署。
-
-```
-main ─────●─────●─────●─────●─────●─────
-           \         /
-feature     ●───●───●
-```
-
-### 分支
-
-| 分支 | 用途 | 生命周期 |
-|-----|------|---------|
-| main | 生产就绪代码 | 永久 |
-| feature/* | 新功能开发 | 临时 |
-
-### 流程
-
-1. 从 main 创建功能分支
-2. 开发并提交变更
-3. 创建 Pull Request
-4. 代码审查
-5. 合并到 main
-6. 自动部署
+| 因素 | GitFlow | GitHub Flow | Trunk-Based |
+|------|---------|-------------|-------------|
+| **发布频率** | 每月以上 | 每周 | 每天多次 |
+| **团队规模** | 大型（10+） | 中型（5-15） | 中小型（3-10） |
+| **CI/CD 成熟度** | 基础 | 中级 | 高级 |
+| **功能开关** | 可选 | 可选 | 必需 |
+| **复杂度** | 高 | 低 | 中 |
 
 ---
 
-## Git Flow
+## 分支类型
 
-适合有定期发布周期的项目。
+### GitFlow 分支类型
 
-```
-main     ─────●─────────────────●─────
-              │                 │
-develop  ─────●───●───●───●─────●─────
-               \     /   \     /
-feature         ●───●     \   /
-                           \ /
-release                     ●
-```
+| 分支类型 | 用途 | 基础分支 | 合并目标 | 生命周期 |
+|----------|------|----------|----------|----------|
+| `main` | 生产代码 | - | - | 永久 |
+| `develop` | 集成分支 | - | - | 永久 |
+| `feature/*` | 新功能 | `develop` | `develop` | 临时 |
+| `release/*` | 发布准备 | `develop` | `main` + `develop` | 临时 |
+| `hotfix/*` | 紧急修复 | `main` | `main` + `develop` | 临时 |
 
-### 分支
+### GitHub Flow 分支类型
 
-| 分支 | 用途 | 生命周期 |
-|-----|------|---------|
-| main | 生产版本 | 永久 |
-| develop | 开发集成 | 永久 |
-| feature/* | 新功能 | 临时 |
-| release/* | 发布准备 | 临时 |
-| hotfix/* | 紧急修复 | 临时 |
+| 分支类型 | 用途 | 基础分支 | 合并目标 | 生命周期 |
+|----------|------|----------|----------|----------|
+| `main` | 生产代码 | - | - | 永久 |
+| `feature/*` | 新功能 | `main` | `main` | 临时 |
+| `bugfix/*` | Bug 修复 | `main` | `main` | 临时 |
+| `hotfix/*` | 紧急修复 | `main` | `main` | 临时 |
 
----
+### Trunk-Based 分支类型
 
-## Trunk-Based Development
-
-适合高部署频率的成熟团队。
-
-```
-main ─────●───●───●───●───●───●───●─────
-           \   /   \   /
-short       ●─●     ●─●
-branches
-```
-
-### 特点
-
-- 分支生命周期 < 1 天
-- 频繁集成到 main
-- 依赖功能开关
-- 需要强大的 CI/CD
-
----
-
-## Trunk-Based Development + Feature Flags
-
-### 功能开关整合
-
-Trunk-Based Development 依赖功能开关安全地集成未完成功能：
-
-```javascript
-// 功能开关示例
-if (featureFlags.isEnabled('new-checkout-flow', user)) {
-  return newCheckoutFlow(cart);
-} else {
-  return legacyCheckout(cart);
-}
-```
-
-### 功能开关生命周期
-
-| 阶段 | 状态 | 动作 |
-|------|------|------|
-| 开发中 | 关闭 | 仅开发环境启用 |
-| 测试中 | 部分启用 | 内部测试者启用 |
-| 灰度发布 | 百分比推出 | 5% → 25% → 50% → 100% |
-| 全量发布 | 完全启用 | 移除开关代码 |
-
-### 最佳实践
-
-- 开关不超过 2 周
-- 追踪开关的创建日期和负责人
-- 定期清理过期开关
-
----
-
-## Ship/Show/Ask 决策模型
-
-### 模型说明
-
-决定代码变更如何合并到主分支：
-
-| 模式 | 动作 | 适用场景 |
-|------|------|---------|
-| **Ship** | 直接合并 | 微小修复、文档、配置 |
-| **Show** | 合并后审查 | 非关键功能、重构 |
-| **Ask** | 审查后合并 | 核心功能、API 变更、安全相关 |
-
-### 决策流程图
-
-```
-开始
-  │
-  ▼
-是否涉及核心逻辑/安全？ ──是──► ASK（审查后合并）
-  │
-  否
-  ▼
-是否需要知识共享？ ──────是──► SHOW（合并后审查）
-  │
-  否
-  ▼
-SHIP（直接合并）
-```
-
----
-
-## Stacked PRs 工作流程
-
-### 概念
-
-将大型变更拆分为可独立审查的小型连续 PR：
-
-```
-main ────●───────────────────●─────
-          \                 /
-PR #1      ●──────●        /    (数据模型)
-                   \      /
-PR #2               ●────●      (API 端点)
-                          \
-PR #3                      ●    (前端整合)
-```
-
-### 建立步骤
-
-```bash
-# 1. 第一个 PR
-git checkout main
-git checkout -b feature/data-model
-# ... 开发数据模型 ...
-git push -u origin feature/data-model
-# 创建 PR #1: main ← feature/data-model
-
-# 2. 第二个 PR（基于第一个）
-git checkout -b feature/api-endpoints
-# ... 开发 API ...
-git push -u origin feature/api-endpoints
-# 创建 PR #2: feature/data-model ← feature/api-endpoints
-
-# 3. 第三个 PR（基于第二个）
-git checkout -b feature/frontend
-# ... 开发前端 ...
-git push -u origin feature/frontend
-# 创建 PR #3: feature/api-endpoints ← feature/frontend
-```
-
-### 合并顺序
-
-1. PR #1 合并后，更新 PR #2 的 base 到 main
-2. PR #2 合并后，更新 PR #3 的 base 到 main
-3. 依此类推
-
----
-
-## Conventional PR 标题
-
-### 格式
-
-```
-<type>(<scope>): <description>
-
-Examples:
-feat(auth): add OAuth2 login support
-fix(api): resolve rate limiting issue
-docs(readme): update installation guide
-```
-
-### 类型参考
-
-| 类型 | 说明 |
-|------|------|
-| feat | 新功能 |
-| fix | 错误修复 |
-| docs | 文档变更 |
-| style | 格式变更 |
-| refactor | 重构 |
-| test | 测试相关 |
-| chore | 维护任务 |
-
-### GitHub Actions 验证
-
-```yaml
-name: PR Title Check
-on:
-  pull_request:
-    types: [opened, edited, synchronize]
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: amannn/action-semantic-pull-request@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
+| 分支类型 | 用途 | 基础分支 | 合并目标 | 生命周期 |
+|----------|------|----------|----------|----------|
+| `main` | 主干 | - | - | 永久 |
+| `feature/*` | 小型变更 | `main` | `main` | ≤2 天 |
 
 ---
 
 ## 分支命名规范
 
-### 格式
+### 标准格式
 
 ```
-<type>/<ticket>-<description>
+<type>/<short-description>
 ```
 
 ### 类型
 
 | 类型 | 用途 | 示例 |
-|-----|------|------|
-| feature | 新功能 | feature/PROJ-123-user-login |
-| fix | 错误修复 | fix/PROJ-456-payment-error |
-| hotfix | 紧急修复 | hotfix/PROJ-789-security-patch |
-| release | 发布准备 | release/v2.0.0 |
-| docs | 文档更新 | docs/api-documentation |
-| refactor | 重构 | refactor/auth-module |
-
----
-
-## Pull Request 规范
-
-### 标题格式
-
-```
-<type>(<scope>): <description>
-```
-
-### 描述模板
-
-```markdown
-## 概述
-简要描述这个 PR 的目的
-
-## 变更内容
-- 变更 1
-- 变更 2
-
-## 测试方案
-- [ ] 单元测试通过
-- [ ] 集成测试通过
-- [ ] 手动测试完成
-
-## 相关 Issue
-Closes #123
-```
-
----
-
-## 快速参考卡
-
-### 工作流程选择
-
-| 问题 | 答案 | 推荐 |
 |------|------|------|
-| 持续部署？ | 是 | GitHub Flow |
-| 定期发布？ | 是 | Git Flow |
-| 多环境？ | 是 | GitLab Flow |
-| DevOps 成熟？ | 是 | Trunk-Based |
+| `feature/` | 新功能 | `feature/oauth-login` |
+| `fix/` 或 `bugfix/` | Bug 修复 | `fix/memory-leak` |
+| `hotfix/` | 紧急生产修复 | `hotfix/security-patch` |
+| `refactor/` | 代码重构 | `refactor/extract-service` |
+| `docs/` | 仅文档 | `docs/api-reference` |
+| `test/` | 新增测试 | `test/integration-tests` |
+| `chore/` | 维护任务 | `chore/update-dependencies` |
+| `release/` | 发布准备（GitFlow） | `release/v1.2.0` |
 
-### 分支命名
+### 命名规则
 
-| 做什么？ | 分支前缀 |
-|---------|---------|
-| 新功能 | feature/ |
-| 修复错误 | fix/ |
-| 紧急修复 | hotfix/ |
-| 发布准备 | release/ |
+1. **使用小写**
+2. **使用连字符代替空格**
+3. **具描述性但保持简洁**
+4. **避免仅以 issue 编号作为标识**
+
+---
+
+## 合并策略
+
+每种分支类型**项目必须选择一种**策略。
+
+| 策略 | 命令 | 最适合 | 优点 | 缺点 |
+|------|------|--------|------|------|
+| **Merge Commit** | `git merge --no-ff` | GitFlow、长期功能分支 | 完整历史，易于还原 | 日志杂乱 |
+| **Squash Merge** | `git merge --squash` | GitHub Flow、功能分支 | 历史干净，每个功能一个提交 | 丢失细节 |
+| **Rebase + FF** | `git rebase && git merge --ff-only` | Trunk-Based、短期分支 | 线性历史，保留提交 | 改写历史 |
+
+---
+
+## 创建分支前检查清单
+
+创建新分支前，请完成以下检查：
+
+### 适用于 GitFlow 与 GitHub Flow
+
+- [ ] 检查未合并的分支：`git branch --no-merged main`
+- [ ] 同步最新代码：`git checkout main && git pull origin main`
+- [ ] 确认测试通过：运行项目测试套件
+- [ ] 创建分支：`git checkout -b feature/description`
+
+### 适用于 Trunk-Based Development
+
+- [ ] 同步最新代码：`git checkout main && git pull origin main`（关键）
+- [ ] 确认测试通过（关键）
+- [ ] 创建短期分支：`git checkout -b feature/description`
+
+---
+
+## 冲突解决
+
+### 预防检查清单
+
+- [ ] 经常与基础分支同步
+- [ ] 保持分支小型化（避免长期存在的功能分支）
+- [ ] 重大重构需告知团队
+
+### 解决步骤
+
+```bash
+git checkout main && git pull origin main
+git checkout feature/my-feature && git merge main
+# Resolve conflicts in marked files
+git add resolved-file.js
+git commit -m "chore: resolve merge conflicts with main"
+npm test  # Verify
+git push origin feature/my-feature
+```
+
+---
+
+## 标签与发布
+
+### 语义化版本
+
+```
+MAJOR.MINOR.PATCH
+```
+
+| 组成部分 | 何时递增 | 示例 |
+|----------|----------|------|
+| **MAJOR** | 破坏性变更 | v2.0.0 |
+| **MINOR** | 新功能（向后兼容） | v1.2.0 |
+| **PATCH** | Bug 修复（向后兼容） | v1.2.1 |
+
+### 预发布版本
+
+| 类型 | 格式 | 示例 |
+|------|------|------|
+| Alpha | `X.Y.Z-alpha.N` | v1.2.0-alpha.1 |
+| Beta | `X.Y.Z-beta.N` | v1.2.0-beta.2 |
+| RC | `X.Y.Z-rc.N` | v1.2.0-rc.1 |
+
+### 创建标签
+
+```bash
+git tag -a v1.2.0 -m "Release version 1.2.0: Add OAuth2 support"
+git push origin v1.2.0
+```
+
+---
+
+## 受保护分支
+
+### `main`/`develop` 建议保护设置
+
+| 设置 | 必需 |
+|------|------|
+| 要求 Pull Request 审查 | ✅（1-2 位审查者） |
+| 要求状态检查通过 | ✅（CI 测试、lint） |
+| 要求分支保持最新 | ✅ |
+| 包含管理员 | ✅ |
+| 允许强制推送 | ❌ |
+| 允许删除 | ❌ |
+
+---
+
+## Pull Request 工作流程
+
+### PR 创建检查清单
+
+- [ ] **标题遵循提交规范**（例如 `feat(auth): add OAuth2`）
+- [ ] **描述说明原因**（不只是做了什么）
+- [ ] **关联 issue**（例如 "Closes #123"）
+- [ ] **新功能包含测试**
+- [ ] **必要时更新文档**
+- [ ] **在描述中标明破坏性变更**
+- [ ] **UI 变更附上截图/GIF**
+
+### PR 类型参考
+
+| 类型 | 用途 | 示例 |
+|------|------|------|
+| `feat` | 新功能 | `feat(auth): add OAuth2 login` |
+| `fix` | Bug 修复 | `fix(api): handle null response` |
+| `docs` | 文档 | `docs(readme): update install steps` |
+| `refactor` | 代码重构 | `refactor(utils): extract validation` |
+| `test` | 新增测试 | `test(auth): add login unit tests` |
+| `chore` | 维护 | `chore(deps): update lodash` |
+| `perf` | 性能 | `perf(query): optimize user lookup` |
 
 ---
 
 ## 相关标准
 
-- [提交消息指南](commit-message-guide.md)
-- [代码审查清单](code-review-checklist.md)
+- [提交信息指南](commit-message-guide.md)
+- [代码签入标准](checkin-standards.md)
+- [版本控制标准](versioning.md)
+- [变更日志标准](changelog-standards.md)
 
 ---
 
@@ -346,20 +240,12 @@ Closes #123
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.3.0 | 2026-01-24 | 新增：Trunk-Based + Feature Flags、Ship/Show/Ask、Stacked PRs、Conventional PR 标题 |
-| 1.2.1 | 2026-01-08 | 修复：翻译同步 |
-| 1.2.0 | 2026-01-05 | 新增：工作流程选择决策矩阵 |
-| 1.0.0 | 2025-12-30 | 初始 Git 工作流程标准 |
-
----
-
-## 参考资料
-
-- [Ship/Show/Ask](https://martinfowler.com/articles/ship-show-ask.html) - Martin Fowler 文章
-- [Feature Flags Best Practices](https://launchdarkly.com/blog/best-practices-for-feature-flags/) - LaunchDarkly
-- [Stacked Diffs](https://newsletter.pragmaticengineer.com/p/stacked-diffs) - The Pragmatic Engineer
-- [Conventional Commits](https://www.conventionalcommits.org/) - 提交消息规范
-- [Trunk-Based Development](https://trunkbaseddevelopment.com/) - 官方指南
+| 1.4.0 | 2026-01-29 | 重构：拆分为规则 + 指南，将教程移至指南 |
+| 1.3.0 | 2026-01-24 | 新增：Trunk-Based + 功能开关整合、Ship/Show/Ask 决策模型、Stacked PRs 工作流程 |
+| 1.2.1 | 2025-12-24 | 新增：相关标准章节 |
+| 1.2.0 | 2025-12-16 | 新增：决策树、选择矩阵 |
+| 1.1.0 | 2025-12-08 | 新增创建分支前检查清单章节 |
+| 1.0.0 | 2025-11-12 | 初始 Git 工作流程标准 |
 
 ---
 

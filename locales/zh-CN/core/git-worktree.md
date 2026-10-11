@@ -1,17 +1,18 @@
 ---
 source: ../../../core/git-worktree.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-24
-status: stale
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: 12acb15a4884
+status: current
 ---
 
 > **语言**: [English](../../../core/git-worktree.md) | 简体中文
 
 # Git Worktree 隔离
 
-**版本**: 1.0.0
-**最后更新**: 2026-03-20
+**版本**: 1.1.0
+**最后更新**: 2026-06-18
 **适用范围**: 所有使用 Git 进行版本控制的项目
 **范围**: universal
 **灵感来源**: [Superpowers](https://github.com/obra/superpowers) — using-git-worktrees (MIT)
@@ -53,49 +54,81 @@ status: stale
 4. **安装依赖** — 如需要，运行包管理器安装
 
 ```bash
-# 示例设置
+# Example setup
 git worktree add .worktrees/feature-auth -b feature/auth
 cd .worktrees/feature-auth
-pnpm install  # 或 npm install、pip install 等
+pnpm install  # or npm install, pip install, etc.
 ```
 
 ### 阶段 2：基准验证
 
 1. **运行测试套件** — 在全新 worktree 中运行
-2. **记录基准结果** — 确认所有测试通过
-3. **如果基准失败** — 不要在此 worktree 上开始工作
+2. **确认所有测试通过** — 这验证了环境是干净的
+3. **如果测试失败** — 以退避方式最多重试 2 次，排除暂时性的 flake／超时；若仍失败，中止并报告环境问题（不要继续）
 
-### 阶段 3：开发
+```bash
+# Baseline verification
+pnpm test  # Must pass before any work begins
+```
 
-- 在 worktree 中正常开发
-- 定期运行测试确保不破坏基准
+基准测试失败代表环境有问题，必须中止并报告。
 
-### 阶段 4：完成
+### 阶段 3：执行
 
-参照[分支完成工作流程](branch-completion.md)的四个选项完成分支。
+1. 把隔离的 worktree 当作一般开发环境来工作
+2. 照常提交
+3. 变更后运行测试
+
+### 阶段 4：合并
+
+1. **在 worktree 中确认所有测试通过**
+2. **合并回去** — 使用 `--no-ff` 保留分支历史
+3. **处理冲突**（如果出现）
+
+```bash
+git checkout main
+git merge --no-ff feature/auth
+```
 
 ### 阶段 5：清理
 
+1. **删除 worktree** — `git worktree remove <path>`
+2. **删除分支** — `git branch -d <branch-name>`
+3. **清理过期的 worktree** — `git worktree prune`
+
 ```bash
-# 删除 worktree
 git worktree remove .worktrees/feature-auth
-
-# 列出所有 worktree
-git worktree list
-
-# 清理过期的 worktree 引用
+git branch -d feature/auth
 git worktree prune
 ```
 
----
-
-## 相关标准
-
-- [分支完成工作流程](branch-completion.md)
-- [代理派遣与并行协调](agent-dispatch.md)
+**重要**：清理必须在异常退出时也执行，使用 try/finally 模式或清理 hook。
 
 ---
 
-## 许可证
+## 规则
 
-本标准采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 发布。
+| ID | 触发条件 | 动作 | 优先级 |
+|----|---------|------|--------|
+| GW-001 | Worktree 目录不在 `.gitignore` 中 | 自动加入 `.gitignore` | Critical |
+| GW-002 | 基准测试失败 | 对暂时性失败最多重试 2 次（指数退避）；若持续失败，中止任务并报告环境问题 | High |
+| GW-003 | Worktree 操作期间异常退出 | 确保执行清理 | High |
+| GW-004 | 分支合并／删除后 worktree 仍存在 | 清理过期的 worktree 引用 | Medium |
+
+---
+
+## 最佳实践
+
+| 实践 | 理由 |
+|------|------|
+| 使用一致的 worktree 目录（例如 `.worktrees/`） | 容易加入 `.gitignore` 也容易找到 |
+| 一定要运行基准测试 | 避免环境问题造成的误报失败 |
+| 合并时使用 `--no-ff` | 在历史中保留分支拓扑 |
+| 合并后立即清理 | 避免过期 worktree 累积 |
+
+---
+
+## 参考资料
+
+- **Superpowers**: [using-git-worktrees](https://github.com/obra/superpowers) (MIT)
+- **Git 文档**: [git-worktree](https://git-scm.com/docs/git-worktree)

@@ -2,7 +2,8 @@
 source: ../../../core/health-check-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: d8020bc66eac
 status: current
 ---
 
@@ -10,135 +11,76 @@ status: current
 
 > **语言**: [English](../../../core/health-check-standards.md) | 简体中文
 
-**版本**: 1.0.0
-**最后更新**: 2026-04-17
-**状态**: Trial（到期 2026-10-17）
-**适用范围**: universal
-**来源**: XSPEC-067（DEC-043 Wave 1 可靠性套件）
+> **来源**: XSPEC-067 | **驱动来源**: DEC-043 Wave 1 Reliability Pack | **状态**: Trial（2026-04-17 ~ 2026-10-17）
 
----
+## 概述
 
-## 目的
+健康检查标准 —— 业界常见错误是把 liveness 和 readiness 混用（健康检查检查外部依赖导致连锁重启）。本标准明确三种 probe 的语义分离、定义深度 health check 的检查范围（仅关键依赖），并规范结构化 JSON 响应以便下游自动化处理。与 observability 整合，作为 RED metric 的 Error 来源之一。
 
-健康检查标准：liveness / readiness / startup 三种 probe、深度 health check、结构化 JSON 响应。
+## 关键原则
 
-业界常见错误：把 liveness 和 readiness 混用（健康检查检查外部依赖导致连锁重启）。本标准明确三种 probe 语义分离，定义深度 health check 的检查范围（仅关键依赖），并规范结构化 JSON 响应以便下游自动化处理。
+- **Liveness 不碰外部依赖**：liveness 失败会造成 pod 重启；若依赖 DB，DB 故障时会造成所有 pod 连锁重启
+- **Readiness 仅检查关键依赖**：非关键依赖不纳入，避免边缘故障导致服务被下线
+- **慢启动用 startup probe**：启动完成后交棒给 liveness
+- **结构化 JSON 响应**：包含 `status` / `dependencies` / `timestamp` / `version`
+- **作为 observability signal**：连续失败（达到 probe threshold）时依 [alerting-standards](alerting-standards.md) 触发告警——由 alerting 定义触发时机、严重性映射与路由（`HC-001 HEALTH_CHECK_FAILED` 为告警来源之一），health-check 只负责发出 signal，不自行决定通知对象
 
----
+## Probe 类型
 
-## 核心规范
+| Probe | 端点 | 检查内容 | 失败时 | 阈值 |
+|-------|------|---------|--------|------|
+| **liveness** | `GET /health/live` | process 可响应 HTTP、内部 event loop | 重启 pod | 3 次失败 |
+| **readiness** | `GET /health/ready` | 自身 API、DB ping（若必要）、关键下游 | 移出负载均衡（不重启）| 3 次失败 |
+| **startup** | `GET /health/startup` | 启动过程所需资源就绪 | 重启 pod（启动超时）| 30 次失败 |
 
-- Liveness probe 不得检查外部依赖（DB、下游 API），否则会造成连锁重启
-- Readiness probe 可检查关键外部依赖，但仅关键（非全部依赖）
-- 慢启动服务应使用 startup probe，启动完成后交棒给 liveness
-- Health check 端点必须回传结构化 JSON，包含 status / dependencies / timestamp
-- Health check 结果应作为 observability 的 Error signal 之一，连续 fail 触发 incident
+### Liveness 禁止的检查
 
----
-
-## 三种 Probe 类型
-
-### Liveness Probe
-
-- **目的**：服务是否还存活（process 是否卡死）
-- **建议端点**：`GET /health/live`
-- **允许检查**：process 是否能响应 HTTP、内部 event loop 是否可用
-- **禁止检查**：DB 连接、下游 API、消息队列（会造成连锁重启）
-- **失败行为**：重启 pod / process
-- **参数**：failureThreshold=3，periodSeconds=10
-
-### Readiness Probe
-
-- **目的**：是否可接收流量
-- **建议端点**：`GET /health/ready`
-- **允许检查**：自身 API 可用、DB 连接（若服务必须依赖 DB）、关键下游依赖、必要配置已加载
-- **禁止检查**：非关键依赖（避免非关键故障造成服务被移出负载均衡）
-- **失败行为**：移出负载均衡，不重启
-- **参数**：failureThreshold=3，periodSeconds=5
-
-### Startup Probe
-
-- **目的**：启动期专用，替代慢启动服务的 liveness
-- **建议端点**：`GET /health/startup`
-- **检查项目**：启动过程所需资源（如缓存预热、index 加载）已完成
-- **失败行为**：重启 pod（启动超时）
-- **完成后**：停用，改由 liveness 接手
-- **参数**：failureThreshold=30，periodSeconds=10
-
----
+- DB 连接（DB 故障时 liveness 失败 → pod 重启 → 启动更多 client → DB 更糟）
+- 下游 API（会造成连锁重启）
+- 消息队列
 
 ## 深度规则
 
-| 层级 | 使用时机 | 检查范围 |
-|------|---------|---------|
-| Shallow | Liveness | process 是否可响应，不碰任何外部依赖 |
-| Deep | Readiness | 自身 API 路由、DB ping（若必须）、关键下游 API ping |
-
-**关键依赖的定义**：没有它服务就完全无法提供核心功能。
-
----
+- **Shallow（liveness）**：process 是否可响应，不碰任何外部依赖
+- **Deep（readiness）**：自身 API 路由、DB ping、关键下游 API ping（关键 = 没有它，服务就完全无法提供核心功能）
 
 ## 响应格式
-
-**Content-Type**：`application/json`
-
-| HTTP 状态码 | 含义 |
-|------------|------|
-| `200` | healthy — 所有关键依赖正常 |
-| `503` | unhealthy — 至少一个关键依赖失败 |
-
-**JSON Schema**：
 
 ```json
 {
   "status": "healthy | degraded | unhealthy",
-  "timestamp": "<ISO-8601>",
-  "uptime_seconds": 12345,
-  "version": "1.0.0",
+  "timestamp": "2026-04-17T10:00:00Z",
+  "uptime_seconds": 3600,
   "dependencies": {
-    "database": {
-      "status": "healthy | unhealthy",
-      "latency_ms": 5,
-      "last_check": "<ISO-8601>"
-    },
-    "upstream_api": {
-      "status": "healthy | unhealthy",
-      "latency_ms": 20
-    }
-  }
+    "database": {"status": "healthy", "latency_ms": 5, "last_check": "..."},
+    "upstream_api": {"status": "healthy", "latency_ms": 42, "last_check": "..."}
+  },
+  "version": "1.2.3"
 }
 ```
 
----
+- HTTP 200 → healthy
+- HTTP 503 → unhealthy（至少一个关键依赖失败）
 
-## 与 Observability 整合
+## 使用示例
 
-- Health check 结果应作为 RED metric 的 Error 来源之一（Rate / Errors / Duration）
-- 连续 N 次 health check failed 应触发 incident（对齐 incident-response）
-- probe 延迟本身应被监控（异常缓慢可能是 resource_exhaustion 征兆）
-
----
-
-## 情境示例
-
-**情境 1：liveness 不检查 DB**
-- 条件：DB 暂时无法连接
-- Liveness 回传 200 healthy（不检查 DB），避免连锁重启
-
-**情境 2：readiness 因关键依赖失败**
-- 条件：关键下游 API 不可达
-- Readiness 回传 503，pod 移出负载均衡但不重启
-
-**情境 3：startup 后交棒 liveness**
-- 条件：服务需 60s 预热缓存
-- 前 60s startup probe 持续回 503，预热完成后交棒 liveness
-
----
+- **场景 1 —— Liveness 不检查 DB**：DB 连接池耗尽，liveness 仍返回 200（liveness 不检查 DB），避免所有 pod 重启
+- **场景 2 —— Readiness 失败**：关键下游 API 不可达，readiness 返回 503，pod 移出 LB；process 不重启
+- **场景 3 —— Startup → Liveness 交棒**：服务需要 60s 预热缓存，startup probe 在前 60s 持续返回 503，预热完成后改由 liveness 接手
 
 ## 错误码
 
-| 代码 | 说明 |
-|------|------|
-| `HC-001` | `HEALTH_CHECK_FAILED` — 关键依赖失败 |
-| `HC-002` | `HEALTH_CHECK_TIMEOUT` — probe 本身超时 |
-| `HC-003` | `INVALID_DEPENDENCY_SET` — readiness 检查了非关键依赖（设计违规）|
+- `HC-001` — `HEALTH_CHECK_FAILED`（关键依赖失败）
+- `HC-002` — `HEALTH_CHECK_TIMEOUT`（probe 本身超时）
+- `HC-003` — `INVALID_DEPENDENCY_SET`（readiness 检查了非关键依赖，设计违规）
+
+## 参考资料
+
+- AI 优化版：[ai/standards/health-check-standards.ai.yaml](../../../ai/standards/health-check-standards.ai.yaml)
+- XSPEC-067：DEC-043 Wave 1 Reliability Pack 跨项目规格
+- DEC-043：UDS 覆盖完整性路线图（驱动来源）
+- 相关：`deployment-standards`, `circuit-breaker`, `alerting-standards`（probe 连续失败 → 告警触发与路由）, observability-standards（XSPEC-063 规划中）
+- 业界：Kubernetes probes, Microsoft eShop health checks, Google SRE Book Ch.6
+
+
+**范围**: universal

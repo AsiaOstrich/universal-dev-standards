@@ -2,44 +2,46 @@
 source: core/guides/performance-guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-11
+source_hash: 22e50e7f3f83
 status: current
 ---
 
-# Performance Guide
+# 性能指南
 
-> **语言**: [English](../../../../core/guides/performance-guide.md) | 简体中文
+> **语言**: [English](../../../../core/guides/performance-guide.md) | [繁體中文](../../../zh-TW/core/guides/performance-guide.md) | 简体中文
 
-**Version**: 1.0.0
-**Last Updated**: 2026-01-29
-**Related Standard**: [Performance Standards](../performance-standards.md)
-
----
-
-## Purpose
-
-本指南为软件性能工程提供详细的说明、优化技巧与教学内容。关于性能预算（performance budget）、阈值与必备检查清单，请参阅 [Performance Standards](../performance-standards.md)。
+**版本**: 1.0.0
+**最后更新**: 2026-01-29
+**相关标准**: [性能标准](../performance-standards.md)
 
 ---
 
-## Table of Contents
+## 目的
 
-1. [Performance Fundamentals](#performance-fundamentals)
-2. [Performance Testing Deep Dive](#performance-testing-deep-dive)
-3. [Metrics Explained](#metrics-explained)
-4. [Optimization Strategies](#optimization-strategies)
-5. [Database Performance Tuning](#database-performance-tuning)
-6. [API Performance Optimization](#api-performance-optimization)
-7. [Frontend Performance Techniques](#frontend-performance-techniques)
-8. [Caching Architecture](#caching-architecture)
-9. [Monitoring and Observability](#monitoring-and-observability)
-10. [Capacity Planning Process](#capacity-planning-process)
-11. [References](#references)
+本指南为软件性能工程提供详细的说明、优化技巧与教学内容。关于性能预算（performance budget）、阈值与必备检查清单，请参阅 [性能标准](../performance-standards.md)。
 
 ---
 
-## Performance Fundamentals
+## 目录
 
-### ISO 25010 Performance Efficiency
+1. [性能基础](#性能基础)
+2. [性能测试深入解析](#性能测试深入解析)
+3. [指标详解](#指标详解)
+4. [优化策略](#优化策略)
+5. [数据库性能调优](#数据库性能调优)
+6. [API 性能优化](#api-性能优化)
+7. [前端性能技巧](#前端性能技巧)
+8. [缓存架构](#缓存架构)
+9. [监控与可观测性](#监控与可观测性)
+10. [容量规划流程](#容量规划流程)
+11. [参考资料](#参考资料)
+
+---
+
+## 性能基础
+
+### ISO 25010 性能效率
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -63,9 +65,9 @@ ISO 25010 将性能效率（performance efficiency）定义为八项质量特性
 
 ---
 
-## Performance Testing Deep Dive
+## 性能测试深入解析
 
-### Testing Types Explained
+### 测试类型详解
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -100,7 +102,7 @@ ISO 25010 将性能效率（performance efficiency）定义为八项质量特性
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### k6 Load Test Example
+### k6 负载测试示例
 
 ```javascript
 // Example: k6 Load Test Configuration
@@ -133,9 +135,9 @@ export default function () {
 
 ---
 
-## Metrics Explained
+## 指标详解
 
-### The RED Method (Request-oriented)
+### RED 方法（面向请求）
 
 RED 方法聚焦于请求级别（request-level）的指标，最适合用于服务：
 
@@ -145,7 +147,7 @@ RED 方法聚焦于请求级别（request-level）的指标，最适合用于服
 | **E**rrors | 错误率百分比 | 质量指标 |
 | **D**uration | 响应时间分布 | 用户体验 |
 
-### The USE Method (Resource-oriented)
+### USE 方法（面向资源）
 
 USE 方法聚焦于资源使用率（resource utilization），最适合用于基础设施：
 
@@ -155,7 +157,7 @@ USE 方法聚焦于资源使用率（resource utilization），最适合用于�
 | **S**aturation | 队列长度 | 队列持续增长 |
 | **E**rrors | 错误计数 | 任何增加 |
 
-### The Four Golden Signals (SRE)
+### 四大黄金信号（SRE）
 
 Google 的 SRE 著作将以下四项定义为任何系统最重要的指标：
 
@@ -188,9 +190,9 @@ Google 的 SRE 著作将以下四项定义为任何系统最重要的指标：
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Understanding Percentiles
+### 理解百分位数
 
-| Percentile | 含义 | 使用场景 |
+| 百分位数 | 含义 | 使用场景 |
 |------------|---------|----------|
 | **p50 (median)** | 一半的请求比此更快 | 典型体验 |
 | **p90** | 90% 的请求比此更快 | 多数用户 |
@@ -202,9 +204,9 @@ Google 的 SRE 著作将以下四项定义为任何系统最重要的指标：
 
 ---
 
-## Optimization Strategies
+## 优化策略
 
-### General Optimization Principles
+### 通用优化原则
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -232,7 +234,7 @@ Google 的 SRE 著作将以下四项定义为任何系统最重要的指标：
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Optimization Techniques by Level
+### 各层级优化技巧
 
 | 层级 | 技巧 | 影响 | 投入成本 |
 |-------|-----------|--------|--------|
@@ -247,9 +249,9 @@ Google 的 SRE 著作将以下四项定义为任何系统最重要的指标：
 
 ---
 
-## Database Performance Tuning
+## 数据库性能调优
 
-### Index Guidelines
+### 索引指南
 
 ```sql
 -- ✅ Good: Index for frequently queried columns
@@ -268,7 +270,7 @@ WHERE status = 'pending';
 
 **为何使用 partial index？** 它们更小、更快，因为只包含符合特定条件的数据行。非常适合用于频繁查询的数据子集。
 
-### N+1 Query Problem
+### N+1 查询问题
 
 N+1 问题是最常见的性能问题之一：
 
@@ -287,9 +289,9 @@ const users = await User.findAll({
 
 ---
 
-## API Performance Optimization
+## API 性能优化
 
-### API Design for Performance
+### 面向性能的 API 设计
 
 ```typescript
 // ❌ Bad: Returns all fields, all records
@@ -313,9 +315,9 @@ POST /api/users/batch
 
 ---
 
-## Frontend Performance Techniques
+## 前端性能技巧
 
-### Core Web Vitals Explained
+### Core Web Vitals 详解
 
 | 指标 | 衡量内容 | 目标 | 如何改善 |
 |--------|------------------|--------|----------------|
@@ -323,7 +325,7 @@ POST /api/users/batch
 | **INP** | Interaction to Next Paint | < 200ms | 减少 JavaScript、延后非关键脚本 |
 | **CLS** | Cumulative Layout Shift | < 0.1 | 为图片设置尺寸、为动态内容预留空间 |
 
-### Performance Budget Example
+### 性能预算示例
 
 ```yaml
 # Example Performance Budget
@@ -350,9 +352,9 @@ lighthouse_scores:
 
 ---
 
-## Caching Architecture
+## 缓存架构
 
-### Cache Levels
+### 缓存层级
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -382,7 +384,7 @@ lighthouse_scores:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Cache Invalidation Strategies
+### 缓存失效策略
 
 | 策略 | 运作方式 | 最适用于 |
 |----------|--------------|----------|
@@ -391,7 +393,7 @@ lighthouse_scores:
 | **Version-based** | 新版本 = 新的 cache key | 部署 |
 | **Stale-while-revalidate** | 先提供过期内容，后台刷新 | 高可用性 |
 
-### Cache Headers
+### 缓存标头
 
 ```http
 # Static assets (versioned filename)
@@ -410,9 +412,9 @@ Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
 
 ---
 
-## Monitoring and Observability
+## 监控与可观测性
 
-### Dashboard Layout
+### 仪表板布局
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -447,7 +449,7 @@ Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
 
 ---
 
-## Capacity Planning Process
+## 容量规划流程
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -482,7 +484,7 @@ Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Scaling Strategies Compared
+### 扩展策略比较
 
 | 策略 | 优点 | 缺点 | 何时使用 |
 |----------|------|------|-------------|
@@ -492,24 +494,24 @@ Last-Modified: Wed, 21 Oct 2025 07:28:00 GMT
 
 ---
 
-## References
+## 参考资料
 
-### Standards
-- [ISO/IEC 25010:2011](https://www.iso.org/standard/35733.html) - Performance Efficiency
+### 标准
+- [ISO/IEC 25010:2011](https://www.iso.org/standard/35733.html) - 性能效率
 - [Web Vitals](https://web.dev/vitals/) - Google Core Web Vitals
 
-### Books
+### 书籍
 - Brendan Gregg - "Systems Performance: Enterprise and the Cloud" (2020)
 - Google - "Site Reliability Engineering" (2016)
 - Martin Kleppmann - "Designing Data-Intensive Applications" (2017)
 
-### Tools
-- [k6](https://k6.io/) - Load testing
-- [Lighthouse](https://developer.chrome.com/docs/lighthouse/) - Frontend performance
-- [Grafana](https://grafana.com/) - Performance dashboards
+### 工具
+- [k6](https://k6.io/) - 负载测试
+- [Lighthouse](https://developer.chrome.com/docs/lighthouse/) - 前端性能
+- [Grafana](https://grafana.com/) - 性能仪表板
 
 ---
 
-## License
+## 许可证
 
-This guide is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+本指南以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
