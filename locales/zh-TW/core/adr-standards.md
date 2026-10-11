@@ -2,7 +2,8 @@
 source: ../../../core/adr-standards.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-08-24
+last_synced: 2026-10-11
+source_hash: 929da01fb617
 status: current
 ---
 

@@ -2,7 +2,8 @@
 source: ../../../../../skills/tools/windsurf/README.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: e57778a005ca
 status: current
 ---
 

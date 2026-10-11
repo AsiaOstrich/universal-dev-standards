@@ -2,7 +2,8 @@
 source: ../../../adoption/DAILY-WORKFLOW-GUIDE.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-02-10
+last_synced: 2026-10-11
+source_hash: bef178bce422
 status: current
 ---
 

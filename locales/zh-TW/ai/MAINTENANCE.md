@@ -2,7 +2,8 @@
 source: ../../../ai/MAINTENANCE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-08
+last_synced: 2026-10-11
+source_hash: 360d4eb5f652
 status: current
 ---
 
@@ -90,25 +91,32 @@ locales/zh-TW/ai/options/
 
 **macOS / Linux:**
 ```bash
-# 執行翻譯同步檢查
 ./scripts/check-translation-sync.sh zh-TW
 ```
 
 **Windows PowerShell:**
 ```powershell
-# 執行翻譯同步檢查
 .\scripts\check-translation-sync.ps1 -Locale zh-TW
 ```
 
 ### 步驟 2：識別 core/ 的變更
 
-**macOS / Linux / Windows (Git):**
+**macOS / Linux:**
 ```bash
 # 檢查最近變更
 git log --oneline core/ -10
 
 # 比較版本
 grep -E "^\*\*Version\*\*:|^version:" core/*.md | head -20
+```
+
+**Windows PowerShell:**
+```powershell
+# 檢查最近變更
+git log --oneline core/ -10
+
+# 比較版本
+Select-String -Path core\*.md -Pattern "^\*\*Version\*\*:|^version:" | Select-Object -First 20
 ```
 
 ### 步驟 3：更新 ai/standards/
@@ -150,17 +158,13 @@ options:
 
 **macOS / Linux:**
 ```bash
-# 再次執行同步檢查
 ./scripts/check-translation-sync.sh zh-TW
-
 # 預期：所有檔案 [CURRENT]
 ```
 
 **Windows PowerShell:**
 ```powershell
-# 再次執行同步檢查
 .\scripts\check-translation-sync.ps1 -Locale zh-TW
-
 # 預期：所有檔案 [CURRENT]
 ```
 
@@ -204,7 +208,6 @@ meta:
   updated: "{YYYY-MM-DD}"      # 最後更新日期
   source: core/{source}.md     # 來源檔案路徑
   description: {簡短描述}
-  language: zh-TW              # 翻譯檔案需要此欄位
 
 # 選用：如標準有可配置選項
 options:
@@ -229,6 +232,21 @@ quick_reference:
     columns: [{col1}, {col2}, ...]
     rows:
       - [{val1}, {val2}, ...]
+```
+
+---
+
+## 翻譯檔案結構
+
+與英文版相同，另外增加：
+
+```yaml
+meta:
+  version: "{x.y.z}"           # 必須符合英文版本
+  updated: "{YYYY-MM-DD}"
+  source: core/{source}.md
+  description: {中文描述}
+  language: zh-TW              # ← 額外欄位
 ```
 
 ---
@@ -290,7 +308,8 @@ quick_reference:
 
 ## 常用命令
 
-**macOS / Linux:**
+### macOS / Linux
+
 ```bash
 # 檢查同步狀態
 ./scripts/check-translation-sync.sh zh-TW
@@ -313,7 +332,8 @@ grep -rh "file:.*options/" ai/standards/*.yaml | \
   while read f; do [ ! -f "ai/$f" ] && echo "Missing: $f"; done
 ```
 
-**Windows PowerShell:**
+### Windows PowerShell
+
 ```powershell
 # 檢查同步狀態
 .\scripts\check-translation-sync.ps1 -Locale zh-TW
@@ -322,13 +342,13 @@ grep -rh "file:.*options/" ai/standards/*.yaml | \
 Get-ChildItem ai\standards\*.yaml
 
 # 列出所有選項
-Get-ChildItem -Recurse ai\options -Filter "*.yaml" | Sort-Object FullName
+Get-ChildItem ai\options -Recurse -Filter "*.yaml" | Sort-Object FullName
 
 # 比較檔案數量
 Write-Host "EN standards: $((Get-ChildItem ai\standards\*.yaml).Count)"
 Write-Host "ZH standards: $((Get-ChildItem locales\zh-TW\ai\standards\*.yaml).Count)"
-Write-Host "EN options: $((Get-ChildItem -Recurse ai\options -Filter '*.yaml').Count)"
-Write-Host "ZH options: $((Get-ChildItem -Recurse locales\zh-TW\ai\options -Filter '*.yaml').Count)"
+Write-Host "EN options: $((Get-ChildItem ai\options -Recurse -Filter '*.yaml').Count)"
+Write-Host "ZH options: $((Get-ChildItem locales\zh-TW\ai\options -Recurse -Filter '*.yaml').Count)"
 ```
 
 ---

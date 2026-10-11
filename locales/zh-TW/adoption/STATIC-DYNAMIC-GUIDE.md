@@ -2,7 +2,8 @@
 source: ../../../adoption/STATIC-DYNAMIC-GUIDE.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-01-07
+last_synced: 2026-10-11
+source_hash: b3e348a13a75
 status: current
 ---
 
@@ -186,6 +187,7 @@ cp -r skills/commit-standards ~/.claude/skills/
 
 **替代方案：手動安裝（Windows PowerShell）**
 ```powershell
+# 選擇性安裝
 Copy-Item -Recurse skills\claude-code\commit-standards $env:USERPROFILE\.claude\skills\
 ```
 

@@ -2,13 +2,16 @@
 source: ../../../../adoption/checklists/minimal.md
 source_version: 1.0.1
 translation_version: 1.0.1
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: e1ac3b282885
 status: current
 ---
 
-# 等級 1：基本採用檢查清單
+# 基本採用檢查清單（歷史參考）
 
 > **語言**: [English](../../../../adoption/checklists/minimal.md) | 繁體中文
+>
+> **注意**：等級系統已移除。UDS 現在透過 `uds init` 預設安裝所有標準。本檢查清單保留作為歷史參考。完整的採用檢查清單請參見 [enterprise.md](enterprise.md)。
 
 > 任何專案的最低可行標準
 >
@@ -38,6 +41,7 @@ npx universal-dev-standards init
 只支援 Claude Code、只有英文技能文字、只跟正式版、專案內不放檔案。
 
 ```bash
+# In Claude Code
 /plugin marketplace add AsiaOstrich/universal-dev-standards
 /plugin install universal-dev-standards@asia-ostrich
 ```

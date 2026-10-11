@@ -2,7 +2,8 @@
 source: ../../../adoption/ADOPTION-GUIDE.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 51fdc21380ea
 status: current
 ---
 
@@ -22,7 +23,6 @@ status: current
 - [靜態與動態規範](#靜態與動態規範)
 - [規範分類](#規範分類)
 - [完整規範對照表](#完整規範對照表)
-- [採用等級](#採用等級)
 - [如何採用](#如何採用)
 - [採用後：日常工作流程](#採用後日常工作流程)
 - [常見錯誤避免](#常見錯誤避免)
@@ -108,14 +108,14 @@ cp -r skills/commit-standards ~/.claude/skills/
 
 **採用方式**：複製到專案的 `.standards/` 目錄
 
-**macOS / Linux:**
 ```bash
+# macOS / Linux
 mkdir -p .standards
 cp <source-file> .standards/
 ```
 
-**Windows PowerShell:**
 ```powershell
+# Windows PowerShell
 New-Item -ItemType Directory -Force -Path .standards
 Copy-Item <source-file> .standards\
 ```
@@ -144,100 +144,61 @@ Copy-Item <source-file> .standards\
 
 ### 核心規範
 
-| 規範 | 類別 | Skill 名稱 | 等級 | 採用方式 |
-|------|------|-----------|------|---------|
-| anti-hallucination.md | Skill | ai-collaboration-standards | 1 | 安裝 Skill |
-| commit-message-guide.md | Skill | commit-standards | 1 | 安裝 Skill |
-| checkin-standards.md | 參考文件 | - | 1 | 複製到專案 |
-| spec-driven-development.md | 參考文件 | - | 1 | 複製到專案 |
-| code-review-checklist.md | Skill | code-review-assistant | 2 | 安裝 Skill |
-| git-workflow.md | Skill | git-workflow-guide | 2 | 安裝 Skill |
-| versioning.md | Skill | release-standards | 2 | 安裝 Skill |
-| changelog-standards.md | Skill | release-standards | 2 | 安裝 Skill |
-| testing-standards.md | Skill | testing-guide | 2 | 安裝 Skill |
-| documentation-structure.md | Skill | documentation-guide | 3 | 安裝 Skill |
-| documentation-writing-standards.md | 參考文件 | - | 3 | 複製到專案 |
-| project-structure.md | 參考文件 | - | 3 | 複製到專案 |
+| 規範 | 類別 | Skill 名稱 | 採用方式 |
+|------|------|-----------|---------|
+| anti-hallucination.md | Skill | ai-collaboration-standards | 安裝 Skill |
+| commit-message-guide.md | Skill | commit-standards | 安裝 Skill |
+| checkin-standards.md | 參考文件 | - | 複製到專案 |
+| spec-driven-development.md | 參考文件 | - | 複製到專案 |
+| code-review-checklist.md | Skill | code-review-assistant | 安裝 Skill |
+| git-workflow.md | Skill | git-workflow-guide | 安裝 Skill |
+| versioning.md | Skill | release-standards | 安裝 Skill |
+| changelog-standards.md | Skill | release-standards | 安裝 Skill |
+| testing-standards.md | Skill | testing-guide | 安裝 Skill |
+| documentation-structure.md | Skill | documentation-guide | 安裝 Skill |
+| documentation-writing-standards.md | 參考文件 | - | 複製到專案 |
+| project-structure.md | 參考文件 | - | 複製到專案 |
 
 ### 延伸規範
 
-| 規範 | 類別 | 適用範圍 | 等級 |
-|------|------|---------|------|
-| csharp-style.md | 延伸 | C# 專案 | 2 |
-| php-style.md | 延伸 | PHP 8.1+ 專案 | 2 |
-| fat-free-patterns.md | 延伸 | Fat-Free Framework | 2 |
-| zh-tw.md | 延伸 | 繁體中文團隊 | 2 |
+| 規範 | 類別 | 適用範圍 |
+|------|------|---------|
+| csharp-style.md | 延伸 | C# 專案 |
+| php-style.md | 延伸 | PHP 8.1+ 專案 |
+| fat-free-patterns.md | 延伸 | Fat-Free Framework |
+| zh-tw.md | 延伸 | 繁體中文團隊 |
 
 ### 整合配置
 
-| 規範 | 目標路徑 | 等級 |
-|------|---------|------|
-| copilot-instructions.md | .github/copilot-instructions.md | 2 |
-| .cursorrules | .cursorrules | 2 |
-| .windsurfrules | .windsurfrules | 2 |
-| .clinerules | .clinerules | 2 |
-| google-antigravity/* | 請參閱 README | 2 |
-| openspec/* | 請參閱 README | 2 |
+| 規範 | 目標路徑 |
+|------|---------|
+| copilot-instructions.md | .github/copilot-instructions.md |
+| .cursorrules | .cursorrules |
+| .windsurfrules | .windsurfrules |
+| .clinerules | .clinerules |
+| google-antigravity/* | 請參閱 README |
+| openspec/* | 請參閱 README |
 
 ### 模板
 
-| 模板 | 類別 | 適用範圍 | 等級 |
-|------|------|---------|------|
-| requirement-*.md | Skill | 所有專案 | 2 |
-| migration-template.md | 模板 | 遷移專案 | 3 |
-
----
-
-## 採用等級
-
-### 等級一：基本
-
-任何專案的最低可行標準。設置時間：約 30 分鐘。
-
-**必要**：
-- [ ] ai-collaboration-standards (Skill)
-- [ ] commit-standards (Skill)
-- [ ] checkin-standards.md (參考文件)
-- [ ] spec-driven-development.md (參考文件)
-
-詳細檢查清單請參閱 [checklists/minimal.md](../../../adoption/checklists/minimal.md)。
-
-### 等級二：推薦
-
-團隊專案的專業品質標準。設置時間：約 2 小時。
-
-**包含等級一，加上**：
-- [ ] code-review-assistant (Skill)
-- [ ] git-workflow-guide (Skill)
-- [ ] release-standards (Skill)
-- [ ] testing-guide (Skill)
-- [ ] 適用的延伸規範
-- [ ] AI 工具整合
-
-詳細檢查清單請參閱 [checklists/recommended.md](../../../adoption/checklists/recommended.md)。
-
-### 等級三：企業
-
-企業或受監管專案的全面標準。設置時間：1-2 天。
-
-**包含等級二，加上**：
-- [ ] documentation-guide (Skill)
-- [ ] documentation-writing-standards.md (參考文件)
-- [ ] project-structure.md (參考文件)
-- [ ] migration-template.md (如適用)
-
-詳細檢查清單請參閱 [checklists/enterprise.md](../../../adoption/checklists/enterprise.md)。
+| 模板 | 類別 | 適用範圍 |
+|------|------|---------|
+| requirement-*.md | Skill | 所有專案 |
+| migration-template.md | 模板 | 遷移專案 |
 
 ---
 
 ## 如何採用
 
-### 步驟一：決定採用等級
+### 步驟一：透過 CLI 安裝規範（推薦）
 
-考慮專案需求：
-- **個人／副專案**：等級一
-- **團隊專案**：等級二
-- **企業／受監管**：等級三
+採用所有規範最簡單的方式：
+
+```bash
+npx universal-dev-standards init
+```
+
+這會為你的專案安裝所有可用的規範、Skills 與整合。
 
 ### 步驟二：安裝 Skills
 
@@ -274,12 +235,9 @@ Copy-Item -Recurse universal-dev-standards\skills\claude-code\commit-standards $
 # 在專案目錄中
 mkdir -p .standards
 
-# 根據等級複製參考文件
-# 等級一
+# 複製所有參考文件
 cp path/to/universal-dev-standards/core/checkin-standards.md .standards/
 cp path/to/universal-dev-standards/core/spec-driven-development.md .standards/
-
-# 等級三（額外）
 cp path/to/universal-dev-standards/core/documentation-writing-standards.md .standards/
 cp path/to/universal-dev-standards/core/project-structure.md .standards/
 ```
@@ -289,12 +247,9 @@ cp path/to/universal-dev-standards/core/project-structure.md .standards/
 # 在專案目錄中
 New-Item -ItemType Directory -Force -Path .standards
 
-# 根據等級複製參考文件
-# 等級一
+# 複製所有參考文件
 Copy-Item path\to\universal-dev-standards\core\checkin-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\spec-driven-development.md .standards\
-
-# 等級三（額外）
 Copy-Item path\to\universal-dev-standards\core\documentation-writing-standards.md .standards\
 Copy-Item path\to\universal-dev-standards\core\project-structure.md .standards\
 ```
@@ -414,6 +369,4 @@ Copy-Item path\to\universal-dev-standards\integrations\github-copilot\copilot-in
 - [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards) - 來源儲存庫
 - [universal-dev-skills](https://github.com/AsiaOstrich/universal-dev-skills) - Skills 儲存庫
 - [日常工作流程指南](DAILY-WORKFLOW-GUIDE.md) - 採用後如何使用 UDS
-- [最小檢查清單](../../../adoption/checklists/minimal.md) - 等級一採用檢查清單
-- [推薦檢查清單](../../../adoption/checklists/recommended.md) - 等級二採用檢查清單
-- [企業檢查清單](../../../adoption/checklists/enterprise.md) - 等級三採用檢查清單
+- [採用檢查清單](../../../adoption/checklists/enterprise.md) - 完整採用檢查清單

@@ -1,15 +1,18 @@
 ---
 source: ../../../core/acceptance-criteria-traceability.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-03-18
-status: stale
+source_version: 1.2.0
+translation_version: 1.2.0
+last_synced: 2026-10-11
+source_hash: 06ca6a77af24
+status: current
 ---
 
 # 驗收標準可追溯性規範
 
 > **語言**: [English](../../../core/acceptance-criteria-traceability.md) | 繁體中文
 
+**版本**: 1.2.0
+**最後更新**: 2026-08-24
 **適用範圍**: 所有使用規格驅動或測試驅動工作流程的軟體專案
 **Scope**: universal
 
@@ -78,6 +81,13 @@ class TestAC1_UserLogin:
 Scenario: User login with valid credentials
 ```
 
+> **鍵名拼寫（刻意設計，並非衝突）。** `acceptance-criteria`（kebab-case）
+> 是給人看的／識別碼拼寫——文件標題、標準 id、AI 格式鍵。
+> `acceptance_criteria`（snake_case）是 YAML **序列化**欄位（例如
+> `structured-task-definition`）。`acceptanceCriteria`（camelCase）不使用。
+> 這些是各層適用的拼寫（見術語表的欄位命名表），
+> **不予**統一。
+
 ---
 
 ## 覆蓋狀態定義
@@ -89,28 +99,60 @@ Scenario: User login with valid credentials
 | **已覆蓋** | ✅ | AC 已完整測試 | AC 中所有條件都有對應的測試斷言 |
 | **部分覆蓋** | ⚠️ | AC 已部分測試 | 部分條件已測試，但缺少邊界情況或執行路徑 |
 | **未覆蓋** | ❌ | AC 沒有測試 | 沒有任何測試案例參照此 AC |
+| **未實作** | 🚫 | AC 沒有對應的實作 | 功能程式碼不存在（不是測試缺口，而是程式碼缺口） |
+
+### `not_implemented` 與 `uncovered` 判斷樹
+
+```
+Q1: Does the corresponding code exist in src/?
+  No → 🚫 not_implemented
+  Yes → Q2: Does any test reference this AC?
+    No → ❌ uncovered
+    Yes → Q3: Are all conditions in the AC tested?
+      Yes → ✅ covered
+      No → ⚠️ partial
+```
+
+`not_implemented` 的典型訊號：`throw new NotImplementedException()`、空的 stub 本體、`// FEATURE_STUB:` 標記。
 
 ### 覆蓋率計算
 
 ```
-AC Coverage % = (covered_count / total_ac_count) × 100
+AC Coverage % = (covered_count + partial_count × 0.5) / (total_ac_count - not_implemented_count) × 100
 
 Where:
   covered_count = count of AC with status "covered"
   total_ac_count = total number of AC in specification
+  not_implemented_count = count of AC with status "not_implemented" (excluded from denominator)
   partial counts as 0.5 for coverage calculation
 ```
 
 ### 計算範例
 
 ```
-SPEC-001: 8 AC total
-  - 5 covered (✅)
-  - 2 partial (⚠️)
-  - 1 uncovered (❌)
+SPEC-001: 20 AC total
+  - 15 covered (✅)
+  - 0 partial (⚠️)
+  - 2 uncovered (❌)
+  - 3 not_implemented (🚫)
 
-Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
+Coverage = (15 + 0) / (20 - 3) × 100 = 88.2%
+Status: BLOCKED by 3 not_implemented AC(s)
 ```
+
+### `not_implemented` 的 CI 關卡
+
+`not_implemented` AC 會觸發一道**阻擋性** CI 關卡，獨立於覆蓋率百分比關卡之外：
+
+```
+[AC-NOT-IMPL] 3 AC(s) marked not_implemented:
+  🚫 AC-007  OrderCancellation
+  🚫 AC-012  RefundCalculation
+  🚫 AC-019  ExportToPDF
+All not_implemented ACs must be resolved before UAT.
+```
+
+只有當所有 `not_implemented` AC 都更新為 `uncovered`、`partial` 或 `covered` 時，此關卡才會解除。
 
 ---
 
@@ -327,6 +369,8 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 忽略未覆蓋的 AC | 驗證存在缺口 | 追蹤並規劃所有 AC 的覆蓋工作 |
 | AC 缺乏可測試性 | 無法驗證 | 確保所有 AC 都可測試 |
 | 覆蓋但缺乏斷言 | 測試執行但不驗證任何內容 | 確認測試含有有意義的斷言 |
+| 對缺少的程式碼使用 `uncovered` | 掩蓋功能完整性缺口 | 程式碼不存在時使用 `not_implemented` |
+| 將 `not_implemented` 計入分母 | 灌水覆蓋率指標 | 將 `not_implemented` 排除於分母之外 |
 
 ---
 
@@ -345,3 +389,5 @@ Coverage = (5 + 2×0.5) / 8 = 6/8 = 75%
 | 版本 | 日期 | 變更內容 |
 |------|------|---------|
 | 1.0.0 | 2026-03-18 | 初始版本 — 可追溯性矩陣、覆蓋率計算、規格生成規則 |
+| 1.1.0 | 2026-05-12 | 新增第 4 種狀態 `not_implemented`；更新 CI 關卡公式；新增判斷樹（XSPEC-199） |
+| 1.2.0 | 2026-08-24 | 為覆蓋缺口、門檻例外與報告行動項目新增指向 `deferred-item-exit` 的參照（XSPEC-391 R5） |

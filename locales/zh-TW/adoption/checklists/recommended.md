@@ -1,14 +1,17 @@
 ---
 source: ../../../../adoption/checklists/recommended.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2025-12-25
+source_version: 1.0.1
+translation_version: 1.0.1
+last_synced: 2026-10-11
+source_hash: a9db5033c84d
 status: current
 ---
 
-# 等級二：推薦採用檢查清單
+# 推薦採用檢查清單（歷史參考）
 
 > **語言**: [English](../../../../adoption/checklists/recommended.md) | 繁體中文
+>
+> **注意**：等級系統已移除。UDS 現在透過 `uds init` 預設安裝所有標準。本檢查清單保留作為歷史參考。完整的採用檢查清單請參見 [enterprise.md](enterprise.md)。
 
 > 團隊專案的專業品質標準
 >
