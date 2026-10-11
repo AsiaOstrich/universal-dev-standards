@@ -2,7 +2,8 @@
 source: ../../../core/change-batching-standards.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-18
+last_synced: 2026-10-11
+source_hash: 3ba2c359b2f9
 status: current
 ---
 

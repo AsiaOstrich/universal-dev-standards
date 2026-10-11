@@ -2,7 +2,8 @@
 source: ../../../core/capability-declaration.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-20
+last_synced: 2026-10-11
+source_hash: 5890495db0da
 status: current
 ---
 
@@ -10,102 +11,63 @@ status: current
 
 > **語言**: [English](../../../core/capability-declaration.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2026-04-15
-**適用範圍**: 所有工具、Adapter、Agent 組件
-**Scope**: universal
-**來源**: XSPEC-037（claude-code-book Ch.3 Fail-Closed buildTool factory）
+> **來源**: XSPEC-037 | **借鑑自**: claude-code-book Ch.3
 
----
+## 概述
 
-## 目的
+能力聲明標準要求所有工具、Adapter 和 Agent 顯式聲明其安全性質。**所有性質預設為最保守的（Fail-Closed）值**——忘記聲明能力的開發者得到的是安全行為，而非危險行為。
 
-Fail-Closed 能力聲明：工具／Adapter／Agent 必須顯式聲明安全性，缺省為最保守預設。
+借鑑自 claude-code-book 的 `buildTool` 工廠設計：其中 `isConcurrencySafe()` 與 `isReadOnly()` 預設為 `false`，效能優化必須顯式選擇啟用。
 
-所有工具、Adapter 和 Agent 能力預設為「不安全、需授權」。開發者必須顯式聲明 `isConcurrencySafe: true` 才能享受並行優化。「忘記設權限」的結果是保守行為而非危險行為。
+## Fail-Closed 預設值
 
----
-
-## 核心規範
-
-- 所有工具、Adapter、Agent 必須實作 `CapabilityDeclaration`（即使使用預設值）
-- `isConcurrencySafe` 和 `isReadOnly` 預設為 `false` — 必須顯式聲明才能解鎖優化路徑
-- 框架必須在缺少聲明時使用 `FAIL_CLOSED_DEFAULTS`，並記錄警告
-- 聲明必須反映實際能力，虛假聲明（如謊稱 `isReadOnly`）視為安全漏洞
-- `trustLevel` 影響沙箱隔離強度，不可降低至低於 `userSettings` 允許的等級
-
----
+```typescript
+const FAIL_CLOSED_DEFAULTS: CapabilityDeclaration = {
+  isConcurrencySafe: false,       // Cannot run in parallel
+  isReadOnly: false,              // Assumed to have side effects
+  requiresUserConfirmation: true, // Must confirm before execution
+  trustLevel: "untrusted",        // Maximum sandbox restrictions
+};
+```
 
 ## CapabilityDeclaration 介面
 
 | 欄位 | 類型 | 預設值 | 說明 |
 |------|------|--------|------|
-| `isConcurrencySafe` | `boolean` | `false` | 是否對並行執行安全（無競態、無共享可變狀態）。設為 `true` 後可加入並行批次執行 |
-| `isReadOnly` | `boolean` | `false` | 是否為純讀取操作（不修改任何持久化狀態）。設為 `true` 後可跳過寫入相關的 Safety Hook 階段 |
-| `requiresUserConfirmation` | `boolean` | `true` | 執行前是否需要使用者明確確認。設為 `false` 後進入自動執行模式（需 `userSettings` 允許） |
-| `trustLevel` | enum | `untrusted` | 工具的信任等級，影響沙箱隔離強度 |
+| `isConcurrencySafe` | boolean | **false** | 可安全地與其他操作並行執行 |
+| `isReadOnly` | boolean | **false** | 不做任何持久化狀態變更 |
+| `requiresUserConfirmation` | boolean | **true** | 執行前需要使用者明確核准 |
+| `trustLevel` | enum | **untrusted** | 沙箱隔離等級 |
 
-### trustLevel 值對應
+## 信任等級
 
-| 值 | 說明 |
-|----|------|
-| `trusted` | 內建工具或已審核插件，無沙箱限制 |
-| `sandboxed` | 第三方工具，在受限環境中執行 |
-| `untrusted` | 未知來源，最嚴格限制（預設） |
+| 等級 | 說明 | 沙箱 |
+|------|------|------|
+| `trusted` | 內建或已審核插件 | 無限制 |
+| `sandboxed` | 第三方工具 | 受限的執行環境 |
+| `untrusted` | 未知來源 | 最嚴格限制（預設） |
 
----
+## 常見工具聲明
 
-## Fail-Closed 預設值
-
-缺少聲明時使用的保守預設：
-
-| 欄位 | 值 |
-|------|-----|
-| `isConcurrencySafe` | `false` |
-| `isReadOnly` | `false` |
-| `requiresUserConfirmation` | `true` |
-| `trustLevel` | `untrusted` |
-
-使用預設時記錄警告：`[WARN] Capability not declared, using Fail-Closed defaults for: {component_name}`
-
----
-
-## 常見工具聲明範例
-
-| 工具 | `isConcurrencySafe` | `isReadOnly` | `requiresUserConfirmation` | `trustLevel` |
-|------|--------------------|--------------|-----------------------------|-------------|
-| GrepTool | `true` | `true` | `false` | `trusted` |
-| GlobTool | `true` | `true` | `false` | `trusted` |
-| FileReadTool | `true` | `true` | `false` | `trusted` |
-| FileEditTool | `false` | `false` | `true` | `trusted` |
-| BashTool | `false` | `false` | `true` | `sandboxed` |
-
----
+| 工具 | isConcurrencySafe | isReadOnly | requiresConfirmation | trustLevel |
+|------|-------------------|------------|---------------------|------------|
+| GrepTool | ✅ true | ✅ true | ❌ false | trusted |
+| GlobTool | ✅ true | ✅ true | ❌ false | trusted |
+| FileReadTool | ✅ true | ✅ true | ❌ false | trusted |
+| FileEditTool | ❌ false | ❌ false | ✅ true | trusted |
+| BashTool | ❌ false | ❌ false | ✅ true | sandboxed |
 
 ## 執行規範
 
-| 情況 | 行動 |
-|------|------|
-| 缺少聲明 | 使用 `FAIL_CLOSED_DEFAULTS`，記錄警告 |
-| 虛假聲明（聲明 `isReadOnly: true` 但實際執行了寫入） | 記錄 `CAPABILITY_MISMATCH` 事件，降級至 `FAIL_CLOSED_DEFAULTS` |
+- **缺少聲明**：使用 `FAIL_CLOSED_DEFAULTS` 並記錄 `[WARN] Capability not declared for: {name}`
+- **虛假聲明偵測**：若聲明 `isReadOnly: true` 卻執行寫入 → 記錄 `CAPABILITY_MISMATCH` 事件，退回 Fail-Closed
+- **並行**：只有 `isConcurrencySafe: true` 的組件可被批次納入並行執行
 
----
+## 參考資料
 
-## 適用組件
+- AI 最佳化版本：[ai/standards/capability-declaration.ai.yaml](../../../ai/standards/capability-declaration.ai.yaml)
+- XSPEC-037：跨專案規格
+- 借鑑自：[claude-code-book](https://github.com/lintsinghua/claude-code-book) Ch.3 `buildTool` Fail-Closed 工廠
 
-- AgentAdapter 實作（採用層；如 ClaudeAdapter / OpenCodeAdapter / CliAdapter）
-- Tool 呼叫系統（採用層）
-- ToolExecutor 實作（採用層）
-- Agent（採用層；planner / builder / evaluator 等）
-- 所有 MCP 工具插件
 
----
-
-## 錯誤碼
-
-| 代碼 | 說明 |
-|------|------|
-| `CAP-001` | `CAPABILITY_NOT_DECLARED` — 使用 Fail-Closed 預設 |
-| `CAP-002` | `CAPABILITY_MISMATCH` — 實際行為與聲明不符 |
-| `CAP-003` | `TRUST_LEVEL_INSUFFICIENT` — `trustLevel` 低於場景要求 |
-| `CAP-004` | `CONCURRENT_UNSAFE` — 嘗試並行執行 `isConcurrencySafe: false` 的組件 |
+**Scope**: universal

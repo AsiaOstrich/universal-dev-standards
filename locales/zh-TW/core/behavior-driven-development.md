@@ -2,7 +2,8 @@
 source: ../../../core/behavior-driven-development.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-03-24
+last_synced: 2026-10-11
+source_hash: d6b5a50a5e9b
 status: current
 ---
 
@@ -40,24 +41,9 @@ BDD 構成雙循環 TDD（GOOS 模式）的**外層循環**，BDD 場景驅動�
 | **參與者** | 開發人員 + BA + QA（Three Amigos） |
 | **工具** | Cucumber、Behave、SpecFlow |
 
-## Gherkin 語法範例
-
-```gherkin
-Feature: 使用者登入
-  作為一個已註冊的使用者
-  我希望能夠登入系統
-  以便存取我的個人資料
-
-  Scenario: 使用有效憑證登入
-    Given 使用者已在登入頁面
-    When 使用者輸入有效的帳號和密碼
-    Then 系統應重導至儀表板
-    And 顯示歡迎訊息
-```
-
 ## 相關標準
 
-- [測試驅動開發](../../../core/test-driven-development.md)
+- [測試驅動開發](test-driven-development.md)
 - [驗收測試驅動開發](acceptance-test-driven-development.md)
 - [規格驅動開發](spec-driven-development.md)
 - [測試標準](testing-standards.md)
