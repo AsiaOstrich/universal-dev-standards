@@ -6,7 +6,8 @@ description: |
 source: ../../../../skills/spec-driven-dev/guide.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-03-23
+last_synced: 2026-10-11
+source_hash: 391e36faec3a
 status: current
 ---
 
@@ -102,7 +103,7 @@ status: current
 
 - 紧急修复（立即恢复服务，之后补文档）
 - 琐碎变更（错字、注释、格式）
-- 依赖套件更新（不破坏兼容性）
+- 依赖包更新（不破坏兼容性）
 - 配置变更
 
 ## 详细阶段指引
@@ -235,11 +236,11 @@ Discuss 阶段确保在编写规格前解决所有歧义。
 AI 助手可使用 YAML 格式文件以减少 token 用量：
 - 基本标准：`ai/standards/spec-driven-development.ai.yaml`
 
-## 与其他标准的整合
+## 与其他标准的集成
 
-### 与 Commit 讯息
+### 与 Commit 信息
 
-在 commit 讯息中参照规格 ID：
+在 commit 信息中参照规格 ID：
 
 ```
 feat(auth): 实现登录功能
@@ -265,6 +266,37 @@ Refs: SPEC-001
 - [ ] 变更符合已核准的规格
 - [ ] 没有超出规格的范围蔓延
 - [ ] 规格的验收条件已满足
+
+## 示例
+
+### 良好做法
+
+```markdown
+# SPEC-001 新增 OAuth2 登录
+
+## 摘要
+新增 Google OAuth2 登录，让用户可以使用 Google 账号登录。
+
+## 动机
+- 降低新用户的使用门槛
+- 不存储密码以提升安全性
+
+## 验收条件
+- [ ] 用户可以点击「使用 Google 登录」按钮
+- [ ] 新用户自动完成注册
+- [ ] 现有用户关联到 Google 账号
+```
+
+### 不良做法
+
+```markdown
+# 新增登录
+
+新增登录。
+```
+- 缺少规格 ID
+- 没有动机
+- 没有验收条件
 
 ## 常见 SDD 工具
 
@@ -366,7 +398,7 @@ Refs: SPEC-001
 ## 相关标准
 
 - [规格驱动开发标准](../../../../core/spec-driven-development.md)
-- [Commit 讯息指南](../../../../core/commit-message-guide.md)
+- [Commit 信息指南](../../../../core/commit-message-guide.md)
 - [代码审查清单](../../../../core/code-review-checklist.md)
 
 ---

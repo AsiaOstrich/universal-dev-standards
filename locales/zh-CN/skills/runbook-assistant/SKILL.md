@@ -2,7 +2,8 @@
 source: ../../../../skills/runbook-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: f11a4927fe55
 status: current
 description: |
   引导 Runbook 的撰写、维护与演练。
@@ -21,7 +22,7 @@ description: |
 
 | 功能 | 说明 |
 |------|------|
-| **创建 Runbook** | 从标准模板生成 Runbook（7 个区段） |
+| **创建 Runbook** | 从标准模板生成 Runbook（7 个章节） |
 | **演练规划** | 规划和记录演练 |
 | **覆盖率报告** | 检查 P1-P4 告警的 Runbook 覆盖率 |
 | **质量审查** | 验证 Runbook 质量（6 个原则） |
@@ -43,9 +44,15 @@ description: |
 > - 执行 `/incident --postmortem` 从事故更新 Runbook
 > - 执行 `/checkin` 提交变更
 
+## 部署 Runbook — 强制规则
+
+任何包含 destructive-update（stop → swap → start）的部署 runbook **必须**遵循 [Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) 顺序：解压到 staging → verify → 通过后才动 live install。跳过 verify 步骤已造成真实的生产事故。
+
 ## 参考
 
 - 详细指南：[guide.md](./guide.md) — 运维手册的编写、组织与验证。要写手册、审查运维流程、规划演练或评估覆盖范围时读它。
 - 核心规范：[runbook-standards.md](../../../../core/runbook-standards.md)
 - 相关：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 相关：[postmortem-standards.md](../../../../core/postmortem-standards.md)
+- 相关：[deployment-standards.md § Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) — destructive 部署的强制顺序
+- 相关：[packaging-standards.md § Archive Format Integrity](../../../../core/packaging-standards.md#archive-format-integrity) — 与防御性顺序配套的上游规范

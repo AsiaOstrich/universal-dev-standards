@@ -2,7 +2,8 @@
 source: ../../../../skills/requirement-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 8d19b66b3220
 status: current
 description: |
   [UDS] 撰写符合 INVEST 准则的用户故事与需求。
@@ -15,7 +16,7 @@ description: |
 
 > **语言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 简体中文
 
-编写结构良好的用户故事和需求文件，遵循 INVEST 准则。
+编写结构良好的用户故事和需求，遵循 INVEST 准则。
 
 ## 工作流程
 
@@ -27,26 +28,27 @@ description: |
 
 ## 用户故事格式
 
-```
+```markdown
 As a [role],
 I want [feature],
 So that [benefit].
 
 ### Acceptance Criteria
+
 - [ ] Given [context], when [action], then [result]
 - [ ] Given [context], when [action], then [result]
 ```
 
 ## INVEST 准则
 
-| 准则 | 说明 | Criterion | Description |
-|------|------|-----------|-------------|
-| **I**ndependent | 可独立开发 | Independent | Can be developed separately |
-| **N**egotiable | 可协商细节 | Negotiable | Details can be discussed |
-| **V**aluable | 提供用户价值 | Valuable | Delivers value to user |
-| **E**stimable | 可估算工作量 | Estimable | Can estimate effort |
-| **S**mall | 适合单一迭代 | Small | Fits in one sprint |
-| **T**estable | 有明确测试标准 | Testable | Has clear test criteria |
+| 准则 | 说明 |
+|------|------|
+| **I**ndependent | 可独立开发 |
+| **N**egotiable | 可协商细节 |
+| **V**aluable | 提供用户价值 |
+| **E**stimable | 可估算工作量 |
+| **S**mall | 适合单一迭代 |
+| **T**estable | 有明确测试标准 |
 
 ## 质量检查清单
 
@@ -58,16 +60,18 @@ So that [benefit].
 
 ## 使用方式
 
-- `/requirement` - 交互式需求编写向导
-- `/requirement user login` - 为功能编写需求
-- `/requirement "users can export data"` - 根据描述编写需求
+```
+/requirement                         - 交互式需求向导
+/requirement user login              - 为功能编写需求
+/requirement "users can export data" - 根据描述编写
+```
 
 ## 下一步引导
 
 `/requirement` 完成后，AI 助手应建议：
 
 > **需求文档已完成。建议下一步：**
-> - 执行 `/sdd` 建立规格文档
+> - 执行 `/sdd` 建立规格文档 ⭐ **推荐**
 > - 执行 `/atdd` 定义验收测试
 > - 执行 `/brainstorm` 进一步探索需求空间
 
@@ -77,3 +81,8 @@ So that [benefit].
 - [需求撰写指南](./requirement-writing.md) — 要从零开始写一份需求时读它。
 - 详细指南：[guide.md](./guide.md)
 - 核心规范：[requirement-engineering.md](../../../../core/requirement-engineering.md)
+
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文档：[`/requirement`](../commands/requirement.md#ai-agent-behavior--ai-代理行为)

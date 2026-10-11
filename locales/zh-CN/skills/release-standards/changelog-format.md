@@ -2,23 +2,24 @@
 source: ../../../../skills/release-standards/changelog-format.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: d214563d2b6b
 status: current
 ---
 
-# 变更日誌格式指南
+# 变更日志格式指南
 
 > **语言**: [English](../../../../skills/release-standards/changelog-format.md) | 简体中文
 
 **版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**最后更新**: 2025-12-24
+**适用范围**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供撰写和格式化变更日誌文件的指南。
+本文档提供撰写和格式化变更日志文件的指南。
 
 此标准遵循 [Keep a Changelog](https://keepachangelog.com/) 格式。
 
@@ -58,22 +59,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 | 分类 | 用途 | 何时使用 |
 |----------|-------|-------------|
-| **Added** | 新功能 | 为使用者提供的新功能 |
-| **Changed** | 修改 | 現有功能的变更 |
-| **Deprecated** | 即將移除 | 即將被移除的功能 |
+| **Added** | 新功能 | 为用户提供的新功能 |
+| **Changed** | 修改 | 现有功能的变更 |
+| **Deprecated** | 即将移除 | 即将被移除的功能 |
 | **Removed** | 已移除功能 | 在此版本中移除的功能 |
-| **Fixed** | 错误修復 | 任何错误修復 |
-| **Security** | 安全性修補 | 漏洞修復 |
+| **Fixed** | 错误修复 | 任何错误修复 |
+| **Security** | 安全补丁 | 漏洞修复 |
 
 ---
 
-## 版本標題格式
+## 版本标题格式
 
 ```markdown
 ## [VERSION] - YYYY-MM-DD
 ```
 
-**範例**:
+**示例**:
 ```markdown
 ## [2.0.0] - 2025-12-15
 ## [1.5.0-beta.1] - 2025-12-01
@@ -88,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - [Action verb] [what changed] ([reference])
 ```
 
-**範例**:
+**示例**:
 ```markdown
 ### Added
 - Add user dashboard with customizable widgets (#123)
@@ -105,9 +106,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## 破壞性变更
+## 破坏性变更
 
-使用 **BREAKING** 前綴清楚標记破壞性变更:
+使用 **BREAKING** 前缀清楚标记破坏性变更:
 
 ```markdown
 ### Changed
@@ -122,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## 安全性公告
 
-如果可用，請包含嚴重程度和 CVE:
+如果可用，请包含严重程度和 CVE:
 
 ```markdown
 ### Security
@@ -133,42 +134,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## 提交消息与变更日誌对应
+## 提交信息与变更日志对应
 
-| 提交类型 | 变更日誌分类 | 备註 |
+| 提交类型 | 变更日志分类 | 备注 |
 |-------------|-------------------|-------|
 | `feat` | **Added** | 新功能 |
-| `fix` | **Fixed** | 错误修復 |
-| `perf` | **Changed** | 效能改善 |
-| `refactor` | *(通常省略)* | 內部变更 |
-| `docs` | *(通常省略)* | 僅文件 |
-| `test` | *(通常省略)* | 僅测试 |
-| `chore` | *(通常省略)* | 維護 |
-| `BREAKING CHANGE` | **Changed** 或 **Removed** | 使用 **BREAKING** 前綴 |
-| `security` | **Security** | 安全性修補 |
-| `deprecate` | **Deprecated** | 棄用通知 |
+| `fix` | **Fixed** | 错误修复 |
+| `perf` | **Changed** | 性能改进 |
+| `refactor` | *(通常省略)* | 内部变更 |
+| `docs` | *(通常省略)* | 仅文档 |
+| `test` | *(通常省略)* | 仅测试 |
+| `chore` | *(通常省略)* | 维护 |
+| `BREAKING CHANGE` | **Changed** 或 **Removed** | 使用 **BREAKING** 前缀 |
+| `security` | **Security** | 安全补丁 |
+| `deprecate` | **Deprecated** | 弃用通知 |
 
 ---
 
-## 排除規則
+## 排除规则
 
-以下项目**不应**记录在变更日誌中:
+以下内容**不应**记录在变更日志中:
 
-| 分类 | 範例 | 原因 |
+| 分类 | 示例 | 原因 |
 |----------|----------|--------|
-| 建置输出 | `dist/`, `build/`, `bin/` | 产生的文件 |
-| 相依套件 | `node_modules/`, lock files | 自动管理 |
-| 本地设置 | `.env`, `*.local.json` | 環境特定 |
+| 构建输出 | `dist/`, `build/`, `bin/` | 生成的文件 |
+| 依赖包 | `node_modules/`, lock files | 自动管理 |
+| 本地设置 | `.env`, `*.local.json` | 环境特定 |
 | IDE 设置 | `.vscode/`, `.idea/` | 开发者偏好 |
-| 內部重構 | 程序码風格、变數名称 | 無使用者影響 |
+| 内部重构 | 代码风格、变量名称 | 无用户影响 |
 
 ---
 
 ## 撰写技巧
 
-### 为使用者撰写，而非开发者
+### 为用户撰写，而非开发者
 
-| 良好範例 | 不良範例 |
+| 良好示例 | 不良示例 |
 |------|-----|
 | Add dark mode theme option | Implement ThemeProvider with context |
 | Fix login timeout on slow networks | Fix race condition in AuthService |
@@ -176,9 +177,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## 多语言支援
+## 多语言支持
 
-### 雙語条目
+### 双语条目
 
 ```markdown
 ## [1.2.0] - 2025-12-15
@@ -191,7 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed | 修復
 - Fix login timeout issue
-  修復登入逾时問題
+  修復登入逾時問題
 ```
 
 ---
@@ -242,6 +243,6 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ## 授权条款
 
-本文件依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权發布。
+本文档依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

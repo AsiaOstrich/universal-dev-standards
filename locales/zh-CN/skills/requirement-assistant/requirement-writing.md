@@ -2,7 +2,8 @@
 source: ../../../../skills/requirement-assistant/requirement-writing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: 49b6cb707806
 status: current
 ---
 
@@ -11,20 +12,20 @@ status: current
 > **语言**: [English](../../../../skills/requirement-assistant/requirement-writing.md) | 简体中文
 
 **版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**最后更新**: 2025-12-24
+**适用范围**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供撰写清晰有效需求的完整指南。
+本文档提供撰写清晰有效需求的完整指南。
 
 ---
 
-## 使用者故事格式
+## 用户故事格式
 
-### 标准範本
+### 标准模板
 
 ```
 As a [user role],
@@ -32,7 +33,7 @@ I want [goal/feature],
 So that [benefit/value].
 ```
 
-### 範例
+### 示例
 
 **良好**:
 ```
@@ -44,68 +45,68 @@ So that I can regain access to my account if I forget my password.
 **不良**:
 ```
 Users should be able to reset passwords.
-(缺少：誰、为什麼、驗收标准)
+(缺少：谁、为什么、验收标准)
 ```
 
 ---
 
-## INVEST 原則
+## INVEST 原则
 
-### I - 獨立性（Independent）
+### I - 独立性（Independent）
 
-- 故事可以獨立开发和交付
-- 对其他故事的依賴最小
-- 可以靈活地排定優先级和排程
+- 故事可以独立开发和交付
+- 对其他故事的依赖最小
+- 可以灵活地排定优先级和排程
 
-**测试**：「我們可以在不完成另一个故事的情况下交付这个嗎？」
+**测试**：「我们可以在不完成另一个故事的情况下交付这个吗？」
 
-### N - 可協商性（Negotiable）
+### N - 可协商性（Negotiable）
 
-- 細节不是一成不变的
-- 是对话的起点，而不是合約
-- 实作方法可以討論
+- 细节不是一成不变的
+- 是对话的起点，而不是合约
+- 实现方法可以讨论
 
-**测试**：「有技術討論的空间嗎？」
+**测试**：「有技术讨论的空间吗？」
 
 ### V - 有价值性（Valuable）
 
-- 为使用者或利害关系人提供价值
-- 解决实际問題
-- 有助於商业目標
+- 为用户或利害关系人提供价值
+- 解决实际问题
+- 有助于商业目标
 
-**测试**：「这解决了什麼問題？誰会受益？」
+**测试**：「这解决了什么问题？谁会受益？」
 
 ### E - 可估算性（Estimable）
 
 - 团队可以估算工作量
-- 範圍理解得足夠充分
+- 范围理解得足够充分
 - 没有重大的未知因素
 
-**测试**：「我們可以給出粗略估算嗎？」
+**测试**：「我们可以给出粗略估算吗？」
 
 ### S - 小型化（Small）
 
-- 可以在一个衝刺內完成
+- 可以在一个 sprint 内完成
 - 通常 1-5 天的工作
 - 如果更大，拆分成更小的故事
 
-**测试**：「我們可以在一个衝刺內完成这个嗎？」
+**测试**：「我们可以在一个 sprint 内完成这个吗？」
 
 ### T - 可测试性（Testable）
 
-- 驗收标准清楚
+- 验收标准清楚
 - 可以编写自动化测试
-- 完成的定義清楚
+- 完成的定义清楚
 
-**测试**：「我們如何知道这完成了？」
+**测试**：「我们如何知道这完成了？」
 
 ---
 
-## 驗收标准
+## 验收标准
 
 ### 格式选项
 
-#### Given-When-Then (BDD 風格)
+#### Given-When-Then (BDD 风格)
 
 ```gherkin
 Given [precondition]
@@ -113,14 +114,14 @@ When [action]
 Then [expected result]
 ```
 
-**範例**:
+**示例**:
 ```gherkin
 Given I am on the login page
 When I enter valid credentials and click login
 Then I should be redirected to the dashboard
 ```
 
-#### Checkbox 風格
+#### Checkbox 风格
 
 ```markdown
 - [ ] User can upload files up to 10MB
@@ -129,23 +130,23 @@ Then I should be redirected to the dashboard
 - [ ] Error message shown if upload fails
 ```
 
-### 撰写良好的驗收标准
+### 撰写良好的验收标准
 
-| 品质 | 良好 | 不良 |
+| 质量 | 良好 | 不良 |
 |---------|------|-----|
 | **具体** | "Error message displays within 2 seconds" | "Error handling works" |
 | **可衡量** | "Response time < 500ms" | "System is fast" |
 | **可测试** | "User sees confirmation modal" | "User experience is good" |
-| **完整** | 列出所有情境 | 缺少邊界情况 |
+| **完整** | 列出所有情境 | 缺少边界情况 |
 
 ### 检查清单
 
-- [ ] 涵蓋所有正常路徑情境
-- [ ] 错误情境已定義
-- [ ] 邊緣案例已考慮
-- [ ] 效能标准（如果適用）
-- [ ] 安全需求（如果適用）
-- [ ] 無障礙需求（如果適用）
+- [ ] 涵盖所有正常路径情境
+- [ ] 错误情境已定义
+- [ ] 边缘情况已考虑
+- [ ] 性能标准（如果适用）
+- [ ] 安全需求（如果适用）
+- [ ] 无障碍需求（如果适用）
 
 ---
 
@@ -153,7 +154,7 @@ Then I should be redirected to the dashboard
 
 ### 功能性需求 (FR)
 
-**系统应該做什麼**
+**系统应该做什么**
 
 ```markdown
 ### FR1: User Registration
@@ -169,41 +170,41 @@ Then I should be redirected to the dashboard
 
 ### 非功能性需求 (NFR)
 
-**系统应該如何表現**
+**系统应该如何表现**
 
-| 类别 | 範例 |
+| 类别 | 示例 |
 |----------|---------|
-| **效能** | Response time < 200ms for 95th percentile |
-| **擴展性** | Support 10,000 concurrent users |
+| **性能** | Response time < 200ms for 95th percentile |
+| **扩展性** | Support 10,000 concurrent users |
 | **安全性** | All data encrypted in transit (TLS 1.3) |
 | **可用性** | 99.9% uptime |
 | **易用性** | WCAG 2.1 AA compliance |
 
 ---
 
-## 優先順序框架
+## 优先级框架
 
 ### MoSCoW 方法
 
-| 優先順序 | 意義 | 说明 |
+| 优先级 | 意义 | 说明 |
 |----------|---------|-------------|
-| **M**ust Have (必須有) | 关鍵 | 没有就無法發布 |
-| **S**hould Have (应該有) | 重要 | 高价值但不阻塞 |
-| **C**ould Have (可以有) | 理想 | 最好有，優先順序較低 |
-| **W**on't Have (不会有) | 不在範圍內 | 此版本不包含 |
+| **M**ust Have (必须有) | 关键 | 没有就无法发布 |
+| **S**hould Have (应该有) | 重要 | 高价值但不阻塞 |
+| **C**ould Have (可以有) | 理想 | 最好有，优先级较低 |
+| **W**on't Have (不会有) | 不在范围内 | 此版本不包含 |
 
-### 數字優先順序 (P0-P3)
+### 数字优先级 (P0-P3)
 
-| 等级 | 标签 | 说明 | 範例 |
+| 等级 | 标签 | 说明 | 示例 |
 |-------|-------|-------------|---------|
-| P0 | Critical | 阻礙性問題 | 安全漏洞 |
-| P1 | High | 必須儘快修復 | 核心功能 bug |
-| P2 | Medium | 应該修復 | UX 改进 |
-| P3 | Low | 最好有 | 次要增強 |
+| P0 | Critical | 阻碍性问题 | 安全漏洞 |
+| P1 | High | 必须尽快修复 | 核心功能 bug |
+| P2 | Medium | 应该修复 | UX 改进 |
+| P3 | Low | 最好有 | 次要增强 |
 
 ---
 
-## 問題範本
+## Issue 模板
 
 ### 功能请求
 
@@ -213,10 +214,10 @@ Then I should be redirected to the dashboard
 
 ## Motivation
 ### Problem Statement
-[这解决了什麼問題？]
+[这解决了什么问题？]
 
 ### User Impact
-[誰受到影響以及如何影響？]
+[谁受到影响以及如何影响？]
 
 ## Detailed Description
 [请求功能的完整描述]
@@ -227,10 +228,10 @@ Then I should be redirected to the dashboard
 - [ ] [标准 3]
 
 ## Design Considerations
-[任何技術考量或限制]
+[任何技术考量或限制]
 
 ## Out of Scope
-- [此功能不包含什麼]
+- [此功能不包含什么]
 
 ## Priority
 - [ ] P0 - Critical
@@ -243,7 +244,7 @@ Then I should be redirected to the dashboard
 
 ```markdown
 ## Description
-[清晰、簡潔的 bug 描述]
+[清晰、简洁的 bug 描述]
 
 ## Steps to Reproduce
 1. [第一步]
@@ -251,13 +252,13 @@ Then I should be redirected to the dashboard
 3. [第三步]
 
 ## Expected Behavior
-[应該發生什麼]
+[应该发生什么]
 
 ## Actual Behavior
-[实际發生什麼]
+[实际发生什么]
 
 ## Screenshots/Logs
-[如適用]
+[如适用]
 
 ## Environment
 - OS: [例如 Windows 11, macOS 14]
@@ -271,92 +272,92 @@ Then I should be redirected to the dashboard
 - [ ] Low - Cosmetic issue
 ```
 
-### 技術任务
+### 技术任务
 
 ```markdown
 ## Summary
 [一行描述]
 
 ## Background
-[为什麼需要这个？背景。]
+[为什么需要这个？背景。]
 
 ## Technical Details
-[实作細节、方法]
+[实现细节、方法]
 
 ## Acceptance Criteria
-- [ ] [技術标准 1]
-- [ ] [技術标准 2]
+- [ ] [技术标准 1]
+- [ ] [技术标准 2]
 
 ## Dependencies
-- [列出任何依賴项]
+- [列出任何依赖项]
 
 ## Risks
-- [列出任何風險或顧慮]
+- [列出任何风险或顾虑]
 ```
 
 ---
 
-## 常見错误
+## 常见错误
 
-### 過於模糊
+### 过于模糊
 
-❌ **不好的範例**：
+❌ **不好的示例**：
 ```
 使系统更快。
 ```
 
-✅ **好的範例**：
+✅ **好的示例**：
 ```
-將 /users 端点的 API 响应时间減少到 200ms 以下。
-```
-
-### 解决方案而非問題
-
-❌ **不好的範例**：
-```
-新增 Redis 快取。
+将 /users 端点的 API 响应时间减少到 200ms 以下。
 ```
 
-✅ **好的範例**：
+### 解决方案而非问题
+
+❌ **不好的示例**：
 ```
-將儀表板载入时间從 5 秒改善到 1 秒以下。
-（Redis 快取可能是一个解决方案，但讓团队决定）
+添加 Redis 缓存。
 ```
 
-### 缺少驗收标准
-
-❌ **不好的範例**：
+✅ **好的示例**：
 ```
-实作使用者身份验证。
-```
-
-✅ **好的範例**：
-```
-实作使用者身份验证。
-
-驗收标准：
-- [ ] 使用者可以使用電子郵件/密码註冊
-- [ ] 使用者可以使用憑证登入
-- [ ] 使用者可以透過電子郵件重设密码
-- [ ] 閒置 24 小时後工作阶段過期
-- [ ] 每小时登入失败嘗試限制为 5 次
+将仪表板加载时间从 5 秒改善到 1 秒以下。
+（Redis 缓存可能是一个解决方案，但让团队决定）
 ```
 
-### 範圍過大
+### 缺少验收标准
 
-❌ **不好的範例**：
+❌ **不好的示例**：
 ```
-建立整个電子商务平台。
+实现用户身份验证。
 ```
 
-✅ **好的範例**：
+✅ **好的示例**：
 ```
-Epic：電子商务平台
+实现用户身份验证。
 
-故事 1：使用者可以瀏覽产品目录
-故事 2：使用者可以將商品加入購物車
-故事 3：使用者可以使用信用卡結帳
-故事 4：管理員可以管理庫存
+验收标准：
+- [ ] 用户可以使用电子邮件/密码注册
+- [ ] 用户可以使用凭据登录
+- [ ] 用户可以通过电子邮件重设密码
+- [ ] 闲置 24 小时后会话过期
+- [ ] 每小时登录失败尝试限制为 5 次
+```
+
+### 范围过大
+
+❌ **不好的示例**：
+```
+建立整个电子商务平台。
+```
+
+✅ **好的示例**：
+```
+Epic：电子商务平台
+
+故事 1：用户可以浏览产品目录
+故事 2：用户可以将商品加入购物车
+故事 3：用户可以使用信用卡结账
+故事 4：管理员可以管理库存
 ```
 
 ---
@@ -365,22 +366,22 @@ Epic：電子商务平台
 
 在提交需求之前：
 
-- [ ] 問題陳述清楚
-- [ ] 目標使用者/角色已識别
-- [ ] 驗收标准已定義
-- [ ] 優先级已分配
-- [ ] 範圍邊界清楚
-- [ ] 依賴项已識别
-- [ ] 遵循 INVEST 原則
+- [ ] 问题陈述清楚
+- [ ] 目标用户/角色已识别
+- [ ] 验收标准已定义
+- [ ] 优先级已分配
+- [ ] 范围边界清楚
+- [ ] 依赖项已识别
+- [ ] 遵循 INVEST 原则
 - [ ] 可测试且可衡量
-- [ ] 没有实作細节（除非必要）
+- [ ] 没有实现细节（除非必要）
 
 ---
 
 ## 相关标准
 
 - [需求完整性检查清单](./requirement-checklist.md)
-- [規格驅动开发](../../../../core/spec-driven-development.md)
+- [规格驱动开发](../../../../core/spec-driven-development.md)
 
 ---
 
@@ -388,12 +389,12 @@ Epic：電子商务平台
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.0.0 | 2025-12-24 | 新增：标准區段（目的、相关标准、版本历史、授权） |
+| 1.0.0 | 2025-12-24 | 新增：标准章节（目的、相关标准、版本历史、授权） |
 
 ---
 
 ## 授权
 
-本文件以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权發布。
+本文档以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
 
-**來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
