@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/code-review.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-11
+source_hash: 63440740fb7c
 status: current
 ---
 
@@ -51,6 +52,45 @@ Perform systematic code review using standardized checklists and comment prefixe
 - `/code-review` - 审查当前分支的所有变更
 - `/code-review src/auth.js` - 审查特定文件
 - `/code-review feature/login` - 审查特定分支
+
+## AI Agent Behavior | AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/code-review` | 执行 `git diff` 获取当前分支所有变更，开始审查 |
+| `/code-review <file>` | 仅审查指定文件 |
+| `/code-review <branch>` | 审查指定分支相对于 main 的差异 |
+
+### Interaction Script | 交互脚本
+
+1. 获取变更内容（git diff / 读取文件）
+2. 逐一应用 8 个审查类别
+3. 为每个发现标记严重度前缀（BLOCKING / IMPORTANT / SUGGESTION / QUESTION / NOTE）
+4. 生成审查报告
+
+**Decision: 发现冲突**
+- IF 多个发现互相矛盾（如性能 vs 可读性） → 明确说明取舍，标记为 QUESTION 请用户决定
+- ELSE → 依严重度排序呈现
+
+🛑 **STOP**: 报告生成后展示结果，等待用户决定处理方式
+
+### Stop Points | 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 审查报告展示后 | 用户决定是否修复 BLOCKING 项目 |
+
+### Error Handling | 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 无变更可审查 | 告知无差异，建议先修改代码 |
+| 文件/分支不存在 | 列出可用的文件或分支 |
+| 变更量过大（>500 行） | 建议分批审查，列出建议的分批方式 |
 
 ## Reference | 参考
 

@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/docgen.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: fd0be3c2b60b
 status: current
 ---
 
@@ -61,6 +62,41 @@ sources:
     type: cli
 language: [en, zh-TW]
 ```
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/docgen` | 寻找默认配置文件 `.usage-docs.yaml`，找到则使用，否则询问 |
+| `/docgen <config>` | 使用指定配置文件 |
+| `/docgen --format <type>` | 仅生成指定格式（cheatsheet / reference / usage-guide） |
+
+### 交互脚本
+
+1. 加载配置文件，解析来源和输出设置
+2. 扫描来源文件，提取描述、选项、范例
+3. 依配置格式生成文档
+4. 展示生成的文件清单和预览
+
+🛑 **STOP**: 展示生成结果后等待用户确认写入
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 文档生成后 | 确认内容正确并写入 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 配置文件不存在 | 建议创建 `.usage-docs.yaml`，提供模板 |
+| 来源目录为空 | 告知无内容可提取，列出已扫描的路径 |
+| 输出目录不存在 | 自动创建目录 |
 
 ## 参考
 

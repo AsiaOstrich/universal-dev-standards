@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/discover.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 9f28e3ed0f34
 status: current
 ---
 
@@ -79,6 +80,45 @@ Recommendations:
 2. `/reverse spec` - 逆向工程现有代码为规格
 3. `/sdd` - 为新功能编写规格
 4. `/tdd` 或 `/bdd` - 在测试保护下实作
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/discover` | 执行全专案健康评估（所有 5 个维度） |
+| `/discover <area>` | 聚焦评估指定功能区域的相关模组 |
+
+### 交互脚本
+
+1. 扫描专案结构（package.json、目录结构、配置文件）
+2. 逐维度分析（Architecture → Dependencies → Test Coverage → Security → Technical Debt）
+3. 计算各维度分数和整体分数
+4. 生成健康报告
+
+**Decision: 整体评估**
+- IF 有 Critical 级问题 → 判定 NO-GO，列出必须修复项目
+- IF 有 Warning 级问题 → 判定 CONDITIONAL，列出建议修复项目
+- IF 全部 Good → 判定 GO，建议进入下一步
+
+🛑 **STOP**: 报告展示后等待用户决定（GO / NO-GO / CONDITIONAL）
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 健康报告展示后 | 用户决定是否继续开发 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 无 package.json 或专案配置 | 仍执行可用的维度分析，标记不可用的维度为 N/A |
+| 指定的功能区域不存在 | 列出可用的模组/目录供选择 |
+| npm audit 无法执行 | 跳过依赖安全检查，标记为 SKIP |
 
 ## 参考
 

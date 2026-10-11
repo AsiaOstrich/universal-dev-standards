@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/dev-workflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 9803ce2cc49f
 status: current
 ---
 
@@ -83,13 +84,13 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 
 | Phase | UDS Commands | 用途 |
 |-------|-------------|------|
-| **I. 规划** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 需求、规格、逆向工程 |
-| **II. 测试** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先写测试再写代码 |
-| **III. 实作** | `/refactor` `/reverse` | 编写与改善代码 |
-| **IV. 质量** | `/checkin` `/code-review` | 提交前检查与审查 |
-| **V. 发布** | `/commit` `/changelog` `/release` | 版本、提交、发布 |
-| **VI. 文档** | `/docs` `/docgen` `/struct` | 文档与专案结构 |
-| **VII. 标准** | `/discover` `/guide` | 参考指南 |
+| **I. 规划** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | 需求、规格、API/DB 设计 |
+| **II. 测试** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | 先写测试再写代码 |
+| **III. 实作** | `/refactor` `/reverse` `/migrate` `/durable` | 编写、改善与迁移代码 |
+| **IV. 质量** | `/checkin` `/code-review` `/security` `/scan` `/incident` | 质量、安全、事故响应 |
+| **V. 发布** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | 版本、提交、PR、CI/CD |
+| **VI. 文档** | `/docs` `/docgen` | 文档与专案结构 |
+| **VII. 标准** | `/discover` `/guide` `/metrics` `/audit` | 参考指南、指标、审计 |
 | **VIII. 进阶** | `/methodology` | 跨方法论工作流程 |
 
 ## 常见场景
@@ -111,6 +112,55 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 ```
 /discover → /reverse → /coverage → /refactor → /checkin → /commit
 ```
+
+### 安全审查
+
+```
+/scan → /security → /checkin → /commit
+```
+
+### API 设计
+
+```
+/brainstorm → /api-design → /sdd → /derive → /tdd → /pr
+```
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/dev-workflow` | 先检查 `.workflow-state/`，有活跃工作流程则显示状态，否则展示全阶段概览 |
+| `/dev-workflow <phase>` | 展示指定阶段的详细命令和说明 |
+| `/dev-workflow <scenario>` | 展示指定场景的推荐工作流程（new-feature / bug-fix / refactoring） |
+
+### 交互脚本
+
+1. 检查 `.workflow-state/` 和 `docs/specs/` 的活跃状态
+2. 依据结果决定展示内容
+
+**Decision: 活跃工作流程**
+- IF 有进行中的 workflow → 显示状态摘要，建议 resume 命令
+- IF 有活跃 spec → 提示 spec 进度，建议下一步
+- ELSE → 展示完整阶段概览或指定内容
+
+**Decision: 场景模式**
+- IF 指定场景（new-feature / bug-fix / refactoring） → 展示该场景的推荐命令序列
+- ELSE → 展示概览表
+
+### 停止点
+
+此命令为纯查询/导引，无需停止点。
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 指定的 phase/scenario 不存在 | 列出可用的 phase 和 scenario |
+| `.workflow-state/` 目录不存在 | 跳过活跃工作流程检查，直接展示概览 |
 
 ## 参考
 

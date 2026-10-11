@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/config.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: f7ff4f12776e
 ---
 
 ---
@@ -197,6 +198,54 @@ CLI 在 `manifest.declinedFeatures` 中追踪已拒绝的 Skills/Commands：
 | `--skills-location <loc>` | Skills 安装位置: project, user |
 | `--yes`, `-y` | 跳过确认提示 |
 | `-E`, `--experimental` | 启用实验性功能 |
+
+## AI 代理行为
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 进入路由
+
+| 输入 | AI 动作 |
+|------|---------|
+| `/config` | 显示当前状态 → 询问配置类型 → 执行 |
+| `/config <type>` | 直接执行指定类型配置（如 `skills`、`ai_tools`） |
+| `/config --ai-tool <tool>` | 非互动式为特定工具安装 Skills/Commands |
+
+### 交互脚本
+
+1. 执行 `uds check --summary` 显示当前状态
+
+**Decision: 有无指定 type**
+- IF 指定了 type → 直接执行 `uds configure --type <type>`
+- IF 指定了 `--ai-tool` → 非互动式执行安装
+- ELSE → 进入互动流程
+
+2. 询问配置类型（AskUserQuestion）：
+   - Basic Options / AI Tools / Skills / Commands / Advanced / All
+
+3. 根据选择执行对应 CLI 命令
+
+**Decision: Skills/Commands 配置**
+- IF 选择 Skills → 显示安装状态 + 拒绝状态 → 动作菜单
+- IF 选择 Commands → 同上流程
+
+🛑 **STOP**: 显示当前状态后等待用户选择配置类型
+
+### 停止点
+
+| 停止点 | 等待内容 |
+|--------|---------|
+| 状态显示后 | 用户选择要配置的类型 |
+| Skills/Commands 动作菜单 | 用户选择安装/更新/重新安装 |
+
+### 错误处理
+
+| 错误条件 | AI 动作 |
+|----------|---------|
+| 标准未初始化 | 提示先执行 `/init` |
+| 无效的 config type | 列出可用类型供选择 |
+| 指定的 AI tool 不支持 | 列出支持的工具清单 |
+| 之前拒绝的 Skills/Commands | 提示可通过此命令重新安装 |
 
 ## 参考
 

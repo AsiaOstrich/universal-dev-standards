@@ -2,7 +2,8 @@
 source: ../../../../skills/commands/durable.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 589fe302afa6
 status: current
 ---
 
@@ -57,13 +58,13 @@ DETECT ──► DIAGNOSE ──► RECOVER ──► VERIFY ──► CONTINUE
 - IF 数据不一致 → 建议检查点 + 补偿事务
 - IF 不可逆失败 → 建议回滚策略
 
-**STOP**: 诊断结果展示后等待用户确认策略方向
+🛑 **STOP**: 诊断结果展示后等待用户确认策略方向
 
 #### RECOVER
 1. 设计选定的恢复策略
 2. 展示策略细节和代码建议
 
-**STOP**: 策略设计后等待用户确认
+🛑 **STOP**: 策略设计后等待用户确认
 
 #### VERIFY
 1. 建议验证步骤确认恢复成功
