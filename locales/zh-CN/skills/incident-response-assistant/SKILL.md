@@ -2,7 +2,8 @@
 source: ../../../../skills/incident-response-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: f72f7ffb6422
 status: current
 description: |
   引导事故响应、根因分析与事后复盘文档撰写。
@@ -95,12 +96,14 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 
 ## 使用方式
 
-- `/incident` - 显示完整事故回应指南
-- `/incident "API 500 errors"` - 特定事故引导回应
-- `/incident --post-mortem` - 生成事后复盘模板
-- `/incident --sev1` - SEV-1 快速响应清单
-- `/incident --actions` - 列出未完成行动项
-- `/incident --metrics` - 显示事故趋势指标
+```bash
+/incident                       # 显示完整事故回应指南
+/incident "API 500 errors"      # 特定事故引导回应
+/incident --post-mortem         # 生成事后复盘模板
+/incident --sev1                # SEV-1 快速响应清单
+/incident --actions             # 列出未完成行动项
+/incident --metrics             # 显示事故趋势指标
+```
 
 ## 改善追踪
 
@@ -141,14 +144,29 @@ docs/incidents/
 `/incident` 完成后，AI 助手应建议：
 
 > **事故回应指引已提供。建议下一步：**
-> - 执行 `/commit` 创建修复提交 ⭐ **推荐**
-> - 执行 `/code-review` 审查修复变更
-> - 执行 `/docs` 更新文档
-> - 执行 `/security` 检查安全影响
-> - 执行 `/retrospective`（SEV-1/SEV-2 建议）— 团队回顾
-> - 执行 `/incident --actions` — 查看未完成行动项
+> - 提交修复 → 执行 `/commit` 创建修复提交 ⭐ **推荐**
+> - 代码审查 → 执行 `/code-review` 审查修复变更
+> - 记录学习 → 执行 `/docs` 更新文档
+> - 安全审查 → 执行 `/security` 检查安全影响
+> - 团队回顾 → 执行 `/retrospective`（SEV-1/SEV-2 建议）
+> - 查看行动项 → 执行 `/incident --actions`
 
 ## 参考
 
 - 核心规范：[deployment-standards.md](../../../../core/deployment-standards.md)
 - 核心规范：[logging.md](../../../../core/logging-standards.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.1.0 | 2026-03-26 | 新增改善阶段、行动追踪、指标 |
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文档：[`/incident`](../commands/incident.md#ai-agent-behavior--ai-代理行为)
+
+## 授权
+
+CC BY 4.0 — 文档内容

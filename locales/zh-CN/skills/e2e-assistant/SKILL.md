@@ -2,7 +2,8 @@
 source: ../../../../skills/e2e-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 847c1498d429
 status: current
 description: |
   [UDS] 从 BDD 的 .feature 场景生成 E2E 测试骨架，并支持框架检测与覆盖缺口分析。
@@ -53,11 +54,25 @@ description: |
 
 ## 支持框架
 
-| 框架 | 自动检测 | 模板 |
-|------|:--------:|------|
-| Playwright | ✅ | `@playwright/test` |
-| Cypress | ✅ | `cy.*` 指令 |
-| Vitest | ✅ | `describe/it` + async |
+| 生态系统 | 框架 | 自动检测 | 检测信号 |
+|----------|------|:--------:|----------|
+| JavaScript | Playwright | ✅ | package.json 中有 `@playwright/test` |
+| JavaScript | Cypress | ✅ | `cypress` 依赖 + 配置文件 |
+| JavaScript | Vitest | ✅ | `vitest` 依赖 + e2e 目录 |
+| JavaScript | WebdriverIO | ❌ 手动 | 列于 SUPPORTED_FRAMEWORKS |
+| Python | pytest-playwright | ✅ | requirements 中有 `pytest-playwright` |
+| Python | Selenium + pytest | ✅ | requirements 中有 `selenium` |
+| Python | Robot Framework | ✅ | requirements 中有 `robotframework` |
+| Python | Behave | ✅ | requirements 中有 `behave` |
+| Go | chromedp | ✅ | go.mod 中有 `chromedp` |
+| Go | rod | ✅ | go.mod 中有 `rod` |
+| Java | Selenium WebDriver | ✅ | pom.xml / build.gradle 中有 `selenium-java` |
+| Java | Playwright for Java | ✅ | pom.xml / build.gradle 中有 `playwright` |
+| Java | Gauge | ✅ | pom.xml / build.gradle 中有 `gauge-java` |
+| Ruby | Capybara | ✅ | Gemfile 中有 `capybara` |
+| Ruby | Watir | ✅ | Gemfile 中有 `watir` |
+| C# | Playwright for .NET | ❌ 手动 | 尚未支持自动检测 |
+| C# | Selenium WebDriver | ❌ 手动 | 尚未支持自动检测 |
 
 ## 使用方式
 

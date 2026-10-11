@@ -2,7 +2,8 @@
 source: ../../../../skills/durable-execution-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: b7b644cafbce
 status: current
 description: |
   [UDS] 引导容错工作流设计，包含检查点、重试策略与回滚计划。
@@ -76,10 +77,35 @@ description: |
 4. **验证** - 确认系统状态一致
 5. **继续** - 从上一个检查点继续
 
+## 使用示例
+
+```
+User: /durable deploy-pipeline
+AI: Analyzing deploy-pipeline for durability...
+    Steps: build → test → deploy → verify
+    Risk: deploy step has no rollback strategy.
+    Recommendation: Add checkpoint after test,
+    configure rollback for deploy using blue-green strategy.
+```
+
 ## 下一步引导
 
 `/durable` 完成后，AI 助手应建议：
 
 > **持久性分析完成。建议下一步：**
-> - 执行 `/methodology` 选择适合的开发方法论
+> - 执行 `/methodology` 选择适合的开发方法论 ⭐ **推荐**
 > - 执行 `/commit` 提交持久化设计变更
+
+## 版本历史
+
+| 版本 | 日期 | 变更 |
+|------|------|------|
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/durable`](../../../../skills/commands/durable.md#ai-agent-behavior--ai-代理行為)
+
+## 授权
+
+CC BY 4.0

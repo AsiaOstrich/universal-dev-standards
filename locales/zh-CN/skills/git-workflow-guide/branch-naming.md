@@ -2,23 +2,24 @@
 source: ../../../../skills/git-workflow-guide/branch-naming.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-11
+source_hash: dd302ca63258
 status: current
 ---
 
-# 分支命名參考
+# 分支命名参考
 
 > **语言**: [English](../../../../skills/git-workflow-guide/branch-naming.md) | 简体中文
 
 **版本**: 1.0.0
-**最後更新**: 2025-12-24
-**適用範圍**: Claude Code Skills
+**最后更新**: 2025-12-24
+**适用范围**: Claude Code Skills
 
 ---
 
 ## 目的
 
-本文件提供 Git 分支命名慣例和規則的參考指南。
+本文件提供 Git 分支命名惯例和规则的参考指南。
 
 ---
 
@@ -34,37 +35,37 @@ status: current
 
 ### 功能分支
 
-| 类型 | 用途 | 範例 |
+| 类型 | 用途 | 范例 |
 |------|------|------|
 | `feature/` | 新功能 | `feature/oauth-login` |
-| `feat/` | 簡写形式 | `feat/user-dashboard` |
+| `feat/` | 简写形式 | `feat/user-dashboard` |
 
-### 修復分支
+### 修复分支
 
-| 类型 | 用途 | 範例 |
+| 类型 | 用途 | 范例 |
 |------|-------|---------|
-| `fix/` | 错误修復 | `fix/memory-leak` |
+| `fix/` | 错误修复 | `fix/memory-leak` |
 | `bugfix/` | 替代形式 | `bugfix/login-error` |
-| `hotfix/` | 緊急正式環境修復 | `hotfix/security-patch` |
+| `hotfix/` | 紧急正式环境修复 | `hotfix/security-patch` |
 
 ### 其他类型
 
-| 类型 | 用途 | 範例 |
+| 类型 | 用途 | 范例 |
 |------|-------|---------|
-| `refactor/` | 程序码重構 | `refactor/extract-service` |
-| `docs/` | 僅文件更新 | `docs/api-reference` |
+| `refactor/` | 程序码重构 | `refactor/extract-service` |
+| `docs/` | 仅文件更新 | `docs/api-reference` |
 | `test/` | 测试新增 | `test/integration-tests` |
-| `chore/` | 維護任务 | `chore/update-deps` |
+| `chore/` | 维护任务 | `chore/update-deps` |
 | `perf/` | 效能改善 | `perf/optimize-query` |
-| `style/` | 格式調整 | `style/code-format` |
+| `style/` | 格式调整 | `style/code-format` |
 | `ci/` | CI/CD 变更 | `ci/add-coverage` |
-| `release/` | 發布准备 | `release/v1.2.0` |
+| `release/` | 发布准备 | `release/v1.2.0` |
 
 ---
 
-## 命名規則
+## 命名规则
 
-### 应該做的事
+### 应该做的事
 
 1. **使用小写**
    ```bash
@@ -72,51 +73,51 @@ status: current
    Feature/User-Auth    # ❌ 不好
    ```
 
-2. **使用連字号分隔空格**
+2. **使用连字号分隔空格**
    ```bash
    feature/oauth-login  # ✅ 良好
    feature/oauth_login  # ❌ 不好（底线）
-   feature/oauthlogin   # ❌ 不好（無分隔符号）
+   feature/oauthlogin   # ❌ 不好（无分隔符号）
    ```
 
-3. **具描述性但簡潔**
+3. **具描述性但简洁**
    ```bash
    feature/add-user-authentication  # ✅ 良好
    feature/auth                     # ⚠️ 太模糊
-   feature/add-new-user-authentication-with-oauth2-and-jwt  # ❌ 太長
+   feature/add-new-user-authentication-with-oauth2-and-jwt  # ❌ 太长
    ```
 
-4. **包含問題编号（选择性）**
+4. **包含问题编号（选择性）**
    ```bash
    feature/123-oauth-login   # ✅ 良好
    feature/GH-123-oauth      # ✅ 良好（GitHub issue）
    feature/JIRA-456-payment  # ✅ 良好（Jira ticket）
    ```
 
-### 不应該做的事
+### 不应该做的事
 
-1. **不要只使用問題编号**
+1. **不要只使用问题编号**
    ```bash
    feature/123       # ❌ 不具描述性
-   fix/456           # ❌ 修復什麼？
+   fix/456           # ❌ 修复什么？
    ```
 
 2. **不要使用特殊字元**
    ```bash
-   feature/oauth@login  # ❌ 不允許 @
-   feature/auth#123     # ❌ 不允許 #
+   feature/oauth@login  # ❌ 不允许 @
+   feature/auth#123     # ❌ 不允许 #
    ```
 
 3. **不要使用空格**
    ```bash
-   feature/oauth login  # ❌ 不允許空格
+   feature/oauth login  # ❌ 不允许空格
    ```
 
 ---
 
-## 範例
+## 范例
 
-### 良好範例
+### 良好范例
 
 ```bash
 # 功能分支
@@ -125,7 +126,7 @@ feature/oauth2-google-login
 feature/123-add-payment-gateway
 feat/dashboard-analytics
 
-# 修復分支
+# 修复分支
 fix/null-pointer-payment
 fix/memory-leak-session-cache
 bugfix/login-redirect-loop
@@ -140,7 +141,7 @@ perf/optimize-database-queries
 release/v1.2.0
 ```
 
-### 不良範例
+### 不良范例
 
 ```bash
 # ❌ 不具描述性
@@ -158,7 +159,7 @@ feature/oauth_login
 feature/oauth.login
 feature/oauth login
 
-# ❌ 無类型前綴
+# ❌ 无类型前缀
 oauth-login
 user-authentication
 memory-leak-fix
@@ -168,7 +169,7 @@ feature/update
 fix/issue
 chore/stuff
 
-# ❌ 太長
+# ❌ 太长
 feature/add-new-user-authentication-system-with-oauth2-jwt-and-session-management
 ```
 
@@ -185,16 +186,16 @@ git branch --show-current
 # 验证格式（应符合模式）
 # <type>/<description>
 # - type: feature, fix, bugfix, hotfix, refactor, docs, test, chore, perf, style, ci, release
-# - description: 小写、連字号分隔、具描述性
+# - description: 小写、连字号分隔、具描述性
 ```
 
 ### 验证检查清单
 
-- [ ] 以有效的类型前綴開頭（`feature/`、`fix/` 等）
+- [ ] 以有效的类型前缀开头（`feature/`、`fix/` 等）
 - [ ] 全部小写
-- [ ] 使用連字号（非底线或空格）
-- [ ] 具描述性但簡潔（理想为 3-5 个单字）
-- [ ] 無特殊字元（@、#、$ 等）
+- [ ] 使用连字号（非底线或空格）
+- [ ] 具描述性但简洁（理想为 3-5 个单字）
+- [ ] 无特殊字元（@、#、$ 等）
 
 ---
 
@@ -215,6 +216,6 @@ git branch --show-current
 
 ## 授权条款
 
-本文件採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权發布。
+本文件采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权发布。
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

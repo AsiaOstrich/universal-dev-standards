@@ -2,13 +2,14 @@
 source: ../../../../skills/project-structure-guide/language-patterns.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-11
+source_hash: 4164884da2d0
 status: current
 ---
 
 # 语言特定项目模式
 
-各语言项目结构快速參考。
+各语言项目结构快速参考。
 
 ## Node.js / TypeScript
 
@@ -89,7 +90,7 @@ project/
 
 ## Go
 
-### 标准佈局
+### 标准布局
 
 ```
 project/
@@ -240,13 +241,13 @@ project/
 ### 通用
 
 ```gitignore
-# 建構输出
+# 构建输出
 dist/
 build/
 out/
 bin/
 
-# 環境
+# 环境
 .env
 .env.*
 
@@ -255,7 +256,7 @@ bin/
 .vscode/
 *.swp
 
-# 作业系统
+# 操作系统
 .DS_Store
 Thumbs.db
 ```
@@ -267,5 +268,5 @@ Thumbs.db
 | Node.js | node_modules/、*.log |
 | Python | __pycache__/、*.pyc、.venv/ |
 | Go | vendor/（如不使用 modules） |
-| Rust | target/、Cargo.lock（函式庫） |
+| Rust | target/、Cargo.lock（库项目） |
 | Java/.NET | *.class、bin/、obj/ |

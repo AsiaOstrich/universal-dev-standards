@@ -2,7 +2,8 @@
 source: ../../../../skills/docs-generator/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: ebe4f6398ca1
 status: current
 description: |
   [UDS] 从项目源文件生成使用文档（速查表、参考手册、使用指南）。
@@ -74,13 +75,26 @@ language: [en, zh-TW]
 
 > **注意**：此检查已整合至 `pre-release-check.sh` 的步骤 8（使用文档同步检查）。
 
+## 生成示例
+
+```markdown
+# UDS Command Cheatsheet
+
+| Command    | Description               |
+|------------|---------------------------|
+| /commit    | Generate commit message    |
+| /code-review    | Run code review            |
+| /sdd       | Create SDD specification   |
+| /discover  | Assess project health      |
+```
+
 ## 下一步引导
 
 `/docgen` 完成后，AI 助手应建议：
 
 > **文档已生成。建议下一步：**
 > - 审查生成的文档内容是否完整
-> - 执行 `/commit` 提交文档变更
+> - 执行 `/commit` 提交文档变更 ⭐ **推荐**
 > - 执行 `/code-review` 审查文档品质
 
 ## 参考

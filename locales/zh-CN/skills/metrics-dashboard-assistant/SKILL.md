@@ -2,7 +2,8 @@
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 75a71b22eabf
 status: current
 description: |
   [UDS] 长期追踪开发指标、代码质量指标与技术债。
@@ -112,13 +113,48 @@ AI: 技术债趋势（近 3 个月）：
 3. **报告** - 产生含可行动重点的摘要
 4. **趋势** - 显示方向（改善 / 衰退 / 稳定）
 
+## 使用范例
+
+```
+User: /metrics
+AI: 正在分析项目健康状态...
+    代码品质:  B+（平均复杂度 8.2，0 个 lint 错误）
+    测试健康:  A （覆盖率 87%，0 个不稳定测试）
+    债务追踪:  C （42 个 TODO，3 个 FIXME）
+    总分:      78/100（良好）
+```
+
+```
+User: /metrics --debt
+AI: 技术债摘要：
+    TODO:  42（src/legacy/ 有 12 个，src/utils/ 有 8 个）
+    FIXME: 3 （全部在 src/parser/）
+    最久:  6 个月（src/legacy/auth.js:45）
+    趋势:  比上个月 +5（增加中）
+```
+
 ## 下一步引导
 
 `/metrics` 完成后，AI 助手应建议：
 
 > **指标分析完成。建议下一步：**
-> - 执行 `/refactor` 处理高复杂度模组
+> - 执行 `/refactor` 处理高复杂度模组 ⭐ **推荐**
 > - 执行 `/coverage` 改善低覆盖率区域
 > - 执行 `/audit` 检视安全与依赖问题
 > - 执行 `/metrics --debt-trend` 追踪技术债趋势
 > - 执行 `/retrospective` 在回顾中讨论技术债
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.1.0 | 2026-03-26 | 新增技术债分类、SQALE 量化、趋势追踪 |
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文档：[`/metrics`](../commands/metrics.md#ai-agent-behavior--ai-代理行为)
+
+## 授权
+
+CC BY 4.0

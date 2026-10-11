@@ -2,7 +2,8 @@
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 0c1ad1961de0
 status: current
 description: |
   依各语言的最佳实践组织项目目录结构的指南。
@@ -17,27 +18,37 @@ description: |
 
 **版本**：1.1.0
 **最后更新**：2026-03-04
-**適用性**：Claude Code Skills
+**适用性**：Claude Code Skills
 
 ---
 
 ## 目的
 
-此技能提供根据语言和框架慣例建構项目的指引，協助建立一致、可維護的目录佈局。
+此技能提供根据语言和框架惯例组织项目的指引，协助建立一致、可维护的目录布局。
 
-## 觸發时机
+# [Physical Binding]
+## 现实检查（Reality Check）
+在确认项目结构有效之前，你**必须**：
+1. 执行验证器：`uds check --standard project-structure`
+2. 若 exit_code != 0：
+   - 阅读错误信息（例如 "Missing required directories"）。
+   - 向用户报告违规之处。
+   - 建议具体的修复命令（`mkdir ...`）。
+   - 修复后**重新**执行验证。
+
+## 触发时机
 
 在以下情况使用此技能：
-- 建立新项目
+- 创建新项目
 - 重组现有项目结构
 - 新增模块或功能
 - 设置构建配置
-- 建立 .gitignore 文件
+- 创建 .gitignore 文件
 - 决定文件的放置位置（代码、文档、配置、资源）
 - 在 utils/、helpers/、shared/、lib/ 或 internal/ 之间做选择
 - 放置开发中间产物（头脑风暴、RFC、POC、技术调查）
 
-## 支援的语言
+## 支持的语言
 
 | 语言 | 框架/模式 |
 |------|-----------|
@@ -45,35 +56,35 @@ description: |
 | Python | Django、Flask、FastAPI |
 | Java | Spring Boot、Maven、Gradle |
 | .NET | ASP.NET Core、Console |
-| Go | 标准佈局、cmd/pkg |
+| Go | 标准布局、cmd/pkg |
 | Rust | Binary、Library、Workspace |
 | Kotlin | Gradle、Android、Multiplatform |
 | PHP | Laravel、Symfony、PSR-4 |
 | Ruby | Rails、Gem、Sinatra |
 | Swift | SPM、iOS App、Vapor |
 
-## 常見结构模式
+## 常见结构模式
 
 ### 标准目录
 
 ```
 project-root/
-├── src/              # 原始码
+├── src/              # 源代码
 ├── tests/            # 测试文件
-├── docs/             # 文件
-├── tools/            # 建構/部署脚本
-├── examples/         # 使用範例
+├── docs/             # 文档
+├── tools/            # 构建/部署脚本
+├── examples/         # 使用示例
 ├── config/           # 配置文件
 └── .github/          # GitHub 配置
 ```
 
-### 建構输出（始終 gitignore）
+### 构建输出（始终 gitignore）
 
 ```
-dist/                 # 發佈输出
-build/                # 编譯产物
+dist/                 # 发布输出
+build/                # 编译产物
 out/                  # 输出目录
-bin/                  # 二进位执行檔
+bin/                  # 二进制可执行文件
 ```
 
 ## 语言特定指南
@@ -121,23 +132,23 @@ project/
 
 ## 快速操作
 
-### 建立项目结构
+### 创建项目结构
 
-當被要求建立项目时：
-1. 詢問语言/框架
-2. 生成適當的目录结构
-3. 建立必要的配置文件
+当被要求创建项目时：
+1. 询问语言/框架
+2. 生成适当的目录结构
+3. 创建必要的配置文件
 4. 生成 .gitignore
 
 ### 审查结构
 
-审查現有结构时：
-1. 检查语言慣例
+审查现有结构时：
+1. 检查语言惯例
 2. 验证 gitignore 模式
 3. 建议改进
-4. 識别放錯位置的文件
+4. 识别放错位置的文件
 
-## 規則
+## 规则
 
 1. **遵循语言惯例** - 每种语言都有既定模式
 2. **分离关注点** - 将源代码、测试、文档分开
@@ -148,29 +159,21 @@ project/
 7. **工作文档放 docs/working/** - 头脑风暴、RFC、POC、技术调查放在 docs/working/ 并进行生命周期管理
 8. **生成代码分离** - 放在 src/generated/{type}/，永不与手写代码混合
 
-## 相关标准
+## 下一步引导
 
-- [各语言的项目结构](./language-patterns.md) — 按语言列出的实际目录布局（Node.js/TypeScript、Python、Go 等）。要为某个特定语言安排项目结构时读它。
-- [核心：项目结构](../../core/project-structure.md)
-- [核心：文档结构](../../core/documentation-structure.md)
-- [指南：文件归档决策指南](../../core/guides/file-placement-guide.md)
-- [AI：项目结构选项](../../../../options/project-structure/)
+`/project-structure` 完成后，AI 助手应建议：
 
-
-## Next Steps Guidance | 下一步引導
-
-After `/project-structure` completes, the AI assistant should suggest:
-
-> **專案結構已建立或審查完成。建議下一步 / Project structure created or reviewed. Suggested next steps:**
-> - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **Recommended / 推薦** — 確保結構決策有規格追蹤 / Ensures structure decisions are tracked in specs
-> - 執行 `/docs` 產生專案文件（README、ARCHITECTURE.md 等） — 讓結構決策有文件記錄 / Document structure decisions
-> - 執行 `/ai-friendly-architecture` 設定 AI 上下文配置 — 讓 AI 助手更好地理解專案結構 / Help AI assistants understand the project structure
+> **项目结构已创建或审查完成。建议下一步：**
+> - 执行 `/sdd` 开始规格驱动开发，将项目结构纳入正式规格 ⭐ **推荐** — 确保结构决策有规格追踪
+> - 执行 `/docs` 生成项目文档（README、ARCHITECTURE.md 等） — 让结构决策有文档记录
+> - 执行 `/ai-friendly-architecture` 设置 AI 上下文配置 — 让 AI 助手更好地理解项目结构
 
 ---
 
-## Related Standards
+## 相关标准
 
-- [Core: Project Structure](../../core/project-structure.md)
-- [Core: Documentation Structure](../../core/documentation-structure.md)
-- [Guide: File Placement Decision Guide](../../core/guides/file-placement-guide.md)
-- [AI: Project Structure Options](../../ai/options/project-structure/)
+- [各语言的项目结构](./language-patterns.md) — 按语言列出的实际目录布局（Node.js/TypeScript、Python、Go 等）。要为某个特定语言安排项目结构时读它。
+- [核心：项目结构](../../../../core/project-structure.md)
+- [核心：文档结构](../../../../core/documentation-structure.md)
+- [指南：文件归档决策指南](../../../../core/guides/file-placement-guide.md)
+- [AI：项目结构选项](../../../../ai/options/project-structure/)

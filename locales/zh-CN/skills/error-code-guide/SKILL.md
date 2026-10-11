@@ -8,7 +8,8 @@ description: |
 source: ../../../../skills/error-code-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: 92a0c87239f4
 status: current
 ---
 
@@ -17,35 +18,37 @@ status: current
 > **语言**: [English](../../../../skills/error-code-guide/SKILL.md) | 简体中文
 
 **版本**: 1.0.0
-**最後更新**: 2025-12-30
-**適用範圍**: Claude Code Skills
+**最后更新**: 2025-12-30
+**适用范围**: Claude Code Skills
 
 ---
 
+> **核心标准**：本技能实现 [错误码标准](../../../../core/error-code-standards.md)。完整的方法论文档请参阅核心标准。
+
 ## 目的
 
-此技能幫助设计一致的错误码，遵循标准格式，实現更好的除錯、監控和使用者体驗。
+此技能帮助设计一致的错误码，遵循标准格式，实现更好的除错、监控和使用者体验。
 
-## 快速參考
+## 快速参考
 
 ### 错误码格式
 
 ```
-<前綴>_<类别>_<编号>
+<前缀>_<类别>_<编号>
 ```
 
-| 元素 | 说明 | 範例 |
+| 元素 | 说明 | 范例 |
 |------|------|------|
-| 前綴 (PREFIX) | 应用/服务識别码 | AUTH, PAY, USR |
+| 前缀 (PREFIX) | 应用/服务识别码 | AUTH, PAY, USR |
 | 类别 (CATEGORY) | 错误类别 | VAL, SYS, BIZ |
-| 编号 (NUMBER) | 唯一數字識别码 | 001, 100, 404 |
+| 编号 (NUMBER) | 唯一数字识别码 | 001, 100, 404 |
 
-### 範例
+### 范例
 
 ```
 AUTH_VAL_001    → 认证验证错误
-PAY_SYS_503     → 付款系统無法使用
-USR_BIZ_100     → 使用者商业規則違規
+PAY_SYS_503     → 付款系统无法使用
+USR_BIZ_100     → 使用者商业规则违规
 API_NET_408     → API 网络逾时
 ```
 
@@ -54,24 +57,24 @@ API_NET_408     → API 网络逾时
 | 类别 | 全名 | 说明 | HTTP 状态码 |
 |------|------|------|-------------|
 | **VAL** | Validation | 客户端输入验证失败 | 400 |
-| **BIZ** | Business | 商业規則違規 | 422 |
-| **SYS** | System | 內部系统错误 | 500 |
-| **NET** | Network | 通訊错误 | 502/503/504 |
+| **BIZ** | Business | 商业规则违规 | 422 |
+| **SYS** | System | 内部系统错误 | 500 |
+| **NET** | Network | 通讯错误 | 502/503/504 |
 | **AUTH** | Auth | 安全相关错误 | 401/403 |
 
-### 类别编号範圍
+### 类别编号范围
 
-| 範圍 | 说明 | 範例 |
+| 范围 | 说明 | 范例 |
 |------|------|------|
-| *_VAL_001-099 | 欄位验证 | 缺少必填欄位 |
-| *_VAL_100-199 | 格式验证 | 電子郵件格式無效 |
-| *_VAL_200-299 | 約束验证 | 密码太短 |
-| *_BIZ_001-099 | 状态違規 | 订单已取消 |
-| *_BIZ_100-199 | 規則違規 | 超過 30 天無法退貨 |
-| *_BIZ_200-299 | 限制違規 | 超過每日限制 |
-| *_AUTH_001-099 | 认证 | 帳号密码错误 |
+| *_VAL_001-099 | 栏位验证 | 缺少必填栏位 |
+| *_VAL_100-199 | 格式验证 | 电子邮件格式无效 |
+| *_VAL_200-299 | 约束验证 | 密码太短 |
+| *_BIZ_001-099 | 状态违规 | 订单已取消 |
+| *_BIZ_100-199 | 规则违规 | 超过 30 天无法退货 |
+| *_BIZ_200-299 | 限制违规 | 超过每日限制 |
+| *_AUTH_001-099 | 认证 | 帐号密码错误 |
 | *_AUTH_100-199 | 授权 | 权限不足 |
-| *_AUTH_200-299 | Token/Session | Token 已過期 |
+| *_AUTH_200-299 | Token/Session | Token 已过期 |
 
 ## HTTP 状态码对应
 
@@ -86,13 +89,13 @@ API_NET_408     → API 网络逾时
 
 ## 详细指南
 
-完整标准請參考：
+完整标准请参考：
 - [错误码标准](../../../../core/error-code-standards.md)
 
-### AI 優化格式（节省 Token）
+### AI 优化格式（节省 Token）
 
-AI 助手可使用 YAML 格式文件以減少 Token 使用量：
-- 基礎标准：`ai/standards/error-codes.ai.yaml`
+AI 助手可使用 YAML 格式文件以减少 Token 使用量：
+- 基础标准：`ai/standards/error-codes.ai.yaml`
 
 ## 错误响应格式
 
@@ -103,7 +106,7 @@ AI 助手可使用 YAML 格式文件以減少 Token 使用量：
   "success": false,
   "error": {
     "code": "AUTH_VAL_001",
-    "message": "電子郵件为必填欄位",
+    "message": "电子邮件为必填栏位",
     "field": "email",
     "requestId": "req_abc123"
   }
@@ -118,7 +121,7 @@ AI 助手可使用 YAML 格式文件以減少 Token 使用量：
   "errors": [
     {
       "code": "AUTH_VAL_001",
-      "message": "電子郵件为必填欄位",
+      "message": "电子邮件为必填栏位",
       "field": "email"
     },
     {
@@ -131,37 +134,37 @@ AI 助手可使用 YAML 格式文件以減少 Token 使用量：
 }
 ```
 
-## 內部错误物件
+## 内部错误物件
 
 ```typescript
 interface ApplicationError {
-  // 核心欄位
+  // 核心栏位
   code: string;          // "AUTH_VAL_001"
-  message: string;       // 技術消息（用於日誌）
+  message: string;       // 技术消息（用于日志）
 
   // 使用者界面
   userMessage: string;   // 本地化使用者消息
-  userMessageKey: string; // i18n 鍵值: "error.auth.val.001"
+  userMessageKey: string; // i18n 键值: "error.auth.val.001"
 
   // 上下文
-  field?: string;        // 相关欄位: "email"
+  field?: string;        // 相关栏位: "email"
   details?: object;      // 附加信息
 
-  // 除錯
+  // 除错
   timestamp: string;     // ISO 8601
   requestId: string;     // 关联 ID
 }
 ```
 
-## 國际化 (i18n)
+## 国际化 (i18n)
 
-### 消息鍵值格式
+### 消息键值格式
 
 ```
-error.<前綴>.<类别>.<编号>
+error.<前缀>.<类别>.<编号>
 ```
 
-### 翻譯文件範例
+### 翻译文件范例
 
 ```yaml
 # en.yaml
@@ -177,30 +180,30 @@ error:
 error:
   auth:
     val:
-      001: "電子郵件为必填欄位"
+      001: "電子郵件為必填欄位"
       101: "電子郵件格式無效"
     auth:
-      001: "帳号或密码错误"
+      001: "帳號或密碼錯誤"
 ```
 
-## 範例
+## 范例
 
 ### ✅ 良好的错误码
 
 ```javascript
-AUTH_VAL_001  // 缺少必填欄位: email
-AUTH_VAL_101  // 電子郵件格式無效
+AUTH_VAL_001  // 缺少必填栏位: email
+AUTH_VAL_101  // 电子邮件格式无效
 ORDER_BIZ_001 // 订单已取消
-ORDER_BIZ_201 // 超過每日購买限制
-DB_SYS_001    // 数据庫查詢失败
-SEC_AUTH_001  // 帳号密码错误
-SEC_AUTH_201  // Token 已過期
+ORDER_BIZ_201 // 超过每日购买限制
+DB_SYS_001    // 数据库查询失败
+SEC_AUTH_001  // 帐号密码错误
+SEC_AUTH_201  // Token 已过期
 ```
 
 ### ❌ 不良的错误码
 
 ```javascript
-ERR_001       // 太模糊，没有前綴或类别
+ERR_001       // 太模糊，没有前缀或类别
 INVALID       // 不具描述性
 error         // 不是错误码
 AUTH_ERROR    // 缺少编号
@@ -213,25 +216,25 @@ AUTH_ERROR    // 缺少编号
 - [ ] 使用者消息已本地化
 - [ ] HTTP 状态码正确
 - [ ] 错误已记录文件
-- [ ] 代码已加入註冊表
+- [ ] 代码已加入注册表
 
 ---
 
-## 设置偵测
+## 设置侦测
 
 此技能支援项目特定设置。
 
-### 偵测順序
+### 侦测顺序
 
-1. 检查程序码庫中現有的错误码模式
+1. 检查程序码库中现有的错误码模式
 2. 检查 `CONTRIBUTING.md` 中的错误码指南
-3. 若無找到，**预设使用 PREFIX_CATEGORY_NUMBER 格式**
+3. 若无找到，**预设使用 PREFIX_CATEGORY_NUMBER 格式**
 
 ### 首次设置
 
 若未找到错误码标准：
 
-1. 建议：「此项目尚未设置错误码标准。您要建立错误码註冊表嗎？」
+1. 建议：「此项目尚未设置错误码标准。您要建立错误码注册表吗？」
 2. 建议建立 `errors/registry.ts`：
 
 ```typescript
@@ -240,7 +243,7 @@ export const ErrorCodes = {
     code: 'AUTH_VAL_001',
     httpStatus: 400,
     messageKey: 'error.auth.val.001',
-    description: '電子郵件欄位为必填',
+    description: '电子邮件栏位为必填',
   },
   // ... 更多错误码
 } as const;
@@ -248,10 +251,21 @@ export const ErrorCodes = {
 
 ---
 
+## 下一步引导
+
+`/errors` 完成后，AI 助手应建议：
+
+> **错误码设计已完成。建议下一步：**
+> - 执行 `/sdd` 将错误码设计纳入正式规格 ⭐ **推荐** — 确保错误码在规格中有完整定义
+> - 执行 `/logging` 设置结构化日志以配合错误码 — 让错误码与日志系统整合
+> - 执行 `/tdd` 为错误处理逻辑编写测试 — 确保每个错误码都有对应的测试
+
+---
+
 ## 相关标准
 
 - [错误码标准](../../../../core/error-code-standards.md)
-- [日誌标准](../../../../core/logging-standards.md)
+- [日志标准](../../../../core/logging-standards.md)
 
 ---
 
@@ -259,45 +273,12 @@ export const ErrorCodes = {
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 1.0.0 | 2025-12-30 | 初始發布 |
+| 1.0.0 | 2025-12-30 | 初始发布 |
 
 ---
 
 ## 授权
 
-此技能採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
+此技能采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权。
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/errors` completes, the AI assistant should suggest:
-
-> **錯誤碼設計已完成。建議下一步 / Error code design completed. Suggested next steps:**
-> - 執行 `/sdd` 將錯誤碼設計納入正式規格 ⭐ **Recommended / 推薦** — 確保錯誤碼在規格中有完整定義 / Ensure error codes are fully defined in specs
-> - 執行 `/logging` 設定結構化日誌以配合錯誤碼 — 讓錯誤碼與日誌系統整合 / Integrate error codes with logging system
-> - 執行 `/tdd` 為錯誤處理邏輯撰寫測試 — 確保每個錯誤碼都有對應的測試 / Ensure each error code has corresponding tests
-
----
-
-## Related Standards
-
-- [Error Code Standards](../../core/error-code-standards.md)
-- [Logging Standards](../../core/logging-standards.md)
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-12-30 | Initial release |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

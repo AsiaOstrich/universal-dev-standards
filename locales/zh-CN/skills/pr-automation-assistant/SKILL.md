@@ -2,7 +2,8 @@
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-11
+source_hash: a54acd269f70
 status: current
 description: |
   引导 pull request 创建、审查自动化与合并策略。
@@ -14,6 +15,9 @@ description: |
 # PR 自动化助手
 
 > **语言**: [English](../../../../skills/pr-automation-assistant/SKILL.md) | 简体中文
+
+> ⚠️ **状态：Reference（参考用，非可执行流程）** — PR 生命周期协调（5 步骤 CREATE→REVIEW→APPROVE→MERGE→CLEANUP、>400 行 size gate、CI gate、squash/merge 策略、gh CLI 集成）已于 2026-04-28 移至 **adoption layer（XSPEC-095）**。此处保留 PR 描述模板、合并策略决策矩阵、auto-review 触发规则供参考。
+> 生命周期协调已移至采用层（XSPEC-095）；本文档**仅供参考**。如需强制执行，请使用你的采用层工具链。
 
 简化从创建到合并的 Pull Request 生命周期。
 
@@ -68,19 +72,27 @@ description: |
 CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 ```
 
+1. **Create（创建）** — 建分支、提交、推送，并以模板开启 PR
+2. **Review（审查）** — 自动化检查 + 人工审查
+3. **Approve（批准）** — 所有检查通过，满足必要的批准数
+4. **Merge（合并）** — 套用选定的合并策略
+5. **Cleanup（清理）** — 删除来源分支，更新关联的 issue
+
 ## 使用方式
 
-- `/pr` - 引导创建当前分支的 PR
-- `/pr create` - 使用模板创建 PR
-- `/pr --template` - 显示 PR 描述模板
-- `/pr review 123` - 审查特定 PR
+```
+/pr                  - 引导创建当前分支的 PR
+/pr create           - 使用模板创建 PR
+/pr --template       - 显示 PR 描述模板
+/pr review 123       - 审查特定 PR
+```
 
 ## 下一步引导
 
 `/pr` 完成后，AI 助手应建议：
 
 > **PR 操作完成。建议下一步：**
-> - 执行 `/code-review` 进行详细代码审查
+> - 执行 `/code-review` 进行详细代码审查 ⭐ **推荐**
 > - 执行 `/commit` 修正审查发现的问题
 > - 执行 `/changelog` 更新变更日志
 > - 检查 CI 状态 → `gh pr checks`
@@ -89,3 +101,17 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 - 核心规范：[code-review-checklist.md](../../../../core/code-review-checklist.md)
 - 核心规范：[git-workflow.md](../../../../core/git-workflow.md)
+
+## 版本历史
+
+| 版本 | 日期 | 变更说明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## AI 代理行为
+
+> 完整的 AI 行为定义请参阅对应的命令文件：[`/pr`](../commands/pr.md#ai-agent-behavior--ai-代理行为)
+
+## 授权
+
+CC BY 4.0 — 文档内容
