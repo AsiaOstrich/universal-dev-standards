@@ -2,11 +2,13 @@
 source: ../../../../skills/commands/init.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 3d1e8f297831
+status: current
 ---
 
 ---
-description: [UDS] Initialize development standards in current project
+description: [UDS] 在當前專案初始化開發標準
 allowed-tools: Read, Bash(uds init:*), Bash(npx:*)
 argument-hint: "[--level N | --yes]"
 ---
@@ -237,24 +239,24 @@ Options:
 
 ## 選項參考
 
-| 選項 | 說明 |
-|------|------|
-| `--yes`, `-y` | 非互動模式 |
-| `--level N` | 採用層級（1、2 或 3） |
-| `--skills-location` | marketplace、user、project 或 none |
-| `--content-mode` | standard、full 或 minimal |
-| `--format` | ai、human 或 both |
-| `-E`, `--experimental` | 啟用實驗性功能（methodology） |
+| 選項 | Description | 說明 |
+|------|-------------|------|
+| `--yes`, `-y` | Non-interactive mode | 非互動模式 |
+| `--level N` | Adoption level (1, 2, or 3) | 採用層級（1、2 或 3） |
+| `--skills-location` | marketplace, user, project, or none | Skills 位置（marketplace、user、project 或 none） |
+| `--content-mode` | standard, full, or minimal | 內容模式（standard、full 或 minimal） |
+| `--format` | ai, human, or both | 格式（ai、human 或 both） |
+| `-E`, `--experimental` | Enable experimental features (methodology) | 啟用實驗性功能（methodology） |
 
 詳見 `uds init --help` 取得所有選項。
 
 ## 採用層級
 
-| 層級 | 名稱 | 標準數量 | 說明 |
-|------|------|----------|------|
-| 1 | Starter | 6 | 核心標準（小型專案） |
-| 2 | Professional | 12 | 團隊專業品質標準 |
-| 3 | Complete | 16 | 完整的 16 項標準 |
+| 層級 | 名稱 | 標準數量 | Description | 說明 |
+|------|------|----------|-------------|------|
+| 1 | Starter | 6 | Core standards for small projects | 核心標準（小型專案） |
+| 2 | Professional | 12 | Adds testing, Git workflow, error handling | 新增測試、Git 工作流程、錯誤處理（團隊專業品質標準） |
+| 3 | Complete | 16 | All 16 standards including SDD | 完整的 16 項標準（含 SDD） |
 
 ## 安裝內容
 
@@ -263,6 +265,61 @@ Options:
 - Skills（透過 Plugin Marketplace 或本地安裝）
 - Commands（針對支援的 AI 工具）
 - `manifest.json` 用於追蹤安裝狀態
+
+## AI Agent Behavior | AI 代理行為
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### Entry Router | 進入路由
+
+| 輸入 | AI 動作 | AI 行為 |
+|------|---------|---------|
+| `/init` | 進入互動模式，逐步詢問 13 個配置問題 | 進入互動模式，13 步驟配置 |
+| `/init --yes` | 使用所有預設值直接執行 | 以所有預設值執行 |
+| `/init --level N` | 設定採用層級，其餘進入互動或搭配 `--yes` | 設定層級，其餘互動詢問或使用預設值 |
+| `/init --level N --yes` | 指定層級 + 所有預設值直接執行 | 指定層級 + 所有預設值 |
+
+### Interaction Script | 互動腳本
+
+**決策：互動 vs 快速模式**
+- IF `--yes` 存在 → 使用預設值直接執行，跳過所有 AskUserQuestion
+- ELSE → 進入 13 步驟互動流程
+
+#### 互動流程（13 步驟）
+
+1. **偵測專案** — 自動偵測語言、框架、AI 工具
+2. **AI 工具選擇** — 多選，預選偵測到的工具
+3. **Skills 安裝** — Smart Grouping（1-2 工具合併 / 3+ 工具兩階段）
+4. **Commands 安裝** — Smart Grouping（同上策略）
+5. **標準範圍** — Lean（建議）或 Complete
+6. **採用層級** — Level 1/2/3
+7. **標準格式** — AI / Human / Both
+8. **標準選項** — Git Workflow、Merge Strategy、Commit Language、Test Levels
+9. **語言擴展** — 偵測到語言時詢問
+10. **框架擴展** — 偵測到框架時詢問
+11. **地區設定** — English / Traditional Chinese
+12. **內容模式** — Standard / Minimal
+13. **確認並執行** — 展示摘要，確認後一次執行所有安裝
+
+**IMPORTANT**: AskUserQuestion 最多 4 個選項。3+ 工具時必須使用 Smart Grouping 兩階段策略。
+
+🛑 **STOP**: Step 13 展示配置摘要後等待使用者確認再執行安裝
+
+### Stop Points | 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 配置摘要展示後 | 確認安裝或修改配置 |
+| 偵測到已有 `.standards/` | 詢問是否覆寫或跳過 |
+
+### Error Handling | 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 已有 `.standards/` 目錄 | 提示使用 `/update` 更新，或確認覆寫 |
+| 無法偵測專案語言 | 跳過語言擴展步驟，繼續流程 |
+| npm/npx 不可用 | 提示安裝 Node.js >= 18 |
+| AskUserQuestion 超過 4 選項 | 使用 Smart Grouping 拆分為多階段 |
 
 ## 參考
 

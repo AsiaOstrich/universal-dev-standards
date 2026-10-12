@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/database.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: 1f86a96977ee
 status: current
 ---
 
 ---
-description: "[UDS] Guide database design, migration planning and query optimization"
+description: "[UDS] 引導資料庫設計、遷移規劃與查詢最佳化"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[schema or migration to review | 要審查的 schema 或遷移]"
 ---

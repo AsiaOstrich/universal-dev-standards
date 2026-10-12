@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/incident.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-11
+source_hash: cfeb8bfbdecb
 status: current
 ---
 
 ---
-description: "[UDS] Guide incident response, root cause analysis and post-mortem documentation"
+description: "[UDS] 引導事故回應、根因分析與事後檢討文件撰寫"
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[incident description or severity | 事故描述或嚴重程度]"
 ---

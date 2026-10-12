@@ -2,12 +2,14 @@
 source: ../../../../skills/commands/discover.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 9f28e3ed0f34
+status: current
 ---
 
 ---
 name: discover
-description: "[UDS] Assess project health, architecture, and risks before adding features"
+description: "[UDS] 在新增功能前評估專案健康度、架構與風險"
 argument-hint: "[feature area | 功能範圍]"
 ---
 
@@ -80,6 +82,45 @@ Recommendations:
 2. `/reverse spec` - 逆向工程現有程式碼為規格
 3. `/sdd` - 為新功能撰寫規格
 4. `/tdd` 或 `/bdd` - 在測試保護下實作
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/discover` | 執行全專案健康評估（所有 5 個維度） |
+| `/discover <area>` | 聚焦評估指定功能區域的相關模組 |
+
+### 互動腳本
+
+1. 掃描專案結構（package.json、目錄結構、設定檔）
+2. 逐維度分析（Architecture → Dependencies → Test Coverage → Security → Technical Debt）
+3. 計算各維度分數和整體分數
+4. 產生健康報告
+
+**決策：整體評估**
+- IF 有 Critical 級問題 → 判定 NO-GO，列出必須修復項目
+- IF 有 Warning 級問題 → 判定 CONDITIONAL，列出建議修復項目
+- IF 全部 Good → 判定 GO，建議進入下一步
+
+🛑 **STOP**：報告展示後等待使用者決定（GO / NO-GO / CONDITIONAL）
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 健康報告展示後 | 使用者決定是否繼續開發 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 無 package.json 或專案設定 | 仍執行可用的維度分析，將不可用的維度標記為 N/A |
+| 指定的功能區域不存在 | 列出可用的模組/目錄供選擇 |
+| npm audit 無法執行 | 跳過相依安全檢查，標記為 SKIP |
 
 ## 參考
 

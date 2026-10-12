@@ -2,11 +2,13 @@
 source: ../../../../skills/commands/commit.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 52ed032c7e07
+status: current
 ---
 
 ---
-description: [UDS] Generate commit messages following Conventional Commits standard
+description: "[UDS] 產生符合 Conventional Commits 規範的 commit message"
 allowed-tools: Read, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*)
 argument-hint: "[description of changes | 變更描述]"
 ---
@@ -16,8 +18,6 @@ argument-hint: "[description of changes | 變更描述]"
 > **Language**: [English](../../../../skills/commands/commit.md) | 繁體中文
 
 根據 staged 的變更，產生符合 Conventional Commits 格式的 commit message。
-
----
 
 ## 前置檢查
 
@@ -79,6 +79,60 @@ argument-hint: "[description of changes | 變更描述]"
 
 - `/commit` - 自動分析變更並建議 commit message
 - `/commit fix login bug` - 根據提供的描述產生訊息
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/commit` | 執行 Pre-Flight Checks → 分析 staged 變更 → 產生 commit message → 等待確認 |
+| `/commit <description>` | 以描述為基礎，結合 staged diff 產生 commit message → 等待確認 |
+
+### 互動腳本
+
+1. 執行 `git diff --cached --stat` 確認有 staged 變更
+2. 執行 `git status` 和 `git diff --staged` 了解變更內容
+3. 判斷 commit 類型（feat/fix/refactor/docs/...）和範圍
+
+**決策：Pre-Flight Check 結果**
+- IF 無 staged 變更 → 引導使用者 `git add`，停止
+- IF 有合併衝突標記 → 提示先解決衝突，停止
+- IF 類型為 feat/fix → 執行測試 + Spec 追蹤評估
+
+4. 產生 commit message（subject + body + footer）
+5. 展示完整 message 供使用者確認
+
+**決策：Spec 追蹤（僅 feat/fix）**
+- IF 有活躍 spec → 建議在 footer 加 `Refs: SPEC-XXX`
+- IF 無 spec 且變更顯著（>3 檔案或新 API） → 建議 `/sdd`
+- 此為建議性（non-blocking），使用者可忽略
+
+**決策：UDS 上游檔案偵測**
+- IF staged 包含 `.standards/` 或 `.claude/skills/` → 顯示 ⚠️「偵測到 UDS 上游管理的檔案被修改，建議執行 `/audit --friction` 回報上游」
+- 此為建議性（non-blocking），使用者可忽略
+
+🛑 **STOP**：展示 commit message 後等待使用者確認或修改
+
+6. 使用者確認後執行 `git commit`
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| Pre-Flight 失敗 | 使用者修復問題後重新執行 |
+| Message 展示後 | 確認 message 正確，或要求修改 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 無 staged 變更 | 顯示 `git add` 指引，不嘗試 commit |
+| 合併衝突存在 | 提示解決衝突，列出衝突檔案 |
+| 測試失敗（feat/fix） | 顯示失敗摘要，建議修復後再 commit |
+| commit 執行失敗 | 顯示 git 錯誤訊息，不重試 |
 
 ## 參考
 

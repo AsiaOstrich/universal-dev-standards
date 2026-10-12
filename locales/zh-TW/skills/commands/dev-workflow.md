@@ -2,12 +2,14 @@
 source: ../../../../skills/commands/dev-workflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-11
+source_hash: 9803ce2cc49f
+status: current
 ---
 
 ---
 name: dev-workflow
-description: "[UDS] Guide for mapping software development phases to UDS commands and features"
+description: "[UDS] 將軟體開發階段對應到 UDS 指令與功能的指南"
 argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 ---
 
@@ -84,13 +86,13 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 
 | 階段 | UDS 指令 | 用途 |
 |------|----------|------|
-| **I. 規劃** | `/brainstorm` `/requirement` `/sdd` `/reverse` | 需求、規格、逆向工程 |
-| **II. 測試** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` | 先寫測試再寫程式 |
-| **III. 實作** | `/refactor` `/reverse` | 撰寫與改善程式碼 |
-| **IV. 品質** | `/checkin` `/code-review` | 提交前檢查與審查 |
-| **V. 發布** | `/commit` `/changelog` `/release` | 版本、提交、發布 |
-| **VI. 文件** | `/docs` `/docgen` `/struct` | 文件與專案結構 |
-| **VII. 規範** | `/discover` `/guide` | 參考指南 |
+| **I. 規劃** | `/brainstorm` `/requirement` `/sdd` `/reverse` `/api-design` `/database` | 需求、規格、API/DB 設計 |
+| **II. 測試** | `/bdd` `/atdd` `/tdd` `/coverage` `/derive` `/ac-coverage` | 先寫測試再寫程式 |
+| **III. 實作** | `/refactor` `/reverse` `/migrate` `/durable` | 撰寫、改善與遷移程式碼 |
+| **IV. 品質** | `/checkin` `/code-review` `/security` `/scan` `/incident` | 品質、安全、事故回應 |
+| **V. 發布** | `/commit` `/changelog` `/release` `/pr` `/ci-cd` | 版本、提交、PR、CI/CD |
+| **VI. 文件** | `/docs` `/docgen` | 文件與專案結構 |
+| **VII. 規範** | `/discover` `/guide` `/metrics` `/audit` | 參考指南、指標、稽核 |
 | **VIII. 進階** | `/methodology` | 跨方法論工作流程 |
 
 ## 常見場景
@@ -112,6 +114,55 @@ ls docs/specs/SPEC-*.md 2>/dev/null
 ```
 /discover → /reverse → /coverage → /refactor → /checkin → /commit
 ```
+
+### 安全審查
+
+```
+/scan → /security → /checkin → /commit
+```
+
+### API 設計
+
+```
+/brainstorm → /api-design → /sdd → /derive → /tdd → /pr
+```
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/dev-workflow` | 先檢查 `.workflow-state/`，有活躍工作流程則顯示狀態，否則展示全階段總覽 |
+| `/dev-workflow <phase>` | 展示指定階段的詳細指令和說明 |
+| `/dev-workflow <scenario>` | 展示指定場景的推薦工作流程（new-feature / bug-fix / refactoring） |
+
+### 互動腳本
+
+1. 檢查 `.workflow-state/` 和 `docs/specs/` 的活躍狀態
+2. 依據結果決定展示內容
+
+**決策：活躍工作流程**
+- IF 有進行中的 workflow → 顯示狀態摘要，建議 resume 命令
+- IF 有活躍 spec → 提示 spec 進度，建議下一步
+- ELSE → 展示完整階段總覽或指定內容
+
+**決策：場景模式**
+- IF 指定場景（new-feature / bug-fix / refactoring） → 展示該場景的推薦命令序列
+- ELSE → 展示總覽表
+
+### 停止點
+
+此命令為純查詢/導引，無需停止點。
+
+### 錯誤處理
+
+| 錯誤情況 | AI 動作 |
+|----------|---------|
+| 指定的 phase/scenario 不存在 | 列出可用的 phase 和 scenario |
+| `.workflow-state/` 目錄不存在 | 跳過活躍工作流程檢查，直接展示總覽 |
 
 ## 參考
 
