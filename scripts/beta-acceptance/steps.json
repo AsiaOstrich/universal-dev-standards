@@ -8568,10 +8568,10 @@
     {
       "platform": "all",
       "id": "xspec475-run-warns-dropped-comment",
-      "title": "uds run --dry-run warns that YAML dropped the text after a space and # in an unquoted command",
-      "titleZh": "uds run --dry-run 警告 YAML 把未加引號指令中「空白加 #」之後的文字丟掉了",
+      "title": "uds run --dry-run warns that YAML cut an unquoted command short inside a quote at a space and #, and does not print the dropped text",
+      "titleZh": "uds run --dry-run 警告 YAML 在引號中間於「空白加 #」處把未加引號的指令截斷，且不印出被丟掉的文字",
       "changelog": [
-        "uds run warns when YAML dropped text after a space"
+        "uds run no longer warns about a genuine trailing comment"
       ],
       "prepare": [
         {
@@ -8587,8 +8587,42 @@
       "expect": {
         "exit": 0,
         "contains": [
-          "空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept'\"",
-          "請把整個值用引號包起來"
+          "uds.project.yaml 第 3 行：build 的值在「空白加 #」處被 YAML 截斷",
+          "請用引號包住整個值"
+        ],
+        "notContains": [
+          "kept"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-run-comment-not-warned",
+      "title": "uds run --dry-run does not warn about a genuine trailing comment after a complete command, and the comment does not appear in the output",
+      "titleZh": "uds run --dry-run 對完整指令後面的真正行尾註解不警告，註解文字也不出現在輸出中",
+      "changelog": [
+        "uds run no longer warns about a genuine trailing comment"
+      ],
+      "prepare": [
+        {
+          "writeFile": "uds.project.yaml",
+          "content": "version: \"1\"\ncommands:\n  test: dotnet test Tests.csproj  # 90 tests pass\n"
+        }
+      ],
+      "uds": [
+        "run",
+        "test",
+        "--dry-run"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "dotnet test Tests.csproj",
+          "dry-run mode"
+        ],
+        "notContains": [
+          "被 YAML 截斷",
+          "90 tests pass"
         ]
       }
     },

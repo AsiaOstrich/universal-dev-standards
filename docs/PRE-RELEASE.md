@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.10
 It installs the published 6.14.0-beta.10 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.10 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 267 steps (260 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 267 步（260 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 268 steps (261 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 268 步（261 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -846,13 +846,16 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 267 steps (260
 264. `xspec475-next-action-slash-command` — uds open-work next-action counts /work as a command, not as a missing path.
    uds open-work next-action 把 /work 算成指令，而不是找不到的路徑。
    `uds open-work next-action w.md` → exit 0; output has "named-unresolved=2 unnamed=0", "path-missing=0 not-resolvable=2"
-265. `xspec475-run-warns-dropped-comment` — uds run --dry-run warns that YAML dropped the text after a space and # in an unquoted command.
-   uds run --dry-run 警告 YAML 把未加引號指令中「空白加 #」之後的文字丟掉了。
-   `uds run build --dry-run` → exit 0; output has "空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept'"", "請把整個值用引號包起來"
-266. `xspec475-uninstall-init` — uds init sets up a project whose .claude/ holds only what UDS wrote, for the uninstall step of XSPEC-475.
+265. `xspec475-run-warns-dropped-comment` (**new 新**) — uds run --dry-run warns that YAML cut an unquoted command short inside a quote at a space and #, and does not print the dropped text.
+   uds run --dry-run 警告 YAML 在引號中間於「空白加 #」處把未加引號的指令截斷，且不印出被丟掉的文字。
+   `uds run build --dry-run` → exit 0; output has "uds.project.yaml 第 3 行：build 的值在「空白加 #」處被 YAML 截斷", "請用引號包住整個值"
+266. `xspec475-run-comment-not-warned` (**new 新**) — uds run --dry-run does not warn about a genuine trailing comment after a complete command, and the comment does not appear in the output.
+   uds run --dry-run 對完整指令後面的真正行尾註解不警告，註解文字也不出現在輸出中。
+   `uds run test --dry-run` → exit 0; output has "dotnet test Tests.csproj", "dry-run mode"
+267. `xspec475-uninstall-init` — uds init sets up a project whose .claude/ holds only what UDS wrote, for the uninstall step of XSPEC-475.
    uds init 建立專案，.claude/ 只有 UDS 寫的東西，供 XSPEC-475 的 uninstall 步驟使用。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-267. `xspec475-uninstall-removes-empty-claude-dir` — uds uninstall leaves no empty .claude/ folder.
+268. `xspec475-uninstall-removes-empty-claude-dir` — uds uninstall leaves no empty .claude/ folder.
    uds uninstall 不留下空的 .claude/ 資料夾。
    `{node} uninstall-case.cjs {bin} uninstall --yes` → exit 0; output has "Uninstall complete", "CLAUDE-DIR-EXISTS=false"
 <!-- BETA-ACCEPTANCE-TEST:END -->

@@ -99,35 +99,56 @@ function validateConfig(config, filePath) {
 }
 
 /**
- * The text YAML dropped from an unquoted `commands:` / `custom:` value because it follows a space and a `#` (YAML reads
- * that as the start of a comment), or null when nothing was dropped. XSPEC-475 R5(c).
+ * True when `text` ends inside an open quote, reading it the way a shell does: a `'` inside `"..."` (and a `"` inside
+ * `'...'`) is plain text, and a backslash escapes the next character outside single quotes.
+ */
+function endsInsideQuote(text) {
+  let open = null;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (open === null) {
+      if (ch === '\\') i++;
+      else if (ch === '"' || ch === "'") open = ch;
+    } else if (open === '"' && ch === '\\') {
+      i++;
+    } else if (ch === open) {
+      open = null;
+    }
+  }
+  return open !== null;
+}
+
+/**
+ * The 1-based line of uds.project.yaml whose command YAML cut short in the middle of a quote, or null. XSPEC-475 R5(c).
  *
- * `build: node -p "'quoted # kept'"` is a valid plain YAML value that ends at `node -p "'quoted`: the shell would have
- * kept the `#`, YAML does not. CHANGELOG 6.14.0 says so, but nothing said it at the moment it happened. A trailing
- * comment (`test: dotnet test  # 90 tests pass`) is also dropped; the two look the same in the file, so both are reported
- * and the person decides.
+ * YAML ends an unquoted value at a space followed by `#`. `build: node -p "'quoted # kept'"` therefore becomes
+ * `node -p "'quoted`: the shell would have kept the `#`, YAML does not, and what is left has an unclosed quote - a command
+ * that cannot be what the author meant. A genuine trailing comment (`test: dotnet test X.csproj  # 90 tests pass`) leaves a
+ * complete command and is the supported way to comment, so it is NOT reported. Only the cut-short case is, and the text YAML
+ * dropped is not repeated (it may be a comment the person wants kept out of the output).
  *
  * Only a plain (unquoted) scalar on one line is looked at, and only when the value YAML produced is exactly the text
  * before the `#` - so a line this cannot match up with the parsed value is never reported.
  * @param {string} projectPath
  * @param {string} intent
  * @param {string} command - the value YAML produced for `intent`
- * @returns {string|null} the dropped text, starting at the `#`
+ * @returns {number|null}
  */
-export function droppedYamlComment(projectPath, intent, command) {
+export function truncatedYamlValueLine(projectPath, intent, command) {
   const configPath = join(projectPath, CONFIG_FILENAME);
   if (!existsSync(configPath)) return null;
   const escaped = intent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const line = new RegExp(`^[ \\t]+${escaped}[ \\t]*:[ \\t]+(.*)$`);
-  for (const text of readFileSync(configPath, 'utf8').split(/\r?\n/)) {
-    const m = line.exec(text);
+  const lines = readFileSync(configPath, 'utf8').split(/\r?\n/);
+  for (let n = 0; n < lines.length; n++) {
+    const m = line.exec(lines[n]);
     if (!m) continue;
     const value = m[1].trim();
     if (/^["'|>[{&*!]/.test(value)) continue; // quoted, block, flow or anchored: not a plain scalar
     const at = value.search(/\s#/);
     if (at < 0) continue;
     if (value.slice(0, at).trim() !== command) continue; // not the line YAML read this value from
-    return value.slice(at).trim(); // [mutation-anchor:dropped-comment]
+    return endsInsideQuote(command) ? n + 1 : null; // [mutation-anchor:cut-inside-quote]
   }
   return null;
 }

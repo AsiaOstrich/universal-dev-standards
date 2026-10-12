@@ -6,7 +6,7 @@
 import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { resolveCommand } from '../core/command-router.js';
-import { droppedYamlComment } from '../core/project-config.js';
+import { truncatedYamlValueLine } from '../core/project-config.js';
 
 const KNOWN_INTENTS = ['test', 'lint', 'build', 'security'];
 
@@ -63,12 +63,13 @@ export async function runIntentCommand(intent, options = {}) {
   console.log(chalk.gray(`$ ${resolved.command}`));
   console.log();
 
-  // XSPEC-475 R5(c): YAML ends an unquoted value at a space followed by `#`. Say so before running, in a dry run and a
-  // real run alike, so a command cut short is seen instead of discovered from its error.
-  const dropped = resolved.source === 'uds.project.yaml' ? droppedYamlComment(projectPath, intent, resolved.command) : null; // wire:run-dropped-comment
-  if (dropped) {
-    console.log(chalk.yellow(`⚠ uds.project.yaml 的 ${intent} 指令中，空白加 # 之後的文字被 YAML 當成註解丟掉了：${dropped}`));
-    console.log(chalk.yellow('  如果那一段是指令的一部分，請把整個值用引號包起來（例如 \'...\' 或 "..."）；如果只是註解，可以忽略這則警告。'));
+  // XSPEC-475 R5(c): YAML ends an unquoted value at a space followed by `#`. When that leaves a command with an unclosed
+  // quote, say so before running, in a dry run and a real run alike, so a command cut short is seen instead of discovered
+  // from its error. A command that ends in a plain comment is complete and is not reported.
+  const cutLine = resolved.source === 'uds.project.yaml' ? truncatedYamlValueLine(projectPath, intent, resolved.command) : null; // wire:run-truncated-value
+  if (cutLine) {
+    console.log(chalk.yellow(`⚠ uds.project.yaml 第 ${cutLine} 行：${intent} 的值在「空白加 #」處被 YAML 截斷，留下的指令引號不成對。`));
+    console.log(chalk.yellow('  請用引號包住整個值（例如 \'...\' 或 "..."），讓 # 留在指令裡。'));
     console.log();
   }
 

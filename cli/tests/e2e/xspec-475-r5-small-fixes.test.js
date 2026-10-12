@@ -3,7 +3,8 @@
  *
  *   (a) `uds spec list` reads a Chinese status field: `| 狀態 | Approved |` and `> **狀態**: Draft`.
  *   (b) `uds open-work next-action` reads a slash command (`/work`) as a command, not as the absolute path `/work`.
- *   (c) `uds run` warns, in a dry run and before a real run, when YAML dropped text after a space and `#`.
+ *   (c) `uds run` warns, in a dry run and before a real run, when YAML cut a command short inside a quote at a space and `#`
+ *       (a genuine trailing comment is not reported, and the dropped text is never printed).
  *   (d) `uds uninstall` removes the `.claude/` folder it leaves empty, and keeps one that holds anything else.
  *
  * Every test runs the real CLI in a throwaway project and reads the printed table, counts, command, files or folders back.
@@ -11,7 +12,8 @@
  * Wires that make these red when cut (one line of CLI source each):
  *   (a) cli/src/utils/sdd-header.js              return { title, status: read('Status|狀態'), type: read('Type|類型') };
  *   (b) cli/src/utils/open-work-tracking.mjs     if (SLASH_COMMAND.test(t)) return null; // [mutation-anchor:slash-command-not-path]
- *   (c) cli/src/commands/run-intent.js           const dropped = resolved.source === 'uds.project.yaml' ? droppedYamlComment(...) : null; // wire:run-dropped-comment
+ *   (c) cli/src/commands/run-intent.js           const cutLine = resolved.source === 'uds.project.yaml' ? truncatedYamlValueLine(...) : null; // wire:run-truncated-value
+ *       cli/src/core/project-config.js           return endsInsideQuote(command) ? n + 1 : null; // [mutation-anchor:cut-inside-quote]
  *   (d) cli/src/uninstallers/skills-uninstaller.js   if (gone && !isUserLevel) removeEmptyParentInside(dir, projectPath);
  */
 
@@ -96,23 +98,42 @@ function runProject(commandLines) {
   return { dir, out };
 }
 
-it('uds run --dry-run and uds run warn, before anything runs, that YAML dropped the text after a space and # in an unquoted command (XSPEC-475 R5c)', async () => {
+it('uds run --dry-run and uds run warn, before anything runs, that YAML cut an unquoted command short inside a quote at a space and #, without printing the dropped text (XSPEC-475 R5c)', async () => {
+  // The case of the report: valid YAML that ends at `node ... "quoted`, where the shell would have kept the `#`.
   const { dir, out } = runProject(['build: node "<probe>" "<out>" "quoted # kept"']);
 
   const dry = await h.runCli(['run', 'build', '--dry-run'], dir);
   expect(dry.code, dry.stdout + dry.stderr).toBe(0);
-  expect(dry.stdout).toContain('空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept"');
-  expect(dry.stdout, 'it says what to do about it').toContain('請把整個值用引號包起來');
-  expect(dry.stdout.indexOf('空白加 #'), 'the warning comes before the dry-run notice').toBeLessThan(dry.stdout.indexOf('dry-run mode'));
+  expect(dry.stdout).toContain('uds.project.yaml 第 3 行：build 的值在「空白加 #」處被 YAML 截斷，留下的指令引號不成對');
+  expect(dry.stdout, 'it says what to do about it').toContain('請用引號包住整個值');
+  expect(dry.stdout, 'the dropped text is not repeated').not.toContain('kept');
+  expect(dry.stdout.indexOf('被 YAML 截斷'), 'the warning comes before the dry-run notice').toBeLessThan(dry.stdout.indexOf('dry-run mode'));
   expect(existsSync(out), 'a dry run runs nothing').toBe(false);
 
   const real = await h.runCli(['run', 'build'], dir);
-  // The real run warns too, and the warning comes before the command is run (it is the first thing after the command line).
-  expect(real.stdout, 'the real run warns too').toContain('空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept"');
-  expect(real.stdout.indexOf('空白加 #'), 'the warning comes after the command shown and before anything it prints').toBeGreaterThan(real.stdout.indexOf('$ node'));
+  // The real run warns too, and the warning comes after the command shown and before anything the command prints.
+  expect(real.stdout, 'the real run warns too').toContain('被 YAML 截斷，留下的指令引號不成對');
+  expect(real.stdout.indexOf('被 YAML 截斷'), 'after the command line').toBeGreaterThan(real.stdout.indexOf('$ node'));
 });
 
-it('uds run says nothing about a comment when the value is quoted in YAML or has no space before the # (XSPEC-475 R5c)', async () => {
+it('uds run --dry-run and uds run do not warn about a genuine trailing comment, and the comment text appears nowhere in the output (XSPEC-475 R5c)', async () => {
+  // The case of the beta.6 acceptance step beta6-run-dry-run: a comment after a complete command is supported.
+  const { dir, out } = runProject(['test: node "<probe>" "<out>" Tests.csproj  # 90 tests pass']);
+
+  const dry = await h.runCli(['run', 'test', '--dry-run'], dir);
+  expect(dry.code, dry.stdout + dry.stderr).toBe(0);
+  expect(dry.stdout).toContain('Tests.csproj');
+  expect(dry.stdout, 'no warning for a comment').not.toContain('被 YAML 截斷');
+  expect(dry.stdout, 'the comment text is not printed').not.toContain('90 tests pass');
+
+  const real = await h.runCli(['run', 'test'], dir);
+  expect(real.code, real.stdout + real.stderr).toBe(0);
+  expect(real.stdout).not.toContain('被 YAML 截斷');
+  expect(real.stdout).not.toContain('90 tests pass');
+  expect(JSON.parse(readFileSync(out, 'utf-8')), 'the command that ran is the one without the comment').toEqual(['Tests.csproj']);
+});
+
+it('uds run says nothing when the value is quoted in YAML or has no space before the # (XSPEC-475 R5c)', async () => {
   const { dir, out } = runProject([
     `lint: 'node "<probe>" "<out>" "issue #12 fixed"'`,
     'test: node "<probe>" "<out>" a#b'
@@ -120,7 +141,7 @@ it('uds run says nothing about a comment when the value is quoted in YAML or has
   for (const intent of ['lint', 'test']) {
     const run = await h.runCli(['run', intent], dir);
     expect(run.code, `${intent}\n${run.stdout}${run.stderr}`).toBe(0);
-    expect(run.stdout, intent).not.toContain('當成註解丟掉了');
+    expect(run.stdout, intent).not.toContain('被 YAML 截斷');
   }
   expect(JSON.parse(readFileSync(out, 'utf-8'))).toEqual(['a#b']);
 });
