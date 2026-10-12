@@ -1,21 +1,23 @@
 ---
+scope: partial
 description: |
-  將現有程式碼反向工程成 SDD 規格文件。
-  使用時機：分析舊有程式碼、為未文件化的系統撰寫文件、從現有實作提取規格。
-  關鍵字：reverse engineering, legacy code, documentation, spec extraction, code archaeology, 反向工程, 舊有程式碼, 規格提取。
-source: ../../../../skills/reverse-engineer/SKILL.md
-source_version: 1.2.0
+  系統考古——從邏輯（Logic）、資料（Data）、執行環境（Runtime）三個維度對既有系統做反向工程。
+  使用時機：分析舊有程式碼、為未文件化的系統撰寫文件、從現有實作建立規格、理解資料模型、建立執行環境基準。
+  關鍵字：reverse engineering, legacy code, documentation, spec extraction, code archaeology, system archeology, data model, runtime baseline, 反向工程, 舊有程式碼, 規格提取, 系統考古。
+source: ../../../../skills/reverse-engineer/guide.md
+source_version: 2.0.0
 translation_version: 1.2.0
-last_synced: 2026-01-25
+last_synced: 2026-10-12
+source_hash: a97db6ef1238
 status: current
 ---
 
-# 反向工程成 SDD 規格指南
+# 系統考古指南 — 跨三維度的反向工程
 
-> **語言**: [English](../../../../skills/reverse-engineer/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/reverse-engineer/guide.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2026-01-19
+**版本**: 2.0.0
+**最後更新**: 2026-02-12
 **適用範圍**: Claude Code Skills
 
 > **核心規範**：此技能實作[反向工程標準](../../core/reverse-engineering-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
@@ -24,32 +26,40 @@ status: current
 
 ## 目的
 
-此技能引導您將現有程式碼反向工程成 SDD（規格驅動開發）規格文件，並嚴格遵循反幻覺標準。
+此技能提供一套**系統考古框架**，從三個維度——**邏輯（Logic）**、**資料（Data）**、**執行環境（Runtime）**——對既有系統做反向工程，產出完整的 SDD 規格文件，並嚴格遵循反幻覺標準。
 
 ## 快速參考
 
-### 反向工程工作流程
+### 系統考古框架
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│              反向工程工作流程                                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  1️⃣  程式碼分析（AI 自動化）                                    │
-│      ├─ 掃描程式碼結構、API、資料模型                           │
-│      ├─ 解析現有測試以提取驗收標準                              │
-│      └─ 生成初稿規格（帶不確定性標籤）                          │
-│                                                                 │
-│  2️⃣  人類輸入（必要）                                          │
-│      ├─ 撰寫動機（為什麼需要此功能）                            │
-│      ├─ 新增風險評估                                            │
-│      └─ 驗證相依性和商業背景                                    │
-│                                                                 │
-│  3️⃣  審查與確認                                                 │
-│      ├─ 與利害關係人討論                                        │
-│      └─ 確認 [已確認] / [推斷] / [未知] 標籤                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                   系統考古框架                                     │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  維度 1：資料 DATA（/reverse data）                               │
+│      ├─ 資料庫 schema、ORM 模型、遷移                             │
+│      ├─ 實體關係映射                                              │
+│      └─ 輸出：資料模型規格                                        │
+│                                                                    │
+│  維度 2：執行環境 RUNTIME（/reverse runtime）                     │
+│      ├─ 設定、環境變數、功能旗標                                  │
+│      ├─ Docker/K8s 拓樸、CI/CD 管線                               │
+│      └─ 輸出：執行環境基準                                        │
+│                                                                    │
+│  維度 3：邏輯 LOGIC（/reverse spec）                              │
+│      ├─ API、模組、資料流程、測試                                 │
+│      ├─ 以資料 + 執行環境脈絡加以充實                             │
+│      └─ 輸出：SPEC-XXX.md                                         │
+│                                                                    │
+│  /reverse（不帶子指令）= 全部 3 個維度 → 完整報告                 │
+│                                                                    │
+│  人類審查：                                                        │
+│      ├─ 驗證 [已確認] / [推斷] / [未知] 標籤                      │
+│      ├─ 補上動機、風險評估、商業背景                              │
+│      └─ 透過 /sdd 核准規格                                        │
+│                                                                    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### 可提取與不可提取的內容
@@ -73,7 +83,9 @@ status: current
 
 **關鍵**：此技能必須嚴格遵循[反幻覺標準](../../core/anti-hallucination.md)。
 
-#### 確定性標籤
+#### 確定性標籤（來自統一標籤系統）
+
+此技能使用**確定性標籤**來分析既有程式碼。完整標籤參考請見[反幻覺標準](../../core/anti-hallucination.md#certainty-classification-tags)。
 
 | 標籤 | 使用時機 | 範例 |
 |------|----------|------|
@@ -269,6 +281,116 @@ describe('購物車', () => {
 2. 使用 `/bdd` 正式化場景
 3. 與利害關係人驗證場景
 
+## 資料維度指南（`/reverse data`）
+
+### 要掃描什麼
+
+| 來源 | 要找什麼 | 確定性 |
+|------|----------|--------|
+| `schema.prisma` / `*.schema.*` | 模型、欄位、關聯、列舉 | [已確認] |
+| `migrations/` / `*.migration.*` | Schema 演進歷史 | [已確認] |
+| `models/` / `entities/` | ORM 模型定義 | [已確認] |
+| `knexfile.*` / `sequelize` 設定 | 資料庫連線、方言 | [已確認] |
+| `seeds/` / `fixtures/` | 測試資料、預設值 | [已確認] |
+| `docker-compose.yml`（資料庫服務） | 資料庫引擎、連接埠、volume | [已確認] |
+| 程式碼模式（`.findBy`、`.save`） | 隱含的關聯 | [推斷] |
+| 找不到任何 schema 檔 | 可能是 schemaless/NoSQL | [未知] |
+
+### 輸出範本：資料模型規格
+
+```markdown
+# 資料模型規格 — [專案名稱]
+
+## 實體
+
+### User
+[已確認] 來源：schema.prisma:5-15
+| 欄位 | 類型 | 約束 | 備註 |
+|------|------|------|------|
+| id | UUID | PK, auto | — |
+| email | String | Unique, Not Null | — |
+| role | Enum(admin,user) | Default: user | — |
+
+### Order
+[已確認] 來源：models/Order.ts:3-20
+...
+
+## 關聯
+[已確認] User 1:N Order（FK: order.userId → user.id）
+[推斷] Order M:N Product（關聯表：order_items——來自程式碼模式）
+
+## 遷移歷史
+| 版本 | 日期 | 說明 | 來源 |
+|------|------|------|------|
+| 001 | 2024-03-01 | 初始 schema | migrations/001_init.ts |
+| 002 | 2024-06-15 | 為 user 新增 role | migrations/002_add_role.ts |
+
+## 資料流程路徑
+- 寫入：API → Service → Repository → DB
+- 讀取：DB → Repository → Service → Serializer → API
+```
+
+---
+
+## 執行環境維度指南（`/reverse runtime`）
+
+### 要掃描什麼
+
+| 來源 | 要找什麼 | 確定性 |
+|------|----------|--------|
+| `.env.example` / `.env.template` | 環境變數名稱 | [已確認] |
+| `docker-compose.yml` | 服務、連接埠、相依性 | [已確認] |
+| `Dockerfile` | 基礎映像、建置步驟、對外連接埠 | [已確認] |
+| `k8s/` / Helm charts | 部署拓樸 | [已確認] |
+| CI/CD 檔案（`.github/`、`.gitlab-ci.yml`） | 建置／部署管線 | [已確認] |
+| 設定檔（`*.config.*`） | 功能旗標、設定階層 | [已確認] |
+| 日誌檔（僅看模式） | 錯誤模式、日誌層級 | [推斷] |
+| 監控端點（`/health`、`/metrics`） | 可觀測性介面 | [已確認] |
+
+### 安全規則
+
+- **絕不**輸出 `.env`、機密、API 金鑰或密碼的實際值
+- 只列出變數**名稱**並推斷其**用途**
+- 任何敏感設定一律標記為 `[REDACTED]`
+
+### 輸出範本：執行環境基準
+
+```markdown
+# 執行環境基準 — [專案名稱]
+
+## 環境變數
+| 變數 | 用途 | 必要 | 來源 |
+|------|------|------|------|
+| DATABASE_URL | 資料庫連線字串 | 是 | .env.example:1 |
+| JWT_SECRET | 權杖簽章金鑰 | 是 | .env.example:3 |
+| REDIS_URL | 快取連線 | 否 | .env.example:5 |
+| FEATURE_NEW_UI | 功能旗標 | 否 | config/features.ts:12 |
+
+## 外部相依服務
+| 服務 | 協定 | 用途 | 來源 |
+|------|------|------|------|
+| PostgreSQL 15 | TCP:5432 | 主要資料庫 | docker-compose.yml:8 |
+| Redis 7 | TCP:6379 | 工作階段快取 | docker-compose.yml:15 |
+| Stripe API | HTTPS | 付款處理 | [推斷] src/services/payment.ts:3 |
+
+## 部署拓樸
+[已確認] 來源：docker-compose.yml
+- app (Node.js 20) → port 3000
+- db (PostgreSQL 15) → port 5432
+- redis (Redis 7) → port 6379
+
+## 健康檢查與監控
+[已確認] GET /health → src/routes/health.ts:5
+[推斷] 未發現 metrics 端點——建議新增 /metrics
+
+## CI/CD 管線
+[已確認] 來源：.github/workflows/ci.yml
+- 觸發：push 到 main、PR
+- 步驟：lint → test → build → deploy
+```
+
+---
+
 ## 完整反向工程管道
 
 反向工程技能支援完整的 SDD → BDD → TDD 管道：
@@ -380,9 +502,10 @@ describe('購物車', () => {
 
 ## 相關標準
 
-- [規格驅動開發](../../core/spec-driven-development.md)
-- [反幻覺指南](../../core/anti-hallucination.md)
-- [程式碼審查檢查清單](../../core/code-review-checklist.md)
+- [反向工程標準](../../core/reverse-engineering-standards.md) - **核心方法論標準（主要參考）**
+- [規格驅動開發](../../core/spec-driven-development.md) - 輸出格式與審查流程
+- [反幻覺指南](../../core/anti-hallucination.md) - 以證據為基礎的分析要求
+- [程式碼審查檢查清單](../../core/code-review-checklist.md) - 審查指南
 
 ---
 
@@ -390,7 +513,9 @@ describe('購物車', () => {
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
-| 1.1.0 | 2026-01-19 | 新增 BDD/TDD 管道整合 |
+| 2.0.0 | 2026-02-12 | 重大更新：三維度系統考古（邏輯 + 資料 + 執行環境） |
+| 1.2.0 | 2026-01-25 | 新增：參照統一標籤系統 |
+| 1.1.0 | 2026-01-19 | 新增 BDD/TDD 管道整合；新增核心規範參照 |
 | 1.0.0 | 2026-01-19 | 初始發布 |
 
 ---

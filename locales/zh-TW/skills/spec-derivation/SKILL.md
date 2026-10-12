@@ -3,7 +3,8 @@ name: spec-derive
 source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: bb58d7a7d687
 scope: partial
 description: |
   [UDS] 從已核准的規格推導出 BDD 場景、TDD 骨架、整合與 E2E 測試，以及 ATDD 表格。

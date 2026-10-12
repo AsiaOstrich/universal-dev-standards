@@ -3,15 +3,16 @@ name: requirement
 source: ../../../../skills/requirement-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 8d19b66b3220
 status: current
+scope: universal
 description: |
   [UDS] 撰寫符合 INVEST 準則的使用者故事與需求。
   Use when: 把一個功能構想轉成使用者故事、定義可測試的驗收條件、檢視待辦項目的品質。
   Not for: 帶有設計與差異操作的完整規格文件——請用 /sdd；判斷這個構想本身對不對——請用 /brainstorm。
   Keywords: requirement, user story, INVEST, acceptance criteria, backlog refinement, 需求, 使用者故事, 驗收條件, 待辦整理.
 allowed-tools: Read, Write, Grep
-scope: universal
 argument-hint: "[feature description | 功能描述]"
 ---
 
@@ -31,12 +32,13 @@ argument-hint: "[feature description | 功能描述]"
 
 ## 使用者故事格式
 
-```
+```markdown
 As a [role],
 I want [feature],
 So that [benefit].
 
 ### Acceptance Criteria
+
 - [ ] Given [context], when [action], then [result]
 - [ ] Given [context], when [action], then [result]
 ```
@@ -62,16 +64,18 @@ So that [benefit].
 
 ## 使用方式
 
-- `/requirement` - 互動式需求撰寫精靈
-- `/requirement user login` - 為功能撰寫需求
-- `/requirement "users can export data"` - 根據描述撰寫需求
+```
+/requirement                         - 互動式需求撰寫精靈
+/requirement user login              - 為功能撰寫需求
+/requirement "users can export data" - 根據描述撰寫需求
+```
 
 ## 下一步引導
 
 `/requirement` 完成後，AI 助手應建議：
 
 > **需求文件已完成。建議下一步：**
-> - 執行 `/sdd` 建立規格文件
+> - 執行 `/sdd` 建立規格文件 ⭐ **推薦**
 > - 執行 `/atdd` 定義驗收測試
 > - 執行 `/brainstorm` 進一步探索需求空間
 
@@ -81,3 +85,7 @@ So that [benefit].
 - [需求撰寫指南](./requirement-writing.md) — 要從零開始寫一份需求時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[requirement-engineering.md](../../../../core/requirement-engineering.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/requirement`](../../../../skills/commands/requirement.md#ai-agent-behavior--ai-代理行為)

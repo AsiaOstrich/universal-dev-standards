@@ -2,7 +2,8 @@
 source: ../../../../skills/release-standards/release-workflow.md
 source_version: 2.2.0
 translation_version: 2.2.0
-last_synced: 2026-01-26
+last_synced: 2026-10-12
+source_hash: 77ab71c9f97f
 status: current
 ---
 
@@ -182,6 +183,9 @@ npm view <package-name> dist-tags
 
 # 測試安裝
 npm install -g <package-name>@<version>
+
+# 驗證版本
+<command> --version  # 應顯示 X.Y.Z
 ```
 
 ---

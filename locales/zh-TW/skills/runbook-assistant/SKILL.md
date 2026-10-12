@@ -3,8 +3,10 @@ name: runbook-assistant
 source: ../../../../skills/runbook-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: f11a4927fe55
 status: current
+scope: universal
 description: |
   引導 Runbook 的撰寫、維護與演練。
   Use when: 撰寫 Runbook、規劃演練、稽核 Runbook 覆蓋範圍、事故後更新 Runbook。
@@ -44,9 +46,15 @@ description: |
 > - 執行 `/incident --postmortem` 從事故更新 Runbook
 > - 執行 `/checkin` 提交變更
 
+## 部署 Runbook — 強制規則
+
+任何包含 destructive-update（stop → swap → start）的部署 runbook **必須**遵循 [Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) 順序：解壓到 staging → verify → 通過後才動 live install。跳過 verify 步驟已造成真實生產事故。
+
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md) — 運維手冊的撰寫、組織與驗證。要寫手冊、審查運維程序、規劃演練或評估涵蓋範圍時讀它。
 - 核心規範：[runbook-standards.md](../../../../core/runbook-standards.md)
 - 相關：[alerting-standards.md](../../../../core/alerting-standards.md)
 - 相關：[postmortem-standards.md](../../../../core/postmortem-standards.md)
+- 相關：[deployment-standards.md § Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) — destructive 部署的強制順序
+- 相關：[packaging-standards.md § Archive Format Integrity](../../../../core/packaging-standards.md#archive-format-integrity) — 與防禦性順序配對的上游規範

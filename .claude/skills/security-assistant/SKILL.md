@@ -3,15 +3,16 @@ name: security
 source: ../../../../skills/security-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: a5525e3a2b4b
 status: current
+scope: universal
 description: |
   引導安全審查與弱點評估，遵循 OWASP 標準。
   Use when: 安全稽核、弱點檢查、安全程式碼審查、威脅建模。
   Not for: 自動化的相依套件、CVE 與機密掃描——請用 /scan；處理正在發生的資安事件——請用 /incident。
   Keywords: security, OWASP, vulnerability, authentication, authorization, 資訊安全, 弱點, 認證, 授權, 威脅建模.
 allowed-tools: Read, Grep, Glob
-scope: universal
 argument-hint: "[module or file to audit | 要審計的模組或檔案]"
 ---
 
@@ -65,16 +66,18 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 
 ## 使用方式
 
-- `/security` - 完整安全審查
-- `/security src/auth` - 審計特定模組
-- `/security --owasp` - OWASP Top 10 重點審查
+```
+/security                - 完整安全審查
+/security src/auth       - 審計特定模組
+/security --owasp        - OWASP Top 10 重點審查
+```
 
 ## 下一步引導
 
 `/security` 完成後，AI 助手應建議：
 
 > **安全審查完成。建議下一步：**
-> - 執行 `/checkin` 確認修復符合提交規範
+> - 執行 `/checkin` 確認修復符合提交規範 ⭐ **推薦**
 > - 執行 `/code-review` 進行程式碼審查
 > - 執行 `/commit` 提交安全修復
 > - 檢查相依套件更新 → `npm audit` 或 `pip audit`
@@ -82,3 +85,17 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 ## 參考
 
 - 核心規範：[security-standards.md](../../../../core/security-standards.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/security`](../../../../skills/commands/security.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0 — 文件內容

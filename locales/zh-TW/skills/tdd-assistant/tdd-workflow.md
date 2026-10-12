@@ -2,7 +2,8 @@
 source: ../../../../skills/tdd-assistant/tdd-workflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-07
+last_synced: 2026-10-12
+source_hash: ec7c0482a527
 status: current
 ---
 
@@ -181,6 +182,15 @@ function add(a: number, b: number): number {
 }
 ```
 
+### 常見錯誤
+
+| 錯誤 | 範例 | 修復 |
+|------|------|------|
+| **過度設計** | 新增目前還不需要的功能 | 只為當前測試撰寫程式碼 |
+| **過早優化** | 效能調校 | 先讓它能運作 |
+| **新增錯誤處理** | 為未測試的情況加 try-catch | 只處理已測試的錯誤 |
+| **複製大段程式碼** | 從其他專案複製 | 撰寫最少程式碼 |
+
 ### 綠色階段檢查清單
 
 ```
@@ -237,6 +247,15 @@ function add(a: number, b: number): number {
 4. 如果測試「失敗」→ 立即「復原」
 5. 重構時絕不新增功能
 ```
+
+### 常見錯誤
+
+| 錯誤 | 範例 | 修復 |
+|------|------|------|
+| **跳過此階段** | 立刻進入下一個測試 | 始終尋找可改善之處 |
+| **一次太多變更** | 同時重構 5 件事 | 一次一個變更 |
+| **新增功能** | 「既然都在這裡了⋯⋯」 | 只清理既有程式碼 |
+| **沒有執行測試** | 到最後才批次執行 | 每次變更後都執行 |
 
 ### 重構階段檢查清單
 
@@ -317,6 +336,55 @@ Feature: [功能名稱]
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Step Definitions 範例（JavaScript/Cucumber）
+
+```javascript
+const { Given, When, Then } = require('@cucumber/cucumber');
+
+Given('I have a shopping cart with {int} items', async function (count) {
+  this.cart = new ShoppingCart();
+  for (let i = 0; i < count; i++) {
+    this.cart.addItem({ name: `Item ${i}`, price: 10 });
+  }
+});
+
+When('I apply discount code {string}', async function (code) {
+  this.result = await this.cart.applyDiscount(code);
+});
+
+Then('the cart total should be {float}', function (expectedTotal) {
+  expect(this.cart.getTotal()).toBeCloseTo(expectedTotal, 2);
+});
+```
+
+### BDD 最佳實踐
+
+| 實踐 | 說明 |
+|------|------|
+| **宣告式優於命令式** | 說明「做什麼」，而非「怎麼做」 |
+| **業務語言** | 避免技術術語 |
+| **獨立場景** | 每個場景自成一體 |
+| **最少步驟** | 每個場景 5-10 個步驟 |
+| **可重用步驟** | 撰寫通用的 step definitions |
+
+```gherkin
+# ❌ Imperative (too detailed)
+Scenario: Login
+  Given I navigate to "http://example.com/login"
+  And I click on the username field
+  And I type "john@example.com"
+  And I click on the password field
+  And I type "secret123"
+  And I click the "Login" button
+  Then I see "Welcome John"
+
+# ✅ Declarative (behavior focused)
+Scenario: Successful login
+  Given I am on the login page
+  When I login with valid credentials
+  Then I should see my dashboard
+```
+
 ---
 
 ## ATDD 工作流程
@@ -381,6 +449,15 @@ Feature: [功能名稱]
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 將 AC 對應到測試
+
+| 驗收標準 | 測試層級 | 工具 |
+|---------|---------|------|
+| 使用者可見的行為 | 驗收 | FitNesse, Cucumber |
+| 功能行為 | BDD | Cucumber, SpecFlow |
+| 單元邏輯 | TDD | Jest, xUnit |
+| API 合約 | 整合 | Supertest, REST Assured |
+
 ---
 
 ## 團隊協作模式
@@ -408,6 +485,11 @@ Feature: [功能名稱]
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**好處**：
+- 雙方持續投入
+- 知識分享
+- 及早發現錯誤
+
 #### 駕駛員-領航員模式
 
 ```
@@ -426,6 +508,41 @@ Feature: [功能名稱]
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+**好處**：
+- 角色清楚
+- 領航員可以進行策略性思考
+- 持續審查
+
+### 使用 TDD 的群體程式設計（Mob Programming）
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    群體程式設計 TDD                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   團隊（3-6 人）                                                 │
+│   ─────────────                                                 │
+│   - 一位駕駛員（打字）                                           │
+│   - 多位領航員（引導）                                           │
+│   - 每 5-10 分鐘輪換駕駛員                                       │
+│                                                                 │
+│   TDD 流程：                                                     │
+│   1. 團隊討論下一個測試                                          │
+│   2. 駕駛員撰寫測試（領航員引導）                                 │
+│   3. 團隊確認測試失敗                                            │
+│   4. 團隊討論實作方式                                            │
+│   5. 駕駛員實作（領航員引導）                                     │
+│   6. 輪換駕駛員                                                  │
+│   7. 下一位成員重構或撰寫下一個測試                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**好處**：
+- 全隊一致
+- 集體擁有程式碼
+- 即時知識傳遞
 
 ---
 
@@ -452,6 +569,61 @@ stages:
 | 新程式碼覆蓋率 | 90% | 警告 |
 | 測試執行時間 | < 基準 | 警告 |
 
+### CI 設定範例
+
+```yaml
+# GitHub Actions
+name: TDD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci
+      - run: npm run test:unit -- --coverage
+      - uses: codecov/codecov-action@v4
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run test:integration
+
+  e2e-tests:
+    needs: integration-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run test:e2e
+```
+
+### 測試報告
+
+```yaml
+# Add test reporting
+- name: Test Report
+  uses: dorny/test-reporter@v1
+  if: success() || failure()
+  with:
+    name: Test Results
+    path: reports/junit.xml
+    reporter: jest-junit
+```
+
 ---
 
 ## 快速決策指南
@@ -475,6 +647,16 @@ stages:
 │
 └─ 新 API 端點
     └─ 邏輯用 TDD + HTTP 用整合測試
+```
+
+### 測試粒度
+
+```
+這個測試應該多具體？
+│
+├─ 測試公開 API → 每個行為一個測試
+├─ 測試內部邏輯 → 將相關斷言歸為一組
+└─ 測試邊界情況 → 每個邊界情況一個測試
 ```
 
 ---

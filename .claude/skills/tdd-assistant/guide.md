@@ -1,21 +1,20 @@
 ---
-source: ../../../../skills/tdd-assistant/SKILL.md
+source: ../../../../skills/tdd-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-07
+last_synced: 2026-10-12
+source_hash: dfe1437a04b0
 status: current
----
-
----
+scope: partial
 description: |
-  Guide developers through Test-Driven Development workflow.
-  Use when: writing tests first, practicing TDD, red-green-refactor cycle, BDD scenarios.
-  Keywords: TDD, test first, red green refactor, FIRST, BDD, ATDD, 測試驅動開發, 紅綠重構.
+  引導開發者完成測試驅動開發工作流程。
+  使用時機：先寫測試、實踐 TDD、紅-綠-重構循環、BDD 場景。
+  關鍵字：TDD, test first, red green refactor, FIRST, BDD, ATDD, 測試驅動開發, 紅綠重構.
 ---
 
 # TDD 助手
 
-> **語言**: [English](../../../../skills/tdd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/tdd-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-07
@@ -305,14 +304,74 @@ describe('使用者驗證 (SPEC-001)', () => {
 
 ---
 
+## 重構階段深入解析（YAML 壓縮格式）
+
+```yaml
+# === TDD REFACTOR = SAFE SMALL REFACTORING ===
+refactor_phase:
+  scope: "Single method/class improvements"
+  duration: "5-15 minutes max"
+  prerequisite: "All tests GREEN"
+  rule: "No new functionality"
+
+techniques:
+  safe_refactorings:
+    - extract_method: "Long method → smaller methods"
+    - rename: "Improve naming clarity"
+    - inline_variable: "Remove unnecessary temp"
+    - replace_magic_number: "Constant with meaning"
+    - extract_class: "SRP violation fix"
+    - move_method: "Better cohesion"
+
+workflow:
+  steps:
+    1: "Confirm all tests GREEN"
+    2: "Make ONE small change"
+    3: "Run tests immediately"
+    4: "If RED → revert, try smaller step"
+    5: "If GREEN → commit, repeat"
+
+# === WHEN TO USE /refactor INSTEAD ===
+escalation:
+  use_tdd_refactor:
+    - "Improving code just written"
+    - "Single method/class cleanup"
+    - "Takes <15 minutes"
+  use_refactoring_assistant:
+    - "Legacy code modernization"
+    - "Refactor vs Rewrite decision"
+    - "Large-scale architectural change"
+    - "Technical debt management"
+    - "Strangler Fig pattern needed"
+
+# === REFACTOR ANTIPATTERNS ===
+antipatterns:
+  - name: "Refactoring without tests"
+    symptom: "No safety net"
+    fix: "Add characterization tests first"
+  - name: "Too large refactoring"
+    symptom: "Tests RED for hours"
+    fix: "Smaller steps, commit frequently"
+  - name: "Adding features while refactoring"
+    symptom: "Scope creep"
+    fix: "Separate commits: refactor then feature"
+  - name: "Refactoring everything"
+    symptom: "Perfectionism paralysis"
+    fix: "Only refactor code you're changing"
+```
+
+---
+
 ## 相關標準
 
 - [測試驅動開發](../../../../core/test-driven-development.md) - TDD 核心標準
+- [重構標準](../../../../core/refactoring-standards.md) - 大規模重構
 - [測試標準](../../../../core/testing-standards.md) - 測試框架
 - [測試完整性維度](../../../../core/test-completeness-dimensions.md) - 7 維度
 - [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 整合
 - [測試指南技能](../testing-guide/SKILL.md) - 測試指南
 - [測試覆蓋率助手](../test-coverage-assistant/SKILL.md) - 覆蓋率協助
+- [重構助手](../refactoring-assistant/SKILL.md) - 大規模重構
 
 ---
 
