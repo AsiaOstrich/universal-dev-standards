@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.12] - 2026-10-12
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Fixes what the 6.14.0-beta.11 Windows retest still found (XSPEC-475 R6–R10).
+>
 > **Behavior changes:** `uds update --apply` now brings the skills/commands version and name records of the manifest in step with the files it rewrites; `uds simulate -s commit-message` judges by the CLI's current rules (and says so) when an installed option file is older than the one the CLI ships; `uds update --plan` / `uds check` / `uds audit --friction` list the recommended core standards that are not installed.
 
 ### Changed
