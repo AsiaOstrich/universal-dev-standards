@@ -1,9 +1,11 @@
 ---
-source: ../../../../skills/refactoring-assistant/SKILL.md
+source: ../../../../skills/refactoring-assistant/guide.md
 source_version: 2.0.0
 translation_version: 2.0.0
-last_synced: 2026-01-21
+last_synced: 2026-10-12
+source_hash: 40b6adf241b1
 status: current
+scope: universal
 description: |
   引導重構決策和大規模程式碼改進。
   使用時機：重構程式碼、遺留系統現代化、技術債、重寫決策。

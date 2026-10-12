@@ -2,7 +2,8 @@
 source: ../../../../skills/project-structure-guide/language-patterns.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-30
+last_synced: 2026-10-12
+source_hash: 4164884da2d0
 status: current
 ---
 

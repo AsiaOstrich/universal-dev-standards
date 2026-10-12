@@ -1,9 +1,11 @@
 ---
-source: ../../../../skills/release-standards/SKILL.md
+source: ../../../../skills/release-standards/guide.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-02
+last_synced: 2026-10-12
+source_hash: d03e1fe37053
 status: current
+scope: universal
 description: |
   語意化版本控制和變更日誌格式化的軟體發布標準。
   使用時機：準備發布、更新版本號、撰寫變更日誌。
@@ -19,6 +21,8 @@ description: |
 **適用範圍**: Claude Code Skills
 
 ---
+
+> **核心標準**：本技能實作 [版本控制](../../core/versioning.md)。完整的方法論文件請參閱核心標準。
 
 ## 目的
 
@@ -70,6 +74,11 @@ Examples:
 - [語意化版本控制指南](./semantic-versioning.md)
 - [變更日誌格式](./changelog-format.md)
 - [發布流程指南](./release-workflow.md) - 本專案完整發布流程
+
+### AI 優化格式（節省 Token）
+
+AI 助手可使用 YAML 格式檔案以減少 token 使用量：
+- 變更日誌：`ai/standards/changelog.ai.yaml`
 
 ## CHANGELOG 條目格式
 
@@ -168,9 +177,9 @@ This project follows **Keep a Changelog** format.
 
 ## 相關標準
 
-- [版本控制](../../core/versioning.md)
-- [變更日誌標準](../../core/changelog-standards.md)
-- [Git 工作流程](../../core/git-workflow.md)
+- [版本控制](../../core/versioning.md) - 核心語意化版本標準
+- [變更日誌標準](../../core/changelog-standards.md) - Keep a Changelog 格式
+- [Git 工作流程](../../core/git-workflow.md) - Git 標籤與發布分支
 
 ---
 

@@ -3,15 +3,16 @@ name: incident
 source: ../../../../skills/incident-response-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: f72f7ffb6422
 status: current
+scope: universal
 description: |
   引導事故回應、根因分析與事後檢討文件撰寫。
   Use when: 正式環境事故、服務中斷回應、撰寫事後檢討、根因分析（RCA）。
   Not for: 在故障發生前設計重試與檢查點——請用 /durable；設定告警門檻與 Error Budget 政策——請用 /slo。
   Keywords: incident, outage, post-mortem, RCA, root cause, 事故, 服務中斷, 事後檢討, 根因分析.
 allowed-tools: Read, Write, Grep, Glob
-scope: universal
 argument-hint: "[incident description or severity | 事故描述或嚴重程度]"
 ---
 
@@ -99,12 +100,14 @@ DETECT ──► TRIAGE ──► MITIGATE ──► RESOLVE ──► POST-MORT
 
 ## 使用方式
 
-- `/incident` - 顯示完整事故回應指南
-- `/incident "API 500 errors"` - 特定事故引導回應
-- `/incident --post-mortem` - 產生事後檢討模板
-- `/incident --sev1` - SEV-1 快速回應清單
-- `/incident --actions` - 列出未完成行動項目
-- `/incident --metrics` - 顯示事故趨勢指標
+```bash
+/incident                       # 顯示完整事故回應指南
+/incident "API 500 errors"      # 特定事故引導回應
+/incident --post-mortem         # 產生事後檢討模板
+/incident --sev1                # SEV-1 快速回應清單
+/incident --actions             # 列出未完成行動項目
+/incident --metrics             # 顯示事故趨勢指標
+```
 
 ## 改善追蹤
 
@@ -145,14 +148,29 @@ docs/incidents/
 `/incident` 完成後，AI 助手應建議：
 
 > **事故回應指引已提供。建議下一步：**
-> - 執行 `/commit` 建立修復提交 ⭐ **推薦**
-> - 執行 `/code-review` 審查修復變更
-> - 執行 `/docs` 更新文件
-> - 執行 `/security` 檢查安全影響
-> - 執行 `/retrospective`（SEV-1/SEV-2 建議）— 團隊回顧
-> - 執行 `/incident --actions` — 查看未完成行動項目
+> - 提交修復 → 執行 `/commit` 建立修復提交 ⭐ **推薦**
+> - 程式碼審查 → 執行 `/code-review` 審查修復變更
+> - 記錄學習 → 執行 `/docs` 更新文件
+> - 安全審查 → 執行 `/security` 檢查安全影響
+> - 團隊回顧 → 執行 `/retrospective`（SEV-1/SEV-2 建議）
+> - 查看行動項目 → 執行 `/incident --actions`
 
 ## 參考
 
 - 核心規範：[deployment-standards.md](../../../../core/deployment-standards.md)
 - 核心規範：[logging.md](../../../../core/logging-standards.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.1.0 | 2026-03-26 | 新增改善階段、行動追蹤、指標 |
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/incident`](../../../../skills/commands/incident.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0 — 文件內容

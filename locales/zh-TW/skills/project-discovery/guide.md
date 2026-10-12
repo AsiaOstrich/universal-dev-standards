@@ -1,18 +1,20 @@
 ---
+scope: universal
 description: |
   在新增功能前評估專案健康度、架構與風險。
   使用時機：接手舊專案、在現有程式碼上新增功能、評估技術債。
   關鍵字：discovery, assessment, audit, legacy, health check, technical debt, 現況評估, 風險分析, 技術債, 專案盤點。
-source: ../../../../skills/project-discovery/SKILL.md
+source: ../../../../skills/project-discovery/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-09
+last_synced: 2026-10-12
+source_hash: bd8ecb9edb1f
 status: current
 ---
 
 # 專案現況評估指南
 
-> **語言**: [English](../../../../skills/project-discovery/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/project-discovery/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-02-09

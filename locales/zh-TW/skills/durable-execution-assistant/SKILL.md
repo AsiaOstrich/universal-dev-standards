@@ -1,15 +1,19 @@
 ---
-name: durable-execution-assistant
+name: durable
 source: ../../../../skills/durable-execution-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: b7b644cafbce
 status: current
+scope: partial
 description: |
   [UDS] 引導容錯工作流程設計，包含檢查點、重試策略與回滾計畫。
   Use when: 長時間執行的工作流程總是中途失敗、設計檢查點的粒度、選擇重試或退避策略。
   Not for: 處理正在發生中的線上事故——請用 /incident；部署回滾的實作機制——請用 /deploy。
   Keywords: durable execution, checkpoint, retry, backoff, idempotency, rollback, 持久執行, 檢查點, 重試策略, 冪等.
+allowed-tools: Read, Write, Grep, Glob
+argument-hint: "[workflow name or failure context | 工作流名稱或失敗情境]"
 ---
 
 # 持久執行助手
@@ -77,10 +81,35 @@ description: |
 4. **驗證** - 確認系統狀態一致
 5. **繼續** - 從上一個檢查點繼續
 
+## 使用範例
+
+```
+使用者：/durable deploy-pipeline
+AI：正在分析 deploy-pipeline 的持久性...
+    步驟：build → test → deploy → verify
+    風險：deploy 步驟沒有回滾策略。
+    建議：在 test 之後加入檢查點，
+    並以藍綠部署策略為 deploy 配置回滾。
+```
+
 ## 下一步引導
 
 `/durable` 完成後，AI 助手應建議：
 
 > **持久性分析完成。建議下一步：**
-> - 執行 `/methodology` 選擇適合的開發方法論
+> - 執行 `/methodology` 選擇適合的開發方法論 ⭐ **推薦**
 > - 執行 `/commit` 提交持久化設計變更
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/durable`](../../../../skills/commands/durable.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0

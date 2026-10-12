@@ -2,15 +2,16 @@
 source: ../../../../skills/git-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: a1438a0fe0f2
 status: current
 name: git-workflow-guide
+scope: universal
 description: |
   引導 Git 分支策略、分支命名與合併操作。
   Use when: 建立分支、合併、pull request、Git 工作流程相關問題。
   Not for: 撰寫 commit message——請用 /commit；推送前的安全檢查——請用 /push。
   Keywords: branch, merge, PR, pull request, GitFlow, GitHub Flow, 分支, 合併, 工作流程, 分支命名.
-scope: universal
 ---
 
 # Git 工作流程指南
@@ -22,6 +23,8 @@ scope: universal
 **適用範圍**: Claude Code Skills
 
 ---
+
+> **核心規範**：本技能實作 [Git 工作流程](../../core/git-workflow.md)。完整的方法論文件請參閱核心規範。
 
 ## 目的
 
@@ -65,6 +68,19 @@ scope: universal
 完整標準請參閱：
 - [Git 工作流程策略](./git-workflow.md)
 - [分支命名參考](./branch-naming.md)
+
+### AI 優化格式（節省 Token）
+
+AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
+- 基礎標準：`ai/standards/git-workflow.ai.yaml`
+- 工作流程選項：
+  - GitHub Flow：`ai/options/git-workflow/github-flow.ai.yaml`
+  - GitFlow：`ai/options/git-workflow/gitflow.ai.yaml`
+  - Trunk-Based：`ai/options/git-workflow/trunk-based.ai.yaml`
+- 合併策略選項：
+  - Squash Merge：`ai/options/git-workflow/squash-merge.ai.yaml`
+  - Merge Commit：`ai/options/git-workflow/merge-commit.ai.yaml`
+  - Rebase + FF：`ai/options/git-workflow/rebase-ff.ai.yaml`
 
 ## 建立分支前檢查清單
 
@@ -197,11 +213,22 @@ git push origin feature/my-feature
 
 ---
 
+## 下一步引導
+
+`/git-flow` 完成後，AI 助手應建議：
+
+> **Git 工作流程已設定。建議下一步：**
+> - 執行 `git checkout -b feature/<描述>` 建立功能分支開始開發 ⭐ **推薦** — 立即套用所選的分支策略
+> - 執行 `/commit` 學習提交訊息規範 — 確保提交訊息格式一致
+> - 執行 `/checkin` 了解簽入品質門檻 — 在提交前確保程式碼品質
+
+---
+
 ## 相關標準
 
-- [Git 工作流程](../../core/git-workflow.md)
-- [提交訊息指南](../../core/commit-message-guide.md)
-- [簽入標準](../../core/checkin-standards.md)
+- [Git 工作流程](../../core/git-workflow.md) - 核心 Git 工作流程標準
+- [提交訊息指南](../../core/commit-message-guide.md) - 提交訊息慣例
+- [簽入標準](../../core/checkin-standards.md) - 提交前品質關卡
 
 ---
 
@@ -219,36 +246,3 @@ git push origin feature/my-feature
 
 **來源**：[universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
 
-
-## Next Steps Guidance | 下一步引導
-
-After `/git-flow` completes, the AI assistant should suggest:
-
-> **Git 工作流程已設定。建議下一步 / Git workflow configured. Suggested next steps:**
-> - 執行 `git checkout -b feature/<描述>` 建立功能分支開始開發 ⭐ **Recommended / 推薦** — 立即套用所選的分支策略 / Apply the chosen branching strategy immediately
-> - 執行 `/commit` 學習提交訊息規範 — 確保提交訊息格式一致 / Ensure consistent commit message format
-> - 執行 `/checkin` 了解簽入品質門檻 — 在提交前確保程式碼品質 / Ensure code quality before commits
-
----
-
-## Related Standards
-
-- [Git Workflow](../../core/git-workflow.md) - Core Git workflow standard
-- [Commit Message Guide](../../core/commit-message-guide.md) - Commit message conventions
-- [Checkin Standards](../../core/checkin-standards.md) - Pre-commit quality gates
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-12-24 | Added: Standard sections (Purpose, Related Standards, Version History, License) |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -2,7 +2,8 @@
 source: ../../../../skills/release-standards/changelog-format.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: d214563d2b6b
 status: current
 ---
 
@@ -227,8 +228,8 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ## 相關標準
 
-- [Changelog Standards](../../../../core/changelog-standards.md)
-- [Semantic Versioning Guide](./semantic-versioning.md)
+- [變更日誌標準](../../../../core/changelog-standards.md)
+- [語意化版本指南](./semantic-versioning.md)
 
 ---
 

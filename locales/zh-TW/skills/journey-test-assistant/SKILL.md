@@ -3,7 +3,8 @@ name: journey-test-assistant
 source: ../../../../skills/journey-test-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 62c9c1574b9f
 scope: partial
 description: |
   [UDS] 從專案描述產生連貫的使用者旅程測試計畫（TESTPLAN）與旅程 E2E 骨架。
@@ -20,19 +21,6 @@ status: stable
 > **語言**: [English](../../../../skills/journey-test-assistant/SKILL.md) | 繁體中文
 
 從專案描述生成連貫的使用者旅程測試計畫（TESTPLAN-NNN.md）與對應的 E2E 骨架，讓每個新專案從第一天起就擁有完整測試旅程。
-
-## 選擇正確的測試 Skill
-
-| 需求 | 使用 |
-|------|------|
-| 單元測試 / TDD 紅綠重構 | `/tdd-assistant` |
-| BDD 場景 / Given-When-Then | `/bdd-assistant` |
-| 驗收測試 / ATDD / 使用者故事 | `/atdd-assistant` |
-| E2E / Playwright / 瀏覽器測試 | `/e2e-assistant` |
-| 合約測試 / API consumer-driven | `/contract-test-assistant` |
-| 測試覆蓋率差距分析 | `/test-coverage-assistant` |
-| 使用者旅程測試計畫 | `/journey-test-assistant` |
-| 一般測試策略 / 測試金字塔 | `/testing-guide` |
 
 ## 與 /e2e 的差異
 
