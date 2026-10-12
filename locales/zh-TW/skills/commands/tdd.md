@@ -2,11 +2,12 @@
 source: ../../../../skills/commands/tdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-12
+source_hash: 731a838016b4
 ---
 
 ---
-description: [UDS] Guide through Test-Driven Development workflow
+description: [UDS] 引導測試驅動開發工作流程
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
 argument-hint: "[feature or function to implement | 要實作的功能]"
 status: experimental
@@ -108,6 +109,74 @@ status: experimental
 - `/tdd` - 啟動互動式 TDD session
 - `/tdd calculateTotal` - 針對特定函式進行 TDD
 - `/tdd "user can login"` - 針對用戶故事進行 TDD
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/tdd` | 詢問要實作的功能，進入 🔴 RED 階段 |
+| `/tdd <function>` | 以指定函式為目標，直接進入 🔴 RED |
+| `/tdd "user story"` | 以使用者故事為目標，進入 🔴 RED |
+
+### 互動腳本
+
+#### 🔴 RED 階段
+
+1. 確認目標功能/行為
+2. 撰寫一個會失敗的測試
+3. 執行測試，確認失敗（assertion failure，非 syntax error）
+
+**決策：測試結果**
+- IF 測試失敗（assertion） → 進入 🟢 GREEN
+- IF 測試出錯（syntax/runtime error） → 修正測試本身，重新執行
+- IF 測試通過 → 告知使用者測試不應該通過，檢查是否功能已存在
+
+🛑 **STOP**：展示失敗測試後等待使用者確認進入 GREEN
+
+#### 🟢 GREEN 階段
+
+1. 撰寫最小量程式碼使測試通過
+2. 執行測試
+
+**決策：測試結果**
+- IF 所有測試通過 → 建議進入 🔵 REFACTOR
+- IF 仍有失敗 → 繼續修改程式碼（最多 3 次），超過則 🛑 STOP
+
+🛑 **STOP**：測試通過後等待使用者確認進入 REFACTOR
+
+#### 🔵 REFACTOR 階段
+
+1. 分析剛寫的程式碼是否有改善空間
+2. 提出重構建議
+
+**決策：重構範圍**
+- IF 有明顯重複或改善點 → 列出建議，等使用者選擇
+- IF 程式碼已足夠簡潔 → 告知不需重構，建議進入下一個 RED 循環
+
+3. 執行重構，確認所有測試仍通過
+
+🛑 **STOP**：重構完成後等待使用者決定繼續下一個 RED 循環或結束
+
+### 停止點
+
+| 階段 | 停止點 | 等待內容 |
+|------|--------|---------|
+| RED | 失敗測試撰寫後 | 確認進入 GREEN |
+| GREEN | 測試通過後 | 確認進入 REFACTOR |
+| REFACTOR | 重構完成後 | 決定繼續或結束 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 使用者要求跳過 RED 直接寫程式碼 | 提醒 TDD 契約，建議先寫測試 |
+| 測試框架未偵測到 | 詢問使用者指定框架 |
+| 測試語法錯誤導致無法執行 | 修正語法後重新執行，不計入嘗試次數 |
+| GREEN 階段 3 次仍無法通過 | 停止，分析失敗原因，等待使用者指導 |
 
 ## 參考
 

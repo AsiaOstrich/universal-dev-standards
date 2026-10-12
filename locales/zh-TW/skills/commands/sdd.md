@@ -2,11 +2,12 @@
 source: ../../../../skills/commands/sdd.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-12
+source_hash: 3e985d7d90bd
 ---
 
 ---
-description: [UDS] Create or review specification documents for Spec-Driven Development
+description: [UDS] 建立或審查規格驅動開發的規格文件
 allowed-tools: Read, Write, Grep, Glob, Bash(git:*), Bash(npm test:*)
 argument-hint: "[create|review|approve|implement|verify] [spec name or file | 規格名稱或檔案]"
 ---
@@ -58,6 +59,186 @@ grep -E "^- \[(x|X)\]" docs/specs/SPEC-XXX.md
 - **模式：`off`** — 無檢查
 
 檢查專案配置：`.uds/config.yaml` → `workflow.enforcement_mode`
+
+---
+
+## AI 代理行為
+
+> 遵循 [AI Command Behavior Standards](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 | AI 行為 |
+|------|---------|---------|
+| `/sdd` | 1. 檢查 `docs/specs/` 是否有進行中的 spec 2. **有進行中的 spec** → 顯示狀態摘要，問使用者要繼續哪個還是新建 3. **無進行中的 spec** → 問使用者想做什麼功能，進入 discuss | 檢查進行中的規格；顯示狀態或開始 discuss |
+| `/sdd <feature-name>` | 進入 **discuss** 階段（以 feature-name 為主題） | 針對該功能進入 discuss 階段 |
+| `/sdd <phase>` | 進入指定 phase，執行 Pre-Flight Check。無指定 spec 時，列出該 phase 可操作的 spec 清單 | 進入指定階段，列出符合條件的規格 |
+| `/sdd <phase> <spec-file>` | 進入指定 phase，對指定 spec 執行 Pre-Flight Check 後開始 | 針對指定規格進入該階段 |
+| `/sdd --evaluate` | 僅執行 Scope Evaluation（Phase 0），輸出範圍評估結果 | 僅執行範圍評估 |
+| `/sdd --sync-check` | 僅執行同步檢查，輸出同步狀態 | 僅執行同步檢查 |
+
+### 互動腳本
+
+#### 階段 0.5：Discuss
+
+1. 讀取相關程式碼和文件，建立對現狀的理解
+2. 列出識別到的灰色地帶（ambiguities），以編號問題呈現
+3. 逐一與使用者討論，收斂答案
+4. 鎖定範圍（In Scope / Out of Scope / Deferred）
+
+**決策：灰色地帶解決程度**
+- IF 所有問題都有明確答案 → 輸出 scope summary，建議進入 create
+- IF 仍有未解問題 → 列出剩餘問題，問使用者是否接受風險繼續
+- IF 使用者說「先這樣」 → 記錄未解問題為 `[OPEN]`，允許進入 create
+
+**產出格式：**
+```markdown
+### Discuss Summary
+**Feature**: [name]
+**In Scope**: [list]
+**Out of Scope**: [list]
+**Deferred**: [list]
+**Open Questions**: [list or "None"]
+**read_first**: [file list]
+```
+
+🛑 **STOP**: 顯示 Discuss Summary 後等待使用者確認進入 create
+
+#### 階段 1：Create
+
+1. 基於 discuss 結論和 read_first 檔案，撰寫完整 spec
+2. 使用 Spec Document Structure 模板
+3. 所有 AC 使用 Given/When/Then 格式
+4. 為 spec 指定 ID（查看 `docs/specs/` 目錄決定下一個編號）
+5. 撰寫 Test Plan
+6. 填寫 Assumptions & Open Questions（必填），使用 `[Assumption]`/`[Need Confirmation]` 標籤
+7. IF spec 有 >3 ACs → 建議建立 `.ac.yaml` sidecar（參考 `specs/schemas/acceptance-criteria.schema.yaml`）
+8. IF spec 定義 API/data flow → 建議填寫 I/O Contract 章節
+9. IF spec 涉及 AI Agent 行為 → 填寫 AI Agent Behavior 章節
+
+**決策：Spec 放置位置**
+- IF 是 CLI 相關 → `docs/specs/cli/`
+- IF 是 Core Standard 相關 → `docs/specs/standards/`
+- IF 是 Skill 相關 → `docs/specs/skills/`
+- IF 是架構相關 → `docs/specs/architecture/`
+- IF 是跨元件 → `docs/specs/system/`
+- ELSE → `docs/specs/`
+
+🛑 **STOP**: 撰寫完 spec 後展示內容，等待使用者確認再寫入檔案
+
+#### 階段 2：Review
+
+1. 讀取指定 spec 檔案
+2. 逐項檢查以下維度：
+
+| 檢查維度 | 檢查內容 |
+|----------|---------|
+| Requirements 完整性 | 所有 REQ 都有 Scenario |
+| AC 可測試性 | 每個 AC 都是 Given/When/Then 格式 |
+| AC 覆蓋率 | 每個 REQ 至少有一個 AC 對應 |
+| Technical Design 可行性 | 設計不依賴不存在的 API/工具 |
+| Test Plan 對應 | Test Plan 涵蓋所有 AC |
+| 範圍一致性 | 沒有超出 discuss 鎖定的範圍 |
+| 無歧義 | 沒有模糊用語（「等等」「適當地」） |
+| 假設標記完整性 | 所有假設都有 `[Assumption]` 標籤和驗證方式 |
+| 待釐清追蹤 | 所有 `[Need Confirmation]` 項目有負責人和期限 |
+
+3. 輸出 Review 結果表格
+4. 更新 spec status 為 `Review`
+
+**決策：Review 結果**
+- IF 全部通過 → 建議進入 approve
+- IF 有 blocking issue → 列出問題，建議修改後重新 review
+- IF 只有 suggestion → 列出建議，使用者可選擇修改或直接 approve
+
+🛑 **STOP**: 顯示 review 結果後等待使用者決定
+
+#### 階段 3：Approve
+
+1. 讀取 spec，確認 status = `Review`
+2. 逐項展示 Approval Checklist（5 項），標記通過/未通過
+3. 等待使用者確認核准
+
+**決策：Approval 結果**
+- IF 使用者確認核准 → 更新 spec metadata（status, approved-date, approved-by）
+- IF 使用者拒絕 → 記錄原因，建議回到 review 或 create
+
+🛑 **STOP**: 展示 checklist 結果後等待使用者明確說「核准」或「approved」
+
+#### 階段 4：Implement
+
+1. 讀取 approved spec，列出所有 AC
+2. 產出實作計畫：每個 AC 要改哪些檔案、預估複雜度
+3. 等待使用者確認計畫
+
+🛑 **STOP**: 顯示實作計畫後等待使用者確認
+
+4. 逐 AC 實作：
+   a. 撰寫程式碼
+   b. 撰寫對應測試
+   c. 執行測試確認通過
+   d. 更新 spec 中的 AC checkbox
+
+**決策：Commit 節奏**
+- IF AC 之間相互獨立 → 每完成一個 AC 就提示可以 commit
+- IF AC 之間緊耦合 → 合併完成後一起提示 commit
+- 不自動執行 git commit — 僅提示使用者
+
+**決策：測試失敗**
+- IF 測試失敗 → 修復後重新測試，最多重試 3 次
+- IF 3 次仍失敗 → 🛑 STOP，報告問題，等待使用者指導
+
+🛑 **STOP**: 每個獨立 AC 完成後暫停，展示進度，等待使用者確認繼續
+
+#### 階段 5：Verify
+
+1. 讀取 spec，列出所有 AC
+2. 對每個 AC 收集證據：
+   - 程式碼位置（file:line）
+   - 測試位置（file:line）
+   - 測試結果（執行測試）
+3. 檢查是否有偏差（Added / Modified / Omitted）
+4. 產生 Verification Report
+
+**決策：驗證結果**
+- IF 全部 PASS → 更新 spec status 為 `Implemented`，建議歸檔
+- IF 有 FAIL → 列出失敗項目，建議回到 implement 修復
+- IF 迭代次數 ≥ 3 → 🛑 STOP，強制升級（review spec / rethink / escalate）
+
+🛑 **STOP**: 顯示 Verification Report 後等待使用者決定下一步
+
+#### 階段 6：Archive
+
+1. 確認 spec status = `Implemented` 且 verify 通過
+2. 連結相關 commit/PR
+3. 更新 spec status 為 `Archived`
+
+🛑 **STOP**: 確認歸檔前等待使用者確認
+
+### 停止點總覽
+
+| 階段 | 停止點 | 等待內容 |
+|------|--------|---------|
+| discuss | Discuss Summary 輸出後 | 確認進入 create |
+| create | Spec 撰寫完成後 | 確認寫入檔案 |
+| review | Review 結果輸出後 | 決定修改或進入 approve |
+| approve | Checklist 展示後 | 明確核准 |
+| implement | 實作計畫展示後 | 確認開始實作 |
+| implement | 每個獨立 AC 完成後 | 確認繼續下一個 |
+| verify | Verification Report 輸出後 | 決定歸檔或修復 |
+| archive | 歸檔前 | 確認歸檔 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 | AI 行為 |
+|----------|---------|---------|
+| Pre-Flight Check 失敗 | 說明哪個條件未滿足，引導到正確的 phase | 說明失敗原因，引導至正確階段 |
+| Spec 檔案不存在 | 列出可用的 spec 檔案，或建議 `/sdd create` | 列出可用規格或建議建立 |
+| Spec status 不符合目標 phase | 顯示當前 status，說明需要先完成哪個 phase | 顯示當前狀態，說明需先完成的階段 |
+| `docs/specs/` 目錄不存在 | 自動建立目錄，繼續流程 | 自動建立目錄 |
+| 使用者提供的 feature name 與現有 spec 重複 | 顯示現有 spec，問使用者是要繼續還是新建 | 顯示現有規格，詢問繼續或新建 |
+| 實作中測試反覆失敗（>3 次） | 停止自動修復，報告問題，等待使用者指導 | 停止自動修復，回報問題，等待指導 |
+| 非預期狀態（無法判斷正確行為） | 停止並詢問使用者，不猜測 | 停止並詢問，絕不猜測 |
 
 ---
 
@@ -229,13 +410,13 @@ sync-to:
 
 ## 規格狀態
 
-| 狀態 | 說明 |
-|------|------|
-| Draft | 草稿中 |
-| Review | 審查中 |
-| Approved | 已核准 |
-| Implemented | 已實作 |
-| Archived | 已歸檔 |
+| 狀態 | Description | 說明 |
+|------|-------------|------|
+| Draft | Work in progress | 草稿中 |
+| Review | Under review | 審查中 |
+| Approved | Ready for implementation | 已核准 |
+| Implemented | Code complete | 已實作 |
+| Archived | Completed or deprecated | 已歸檔 |
 
 ## 驗收標準格式
 
@@ -298,11 +479,11 @@ Brief description of the feature.
 
 ## Input/Output Contract (Optional) / 輸入輸出合約（可選）
 
-### Input Contract / 輸入合約
+### Input Contract
 | Field | Type | Required | Source | Description |
 |-------|------|----------|--------|-------------|
 
-### Output Contract / 輸出合約
+### Output Contract
 | Field | Type | Guarantee | Consumer | Description |
 |-------|------|-----------|----------|-------------|
 
@@ -340,23 +521,23 @@ Brief description of the feature.
 
 ## 使用方式
 
-| 指令 | 用途 |
-|------|------|
-| `/sdd` | 互動式規格建立精靈 |
-| `/sdd discuss` | 啟動功能討論階段 |
-| `/sdd discuss auth-flow` | 討論特定功能 |
-| `/sdd auth-flow` | 為特定功能建立規格 |
-| `/sdd create auth-flow` | 明確指定建立階段 |
-| `/sdd review` | 審查現有規格 |
-| `/sdd review specs/SPEC-001.md` | 審查指定規格 |
-| `/sdd approve` | 列出待核准規格 |
-| `/sdd approve specs/SPEC-001.md` | 核准指定規格 |
-| `/sdd implement` | 列出已核准規格 |
-| `/sdd implement specs/SPEC-001.md` | 追蹤指定規格的實作 |
-| `/sdd verify` | 列出已實作規格 |
-| `/sdd verify specs/SPEC-001.md` | 驗證指定規格的實作 |
-| `/sdd --evaluate` | 僅執行範圍評估 |
-| `/sdd --sync-check` | 檢查同步狀態 |
+| 指令 | Purpose | 用途 |
+|------|---------|------|
+| `/sdd` | Interactive spec creation wizard | 互動式規格建立精靈 |
+| `/sdd discuss` | Start discuss phase for a feature | 啟動功能討論階段 |
+| `/sdd discuss auth-flow` | Discuss specific feature | 討論特定功能 |
+| `/sdd auth-flow` | Create spec for specific feature | 為特定功能建立規格 |
+| `/sdd create auth-flow` | Explicit create phase | 明確指定建立階段 |
+| `/sdd review` | Review existing specs | 審查現有規格 |
+| `/sdd review specs/SPEC-001.md` | Review specific spec | 審查指定規格 |
+| `/sdd approve` | List specs pending approval | 列出待核准規格 |
+| `/sdd approve specs/SPEC-001.md` | Approve specific spec | 核准指定規格 |
+| `/sdd implement` | List approved specs | 列出已核准規格 |
+| `/sdd implement specs/SPEC-001.md` | Track implementation for spec | 追蹤指定規格的實作 |
+| `/sdd verify` | List implemented specs | 列出已實作規格 |
+| `/sdd verify specs/SPEC-001.md` | Verify implementation for spec | 驗證指定規格的實作 |
+| `/sdd --evaluate` | Run scope evaluation only | 僅執行範圍評估 |
+| `/sdd --sync-check` | Check sync status | 檢查同步狀態 |
 
 ## 典型 SDD 工作流程
 

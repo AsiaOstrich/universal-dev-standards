@@ -2,11 +2,12 @@
 source: ../../../../skills/commands/update.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-12
+source_hash: 0c0077e52f66
 ---
 
 ---
-description: [UDS] Update development standards to latest version
+description: [UDS] 將開發標準更新至最新版本
 allowed-tools: Read, Bash(uds update:*), Bash(uds check:*), Bash(uds configure:*), Bash(npx:*), Bash(cat .standards/*), Bash(ls .claude/*), Bash(ls .opencode/*), Bash(ls .github/*)
 argument-hint: "[--yes] [--offline] [--beta]"
 ---
@@ -318,6 +319,67 @@ Skills 單獨管理：
 
 **"Skills previously declined"**
 - 執行 `/config skills` 重新安裝已拒絕的 Skills
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/update` | 檢查狀態 → 詢問更新偏好 → 執行 → 檢查 Skills/Commands |
+| `/update --yes` | 跳過確認直接更新（不自動安裝 Skills） |
+| `/update --beta` | 檢查 beta 版本更新 |
+| `/update --skills` | 僅更新 Skills |
+| `/update --commands` | 僅更新 Commands |
+| `/update --offline` | 跳過 npm registry 檢查 |
+
+### 互動腳本
+
+1. 執行 `uds check --summary` 顯示目前狀態
+
+**決策：有無可用更新**
+- IF 已是最新 → 顯示「Already up to date」，跳至步驟 4 檢查 Skills/Commands
+- IF 有更新 → 進入步驟 2
+
+2. 詢問更新偏好（AskUserQuestion）
+
+**決策：版本類型**
+- IF stable 可用 → 選項：立即更新（建議）/ 檢查 Beta / 跳過
+- IF 僅 pre-release → 顯示具體類型：更新至 Alpha/Beta/RC / 跳過
+
+🛑 **STOP**：展示版本資訊後等待使用者選擇
+
+3. 執行更新 `uds update --yes` 或 `uds update --beta --yes`
+
+4. 檢查 Skills/Commands 狀態（智能分組策略）
+   - 偵測缺少的 Skills → 使用智能分組詢問安裝
+   - 偵測缺少的 Commands → 使用智能分組詢問安裝
+   - 已拒絕的工具不再顯示
+
+**重要**：AskUserQuestion 最多 4 個選項。3+ 工具時必須使用兩階段策略。
+
+🛑 **STOP**：每個 Skills/Commands 安裝決策點等待使用者選擇
+
+5. 說明結果（更新內容、安裝結果、下一步）
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 更新偏好選擇 | 使用者選擇更新版本或跳過 |
+| Skills 安裝詢問 | 使用者選擇安裝位置或跳過 |
+| Commands 安裝詢問 | 使用者選擇安裝位置或跳過 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 標準未初始化 | 提示執行 `/init` |
+| npm registry 無法連線 | 建議加 `--offline`，或稍後重試 |
+| 更新失敗（寫入錯誤） | 顯示錯誤，建議檢查檔案權限 |
+| Skills 之前被拒絕 | 不再詢問，提示可透過 `/config skills` 重新安裝 |
 
 ## 參考
 

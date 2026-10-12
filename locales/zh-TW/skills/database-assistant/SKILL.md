@@ -3,13 +3,17 @@ name: database-assistant
 source: ../../../../skills/database-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 1cf7bf71b996
 status: current
+scope: universal
 description: |
   引導資料庫設計、遷移與查詢最佳化。
   Use when: schema 設計、遷移規劃、查詢最佳化、索引策略。
   Not for: 應用程式碼遷移或框架升級——請用 /migrate；資料之上的 API 合約——請用 /api-design。
   Keywords: database, schema, migration, SQL, index, query, 資料庫, 遷移, 查詢, 索引策略.
+allowed-tools: Read, Grep, Glob
+argument-hint: "[要審查的 schema 或遷移]"
 ---
 
 # 資料庫助手
@@ -80,9 +84,11 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 ## 使用方式
 
-- `/database` - 互動式資料庫設計引導
-- `/database schema` - 審查 Schema 設計
-- `/database --migration` - 遷移規劃助手
+```
+/database                - 互動式資料庫設計引導
+/database schema         - 審查 Schema 設計
+/database --migration    - 遷移規劃助手
+```
 
 ## 下一步引導
 
@@ -90,10 +96,20 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 > **資料庫設計完成。建議下一步：**
 > - 執行 `/security` 檢查資料保護措施
-> - 執行 `/testing` 規劃資料庫測試策略
+> - 執行 `/testing` 規劃資料庫測試策略 ⭐ **推薦**
 > - 執行 `/checkin` 確認遷移符合提交規範
 > - 產生 API 端點 → 執行 `/api-design`
 
 ## 參考
 
 - 核心規範：[database-standards.md](../../../../core/database-standards.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更說明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## 授權
+
+CC BY 4.0 — 文件內容

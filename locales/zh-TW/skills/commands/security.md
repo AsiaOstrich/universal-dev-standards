@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/security.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-12
+source_hash: 6362f4f8221b
 status: current
 ---
 
 ---
-description: "[UDS] Guide security review and vulnerability assessment following OWASP standards"
+description: "[UDS] 引導安全審查和漏洞評估，遵循 OWASP 標準"
 allowed-tools: Read, Grep, Glob
 argument-hint: "[module or file to audit | 要審計的模組或檔案]"
 ---

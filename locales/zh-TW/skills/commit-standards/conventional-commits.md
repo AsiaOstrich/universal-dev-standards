@@ -2,7 +2,8 @@
 source: ../../../../skills/commit-standards/conventional-commits.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: 37d8f10f78c0
 status: current
 ---
 

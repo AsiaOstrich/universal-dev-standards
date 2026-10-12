@@ -3,7 +3,8 @@ name: deploy
 source: ../../../../skills/deploy-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: d84c8caee08d
 scope: universal
 description: |
   引導在沒有 CI/CD 平台（GitHub Actions／GitLab CI）的情況下完成可靠部署。

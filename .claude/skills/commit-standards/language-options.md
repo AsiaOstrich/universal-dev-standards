@@ -2,11 +2,12 @@
 source: ../../../../skills/commit-standards/language-options.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: ba9e6122251d
 status: current
 ---
 
-# Commit Message 語言選項
+# 輸出語言選項
 
 > **語言**: [English](../../../../skills/commit-standards/language-options.md) | 繁體中文
 
@@ -134,7 +135,7 @@ Closes #123
 在 `CONTRIBUTING.md` 中記錄你的選擇：
 
 ```markdown
-## Commit Message 語言
+## 輸出語言
 
 本專案使用 **[English / Traditional Chinese / Bilingual]** commit 類型。
 

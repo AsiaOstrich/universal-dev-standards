@@ -3,13 +3,17 @@ name: docs-generator
 source: ../../../../skills/docs-generator/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: ebe4f6398ca1
 status: current
+scope: universal
 description: |
   [UDS] 從專案原始檔產生使用文件（速查表、參考手冊、使用指南）。
   Use when: 從 CLI 與 Skill 定義產出速查表或功能參考手冊、指令變更後重新產生文件、確認產生的文件是否為最新。
   Not for: 決定專案需要哪些文件或手寫敘述性內容——請用 /documentation-guide；變更日誌條目——請用 /changelog。
   Keywords: docgen, usage docs, cheatsheet, feature reference, generated documentation, 使用文件, 速查表, 文件產生, 參考手冊.
+allowed-tools: Read, Write, Grep, Glob, Bash(*)
+argument-hint: "[設定檔]"
 ---
 
 # 文件產生器
@@ -75,13 +79,26 @@ language: [en, zh-TW]
 
 > **注意**：此檢查已整合至 `pre-release-check.sh` 的步驟 8（使用文件同步檢查）。
 
+## 產生範例
+
+```markdown
+# UDS Command Cheatsheet
+
+| Command    | Description               |
+|------------|---------------------------|
+| /commit    | Generate commit message    |
+| /code-review    | Run code review            |
+| /sdd       | Create SDD specification   |
+| /discover  | Assess project health      |
+```
+
 ## 下一步引導
 
 `/docgen` 完成後，AI 助手應建議：
 
 > **文件已產生。建議下一步：**
 > - 審查產生的文件內容是否完整
-> - 執行 `/commit` 提交文件變更
+> - 執行 `/commit` 提交文件變更 ⭐ **推薦**
 > - 執行 `/code-review` 審查文件品質
 
 ## 參考

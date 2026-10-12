@@ -2,11 +2,12 @@
 source: ../../../../skills/commands/requirement.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-19
+last_synced: 2026-10-12
+source_hash: ae753f750fe7
 ---
 
 ---
-description: [UDS] Write user stories and requirements following INVEST criteria
+description: [UDS] 遵循 INVEST 標準撰寫用戶故事與需求
 allowed-tools: Read, Write, Grep, Glob
 argument-hint: "[feature name or description | 功能名稱或描述]"
 ---
@@ -54,6 +55,44 @@ So that [benefit].
 - `/requirement` - 互動式需求撰寫精靈
 - `/requirement user login` - 為特定功能撰寫需求
 - `/requirement "users can export data"` - 根據描述撰寫
+
+## AI 代理行為
+
+> 遵循 [AI 命令行為標準](../../core/ai-command-behavior.md)
+
+### 進入路由
+
+| 輸入 | AI 動作 |
+|------|---------|
+| `/requirement` | 詢問使用者要定義的功能，開始互動式需求撰寫 |
+| `/requirement <feature>` | 以指定功能為目標，開始收集資訊 |
+| `/requirement "description"` | 從描述中提取需求，產生用戶故事 |
+
+### 互動腳本
+
+1. 收集功能描述和使用者角色
+2. 引導定義 As a / I want / So that
+3. 引導定義 Acceptance Criteria（GWT 格式）
+4. 以 INVEST 標準逐項驗證
+
+**決策：INVEST 驗證結果**
+- IF 全部通過 → 展示完整需求文件
+- IF 有項目未通過 → 指出哪些未通過，建議修改方式
+
+🛑 **STOP**: 展示需求文件後等待使用者確認寫入
+
+### 停止點
+
+| 停止點 | 等待內容 |
+|--------|---------|
+| 需求文件產生後 | 確認內容正確並寫入 |
+
+### 錯誤處理
+
+| 錯誤條件 | AI 動作 |
+|----------|---------|
+| 使用者描述過於模糊 | 提出具體問題釐清範圍 |
+| AC 無法用 GWT 格式表達 | 協助轉換，展示轉換建議 |
 
 ## 參考
 

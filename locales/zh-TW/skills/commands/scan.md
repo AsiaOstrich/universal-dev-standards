@@ -2,12 +2,13 @@
 source: ../../../../skills/commands/scan.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-25
+last_synced: 2026-10-12
+source_hash: 31b6b2d2d6c9
 status: current
 ---
 
 ---
-description: "[UDS] Guide automated security scanning, dependency auditing and secret detection"
+description: "[UDS] 引導自動化安全掃描、相依套件審計和機密偵測"
 allowed-tools: Read, Grep, Glob, Bash(npm:audit, npx:*)
 argument-hint: "[scan type or target | 掃描類型或目標]"
 ---
