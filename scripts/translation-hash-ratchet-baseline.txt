@@ -100,12 +100,3 @@ locales/zh-TW/skills/docs-generator/guide.md
 locales/zh-TW/skills/observability-assistant/SKILL.md
 locales/zh-TW/skills/release-standards/SKILL.md
 locales/zh-TW/skills/tdd-assistant/language-examples.md
-locales/zh-TW/skills/testing-guide/testing-pyramid.md
-locales/zh-TW/skills/testing-guide/testing-theory.md
-locales/zh-TW/skills/tools/cline/README.md
-locales/zh-TW/skills/tools/copilot/README.md
-locales/zh-TW/skills/tools/copilot/copilot-instructions.md
-locales/zh-TW/skills/tools/cursor/README.md
-locales/zh-TW/skills/tools/windsurf/README.md
-locales/zh-TW/skills/workflows/README.md
-locales/zh-TW/templates/reverse-spec-template.md

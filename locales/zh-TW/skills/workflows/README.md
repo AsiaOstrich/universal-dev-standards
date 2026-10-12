@@ -1,7 +1,9 @@
 ---
 source: skills/workflows/README.md
-source_version: 1.0.0
-translation_version: 1.0.0
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-12
+source_hash: 6862126266ed
 status: current
 ---
 
@@ -9,9 +11,9 @@ status: current
 
 > **語言**: [English](../../../../skills/workflows/README.md) | 繁體中文
 
-**Version**: 1.1.0
-**Last Updated**: 2026-01-21
-**Status**: Experimental
+**版本**: 1.1.0
+**最後更新**: 2026-01-21
+**狀態**: 實驗性
 
 ---
 
@@ -427,11 +429,11 @@ steps:
 
 ## 版本歷史
 
-| Version | Date | Changes |
+| 版本 | 日期 | 變更 |
 |---------|------|---------|
-| 1.2.0 | 2026-03-17 | Added wave-based parallel execution, step validation pipeline, agent communication protocol |
-| 1.1.0 | 2026-01-21 | Added RLM context configuration, parallel-agents step type, large-codebase-analysis workflow |
-| 1.0.0 | 2026-01-20 | Initial release |
+| 1.2.0 | 2026-03-17 | 新增以 wave 為基礎的平行執行、步驟驗證 pipeline、agent 通訊協定 |
+| 1.1.0 | 2026-01-21 | 新增 RLM context 設定、parallel-agents 步驟類型、large-codebase-analysis workflow |
+| 1.0.0 | 2026-01-20 | 初始版本 |
 
 ---
 

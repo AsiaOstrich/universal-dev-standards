@@ -2,6 +2,8 @@
 source: skills/testing-guide/testing-theory.md
 source_version: 1.0.0
 translation_version: 1.0.0
+last_synced: 2026-10-12
+source_hash: dc434451d597
 status: current
 ---
 
@@ -1428,7 +1430,7 @@ Test each supported configuration combination.
 | Chaos Engineering | 韌性驗證 | 生產系統 |
 | Property-Based | 邊界案例發掘 | 演算法、parser |
 | Visual Regression | UI 一致性 | 前端變更 |
-| Accessibility | 無障礙設計 | 所有面向使用者的應用 |
+| Accessibility | 包容性設計 | 所有面向使用者的應用 |
 | Installation | 部署驗證 | 候選發行版本 |
 | Alpha/Beta | 早期使用者驗證 | 發行前階段 |
 | Recovery | 故障復原 | 業務關鍵系統 |
