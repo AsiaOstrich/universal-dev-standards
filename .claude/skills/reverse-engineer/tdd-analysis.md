@@ -2,7 +2,8 @@
 source: ../../../../skills/reverse-engineer/tdd-analysis.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-19
+last_synced: 2026-10-12
+source_hash: cb519a89ab58
 status: current
 ---
 

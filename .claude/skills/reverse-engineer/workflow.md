@@ -2,7 +2,8 @@
 source: ../../../../skills/reverse-engineer/workflow.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-19
+last_synced: 2026-10-12
+source_hash: 3a04ceca760c
 status: current
 ---
 

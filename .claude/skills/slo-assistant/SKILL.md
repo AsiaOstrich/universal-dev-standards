@@ -3,15 +3,16 @@ name: slo
 source: ../../../../skills/slo-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: e2d34e41eac2
 status: current
+scope: universal
 description: |
   引導 SLI 選取、SLO 設定與 Error Budget 管理。
   Use when: 定義服務品質目標、建立以 SLO 為基礎的告警、Error Budget 政策。
   Not for: 埋點與指標收集——請用 /observability；處理正在違反目標的狀況——請用 /incident。
   Keywords: SLI, SLO, SLA, Error Budget, burn rate, service level, 服務等級, 錯誤預算, 燃燒率, 服務品質目標.
 allowed-tools: Read, Write, Grep, Glob
-scope: universal
 argument-hint: "[create|review|budget] [service name | 服務名稱]"
 ---
 

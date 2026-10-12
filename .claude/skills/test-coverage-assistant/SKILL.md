@@ -3,15 +3,16 @@ name: coverage
 source: ../../../../skills/test-coverage-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: a54fe2543e47
 status: current
+scope: partial
 description: |
   [UDS] 以八維度框架分析程式碼層級的測試覆蓋率，並建議該優先補上哪些缺口。
   Use when: 覆蓋率數字看起來很健康但缺陷照樣流出、要在行覆蓋率之外判斷測試完整性、設定覆蓋率目標。
   Not for: 需求層級的 AC 與測試追蹤——請用 /ac-coverage；補寫缺少的測試——請用 /tdd 或 /spec-derive。
   Keywords: test coverage, eight dimensions, line coverage, branch coverage, test quality, 測試覆蓋率, 八維度, 測試完整性, 覆蓋缺口.
 allowed-tools: Read, Grep, Glob, Bash(npm test:*)
-scope: partial
 argument-hint: "[file or module | 檔案或模組]"
 ---
 
@@ -20,6 +21,8 @@ argument-hint: "[file or module | 檔案或模組]"
 > **語言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 繁體中文
 
 多維度分析測試覆蓋率並提供可執行的建議。
+
+> **相關**：如需需求層級覆蓋率（哪些 AC 有對應測試？），請改用 `/ac-coverage`。此技能（`/coverage`）專注於程式碼層級覆蓋率（行、分支、函式）。
 
 ## 覆蓋率維度
 
@@ -60,9 +63,11 @@ argument-hint: "[file or module | 檔案或模組]"
 
 ## 使用方式
 
-- `/coverage` - 執行完整覆蓋率分析
-- `/coverage src/auth` - 分析特定模組
-- `/coverage --recommend` - 取得測試建議
+```
+/coverage                   - 執行完整覆蓋率分析
+/coverage src/auth          - 分析特定模組
+/coverage --recommend       - 取得測試建議
+```
 
 ## 下一步引導
 
@@ -70,10 +75,14 @@ argument-hint: "[file or module | 檔案或模組]"
 
 > **覆蓋率分析完成。建議下一步：**
 > - 覆蓋率不足 → 執行 `/tdd` 補齊測試
-> - 已達標 → 執行 `/checkin` 品質關卡
+> - 已達標 → 執行 `/checkin` 品質關卡 ⭐ **推薦**
 > - 發現熱點 → 執行 `/refactor` 改善可測試性
 
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[test-completeness-dimensions.md](../../../../core/test-completeness-dimensions.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/coverage`](../../../../skills/commands/coverage.md#ai-agent-behavior--ai-代理行為)

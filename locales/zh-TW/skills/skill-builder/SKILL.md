@@ -3,7 +3,8 @@ name: skill-builder
 source: ../../../../skills/skill-builder/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 8eee581c49c4
 scope: universal
 description: |
   [UDS] 把重複的手動流程轉成範圍界定得宜的 Skill，過程中拿捏恰當的流程份量。
@@ -25,8 +26,6 @@ argument-hint: "[流程描述]"
 - 你已經用同樣的多步驟流程手動執行 ≥ 3 次
 - 同事第 3 次問你「我們是怎麼做 X 的？」
 - 你臨時建了一個 Skill，現在想將其正式化
-
-> **備註**：`/process-to-skill` 是本 Skill 的繁體中文翻譯版，功能完全相同。
 
 ## 核心原則
 
@@ -114,20 +113,8 @@ argument-hint: "[流程描述]"
 
 依 Brief 或 XSPEC 生成 SKILL.md：
 - 確認 frontmatter：`name`、`scope`、`description`、`allowed-tools`
-- **description 格式規則**（`scope: universal` 或 `uds-specific` 時強制）：
-  - 必須以 `[UDS]` 開頭
-  - 第一行使用**繁體中文**描述用途
-  - 單行寫法：`description: "[UDS] 繁體中文說明"`
-  - 多行寫法（含 Use when / Keywords）：`description: |\n  [UDS] 繁體中文說明\n  Use when: ...`
-  - **禁止**：`description: "\"[UDS] ..."`（多餘引號會讓 description 顯示空白）
-- UDS 通用 Skill：同步建立 zh-TW locale 版本
+- UDS Skill：同步建立 zh-TW locale 版本
 - 專案 Skill：放在 `{project}/.claude/skills/{name}/SKILL.md`
-
-**description 快速驗證（寫完即執行）**：
-```bash
-bash cross-project/validate-skills.sh
-# → 0 ❌ 錯誤才能繼續
-```
 
 ### Step 6 — 更新 SKILL-CANDIDATES.md
 
@@ -151,11 +138,6 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 - [ ] `SKILL-CANDIDATES.md` 已更新（trigger ✅、Skill 名稱已填）
 - [ ] `SKILL.md` 已建立並有完整 frontmatter（`name` / `scope` / `description` / `allowed-tools`）
-- [ ] **description 格式**（`universal` / `uds-specific` scope 必填）：
-  - [ ] 第一行以 `[UDS]` 開頭（`"[UDS] 繁體中文..."` 格式）
-  - [ ] 使用繁體中文，非純英文
-  - [ ] 無多餘外層引號（避免 `"\"[UDS]..."` 格式）
-- [ ] `bash cross-project/validate-skills.sh` → **0 ❌ 錯誤**
 - [ ] Simple 路徑：Skill Brief 已引用或保留
 - [ ] Complex 路徑：XSPEC ID 已記錄在 SKILL.md header comment
 - [ ] UDS skill：已建立 zh-TW locale 檔案

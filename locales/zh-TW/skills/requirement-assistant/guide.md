@@ -1,9 +1,11 @@
 ---
-source: ../../../../skills/requirement-assistant/SKILL.md
-source_version: 1.0.0
+source: ../../../../skills/requirement-assistant/guide.md
+source_version: 1.1.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: 37634d6e935e
 status: current
+scope: universal
 description: |
   引導需求撰寫、使用者故事建立與功能規格制定。
   使用時機：撰寫需求、使用者故事、問題單、功能規劃。
@@ -12,11 +14,12 @@ description: |
 
 # 需求助手
 
-> **語言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/requirement-assistant/guide.md) | 繁體中文
 
-**版本**: 1.0.0
-**最後更新**: 2025-12-24
+**版本**: 1.1.0
+**最後更新**: 2026-01-28
 **適用範圍**: Claude Code Skills
+**核心標準**: [需求工程標準](../../core/requirement-engineering.md)
 
 ---
 
@@ -206,8 +209,14 @@ description: |
 
 ## 相關標準
 
-- [規格驅動開發](../../core/spec-driven-development.md)
-- [簽入標準](../../core/checkin-standards.md)
+**核心標準（理論與深度參考）**：
+- [需求工程標準](../../core/requirement-engineering.md) - 完整的理論基礎，包含 IEEE 830、SWEBOK v4.0、ISO 25010
+
+**相關標準**：
+- [規格驅動開發](../../core/spec-driven-development.md) - 規格工作流程
+- [行為驅動開發](../../core/behavior-driven-development.md) - Given-When-Then 場景
+- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 工作坊
+- [簽入標準](../../core/checkin-standards.md) - 程式碼簽入要求
 
 ---
 
@@ -215,6 +224,7 @@ description: |
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-28 | 新增：引用核心標準 requirement-engineering.md，擴充相關標準區段 |
 | 1.0.0 | 2025-12-24 | 新增：標準區段（目的、相關標準、版本歷史、授權） |
 
 ---

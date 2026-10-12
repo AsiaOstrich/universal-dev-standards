@@ -1,4 +1,5 @@
 ---
+scope: universal
 description: |
   引導規格驅動開發 (SDD) 工作流程，在實作前規劃變更。
   使用時機：建立規格、提案、規劃功能、使用 OpenSpec 或類似工具。
@@ -6,7 +7,8 @@ description: |
 source: ../../../../skills/spec-driven-dev/guide.md
 source_version: 1.2.0
 translation_version: 1.2.0
-last_synced: 2026-03-23
+last_synced: 2026-10-12
+source_hash: 391e36faec3a
 status: current
 ---
 
@@ -136,7 +138,7 @@ Discuss 階段確保在撰寫規格前解決所有歧義。
 
 - 定義什麼在範圍內、什麼在範圍外
 - 識別可能受影響的相關規格
-- 建立必讀的檔案/規格清單
+- 建立 `read_first` 清單，列出需檢閱的檔案/規格
 
 ### Implementation 階段
 
@@ -265,6 +267,37 @@ Refs: SPEC-001
 - [ ] 變更符合已核准的規格
 - [ ] 沒有超出規格的範圍蔓延
 - [ ] 規格的驗收條件已滿足
+
+## 範例
+
+### 良好實踐
+
+```markdown
+# SPEC-001 新增 OAuth2 登入
+
+## 摘要
+新增 Google OAuth2 登入，讓使用者可以用 Google 帳號登入。
+
+## 動機
+- 降低新使用者的使用門檻
+- 不儲存密碼以提升安全性
+
+## 驗收條件
+- [ ] 使用者可以點擊「使用 Google 登入」按鈕
+- [ ] 新使用者會自動註冊
+- [ ] 既有使用者會連結至 Google 帳號
+```
+
+### 不良實踐
+
+```markdown
+# 新增登入
+
+新增登入。
+```
+- 缺少規格 ID
+- 沒有動機
+- 沒有驗收條件
 
 ## 常見 SDD 工具
 

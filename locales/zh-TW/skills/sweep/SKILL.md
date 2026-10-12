@@ -3,7 +3,8 @@ name: sweep
 source: ../../../../skills/sweep/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 85af5ee0d1f4
 scope: universal
 description: |
   掃描程式碼庫中的除錯殘留與程式碼品質問題；可選擇自動修正安全的模式。

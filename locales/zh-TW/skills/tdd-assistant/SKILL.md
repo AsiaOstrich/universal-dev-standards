@@ -3,8 +3,10 @@ name: tdd-assistant
 source: ../../../../skills/tdd-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 63e273612cc3
 status: current
+scope: partial
 description: |
   [UDS] 測試驅動開發（TDD）的參考資料：紅-綠-重構循環、FIRST 原則與 Arrange-Act-Assert 結構。
   Use when: 在實作前先寫一個會失敗的測試、用 Arrange-Act-Assert 組織測試、以 FIRST 檢視既有測試。
@@ -31,6 +33,8 @@ description: |
 ```
 
 ## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
 
 ### 階段 1：RED - 撰寫失敗測試
 - 撰寫描述期望行為的測試
@@ -69,7 +73,7 @@ description: |
 `/tdd` 完成後，AI 助手應建議：
 
 > **TDD 循環完成。建議下一步：**
-> - 執行 `/checkin` 通過品質關卡
+> - 執行 `/checkin` 通過品質關卡 ⭐ **推薦**
 > - 執行 `/coverage` 確認測試覆蓋率
 > - 執行 `/code-review` 自我審查程式碼
 
@@ -79,3 +83,7 @@ description: |
 - [TDD 工作流程指南](./tdd-workflow.md) — 要完整跑一輪紅-綠-重構時讀它。
 - 詳細指南：[guide.md](./guide.md)
 - 核心規範：[test-driven-development.md](../../../../core/test-driven-development.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/tdd`](../../../../skills/commands/tdd.md#ai-agent-behavior--ai-代理行為)

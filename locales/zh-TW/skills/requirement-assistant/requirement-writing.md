@@ -2,7 +2,8 @@
 source: ../../../../skills/requirement-assistant/requirement-writing.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: 49b6cb707806
 status: current
 ---
 

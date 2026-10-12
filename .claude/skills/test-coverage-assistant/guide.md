@@ -1,18 +1,20 @@
 ---
+scope: partial
 description: |
   使用 8 維度框架評估測試完整性。
   使用時機：撰寫測試、審查測試覆蓋率、確保測試品質。
-  關鍵字：test coverage, completeness, dimensions, 8 dimensions, test quality, 測試覆蓋, 測試完整性, 八維度。
-source: ../../../../skills/test-coverage-assistant/SKILL.md
+  關鍵字：test coverage, completeness, dimensions, 8 dimensions, test quality, AI test quality, 測試覆蓋, 測試完整性, 八維度。
+source: ../../../../skills/test-coverage-assistant/guide.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2026-01-25
+last_synced: 2026-10-12
+source_hash: 60226e3fc23b
 status: current
 ---
 
 # 測試覆蓋助手
 
-> **語言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/test-coverage-assistant/guide.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-25
@@ -116,13 +118,19 @@ status: current
   □ 實體關聯已驗證
   □ 分頁已驗證
   □ 排序/過濾已驗證
+
+□ AI 生成品質（如為 AI 生成）
+  □ 測試驗證有意義的行為
+  □ 斷言具體明確（不只是「not null」）
+  □ 測試彼此獨立且自成一體
+  □ 變異分數 > 80%（如有評估）
 ```
 
 ## 詳細指南
 
 完整標準請參考：
-- [測試完整性維度](../../core/test-completeness-dimensions.md)
-- [測試標準](../../core/testing-standards.md)
+- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
+- [測試標準](../../../../core/testing-standards.md)
 
 ### AI 優化格式（節省 Token）
 
@@ -229,6 +237,8 @@ public async Task DisableUser_UpdatesStateCorrectly()
 - ❌ 單元測試使用萬用字元但沒有對應的整合測試
 - ❌ 測試資料中 ID 和業務識別碼使用相同值
 - ❌ 測試實作細節而非行為
+- ❌ 未經審查就接受 AI 生成的測試
+- ❌ 以為行覆蓋率高就代表測試有效
 
 ---
 
@@ -240,7 +250,7 @@ public async Task DisableUser_UpdatesStateCorrectly()
 
 1. 檢查 `CONTRIBUTING.md` 中的「測試標準」區段
 2. 檢查程式碼庫中現有的測試模式
-3. 若無找到，**預設使用全部 7 個維度**
+3. 若無找到，**預設使用全部 8 個維度**（維度 8 僅在測試為 AI 生成時適用）
 
 ### 首次設定
 
@@ -252,20 +262,22 @@ public async Task DisableUser_UpdatesStateCorrectly()
 ```markdown
 ## 測試完整性
 
-我們使用 7 維度框架來確保測試覆蓋。
+我們使用 8 維度框架來確保測試覆蓋。
 
 ### 各功能類型需要的維度
-- API 端點：全部 7 個維度
-- 工具函式：維度 1, 2, 3, 6
-- 背景作業：維度 1, 3, 5
+- API 端點：全部 8 個維度（維度 8 僅在 AI 生成時適用）
+- 工具函式：維度 1, 2, 3, 6, 8*
+- 背景作業：維度 1, 3, 5, 8*
+
+*維度 8 適用於 AI 生成的測試
 ```
 
 ---
 
 ## 相關標準
 
-- [測試完整性維度](../../core/test-completeness-dimensions.md)
-- [測試標準](../../core/testing-standards.md)
+- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
+- [測試標準](../../../../core/testing-standards.md)
 - [測試指南](../testing-guide/SKILL.md)
 
 ---
@@ -274,6 +286,7 @@ public async Task DisableUser_UpdatesStateCorrectly()
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| 1.1.0 | 2026-01-25 | 更新：7 維度 → 8 維度（新增 AI 生成品質） |
 | 1.0.0 | 2025-12-30 | 初始發布 |
 
 ---
