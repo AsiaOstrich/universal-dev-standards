@@ -30,6 +30,7 @@ import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import { createBackup, cleanupBackups, finalizeBackup } from './backup-manager.js';
 import { bookkeepingFiles } from './install-roots.js';
+import { alignRecordedVersions } from './recorded-versions.js';
 
 /**
  * @typedef {Object} ExecutionResult
@@ -180,14 +181,8 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   // reporting the repo as stale after a fully successful reconcile. (XSPEC-343 R2)
   if (!dryRun && results.every(r => r.success)) {
     // XSPEC-475 R6: a clean reconcile leaves the skills and commands exactly as this UDS ships them (the plan covers every
-    // difference), so the versions recorded for them move with it - also when no file needed rewriting, which is the case
-    // of a project whose skill files are already current but whose manifest still names an older version.
-    const shippedSkills = getRepositoryInfo()?.skills?.version;
-    for (const kind of ['skills', 'commands']) {
-      if (shippedSkills && updatedManifest[kind]?.installed === true && updatedManifest[kind].location !== 'marketplace') {
-        updatedManifest[kind] = { ...updatedManifest[kind], version: shippedSkills };
-      }
-    }
+    // difference), so the versions recorded for them move with it - also when no file needed rewriting.
+    alignRecordedVersions(updatedManifest); // wire:apply-aligns-versions
     const version = getRepositoryInfo()?.standards?.version;
     if (version) {
       updatedManifest.upstream = {

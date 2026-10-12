@@ -15,6 +15,8 @@
  * Wires that make these red when cut (one line of source each):
  *   R6   cli/src/reconciler/plan-executor.js     recordInstalledSet(manifest, 'skills', installResult); // wire:apply-records-skills
  *        cli/src/reconciler/plan-executor.js     recordInstalledSet(manifest, 'commands', installResult); // wire:apply-records-commands (XSPEC-475 R6)
+ *        cli/src/reconciler/plan-executor.js     alignRecordedVersions(updatedManifest); // wire:apply-aligns-versions
+ *        cli/src/commands/update.js              const aligned = current ? alignRecordedVersions(current).changed : false; // wire:up-to-date-aligns-versions
  *   R7   cli/src/utils/standard-validator.js     const outcome = judgeCommitMessage(..., shippedRoot: getRepoRoot() }); // wire:simulate-shipped-root
  *        cli/src/utils/commit-message-judge.js   if (compareVersions(doc.meta.version, shipped?.meta?.version) < 0) { // [mutation-anchor:installed-option-older]
  *   R8   cli/src/utils/sdd-header.js             const inPiece = LINE_FIELD(name).exec(piece); // [mutation-anchor:same-line-fields]
@@ -83,6 +85,41 @@ it('uds update --apply run once leaves skills and commands recorded at the shipp
 
   const check = await h.runCli(['check'], dir);
   expect(out(check), 'no second `--skills` needed').not.toMatch(/(Commands|Skills): v[\d.]+(-[\w.]+)? → v/);
+});
+
+it('uds update --apply on a project with nothing to rewrite says it is up to date and records the shipped skills version (XSPEC-475 R6)', async () => {
+  const dir = await initialised(undefined, { before: (d) => mkdirSync(join(d, '.claude'), { recursive: true }) });
+  // A fresh init still has integration-file blocks the first apply migrates; after it the project is current.
+  expect((await h.runCli(['update', '--apply', '--yes', '--offline'], dir)).code).toBe(0);
+  const fresh = readManifest(dir);
+  const aged = readManifest(dir);
+  aged.skills.version = '6.11.0';
+  writeManifest(dir, aged);
+  expect(readManifest(dir).skills.version, 'control: the record is old').toBe('6.11.0');
+
+  const apply = await h.runCli(['update', '--apply', '--yes', '--offline'], dir);
+  expect(apply.code, out(apply)).toBe(0);
+  expect(apply.stdout).toContain('Everything is up to date');
+  expect(readManifest(dir).skills.version).toBe(fresh.skills.version);
+});
+
+it('uds update --apply whose plan holds no skill or command file still records the shipped version for both, so check has nothing to report (XSPEC-475 R6)', async () => {
+  // A Claude Code + Cursor project: the plan of a fresh one holds only integration-file blocks to migrate, no skill or command action.
+  const dir = await initialised(undefined, { before: (d) => { mkdirSync(join(d, '.claude'), { recursive: true }); writeFileSync(join(d, '.cursorrules'), '# mine\n'); } });
+  const fresh = readManifest(dir);
+  const aged = readManifest(dir);
+  aged.skills.version = '6.11.0';
+  aged.commands.version = '6.11.0';
+  writeManifest(dir, aged);
+  expect(out(await h.runCli(['check'], dir)), 'control: check reports the old version').toMatch(/Commands: v6\.11\.0/);
+
+  const apply = await h.runCli(['update', '--apply', '--yes', '--offline'], dir);
+  expect(apply.code, out(apply)).toBe(0);
+  expect(apply.stdout, 'fixture: the plan has no skill or command file action').not.toMatch(/\.cursor\/commands|\.claude\/skills/);
+  const after = readManifest(dir);
+  expect(after.skills.version).toBe(fresh.skills.version);
+  expect(after.commands.version).toBe(fresh.commands.version);
+  expect(out(await h.runCli(['check'], dir))).not.toMatch(/(Commands|Skills): v[\d.]+(-[\w.]+)? → v/);
 });
 
 // ── R7 ──────────────────────────────────────────────────────────────────────
@@ -172,7 +209,7 @@ it('uds update --plan, uds check and uds audit --friction name the recommended c
   for (const id of ['turn-completion-integrity', 'pipeline-security-gates']) {
     expect(plan.stdout, id).toContain(`uds update --apply --add-standard ${id}`);
   }
-  expect(plan.stdout, 'the count line stays, as a total').toMatch(/Of the 9\d standard\(s\) in categories `uds init` never installs \(core \d+/);
+  expect(plan.stdout, 'the count line stays, as a total').toMatch(/Not listed above: 9\d more standard\(s\) in categories `uds init` never installs \(core \d+/);
   expect(plan.stdout.split('\n').filter((l) => /^\s+uds update --apply --add-standard /.test(l)).length, 'only the recommended ones are listed, not every core standard').toBe(2);
 
   const check = await h.runCli(['check'], dir);

@@ -28,7 +28,7 @@ export const messages = {
       none: 'Available upstream, not installed: none. Every standard UDS installs by default is already in this project.',
       categoryLine: '{category} ({count})',
       installHint: 'Install one: uds update --apply --add-standard <id>   (repeat the flag for several; add --plan to preview first)',
-      othersLine: 'Of the {count} standard(s) in categories `uds init` never installs ({breakdown}), only the recommended ones are listed above. Any of them can still be installed by id with --add-standard.',
+      othersLine: 'Not listed above: {count} more standard(s) in categories `uds init` never installs ({breakdown}). Any of them can still be installed by id with --add-standard.',
       recommendedTitle: 'Recommended core standards, not installed ({count})',
       recommendedApply: '{count} recommended core standard(s) are not installed ({ids}); see them with uds update --plan.',
       checkRecommended: '{count} recommended core standard(s) not installed ({ids}) — run `uds update --plan` for the install commands',

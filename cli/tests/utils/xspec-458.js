@@ -87,7 +87,7 @@ export const INSTALLED_BY_OTHER_MEANS = [];
 export const CATEGORY_NOTES = {};
 export const installedStandardFileNames = () => new Set();
 export const oneLineDescription = () => '';
-export const getAvailableStandards = () => ({ offered: [], notOffered: [], notOfferedByCategory: {} });
+export const getAvailableStandards = () => ({ offered: [], notOffered: [], notOfferedByCategory: {}, recommended: [] });
 export const closestStandardIds = () => [];
 export const judgeAddStandard = (id) => ({ status: 'unknown', id, closest: [] });
 `;
