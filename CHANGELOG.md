@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.11] - 2026-10-12
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Replaces 6.14.0-beta.10, whose post-publish acceptance failed on one step.
+
 ### Fixed
 
 - **`uds run` no longer warns about a genuine trailing comment; it warns only when YAML cut the command short inside a quote (XSPEC-475 R5c, found by the post-publish acceptance of 6.14.0-beta.10).** The warning added in beta.10 fired for every unquoted value that had a space and `#` in it, so `test: dotnet test Tests.csproj  # 90 tests pass`, the supported way to comment a command, printed the dropped comment back and failed the acceptance step `beta6-run-dry-run` on all five platforms (the step requires the comment not to appear in the output). Now the warning appears only when what YAML kept has an unclosed quote, as in `build: node -p "'quoted # kept'"` (YAML keeps `node -p "'quoted`, the shell would have kept the `#`): it says which line of `uds.project.yaml` was cut short and to quote the whole value, in `--dry-run` and before a real run, and it never repeats the dropped text. A value whose kept part is complete is not reported, even when the text after the `#` was meant to be part of the command; quote such a value to keep the `#`.
