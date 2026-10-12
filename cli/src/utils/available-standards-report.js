@@ -35,7 +35,7 @@ function breakdown(byCategory) {
  */
 export function printAvailableStandardsSection(manifest, { phase }) {
   const msg = t().availableStandards;
-  const { offered, notOffered, notOfferedByCategory, recommended } = getAvailableStandards(manifest);
+  const { offered, notOffered, recommended } = getAvailableStandards(manifest);
 
   console.log();
   if (offered.length === 0) {
@@ -70,8 +70,13 @@ export function printAvailableStandardsSection(manifest, { phase }) {
     }
   }
 
-  if (notOffered.length > 0) {
-    console.log(chalk.gray(fill(msg.othersLine, { count: notOffered.length, breakdown: breakdown(notOfferedByCategory) })));
+  // "Not listed above" counts what is NOT listed: the recommended ones were listed one by one, so they are taken out of the
+  // count and of the breakdown (XSPEC-475 R9; it said 95 when 2 of the 95 were on the lines above).
+  const unlisted = notOffered.filter((n) => !recommended.some((r) => r.id === n.id)); // [mutation-anchor:unlisted-count]
+  if (unlisted.length > 0) {
+    const byCategory = {};
+    for (const n of unlisted) byCategory[n.category] = (byCategory[n.category] || 0) + 1;
+    console.log(chalk.gray(fill(msg.othersLine, { count: unlisted.length, breakdown: breakdown(byCategory) })));
   }
 }
 

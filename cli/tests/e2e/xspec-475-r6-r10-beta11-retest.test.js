@@ -30,6 +30,7 @@ import { writeFileSync, readFileSync, mkdirSync, existsSync, rmSync, readdirSync
 import { join } from 'path';
 import * as yaml from 'js-yaml';
 import { createHarness } from '../utils/staged-cli-harness.js';
+import { expectedOtherCategoryCount, expectedRecommendedIds } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec475-r6-r10');
 afterAll(() => h.cleanup());
@@ -209,7 +210,11 @@ it('uds update --plan, uds check and uds audit --friction name the recommended c
   for (const id of ['turn-completion-integrity', 'pipeline-security-gates']) {
     expect(plan.stdout, id).toContain(`uds update --apply --add-standard ${id}`);
   }
-  expect(plan.stdout, 'the count line stays, as a total').toMatch(/Not listed above: 9\d more standard\(s\) in categories `uds init` never installs \(core \d+/);
+  // The count line says how many are really NOT listed: the not-offered standards minus the ones listed just above (the figure
+  // comes from the registry file, not from the CLI).
+  const manifest = readManifest(dir);
+  expect(expectedRecommendedIds(manifest), 'fixture: the registry marks exactly these two').toEqual(['pipeline-security-gates', 'turn-completion-integrity']);
+  expect(plan.stdout).toContain(`Not listed above: ${expectedOtherCategoryCount(manifest)} more standard(s) in categories \`uds init\` never installs`);
   expect(plan.stdout.split('\n').filter((l) => /^\s+uds update --apply --add-standard /.test(l)).length, 'only the recommended ones are listed, not every core standard').toBe(2);
 
   const check = await h.runCli(['check'], dir);

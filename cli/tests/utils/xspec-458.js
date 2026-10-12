@@ -69,15 +69,28 @@ export function expectedAvailableIds(manifest) {
     .sort();
 }
 
-/** The registry's non-offered categories (everything outside reference and skill) with a source file. */
-export function expectedOtherCategoryCount(manifest) {
+/** The registry standards outside reference and skill that have a source file and are not installed (all of them, listed or not). */
+function notOfferedStandards(manifest) {
   const format = manifest.format || 'ai';
   const installed = new Set(manifest.standards.map((e) => basename(e)));
   return registry().filter((s) => {
     if (s.category === 'reference' || s.category === 'skill') return false;
     const src = typeof s.source === 'string' ? s.source : s.source?.[format] || s.source?.human;
     return src && !installed.has(basename(src));
-  }).length;
+  });
+}
+
+/** The ids the plan lists one by one as recommended: the registry entries marked `recommended` (XSPEC-475 R9) that are not installed. */
+export function expectedRecommendedIds(manifest) {
+  return notOfferedStandards(manifest).filter((s) => s.recommended === true).map((s) => s.id).sort();
+}
+
+/**
+ * The count of "Not listed above: N more": the not-offered standards MINUS the ones listed above as recommended. Read from the
+ * registry file, not from the CLI, so it is an independent figure (and it moves when a standard is marked or installed).
+ */
+export function expectedOtherCategoryCount(manifest) {
+  return notOfferedStandards(manifest).filter((s) => s.recommended !== true).length;
 }
 
 /** `src/utils/available-standards.js` as a feature that always answers "nothing is available". */
