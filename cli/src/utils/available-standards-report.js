@@ -35,7 +35,7 @@ function breakdown(byCategory) {
  */
 export function printAvailableStandardsSection(manifest, { phase }) {
   const msg = t().availableStandards;
-  const { offered, notOffered, notOfferedByCategory } = getAvailableStandards(manifest);
+  const { offered, notOffered, recommended } = getAvailableStandards(manifest);
 
   console.log();
   if (offered.length === 0) {
@@ -57,19 +57,40 @@ export function printAvailableStandardsSection(manifest, { phase }) {
     console.log(chalk.gray(`  ${msg.installHint}`));
   }
 
-  if (notOffered.length > 0) {
-    console.log(chalk.gray(fill(msg.othersLine, { count: notOffered.length, breakdown: breakdown(notOfferedByCategory) })));
+  // XSPEC-475 R9: the recommended core standards, one by one, each with the command that installs it.
+  if (recommended.length > 0) {
+    if (phase === 'apply') {
+      console.log(chalk.cyan(fill(msg.recommendedApply, { count: recommended.length, ids: recommended.map((s) => s.id).join(', ') })));
+    } else {
+      console.log(chalk.cyan(fill(msg.recommendedTitle, { count: recommended.length })));
+      for (const std of recommended) {
+        console.log(`    ${chalk.green(std.id)} ${chalk.gray(`— ${std.description}`)}`);
+        console.log(chalk.gray(`      uds update --apply --add-standard ${std.id}`)); // [mutation-anchor:recommended-install-command]
+      }
+    }
+  }
+
+  // "Not listed above" counts what is NOT listed: the recommended ones were listed one by one, so they are taken out of the
+  // count and of the breakdown (XSPEC-475 R9; it said 95 when 2 of the 95 were on the lines above).
+  const unlisted = notOffered.filter((n) => !recommended.some((r) => r.id === n.id)); // [mutation-anchor:unlisted-count]
+  if (unlisted.length > 0) {
+    const byCategory = {};
+    for (const n of unlisted) byCategory[n.category] = (byCategory[n.category] || 0) + 1;
+    console.log(chalk.gray(fill(msg.othersLine, { count: unlisted.length, breakdown: breakdown(byCategory) })));
   }
 }
 
 /** `uds check`: one line, never part of the verdict. */
 export function printAvailableStandardsCheckLine(manifest) {
   const msg = t().availableStandards;
-  const { offered } = getAvailableStandards(manifest);
+  const { offered, recommended } = getAvailableStandards(manifest);
   if (offered.length === 0) {
     console.log(chalk.gray(msg.checkNone));
   } else {
     console.log(chalk.cyan(fill(msg.checkLine, { count: offered.length })));
+  }
+  if (recommended.length > 0) {
+    console.log(chalk.cyan(fill(msg.checkRecommended, { count: recommended.length, ids: recommended.map((s) => s.id).join(', ') })));
   }
 }
 

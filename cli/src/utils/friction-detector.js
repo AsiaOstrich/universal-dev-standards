@@ -55,18 +55,30 @@ export function detectFrictions(projectPath, manifest) {
  * @returns {Array}
  */
 function detectAvailableStandards(manifest) {
-  const { offered } = getAvailableStandards(manifest);
-  if (offered.length === 0) return [];
-
+  const { offered, recommended } = getAvailableStandards(manifest);
   const msg = t().availableStandards;
-  const shown = offered.slice(0, 5).map(s => s.id).join(', ');
-  return [{
-    standard: msg.frictionStandard.replace('{count}', offered.length),
-    type: 'not-installed',
-    severity: 'LOW',
-    diff: offered.length > 5 ? `${shown}, …` : shown,
-    suggestion: msg.frictionSuggestion
-  }];
+  const findings = [];
+  if (offered.length > 0) {
+    const shown = offered.slice(0, 5).map(s => s.id).join(', ');
+    findings.push({
+      standard: msg.frictionStandard.replace('{count}', offered.length),
+      type: 'not-installed',
+      severity: 'LOW',
+      diff: offered.length > 5 ? `${shown}, …` : shown,
+      suggestion: msg.frictionSuggestion
+    });
+  }
+  // XSPEC-475 R9: the recommended core standards are named, with the command that installs each one.
+  if (recommended.length > 0) {
+    findings.push({
+      standard: msg.frictionRecommended.replace('{count}', recommended.length),
+      type: 'not-installed',
+      severity: 'LOW',
+      diff: recommended.map(s => s.id).join(', '),
+      suggestion: recommended.map(s => `uds update --apply --add-standard ${s.id}`).join('; ')
+    });
+  }
+  return findings;
 }
 
 /**

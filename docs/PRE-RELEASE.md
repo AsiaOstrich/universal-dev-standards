@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.11
 It installs the published 6.14.0-beta.11 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.11 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 268 steps (261 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 268 步（261 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 278 steps (271 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 278 步（271 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -858,6 +858,36 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 268 steps (261
 268. `xspec475-uninstall-removes-empty-claude-dir` — uds uninstall leaves no empty .claude/ folder.
    uds uninstall 不留下空的 .claude/ 資料夾。
    `{node} uninstall-case.cjs {bin} uninstall --yes` → exit 0; output has "Uninstall complete", "CLAUDE-DIR-EXISTS=false"
+269. `xspec475-apply-records-init` — uds init in a Claude Code and Cursor project installs skills and slash commands, for the apply-records step of XSPEC-475.
+   uds init 在 Claude Code 加 Cursor 專案安裝技能與斜線指令，供 XSPEC-475 的 apply 紀錄步驟使用。
+   `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
+270. `xspec475-apply-records-skills-and-commands` (**new 新**) — One uds update --apply leaves the manifest at the shipped skills and commands version with every name, and uds check no longer reports them as out of date.
+   一次 uds update --apply 就讓 manifest 的技能與指令版本及名稱對齊，uds check 不再報過期。
+   `{node} apply-case.cjs {bin}` → exit 0; output has "CHECK-BEFORE-REPORTS-OLD-VERSION=true", "APPLY-RAN=true" (+5)
+271. `xspec475-stale-option-init` — uds init --output-lang traditional-chinese sets up a project for the stale-option steps of XSPEC-475.
+   uds init --output-lang traditional-chinese 建立專案，供 XSPEC-475 的舊選項檔步驟使用。
+   `uds init -y --skills-location none --output-lang traditional-chinese` → exit 0; output has "Standards initialized successfully"
+272. `xspec475-stale-option-judged-by-current-rules` (**new 新**) — uds simulate with an installed option file older than the CLI's judges by the current rules and says to run uds update --apply.
+   uds simulate 遇到比 CLI 內建舊的選項檔時依現行規則判定，並提示執行 uds update --apply。
+   `uds simulate -s commit-message -i "feat(user): 新增部門端點"` → exit 0; output has "Simulation Passed", "The installed option file "traditional-chinese" is version 1.0.0, older than the 2.0.0 this CLI ships" (+1)
+273. `xspec475-spec-list-same-line-fields` (**new 新**) — uds spec list reads a status written on the same line as another field, with a full-width or half-width bar.
+   uds spec list 讀得出與另一個欄位寫在同一行的狀態（全形或半形分隔）。
+   `uds spec list` → exit 0; output has "/^SPEC-002-acceptance-tests\s+draft\s+-\s+\[SPEC-002\] 驗收測試/", "/^SPEC-003-halfwidth\s+approved\s+-\s+半形分隔/"
+274. `xspec475-recommended-init` — uds init sets up a project that lacks the recommended core standards, for the steps of XSPEC-475 R9.
+   uds init 建立缺少建議 core 標準的專案，供 XSPEC-475 R9 的步驟使用。
+   `uds init -y --skills-location none` → exit 0; output has "Standards initialized successfully"
+275. `xspec475-recommended-in-plan` (**new 新**) — uds update --plan lists the recommended core standards one by one with their install commands.
+   uds update --plan 逐項列出建議安裝的 core 標準並附安裝指令。
+   `uds update --plan --offline` → exit 0; output has "Recommended core standards, not installed (2)", "uds update --apply --add-standard turn-completion-integrity" (+2)
+276. `xspec475-recommended-in-check` (**new 新**) — uds check names the recommended core standards that are not installed.
+   uds check 點名尚未安裝的建議 core 標準。
+   `uds check` → exit 0; output has "2 recommended core standard(s) not installed (turn-completion-integrity, pipeline-security-gates)"
+277. `xspec475-recommended-in-friction` (**new 新**) — uds audit --friction has one LOW finding naming the recommended core standards with their install commands.
+   uds audit --friction 有一筆 LOW 發現，點名建議安裝的 core 標準並附安裝指令。
+   `uds audit --friction` → exit 0; output has "2 recommended core standard(s) not installed", "uds update --apply --add-standard pipeline-security-gates"
+278. `xspec475-secret-management-points-at-psg` (**new 新**) — The installed secret-management-standards is 1.1.0 and REQ-003 points at PSG-1 to PSG-3 of pipeline-security-gates.
+   安裝後的 secret-management-standards 為 1.1.0，REQ-003 指向 pipeline-security-gates 的 PSG-1～PSG-3。
+   `uds update --apply --yes --offline --add-standard secret-management-standards` → exit 0
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

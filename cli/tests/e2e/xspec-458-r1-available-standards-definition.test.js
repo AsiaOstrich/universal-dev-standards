@@ -76,6 +76,7 @@ it('uds update lists the same available standards on the older path and in --pla
   expect(idsInAvailableSection(changed.stdout), 'level, profile and contentMode do not decide what is available').toEqual(expected);
 
   // Categories outside reference/skill are not dropped silently: the section says how many there are.
+  // N = the not-offered standards minus the recommended ones the plan lists one by one (XSPEC-475 R9): what is really not listed.
   expect(plan.stdout).toContain(`Not listed above: ${expectedOtherCategoryCount(manifest)} more standard(s)`);
 });
 

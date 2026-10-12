@@ -51,15 +51,28 @@ function withUncasedLettersAsLowercase(text) {
   return text.replace(/\p{L}/gu, (ch) => (ch.toLowerCase() === ch.toUpperCase() ? 'a' : ch));
 }
 
+/** Compare dotted numeric versions ("1.0.0" < "2.0.0"); a missing or non-numeric part counts as 0. */
+function compareVersions(a, b) {
+  const part = (v) => String(v ?? '0').split(/[.-]/).map((n) => Number.parseInt(n, 10) || 0);
+  const [x, y] = [part(a), part(b)];
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] ?? 0) - (y[i] ?? 0);
+    if (d !== 0) return d < 0 ? -1 : 1;
+  }
+  return 0;
+}
+
 /**
  * The commit types the project's installed option files allow. An option file belongs to this standard when
  * its `meta.parent` is `commit-message`. Installed projects keep option files flat in `.standards/options/`
  * (`english.ai.yaml`); a checkout of UDS itself nests them (`.standards/options/commit-message/`). Both are read.
  * @param {string} standardsDir - `<project>/.standards`
- * @returns {{ types: string[], source: string }}
+ * @param {{ shippedRoot?: string|null }} [opts] - the folder holding the option files this CLI ships (`<root>/ai/options/commit-message/`)
+ * @returns {{ types: string[], source: string, stale: Array<{id: string, installed: string, shipped: string}> }}
  */
-export function allowedCommitTypes(standardsDir) {
+export function allowedCommitTypes(standardsDir, { shippedRoot = null } = {}) {
   const found = new Set();
+  const stale = [];
   const optionsDir = path.join(standardsDir, 'options');
   for (const dir of [optionsDir, path.join(optionsDir, 'commit-message')]) {
     let names = [];
@@ -72,7 +85,19 @@ export function allowedCommitTypes(standardsDir) {
       try {
         const doc = yaml.load(fs.readFileSync(path.join(dir, name), 'utf-8'));
         if (doc?.meta?.parent !== 'commit-message') continue;
-        for (const entry of doc.types || []) {
+        // XSPEC-475 R7: an installed option file that is OLDER than the one this CLI ships is judged by the shipped one, and
+        // the caller is told. After a CLI upgrade and before `uds update --apply` the installed file still has the old rules
+        // (traditional-chinese 1.0.0 listed Chinese types), and judging by it gave the opposite of the current answer without a word.
+        let rules = doc;
+        const shippedFile = shippedRoot && doc.id ? path.join(shippedRoot, 'ai', 'options', 'commit-message', `${doc.id}.ai.yaml`) : null;
+        if (shippedFile && fs.existsSync(shippedFile)) {
+          const shipped = yaml.load(fs.readFileSync(shippedFile, 'utf-8'));
+          if (compareVersions(doc.meta.version, shipped?.meta?.version) < 0) { // [mutation-anchor:installed-option-older]
+            rules = shipped;
+            stale.push({ id: doc.id, installed: String(doc.meta.version ?? 'unknown'), shipped: String(shipped.meta.version) });
+          }
+        }
+        for (const entry of rules.types || []) {
           if (entry && typeof entry.type === 'string') found.add(entry.type);
         }
       } catch {
@@ -80,8 +105,8 @@ export function allowedCommitTypes(standardsDir) {
       }
     }
   }
-  if (found.size === 0) return { types: FALLBACK_TYPES, source: 'the Conventional Commits set, because no commit-message option file is installed' };
-  return { types: [...found], source: '.standards/options' };
+  if (found.size === 0) return { types: FALLBACK_TYPES, source: 'the Conventional Commits set, because no commit-message option file is installed', stale };
+  return { types: [...found], source: stale.length > 0 ? ".standards/options, with the CLI's current rules for the option file(s) listed as out of date" : '.standards/options', stale };
 }
 
 /** The `validator` pattern of a rule in the standard, as a RegExp, or null when there is none. */
@@ -99,12 +124,13 @@ function ruleValidator(standardConfig, ruleId) {
  * @param {Object} standardConfig - the parsed commit-message standard
  * @param {string} input - the commit message (only the first line is the header)
  * @param {{ standardsDir: string }} context
- * @returns {{ verdict: 'pass' | 'fail', findings: string[], checked: string[], notChecked: string[] }}
+ * @returns {{ verdict: 'pass' | 'fail', findings: string[], checked: string[], notChecked: string[], notes: string[] }}
  */
-export function judgeCommitMessage(standardConfig, input, { standardsDir }) {
+export function judgeCommitMessage(standardConfig, input, { standardsDir, shippedRoot = null }) {
   const findings = [];
   const checked = [];
   const notChecked = [];
+  const notes = [];
 
   const header = String(input).replace(/\r\n/g, '\n').split('\n')[0];
   const match = HEADER.exec(header);
@@ -114,7 +140,10 @@ export function judgeCommitMessage(standardConfig, input, { standardsDir }) {
     findings.push('The first line is not in the form <type>(<scope>): <subject> (scope is optional).');
   } else {
     const { type, scope, subject } = match.groups;
-    const { types, source } = allowedCommitTypes(standardsDir);
+    const { types, source, stale } = allowedCommitTypes(standardsDir, { shippedRoot });
+    for (const o of stale) {
+      notes.push(`The installed option file "${o.id}" is version ${o.installed}, older than the ${o.shipped} this CLI ships, so this message was judged by the CLI's current rules. Run \`uds update --apply\` to bring the installed option file up to date.`);
+    }
 
     checked.push(`type is one of: ${types.join(', ')} (from ${source})`);
     if (!types.includes(type)) {
@@ -151,5 +180,5 @@ export function judgeCommitMessage(standardConfig, input, { standardsDir }) {
   notChecked.push('rule imperative-mood (the standard gives no machine-checkable pattern)');
   notChecked.push('rule no-mixed-changes and the commit language option');
 
-  return { verdict: findings.length === 0 ? 'pass' : 'fail', findings, checked, notChecked };
+  return { verdict: findings.length === 0 ? 'pass' : 'fail', findings, checked, notChecked, notes };
 }

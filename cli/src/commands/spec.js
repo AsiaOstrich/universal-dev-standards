@@ -146,7 +146,9 @@ export async function specListCommand(options = {}) {
   // default (XSPEC-456 R5): an SDD spec whose header could not be read used to be listed as `draft`.
   const unparsed = t('spec.statusUnparsed', 'format: SDD (status not parsed)');
   const statusLabel = (spec) => spec.status ?? unparsed;
-  const statusWidth = Math.max(12, ...specs.map((spec) => statusLabel(spec).length + 1));
+  // XSPEC-475 R8: the width follows the statuses that were READ. The "not parsed" sentence is longer than any status, and it
+  // used to stretch the whole column (and the rule under it) for every row because of one spec whose header could not be read.
+  const statusWidth = Math.max(12, ...specs.filter((spec) => spec.status).map((spec) => spec.status.length + 1)); // [mutation-anchor:status-width]
   const ruleWidth = 70 + (statusWidth - 12);
 
   console.log(chalk.gray('─'.repeat(ruleWidth)));
@@ -169,7 +171,7 @@ export async function specListCommand(options = {}) {
 
     console.log(
       spec.id.slice(0, 34).padEnd(35) +
-      statusColor(statusLabel(spec).padEnd(statusWidth)) +
+      statusColor(statusLabel(spec).padEnd(Math.max(statusWidth, statusLabel(spec).length + 1))) +
       (spec.type ?? '-').padEnd(10) +
       spec.title.slice(0, 25)
     );

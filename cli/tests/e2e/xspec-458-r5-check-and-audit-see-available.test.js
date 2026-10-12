@@ -48,7 +48,8 @@ it('uds check prints 1 upstream standard(s) not installed and points at uds upda
     expect(verdict(real.stdout).length, 'control: the check printed a verdict').toBeGreaterThan(0);
     expect(verdict(real.stdout)).toEqual(verdict(twin.stdout));
     // Everything else is the same too: the only added text is that line (the twin prints its "none" line).
-    const strip = (out) => withoutLine(out, /upstream standard\(s\) not installed|Upstream standards not installed/);
+    // (XSPEC-475 R9 adds one more line of the same kind for the recommended core standards; the twin has none.)
+    const strip = (out) => withoutLine(out, /upstream standard\(s\) not installed|Upstream standards not installed|recommended core standard\(s\) not installed/);
     expect(strip(real.stdout)).toBe(strip(twin.stdout));
   }
 });
@@ -87,7 +88,8 @@ it('uds audit --friction lists one LOW finding 1 available standard(s) not insta
   // One finding, structured, in the JSON the report tooling reads.
   const json = await h.runCli(['audit', '--friction', '--offline', '--format', 'json'], dir);
   const frictions = JSON.parse(json.stdout).frictions;
-  const mine = frictions.filter((f) => f.type === 'not-installed');
+  // (XSPEC-475 R9 adds a second not-installed finding, for the recommended core standards; this one is the available-standards finding.)
+  const mine = frictions.filter((f) => f.type === 'not-installed' && /available standard/.test(f.standard));
   expect(mine).toHaveLength(1);
   expect(mine[0].severity).toBe('LOW');
 

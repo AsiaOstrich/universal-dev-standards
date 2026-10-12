@@ -16,6 +16,8 @@ const TABLE_FIELD = (name) => new RegExp(`^\\|\\s*\\**\\s*(?:${name})\\s*\\**\\s
 /** ...in a field line: `- **Status**: Archived`, `> **Status**: Stable`, `Status: Draft`. */
 const LINE_FIELD = (name) => new RegExp(`^[\\s>*-]*\\**\\s*(?:${name})\\s*\\**\\s*[:\uFF1A]\\s*\\**\\s*(.+?)\\s*$`, 'i');
 const TABLE_SEPARATOR = /^\|[\s:|-]+\|?\s*$/;
+/** Between two fields on one line: a full-width or half-width bar. */
+const FIELD_SEPARATOR = /\s*[\uFF5C|]\s*/;
 
 /** First word of a header value, lower-cased (`Approved (2026-01-01)` -> `approved`); text it cannot split stays as written. */
 function headerWord(value) {
@@ -51,6 +53,15 @@ export function readSddHeader(content) {
       const row = TABLE_FIELD(name).exec(lines[i]);
       // A header row of a table (`| Status | Description |`) is followed by a separator row; a field row is not.
       if (row && !TABLE_SEPARATOR.test(lines[i + 1] || '')) return headerWord(row[1]);
+      // XSPEC-475 R8: several fields on one line, separated by a full-width `｜` or a half-width `|`
+      // (`**規格**: SPEC-002 ｜ **狀態**: Draft（驗收中）`). Each piece is read as a field line of its own. A table row
+      // (a line that starts with `|`) was handled above and is never split.
+      if (!/^\s*\|/.test(lines[i])) {
+        for (const piece of lines[i].split(FIELD_SEPARATOR)) {
+          const inPiece = LINE_FIELD(name).exec(piece); // [mutation-anchor:same-line-fields]
+          if (inPiece) return headerWord(inPiece[1]);
+        }
+      }
       const field = LINE_FIELD(name).exec(lines[i]);
       if (field) return headerWord(field[1]);
     }
