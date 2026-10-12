@@ -24,7 +24,7 @@ import {
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents
 } from '../utils/skills-installer.js';
-import { writeManifest } from '../core/manifest.js';
+import { writeManifest, mergeInstalledNames } from '../core/manifest.js';
 import { getRepositoryInfo } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js';
@@ -179,6 +179,15 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   // the weekly staleness scout — which reads exactly `upstream.version` — kept
   // reporting the repo as stale after a fully successful reconcile. (XSPEC-343 R2)
   if (!dryRun && results.every(r => r.success)) {
+    // XSPEC-475 R6: a clean reconcile leaves the skills and commands exactly as this UDS ships them (the plan covers every
+    // difference), so the versions recorded for them move with it - also when no file needed rewriting, which is the case
+    // of a project whose skill files are already current but whose manifest still names an older version.
+    const shippedSkills = getRepositoryInfo()?.skills?.version;
+    for (const kind of ['skills', 'commands']) {
+      if (shippedSkills && updatedManifest[kind]?.installed === true && updatedManifest[kind].location !== 'marketplace') {
+        updatedManifest[kind] = { ...updatedManifest[kind], version: shippedSkills };
+      }
+    }
     const version = getRepositoryInfo()?.standards?.version;
     if (version) {
       updatedManifest.upstream = {
@@ -419,6 +428,20 @@ function executeMigrateBlock(projectPath, action, manifest) {
 }
 
 /**
+ * After a batch install that succeeded, make the manifest say what the disk now holds: the version of the skills/commands
+ * this UDS ships, and the names installed (added to the ones already recorded). XSPEC-475 R6.
+ * @param {Object} manifest
+ * @param {'skills'|'commands'} kind
+ * @param {Object} installResult - from installSkills/CommandsToMultipleAgents
+ */
+function recordInstalledSet(manifest, kind, installResult) {
+  const shipped = getRepositoryInfo()?.skills?.version;
+  manifest[kind] = { ...(manifest[kind] || {}) };
+  if (shipped) manifest[kind].version = shipped;
+  manifest[kind].names = mergeInstalledNames(manifest[kind].names, installResult);
+}
+
+/**
  * Batch execute skill installations.
  */
 async function executeSkillBatch(projectPath, skillActions, manifest) {
@@ -476,6 +499,13 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
 
         if (installResult.allFileHashes) {
           Object.assign(manifest.skillHashes, installResult.allFileHashes);
+        }
+        // XSPEC-475 R6: the skill files were just rewritten to what this UDS ships, so the records that describe them
+        // are brought to match. They were left at the old version and name list (the 6.11.0 -> 6.14 upgrade rewrote about
+        // 200 files and still recorded 6.11.0 and no `comprehension-ladder`), and the second command `--skills` was the
+        // only way to make the manifest agree with the disk.
+        if (installResult.success) {
+          recordInstalledSet(manifest, 'skills', installResult); // wire:apply-records-skills
         }
 
         for (const action of toInstall) {
@@ -563,6 +593,9 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
           // as "Commands: 51 installed" — tampering with one of the 48 changed
           // neither line.
           Object.assign(manifest.commandHashes, installResult.allFileHashes);
+        }
+        if (installResult.success) {
+          recordInstalledSet(manifest, 'commands', installResult); // wire:apply-records-commands (XSPEC-475 R6)
         }
 
         for (const action of toInstall) {

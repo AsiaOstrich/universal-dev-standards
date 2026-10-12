@@ -1,9 +1,9 @@
 ---
 source: ../../../core/secret-management-standards.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-07-30
-source_hash: d8efae1ed265
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-10-12
+source_hash: 0d663eb39b8a
 status: current
 ---
 
@@ -65,6 +65,12 @@ staged 檔案，偵測到 pattern 即封鎖 commit；(2) **CI 管線掃描**—�
 （`AKIA[0-9A-Z]{16}`）、PEM 私鑰標頭（`-----BEGIN .* PRIVATE KEY`）、通用 API token
 pattern（`api[_-]?key\s*[:=]\s*\S{16,}`），以及含密碼的連線字串。
 
+掃描器如何執行由 [`pipeline-security-gates`](./pipeline-security-gates.md) 規範，其中三條規則適用於本需求要求的每個
+掃描器：**PSG-1**——掃描輸出（終端機、CI 紀錄、報告檔）MUST NOT 包含被匹配到的機密值本身，只能指出檔案、行號與規則名稱；
+**PSG-2**——無法執行的掃描器（未安裝、崩潰、規則無法取得）視同閘門失敗，MUST 阻斷 commit 或 pipeline，不得放行；
+**PSG-3**——團隊自己撰寫的每條偵測規則 SHOULD 有一個必須被抓到（紅）與一個不得被誤報（綠）的樣本，並在測試中執行。
+上述四種最低 pattern 即是團隊自寫規則時 PSG-3 所適用的規則。
+
 ### REQ-004 — 機密注入
 
 機密 MUST 僅透過環境變數或掛載檔案注入應用程式程序。透過命令列參數傳遞機密為
@@ -85,6 +91,7 @@ volume，並使用限制性檔案權限（0400 或 0600）。
 
 - **`iac-design-principles`**——機密後端（Vault／KMS 狀態）本身即是版本化、受存取
   控制的基礎設施。
+- **`pipeline-security-gates`**——PSG-1～PSG-3 規範 REQ-003 掃描器的執行方式（輸出不含機密值、掃描器跑不起來即阻斷、自寫規則要有紅綠樣本）；兩份標準互相指向。
 - **`audit-trail`**——輪替、存取與注入事件為可稽核操作（REQ-002 要求記錄輪替事件）。
 - **`pii-classification`**——守護 TIER-1 PII 的憑證承襲最嚴格的處理控制。
 - **`security-standards`**——本標準是更廣安全基線的憑證衛生面向。
@@ -98,4 +105,5 @@ volume，並使用限制性檔案權限（0400 或 0600）。
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.1.0 | 2026-10-12 | REQ-003 指向 `pipeline-security-gates` 的 PSG-1～PSG-3（掃描器的執行方式）；整合章節列出交叉引用（XSPEC-475 OQ3） |
 | v1.0.0 | 2026-06-17 | 初版——REQ-001~004：機密來源選項、輪替政策、硬編碼機密防護、機密注入（XSPEC-065） |

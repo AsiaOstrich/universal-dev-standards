@@ -35,7 +35,7 @@ function breakdown(byCategory) {
  */
 export function printAvailableStandardsSection(manifest, { phase }) {
   const msg = t().availableStandards;
-  const { offered, notOffered, notOfferedByCategory } = getAvailableStandards(manifest);
+  const { offered, notOffered, notOfferedByCategory, recommended } = getAvailableStandards(manifest);
 
   console.log();
   if (offered.length === 0) {
@@ -57,6 +57,19 @@ export function printAvailableStandardsSection(manifest, { phase }) {
     console.log(chalk.gray(`  ${msg.installHint}`));
   }
 
+  // XSPEC-475 R9: the recommended core standards, one by one, each with the command that installs it.
+  if (recommended.length > 0) {
+    if (phase === 'apply') {
+      console.log(chalk.cyan(fill(msg.recommendedApply, { count: recommended.length, ids: recommended.map((s) => s.id).join(', ') })));
+    } else {
+      console.log(chalk.cyan(fill(msg.recommendedTitle, { count: recommended.length })));
+      for (const std of recommended) {
+        console.log(`    ${chalk.green(std.id)} ${chalk.gray(`— ${std.description}`)}`);
+        console.log(chalk.gray(`      uds update --apply --add-standard ${std.id}`)); // [mutation-anchor:recommended-install-command]
+      }
+    }
+  }
+
   if (notOffered.length > 0) {
     console.log(chalk.gray(fill(msg.othersLine, { count: notOffered.length, breakdown: breakdown(notOfferedByCategory) })));
   }
@@ -65,11 +78,14 @@ export function printAvailableStandardsSection(manifest, { phase }) {
 /** `uds check`: one line, never part of the verdict. */
 export function printAvailableStandardsCheckLine(manifest) {
   const msg = t().availableStandards;
-  const { offered } = getAvailableStandards(manifest);
+  const { offered, recommended } = getAvailableStandards(manifest);
   if (offered.length === 0) {
     console.log(chalk.gray(msg.checkNone));
   } else {
     console.log(chalk.cyan(fill(msg.checkLine, { count: offered.length })));
+  }
+  if (recommended.length > 0) {
+    console.log(chalk.cyan(fill(msg.checkRecommended, { count: recommended.length, ids: recommended.map((s) => s.id).join(', ') })));
   }
 }
 

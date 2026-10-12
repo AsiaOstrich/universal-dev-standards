@@ -8687,6 +8687,299 @@
           "CLAUDE-DIR-EXISTS=true"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-apply-records-init",
+      "workspace": "xspec475-apply-records",
+      "title": "uds init in a Claude Code and Cursor project installs skills and slash commands, for the apply-records step of XSPEC-475",
+      "titleZh": "uds init 在 Claude Code 加 Cursor 專案安裝技能與斜線指令，供 XSPEC-475 的 apply 紀錄步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": ".cursorrules",
+          "content": "# my own Cursor rules\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".claude/skills/comprehension-ladder/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-apply-records-skills-and-commands",
+      "workspace": "xspec475-apply-records",
+      "title": "One uds update --apply leaves the manifest at the shipped skills and commands version with every name, and uds check no longer reports them as out of date",
+      "titleZh": "一次 uds update --apply 就讓 manifest 的技能與指令版本及名稱對齊，uds check 不再報過期",
+      "changelog": [
+        "Behavior change - uds update --apply records the skills and commands it rewrites"
+      ],
+      "prepare": [
+        {
+          "writeFile": "apply-case.cjs",
+          "content": "const fs = require('fs'), cp = require('child_process');\nconst bin = process.argv[2];\nconst uds = (...args) => { const r = cp.spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8', env: process.env }); return (r.stdout || '') + (r.stderr || ''); };\nconst read = () => JSON.parse(fs.readFileSync('.standards/manifest.json', 'utf8'));\nconst fresh = read();\nconst m = read();\nm.skills.version = '6.11.0'; m.commands.version = '6.11.0';\nm.skills.names = m.skills.names.filter((n) => n !== 'comprehension-ladder');\nm.commands.names = m.commands.names.filter((n) => n !== 'audit');\nfor (const k of Object.keys(m.skillHashes)) if (k.includes('/comprehension-ladder/')) delete m.skillHashes[k];\nfor (const k of Object.keys(m.commandHashes)) if (k.endsWith('/audit.md')) delete m.commandHashes[k];\nfs.writeFileSync('.standards/manifest.json', JSON.stringify(m, null, 2));\nfs.rmSync('.claude/skills/comprehension-ladder', { recursive: true, force: true });\nfs.rmSync('.cursor/commands/audit.md', { force: true });\nconst before = uds('check');\nconst apply = uds('update', '--apply', '--yes', '--offline');\nconst after = read();\nconst check = uds('check');\nconst lines = [\n  'CHECK-BEFORE-REPORTS-OLD-VERSION=' + /Commands: v6\\.11\\.0/.test(before),\n  'APPLY-RAN=' + /Reconciliation complete/.test(apply),\n  'SKILLS-VERSION-IS-SHIPPED=' + (after.skills.version === fresh.skills.version),\n  'COMMANDS-VERSION-IS-SHIPPED=' + (after.commands.version === fresh.commands.version),\n  'SKILLS-NAMES-HAVE-LADDER=' + after.skills.names.includes('comprehension-ladder'),\n  'COMMANDS-NAMES-HAVE-AUDIT=' + after.commands.names.includes('audit'),\n  'CHECK-AFTER-REPORTS-OUTDATED=' + /(Commands|Skills): v[\\d.]+(-[\\w.]+)? → v/.test(check),\n];\nprocess.stdout.write(lines.join('\\n') + '\\n');\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "apply-case.cjs",
+        "{bin}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "CHECK-BEFORE-REPORTS-OLD-VERSION=true",
+          "APPLY-RAN=true",
+          "SKILLS-VERSION-IS-SHIPPED=true",
+          "COMMANDS-VERSION-IS-SHIPPED=true",
+          "SKILLS-NAMES-HAVE-LADDER=true",
+          "COMMANDS-NAMES-HAVE-AUDIT=true",
+          "CHECK-AFTER-REPORTS-OUTDATED=false"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-stale-option-init",
+      "workspace": "xspec475-stale-option",
+      "title": "uds init --output-lang traditional-chinese sets up a project for the stale-option steps of XSPEC-475",
+      "titleZh": "uds init --output-lang traditional-chinese 建立專案，供 XSPEC-475 的舊選項檔步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--output-lang",
+        "traditional-chinese"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/options/traditional-chinese.ai.yaml"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-stale-option-judged-by-current-rules",
+      "workspace": "xspec475-stale-option",
+      "title": "uds simulate with an installed option file older than the CLI's judges by the current rules and says to run uds update --apply",
+      "titleZh": "uds simulate 遇到比 CLI 內建舊的選項檔時依現行規則判定，並提示執行 uds update --apply",
+      "changelog": [
+        "uds simulate -s commit-message judges by the CLI's current rules when the installed option file is older"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/options/traditional-chinese.ai.yaml",
+          "content": "id: traditional-chinese\nmeta:\n  parent: commit-message\n  version: \"1.0.0\"\ntypes:\n  - type: 新增\n    description: 新增\n  - type: 修正\n    description: 修正\n  - type: 重構\n    description: 重構\n  - type: 文件\n    description: 文件\n  - type: 樣式\n    description: 樣式\n  - type: 測試\n    description: 測試\n  - type: 效能\n    description: 效能\n  - type: 建置\n    description: 建置\n  - type: 整合\n    description: 整合\n  - type: 維護\n    description: 維護\n  - type: 回退\n    description: 回退\n  - type: 安全\n    description: 安全\n"
+        }
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(user): 新增部門端點"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Simulation Passed",
+          "The installed option file \"traditional-chinese\" is version 1.0.0, older than the 2.0.0 this CLI ships",
+          "Run `uds update --apply`"
+        ],
+        "notContains": [
+          "Type \"feat\" is not one of"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-spec-list-same-line-fields",
+      "title": "uds spec list reads a status written on the same line as another field, with a full-width or half-width bar",
+      "titleZh": "uds spec list 讀得出與另一個欄位寫在同一行的狀態（全形或半形分隔）",
+      "changelog": [
+        "uds spec list reads a status written on the same line as another field"
+      ],
+      "prepare": [
+        {
+          "writeFile": "specs/SPEC-002-acceptance-tests.md",
+          "content": "# [SPEC-002] 驗收測試\n\n> **規格**: SPEC-002 ｜ **狀態**: Draft（驗收中）\n> **建立日期**: 2026-10-12\n"
+        },
+        {
+          "writeFile": "specs/SPEC-003-halfwidth.md",
+          "content": "# 半形分隔\n\n**規格**: SPEC-003 | **狀態**: Approved\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "list"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^SPEC-002-acceptance-tests\\s+draft\\s+-\\s+\\[SPEC-002\\] 驗收測試",
+          "^SPEC-003-halfwidth\\s+approved\\s+-\\s+半形分隔"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-recommended-init",
+      "workspace": "xspec475-recommended",
+      "title": "uds init sets up a project that lacks the recommended core standards, for the steps of XSPEC-475 R9",
+      "titleZh": "uds init 建立缺少建議 core 標準的專案，供 XSPEC-475 R9 的步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-recommended-in-plan",
+      "workspace": "xspec475-recommended",
+      "title": "uds update --plan lists the recommended core standards one by one with their install commands",
+      "titleZh": "uds update --plan 逐項列出建議安裝的 core 標準並附安裝指令",
+      "changelog": [
+        "uds update --plan, uds check and uds audit --friction name the recommended core standards"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Recommended core standards, not installed (2)",
+          "uds update --apply --add-standard turn-completion-integrity",
+          "uds update --apply --add-standard pipeline-security-gates",
+          "in categories `uds init` never installs"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-recommended-in-check",
+      "workspace": "xspec475-recommended",
+      "title": "uds check names the recommended core standards that are not installed",
+      "titleZh": "uds check 點名尚未安裝的建議 core 標準",
+      "changelog": [
+        "uds update --plan, uds check and uds audit --friction name the recommended core standards"
+      ],
+      "uds": [
+        "check"
+      ],
+      "expect": {
+        "contains": [
+          "2 recommended core standard(s) not installed (turn-completion-integrity, pipeline-security-gates)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-recommended-in-friction",
+      "workspace": "xspec475-recommended",
+      "title": "uds audit --friction has one LOW finding naming the recommended core standards with their install commands",
+      "titleZh": "uds audit --friction 有一筆 LOW 發現，點名建議安裝的 core 標準並附安裝指令",
+      "changelog": [
+        "uds update --plan, uds check and uds audit --friction name the recommended core standards"
+      ],
+      "uds": [
+        "audit",
+        "--friction"
+      ],
+      "expect": {
+        "contains": [
+          "2 recommended core standard(s) not installed",
+          "uds update --apply --add-standard pipeline-security-gates"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-secret-management-points-at-psg",
+      "workspace": "xspec475-recommended",
+      "title": "The installed secret-management-standards is 1.1.0 and REQ-003 points at PSG-1 to PSG-3 of pipeline-security-gates",
+      "titleZh": "安裝後的 secret-management-standards 為 1.1.0，REQ-003 指向 pipeline-security-gates 的 PSG-1～PSG-3",
+      "changelog": [
+        "secret-management-standards 1.1.0 points REQ-003 at PSG-1 to PSG-3"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline",
+        "--add-standard",
+        "secret-management-standards"
+      ],
+      "expect": {
+        "exit": 0,
+        "files": [
+          {
+            "path": ".standards/secret-management-standards.ai.yaml",
+            "contains": [
+              "version: \"1.1.0\"",
+              "PSG-1",
+              "PSG-2",
+              "PSG-3",
+              "- pipeline-security-gates"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

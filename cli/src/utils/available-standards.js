@@ -23,6 +23,14 @@
  * "new upstream" — they were never in the offer. Why, per category, is in CATEGORY_NOTES.
  * They are still returned (with a reason) so no command can silently pretend they do not exist.
  *
+ * Recommended core standards (XSPEC-475 R9)
+ * -----------------------------------------
+ * 59 core standards are not installed by `uds init`, and listing all of them one by one in every `--plan` would bury the
+ * few an adopter asked about. A registry entry marked `"recommended": true` (today `turn-completion-integrity` and
+ * `pipeline-security-gates`, the two adopters named) is returned in `recommended` and listed one by one with its install
+ * command; the rest stay a count. `recommended` is information only: it is NOT in `offered`, so the old `uds update --yes`
+ * path, which installs whatever `offered` holds, does not install them (XSPEC-458: listing and installing stay apart).
+ *
  * Manifest fields that look like they should matter, and do not (measured 2026-10-07):
  *   - `level` — a manifest written by 6.11.0 carries it only as a leftover snapshot inside
  *     `integrationConfigs[<file>].level`; no code reads it to decide what to install, the generator
@@ -122,7 +130,8 @@ export function oneLineDescription(description, max = 100) {
  * @returns {{
  *   offered: AvailableStandard[],
  *   notOffered: Array<AvailableStandard & {reason: string, addable: boolean}>,
- *   notOfferedByCategory: Object<string, number>
+ *   notOfferedByCategory: Object<string, number>,
+ *   recommended: AvailableStandard[]
  * }}
  */
 export function getAvailableStandards(manifest) {
@@ -138,7 +147,7 @@ export function getAvailableStandards(manifest) {
     const name = basename(source);
     if (installed.has(name)) continue;
 
-    const item = { id: std.id, category: std.category, description: oneLineDescription(std.description), source, name };
+    const item = { id: std.id, category: std.category, description: oneLineDescription(std.description), source, name, recommended: std.recommended === true };
     if (OFFERED_CATEGORIES.includes(std.category)) {
       offered.push(item);
     } else {
@@ -152,7 +161,8 @@ export function getAvailableStandards(manifest) {
 
   const notOfferedByCategory = {};
   for (const n of notOffered) notOfferedByCategory[n.category] = (notOfferedByCategory[n.category] || 0) + 1;
-  return { offered, notOffered, notOfferedByCategory };
+  const recommended = notOffered.filter((n) => n.addable && n.recommended); // [mutation-anchor:recommended-core]
+  return { offered, notOffered, notOfferedByCategory, recommended };
 }
 
 /** Plain edit distance, enough for "did you mean". */

@@ -557,7 +557,7 @@
 | `runbook` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `sast-advanced` | 1.0.0 | This standard defines Advanced Static Application Security Testing (SAST) practi |
 | `schema-evolution` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `secret-management-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
+| `secret-management-standards` | 1.1.0 | **Status**: Active | **Updated**: 2026-10-12 |  |
 | `secure-op` | - |  |
 | `security-decision` | - |  |
 | `security-standards` | 1.1.0 | This standard defines comprehensive security guidelines for software development |

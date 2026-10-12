@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml';
 import { exec } from 'child_process';
 import util from 'util';
 import { pathToFileURL } from 'node:url';
-import { readManifest } from './copier.js';
+import { readManifest, getRepoRoot } from './copier.js';
 import { judgeCommitMessage } from './commit-message-judge.js';
 
 const execAsync = util.promisify(exec);
@@ -461,9 +461,10 @@ export class StandardValidator {
     const judgeName = simulator.judge
       || (standardConfig?.standard?.id === 'commit-message' && /commitlint/.test(simulator.command || '') ? 'commit-message' : null);
     if (judgeName === 'commit-message') {
-      const outcome = judgeCommitMessage(standardConfig, input, { standardsDir: this.standardsDir });
+      const outcome = judgeCommitMessage(standardConfig, input, { standardsDir: this.standardsDir, shippedRoot: getRepoRoot() }); // wire:simulate-shipped-root
       const details = [
         ...outcome.findings.map(f => `- ${f}`),
+        ...outcome.notes.map(n => `Note: ${n}`),
         `Checked: ${outcome.checked.join('; ')}`,
         `Not checked: ${outcome.notChecked.join('; ')}`
       ].join('\n');

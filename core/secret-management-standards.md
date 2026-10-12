@@ -1,6 +1,6 @@
 # Secret Management and Credential Hygiene Standards
 
-> **Version**: 1.0.0 | **Status**: Active | **Updated**: 2026-06-17
+> **Version**: 1.1.0 | **Status**: Active | **Updated**: 2026-10-12
 > **AI-optimized version**: `ai/standards/secret-management-standards.ai.yaml`
 > **Spec**: XSPEC-065 (cross-project/specs/XSPEC-065-uds-infrastructure-pack.md)
 
@@ -69,6 +69,14 @@ detected patterns: AWS access key format (`AKIA[0-9A-Z]{16}`), PEM private key
 headers (`-----BEGIN .* PRIVATE KEY`), generic API token patterns
 (`api[_-]?key\s*[:=]\s*\S{16,}`), and connection strings containing passwords.
 
+How the scanners are run is governed by [`pipeline-security-gates`](./pipeline-security-gates.md), and the
+three rules there apply to every scanner this requirement asks for: **PSG-1** — the scan output (terminal, CI log,
+report file) MUST NOT contain the matched secret value, only the file, the line and the rule name; **PSG-2** — a
+scanner that cannot run (not installed, crashed, no network for its rules) counts as a failed gate and MUST block the
+commit or the pipeline, never let it through; **PSG-3** — every detection rule the team writes itself SHOULD have one
+sample that must be caught (red) and one that must not be reported (green), executed in a test. The four minimum
+patterns above are the rules PSG-3 applies to when a team writes its own.
+
 ### REQ-004 — Secret Injection
 
 Secrets MUST be injected into application processes via environment variables or
@@ -91,6 +99,9 @@ secrets as read-only volumes with restrictive file permissions (0400 or 0600).
 
 - **`iac-design-principles`** — secret backends (Vault/KMS state) are themselves
   versioned, access-controlled infrastructure.
+- **`pipeline-security-gates`** — PSG-1 to PSG-3 govern how the scanners of REQ-003 are run (no secret value in
+  their output, a scanner that cannot run blocks, red and green samples for self-written rules); the two standards
+  point at each other.
 - **`audit-trail`** — rotation, access, and injection events are auditable
   operations (REQ-002 mandates logging rotation events).
 - **`pii-classification`** — credentials guarding TIER-1 PII inherit the strictest
@@ -107,4 +118,5 @@ secrets as read-only volumes with restrictive file permissions (0400 or 0600).
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.1.0 | 2026-10-12 | REQ-003 points to `pipeline-security-gates` PSG-1 to PSG-3 for how the scanners are run; integration section lists the cross-reference (XSPEC-475 OQ3) |
 | v1.0.0 | 2026-06-17 | Initial — REQ-001~004: secret source options, rotation policy, hardcoded-secret prevention, secret injection (XSPEC-065) |

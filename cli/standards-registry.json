@@ -774,6 +774,7 @@
         "ai": "ai/standards/turn-completion-integrity.ai.yaml"
       },
       "category": "core",
+      "recommended": true,
       "description": "An agent must not end a turn having stated a next action it did not take; enforced at turn end by a Stop hook, with a per-language corpus that runs in CI"
     },
     {
@@ -2295,6 +2296,7 @@
         "ai": "ai/standards/pipeline-security-gates.ai.yaml"
       },
       "category": "core",
+      "recommended": true,
       "description": "Security checkpoints embedded in CI pipeline — SAST, DAST, SCA, secrets scan (including the scanner's own output and failure behaviour) with block/warn/log behavior"
     },
     {
@@ -2464,7 +2466,7 @@
         "ai": "ai/standards/secret-management-standards.ai.yaml"
       },
       "category": "core",
-      "description": "Three secret source tiers (Vault, Cloud KMS, SOPS), rotation policies by credential type, hardcoded secret prevention, and safe injection patterns"
+      "description": "Three secret source tiers (Vault, Cloud KMS, SOPS), rotation policies by credential type, hardcoded secret prevention (scanner rules PSG-1 to PSG-3 of pipeline-security-gates), and safe injection patterns"
     },
     {
       "id": "prd-standards",
