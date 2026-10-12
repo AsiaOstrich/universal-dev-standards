@@ -2,7 +2,8 @@
 source: ../../../../skills/testing-guide/testing-pyramid.md
 source_version: 1.1.0
 translation_version: 1.1.0
-last_synced: 2025-12-30
+last_synced: 2026-10-12
+source_hash: 828b2b276eea
 status: current
 ---
 

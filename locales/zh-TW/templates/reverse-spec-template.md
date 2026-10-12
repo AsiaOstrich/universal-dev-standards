@@ -2,7 +2,8 @@
 source: ../../../templates/reverse-spec-template.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-19
+last_synced: 2026-10-12
+source_hash: 757daa9f44a3
 status: current
 ---
 
@@ -197,6 +198,33 @@ status: current
 
 ---
 
+## E2E 場景（必填）
+
+> 定義使用者或呼叫者視角的端對端場景。至少填 1 條 Happy Path。
+> 若確實不需要 E2E，填寫 `e2e_not_required_reason` 並留空 Scenarios 區塊。
+
+**e2e_not_required_reason**（若 Scenarios 為空，此欄必填）：
+<!-- 有效理由：純內部工具函式 | 已被 SPEC-NNN E2E 涵蓋，見 [SPEC-NNN] -->
+<!-- 無效理由：「之後再補」「現在沒空」 -->
+
+### Happy Path: [場景名稱]
+
+```gherkin
+Given [使用者或系統狀態前提]
+When  [觸發動作或 API 呼叫]
+Then  [可觀察的預期結果：HTTP status、資料庫狀態、回應 body]
+```
+
+### Error Path: [場景名稱]（建議：安全相關、Quota、計費功能必填）
+
+```gherkin
+Given [異常前提條件]
+When  [觸發動作]
+Then  [預期錯誤處理：status code、錯誤訊息、無副作用]
+```
+
+---
+
 ## 驗收標準
 
 ### 從測試提取
@@ -272,6 +300,27 @@ status: current
 | 問題 | 嚴重性 | 備註 |
 |------|--------|------|
 | <!-- 新增問題 --> | 低/中/高 | <!-- 額外背景 --> |
+
+---
+
+## 假設與待釐清問題
+
+### 假設
+
+| # | 假設 | 影響範圍 | 驗證方式 | 狀態 |
+|---|-----------|--------------|---------------------|--------|
+| A1 | [假設] <!-- 描述假設 --> | <!-- 受影響區域 --> | <!-- 如何驗證 --> | 未驗證 |
+
+<!-- 範例：
+| A1 | [假設] 認證中介軟體在請求抵達 controller 前即驗證 JWT | AuthController, UserController | 檢查 app.ts 中的中介軟體鏈 | 未驗證 |
+| A2 | [假設] 所有查詢模式都有對應的資料庫索引 | 效能 | 對常用查詢執行 EXPLAIN | 未驗證 |
+-->
+
+### 待釐清問題
+
+| # | 問題 | 受影響區域 | 負責人 | 期限 |
+|---|---------|--------------|-------|----------|
+| Q1 | [需確認] <!-- 問題 --> | <!-- 區域 --> | <!-- 誰 --> | <!-- 何時 --> |
 
 ---
 
