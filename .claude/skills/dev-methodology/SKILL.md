@@ -3,7 +3,8 @@ name: methodology
 source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 21380a968a9a
 scope: partial
 description: |
   [UDS] 為專案選擇並追蹤當前採用的開發方法論（SDD、BDD、TDD）。
@@ -103,6 +104,8 @@ argument-hint: "[action] [argument]"
 ## 參考
 
 - [建立自訂 Methodology 指南](./create-methodology.md) — 要自建方法論而不是用現成的那幾套時讀它。
+- [整合開發流程指南](../../../../skills/dev-methodology/integrated-flow.md) — 要把多套方法論組合成單一流程時讀它。
+- [工作流前置步驟檢查](../../../../skills/dev-methodology/prerequisite-check.md) — 某個工作流步驟需要先檢查前置條件時讀它。
 - [Methodology Runtime 指南](./runtime.md) — 需要知道方法論在執行當下如何運作時讀它。
 - 詳細指南：[guide.md](./guide.md)
 
