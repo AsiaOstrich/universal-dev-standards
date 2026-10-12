@@ -3,15 +3,16 @@ name: knowledge-graph
 source: ../../../../skills/knowledge-graph/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 3059eb465844
 status: current
+scope: partial
 description: |
   [UDS] 透過知識圖追蹤規格、決策與程式碼之間的影響鏈；沒有引擎時以 Markdown 後備方案運作。
   Use when: 想知道某份規格或決策會影響到什麼、找出哪些程式碼實作了某個產物、追蹤規格、ADR 與模組之間的相依關係。
   Not for: 沒有規格或決策錨點的純文字搜尋——請用 Grep；撰寫規格本身——請用 /sdd。
   Keywords: knowledge graph, impact chain, traceability, spec impact, decision graph, 知識圖, 影響鏈, 規格追蹤, 相依關係.
 allowed-tools: Read, Glob, Grep, Bash(curl:*)
-scope: partial
 argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 ---
 
@@ -48,7 +49,7 @@ argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 
 ## 關係 schema
 
-見[知識圖記憶標準](../../../../core/knowledge-graph-memory.md)。front-matter 欄位：`related`、`impacts`、`impacted_by`、`supersedes`、`implements`。
+見[知識圖記憶標準](../../../../core/knowledge-graph-memory.md)。front-matter 欄位：`related`、`impacts`、`impacted_by`、`supersedes`、`implements`。邊推導：Decision `impacts` Spec → IMPACTS；Decision `supersedes` Decision → SUPERSEDES。
 
 ## 下一步引導
 

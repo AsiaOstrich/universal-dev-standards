@@ -1,9 +1,11 @@
 ---
 name: documentation-guide
+scope: universal
 source: ../../../../skills/documentation-guide/SKILL.md
 source_version: 2.1.0
 translation_version: 2.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: a23a49fa4b9c
 status: current
 description: |
   引導文件結構、內容需求與專案文件的最佳實踐。
@@ -85,6 +87,38 @@ quality:
     version: "頂部標示版本和日期"
     review: "文件變更納入程式碼審查"
     periodic: "每季檢查文件是否過時"
+
+# === DIÁTAXIS 分類 ===
+diataxis:
+  tutorial: "以學習為導向（getting-started.md）"
+  how_to: "以任務為導向（deployment.md, migration.md）"
+  reference: "以資訊為導向（api-reference.md, CHANGELOG.md）"
+  explanation: "以理解為導向（architecture.md, ADR/）"
+  header: "加入 **Document Type**: Tutorial | How-to | Reference | Explanation"
+
+# === LLM 探索 ===
+llm_discovery:
+  llms_txt: "置於專案根目錄、供 LLM 檢索的結構化索引"
+  llms_full_txt: "選用的完整串接文件"
+  when: "公開專案、公開 API、使用 AI 工具的專案"
+
+# === 品質指標 ===
+quality_metrics:
+  leading: ["覆蓋率 ≥90%", "新鮮度 ≤90 天", "連結健康度 100%", "範例有效性 100%"]
+  lagging: ["支援工單減少", "新人上手時間", "與文件相關的 PR 評論"]
+  tools: [markdown-link-check, lychee, remark-lint, vale, textstat]
+
+# === ADR 強化 ===
+adr_enhanced:
+  new_fields: [Date, Deciders, Drivers, "supersedes/superseded-by"]
+  lifecycle: "proposed → accepted → [deprecated | superseded]"
+  decision_matrix: "影響程度 × 可逆性 → 是否需要 ADR？"
+
+# === 翻譯友善 ===
+translation_friendly:
+  rules: ["使用完整句子", "不使用慣用語", "術語一致", "簡單的主動賓結構", "明確的指涉"]
+  glossary: "維護 glossary.md 以確保術語一致"
+  status_tracking: "以 YAML frontmatter 記錄 translation_status、source_version"
 ```
 
 ---
@@ -306,8 +340,16 @@ MIT
 ```markdown
 # ADR-001: [決策標題]
 
-## 狀態
-已接受
+**日期**: YYYY-MM-DD
+**狀態**: proposed | accepted | deprecated | superseded
+**決策者**: [參與人員清單]
+**取代**: ADR-NNN（如適用）
+**被取代於**: ADR-NNN（如適用）
+
+## 驅動因素
+
+- [關鍵因素 1]
+- [關鍵因素 2]
 
 ## 背景
 [為何需要此決策...]
@@ -326,9 +368,18 @@ MIT
 - 缺點 2
 
 ## 考慮過的替代方案
-1. 方案 A - 因為...而被拒絕
-2. 方案 B - 因為...而被拒絕
+
+### 替代方案 A：[名稱]
+- **優點**: ...
+- **缺點**: ...
+- **拒絕原因**: ...
 ```
+
+**何時撰寫 ADR**（影響程度 × 可逆性）：
+- **高影響 + 難以回復** → 必須撰寫 ADR
+- **高影響 + 容易回復** → 選擇性
+- **低影響 + 難以回復** → 選擇性
+- **低影響 + 容易回復** → 不需要 ADR
 
 ---
 
@@ -397,6 +448,17 @@ MIT
 
 ---
 
+## 下一步引導
+
+`/docs-guide` 完成後，AI 助手應建議：
+
+> **文件結構與需求已釐清。建議下一步：**
+> - 執行 `/docs` 根據指南直接產生專案文件 ⭐ **推薦** — 立即將文件指南化為行動
+> - 執行 `/changelog` 建立或更新 CHANGELOG.md — 確保變更歷史完整
+> - 執行 `/sdd` 將文件需求納入規格驅動開發 — 確保文件與功能同步
+
+---
+
 ## 相關標準
 
 - [文件撰寫標準](../../core/documentation-writing-standards.md) - 內容需求
@@ -421,40 +483,3 @@ MIT
 本 Skill 以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
 
 **來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
-
-
-## Next Steps Guidance | 下一步引導
-
-After `/docs-guide` completes, the AI assistant should suggest:
-
-> **文件結構與需求已釐清。建議下一步 / Documentation structure and requirements clarified. Suggested next steps:**
-> - 執行 `/docs` 根據指南直接產生專案文件 ⭐ **Recommended / 推薦** — 立即將文件指南化為行動 / Turn documentation guidelines into action immediately
-> - 執行 `/changelog` 建立或更新 CHANGELOG.md — 確保變更歷史完整 / Ensure change history is complete
-> - 執行 `/sdd` 將文件需求納入規格驅動開發 — 確保文件與功能同步 / Ensure docs stay in sync with features
-
----
-
-## Related Standards
-
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md) - Content requirements
-- [Documentation Structure](../../core/documentation-structure.md) - File organization
-- [Changelog Standards](../../core/changelog-standards.md) - CHANGELOG format
-- [Changelog Guide Skill](../changelog-guide/SKILL.md) - CHANGELOG skill
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.1.0 | 2026-03-17 | Added: Diátaxis classification, LLM discovery, quality metrics, enhanced ADR template, translation-friendly writing |
-| 2.0.0 | 2026-01-12 | Added: Project type matrix, document templates, documentation pyramid |
-| 1.0.0 | 2025-12-24 | Initial release |
-
----
-
-## License
-
-This skill is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-**Source**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

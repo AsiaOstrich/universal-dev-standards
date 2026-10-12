@@ -1,9 +1,11 @@
 ---
 name: pr
+scope: universal
 source: ../../../../skills/pr-automation-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: a54acd269f70
 status: current
 description: |
   引導 pull request 建立、審查自動化與合併策略。
@@ -11,7 +13,6 @@ description: |
   Not for: 審查本身的內容實質——請用 /code-review；分支命名與合併策略——請用 /git-workflow-guide。
   Keywords: pull request, PR, merge, review, GitHub, GitLab, 合併請求, 審查自動化, 合併策略.
 allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
-scope: universal
 argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 ---
 
@@ -74,6 +75,12 @@ argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 ```
 
+1. **建立（Create）** — 建立分支、提交、推送，並以模板開啟 PR
+2. **審查（Review）** — 自動化檢查 + 人工審查
+3. **核准（Approve）** — 所有檢查通過，且達到必要的核准數
+4. **合併（Merge）** — 套用選定的合併策略
+5. **清理（Cleanup）** — 刪除來源分支，更新關聯的 issue
+
 ## 使用方式
 
 - `/pr` - 引導建立當前分支的 PR
@@ -86,7 +93,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 `/pr` 完成後，AI 助手應建議：
 
 > **PR 操作完成。建議下一步：**
-> - 執行 `/code-review` 進行詳細程式碼審查
+> - 執行 `/code-review` 進行詳細程式碼審查 ⭐ **推薦**
 > - 執行 `/commit` 修正審查發現的問題
 > - 執行 `/changelog` 更新變更日誌
 > - 檢查 CI 狀態 → `gh pr checks`
@@ -95,3 +102,17 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 - 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
 - 核心規範：[git-workflow.md](../../../../core/git-workflow.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更說明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/pr`](../../../../skills/commands/pr.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0 — 文件內容

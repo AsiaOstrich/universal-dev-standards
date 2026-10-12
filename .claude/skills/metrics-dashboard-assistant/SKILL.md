@@ -3,15 +3,16 @@ name: metrics
 source: ../../../../skills/metrics-dashboard-assistant/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 75a71b22eabf
 status: current
+scope: universal
 description: |
   [UDS] 長期追蹤開發指標、程式碼品質指標與技術債。
   Use when: 評估專案的持續健康狀態、分類技術債並觀察其趨勢、向團隊回報程式碼品質。
   Not for: 初次評估一個不熟悉的程式碼庫——請用 /discover；單看測試覆蓋率——請用 /coverage 或 /ac-coverage。
   Keywords: metrics, code quality, technical debt, project health, debt trend, 開發指標, 技術債, 專案健康度, 品質趨勢.
 allowed-tools: Read, Grep, Glob, Bash(npm:*, git:log)
-scope: universal
 argument-hint: "[metric type or module | 指標類型或模組]"
 ---
 
@@ -116,13 +117,48 @@ AI: 技術債趨勢（近 3 個月）：
 3. **報告** - 產生含可行動重點的摘要
 4. **趨勢** - 顯示方向（改善 / 衰退 / 穩定）
 
+## 使用範例
+
+```
+User: /metrics
+AI: 正在分析專案健康狀態...
+    程式碼品質:  B+（平均複雜度 8.2，0 個 lint 錯誤）
+    測試健康:    A （覆蓋率 87%，0 個不穩定測試）
+    債務追蹤:    C （42 個 TODO，3 個 FIXME）
+    總分:        78/100（良好）
+```
+
+```
+User: /metrics --debt
+AI: 技術債摘要：
+    TODO:  42（src/legacy/ 12 個，src/utils/ 8 個）
+    FIXME: 3 （全部在 src/parser/）
+    最舊:  6 個月（src/legacy/auth.js:45）
+    趨勢:  較上月 +5（增加中）
+```
+
 ## 下一步引導
 
 `/metrics` 完成後，AI 助手應建議：
 
 > **指標分析完成。建議下一步：**
-> - 執行 `/refactor` 處理高複雜度模組
+> - 執行 `/refactor` 處理高複雜度模組 ⭐ **推薦**
 > - 執行 `/coverage` 改善低覆蓋率區域
 > - 執行 `/audit` 檢視安全與依賴問題
 > - 執行 `/metrics --debt-trend` 追蹤技術債趨勢
 > - 執行 `/retrospective` 在回顧中討論技術債
+
+## 版本歷史
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| 1.1.0 | 2026-03-26 | 新增技術債分類、SQALE 量化、趨勢追蹤 |
+| 1.0.0 | 2026-03-24 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/metrics`](../../../../skills/commands/metrics.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0

@@ -1,15 +1,19 @@
 ---
-name: project-discovery
+name: discover
+scope: universal
 source: ../../../../skills/project-discovery/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: c52920f316a7
 status: current
 description: |
   [UDS] 在既有程式碼庫新增功能之前，評估專案健康度、架構與風險。
   Use when: 接手不熟悉或老舊的專案、動工前先估算風險、建立風險登記簿。
   Not for: 對已經熟悉的程式碼庫做持續指標追蹤——請用 /metrics；從程式碼回推規格——請用 /reverse。
   Keywords: discovery, project assessment, legacy onboarding, risk register, technical debt, 現況評估, 專案盤點, 風險登記簿, 老舊系統.
+allowed-tools: Read, Grep, Glob, Bash(npm test:*), Bash(npm audit:*), Bash(npm outdated:*)
+argument-hint: "[功能範圍]"
 ---
 
 # 專案現況評估
@@ -114,7 +118,7 @@ docs/risks/
 `/discover` 完成後，AI 助手應根據評估結果建議：
 
 > **根據評估結果，建議下一步：**
-> - **新功能** → 執行 `/sdd` 建立規格
+> - **新功能** → 執行 `/sdd` 建立規格 ⭐ **推薦**
 > - **遺留程式碼** → 執行 `/reverse spec` 提取現有行為
 > - **重構** → 執行 `/refactor decide` 選擇策略
 > - **快速修復** → 執行 `/tdd` 撰寫針對性測試並修復
@@ -125,3 +129,7 @@ docs/risks/
 
 - 逐步流程：[workflow.md](./workflow.md) — 探索的各個步驟與順序（程式碼健康度、架構理解、文件盤點、審查快照、相依與安全檢查）。真的要跑一次探索時讀它。
 - 詳細指南：[guide.md](./guide.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/discover`](../../../../skills/commands/discover.md#ai-agent-behavior--ai-代理行為)

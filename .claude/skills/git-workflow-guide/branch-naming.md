@@ -2,7 +2,8 @@
 source: ../../../../skills/git-workflow-guide/branch-naming.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2025-12-25
+last_synced: 2026-10-12
+source_hash: dd302ca63258
 status: current
 ---
 

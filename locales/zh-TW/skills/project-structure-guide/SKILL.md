@@ -3,7 +3,8 @@ name: project-structure-guide
 source: ../../../../skills/project-structure-guide/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 0c1ad1961de0
 status: current
 description: |
   依各語言的最佳實踐組織專案目錄結構的指南。
@@ -25,6 +26,16 @@ description: |
 ## 目的
 
 此技能提供根據語言和框架慣例建構專案的指引，協助建立一致、可維護的目錄佈局。
+
+# [Physical Binding]
+## 現實檢查（Reality Check）
+在確認專案結構有效之前，你**必須**：
+1. 執行驗證器：`uds check --standard project-structure`
+2. 若 exit_code != 0：
+   - 讀取錯誤訊息（例如 "Missing required directories"）。
+   - 向使用者回報違規項目。
+   - 建議具體的修正指令（`mkdir ...`）。
+   - 套用修正後**重新執行**驗證。
 
 ## 觸發時機
 
@@ -149,18 +160,9 @@ project/
 7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
 8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
 
-## 相關標準
-
-- [各語言的專案結構](./language-patterns.md) — 逐語言的實際目錄配置（Node.js/TypeScript、Python、Go 等）。要為某個特定語言擺放專案結構時讀它。
-- [核心：專案結構](../../core/project-structure.md)
-- [核心：文件結構](../../core/documentation-structure.md)
-- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
-- [AI：專案結構選項](../../../../options/project-structure/)
-
-
 ## Next Steps Guidance | 下一步引導
 
-After `/project-structure` completes, the AI assistant should suggest:
+`/project-structure` 完成後，AI 助手應建議：
 
 > **專案結構已建立或審查完成。建議下一步 / Project structure created or reviewed. Suggested next steps:**
 > - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **Recommended / 推薦** — 確保結構決策有規格追蹤 / Ensures structure decisions are tracked in specs
@@ -169,9 +171,10 @@ After `/project-structure` completes, the AI assistant should suggest:
 
 ---
 
-## Related Standards
+## 相關標準
 
-- [Core: Project Structure](../../core/project-structure.md)
-- [Core: Documentation Structure](../../core/documentation-structure.md)
-- [Guide: File Placement Decision Guide](../../core/guides/file-placement-guide.md)
-- [AI: Project Structure Options](../../ai/options/project-structure/)
+- [各語言的專案結構](./language-patterns.md) — 逐語言的實際目錄配置（Node.js/TypeScript、Python、Go 等）。要為某個特定語言擺放專案結構時讀它。
+- [核心：專案結構](../../core/project-structure.md)
+- [核心：文件結構](../../core/documentation-structure.md)
+- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
+- [AI：專案結構選項](../../../../ai/options/project-structure/)

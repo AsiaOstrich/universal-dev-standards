@@ -3,15 +3,16 @@ name: e2e
 source: ../../../../skills/e2e-assistant/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-12
+source_hash: 847c1498d429
 status: current
+scope: partial
 description: |
   [UDS] 從 BDD 的 .feature 場景產生 E2E 測試骨架，並支援框架偵測與覆蓋缺口分析。
   Use when: 把已完成的 .feature 場景轉成可執行的 E2E 骨架、偵測專案使用的 E2E 框架、找出沒有 E2E 覆蓋的 AC。
   Not for: 跨多個故事且帶有共用狀態的旅程——請用 journey-test Skill；撰寫 .feature 場景本身——請用 /bdd。
   Keywords: E2E, end-to-end test, feature file, test skeleton, framework detection, 端對端測試, 測試骨架, 場景轉測試, 覆蓋缺口.
 allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*)
-scope: partial
 argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 ---
 
@@ -57,11 +58,25 @@ argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 
 ## 支援框架
 
-| 框架 | 自動偵測 | 範本 |
-|------|:--------:|------|
-| Playwright | ✅ | `@playwright/test` |
-| Cypress | ✅ | `cy.*` 指令 |
-| Vitest | ✅ | `describe/it` + async |
+| 生態系 | 框架 | 自動偵測 | 偵測訊號 |
+|--------|------|:--------:|----------|
+| JavaScript | Playwright | ✅ | package.json 中有 `@playwright/test` |
+| JavaScript | Cypress | ✅ | `cypress` 相依套件 + 設定檔 |
+| JavaScript | Vitest | ✅ | `vitest` 相依套件 + e2e 目錄 |
+| JavaScript | WebdriverIO | ❌ 手動 | 列於 SUPPORTED_FRAMEWORKS |
+| Python | pytest-playwright | ✅ | requirements 中有 `pytest-playwright` |
+| Python | Selenium + pytest | ✅ | requirements 中有 `selenium` |
+| Python | Robot Framework | ✅ | requirements 中有 `robotframework` |
+| Python | Behave | ✅ | requirements 中有 `behave` |
+| Go | chromedp | ✅ | go.mod 中有 `chromedp` |
+| Go | rod | ✅ | go.mod 中有 `rod` |
+| Java | Selenium WebDriver | ✅ | pom.xml / build.gradle 中有 `selenium-java` |
+| Java | Playwright for Java | ✅ | pom.xml / build.gradle 中有 `playwright` |
+| Java | Gauge | ✅ | pom.xml / build.gradle 中有 `gauge-java` |
+| Ruby | Capybara | ✅ | Gemfile 中有 `capybara` |
+| Ruby | Watir | ✅ | Gemfile 中有 `watir` |
+| C# | Playwright for .NET | ❌ 手動 | 尚未支援自動偵測 |
+| C# | Selenium WebDriver | ❌ 手動 | 尚未支援自動偵測 |
 
 ## 使用方式
 
