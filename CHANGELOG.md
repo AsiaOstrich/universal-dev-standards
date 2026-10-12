@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.10] - 2026-10-12
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md).
+>
 > **Behavior changes:** the **traditional-chinese commit option now means an English type with a Chinese subject** (`feat(user): 新增部門端點`), and a Chinese type such as `新增(認證): ...` is judged non-compliant by `uds simulate -s commit-message`; `uds update --apply` no longer counts or deletes the `.uds-backup-*` folders an older UDS left in the project root; `uds release` subcommands take the release mode from the manifest's `options.release_mode` when `.standards/release-config.yaml` is missing (they used to fall back to `ci-cd`); `uds run` prints a warning when YAML drops text after a space and `#` in a command; `uds uninstall` removes the `.claude/` (or other tool) folder it leaves empty.
 
 ### Changed
