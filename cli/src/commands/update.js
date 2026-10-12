@@ -3511,14 +3511,14 @@ function takeStepBackup(projectPath, label, installations, kind) {
     console.log();
     return { ok: false };
   }
-  cleanupBackupsQuietly(projectPath);
-  return { ok: true, backupId: backup.backupId };
+  return { ok: true, backupId: backup.backupId, cleanup: cleanupBackupsQuietly(projectPath) };
 }
 
 /** The step is over (its last manifest write is done): record what it created, and say how to undo it. */
 function finishStepBackup(projectPath, backup) {
   finalizeBackup(projectPath, backup.backupId);
   printBackupLocation(backup.backupId);
+  printBackupCleanup(backup.cleanup);
 }
 
 /**
@@ -3534,9 +3534,34 @@ function printBackupLocation(backupId) {
 
 function cleanupBackupsQuietly(projectPath) {
   try {
-    cleanupBackups(projectPath);
+    return cleanupBackups(projectPath);
   } catch {
     // an old backup that cannot be removed is not a reason to stop the update
+    return null;
+  }
+}
+
+/**
+ * Say what the backup limit did (XSPEC-475 R2). A backup is the adopter's data: one deleted without a word
+ * is how an adopter loses the only copy of something version control cannot give back.
+ *  - every backup removed because `.uds-backups/` holds more than the limit is named;
+ *  - backups an older UDS left in the project root (`.uds-backup-*`) are never removed by the limit; they
+ *    are listed here with a suggestion to move them out themselves.
+ * // implements XSPEC-475 R2
+ */
+function printBackupCleanup(cleanup) {
+  if (!cleanup) return;
+  const removed = cleanup.removed || [];
+  const legacy = cleanup.legacyKept || [];
+  if (removed.length > 0) {
+    console.log(chalk.yellow(`  Removed ${removed.length} old backup(s) beyond the limit of ${cleanup.keep} in .uds-backups/:`));
+    for (const id of removed) console.log(chalk.yellow(`    ✕ ${id}`));
+  }
+  for (const err of cleanup.errors || []) console.log(chalk.red(`  ${err}`));
+  if (legacy.length > 0) {
+    console.log(chalk.yellow(`  ${legacy.length} backup(s) from an older UDS are still in the project root and were NOT removed by the limit:`));
+    for (const id of legacy) console.log(chalk.yellow(`    - ${id}`));
+    console.log(chalk.gray('  UDS never deletes these. If you need them, move them out of the project yourself (for example, to a folder outside the repository).'));
   }
 }
 
@@ -3721,6 +3746,7 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
 
   if (result.execution?.backupId) {
     printBackupLocation(result.execution.backupId);
+    printBackupCleanup(result.execution.backupCleanup);
   }
 
   if (result.errors.length > 0) {

@@ -172,20 +172,22 @@ const COMMIT_TYPE_TEMPLATES = {
     format: '<type>(<scope>): <subject>',
     formatNote: 'English types for maximum tool compatibility'
   },
+  // XSPEC-475 OQ1: English types, Traditional Chinese subject. It used to list Chinese types (功能, 修正, ...), which the
+  // commit-message simulator could not read and no adopter's commitlint type-enum allowed.
   'traditional-chinese': {
     types: [
-      { type: '功能', english: 'feat', description: '新功能', example: '功能(認證): 新增 OAuth2 登入' },
-      { type: '修正', english: 'fix', description: '錯誤修正', example: '修正(api): 處理空值回應' },
-      { type: '文件', english: 'docs', description: '文件更新', example: '文件(readme): 更新安裝指南' },
-      { type: '樣式', english: 'style', description: '格式調整', example: '樣式(lint): 修正縮排' },
-      { type: '重構', english: 'refactor', description: '程式碼重構', example: '重構(user): 抽取驗證邏輯' },
-      { type: '測試', english: 'test', description: '測試相關', example: '測試(cart): 新增結帳測試' },
-      { type: '雜項', english: 'chore', description: '維護任務', example: '雜項(deps): 更新套件' },
-      { type: '效能', english: 'perf', description: '效能改善', example: '效能(query): 優化資料庫查詢' },
-      { type: '整合', english: 'ci', description: '持續整合', example: '整合(github): 新增部署流程' }
+      { type: 'feat', description: '新功能', example: 'feat(auth): 新增 OAuth2 登入' },
+      { type: 'fix', description: '錯誤修正', example: 'fix(api): 處理空值回應' },
+      { type: 'docs', description: '文件更新', example: 'docs(readme): 更新安裝指南' },
+      { type: 'style', description: '格式調整', example: 'style(lint): 修正縮排' },
+      { type: 'refactor', description: '程式碼重構', example: 'refactor(user): 抽取驗證邏輯' },
+      { type: 'test', description: '測試相關', example: 'test(cart): 新增結帳測試' },
+      { type: 'chore', description: '維護任務', example: 'chore(deps): 更新套件' },
+      { type: 'perf', description: '效能改善', example: 'perf(query): 優化資料庫查詢' },
+      { type: 'ci', description: '持續整合', example: 'ci(github): 新增部署流程' }
     ],
-    format: '<類型>(<範圍>): <主旨>',
-    formatNote: '類型使用中文，範圍可使用英文或中文'
+    format: '<type>(<scope>): <主旨>',
+    formatNote: '類型使用英文（與 english 選項相同，不可用中文類型），主旨與本文使用繁體中文，範圍可使用英文或中文'
   },
   bilingual: {
     types: [
@@ -233,10 +235,10 @@ function generateCommitTypesTable(outputLanguage, format = 'markdown') {
 
   if (format === 'markdown') {
     if (outputLanguage === 'traditional-chinese') {
-      lines.push('| 類型 | 英文對照 | 說明 | 範例 |');
-      lines.push('|------|----------|------|------|');
+      lines.push('| 類型 | 說明 | 範例 |');
+      lines.push('|------|------|------|');
       for (const t of template.types) {
-        lines.push(`| \`${t.type}\` | ${t.english} | ${t.description} | ${t.example} |`);
+        lines.push(`| \`${t.type}\` | ${t.description} | ${t.example} |`);
       }
     } else if (outputLanguage === 'bilingual') {
       lines.push('| Type | EN Description | 中文說明 | Example |');
@@ -263,7 +265,7 @@ function generateCommitTypesTable(outputLanguage, format = 'markdown') {
     // Plaintext format
     if (outputLanguage === 'traditional-chinese') {
       for (const t of template.types) {
-        lines.push(`- ${t.type} (${t.english}): ${t.description}`);
+        lines.push(`- ${t.type}: ${t.description}`);
       }
     } else if (outputLanguage === 'bilingual' || outputLanguage === 'bilingual-zhcn') {
       for (const t of template.types) {
@@ -2625,12 +2627,12 @@ function generateOutputLanguageDirective(outputLanguage, language) {
 
   if (outputLanguage === 'traditional-chinese') {
     if (language === 'zh-tw') {
-      return '## 提交訊息語言\n所有提交訊息必須使用**繁體中文**撰寫。\n格式：`<類型>(<範圍>): <主旨>`';
+      return '## 提交訊息語言\n所有提交訊息的主旨與本文必須使用**繁體中文**撰寫；類型維持英文（feat、fix、docs 等）。\n格式：`<type>(<scope>): <主旨>`';
     }
     if (language === 'zh-cn') {
-      return '## 提交消息语言\n所有提交消息必须使用**繁体中文**撰写。\n格式：`<类型>(<范围>): <主旨>`';
+      return '## 提交消息语言\n所有提交消息的主旨与正文必须使用**繁体中文**撰写；类型保持英文（feat、fix、docs 等）。\n格式：`<type>(<scope>): <主旨>`';
     }
-    return '## Commit Message Language\nWrite all commit messages in **Traditional Chinese (繁體中文)**.\nFormat: `<類型>(<範圍>): <主旨>`';
+    return '## Commit Message Language\nWrite the subject and body of all commit messages in **Traditional Chinese (繁體中文)**; keep the type English (feat, fix, docs, ...).\nFormat: `<type>(<scope>): <主旨>`';
   }
 
   if (outputLanguage === 'simplified-chinese') {

@@ -42,27 +42,29 @@ feat(auth): Add OAuth2 Google login support
 
 ## Option B: Traditional Chinese (台灣團隊)
 
-Use for local teams preferring native language.
+Use for local teams preferring native language. The **type stays English** (same list as Option A, so commitlint and other tools can read it); the **subject and body are Traditional Chinese**. A Chinese type such as `新增` is not allowed.
 
-| 類型 | 使用時機 | English |
-|------|----------|----------|
-| `新增` | 新功能 | feat |
-| `修正` | Bug 修復 | fix |
-| `重構` | 重構 | refactor |
-| `文件` | 文件更新 | docs |
-| `樣式` | 格式化 | style |
-| `測試` | 測試 | test |
-| `效能` | 效能改進 | perf |
-| `建置` | 建置系統 | build |
-| `整合` | CI/CD | ci |
-| `維護` | 維護任務 | chore |
-| `回退` | 回退提交 | revert |
-| `安全` | 安全修復 | security |
+| Type | When to Use | 範例 |
+|------|-------------|------|
+| `feat` | New feature | `feat(auth): 加入 OAuth2 登入` |
+| `fix` | Bug fix | `fix(api): 處理空值回應` |
+| `refactor` | Code refactoring | `refactor(core): 簡化驗證邏輯` |
+| `docs` | Documentation | `docs(readme): 更新安裝指南` |
+| `style` | Formatting | `style(lint): 修正縮排` |
+| `test` | Tests | `test(auth): 新增登入單元測試` |
+| `perf` | Performance | `perf(query): 最佳化資料庫查詢` |
+| `build` | Build system | `build(deps): 升級 lodash` |
+| `ci` | CI/CD changes | `ci(github): 新增覆蓋率工作流程` |
+| `chore` | Maintenance | `chore(deps): 更新開發相依套件` |
+| `revert` | Revert commit | `revert: feat(auth): 加入 OAuth2 登入` |
+| `security` | Security fix | `security(auth): 修正 XSS 漏洞` |
 
 **Example**:
 ```
-新增(認證): 實作 OAuth2 Google 登入支援
+feat(auth): 實作 OAuth2 Google 登入支援
 ```
+
+> Earlier versions listed Chinese types (`新增`, `修正`, ...). Migrate by writing the English type: `新增`→`feat`, `修正`→`fix`, `重構`→`refactor`, `文件`→`docs`, `樣式`→`style`, `測試`→`test`, `效能`→`perf`, `建置`→`build`, `整合`→`ci`, `維護`→`chore`, `回退`→`revert`, `安全`→`security`.
 
 ---
 

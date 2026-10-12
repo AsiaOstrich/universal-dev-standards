@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.9
 It installs the published 6.14.0-beta.9 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.9 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 246 steps (239 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 246 步（239 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 267 steps (260 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 267 步（260 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -792,6 +792,69 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 246 steps (239
 246. `r4b-update-beta` — uds update --beta reports the newer beta that npm has.
    uds update --beta 會回報 npm 上較新的 beta 版。
    `{node} --require {work}/fake-npm.cjs {bin} update --beta --yes` → exit 0; output has "New CLI version available", "Latest on npm: 99.0.0-beta.1"
+247. `xspec475-tc-init` — uds init --output-lang traditional-chinese sets up a project for the commit-message steps of XSPEC-475.
+   uds init --output-lang traditional-chinese 建立專案，供 XSPEC-475 的 commit 訊息步驟使用。
+   `uds init -y --skills-location none --output-lang traditional-chinese` → exit 0; output has "Standards initialized successfully"
+248. `xspec475-tc-option-english-types` (**new 新**) — The installed traditional-chinese commit option lists English types with Chinese examples, not Chinese types.
+   安裝後的繁中 commit 選項列出英文類型與中文範例，不再列中文類型。
+   `uds simulate -s commit-message -i "feat(auth): 加入 OAuth2 登入"` → exit 0
+249. `xspec475-tc-simulate-pass` (**new 新**) — uds simulate -s commit-message passes an English type with a Chinese subject and a Chinese scope under the traditional-chinese option.
+   uds simulate -s commit-message 在繁中選項下接受英文類型加中文主旨與中文 scope。
+   `uds simulate -s commit-message -i "feat(認證): 新增部門端點"` → exit 0; output has "Simulation Passed"
+250. `xspec475-tc-simulate-chinese-type` (**new 新**) — uds simulate -s commit-message fails a Chinese type under the traditional-chinese option and says the type must be English.
+   uds simulate -s commit-message 在繁中選項下判中文類型不合規並說明類型須為英文。
+   `uds simulate -s commit-message -i "新增(認證): 加入 OAuth2 登入"` → exit 1; output has "does not comply", "Type "新增" is not one of: feat" (+1)
+251. `xspec475-tc-simulate-scope-uppercase` (**new 新**) — uds simulate -s commit-message still fails an uppercase scope under the traditional-chinese option.
+   uds simulate -s commit-message 在繁中選項下仍判大寫 scope 不合規。
+   `uds simulate -s commit-message -i "feat(Auth): 加入登入"` → exit 1; output has "Scope "Auth" breaks rule scope-lowercase"
+252. `xspec475-simulate-option-file-chinese-type` (**new 新**) — uds simulate -s commit-message accepts a Chinese type that an installed option file allows, with the option file's own example.
+   uds simulate -s commit-message 接受已安裝選項檔允許的中文類型，連同選項檔自己的範例。
+   `uds simulate -s commit-message -i "新增(認證): 加入 OAuth2 登入"` → exit 0; output has "Simulation Passed"
+253. `xspec475-backups-init` — uds init sets up a Claude Code project for the backup steps of XSPEC-475.
+   uds init 建立專案，供 XSPEC-475 的備份步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+254. `xspec475-backups-legacy-kept` (**new 新**) — uds update --apply leaves the four .uds-backup-* folders of an older UDS in place and lists them.
+   uds update --apply 不動舊版留在根目錄的四個 .uds-backup-* 並列出它們。
+   `uds update --apply --yes --offline` → exit 0; output has "4 backup(s) from an older UDS are still in the project root and were NOT removed by the limit", ".uds-backup-2020-01-01T00-00-00-000Z-0001" (+2)
+255. `xspec475-backups-removed-are-named` (**new 新**) — uds update --apply names each backup the limit of five removes from .uds-backups/ (five already there, one made by the step before, one new: the two oldest go).
+   uds update --apply 逐一點名上限從 .uds-backups/ 刪除的備份。
+   `uds update --apply --yes --offline` → exit 0; output has "Removed 2 old backup(s) beyond the limit of 5 in .uds-backups/", "✕ .uds-backups/2020-02-01T00-00-00-000Z-0001" (+2)
+256. `xspec475-waiting-field-not-found` (**new 新**) — uds open-work waiting says no column was found, lists the headers it saw and how to declare a word.
+   uds open-work waiting 說明找不到欄位、列出看到的表頭與如何宣告詞彙。
+   `uds open-work waiting w.md --now 2026-10-05` → exit 1; output has "No column or label of this record is read as asked-at", "headers seen: "事項", "狀態", "何時問"" (+2)
+257. `xspec475-waiting-declared-words` (**new 新**) — uds open-work waiting --asked-at-word --waiting-for-word reads the project's own column names.
+   uds open-work waiting --asked-at-word --waiting-for-word 讀得出專案自己的欄位名稱。
+   `uds open-work waiting w.md --now 2026-10-05 --asked-at-word 何時問 --waiting-for-word 問什麼` → exit 0; output has "(asked 4d ago)"
+258. `xspec475-next-action-declared-words` (**new 新**) — uds open-work next-action --asked-at-word --waiting-for-word counts the row as waiting-on-reply.
+   uds open-work next-action --asked-at-word --waiting-for-word 把該列算成 waiting-on-reply。
+   `uds open-work next-action w.md --now 2026-10-05 --asked-at-word 何時問 --waiting-for-word 問什麼` → exit 0; output has "waiting-on-reply=1", "waiting for: 報價單; released by: 對方回信"
+259. `xspec475-waiting-declared-in-project-yaml` (**new 新**) — uds open-work waiting reads open_work.asked_at_words and waiting_for_words from uds.project.yaml.
+   uds open-work waiting 讀取 uds.project.yaml 的 open_work.asked_at_words 與 waiting_for_words。
+   `uds open-work waiting w.md --now 2026-10-05` → exit 0; output has "(asked 4d ago)"
+260. `xspec475-release-manifest-mode` (**new 新**) — uds release manifest runs in a project whose UDS manifest records release_mode manual and that has no release-config.yaml.
+   uds release manifest 在 UDS manifest 記錄 release_mode 為 manual 且沒有 release-config.yaml 的專案可執行。
+   `uds release manifest --checksum 09aaab3e2dc189c016d6abe715bff440fff3a637e693d2d1c50b3200bf496a9d` → exit 0; output has "模式 manual 取自 .standards/manifest.json 的 options.release_mode", "找不到 .standards/release-config.yaml" (+1)
+261. `xspec475-release-verify-manifest-mode` (**new 新**) — uds release verify runs in manual mode taken from the manifest and verifies the artifact.
+   uds release verify 以取自 manifest 的 manual 模式執行並驗證 artifact。
+   `uds release verify --artifact app.bin` → exit 0; output has "Manifest 驗證通過", "模式 manual 取自 .standards/manifest.json 的 options.release_mode" (+1)
+262. `xspec475-release-verify-says-why` (**new 新**) — uds release verify refuses with exit 2 and says release-config.yaml is missing and the manifest records ci-cd.
+   uds release verify 以 2 拒絕，並說明缺 release-config.yaml 且 manifest 記錄 ci-cd。
+   `uds release verify` → exit 2; output has "verify 子命令僅在 manual 或 hybrid 模式下可用", "找不到 .standards/release-config.yaml" (+1)
+263. `xspec475-spec-list-chinese-status` (**new 新**) — uds spec list reads a status written as | 狀態 | Approved | or 狀態: Draft.
+   uds spec list 讀得出以「| 狀態 | Approved |」或「狀態: Draft」寫的狀態。
+   `uds spec list` → exit 0; output has "/^SPEC-010-table\s+approved\s+-\s+部門介面規格/", "/^SPEC-011-bold\s+draft\s+-\s+\[SPEC-011\] 登入規格/"
+264. `xspec475-next-action-slash-command` (**new 新**) — uds open-work next-action counts /work as a command, not as a missing path.
+   uds open-work next-action 把 /work 算成指令，而不是找不到的路徑。
+   `uds open-work next-action w.md` → exit 0; output has "named-unresolved=2 unnamed=0", "path-missing=0 not-resolvable=2"
+265. `xspec475-run-warns-dropped-comment` (**new 新**) — uds run --dry-run warns that YAML dropped the text after a space and # in an unquoted command.
+   uds run --dry-run 警告 YAML 把未加引號指令中「空白加 #」之後的文字丟掉了。
+   `uds run build --dry-run` → exit 0; output has "空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept'"", "請把整個值用引號包起來"
+266. `xspec475-uninstall-init` — uds init sets up a project whose .claude/ holds only what UDS wrote, for the uninstall step of XSPEC-475.
+   uds init 建立專案，.claude/ 只有 UDS 寫的東西，供 XSPEC-475 的 uninstall 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+267. `xspec475-uninstall-removes-empty-claude-dir` (**new 新**) — uds uninstall leaves no empty .claude/ folder.
+   uds uninstall 不留下空的 .claude/ 資料夾。
+   `{node} uninstall-case.cjs {bin} uninstall --yes` → exit 0; output has "Uninstall complete", "CLAUDE-DIR-EXISTS=false"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

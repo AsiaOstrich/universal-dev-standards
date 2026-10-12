@@ -1,100 +1,108 @@
 # 繁体中文提交格式 - AI 优化选项
 # 父项: commit-message
+#
+# 2.0.0（XSPEC-475 OQ1）：类型使用英文（feat、fix……，与 english 选项相同），主旨与正文使用繁体中文。
+# 2.0.0 之前本文件列的是中文类型（功能、修正……），与人类可读版本及采用者 commitlint 的 type-enum 不一致；
+# 现在不再允许中文类型。
 
 id: traditional-chinese
 meta:
   parent: commit-message
-  version: "1.0.0"
-  description: 使用繁体中文的提交消息格式
+  version: "2.0.0"
+  description: 英文类型加繁体中文主旨的提交消息格式
   language: zh-CN
 
 best_for:
-  - 台灣或香港团队
+  - 台湾或香港团队
   - 使用繁体中文的项目
-  - 文件以繁体中文为主的项目
+  - 文档以繁体中文为主的项目
 
 format:
-  template: "<类型>(<範圍>): <主旨>"
-  note: 类型使用中文，範圍使用英文或中文
+  template: "<type>(<scope>): <繁体中文主旨>"
+  note: 类型使用英文（与 english 选项相同），范围使用小写英文或中文，主旨与正文可用繁体中文
 
 types:
-  - type: 功能
-    english: feat
+  - type: feat
     description: 新功能
+    example: "feat(auth): 加入 OAuth2 登入"
 
-  - type: 修正
-    english: fix
+  - type: fix
     description: 错误修正
+    example: "fix(api): 處理空值回應"
 
-  - type: 重構
-    english: refactor
-    description: 程序码重構
+  - type: refactor
+    description: 程序码重构（无功能变更）
+    example: "refactor(core): 簡化驗證邏輯"
 
-  - type: 文件
-    english: docs
-    description: 文件更新
+  - type: docs
+    description: 仅文档更新
+    example: "docs(readme): 更新安裝指南"
 
-  - type: 样式
-    english: style
-    description: 格式調整
+  - type: style
+    description: 格式调整（无逻辑变更）
+    example: "style(lint): 修正縮排"
 
-  - type: 测试
-    english: test
-    description: 测试相关
+  - type: test
+    description: 新增或更新测试
+    example: "test(auth): 新增登入單元測試"
 
-  - type: 效能
-    english: perf
-    description: 效能改善
+  - type: perf
+    description: 性能改善
+    example: "perf(query): 最佳化資料庫查詢"
 
-  - type: 建置
-    english: build
-    description: 建置系统
+  - type: build
+    description: 构建系统或依赖
+    example: "build(deps): 升級 lodash 至 4.17.21"
 
-  - type: 集成
-    english: ci
-    description: 持續集成
+  - type: ci
+    description: CI/CD 流程变更
+    example: "ci(github): 新增程式碼覆蓋率工作流程"
 
-  - type: 雜项
-    english: chore
-    description: 維護任务
+  - type: chore
+    description: 维护任务
+    example: "chore(deps): 更新開發相依套件"
 
-  - type: 安全
-    english: security
-    description: 安全修正
+  - type: revert
+    description: 还原先前提交
+    example: "revert: feat(auth): 加入 OAuth2 登入"
+
+  - type: security
+    description: 安全漏洞修正
+    example: "security(auth): 修正 XSS 漏洞"
 
 rules:
-  - id: chinese-type
-    trigger: 撰写提交標頭时
-    instruction: 使用中文类型（功能、修正、重構等）
+  - id: english-type
+    trigger: 撰写提交标头时
+    instruction: 使用英文类型（feat、fix、docs 等）；不可使用中文类型（例如 新增）
     priority: required
 
   - id: chinese-subject
     trigger: 撰写主旨时
     instruction: 以繁体中文撰写主旨
-    priority: required
+    priority: recommended
 
   - id: chinese-body
-    trigger: 撰写內文时
-    instruction: 以繁体中文撰写內文
-    priority: required
+    trigger: 撰写正文时
+    instruction: 以繁体中文撰写正文
+    priority: recommended
 
 examples:
-  simple: "功能(认证): 新增 OAuth2 登入支援"
+  simple: "feat(auth): 加入 OAuth2 登入支援"
   with_body: |
-    功能(认证): 新增 OAuth2 Google 登入支援
+    feat(auth): 加入 OAuth2 Google 登入支援
 
-    实作 Google OAuth2 认证流程供使用者登入。
+    實作 Google OAuth2 認證流程供使用者登入。
 
-    - 集成 Google OAuth2 SDK
-    - 建立 OAuth 流程回呼端点
-    - 安全储存更新权杖
+    - 整合 Google OAuth2 SDK
+    - 建立 OAuth 流程回呼端點
+    - 安全儲存更新權杖
 
-    关閉 #123
+    關閉 #123
   breaking: |
-    功能(api)!: 变更使用者端点响应格式
+    feat(api)!: 變更使用者端點回應格式
 
-    破壞性变更: 使用者 API 响应格式已变更
+    破壞性變更: 使用者 API 回應格式已變更
 
-    迁移指南：
-    1. 更新 API 客户端移除 .data 包裝
+    遷移指南：
+    1. 更新 API 客戶端移除 .data 包裝
     2. 使用 created_at 取代 createdAt

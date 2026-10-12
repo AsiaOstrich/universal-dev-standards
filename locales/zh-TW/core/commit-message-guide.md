@@ -1,9 +1,9 @@
 ---
 source: ../../../core/commit-message-guide.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-10-11
-source_hash: 2e552e4a7f41
+source_version: 1.4.0
+translation_version: 1.4.0
+last_synced: 2026-10-12
+source_hash: 8bf9a79dc6d1
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **語言**: [English](../../../core/commit-message-guide.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2025-12-24
+**版本**: 1.4.0
+**最後更新**: 2026-10-12
 **適用範圍**: 所有使用 Git 版本控制的專案
 **範圍**: universal
 **業界標準**: Conventional Commits 1.0.0
@@ -73,22 +73,24 @@ status: current
 
 ### 選項 B: 繁體中文（台灣團隊適用）
 
-使用繁體中文類型，適合偏好母語提交的本地團隊。
+使用**選項 A 的英文類型**，主旨與本文使用繁體中文，適合偏好母語提交的本地團隊。類型維持英文，因為工具會讀它（commitlint `type-enum`、changelog 產生器、`uds simulate`）；只有主旨與本文是中文。**不可**使用 `新增` 這類中文類型。
 
-| 類型   | 使用時機             | 對應英文類型 |
-| ------ | -------------------- | ------------ |
-| `新增` | 新功能               | feat         |
-| `修正` | Bug 修復             | fix          |
-| `重構` | 重構                 | refactor     |
-| `文件` | 僅文件更新           | docs         |
-| `樣式` | 僅格式化             | style        |
-| `測試` | 新增或更新測試       | test         |
-| `效能` | 效能                 | perf         |
-| `建置` | 建置系統             | build        |
-| `整合` | CI/CD 變更           | ci           |
-| `維護` | 維護                 | chore        |
-| `回退` | 回退提交             | revert       |
-| `安全` | 安全修復             | security     |
+| 類型       | 使用時機       | 範例                                   |
+| ---------- | -------------- | -------------------------------------- |
+| `feat`     | 新功能         | `feat(auth): 加入 OAuth2 登入`         |
+| `fix`      | Bug 修復       | `fix(api): 處理空值回應`               |
+| `refactor` | 重構           | `refactor(core): 簡化驗證邏輯`         |
+| `docs`     | 僅文件更新     | `docs(readme): 更新安裝指南`           |
+| `style`    | 僅格式化       | `style(lint): 修正縮排`                |
+| `test`     | 新增或更新測試 | `test(auth): 新增登入單元測試`         |
+| `perf`     | 效能           | `perf(query): 最佳化資料庫查詢`        |
+| `build`    | 建置系統       | `build(deps): 升級 lodash`             |
+| `ci`       | CI/CD 變更     | `ci(github): 新增覆蓋率工作流程`       |
+| `chore`    | 維護           | `chore(deps): 更新開發相依套件`        |
+| `revert`   | 回退提交       | `revert: feat(auth): 加入 OAuth2 登入` |
+| `security` | 安全修復       | `security(auth): 修正 XSS 漏洞`        |
+
+> **1.4.0 變更**（XSPEC-475）：舊版本此選項列出中文類型（`新增`、`修正`……）。現在不再允許；曾使用的專案改寫成對應的英文類型即可（`新增`→`feat`、`修正`→`fix`、`重構`→`refactor`、`文件`→`docs`、`樣式`→`style`、`測試`→`test`、`效能`→`perf`、`建置`→`build`、`整合`→`ci`、`維護`→`chore`、`回退`→`revert`、`安全`→`security`）。
 
 ### 選項 C: 雙語對照模式（推薦）
 
@@ -160,7 +162,7 @@ Closes #123
 本專案使用**英文** commit 類型（feat, fix, refactor 等）
 
 <!-- 選項 B: 繁體中文 -->
-本專案使用**繁體中文** commit 類型（新增、修正、重構等）
+本專案使用**英文** commit 類型（feat, fix, refactor 等），主旨與本文使用**繁體中文**
 
 <!-- 選項 C: 雙語對照模式 -->
 本專案使用**雙語對照模式**，type/scope 使用英文，subject/body 採用雙語對照。
@@ -945,6 +947,7 @@ Closes #123
 
 | 版本  | 日期       | 變更                                                                       |
 | ----- | ---------- | -------------------------------------------------------------------------- |
+| 1.4.0 | 2026-10-12 | 變更：選項 B（繁體中文）改用英文類型加繁體中文主旨；不再允許中文類型（新增、修正……），並附遷移對照表（XSPEC-475） |
 | 1.3.0 | 2026-03-16 | 新增自訂參考 Footer 慣例（Refs: PREFIX-ID）                                |
 | 1.2.3 | 2025-12-24 | 新增相關標準區段                                                           |
 | 1.2.2 | 2025-12-16 | 新增語言選擇指南，含決策矩陣和快速選擇提示                                 |

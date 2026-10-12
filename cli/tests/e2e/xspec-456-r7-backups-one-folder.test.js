@@ -8,8 +8,9 @@
  * `.gitignore` is never edited).
  *
  * Backups made by an older UDS stay where they are (`.uds-backup-*` in the project root). They are still
- * backups: `--rollback`, the chain between consecutive steps and the "keep the 5 most recent" rule look at
- * both places and order them together by time.
+ * backups: `--rollback` and the chain between consecutive steps look at both places and order them together
+ * by time. (The "keep the 5 most recent" limit counts only `.uds-backups/` since XSPEC-475 R2: the old-layout ones
+ * are never removed by it. See xspec-475-r2-update-names-backups.test.js.)
  *
  * Every test spawns the real CLI (`uds update ...`, `uds update --rollback`, `uds uninstall`) in a throwaway
  * project and reads the folders, files and `git status` back.
@@ -112,7 +113,7 @@ it('uds update --apply and --apply --skills put every backup in one .uds-backups
   expect(rb.stdout).toContain(`.uds-backups/${ids[1]}`);
 });
 
-it('uds update --rollback undoes the newest backup together with an older-layout .uds-backup-* one, and the old one counts toward the five kept (XSPEC-456 R7)', async () => {
+it('uds update --rollback undoes the newest backup together with an older-layout .uds-backup-* one (XSPEC-456 R7)', async () => {
   const dir = await h.newProject();
   ageProject(dir);
 
@@ -140,7 +141,7 @@ it('uds update --rollback undoes the newest backup together with an older-layout
   expect(readFileSync(join(dir, '.standards', 'checkin-standards.ai.yaml'), 'utf-8')).toMatch(/^# older edition \(XSPEC-456 R7 test fixture\)/);
 });
 
-it('uds update keeps five backups in all: old-layout and new-layout together, oldest first out (XSPEC-456 R7)', async () => {
+it('uds update keeps the five old-layout backups an older UDS left: the limit of five counts .uds-backups/ only (XSPEC-456 R7, as changed by XSPEC-475 R2)', async () => {
   const dir = await h.newProject();
   ageProject(dir);
 
@@ -157,8 +158,7 @@ it('uds update keeps five backups in all: old-layout and new-layout together, ol
   expect(run.code, run.stdout + run.stderr).toBe(0);
 
   expect(newIds(dir).length, 'the new backup is kept').toBe(1);
-  expect(legacyIds(dir), 'the oldest old-layout backup went; the four newest stay').toEqual(old.slice(1));
-  expect(legacyIds(dir).length + newIds(dir).length, 'five in all').toBe(5);
+  expect(legacyIds(dir), 'no old-layout backup is removed by the limit').toEqual(old);
 });
 
 it('uds uninstall leaves the backups folder exactly as it was: it never touched backups and still does not (XSPEC-456 R7)', async () => {

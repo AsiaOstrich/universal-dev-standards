@@ -14,8 +14,8 @@
  * Before 6.14.0 (this change) every backup was its own folder in the project root, `.uds-backup-<ISO timestamp>/`.
  * Those are NOT moved, and they are still backups: `backupId` is the backup folder's path relative to the
  * project root (`.uds-backups/<time>-<NNNN>` or `.uds-backup-<time>-<NNNN>`), so every place that builds a
- * path from it works for both layouts, and listing, chaining, rollback and "keep the 5 most recent" look at
- * both places and order them together by time.
+ * path from it works for both layouts, and listing, chaining and rollback look at both places and order them together by time.
+ * The "keep the 5 most recent" limit counts only `.uds-backups/` (XSPEC-475 R2).
  *
  * Only the paths a step will touch are backed up (minimal footprint). Keeps the 5 most recent
  * backups; auto-cleans older ones.
@@ -47,7 +47,7 @@ import {
 } from 'fs';
 import { createHash } from 'crypto';
 import { join, dirname, isAbsolute, sep } from 'path';
-import { newBackupId, ensureBackupsDir, sharedBackupIds, addLegacyBackupIds } from './backup-locations.js';
+import { newBackupId, ensureBackupsDir, sharedBackupIds, addLegacyBackupIds, isSharedBackupId } from './backup-locations.js';
 
 const MAX_BACKUPS = 5;
 const MANIFEST_REL = '.standards/manifest.json';
@@ -574,22 +574,30 @@ export function listBackups(projectPath) {
 }
 
 /**
- * Clean up old backups, keeping only the most recent N.
+ * Clean up old backups, keeping only the most recent N in the shared folder `.uds-backups/`.
+ * // implements XSPEC-475 R2
+ *
+ * The limit counts ONLY backups in `.uds-backups/`. A backup an older UDS left in the project root
+ * (`.uds-backup-*`) is never removed by the limit - it used to be counted together with the new ones, so an
+ * adopter with 4 old backups lost 2 of them over a three-step upgrade without a word. They are still listed
+ * (for rollback), and returned in `legacyKept` so the caller can name them and suggest moving them.
  *
  * @param {string} projectPath
- * @param {number} [keep=MAX_BACKUPS] - Number of backups to keep
- * @returns {{ removed: string[], errors: string[] }}
+ * @param {number} [keep=MAX_BACKUPS] - Number of backups to keep in `.uds-backups/`
+ * @returns {{ removed: string[], errors: string[], legacyKept: string[], keep: number }}
  */
 export function cleanupBackups(projectPath, keep = MAX_BACKUPS) {
-  const backups = listBackups(projectPath);
+  const all = listBackups(projectPath);
+  const legacyKept = all.filter((b) => !isSharedBackupId(b.backupId)).map((b) => b.backupId);
+  const shared = all.filter((b) => isSharedBackupId(b.backupId));
   const removed = [];
   const errors = [];
 
-  if (backups.length <= keep) {
-    return { removed, errors };
+  if (shared.length <= keep) {
+    return { removed, errors, legacyKept, keep };
   }
 
-  const toRemove = backups.slice(keep);
+  const toRemove = shared.slice(keep);
   for (const backup of toRemove) {
     const backupDir = join(projectPath, backup.backupId);
     try {
@@ -600,5 +608,5 @@ export function cleanupBackups(projectPath, keep = MAX_BACKUPS) {
     }
   }
 
-  return { removed, errors };
+  return { removed, errors, legacyKept, keep };
 }

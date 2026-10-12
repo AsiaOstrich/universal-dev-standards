@@ -184,8 +184,9 @@ english:
   example: "feat(auth): add OAuth2 Google login support"
 
 traditional_chinese:
-  types: [功能, 修復, 重構, 文件, 樣式, 測試, 效能, 建置, CI, 雜項, 回退, 安全]
-  example: "功能(認證): 新增 OAuth2 Google 登入支援"
+  # English types (same as english), Traditional Chinese subject and body. A Chinese type is not allowed (XSPEC-475).
+  types: [feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security]
+  example: "feat(auth): 新增 OAuth2 Google 登入支援"
 
 bilingual:
   format: "type(scope): English subject. 中文主旨.\n\nEnglish body\n\n中文 body\n\nfooter"

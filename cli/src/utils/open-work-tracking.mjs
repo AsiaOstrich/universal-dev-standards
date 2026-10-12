@@ -130,7 +130,7 @@
  *   uds open-work revision --file PATH --base GIT_REV
  *   uds open-work revision --before FILE --after FILE
  *   uds open-work separation <file...> [--next-action-word WORD ...]
- *   uds open-work waiting <file...> [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now YYYY-MM-DD]
+ *   uds open-work waiting <file...> [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now YYYY-MM-DD] [--asked-at-word WORD ...] [--waiting-for-word WORD ...]
  *   uds open-work observations <file...> [--now YYYY-MM-DD] [--stale-after DAYS]
  *   uds open-work self-test
  *   node scripts/check-open-work-tracking.mjs next-action <file...> ...   (repo clone)
@@ -200,6 +200,34 @@ export function normaliseDeclaredWords(raw = []) {
     if (!words.some((x) => x.toLowerCase() === word.toLowerCase())) words.push(word);
   }
   return { words, error: null };
+}
+
+/**
+ * Field words an adopter declares for the waiting checks (XSPEC-475 R3): the words that head the asked-at column and the
+ * "what is it waiting for" column in THIS project's carriers. Same rules as the next-action words: plain text, never a
+ * pattern, case-insensitive, and a blank one is refused (an empty alternative would match every header).
+ * @param {string[]} raw
+ * @param {string} flag - the option name, for the message (for example `--asked-at-word`)
+ * @param {string} example - a word to show in the message
+ * @returns {{words:string[], error:string|null}}
+ */
+export function normaliseDeclaredFieldWords(raw = [], flag = '--asked-at-word', example = '何時問') {
+  const words = [];
+  for (const w of raw) {
+    const word = typeof w === 'string' ? w.replace(/\s+/g, ' ').trim() : '';
+    if (!word) return { words: [], error: `a declared ${flag} is empty or blank; it would match every header, so it is refused (give the exact word, for example ${flag} ${example})` }; // [mutation-anchor:blank-field-word-refused]
+    if (!words.some((x) => x.toLowerCase() === word.toLowerCase())) words.push(word);
+  }
+  return { words, error: null };
+}
+
+/** `--asked-at-word` and `--waiting-for-word`, validated: `{ words: { askedAt, awaiting }, error }`. */
+function declaredRoleWords(flagAll) {
+  const askedAt = normaliseDeclaredFieldWords(flagAll('--asked-at-word'), '--asked-at-word', '何時問');
+  if (askedAt.error) return { words: {}, error: askedAt.error };
+  const awaiting = normaliseDeclaredFieldWords(flagAll('--waiting-for-word'), '--waiting-for-word', '問什麼');
+  if (awaiting.error) return { words: {}, error: awaiting.error };
+  return { words: { askedAt: askedAt.words, awaiting: awaiting.words }, error: null };
 }
 
 /**
@@ -553,9 +581,14 @@ export function checkSeparation(carriers, opts = {}) {
 
 const stripPunct = (s) => s.replace(/^[("'「『“]+|[)"'」』”.,;:!?、。，；：）]+$/g, '');
 
+// A slash command (`/work`, `/sdd`): one leading slash and one word, no extension. It names an action to run, not a file.
+// XSPEC-475 R5(b): it used to be read as the absolute path `/work` and reported path-missing.
+const SLASH_COMMAND = /^\/[A-Za-z][\w-]*$/;
+
 function pathLike(tok, inCode) {
   const t = stripPunct(tok).replace(/:\d+(?::\d+)?$/, '');
   if (!t || /\s/.test(t) || /^[a-z][a-z0-9+.-]*:\/\//i.test(t)) return null;
+  if (SLASH_COMMAND.test(t)) return null; // [mutation-anchor:slash-command-not-path]
   const segs = t.split('/');
   const last = segs[segs.length - 1];
   const ext = /\.([A-Za-z0-9]+)$/.exec(last);
@@ -581,7 +614,8 @@ export function classifyNextAction(text, opts = {}) {
   const prose = text.replace(/`([^`]+)`/g, (_, c) => {
     const code = c.trim();
     const first = code.split(/\s+/)[0].replace(/^\$\s*/, '');
-    if (pathLike(code, true)) push('path', pathLike(code, true)); // [mutation-anchor:kind-path]
+    if (/^\/[A-Za-z][\w-]*(?:\s|$)/.test(code)) push('command', code); // a slash command, with or without arguments (XSPEC-475 R5(b))
+    else if (pathLike(code, true)) push('path', pathLike(code, true)); // [mutation-anchor:kind-path]
     else if (commands.includes(first) || /^\.{1,2}\//.test(first)) push('command', code); // [mutation-anchor:kind-command]
     else if (/\.(?:test|spec)\.[cm]?[jt]sx?|(?:^|[\s/])test_\w+|::/.test(code)) push('test', code); // [mutation-anchor:kind-test]
     else {
@@ -596,6 +630,7 @@ export function classifyNextAction(text, opts = {}) {
   for (const tok of prose.split(/\s+/)) {
     const p = pathLike(tok, false);
     if (p) push('path', p);
+    else if (SLASH_COMMAND.test(stripPunct(tok))) push('command', stripPunct(tok));
   }
   const cmdRe = new RegExp(`(?:^|[^\\w-])(${commands.map(escapeRegExp).join('|')})\\s+([-@\\w./:]+)`, 'g');
   let m;
@@ -738,7 +773,7 @@ export function checkNextActions(carriers, opts = {}) {
   const staleAfter = opts.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
   const res = { walked: 0, empty: 0, counts: { 'named-resolved': 0, 'named-unresolved': 0, unnamed: 0, 'waiting-on-reply': 0 }, unresolvedSplit: { 'path-missing': 0, 'not-resolvable': 0 }, violations: [], detail: [], noFieldCarriers: [], undecidable: [], waitingOnReply: [], staleAfter };
   // No project is declared, so no other project is looked up: this call reads the carriers' own rows and nothing else.
-  const rows = checkWaiting(carriers, { now, root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands, projects: new Map() }).records;
+  const rows = checkWaiting(carriers, { now, root: opts.root, idPattern: opts.idPattern, extraCommands: opts.extraCommands, roleWords: opts.roleWords, projects: new Map() }).records;
   for (const c of carriers) {
     const { fields, items, ragged } = extractNextActions(c.content, opts.words);
     for (const g of ragged) res.undecidable.push({ path: c.path, ...g });
@@ -897,7 +932,28 @@ export const DEFAULT_STALE_AFTER_DAYS = 7;
 const BLANK_FIELD = /^(?:|-+|—|–|n\/?a|none|tbd|\?+|無|待定|未知|unknown)$/i;
 const stripMd = (s) => s.replace(/\*\*|__|`/g, '').trim();
 
-const rolesOf = (header) => Object.entries(VOCAB_STATE.roles).filter(([, re]) => re.test(header)).map(([role]) => role);
+/** A regex for words the adopter declared for one role, or null when there are none. Plain text, any case. */
+const plainAlternation = (words) => words.map((w) => escapeRegExp(w)).join('|');
+const declaredRoleRegExp = (words = []) => (words.length ? new RegExp(plainAlternation(words), 'i') : null);
+
+/**
+ * The roles a header (or label) plays: the built-in vocabulary, plus the words the adopter declared for `askedAt` and
+ * `awaiting` (XSPEC-475 R3). `roleWords` is `{ askedAt: string[], awaiting: string[] }`.
+ */
+const rolesOf = (header, roleWords = {}) => {
+  const roles = Object.entries(VOCAB_STATE.roles).filter(([, re]) => re.test(header)).map(([role]) => role);
+  for (const role of ['askedAt', 'awaiting']) {
+    if (!roles.includes(role) && declaredRoleRegExp(roleWords[role])?.test(header)) roles.push(role); // [mutation-anchor:declared-role-word]
+  }
+  return roles;
+};
+
+/** The words that are read as these roles out of the box, for a message that says what is accepted. */
+const ACCEPTED_ROLE_WORDS = {
+  askedAt: 'asked-at, asked on, asked date, 詢問時間, 詢問日期, 發問時間, 發問日期, 送出時間, 送出日期, 寄出時間, 寄出日期, 已問時間, 已問日期, 問於',
+  awaiting: 'waiting for, waiting on, awaiting, blocked on, 等什麼, 等待對象, 等待什麼, 等待內容, 等誰',
+  release: 'release, unblock, 解除, 放行',
+};
 
 // inline labels in a list item: "status: not-yet-asked; draft: drafts/q.md"
 const LABEL_WORDS = [
@@ -917,9 +973,10 @@ const LABEL_WORDS = [
   ['nextAction', VOCAB.nextAction],
 ];
 
-function parseRoleLabels(text) {
+function parseRoleLabels(text, roleWords = {}) {
   const hits = [];
-  for (const [role, word] of LABEL_WORDS) {
+  const declaredLabels = ['askedAt', 'awaiting'].filter((role) => (roleWords[role] || []).length).map((role) => [role, { source: plainAlternation(roleWords[role]) }]);
+  for (const [role, word] of [...LABEL_WORDS, ...declaredLabels]) {
     const re = new RegExp(`(?:^|[;；,，|(（]\\s*|\\s)(${word.source})[\\w\\s-]{0,12}[:：]`, 'gi');
     let m;
     while ((m = re.exec(text)) !== null) {
@@ -950,7 +1007,7 @@ function parseRoleLabels(text) {
  * `ragged`, never read as empty (same rule as the next-action table).
  * @returns {{records:object[], ragged:object[]}}
  */
-export function extractRecords(md) {
+export function extractRecords(md, roleWords = {}) {
   const lines = parseDoc(md);
   const records = [];
   const ragged = [];
@@ -958,7 +1015,7 @@ export function extractRecords(md) {
   for (const t of findTables(lines)) {
     inTable.add(t.headerIdx); inTable.add(t.headerIdx + 1);
     t.rows.forEach((r) => inTable.add(r.idx));
-    const roles = t.header.map(rolesOf);
+    const roles = t.header.map((h) => rolesOf(h, roleWords));
     const columns = new Set(roles.flat());
     if (!columns.size) continue;
     for (const r of t.rows) {
@@ -968,16 +1025,16 @@ export function extractRecords(md) {
       const f = {};
       const fr = {};
       roles.forEach((rs, n) => rs.forEach((role) => { if (f[role] === undefined) { f[role] = stripMd(r.cells[n]); fr[role] = r.cells[n]; } }));
-      records.push({ where, title, f, fr, columns, lineStart: r.idx, lineEnd: r.idx });
+      records.push({ where, title, f, fr, columns, headers: t.header.map(stripMd), lineStart: r.idx, lineEnd: r.idx });
     }
   }
   let cur = null;
   const flush = () => {
     if (cur) {
       const text = cur.parts.join(' ; ');
-      const { f, fr, title } = parseRoleLabels(text);
+      const { f, fr, title } = parseRoleLabels(text, roleWords);
       if (Object.keys(f).length) {
-        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, fr, columns: new Set(Object.keys(f)), lineStart: cur.idx, lineEnd: cur.end });
+        records.push({ where: `list item (line ${cur.idx + 1}, "${clip(title || stripMd(cur.parts[0]), 40)}")`, title: title || stripMd(cur.parts[0]), f, fr, columns: new Set(Object.keys(f)), headers: null, lineStart: cur.idx, lineEnd: cur.end });
       }
     }
     cur = null;
@@ -1153,6 +1210,25 @@ export function resolveReference(ref, projects, env = REAL_ENV) {
   return { status: 'needs-a-person', why: `a ${ref.kind === 'id' ? 'requirement or specification identifier' : ref.kind === 'object' ? 'free-form object' : ref.kind} in another project has nothing this check can read` }; // [mutation-anchor:needs-a-person]
 }
 
+/** The option and uds.project.yaml key that declare a word for each role (XSPEC-475 R3). `release` has none: it is not declarable. */
+const ROLE_DECLARE = {
+  askedAt: { label: 'asked-at', flag: '--asked-at-word', key: 'open_work.asked_at_words' },
+  awaiting: { label: 'what it waits for', flag: '--waiting-for-word', key: 'open_work.waiting_for_words' },
+  release: { label: 'release', flag: null, key: null },
+};
+
+/**
+ * Appended to a violation when the record has NO field read as `role` at all (as opposed to a field that is empty or wrong):
+ * says what was looked for, what the record showed, and how to declare the project's own word. XSPEC-475 R3.
+ */
+function fieldNotFound(record, role, roleWords = {}) {
+  const d = ROLE_DECLARE[role];
+  const seen = record.headers ? `headers seen: ${record.headers.map((h) => `"${clip(h, 30)}"`).join(', ')}` : `labels seen: ${[...record.columns].join(', ')}`;
+  const declared = (roleWords[role] || []).length ? `; declared by you: ${roleWords[role].join(', ')}` : '';
+  const how = d.flag ? ` To declare your own word: ${d.flag} <word>, or ${d.key} in uds.project.yaml.` : '';
+  return `. No column or label of this record is read as ${d.label} (${seen}). Accepted: ${ACCEPTED_ROLE_WORDS[role]}${declared}.${how}`;
+}
+
 /**
  * OWT-020 / OWT-021 / OWT-022. Reads every record that has a status field (OWT-010: a structural
  * field, never prose). `now` is a UTC day (ms); inject it, never read the clock inside a rule.
@@ -1169,8 +1245,9 @@ export function checkWaiting(carriers, opts = {}) {
     // list to decide which rows OWT-019 does not apply to, so the two commands cannot disagree about a row (R2 by construction).
     records: [],
   };
+  const roleWords = opts.roleWords ?? {}; // XSPEC-475 R3: the asked-at / waiting-for words the project declared
   for (const c of carriers) {
-    const { records, ragged } = extractRecords(c.content);
+    const { records, ragged } = extractRecords(c.content, roleWords);
     for (const g of ragged) if (g.columns.has('status')) res.ragged.push({ path: c.path, ...g });
     const withStatus = records.filter((r) => r.f.status !== undefined);
     if (!withStatus.length) { res.noStateCarriers.push(c.path); continue; }
@@ -1209,12 +1286,15 @@ export function checkWaiting(carriers, opts = {}) {
       }
       if (state === 'asked-awaiting') {
         const day = parseDay(r.f.askedAt);
-        if (day === null) bad('OWT-022', r.f.askedAt === undefined || BLANK_FIELD.test(r.f.askedAt ?? '') ? 'is asked-awaiting but has no asked-at' : `has an asked-at that is not a date with a year: "${clip(r.f.askedAt, 40)}"`); // [mutation-anchor:asked-at-required]
+        // XSPEC-475 R3: three different faults, three different messages. A field that was not FOUND is a vocabulary problem (the
+        // project may call the column something else, and can declare it); a field that is blank or not a date is a value problem.
+        if (day === null) bad('OWT-022', r.f.askedAt === undefined ? `is asked-awaiting but has no asked-at${fieldNotFound(r, 'askedAt', roleWords)}` : BLANK_FIELD.test(r.f.askedAt) ? 'is asked-awaiting but has no asked-at' : `has an asked-at that is not a date with a year: "${clip(r.f.askedAt, 40)}"`); // [mutation-anchor:asked-at-required]
         else if (day > now) bad('OWT-022', `has an asked-at (${dayString(day)}) later than today (${dayString(now)})`);
         else { note.push(`asked ${ageDays(now, day)}d ago`); askedDay = day; }
         const hasWhat = r.f.awaiting !== undefined && !BLANK_FIELD.test(r.f.awaiting);
         const hasRelease = r.f.release !== undefined && !BLANK_FIELD.test(r.f.release);
-        if (!(hasWhat && hasRelease)) bad('OWT-022', `is asked-awaiting but does not state ${!hasWhat && !hasRelease ? 'what it waits for and what event releases it' : !hasWhat ? 'what it waits for' : 'what event releases it'} (OWT-002)`); // [mutation-anchor:asked-release-required]
+        const notFound = (!hasWhat && r.f.awaiting === undefined ? fieldNotFound(r, 'awaiting', roleWords) : '') + (!hasRelease && r.f.release === undefined ? fieldNotFound(r, 'release', roleWords) : '');
+        if (!(hasWhat && hasRelease)) bad('OWT-022', `is asked-awaiting but does not state ${!hasWhat && !hasRelease ? 'what it waits for and what event releases it' : !hasWhat ? 'what it waits for' : 'what event releases it'} (OWT-002)${notFound}`); // [mutation-anchor:asked-release-required]
       }
       res.detail.push({ ...at, state, text: r.title, note: note.join(', ') });
       // 464 R1: `asked-awaiting` and nothing OWT-020 or OWT-022 objects to. Both rules are read from what THIS function just raised
@@ -1338,6 +1418,11 @@ export function selfTestArms() {
   expect('OWT-022 violating: asked-awaiting does not say what releases it (OWT-002)', ruleOf(waiting('| q | asked-awaiting | | 2026-10-01 | the quote | |\n'), 'OWT-022') === 1);
   expect('OWT-022 clean: asked-awaiting with asked-at, what it waits for and its release', ruleOf(waiting('| q | asked-awaiting | | 2026-10-01 | the quote | the reply arrives |\n'), 'OWT-022') === 0);
   expect('OWT-020 clean: a done item is not waiting', waiting('| q | done | | | | |\n').violations.length === 0);
+  // XSPEC-475 R3: the words the not-found message lists as accepted are the words the vocabulary reads (one list said twice would drift), and a declared header is read.
+  expect('XSPEC-475 R3 clean: every word the not-found message lists as accepted is read by the vocabulary', Object.entries(ACCEPTED_ROLE_WORDS).every(([role, list]) => list.split(', ').every((w) => VOCAB_STATE.roles[role].test(w))));
+  const declaredTab = '| item | status | 何時問 | 問什麼 | release |\n|---|---|---|---|---|\n| q | asked-awaiting | 2026-10-01 | the quote | the reply arrives |\n';
+  expect('XSPEC-475 R3 violating: a header the vocabulary does not hold is not read as asked-at until it is declared', ruleOf(checkWaiting([{ path: 'd.md', content: declaredTab }], { now: NOW }), 'OWT-022') >= 1);
+  expect('XSPEC-475 R3 clean: the same header, declared, is read as asked-at and as what it waits for', ruleOf(checkWaiting([{ path: 'd.md', content: declaredTab }], { now: NOW, roleWords: { askedAt: ['何時問'], awaiting: ['問什麼'] } }), 'OWT-022') === 0);
 
   const otab = (rows) => `| fact | status | observed-by | observed-at | value |\n|---|---|---|---|---|\n${rows}`;
   const obs = (rows, o = {}) => checkObservations([{ path: 'o.md', content: otab(rows) }], { now: NOW, ...o });
@@ -1520,6 +1605,8 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (declared.error) { say(`[owt] next-action: ${declared.error}`); return finish(2); }
       const commandsDeclared = normaliseDeclaredCommands(flagAll('--command-word'));
       if (commandsDeclared.error) { say(`[owt] next-action: ${commandsDeclared.error}`); return finish(2); }
+      const roleWords = declaredRoleWords(flagAll);
+      if (roleWords.error) { say(`[owt] next-action: ${roleWords.error}`); return finish(2); }
       // 464: today and the stale threshold are injected, as they are for `waiting` and `observations`, never read inside a rule.
       const nowArg = flag('--now');
       const now = nowArg === undefined ? todayUtc() : parseDay(nowArg);
@@ -1530,7 +1617,7 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       const files = args;
       if (!files.length) { say('[owt] next-action: no files given'); return finish(2); }
       const carriers = files.map(readCarrier);
-      const res = checkNextActions(carriers, { root, idPattern, words: declared.words, extraCommands: commandsDeclared.words, now, staleAfterDays });
+      const res = checkNextActions(carriers, { root, idPattern, words: declared.words, extraCommands: commandsDeclared.words, roleWords: roleWords.words, now, staleAfterDays });
       say(`[owt] OWT-019 walked ${res.walked} next-action field(s) in ${files.length} carrier(s); ${res.empty} empty/done field(s) not evaluated; ${res.noFieldCarriers.length} carrier(s) had no next-action field`);
       // `waiting-on-reply=N` is appended only when N is not 0, as `waiting-cross-project` is: a carrier with no such row prints what it always printed.
       say(`[owt]   named-resolved=${res.counts['named-resolved']} named-unresolved=${res.counts['named-unresolved']} unnamed=${res.counts.unnamed} undecidable-table-rows=${res.undecidable.length}${res.counts['waiting-on-reply'] ? ` waiting-on-reply=${res.counts['waiting-on-reply']}` : ''}`);
@@ -1609,11 +1696,13 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       const idPattern = cmd === 'waiting' ? flag('--id-pattern') : undefined;
       const commandsDeclared = cmd === 'waiting' ? normaliseDeclaredCommands(flagAll('--command-word')) : { words: [], error: null };
       if (commandsDeclared.error) { say(`[owt] waiting: ${commandsDeclared.error}`); return finish(2); }
+      const roleWords = cmd === 'waiting' ? declaredRoleWords(flagAll) : { words: {}, error: null };
+      if (roleWords.error) { say(`[owt] waiting: ${roleWords.error}`); return finish(2); }
       const files = args;
       if (!files.length) { say(`[owt] ${cmd}: no files given`); return finish(2); }
       const carriers = files.map(readCarrier);
       if (cmd === 'waiting') {
-        const res = checkWaiting(carriers, { now, root, idPattern, projects, extraCommands: commandsDeclared.words });
+        const res = checkWaiting(carriers, { now, root, idPattern, projects, extraCommands: commandsDeclared.words, roleWords: roleWords.words });
         say(`[owt] OWT-020/021/022 walked ${res.walked} record(s) with a status field in ${carriers.length} carrier(s) (today ${dayString(now)}); ${res.noStateCarriers.length} carrier(s) had none`);
         say(`[owt]   not-yet-asked=${res.counts['not-yet-asked']} asked-awaiting=${res.counts['asked-awaiting']} waiting-unspecified=${res.counts['waiting-unspecified']} done=${res.counts.done} other=${res.counts.other}${res.counts['waiting-cross-project'] ? ` waiting-cross-project=${res.counts['waiting-cross-project']}` : ''} undecidable-table-rows=${res.ragged.length}`);
         for (const d of res.detail) say(`[owt]   ${d.state.padEnd(20)} ${d.path} ${d.where}: ${d.text.slice(0, 60)}${d.note ? `  (${d.note})` : ''}`);

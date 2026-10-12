@@ -24,7 +24,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
-import { resolveReleaseWorkflow } from '../utils/release-config.js';
+import { resolveReleaseWorkflow, VALID_MODES } from '../utils/release-config.js';
 import { formatGitTag, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
 
 // Default deployment environments (overridable via release-config.yaml release.environments)
@@ -46,6 +46,55 @@ function loadReleaseConfig(projectPath) {
     console.log(chalk.yellow(`⚠ release-config.yaml 解析失敗: ${err.message}`));
     return null;
   }
+}
+
+/**
+ * The release mode the project's UDS manifest records (`.standards/manifest.json`, `options.release_mode`), or null when
+ * there is no readable manifest or it records none. A plain read: no migration, no output, nothing written.
+ */
+function manifestReleaseMode(projectPath) {
+  try {
+    const manifest = JSON.parse(readFileSync(join(projectPath, '.standards', 'manifest.json'), 'utf-8'));
+    const mode = manifest?.options?.release_mode;
+    return VALID_MODES.includes(mode) ? mode : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Which release mode applies, and where that came from (XSPEC-475 R4).
+ *
+ *   1. `.standards/release-config.yaml` `release.mode` - the detailed file, wins when it names a mode;
+ *   2. the manifest's `options.release_mode` - what `uds init` / `uds config` recorded; used when the file is
+ *      missing (or names no mode), so a project that recorded `manual` is not run as ci-cd;
+ *   3. ci-cd.
+ *
+ * Before this, only (1) was read: a manifest that said `manual` with no release-config.yaml ran as ci-cd and the
+ * refusal never said why. `reason` always says which of the three decided and what was missing.
+ * @returns {{ config: Object|null, source: 'config'|'manifest'|'default', reason: string }}
+ */
+function resolveReleaseMode(projectPath, releaseConfig) {
+  const fileMode = releaseConfig?.release?.mode;
+  if (fileMode) {
+    return { config: releaseConfig, source: 'config', reason: `模式 ${fileMode} 來自 .standards/release-config.yaml。` };
+  }
+  const fileMissing = releaseConfig === null
+    ? '找不到 .standards/release-config.yaml（或它無法解析）'
+    : '.standards/release-config.yaml 沒有指定 release.mode';
+  const recorded = manifestReleaseMode(projectPath); // wire:release-mode-from-manifest
+  if (recorded) {
+    return {
+      config: { ...(releaseConfig ?? {}), release: { ...(releaseConfig?.release ?? {}), mode: recorded } },
+      source: 'manifest',
+      reason: `${fileMissing}；模式 ${recorded} 取自 .standards/manifest.json 的 options.release_mode。`
+    };
+  }
+  return {
+    config: releaseConfig,
+    source: 'default',
+    reason: `${fileMissing}，.standards/manifest.json 也沒有記錄 options.release_mode，所以使用預設的 ci-cd。`
+  };
 }
 
 /**
@@ -141,7 +190,13 @@ function getPackageVersion(projectPath) {
 export async function releaseCommand(subcommand, args, options) {
   const projectPath = process.cwd();
   const releaseConfig = loadReleaseConfig(projectPath);
-  const workflow = resolveReleaseWorkflow(releaseConfig);
+  const resolved = resolveReleaseMode(projectPath, releaseConfig);
+  const workflow = resolveReleaseWorkflow(resolved.config);
+  // When the mode did not come from release-config.yaml, say where it came from - once, and in every refusal below.
+  if (resolved.source === 'manifest' && workflow.hasManifest) console.log(chalk.gray(`  ${resolved.reason}`));
+  const explainMode = () => {
+    if (resolved.source !== 'config') console.log(chalk.gray(`  ${resolved.reason}`));
+  };
 
   switch (subcommand) {
     case 'promote':
@@ -149,6 +204,7 @@ export async function releaseCommand(subcommand, args, options) {
         console.log(chalk.red('promote 子命令僅在 manual 或 hybrid 模式下可用。'));
         console.log(chalk.gray('  目前模式: ' + workflow.type));
         console.log(chalk.gray('  使用 `uds config --type release_mode` 切換模式'));
+        explainMode();
         return;
       }
       await handlePromote(args, projectPath);
@@ -158,6 +214,7 @@ export async function releaseCommand(subcommand, args, options) {
       if (!workflow.hasDeploy) {
         console.log(chalk.red('deploy 子命令僅在 manual 或 hybrid 模式下可用。'));
         console.log(chalk.gray('  目前模式: ' + workflow.type));
+        explainMode();
         return;
       }
       await handleDeploy(args, options, projectPath);
@@ -166,6 +223,7 @@ export async function releaseCommand(subcommand, args, options) {
     case 'manifest':
       if (!workflow.hasManifest) {
         console.log(chalk.red('manifest 子命令僅在 manual 或 hybrid 模式下可用。'));
+        explainMode();
         return;
       }
       await handleManifest(args, options, projectPath);
@@ -174,6 +232,7 @@ export async function releaseCommand(subcommand, args, options) {
     case 'verify':
       if (!workflow.hasManifest) {
         console.log(chalk.red('verify 子命令僅在 manual 或 hybrid 模式下可用。'));
+        explainMode();
         process.exitCode = EXIT_CANNOT_VERIFY; // nothing was verified; 0 would read as "verified"
         return;
       }

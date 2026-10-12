@@ -11,6 +11,10 @@
  *       - 待辦
  *     command_words:            # extra program names read as a command in a next action or a draft
  *       - kubectl
+ *     asked_at_words:           # extra words that head the "when was it asked" column (XSPEC-475 R3)
+ *       - 何時問
+ *     waiting_for_words:        # extra words that head the "what is it waiting for" column (XSPEC-475 R3)
+ *       - 問什麼
  *
  * This file holds no rule. It turns the section into the same `--root NAME=DIR` and
  * `--next-action-word WORD` arguments a person could type, and hands them to the checker, which
@@ -36,7 +40,7 @@ import { PROJECT_NAME } from '../utils/open-work-tracking.mjs';
  *   `error`: the file is readable and its open_work section is wrong (the command stops with exit 2).
  */
 export function readOpenWorkDeclarations(cwd = process.cwd()) {
-  const out = { projects: {}, nextActionWords: [], commandWords: [], note: null, error: null };
+  const out = { projects: {}, nextActionWords: [], commandWords: [], askedAtWords: [], waitingForWords: [], note: null, error: null };
   let config;
   try {
     config = loadProjectConfig(cwd);
@@ -71,6 +75,14 @@ export function readOpenWorkDeclarations(cwd = process.cwd()) {
       out.commandWords.push(w);
     }
   }
+  for (const [key, into] of [['asked_at_words', out.askedAtWords], ['waiting_for_words', out.waitingForWords]]) {
+    if (section[key] === undefined || section[key] === null) continue;
+    if (!Array.isArray(section[key])) return bad(`.${key} must be a list of words`);
+    for (const w of section[key]) {
+      if (typeof w !== 'string') return bad(`.${key} must hold text only; write each word as plain text`);
+      into.push(w);
+    }
+  }
   return out;
 }
 
@@ -99,5 +111,12 @@ export function commandArguments(cliWords, declaredWords = []) {
 export function wordArguments(cliWords, declaredWords = []) {
   const argv = [];
   for (const w of [].concat(cliWords ?? [], declaredWords)) argv.push('--next-action-word', w);
+  return argv;
+}
+
+/** The `--asked-at-word` or `--waiting-for-word` arguments (XSPEC-475 R3): the command line's words, then the file's. */
+export function fieldWordArguments(flag, cliWords, declaredWords = []) {
+  const argv = [];
+  for (const w of [].concat(cliWords ?? [], declaredWords)) argv.push(flag, w);
   return argv;
 }

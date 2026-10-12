@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/commit-message-guide.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2025-12-24
+**Version**: 1.4.0
+**Last Updated**: 2026-10-12
 **Applicability**: All projects using Git version control
 **Scope**: universal
 **Industry Standards**: Conventional Commits 1.0.0
@@ -64,22 +64,24 @@ Use English types for international teams and maximum tool compatibility.
 
 ### Option B: Traditional Chinese (Taiwanese Teams)
 
-Use Traditional Chinese types for local teams preferring native language commits.
+Use the **English types of Option A** with a Traditional Chinese subject and body, for local teams preferring native language commits. The type stays English because tools read it (commitlint `type-enum`, changelog generators, `uds simulate`); only the subject and body are Chinese. A Chinese type such as `新增` is **not** allowed.
 
-| Type   | When to Use          | English Equivalent |
-| ------ | -------------------- | ------------------ |
-| `新增` | New feature          | feat               |
-| `修正` | Bug fix              | fix                |
-| `重構` | Refactoring          | refactor           |
-| `文件` | Documentation only   | docs               |
-| `樣式` | Formatting only      | style              |
-| `測試` | Adding/updating tests | test              |
-| `效能` | Performance          | perf               |
-| `建置` | Build system         | build              |
-| `整合` | CI/CD changes        | ci                 |
-| `維護` | Maintenance          | chore              |
-| `回退` | Revert commit        | revert             |
-| `安全` | Security fix         | security           |
+| Type       | When to Use           | Example                           |
+| ---------- | --------------------- | --------------------------------- |
+| `feat`     | New feature           | `feat(auth): 加入 OAuth2 登入`     |
+| `fix`      | Bug fix               | `fix(api): 處理空值回應`           |
+| `refactor` | Refactoring           | `refactor(core): 簡化驗證邏輯`     |
+| `docs`     | Documentation only    | `docs(readme): 更新安裝指南`       |
+| `style`    | Formatting only       | `style(lint): 修正縮排`            |
+| `test`     | Adding/updating tests | `test(auth): 新增登入單元測試`     |
+| `perf`     | Performance           | `perf(query): 最佳化資料庫查詢`    |
+| `build`    | Build system          | `build(deps): 升級 lodash`         |
+| `ci`       | CI/CD changes         | `ci(github): 新增覆蓋率工作流程`   |
+| `chore`    | Maintenance           | `chore(deps): 更新開發相依套件`    |
+| `revert`   | Revert commit         | `revert: feat(auth): 加入 OAuth2 登入` |
+| `security` | Security fix          | `security(auth): 修正 XSS 漏洞`    |
+
+> **Changed in 1.4.0** (XSPEC-475): earlier versions of this option listed Chinese types (`新增`, `修正`, ...). They are no longer allowed; a project that used them migrates by replacing the type with its English equivalent (`新增` → `feat`, `修正` → `fix`, `重構` → `refactor`, `文件` → `docs`, `樣式` → `style`, `測試` → `test`, `效能` → `perf`, `建置` → `build`, `整合` → `ci`, `維護` → `chore`, `回退` → `revert`, `安全` → `security`).
 
 ### Option C: Bilingual Mode (Recommended)
 
@@ -151,7 +153,7 @@ Use this guide to choose the appropriate commit message language for your projec
 This project uses **English** commit types (feat, fix, refactor, etc.)
 
 <!-- Option B: Traditional Chinese -->
-This project uses **Traditional Chinese** commit types (新增, 修正, 重構, etc.)
+This project uses **English** commit types (feat, fix, refactor, etc.) with **Traditional Chinese** subjects and bodies
 
 <!-- Option C: Bilingual Mode -->
 This project uses **Bilingual Mode** with English types/scopes and bilingual subject/body.
@@ -936,6 +938,7 @@ Closes #123
 
 | Version | Date       | Changes                                                                                                                                                                                                                                              |
 | ------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.4.0   | 2026-10-12 | Changed: Option B (Traditional Chinese) uses English types with Traditional Chinese subject and body; Chinese types (新增, 修正, ...) are no longer allowed (XSPEC-475 OQ1). Migration table added |
 | 1.3.0   | 2026-03-16 | Added: Spec reference footer convention (Refs: SPEC-XXX) |
 | 1.2.3   | 2025-12-24 | Added: Related Standards section |
 | 1.2.2   | 2025-12-16 | Added: Language selection guide with decision matrix and quick selection tips |
