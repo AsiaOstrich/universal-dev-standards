@@ -58,6 +58,11 @@ export function ensureBackupsDir(projectPath, errors) {
   }
 }
 
+/** True for a backup id in the shared folder (`.uds-backups/<name>`), false for a legacy one in the project root. */
+export function isSharedBackupId(backupId) {
+  return backupId.startsWith(`${BACKUPS_DIR}/`);
+}
+
 /** Ids of the backups in the shared folder. */
 export function sharedBackupIds(projectPath) {
   const dir = join(projectPath, BACKUPS_DIR);

@@ -466,7 +466,7 @@ Determines commit message language.
 | Language | Example | Use Case |
 |----------|---------|----------|
 | **English** (Recommended) | `feat(auth): add OAuth2 support` | International teams, open source projects |
-| **Traditional Chinese** | `新增(認證): 實作 OAuth2 支援` | Traditional Chinese teams |
+| **Traditional Chinese** | `feat(auth): 實作 OAuth2 支援` | Traditional Chinese teams (English type, Chinese subject) |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | Bilingual environments |
 
 ### 5.4 Test Levels

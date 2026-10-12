@@ -3,7 +3,7 @@ source: ../../../../skills/commit-standards/language-options.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-10-11
-source_hash: ba9e6122251d
+source_hash: 36fc9d639905
 status: current
 ---
 
@@ -51,27 +51,29 @@ feat(auth): Add OAuth2 Google login support
 
 ## 选项 B：繁体中文（台湾团队）
 
-适用于偏好使用母语的本地团队。
+适用于偏好使用母语的本地团队。**类型维持英文**（与选项 A 同一份清单，commitlint 等工具才读得到）；**主旨与正文使用繁体中文**。不可使用 `新增` 这类中文类型。
 
-| 类型 | 使用时机 | English |
+| 类型 | 使用时机 | 范例 |
 |------|----------|------|
-| `新增` | 新功能 | feat |
-| `修正` | Bug 修复 | fix |
-| `重構` | 重构 | refactor |
-| `文件` | 文件更新 | docs |
-| `樣式` | 格式化 | style |
-| `測試` | 测试 | test |
-| `效能` | 效能改进 | perf |
-| `建置` | 建置系统 | build |
-| `整合` | CI/CD | ci |
-| `維護` | 维护任务 | chore |
-| `回退` | 回退提交 | revert |
-| `安全` | 安全修复 | security |
+| `feat` | 新功能 | `feat(auth): 加入 OAuth2 登入` |
+| `fix` | Bug 修復 | `fix(api): 處理空值回應` |
+| `refactor` | 重構 | `refactor(core): 簡化驗證邏輯` |
+| `docs` | 文件更新 | `docs(readme): 更新安裝指南` |
+| `style` | 格式化 | `style(lint): 修正縮排` |
+| `test` | 測試 | `test(auth): 新增登入單元測試` |
+| `perf` | 效能改進 | `perf(query): 最佳化資料庫查詢` |
+| `build` | 建置系統 | `build(deps): 升級 lodash` |
+| `ci` | CI/CD | `ci(github): 新增覆蓋率工作流程` |
+| `chore` | 維護任務 | `chore(deps): 更新開發相依套件` |
+| `revert` | 回退提交 | `revert: feat(auth): 加入 OAuth2 登入` |
+| `security` | 安全修復 | `security(auth): 修正 XSS 漏洞` |
 
 **范例**:
 ```
-新增(認證): 實作 OAuth2 Google 登入支援
+feat(auth): 實作 OAuth2 Google 登入支援
 ```
+
+> 旧版曾列出中文类型（`新增`、`修正`……）。迁移方式：改写成英文类型——`新增`→`feat`、`修正`→`fix`、`重構`→`refactor`、`文件`→`docs`、`樣式`→`style`、`測試`→`test`、`效能`→`perf`、`建置`→`build`、`整合`→`ci`、`維護`→`chore`、`回退`→`revert`、`安全`→`security`。
 
 ---
 

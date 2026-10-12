@@ -100,10 +100,10 @@ Closes #123
 
 ## 繁體中文格式
 
-當 `output_language` 為 `traditional-chinese` 時，使用中文類型與本文：
+當 `output_language` 為 `traditional-chinese` 時，**類型維持英文**（feat、fix、docs……），**主旨與本文使用繁體中文**。不可使用 `新增` 這類中文類型：
 
 ```
-功能(認證): 新增 OAuth2 Google 登入支援
+feat(auth): 新增 OAuth2 Google 登入支援
 
 實作 Google OAuth2 認證流程供使用者登入。
 

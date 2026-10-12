@@ -348,29 +348,29 @@ public class UserService
 
 ### Commit Types in Traditional Chinese | 繁體中文 Commit 類型
 
-Use Traditional Chinese types for Taiwan-based teams:
+Use the **English type** with a **Traditional Chinese subject and body** for Taiwan-based teams (XSPEC-475). A Chinese type such as `新增` is not allowed, because commitlint's `type-enum` and `uds simulate` read English types:
 
-| 繁體中文類型 | 英文對應 | 說明 |
-|------------|---------|------|
-| `新增` | feat | 新功能 |
-| `修正` | fix | Bug 修復 |
-| `重構` | refactor | 程式碼重構 |
-| `文件` | docs | 文件更新 |
-| `測試` | test | 測試相關 |
-| `樣式` | style | 程式碼格式 |
-| `效能` | perf | 效能優化 |
-| `建置` | build | 建置系統 |
-| `整合` | ci | CI/CD 變更 |
-| `維護` | chore | 維護任務 |
-| `回退` | revert | 回退提交 |
-| `安全` | security | 安全漏洞修復 |
+| 英文類型 | 說明 | 範例 |
+|---------|------|------|
+| `feat` | 新功能 | `feat(auth): 加入 OAuth2 登入` |
+| `fix` | Bug 修復 | `fix(api): 處理空值回應` |
+| `refactor` | 程式碼重構 | `refactor(core): 簡化驗證邏輯` |
+| `docs` | 文件更新 | `docs(readme): 更新安裝指南` |
+| `test` | 測試相關 | `test(auth): 新增登入單元測試` |
+| `style` | 程式碼格式 | `style(lint): 修正縮排` |
+| `perf` | 效能優化 | `perf(query): 最佳化資料庫查詢` |
+| `build` | 建置系統 | `build(deps): 升級 lodash` |
+| `ci` | CI/CD 變更 | `ci(github): 新增覆蓋率工作流程` |
+| `chore` | 維護任務 | `chore(deps): 更新開發相依套件` |
+| `revert` | 回退提交 | `revert: feat(auth): 加入 OAuth2 登入` |
+| `security` | 安全漏洞修復 | `security(auth): 修正 XSS 漏洞` |
 
 ---
 
 ### Commit Message Examples | Commit 訊息範例
 
 ```
-新增(認證): 實作 OAuth2 Google 登入功能
+feat(auth): 實作 OAuth2 Google 登入功能
 
 - 新增 GoogleAuthService 處理 Google OAuth2 流程
 - 整合 JWT token 產生邏輯
@@ -385,7 +385,7 @@ Closes #123
 ```
 
 ```
-修正(API): 解決並發更新使用者資料時的競爭條件
+fix(api): 解決並發更新使用者資料時的競爭條件
 
 問題原因:
 - 兩個同時發出的 PUT /users/:id 請求會互相覆蓋
@@ -406,7 +406,7 @@ Fixes #456
 ```
 
 ```
-重構(資料庫): 提取連線池管理為獨立模組
+refactor(database): 提取連線池管理為獨立模組
 
 重構原因:
 - 連線池邏輯散落在多個 Repository 中

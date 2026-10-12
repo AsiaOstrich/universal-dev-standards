@@ -1,5 +1,5 @@
 import { existsSync, rmSync, rmdirSync, readdirSync, unlinkSync } from 'fs';
-import { dirname, join } from 'path';
+import { dirname, join, relative, isAbsolute } from 'path';
 import {
   getSkillsDirForAgent,
   getCommandsDirForAgent
@@ -76,6 +76,14 @@ function removeIfEmpty(dir) {
   }
 }
 
+/** Remove the folder that held `dir` when it is empty and strictly inside `projectPath`. */
+function removeEmptyParentInside(dir, projectPath) {
+  const parent = dirname(dir);
+  const rel = relative(projectPath, parent);
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) return;
+  removeIfEmpty(parent);
+}
+
 /**
  * Process a single skill/command installation for removal
  */
@@ -144,6 +152,10 @@ function processInstallation(install, type, projectPath, manifest, options, resu
       if (d !== dir) removeIfEmpty(d);
     }
     const gone = removeIfEmpty(dir);
+    // XSPEC-475 R5(d): the tool's own folder (`.claude/`, `.codex/` ...) that held only what UDS wrote is empty now; an
+    // empty `.claude/` left in the project is a trace of UDS. Only an EMPTY folder inside the project, never the project
+    // root, and never a user-level folder.
+    if (gone && !isUserLevel) removeEmptyParentInside(dir, projectPath);
     result.removed.push(`${label} → ${dir} (${toRemove.length} file(s) UDS wrote${gone ? '' : '; folder kept: it still holds files that are not UDS\'s'})`);
     if (changed.length > 0) result.skipped.push(`${label} — kept ${changed.length} file(s) changed since UDS wrote them`);
   } catch (error) {

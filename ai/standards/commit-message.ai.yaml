@@ -13,8 +13,8 @@ standard:
     - "Reference issue numbers in footer"
 
   meta:
-    version: "2.0.0"
-    updated: "2026-02-04"
+    version: "2.1.0"
+    updated: "2026-10-12"
     source: core/commit-message-guide.md
     description: Conventional Commits format for standardized git commit messages
 
@@ -60,6 +60,7 @@ standard:
       choices:
         - id: english
           file: options/commit-message/english.ai.yaml
+        # 1.4.0 of the guide (XSPEC-475): traditional-chinese = English type + Traditional Chinese subject and body.
         - id: traditional-chinese
           file: options/commit-message/traditional-chinese.ai.yaml
         - id: bilingual
@@ -73,6 +74,15 @@ standard:
     - id: consistent-language
       trigger: writing commit message
       instruction: Use the same language consistently across all commits
+      priority: required
+    - id: english-type
+      trigger: choosing the commit type under any language option
+      instruction: >-
+        The type is always an English word from the chosen option's list (feat, fix, docs, ...), also under
+        traditional-chinese, where only the subject and body are Traditional Chinese (feat(auth): 加入 OAuth2 登入).
+        A Chinese type such as 新增 is not allowed. Migration from guide versions before 1.4.0:
+        新增->feat, 修正->fix, 重構->refactor, 文件->docs, 樣式->style, 測試->test, 效能->perf, 建置->build,
+        整合->ci, 維護->chore, 回退->revert, 安全->security.
       priority: required
     - id: subject-max-length
       trigger: writing commit subject

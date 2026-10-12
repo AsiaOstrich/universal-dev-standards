@@ -32,8 +32,24 @@ import * as yaml from 'js-yaml';
 /** Used only when no commit-message option file is installed. The Conventional Commits type set. */
 export const FALLBACK_TYPES = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'];
 
-/** `type(scope)!: subject` - scope and the breaking-change mark are optional. */
-const HEADER = /^(?<type>[A-Za-z][A-Za-z0-9-]*)(?:\((?<scope>[^()]*)\))?(?<bang>!)?: (?<subject>\S.*)$/;
+/**
+ * `type(scope)!: subject` - scope and the breaking-change mark are optional.
+ * // implements XSPEC-475 R1
+ * The type is any run of letters (any script) and digits, not only ASCII: the traditional-chinese option file
+ * allows types like 新增 and 修正. Whether the word is an ALLOWED type is decided afterwards, from the option
+ * files; the header shape only says where the type is.
+ */
+const HEADER = /^(?<type>\p{L}[\p{L}\p{N}-]*)(?:\((?<scope>[^()]*)\))?(?<bang>!)?: (?<subject>\S.*)$/u;
+
+/**
+ * Lowercase rules (`scope-lowercase`) are about letters that HAVE a case. A Chinese character has no
+ * lowercase form, so it can neither pass nor break the rule. Each such letter is replaced with a lowercase
+ * stand-in before the standard's own pattern is applied, so the pattern stays the single source of the rule.
+ * // implements XSPEC-475 R1
+ */
+function withUncasedLettersAsLowercase(text) {
+  return text.replace(/\p{L}/gu, (ch) => (ch.toLowerCase() === ch.toUpperCase() ? 'a' : ch));
+}
 
 /**
  * The commit types the project's installed option files allow. An option file belongs to this standard when
@@ -102,14 +118,16 @@ export function judgeCommitMessage(standardConfig, input, { standardsDir }) {
 
     checked.push(`type is one of: ${types.join(', ')} (from ${source})`);
     if (!types.includes(type)) {
-      findings.push(`Type "${type}" is not one of: ${types.join(', ')}.`);
+      findings.push(`Type "${type}" is not one of: ${types.join(', ')}.${/[^\u0020-\u007E]/.test(type)
+        ? ' The type must be an English word from that list; only the subject may be Chinese (for example `feat(api): 新增部門端點`).'
+        : ''}`);
     }
 
     if (scope !== undefined) {
       const scopeRule = ruleValidator(standardConfig, 'scope-lowercase');
       if (scopeRule) {
         checked.push('rule scope-lowercase');
-        if (scope === '' || !scopeRule.test(scope)) {
+        if (scope === '' || !scopeRule.test(withUncasedLettersAsLowercase(scope))) {
           findings.push(`Scope "${scope}" breaks rule scope-lowercase (use lowercase letters, digits and dashes, starting with a letter).`);
         }
       } else {

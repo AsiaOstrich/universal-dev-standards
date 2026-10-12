@@ -56,6 +56,7 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   const { backup = true, dryRun = false, onAction } = options;
   const results = [];
   let backupId = null;
+  let backupCleanup = null;
   const updatedManifest = { ...manifest };
 
   // Ensure hash containers exist
@@ -106,8 +107,8 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
     }
     backupId = backupResult.backupId;
 
-    // Clean up old backups
-    cleanupBackups(projectPath);
+    // Clean up old backups. The result is returned so the command can name what was removed (XSPEC-475 R2).
+    backupCleanup = cleanupBackups(projectPath);
   }
 
   // Execute actions
@@ -219,6 +220,7 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
   return {
     success: summary.failed === 0,
     backupId,
+    backupCleanup,
     results,
     updatedManifest,
     summary

@@ -99,10 +99,10 @@ Closes #123
 
 ## 繁体中文格式
 
-当 `output_language` 为 `traditional-chinese` 时，使用中文类型与正文：
+当 `output_language` 为 `traditional-chinese` 时，**类型保持英文**（feat、fix、docs……），**主旨与正文使用繁体中文**。不可使用 `新增` 这类中文类型：
 
 ```
-功能(认证): 新增 OAuth2 Google 登录支持
+feat(auth): 新增 OAuth2 Google 登入支持
 
 实现 Google OAuth2 认证流程供用户登录。
 

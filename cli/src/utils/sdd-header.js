@@ -12,9 +12,9 @@
  */
 
 /** Where a status or type can be read in a header table: `| Status | Approved (2026-01-01) |`. */
-const TABLE_FIELD = (name) => new RegExp(`^\\|\\s*\\**\\s*${name}\\s*\\**\\s*\\|\\s*(.+?)\\s*\\|?\\s*$`, 'i');
+const TABLE_FIELD = (name) => new RegExp(`^\\|\\s*\\**\\s*(?:${name})\\s*\\**\\s*\\|\\s*(.+?)\\s*\\|?\\s*$`, 'i');
 /** ...in a field line: `- **Status**: Archived`, `> **Status**: Stable`, `Status: Draft`. */
-const LINE_FIELD = (name) => new RegExp(`^[\\s>*-]*\\**\\s*${name}\\s*\\**\\s*[:\uFF1A]\\s*\\**\\s*(.+?)\\s*$`, 'i');
+const LINE_FIELD = (name) => new RegExp(`^[\\s>*-]*\\**\\s*(?:${name})\\s*\\**\\s*[:\uFF1A]\\s*\\**\\s*(.+?)\\s*$`, 'i');
 const TABLE_SEPARATOR = /^\|[\s:|-]+\|?\s*$/;
 
 /** First word of a header value, lower-cased (`Approved (2026-01-01)` -> `approved`); text it cannot split stays as written. */
@@ -55,11 +55,12 @@ export function readSddHeader(content) {
       if (field) return headerWord(field[1]);
     }
     for (const line of frontMatter) {
-      const fm = new RegExp(`^${name}\\s*:\\s*(.+?)\\s*$`, 'i').exec(line);
+      const fm = new RegExp(`^(?:${name})\\s*:\\s*(.+?)\\s*$`, 'i').exec(line);
       if (fm) return headerWord(fm[1]);
     }
     return null;
   };
 
-  return { title, status: read('Status'), type: read('Type') };
+  // // implements XSPEC-475 R5(a): the Chinese field names (`| 狀態 |`, `**狀態**: Draft`) are read like the English ones
+  return { title, status: read('Status|狀態'), type: read('Type|類型') };
 }

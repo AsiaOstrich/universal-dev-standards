@@ -99,6 +99,40 @@ function validateConfig(config, filePath) {
 }
 
 /**
+ * The text YAML dropped from an unquoted `commands:` / `custom:` value because it follows a space and a `#` (YAML reads
+ * that as the start of a comment), or null when nothing was dropped. XSPEC-475 R5(c).
+ *
+ * `build: node -p "'quoted # kept'"` is a valid plain YAML value that ends at `node -p "'quoted`: the shell would have
+ * kept the `#`, YAML does not. CHANGELOG 6.14.0 says so, but nothing said it at the moment it happened. A trailing
+ * comment (`test: dotnet test  # 90 tests pass`) is also dropped; the two look the same in the file, so both are reported
+ * and the person decides.
+ *
+ * Only a plain (unquoted) scalar on one line is looked at, and only when the value YAML produced is exactly the text
+ * before the `#` - so a line this cannot match up with the parsed value is never reported.
+ * @param {string} projectPath
+ * @param {string} intent
+ * @param {string} command - the value YAML produced for `intent`
+ * @returns {string|null} the dropped text, starting at the `#`
+ */
+export function droppedYamlComment(projectPath, intent, command) {
+  const configPath = join(projectPath, CONFIG_FILENAME);
+  if (!existsSync(configPath)) return null;
+  const escaped = intent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const line = new RegExp(`^[ \\t]+${escaped}[ \\t]*:[ \\t]+(.*)$`);
+  for (const text of readFileSync(configPath, 'utf8').split(/\r?\n/)) {
+    const m = line.exec(text);
+    if (!m) continue;
+    const value = m[1].trim();
+    if (/^["'|>[{&*!]/.test(value)) continue; // quoted, block, flow or anchored: not a plain scalar
+    const at = value.search(/\s#/);
+    if (at < 0) continue;
+    if (value.slice(0, at).trim() !== command) continue; // not the line YAML read this value from
+    return value.slice(at).trim(); // [mutation-anchor:dropped-comment]
+  }
+  return null;
+}
+
+/**
  * Get a specific command intent from config.
  * Returns undefined if not configured.
  */

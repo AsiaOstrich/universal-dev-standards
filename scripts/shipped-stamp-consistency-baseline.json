@@ -122,15 +122,6 @@
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/chaos-injection-tests.md` that the shipped date (2026-05-05) is older than the source's real last content change (2026-05-14) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/chaos-injection-tests.md` (or the equivalent scripts/transform run)."
     },
     {
-      "file": "ai/standards/commit-message.ai.yaml",
-      "source": "core/commit-message-guide.md",
-      "shippedUpdated": "2026-02-04",
-      "actualUpdated": "2026-03-25",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/commit-message-guide.md` that the shipped date (2026-02-04) is older than the source's real last content change (2026-03-25) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/commit-message-guide.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/container-security.ai.yaml",
       "source": "core/container-security.md",
       "shippedUpdated": "2026-05-04",

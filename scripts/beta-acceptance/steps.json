@@ -7899,6 +7899,760 @@
           "Latest on npm: 99.0.0-beta.1"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-tc-init",
+      "workspace": "xspec475-tc",
+      "title": "uds init --output-lang traditional-chinese sets up a project for the commit-message steps of XSPEC-475",
+      "titleZh": "uds init --output-lang traditional-chinese 建立專案，供 XSPEC-475 的 commit 訊息步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--output-lang",
+        "traditional-chinese"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": ".standards/options/traditional-chinese.ai.yaml"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-tc-option-english-types",
+      "workspace": "xspec475-tc",
+      "title": "The installed traditional-chinese commit option lists English types with Chinese examples, not Chinese types",
+      "titleZh": "安裝後的繁中 commit 選項列出英文類型與中文範例，不再列中文類型",
+      "changelog": [
+        "Behavior change - the traditional-chinese commit option is \"English type, Traditional Chinese subject\""
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(auth): 加入 OAuth2 登入"
+      ],
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/options/traditional-chinese.ai.yaml",
+            "contains": [
+              "type: feat",
+              "type: fix",
+              "feat(auth): 加入 OAuth2 登入"
+            ],
+            "notContains": [
+              "type: 新增",
+              "type: 修正"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-tc-simulate-pass",
+      "workspace": "xspec475-tc",
+      "title": "uds simulate -s commit-message passes an English type with a Chinese subject and a Chinese scope under the traditional-chinese option",
+      "titleZh": "uds simulate -s commit-message 在繁中選項下接受英文類型加中文主旨與中文 scope",
+      "changelog": [
+        "Behavior change - the traditional-chinese commit option is \"English type, Traditional Chinese subject\"",
+        "uds simulate -s commit-message read every non-ASCII type as"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(認證): 新增部門端點"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Simulation Passed"
+        ],
+        "notContains": [
+          "does not comply",
+          "Cannot simulate"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-tc-simulate-chinese-type",
+      "workspace": "xspec475-tc",
+      "title": "uds simulate -s commit-message fails a Chinese type under the traditional-chinese option and says the type must be English",
+      "titleZh": "uds simulate -s commit-message 在繁中選項下判中文類型不合規並說明類型須為英文",
+      "changelog": [
+        "Behavior change - the traditional-chinese commit option is \"English type, Traditional Chinese subject\""
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "新增(認證): 加入 OAuth2 登入"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "does not comply",
+          "Type \"新增\" is not one of: feat",
+          "The type must be an English word from that list"
+        ],
+        "notContains": [
+          "not in the form"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-tc-simulate-scope-uppercase",
+      "workspace": "xspec475-tc",
+      "title": "uds simulate -s commit-message still fails an uppercase scope under the traditional-chinese option",
+      "titleZh": "uds simulate -s commit-message 在繁中選項下仍判大寫 scope 不合規",
+      "changelog": [
+        "uds simulate -s commit-message read every non-ASCII type as"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "feat(Auth): 加入登入"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Scope \"Auth\" breaks rule scope-lowercase"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-simulate-option-file-chinese-type",
+      "workspace": "xspec475-tc",
+      "title": "uds simulate -s commit-message accepts a Chinese type that an installed option file allows, with the option file's own example",
+      "titleZh": "uds simulate -s commit-message 接受已安裝選項檔允許的中文類型，連同選項檔自己的範例",
+      "changelog": [
+        "uds simulate -s commit-message read every non-ASCII type as"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/options/team-zh.ai.yaml",
+          "content": "id: team-zh\nmeta:\n  parent: commit-message\n  version: \"1.0.0\"\ntypes:\n  - type: 新增\n    description: new feature\n    example: \"新增(認證): 加入 OAuth2 登入\"\n"
+        }
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "新增(認證): 加入 OAuth2 登入"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Simulation Passed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-backups-init",
+      "workspace": "xspec475-backups",
+      "title": "uds init sets up a Claude Code project for the backup steps of XSPEC-475",
+      "titleZh": "uds init 建立專案，供 XSPEC-475 的備份步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-backups-legacy-kept",
+      "workspace": "xspec475-backups",
+      "title": "uds update --apply leaves the four .uds-backup-* folders of an older UDS in place and lists them",
+      "titleZh": "uds update --apply 不動舊版留在根目錄的四個 .uds-backup-* 並列出它們",
+      "changelog": [
+        "Behavior change - uds update --apply counts only .uds-backups/ toward its limit of five backups"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".standards/checkin-standards.ai.yaml"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-01T00-00-00-000Z-0001/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backup-2020-01-01T00-00-00-000Z-0001\", \"label\": \"update\", \"createdAt\": \"2020-01-01T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-01T00-00-00-000Z-0001/precious.txt",
+          "content": "the only copy of .uds-backup-2020-01-01T00-00-00-000Z-0001\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-02T00-00-00-000Z-0002/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backup-2020-01-02T00-00-00-000Z-0002\", \"label\": \"update\", \"createdAt\": \"2020-01-02T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-02T00-00-00-000Z-0002/precious.txt",
+          "content": "the only copy of .uds-backup-2020-01-02T00-00-00-000Z-0002\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-03T00-00-00-000Z-0003/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backup-2020-01-03T00-00-00-000Z-0003\", \"label\": \"update\", \"createdAt\": \"2020-01-03T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-03T00-00-00-000Z-0003/precious.txt",
+          "content": "the only copy of .uds-backup-2020-01-03T00-00-00-000Z-0003\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-04T00-00-00-000Z-0004/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backup-2020-01-04T00-00-00-000Z-0004\", \"label\": \"update\", \"createdAt\": \"2020-01-04T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backup-2020-01-04T00-00-00-000Z-0004/precious.txt",
+          "content": "the only copy of .uds-backup-2020-01-04T00-00-00-000Z-0004\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "4 backup(s) from an older UDS are still in the project root and were NOT removed by the limit",
+          ".uds-backup-2020-01-01T00-00-00-000Z-0001",
+          ".uds-backup-2020-01-04T00-00-00-000Z-0004",
+          "move them out of the project yourself"
+        ],
+        "notContains": [
+          "Removed 1 old backup",
+          "Removed 2 old backup"
+        ],
+        "files": [
+          {
+            "path": ".uds-backup-2020-01-01T00-00-00-000Z-0001/precious.txt",
+            "contains": [
+              "the only copy of"
+            ]
+          },
+          {
+            "path": ".uds-backup-2020-01-04T00-00-00-000Z-0004/precious.txt",
+            "contains": [
+              "the only copy of"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-backups-removed-are-named",
+      "workspace": "xspec475-backups",
+      "title": "uds update --apply names each backup the limit of five removes from .uds-backups/ (five already there, one made by the step before, one new: the two oldest go)",
+      "titleZh": "uds update --apply 逐一點名上限從 .uds-backups/ 刪除的備份",
+      "changelog": [
+        "Behavior change - uds update --apply counts only .uds-backups/ toward its limit of five backups"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".standards/checkin-standards.ai.yaml"
+        },
+        {
+          "writeFile": ".uds-backups/2020-02-01T00-00-00-000Z-0001/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backups/2020-02-01T00-00-00-000Z-0001\", \"label\": \"update\", \"createdAt\": \"2020-02-01T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backups/2020-02-02T00-00-00-000Z-0002/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backups/2020-02-02T00-00-00-000Z-0002\", \"label\": \"update\", \"createdAt\": \"2020-02-02T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backups/2020-02-03T00-00-00-000Z-0003/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backups/2020-02-03T00-00-00-000Z-0003\", \"label\": \"update\", \"createdAt\": \"2020-02-03T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backups/2020-02-04T00-00-00-000Z-0004/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backups/2020-02-04T00-00-00-000Z-0004\", \"label\": \"update\", \"createdAt\": \"2020-02-04T00:00:00.000Z\", \"finalized\": true}\n"
+        },
+        {
+          "writeFile": ".uds-backups/2020-02-05T00-00-00-000Z-0005/backup-manifest.json",
+          "content": "{\"format\": 2, \"backupId\": \".uds-backups/2020-02-05T00-00-00-000Z-0005\", \"label\": \"update\", \"createdAt\": \"2020-02-05T00:00:00.000Z\", \"finalized\": true}\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Removed 2 old backup(s) beyond the limit of 5 in .uds-backups/",
+          "✕ .uds-backups/2020-02-01T00-00-00-000Z-0001",
+          "✕ .uds-backups/2020-02-02T00-00-00-000Z-0002",
+          "NOT removed by the limit"
+        ],
+        "notContains": [
+          "✕ .uds-backups/2020-02-03"
+        ],
+        "files": [
+          {
+            "path": ".uds-backups/2020-02-03T00-00-00-000Z-0003/backup-manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-waiting-field-not-found",
+      "title": "uds open-work waiting says no column was found, lists the headers it saw and how to declare a word",
+      "titleZh": "uds open-work waiting 說明找不到欄位、列出看到的表頭與如何宣告詞彙",
+      "changelog": [
+        "uds open-work waiting and next-action accept the project's own words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| 事項 | 狀態 | 何時問 | 問什麼 | 解除條件 | 下一步 |\n|---|---|---|---|---|---|\n| 問報價 | 已問、等回覆 | 2026-10-01 | 報價單 | 對方回信 | 等對方回覆 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-05"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "No column or label of this record is read as asked-at",
+          "headers seen: \"事項\", \"狀態\", \"何時問\"",
+          "--asked-at-word <word>, or open_work.asked_at_words in uds.project.yaml",
+          "--waiting-for-word <word>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-waiting-declared-words",
+      "title": "uds open-work waiting --asked-at-word --waiting-for-word reads the project's own column names",
+      "titleZh": "uds open-work waiting --asked-at-word --waiting-for-word 讀得出專案自己的欄位名稱",
+      "changelog": [
+        "uds open-work waiting and next-action accept the project's own words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| 事項 | 狀態 | 何時問 | 問什麼 | 解除條件 | 下一步 |\n|---|---|---|---|---|---|\n| 問報價 | 已問、等回覆 | 2026-10-01 | 報價單 | 對方回信 | 等對方回覆 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-05",
+        "--asked-at-word",
+        "何時問",
+        "--waiting-for-word",
+        "問什麼"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "(asked 4d ago)"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-next-action-declared-words",
+      "title": "uds open-work next-action --asked-at-word --waiting-for-word counts the row as waiting-on-reply",
+      "titleZh": "uds open-work next-action --asked-at-word --waiting-for-word 把該列算成 waiting-on-reply",
+      "changelog": [
+        "uds open-work waiting and next-action accept the project's own words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| 事項 | 狀態 | 何時問 | 問什麼 | 解除條件 | 下一步 |\n|---|---|---|---|---|---|\n| 問報價 | 已問、等回覆 | 2026-10-01 | 報價單 | 對方回信 | 等對方回覆 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "w.md",
+        "--now",
+        "2026-10-05",
+        "--asked-at-word",
+        "何時問",
+        "--waiting-for-word",
+        "問什麼"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "waiting-on-reply=1",
+          "waiting for: 報價單; released by: 對方回信"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-waiting-declared-in-project-yaml",
+      "title": "uds open-work waiting reads open_work.asked_at_words and waiting_for_words from uds.project.yaml",
+      "titleZh": "uds open-work waiting 讀取 uds.project.yaml 的 open_work.asked_at_words 與 waiting_for_words",
+      "changelog": [
+        "uds open-work waiting and next-action accept the project's own words"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| 事項 | 狀態 | 何時問 | 問什麼 | 解除條件 | 下一步 |\n|---|---|---|---|---|---|\n| 問報價 | 已問、等回覆 | 2026-10-01 | 報價單 | 對方回信 | 等對方回覆 |\n"
+        },
+        {
+          "writeFile": "uds.project.yaml",
+          "content": "version: \"1\"\nopen_work:\n  asked_at_words:\n    - 何時問\n  waiting_for_words:\n    - 問什麼\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "waiting",
+        "w.md",
+        "--now",
+        "2026-10-05"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "(asked 4d ago)"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-release-manifest-mode",
+      "workspace": "xspec475-release",
+      "title": "uds release manifest runs in a project whose UDS manifest records release_mode manual and that has no release-config.yaml",
+      "titleZh": "uds release manifest 在 UDS manifest 記錄 release_mode 為 manual 且沒有 release-config.yaml 的專案可執行",
+      "changelog": [
+        "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "writeFile": ".standards/manifest.json",
+          "content": "{\"version\":\"3.5.0\",\"options\":{\"release_mode\":\"manual\"}}\n"
+        },
+        {
+          "writeFile": "package.json",
+          "content": "{\n  \"name\": \"acme\",\n  \"version\": \"1.2.0-rc.1\"\n}\n"
+        },
+        {
+          "writeFile": "app.bin",
+          "content": "release artifact 475"
+        },
+        {
+          "git": [
+            "add",
+            "-A"
+          ]
+        },
+        {
+          "git": [
+            "commit",
+            "-q",
+            "-m",
+            "init"
+          ]
+        }
+      ],
+      "uds": [
+        "release",
+        "manifest",
+        "--checksum",
+        "09aaab3e2dc189c016d6abe715bff440fff3a637e693d2d1c50b3200bf496a9d"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "模式 manual 取自 .standards/manifest.json 的 options.release_mode",
+          "找不到 .standards/release-config.yaml",
+          "build-manifest.json 已產生"
+        ],
+        "files": [
+          {
+            "path": "build-manifest.json",
+            "contains": [
+              "\"version\": \"1.2.0-rc.1\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-release-verify-manifest-mode",
+      "workspace": "xspec475-release",
+      "title": "uds release verify runs in manual mode taken from the manifest and verifies the artifact",
+      "titleZh": "uds release verify 以取自 manifest 的 manual 模式執行並驗證 artifact",
+      "changelog": [
+        "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
+      ],
+      "uds": [
+        "release",
+        "verify",
+        "--artifact",
+        "app.bin"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Manifest 驗證通過",
+          "模式 manual 取自 .standards/manifest.json 的 options.release_mode",
+          "Checksum: 09aaab3e2dc189c016d6abe715bff440fff3a637e693d2d1c50b3200bf496a9d (一致)"
+        ],
+        "notContains": [
+          "僅在 manual 或 hybrid 模式下可用"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-release-verify-says-why",
+      "title": "uds release verify refuses with exit 2 and says release-config.yaml is missing and the manifest records ci-cd",
+      "titleZh": "uds release verify 以 2 拒絕，並說明缺 release-config.yaml 且 manifest 記錄 ci-cd",
+      "changelog": [
+        "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/manifest.json",
+          "content": "{\"version\":\"3.5.0\",\"options\":{\"release_mode\":\"ci-cd\"}}\n"
+        }
+      ],
+      "uds": [
+        "release",
+        "verify"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "verify 子命令僅在 manual 或 hybrid 模式下可用",
+          "找不到 .standards/release-config.yaml",
+          "模式 ci-cd 取自 .standards/manifest.json 的 options.release_mode"
+        ],
+        "notContains": [
+          "Manifest 驗證通過"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-spec-list-chinese-status",
+      "title": "uds spec list reads a status written as | 狀態 | Approved | or 狀態: Draft",
+      "titleZh": "uds spec list 讀得出以「| 狀態 | Approved |」或「狀態: Draft」寫的狀態",
+      "changelog": [
+        "uds spec list reads a Chinese status"
+      ],
+      "prepare": [
+        {
+          "writeFile": "specs/SPEC-010-table.md",
+          "content": "# 部門介面規格\n\n| 欄位 | 值 |\n|------|----|\n| 狀態 | Approved (2026-10-12) |\n| 作者 | 某人 |\n\n## 概述\n\n內文。\n"
+        },
+        {
+          "writeFile": "specs/SPEC-011-bold.md",
+          "content": "# [SPEC-011] 登入規格\n\n> **狀態**: Draft（2026-10-12 建立）\n> **建立日期**: 2026-10-12\n"
+        }
+      ],
+      "uds": [
+        "spec",
+        "list"
+      ],
+      "expect": {
+        "exit": 0,
+        "matches": [
+          "^SPEC-010-table\\s+approved\\s+-\\s+部門介面規格",
+          "^SPEC-011-bold\\s+draft\\s+-\\s+\\[SPEC-011\\] 登入規格"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-next-action-slash-command",
+      "title": "uds open-work next-action counts /work as a command, not as a missing path",
+      "titleZh": "uds open-work next-action 把 /work 算成指令，而不是找不到的路徑",
+      "changelog": [
+        "uds open-work next-action no longer reports a slash command"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| 事項 | 下一步 |\n|---|---|\n| 看全部工作 | `/work` |\n| 做規格 | `/sdd create login` |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "next-action",
+        "w.md"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "named-unresolved=2 unnamed=0",
+          "path-missing=0 not-resolvable=2"
+        ],
+        "notContains": [
+          "VIOLATION"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-run-warns-dropped-comment",
+      "title": "uds run --dry-run warns that YAML dropped the text after a space and # in an unquoted command",
+      "titleZh": "uds run --dry-run 警告 YAML 把未加引號指令中「空白加 #」之後的文字丟掉了",
+      "changelog": [
+        "uds run warns when YAML dropped text after a space"
+      ],
+      "prepare": [
+        {
+          "writeFile": "uds.project.yaml",
+          "content": "version: \"1\"\ncommands:\n  build: node -p \"'quoted # kept'\"\n"
+        }
+      ],
+      "uds": [
+        "run",
+        "build",
+        "--dry-run"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "空白加 # 之後的文字被 YAML 當成註解丟掉了：# kept'\"",
+          "請把整個值用引號包起來"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-uninstall-init",
+      "workspace": "xspec475-uninstall",
+      "title": "uds init sets up a project whose .claude/ holds only what UDS wrote, for the uninstall step of XSPEC-475",
+      "titleZh": "uds init 建立專案，.claude/ 只有 UDS 寫的東西，供 XSPEC-475 的 uninstall 步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec475-uninstall-removes-empty-claude-dir",
+      "workspace": "xspec475-uninstall",
+      "title": "uds uninstall leaves no empty .claude/ folder",
+      "titleZh": "uds uninstall 不留下空的 .claude/ 資料夾",
+      "changelog": [
+        "uds uninstall removes the .claude/ folder"
+      ],
+      "prepare": [
+        {
+          "writeFile": "uninstall-case.cjs",
+          "content": "const fs = require('fs'), cp = require('child_process');\nconst [bin, ...udsArgs] = process.argv.slice(2);\nconst r = cp.spawnSync(process.execPath, [bin, ...udsArgs], { encoding: 'utf8', env: process.env });\nprocess.stdout.write((r.stdout || '') + (r.stderr || '') + '\\nCLAUDE-DIR-EXISTS=' + fs.existsSync('.claude') + '\\n');\nprocess.exit(r.status === null ? 1 : r.status);\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "uninstall-case.cjs",
+        "{bin}",
+        "uninstall",
+        "--yes"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Uninstall complete",
+          "CLAUDE-DIR-EXISTS=false"
+        ],
+        "notContains": [
+          "CLAUDE-DIR-EXISTS=true"
+        ]
+      }
     }
   ]
 }

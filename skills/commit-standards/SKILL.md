@@ -121,10 +121,10 @@ Closes #123
 
 ## Traditional Chinese Format | 繁體中文格式
 
-When `output_language` is `traditional-chinese`, use Chinese types and body:
+When `output_language` is `traditional-chinese`, keep the **type English** (feat, fix, docs, ...) and write the **subject and body in Traditional Chinese**. A Chinese type such as `新增` is not allowed:
 
 ```
-功能(認證): 新增 OAuth2 Google 登入支援
+feat(auth): 新增 OAuth2 Google 登入支援
 
 實作 Google OAuth2 認證流程供使用者登入。
 

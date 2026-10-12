@@ -3,7 +3,7 @@ source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
 last_synced: 2026-10-11
-source_hash: 2316d0bfc18c
+source_hash: 6e5aadbbb51d
 status: current
 ---
 
@@ -475,7 +475,7 @@ main ─────────────────────────
 | 语言 | 示例 | 适用情境 |
 |------|------|----------|
 | **English** (推荐) | `feat(auth): add OAuth2 support` | 国际团队、开源项目 |
-| **Traditional Chinese** | `新增(认证): 实作 OAuth2 支援` | 繁体中文团队 |
+| **Traditional Chinese** | `feat(auth): 实作 OAuth2 支援` | 繁体中文团队（英文类型，中文主旨） |
 | **Bilingual** | `feat(auth): add OAuth2 / 新增 OAuth2` | 双语环境 |
 
 ### 5.4 Test Levels

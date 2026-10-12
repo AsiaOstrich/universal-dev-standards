@@ -274,13 +274,15 @@ describe('Integration Generator', () => {
 
         const result = generateIntegrationContent(config);
 
-        expect(result).toContain('功能');
-        expect(result).toContain('修正');
-        expect(result).toContain('文件');
-        expect(result).toContain('重構');
-        expect(result).toContain('<類型>(<範圍>): <主旨>');
-        // English equivalents should be in the table as reference
+        // XSPEC-475 OQ1: English types, Traditional Chinese subject. A Chinese type is not offered.
         expect(result).toContain('feat');
+        expect(result).toContain('fix');
+        expect(result).toContain('docs');
+        expect(result).toContain('refactor');
+        expect(result).toContain('<type>(<scope>): <主旨>');
+        expect(result).toContain('新功能');
+        expect(result).not.toContain('功能(');
+        expect(result).not.toContain('<類型>(<範圍>): <主旨>');
       });
 
       it('should generate bilingual commit types when outputLanguage is bilingual', () => {
@@ -321,7 +323,7 @@ describe('Integration Generator', () => {
         const result = generateIntegrationContent(config);
 
         expect(result).toContain('提交標準');
-        expect(result).toContain('<類型>(<範圍>): <主旨>');
+        expect(result).toContain('<type>(<scope>): <主旨>');
       });
 
       it('should use correct format for comprehensive level', () => {
@@ -578,8 +580,8 @@ describe('Integration Generator', () => {
         ['english',             'minimal',       '<type>(<scope>): <subject>',         '功能'],
         ['english',             'standard',      '<type>(<scope>): <subject>',         '功能'],
         ['english',             'comprehensive', 'Subject Line Rules',                 '功能'],
-        ['traditional-chinese', 'minimal',       '<類型>(<範圍>): <主旨>',             null],
-        ['traditional-chinese', 'standard',      '<類型>(<範圍>): <主旨>',             null],
+        ['traditional-chinese', 'minimal',       '<type>(<scope>): <主旨>',            null],
+        ['traditional-chinese', 'standard',      '<type>(<scope>): <主旨>',            null],
         ['traditional-chinese', 'comprehensive', '主題行規則',                         null],
         ['bilingual',           'minimal',       '<type>(<scope>): <English subject>', null],
         ['bilingual',           'standard',      '<type>(<scope>): <English subject>', null],

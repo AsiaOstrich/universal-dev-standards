@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-10-08
+> Auto-generated | Last updated: 2026-10-12
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (153)
-7. [Scripts](#scripts) (65)
+7. [Scripts](#scripts) (66)
 
-**Total Features: 359**
+**Total Features: 360**
 
 ---
 
@@ -472,7 +472,7 @@
 | `circuit-breaker` | - |  |
 | `class-level-fix` | 1.1.0 | A defect is almost never alone. It is one member of a set — one flag in a dispat |
 | `code-review-checklist` | 1.6.0 | This standard provides a comprehensive checklist for reviewing code changes, ens |
-| `commit-message-guide` | 1.3.0 | Standardized commit messages improve code review efficiency, facilitate automate |
+| `commit-message-guide` | 1.4.0 | Standardized commit messages improve code review efficiency, facilitate automate |
 | `container-image-standards` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `container-security` | - |  |
 | `containerization-standards` | 1.0.0 |  |
@@ -608,6 +608,7 @@
 | `check-ai-agent-sync.ps1` | Check Ai Agent Sync |
 | `check-ai-agent-sync.sh` | AI Agent Sync Checker |
 | `check-ai-yaml-parses.mjs` | Every shipped .ai.yaml must parse, and must parse into what it says. |
+| `check-bats-assertions.mjs` | check-bats-assertions.mjs — find .bats assertions that can pass silently. |
 | `check-bump-sync-roundtrip.mjs` | check-bump-sync-roundtrip — 測「跑完 bump 之後 check 必須通過」這個不變量。 |
 | `check-cli-docs-sync.ps1` | Check Cli Docs Sync |
 | `check-cli-docs-sync.sh` | CLI-to-Documentation Sync Checker |

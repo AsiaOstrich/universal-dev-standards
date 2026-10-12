@@ -20,7 +20,7 @@
  */
 
 import { main } from '../utils/open-work-tracking.mjs';
-import { readOpenWorkDeclarations, rootArguments, wordArguments, commandArguments } from '../core/open-work-config.js';
+import { readOpenWorkDeclarations, rootArguments, wordArguments, commandArguments, fieldWordArguments } from '../core/open-work-config.js';
 
 /** Append `--name value` when the option was given. */
 function withOption(argv, name, value) {
@@ -64,6 +64,8 @@ export function openWorkNextActionCommand(files = [], options = {}) {
   withOption(argv, '--stale-after', options.staleAfter);
   const wordArgv = wordArguments(options.nextActionWord, declared.nextActionWords); // wire:next-action-words
   const commandArgv = commandArguments(options.commandWord, declared.commandWords); // wire:next-action-command-words
+  argv.push(...fieldWordArguments('--asked-at-word', options.askedAtWord, declared.askedAtWords)); // wire:next-action-asked-at-words
+  argv.push(...fieldWordArguments('--waiting-for-word', options.waitingForWord, declared.waitingForWords));
   process.exitCode = main([...argv, ...wordArgv, ...commandArgv, ...files]); // wire:next-action
 }
 
@@ -86,7 +88,7 @@ export function openWorkSeparationCommand(files = [], options = {}) {
 }
 
 /**
- * uds open-work waiting [files...] [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now DATE] — OWT-020 to OWT-022, OWT-027/028.
+ * uds open-work waiting [files...] [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now DATE] [--asked-at-word WORD ...] [--waiting-for-word WORD ...] — OWT-020 to OWT-022, OWT-027/028.
  * Calls the imported `main` itself rather than the shared `run()`: the line that carries this
  * command into the checker is then its own, and cutting it silences exactly this command.
  * `--root` repeats: a plain DIR is what relative paths resolve against (as before), NAME=DIR says where
@@ -102,6 +104,8 @@ export function openWorkWaitingCommand(files = [], options = {}) {
   withOption(argv, '--now', options.now);
   const commandArgv = commandArguments(options.commandWord, declared.commandWords); // wire:waiting-command-words
   argv.push(...commandArgv);
+  argv.push(...fieldWordArguments('--asked-at-word', options.askedAtWord, declared.askedAtWords)); // wire:waiting-asked-at-words
+  argv.push(...fieldWordArguments('--waiting-for-word', options.waitingForWord, declared.waitingForWords)); // wire:waiting-waiting-for-words
   process.exitCode = main([...argv, ...files]); // wire:waiting
 }
 

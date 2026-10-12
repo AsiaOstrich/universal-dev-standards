@@ -485,6 +485,8 @@ openWorkCommand
   .option('--stale-after <days>', 'A waiting-on-reply row asked more than this many days ago is marked STALE (default 7, an uncalibrated initial judgment)')
   .option('--next-action-word <word>', 'A word that means "next action" in your carriers, as plain text; repeatable (also open_work.next_action_words in uds.project.yaml)', collectOption, [])
   .option('--command-word <word>', 'A program name to read as a command, for example kubectl; repeatable (also open_work.command_words in uds.project.yaml)', collectOption, [])
+  .option('--asked-at-word <word>', 'A word that heads your "when was it asked" column, as plain text; repeatable (also open_work.asked_at_words in uds.project.yaml)', collectOption, [])
+  .option('--waiting-for-word <word>', 'A word that heads your "what is it waiting for" column, as plain text; repeatable (also open_work.waiting_for_words in uds.project.yaml)', collectOption, [])
   .action(openWorkNextActionCommand);
 
 openWorkCommand
@@ -509,6 +511,8 @@ openWorkCommand
   .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
   .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
   .option('--command-word <word>', 'A program name to read as a command, for example kubectl; repeatable (also open_work.command_words in uds.project.yaml)', collectOption, [])
+  .option('--asked-at-word <word>', 'A word that heads your "when was it asked" column, as plain text; repeatable (also open_work.asked_at_words in uds.project.yaml)', collectOption, [])
+  .option('--waiting-for-word <word>', 'A word that heads your "what is it waiting for" column, as plain text; repeatable (also open_work.waiting_for_words in uds.project.yaml)', collectOption, [])
   .action(openWorkWaitingCommand);
 
 openWorkCommand
