@@ -11,6 +11,12 @@ import { compileStandards } from '../../../src/commands/compile.js';
 describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
   let testDir;
 
+  // XSPEC-482 R4c: a standard is compiled only when the script it names is in the project.
+  const addScript = (rel) => {
+    mkdirSync(join(testDir, 'scripts', 'hooks'), { recursive: true });
+    writeFileSync(join(testDir, rel), '// hook\n');
+  };
+
   beforeEach(() => {
     testDir = join(tmpdir(), `uds-compile-test-${Date.now()}`);
     mkdirSync(testDir, { recursive: true });
@@ -39,6 +45,10 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         '# no enforcement',
       ].join('\n'));
 
+      addScript('scripts/hooks/validate-commit-msg.mjs');
+      addScript('scripts/hooks/check-dangerous-cmd.mjs');
+      addScript('scripts/hooks/check-logging-standard.mjs');
+
       // Act
       const result = compileStandards(testDir, { target: 'claude-code' });
 
@@ -62,6 +72,10 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         '  trigger: PreToolUse',
         '  severity: error',
       ].join('\n'));
+
+      addScript('scripts/hooks/validate-commit-msg.mjs');
+      addScript('scripts/hooks/check-dangerous-cmd.mjs');
+      addScript('scripts/hooks/check-logging-standard.mjs');
 
       // Act
       const result = compileStandards(testDir, { target: 'claude-code', dryRun: true });
@@ -88,6 +102,10 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
         '  severity: warning',
       ].join('\n'));
 
+      addScript('scripts/hooks/validate-commit-msg.mjs');
+      addScript('scripts/hooks/check-dangerous-cmd.mjs');
+      addScript('scripts/hooks/check-logging-standard.mjs');
+
       // Act
       const result = compileStandards(testDir, { target: 'claude-code' });
 
@@ -108,6 +126,10 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
       writeFileSync(join(stdDir, 'testing.ai.yaml'), 'standard:\n  id: testing\n');
       writeFileSync(join(stdDir, 'git-workflow.ai.yaml'), 'standard:\n  id: git-workflow\n');
 
+      addScript('scripts/hooks/validate-commit-msg.mjs');
+      addScript('scripts/hooks/check-dangerous-cmd.mjs');
+      addScript('scripts/hooks/check-logging-standard.mjs');
+
       // Act
       const result = compileStandards(testDir, { target: 'claude-code' });
 
@@ -119,6 +141,10 @@ describe('SPEC-COMPILE-001 / REQ-3: Compile 命令', () => {
 
   describe('未初始化的專案', () => {
     it('should return error when no .standards directory', () => {
+      addScript('scripts/hooks/validate-commit-msg.mjs');
+      addScript('scripts/hooks/check-dangerous-cmd.mjs');
+      addScript('scripts/hooks/check-logging-standard.mjs');
+
       // Act
       const result = compileStandards(testDir, { target: 'claude-code' });
 

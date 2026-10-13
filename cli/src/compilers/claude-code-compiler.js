@@ -8,6 +8,7 @@
  */
 
 import { BaseCompiler } from './base-compiler.js';
+import { normalizeMatcher } from '../installers/hooks-installer.js';
 
 const DEFAULT_MATCHERS = {
   UserPromptSubmit: '',
@@ -27,7 +28,14 @@ export class ClaudeCodeCompiler extends BaseCompiler {
 
     for (const std of enforceable) {
       const { hook_script, trigger } = std.enforcement;
-      const matcher = std.enforcement.matcher ?? DEFAULT_MATCHERS[trigger] ?? '';
+      // Claude Code's matcher is a string (https://code.claude.com/docs/en/hooks, "Matcher patterns"). A standard may
+      // declare it as an object (`matcher: { tool: Write, path: "src/**/*.ts" }`); that used to be written to
+      // settings.json as the object, which the documented format has no place for (XSPEC-482 R4). Same reduction
+      // `uds init --with-hooks` and `uds update --with-hooks` apply, so the three write one format.
+      const declared = std.enforcement.matcher;
+      const matcher = declared === undefined || declared === null
+        ? (DEFAULT_MATCHERS[trigger] ?? '')
+        : normalizeMatcher(declared); // wire:compile-matcher-is-a-string
 
       if (!hooks[trigger]) {
         hooks[trigger] = [];
