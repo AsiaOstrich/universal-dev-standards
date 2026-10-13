@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-10-12
+> Auto-generated | Last updated: 2026-10-13
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -155,7 +155,8 @@
 | `--apply` | Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope |
 | `--force` | Force update all files, ignoring hash comparison |
 | `--prune` | Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write) |
-| `--rollback` | Rollback to the most recent backup |
+| `--rollback` | Rollback to the most recent backup (with the series of updates that follow from it) |
+| `--from` | With --rollback: restore this one backup instead of the most recent series (the id --rollback prints, or its folder name); use it for a backup an older UDS made |
 | `--add-standard` | With --plan or --apply: also install this standard UDS ships and the project lacks, and record it in the manifest (repeatable; `uds update --plan` lists what is available) |
 | `--claude-target` | Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
