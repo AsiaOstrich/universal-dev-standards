@@ -3792,8 +3792,20 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     let aligned = current ? alignRecordedVersions(current).changed : false; // wire:up-to-date-aligns-versions
     // XSPEC-482 R6: the same for the standards version, which only an executed plan used to record.
     if (current && alignUpstreamVersion(current).changed) aligned = true; // wire:up-to-date-aligns-upstream
-    if (current && ((pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0 || aligned)) writeManifest(current, projectPath);
+    // XSPEC-456 R4 (kept through XSPEC-482 R6): the NAME lists are corrected here too. This early return used to be reached only by
+    // a project that had nothing else to rewrite, which a fresh `uds init` almost never was; once init leaves the project current
+    // it is the normal case, and the names UDS cannot vouch for (`_shared`, a retired skill) stayed in the manifest for good.
+    // Ownership test only, as the reconciler does (no disk test).
+    let droppedNames = 0;
+    if (current) {
+      const before = (current.skills?.names?.length || 0) + (current.commands?.names?.length || 0);
+      pruneForeignSkillNames(current, '');
+      pruneForeignCommandNames(current, '');
+      droppedNames = before - ((current.skills?.names?.length || 0) + (current.commands?.names?.length || 0)); // wire:up-to-date-prunes-names
+    }
+    if (current && ((pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0 || aligned || droppedNames > 0)) writeManifest(current, projectPath);
     console.log(chalk.green('Everything is up to date. No changes needed.'));
+    if (droppedNames > 0) console.log(chalk.gray(`  ${t().commands.update.droppedForeignNames.replace('{count}', droppedNames)}`));
     // XSPEC-458 R2: "up to date" is about the files UDS manages; say what UDS ships that is not managed here.
     printAvailableStandardsSection(planResult.manifest, { phase: 'apply' });
     console.log();

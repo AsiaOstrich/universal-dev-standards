@@ -1350,15 +1350,75 @@
     },
     {
       "platform": "all",
+      "id": "beta6-update-drops-ghost-names-when-current",
+      "workspace": "beta6",
+      "title": "uds update --apply drops the names UDS cannot vouch for even when the project is current and the plan is empty (XSPEC-456 R4 kept through XSPEC-482 R6)",
+      "titleZh": "專案已是最新、計畫為空時，uds update --apply 仍會移除 UDS 無法擔保的名稱（XSPEC-456 R4，經 XSPEC-482 R6 後仍維持）",
+      "changelog": [
+        "uds update --apply drops the skill and command names UDS cannot vouch for also when the project is current"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "6.9.0"
+          }
+        },
+        {
+          "manifestPush": {
+            "skills.names": [
+              "_shared",
+              "retired-skill-469"
+            ],
+            "commands.names": [
+              "retired-command-469"
+            ]
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Everything is up to date",
+          "Dropped 3 skill/command name(s)"
+        ],
+        "notContains": [
+          "Backup:"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"names\""
+            ],
+            "notContains": [
+              "\"_shared\"",
+              "retired-skill-469",
+              "retired-command-469"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "beta6-update-drops-ghost-names",
       "workspace": "beta6",
-      "title": "uds update --apply removes skill and command names UDS cannot vouch for from the manifest, and keeps its backup in the one .uds-backups folder",
-      "titleZh": "uds update --apply 會從 manifest 移除 UDS 無法擔保的技能與命令名稱，且備份放在單一 .uds-backups 資料夾",
+      "title": "uds update --apply removes skill and command names UDS cannot vouch for from the manifest, and keeps its backup in the one .uds-backups folder (a standard file is removed first so the plan has an action and a backup is made: a project uds init just made is current, XSPEC-482 R6)",
+      "titleZh": "uds update --apply 會從 manifest 移除 UDS 無法擔保的技能與命令名稱，且備份放在單一 .uds-backups 資料夾（先移除一個標準檔，計畫才有動作、才會做備份：uds init 剛建好的專案已是最新，XSPEC-482 R6）",
       "changelog": [
         "Behavior change — uds update now removes names UDS cannot vouch for",
         "Behavior change — uds update backups now live in one folder"
       ],
       "prepare": [
+        {
+          "removeFile": ".standards/checkin-standards.ai.yaml"
+        },
         {
           "setManifest": {
             "upstream.version": "6.9.0"
@@ -3457,8 +3517,8 @@
       "platform": "all",
       "id": "release-help-manual",
       "workspace": "r4c-release",
-      "title": "uds release lists its subcommands in a project set to manual release mode",
-      "titleZh": "uds release 在手動發布模式的專案列出它的子指令",
+      "title": "uds release lists its subcommands in a project set to manual release mode (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release 在手動發布模式的專案列出它的子指令（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "smoke": true,
       "changelog": [],
       "prepare": [
@@ -3497,6 +3557,8 @@
         }
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release"
       ],
       "expect": {
@@ -3514,12 +3576,14 @@
       "platform": "all",
       "id": "release-promote",
       "workspace": "r4c-release",
-      "title": "uds release promote <version> says it creates no promotion record and no tag, and lists the next steps for the person to run",
-      "titleZh": "uds release promote <版本> 明說不建立晉升紀錄也不建 tag，並列出要使用者自己執行的下一步",
+      "title": "uds release promote <version> says it creates no promotion record and no tag, and lists the next steps for the person to run (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release promote <版本> 明說不建立晉升紀錄也不建 tag，並列出要使用者自己執行的下一步（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "uds release promote <version> no longer prints"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "promote",
         "1.2.0"
@@ -3573,12 +3637,14 @@
       "platform": "all",
       "id": "release-deploy-staging",
       "workspace": "r4c-release",
-      "title": "uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it)",
-      "titleZh": "uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）",
+      "title": "uds release deploy <env> records the deployment in deployments.yaml (config as uds generates it) (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release deploy <環境> 把部署記入 deployments.yaml（設定檔是 uds 自己產生的形狀）（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "deploy",
         "staging"
@@ -3606,12 +3672,14 @@
       "platform": "all",
       "id": "release-deploy-result",
       "workspace": "r4c-release",
-      "title": "uds release deploy <env> --result passed updates that deployment's recorded result",
-      "titleZh": "uds release deploy <環境> --result passed 更新該筆部署紀錄的結果",
+      "title": "uds release deploy <env> --result passed updates that deployment's recorded result (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release deploy <環境> --result passed 更新該筆部署紀錄的結果（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "deploy",
         "staging",
@@ -3636,11 +3704,13 @@
       "platform": "all",
       "id": "release-manifest-checksum",
       "workspace": "r4c-release",
-      "title": "uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum",
-      "titleZh": "uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json",
+      "title": "uds release manifest --checksum <hash> writes build-manifest.json with the version, commit and checksum (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release manifest --checksum <雜湊> 寫出含版本、commit、checksum 的 build-manifest.json（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "smoke": true,
       "changelog": [],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "manifest",
         "--checksum",
@@ -3667,12 +3737,14 @@
       "platform": "all",
       "id": "release-verify-artifact",
       "workspace": "r4c-release",
-      "title": "uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result",
-      "titleZh": "uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果",
+      "title": "uds release verify --artifact <file> checks the file against the recorded checksum and the commit, and shows the staging result (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release verify --artifact <檔> 比對檔案與紀錄的 checksum 及 commit，並顯示 staging 結果（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "`uds release deploy <env>` refused every environment in a project"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "verify",
         "--artifact",
@@ -3694,12 +3766,14 @@
       "platform": "all",
       "id": "release-verify-wrong-artifact",
       "workspace": "r4c-release",
-      "title": "uds release verify --artifact <another file> reports the checksum mismatch and ends with exit code 1",
-      "titleZh": "uds release verify --artifact <別的檔> 回報 checksum 不符，並以結束碼 1 結束",
+      "title": "uds release verify --artifact <another file> reports the checksum mismatch and ends with exit code 1 (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release verify --artifact <別的檔> 回報 checksum 不符，並以結束碼 1 結束（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "Behavior change — uds release verify now ends with exit code 1 when verification fails"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "verify",
         "--artifact",
@@ -3721,12 +3795,14 @@
       "platform": "all",
       "id": "release-verify-missing-artifact",
       "workspace": "r4c-release",
-      "title": "uds release verify --artifact <a file that is not there> ends with exit code 2 (could not verify), not 0",
-      "titleZh": "uds release verify --artifact <不存在的檔> 以結束碼 2 結束（無法驗證），不是 0",
+      "title": "uds release verify --artifact <a file that is not there> ends with exit code 2 (could not verify), not 0 (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release verify --artifact <不存在的檔> 以結束碼 2 結束（無法驗證），不是 0（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "Behavior change — uds release verify now ends with exit code 1 when verification fails"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "verify",
         "--artifact",
@@ -6149,15 +6225,16 @@
       "platform": "all",
       "id": "r4b-compile-init",
       "workspace": "r4b-compile",
-      "title": "uds init sets up a project for the compile steps",
-      "titleZh": "uds init 建立專案（供 compile 步驟使用）",
+      "title": "uds init --with-hooks sets up a project with the hook scripts (uds compile compiles only a standard whose hook script is in the project, XSPEC-482 R4c)",
+      "titleZh": "uds init --with-hooks 建立含掛鉤腳本的專案（uds compile 只編譯掛鉤腳本在專案裡的標準，XSPEC-482 R4c）",
       "changelog": [],
       "smoke": true,
       "uds": [
         "init",
         "-y",
         "--skills-location",
-        "none"
+        "none",
+        "--with-hooks"
       ],
       "expect": {
         "contains": [
@@ -6166,6 +6243,9 @@
         "files": [
           {
             "path": ".standards/manifest.json"
+          },
+          {
+            "path": "scripts/hooks/validate-commit-msg.mjs"
           }
         ]
       }
@@ -6174,8 +6254,8 @@
       "platform": "all",
       "id": "r4b-compile-dry-run",
       "workspace": "r4b-compile",
-      "title": "uds compile --dry-run prints the hook configuration it would write and writes nothing",
-      "titleZh": "uds compile --dry-run 印出將要寫入的 hook 設定，且不寫任何檔",
+      "title": "uds compile --dry-run prints the hook configuration it would write and writes nothing (init --with-hooks wrote a settings.json; it is removed first so \"writes nothing\" can be read back)",
+      "titleZh": "uds compile --dry-run 印出將要寫入的 hook 設定，且不寫任何檔（init --with-hooks 已寫過 settings.json，先移除它，才能讀回「不寫任何檔」）",
       "changelog": [],
       "smoke": true,
       "uds": [
@@ -6197,7 +6277,12 @@
             "exists": false
           }
         ]
-      }
+      },
+      "prepare": [
+        {
+          "removeFile": ".claude/settings.json"
+        }
+      ]
     },
     {
       "platform": "all",
@@ -8397,8 +8482,8 @@
       "platform": "all",
       "id": "xspec475-release-manifest-mode",
       "workspace": "xspec475-release",
-      "title": "uds release manifest runs in a project whose UDS manifest records release_mode manual and that has no release-config.yaml",
-      "titleZh": "uds release manifest 在 UDS manifest 記錄 release_mode 為 manual 且沒有 release-config.yaml 的專案可執行",
+      "title": "uds release manifest runs in a project whose UDS manifest records release_mode manual and that has no release-config.yaml (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release manifest 在 UDS manifest 記錄 release_mode 為 manual 且沒有 release-config.yaml 的專案可執行（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
       ],
@@ -8434,6 +8519,8 @@
         }
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "manifest",
         "--checksum",
@@ -8460,12 +8547,14 @@
       "platform": "all",
       "id": "xspec475-release-verify-manifest-mode",
       "workspace": "xspec475-release",
-      "title": "uds release verify runs in manual mode taken from the manifest and verifies the artifact",
-      "titleZh": "uds release verify 以取自 manifest 的 manual 模式執行並驗證 artifact",
+      "title": "uds release verify runs in manual mode taken from the manifest and verifies the artifact (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release verify 以取自 manifest 的 manual 模式執行並驗證 artifact（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "verify",
         "--artifact",
@@ -8486,8 +8575,8 @@
     {
       "platform": "all",
       "id": "xspec475-release-verify-says-why",
-      "title": "uds release verify refuses with exit 2 and says release-config.yaml is missing and the manifest records ci-cd",
-      "titleZh": "uds release verify 以 2 拒絕，並說明缺 release-config.yaml 且 manifest 記錄 ci-cd",
+      "title": "uds release verify refuses with exit 2 and says release-config.yaml is missing and the manifest records ci-cd (run with --ui-lang zh-tw: uds release now follows the display language, XSPEC-482 R14b)",
+      "titleZh": "uds release verify 以 2 拒絕，並說明缺 release-config.yaml 且 manifest 記錄 ci-cd（以 --ui-lang zh-tw 執行：uds release 現在依顯示語言輸出，XSPEC-482 R14b）",
       "changelog": [
         "Behavior change - uds release promote|deploy|manifest|verify read the release mode from the manifest"
       ],
@@ -8498,6 +8587,8 @@
         }
       ],
       "uds": [
+        "--ui-lang",
+        "zh-tw",
         "release",
         "verify"
       ],
