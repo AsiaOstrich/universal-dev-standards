@@ -260,6 +260,26 @@ export const messages = {
     },
 
     // Release Mode
+    // Prompts of the optional uds.project.yaml step of `uds init` (XSPEC-482 R13: they were English in every language).
+    projectContract: {
+      confirmCreate: 'Create uds.project.yaml (project command contract)?',
+      title: '📋 Project Command Contract (uds.project.yaml)',
+      intro1: 'Tell UDS how to run standard commands in this project (language-agnostic).',
+      intro2: 'Press Enter to accept a suggestion, or type your own. Leave blank to skip.',
+      detected: 'Detected suggestions:',
+      alreadyExists: 'uds.project.yaml already exists.',
+      keptSections: 'These sections are kept exactly as they are: {sections}.',
+      noOtherSections: 'It has no other sections.',
+      updateQuestion: 'Update the commands (test, lint, build, security) in the existing uds.project.yaml? {kept}',
+      replaceQuestion: 'The existing uds.project.yaml cannot be read as YAML, so none of its content can be kept. Replace the whole file?',
+      skippedKeeping: 'Skipped — keeping existing uds.project.yaml',
+      commandOptional: '{intent} command (optional):',
+      commandDefault: '{intent} command (default: {value}):',
+      noneEntered: 'No commands entered — uds.project.yaml not created.',
+      updated: '✔ uds.project.yaml updated (other sections kept as they were)',
+      created: '✔ uds.project.yaml created',
+      path: 'Path: {path}'
+    },
     releaseMode: {
       title: 'Release Mode:',
       description: 'Choose release mode, affects how versions are published',
@@ -1645,6 +1665,26 @@ export const messages = {
     },
 
     // Release Mode
+    // `uds init` 選填 uds.project.yaml 步驟的提問（XSPEC-482 R13：原本每種語言都是英文）。
+    projectContract: {
+      confirmCreate: '要建立 uds.project.yaml（專案指令契約）嗎？',
+      title: '📋 專案指令契約（uds.project.yaml）',
+      intro1: '告訴 UDS 這個專案如何執行標準指令（與程式語言無關）。',
+      intro2: '按 Enter 接受建議值，或自行輸入。留空代表略過。',
+      detected: '偵測到的建議值：',
+      alreadyExists: 'uds.project.yaml 已存在。',
+      keptSections: '這些區段會原封不動保留：{sections}。',
+      noOtherSections: '它沒有其他區段。',
+      updateQuestion: '要更新現有 uds.project.yaml 裡的指令（test、lint、build、security）嗎？{kept}',
+      replaceQuestion: '現有的 uds.project.yaml 無法當成 YAML 讀取，所以其中內容都無法保留。要整份取代嗎？',
+      skippedKeeping: '已略過——保留現有的 uds.project.yaml',
+      commandOptional: '{intent} 指令（選填）：',
+      commandDefault: '{intent} 指令（預設：{value}）：',
+      noneEntered: '沒有輸入任何指令——未建立 uds.project.yaml。',
+      updated: '✔ uds.project.yaml 已更新（其他區段維持原樣）',
+      created: '✔ 已建立 uds.project.yaml',
+      path: '路徑：{path}'
+    },
     releaseMode: {
       title: '發布模式:',
       description: '選擇發布模式，影響版本如何發布',
@@ -3023,6 +3063,26 @@ export const messages = {
     },
 
     // Release Mode
+    // `uds init` 可选的 uds.project.yaml 步骤的提问（XSPEC-482 R13：原本每种语言都是英文）。
+    projectContract: {
+      confirmCreate: '要创建 uds.project.yaml（项目命令契约）吗？',
+      title: '📋 项目命令契约（uds.project.yaml）',
+      intro1: '告诉 UDS 这个项目如何执行标准命令（与编程语言无关）。',
+      intro2: '按 Enter 接受建议值，或自行输入。留空表示跳过。',
+      detected: '检测到的建议值：',
+      alreadyExists: 'uds.project.yaml 已存在。',
+      keptSections: '这些区段会原封不动保留：{sections}。',
+      noOtherSections: '它没有其他区段。',
+      updateQuestion: '要更新现有 uds.project.yaml 里的命令（test、lint、build、security）吗？{kept}',
+      replaceQuestion: '现有的 uds.project.yaml 无法当作 YAML 读取，所以其中内容都无法保留。要整份替换吗？',
+      skippedKeeping: '已跳过——保留现有的 uds.project.yaml',
+      commandOptional: '{intent} 命令（可选）：',
+      commandDefault: '{intent} 命令（默认：{value}）：',
+      noneEntered: '没有输入任何命令——未创建 uds.project.yaml。',
+      updated: '✔ uds.project.yaml 已更新（其他区段保持原样）',
+      created: '✔ 已创建 uds.project.yaml',
+      path: '路径：{path}'
+    },
     releaseMode: {
       title: '发布模式:',
       description: '选择发布模式，影响版本如何发布',

@@ -23,30 +23,73 @@
  * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md (REQ-1)
  */
 
-const VALID_TYPES = [
-  'feat', 'fix', 'docs', 'chore', 'test',
-  'refactor', 'style', 'perf', 'ci', 'build', 'revert',
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+/**
+ * Used only when the project has no commit-message option file: the Conventional Commits set. Same list `uds simulate
+ * -s commit-message` falls back to (FALLBACK_TYPES in cli/src/utils/commit-message-judge.js).
+ */
+const FALLBACK_TYPES = [
+  'feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert',
 ];
 
-const COMMIT_PATTERN = new RegExp(
-  `^(${VALID_TYPES.join('|')})(\\(.+\\))?:\\s.+`
-);
+/**
+ * The commit types the project allows: those listed by the commit-message option files installed in
+ * `.standards/options/` (a file whose `meta.parent` is `commit-message`), or the fallback set when there are none.
+ *
+ * XSPEC-482 R12: this was a fixed list that lacked `security`, so `uds simulate` (which reads these same files) passed
+ * `security(auth): rotate keys` and this hook refused it. The two now read one source. The hook has no YAML parser
+ * to lean on (it runs in the adopter's project with no dependencies), so it reads the two things it needs line by line:
+ * the `parent:` of the `meta:` block and the `- type:` entries under `types:`.
+ *
+ * @param {string} [root] - the project root; defaults to $CLAUDE_PROJECT_DIR or the working directory
+ * @returns {string[]}
+ */
+export function allowedTypes(root = process.env.CLAUDE_PROJECT_DIR || process.cwd()) {
+  const found = new Set();
+  const optionsDir = join(root, '.standards', 'options');
+  for (const dir of [optionsDir, join(optionsDir, 'commit-message')]) {
+    if (!existsSync(dir)) continue;
+    let names = [];
+    try { names = readdirSync(dir).filter((n) => n.endsWith('.ai.yaml')); } catch { continue; }
+    for (const name of names) {
+      let text = '';
+      try { text = readFileSync(join(dir, name), 'utf-8').replace(/\r\n/g, '\n'); } catch { continue; }
+      if (!/^\s+parent:\s*["']?commit-message["']?\s*$/m.test(text)) continue;
+      const lines = text.split('\n');
+      const start = lines.findIndex((l) => /^types:\s*$/.test(l));
+      if (start === -1) continue;
+      for (let i = start + 1; i < lines.length; i++) {
+        if (/^\S/.test(lines[i]) && !lines[i].startsWith('#')) break; // next top-level key
+        const m = /^\s*-\s+type:\s*["']?([^"'#\s][^"'#]*?)["']?\s*(?:#.*)?$/.exec(lines[i]);
+        if (m) found.add(m[1]);
+      }
+    }
+  }
+  return found.size > 0 ? [...found] : FALLBACK_TYPES;
+}
+
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Validate a commit message against Conventional Commits format.
  * @param {string} msg - The commit message to validate
+ * @param {string[]} [types] - the allowed types (default: the project's, see allowedTypes)
  * @returns {boolean} true if valid
  */
-export function validateCommitMessage(msg) {
+export function validateCommitMessage(msg, types = allowedTypes()) {
   if (!msg || typeof msg !== 'string') return false;
-  return COMMIT_PATTERN.test(msg.trim());
+  // `type(scope)!: subject`: scope and the breaking-change mark are optional, as in `uds simulate`.
+  const pattern = new RegExp(`^(${types.map(escapeRe).join('|')})(\\(.+\\))?!?:\\s.+`, 'u');
+  return pattern.test(msg.trim());
 }
 
 // CLI mode.
 function complain(msg) {
   console.error(`❌ Invalid commit message format: "${msg}"`);
   console.error(`   Expected: <type>(<scope>): <subject>`);
-  console.error(`   Valid types: ${VALID_TYPES.join(', ')}`);
+  console.error(`   Valid types: ${allowedTypes().join(', ')}`);
 }
 
 /**

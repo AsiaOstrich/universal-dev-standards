@@ -1569,7 +1569,7 @@ export function mergeProjectConfigYaml(existing, commands) {
 export async function promptProjectContractStep(projectPath) {
   try {
     const wantContract = await inquirerConfirm({
-      message: 'Create uds.project.yaml (project command contract)?',
+      message: t().projectContract.confirmCreate,
       default: true
     });
     if (wantContract) {
@@ -1600,22 +1600,21 @@ export async function promptProjectCommandContract(projectPath) {
     existing = describeProjectConfig(existingText);
 
     console.log();
-    console.log(chalk.yellow('  uds.project.yaml already exists.'));
+    console.log(chalk.yellow(`  ${t().projectContract.alreadyExists}`));
 
     const kept = existing.sections.filter(name => name !== 'commands');
+    const pc = t().projectContract;
     const message = existing.readable
-      ? 'Update the commands (test, lint, build, security) in the existing uds.project.yaml? ' +
-        (kept.length > 0
-          ? `These sections are kept exactly as they are: ${kept.join(', ')}.`
-          : 'It has no other sections.')
+      ? pc.updateQuestion.replace('{kept}', kept.length > 0
+        ? pc.keptSections.replace('{sections}', kept.join(', '))
+        : pc.noOtherSections)
       // Not YAML: nothing in it can be kept, so the question names the loss instead of hiding it.
-      : 'The existing uds.project.yaml cannot be read as YAML, so none of its content can be kept. ' +
-        'Replace the whole file?';
+      : pc.replaceQuestion;
 
     const overwrite = await inquirerConfirm({ message, default: false });
 
     if (!overwrite) {
-      console.log(chalk.gray('  Skipped — keeping existing uds.project.yaml'));
+      console.log(chalk.gray(`  ${t().projectContract.skippedKeeping}`));
       return false;
     }
   }
@@ -1624,13 +1623,14 @@ export async function promptProjectCommandContract(projectPath) {
   const hasAnySuggestion = Object.values(suggestions).some(v => v);
 
   console.log();
-  console.log(chalk.bold('📋 Project Command Contract (uds.project.yaml)'));
-  console.log(chalk.gray('  Tell UDS how to run standard commands in this project (language-agnostic).'));
-  console.log(chalk.gray('  Press Enter to accept a suggestion, or type your own. Leave blank to skip.'));
+  const pcm = t().projectContract;
+  console.log(chalk.bold(pcm.title));
+  console.log(chalk.gray(`  ${pcm.intro1}`));
+  console.log(chalk.gray(`  ${pcm.intro2}`));
   console.log();
 
   if (hasAnySuggestion) {
-    console.log(chalk.gray('  Detected suggestions:'));
+    console.log(chalk.gray(`  ${pcm.detected}`));
     for (const [intent, cmd] of Object.entries(suggestions)) {
       if (cmd) console.log(chalk.gray(`    ${intent}: ${cmd}`));
     }
@@ -1644,7 +1644,7 @@ export async function promptProjectCommandContract(projectPath) {
     // A command the file already declares is the default, so Enter keeps it; the ecosystem guess only fills gaps.
     const defaultVal = existing?.commands?.[intent] || suggestions[intent] || '';
     const answer = await input({
-      message: `  ${intent} command${defaultVal ? ` (default: ${defaultVal})` : ' (optional)'}:`,
+      message: `  ${defaultVal ? pcm.commandDefault.replace('{intent}', intent).replace('{value}', defaultVal) : pcm.commandOptional.replace('{intent}', intent)}`,
       default: defaultVal
     });
     commands[intent] = answer.trim();
@@ -1652,7 +1652,7 @@ export async function promptProjectCommandContract(projectPath) {
 
   const hasAnyCommand = Object.values(commands).some(v => v);
   if (!hasAnyCommand) {
-    console.log(chalk.gray('  No commands entered — uds.project.yaml not created.'));
+    console.log(chalk.gray(`  ${pcm.noneEntered}`));
     return false;
   }
 
@@ -1665,7 +1665,7 @@ export async function promptProjectCommandContract(projectPath) {
   writeFileSync(contractPath, content, 'utf-8');
 
   console.log();
-  console.log(chalk.green(merging ? '  ✔ uds.project.yaml updated (other sections kept as they were)' : '  ✔ uds.project.yaml created'));
-  console.log(chalk.gray(`    Path: ${contractPath}`));
+  console.log(chalk.green(`  ${merging ? pcm.updated : pcm.created}`));
+  console.log(chalk.gray(`    ${pcm.path.replace('{path}', contractPath)}`));
   return true;
 }

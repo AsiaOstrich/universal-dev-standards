@@ -52,7 +52,7 @@ export function verifyManifest(manifest, gitTagCommit, options = {}) {
   if (!manifest.commit) {
     errors.push('manifest missing commit field');
   } else if (manifest.commit !== gitTagCommit) {
-    errors.push(`commit mismatch: manifest has "${manifest.commit}", git tag points to "${gitTagCommit}"`);
+    errors.push(`commit mismatch: manifest has "${manifest.commit}", the current HEAD is "${gitTagCommit}"`);
   }
 
   const recorded = manifest.checksum?.package ?? null;

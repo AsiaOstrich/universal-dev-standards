@@ -309,18 +309,18 @@ program
       console.error(result.error);
       process.exit(1);
     }
-    if (result.dryRun) {
     // What was left out goes to stderr in a dry run, so stdout stays the JSON it has always been.
     const note = result.dryRun ? console.error : console.log;
+    if (result.dryRun) {
       console.log(JSON.stringify(result.config, null, 2));
     } else {
       console.log(`Compiled ${result.compiledCount} enforcement standard(s) for ${options.target}`);
     }
-  });
     for (const s of result.skipped || []) note(`  Skipped ${s.id}: ${s.why}`);
     if ((result.skipped || []).length > 0) {
       note('  Install the hook scripts with \'uds update --with-hooks\' (or \'uds init --with-hooks\'), then compile again.');
     }
+  });
 
 program
   .command('report')

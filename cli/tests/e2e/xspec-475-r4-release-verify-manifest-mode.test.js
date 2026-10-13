@@ -48,10 +48,10 @@ it.each(['manual', 'hybrid'])('uds release verify runs in %s mode when the manif
   const dir = project({ manifestMode: mode });
 
   // The same project builds its manifest and verifies it: both subcommands are available in the recorded mode.
-  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir);
+  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir, { ui: 'zh-tw' });
   expect(made.code, made.stdout + made.stderr).toBe(0);
 
-  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir);
+  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stdout + run.stderr).toBe(0);
   expect(run.stdout).toContain('Manifest 驗證通過');
   expect(run.stdout, 'the refusal for a mode with no verify is not shown').not.toContain('僅在 manual 或 hybrid 模式下可用');
@@ -61,7 +61,7 @@ it.each(['manual', 'hybrid'])('uds release verify runs in %s mode when the manif
 
 it('uds release verify refuses with exit 2 and names the missing release-config.yaml and the manifest\'s mode when that mode is ci-cd (XSPEC-475 R4)', async () => {
   const dir = project({ manifestMode: 'ci-cd' });
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stdout + run.stderr).toBe(2);
   expect(run.stdout).toContain('verify 子命令僅在 manual 或 hybrid 模式下可用');
   expect(run.stdout).toContain('找不到 .standards/release-config.yaml');
@@ -70,7 +70,7 @@ it('uds release verify refuses with exit 2 and names the missing release-config.
 
 it('uds release verify refuses with exit 2 and says it fell back to ci-cd because neither release-config.yaml nor the manifest names a mode (XSPEC-475 R4)', async () => {
   const dir = project();
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stdout + run.stderr).toBe(2);
   expect(run.stdout).toContain('verify 子命令僅在 manual 或 hybrid 模式下可用');
   expect(run.stdout).toContain('找不到 .standards/release-config.yaml');
@@ -79,7 +79,7 @@ it('uds release verify refuses with exit 2 and says it fell back to ci-cd becaus
 
 it('uds release verify lets release-config.yaml win over the manifest: a file that says ci-cd refuses even when the manifest says manual (XSPEC-475 R4)', async () => {
   const dir = project({ manifestMode: 'manual', configMode: 'ci-cd' });
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stdout + run.stderr).toBe(2);
   expect(run.stdout).toContain('verify 子命令僅在 manual 或 hybrid 模式下可用');
   expect(run.stdout, 'the mode came from the file, so no fallback is described').not.toContain('取自 .standards/manifest.json');
@@ -87,9 +87,9 @@ it('uds release verify lets release-config.yaml win over the manifest: a file th
 
 it('uds release verify behaves as before when release-config.yaml says manual: no note about the manifest (XSPEC-475 R4)', async () => {
   const dir = project({ manifestMode: 'ci-cd', configMode: 'manual' });
-  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir);
+  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir, { ui: 'zh-tw' });
   expect(made.code, made.stdout + made.stderr).toBe(0);
-  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir);
+  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stdout + run.stderr).toBe(0);
   expect(run.stdout).toContain('Manifest 驗證通過');
   expect(run.stdout).not.toContain('取自 .standards/manifest.json');

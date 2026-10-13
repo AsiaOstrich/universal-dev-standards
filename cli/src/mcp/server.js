@@ -123,6 +123,9 @@ export class McpServer {
     switch (method) {
       case 'initialize':
         return this.handleInitialize(request);
+      case 'ping':
+        // MCP utility: a liveness check; the answer is an empty result (XSPEC-482 R14c).
+        return { jsonrpc: '2.0', id, result: {} }; // wire:mcp-ping
       case 'tools/list':
         return this.handleToolsList(request);
       case 'tools/call':
@@ -252,12 +255,15 @@ export class McpServer {
         result: toolResult,
       };
     } catch (err) {
+      // A tool that ran and failed (a file it needed is not there) answers with a RESULT marked `isError`, as MCP
+      // specifies for tool execution errors, so the model calling it can read the reason and go on. A JSON-RPC
+      // error is for a request the server could not take at all (XSPEC-482 R14c).
       return {
         jsonrpc: '2.0',
         id,
-        error: {
-          code: -32000,
-          message: err.message,
+        result: {
+          content: [{ type: 'text', text: err.message }],
+          isError: true, // wire:mcp-tool-error-is-a-result
         },
       };
     }

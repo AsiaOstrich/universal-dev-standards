@@ -8,6 +8,7 @@ import {
   SUPPORTED_CONTENT_MODES
 } from '../core/manifest.js';
 import { t, detectLanguage } from '../i18n/messages.js';
+import { getAllStandards } from '../utils/registry.js';
 import { detectAll } from '../utils/detector.js';
 import { promptConfirm } from '../prompts/init.js';
 import { runInitFlow } from '../flows/init-flow.js';
@@ -38,6 +39,17 @@ import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 import { installGateScripts } from '../utils/gate-scripts.js';
 
 /**
+ * The values `--output-lang` accepts: the ids of the commit-message option files this UDS ships (the registry lists
+ * them under the commit-message standard's `output_language` options), so a new option file is accepted without
+ * a second list to keep in step.
+ * @returns {string[]}
+ */
+export function supportedOutputLanguages() {
+  const commitMessage = getAllStandards().find((s) => s.id === 'commit-message');
+  return (commitMessage?.options?.output_language?.choices || []).map((c) => c.id);
+}
+
+/**
  * Init command - initialize standards in current project
  * @param {Object} options - Command options
  */
@@ -50,6 +62,18 @@ export async function initCommand(options) {
   // See DEC-044 / XSPEC-071 — UDS source repo already ships its standards;
   // running `uds init` here is nonsensical. `--force` bypasses.
   guardAgainstSelfAdoption('init', options, projectPath);
+
+  // XSPEC-482 R13: `--output-lang` takes the ids of the commit-message option files UDS ships. Anything else
+  // (`simplified-chinese`, `klingon`) used to be recorded in the manifest as if it were a choice while no option
+  // file was installed for it. Say which values exist, before anything is written.
+  if (options.outputLang !== undefined) {
+    const valid = supportedOutputLanguages();
+    if (!valid.includes(options.outputLang)) { // wire:init-validates-output-lang
+      console.error(chalk.red(`Unsupported --output-lang "${options.outputLang}". Supported: ${valid.join(', ')}.`));
+      process.exit(1);
+      return;
+    }
+  }
 
   console.log();
   console.log(chalk.bold(msg.title));
@@ -368,6 +392,25 @@ export async function initCommand(options) {
   }
   persistRecorder(projectPath, installRecorder);
 
+  // 4.85. XSPEC-482 R6: leave the project in the form `uds update` would leave it in. The init writers and the
+  // reconciler are two generators: init wrote the manifest in the 3.3.0 form (standards as file paths) and an
+  // integration block whose list of standards is ordered differently from the one `update` writes, so the first
+  // `uds update --plan` on a brand new project already showed changes (CLAUDE.md, AGENTS.md "Migrate Block") and the
+  // first `--apply` rewrote the manifest and GEMINI.md's whole index. Running the reconciler once, without a backup
+  // (there is nothing to go back to yet), makes the two agree by construction instead of by keeping two writers in step.
+  // A failure here is reported and does not fail the install: the project is complete without it.
+  if (config.contentLayout !== 'layered') {
+    try {
+      const { reconcile } = await import('../reconciler/index.js');
+      const converged = await reconcile(projectPath, { backup: false }); // wire:init-converges-to-current-format
+      if (!converged.success) {
+        console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${converged.errors.join('; ')} (\`uds update --apply\` will finish it)`));
+      }
+    } catch (e) {
+      console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${e.message} (\`uds update --apply\` will finish it)`));
+    }
+  }
+
   // 4.9. XSPEC-465 R1: tell the adopter now if a personal skill of theirs has the same name as a UDS skill
   // that was just installed (the personal one wins, with no error). Information only: it does not change
   // what was installed or the exit code.
@@ -392,25 +435,6 @@ export async function initCommand(options) {
 
   // 5. Setup Pre-commit Hook
   await setupHuskyHook(projectPath);
-  // 4.85. XSPEC-482 R6: leave the project in the form `uds update` would leave it in. The init writers and the
-  // reconciler are two generators: init wrote the manifest in the 3.3.0 form (standards as file paths) and an
-  // integration block whose list of standards is ordered differently from the one `update` writes, so the first
-  // `uds update --plan` on a brand new project already showed changes (CLAUDE.md, AGENTS.md "Migrate Block") and the
-  // first `--apply` rewrote the manifest and GEMINI.md's whole index. Running the reconciler once, without a backup
-  // (there is nothing to go back to yet), makes the two agree by construction instead of by keeping two writers in step.
-  // A failure here is reported and does not fail the install: the project is complete without it.
-  if (config.contentLayout !== 'layered') {
-    try {
-      const { reconcile } = await import('../reconciler/index.js');
-      const converged = await reconcile(projectPath, { backup: false }); // wire:init-converges-to-current-format
-      if (!converged.success) {
-        console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${converged.errors.join('; ')} (\`uds update --apply\` will finish it)`));
-      }
-    } catch (e) {
-      console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${e.message} (\`uds update --apply\` will finish it)`));
-    }
-  }
-
 
   process.exit(0);
 }

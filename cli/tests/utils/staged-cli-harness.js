@@ -209,9 +209,9 @@ export function createHarness(label, { overrides = {} } = {}) {
       // Quiet is not enough: on a slow machine the CLI can be quiet while it is still working, and a key typed
       // before the question is drawn waits in the input buffer and answers the NEXT question (the update question
       // of the uds.project.yaml wizard would get the default, no). So a key is typed only when the screen ends
-      // the way a question ends: a select or checkbox footer, a (Y/n) confirm, or a text input ending in a colon (with its default, in parentheses, after it).
+      // the way a question ends: a select or checkbox footer, a (Y/n) confirm, or a text input ending in a colon (ASCII or full-width, with its default, in parentheses, after it).
       // (Whitespace is dropped first: the library wraps a long question at the terminal width, even inside "(y/N)".)
-      const endsLikeAQuestion = (text) => /(⏎(select|submit)|\(Y\/n\)|\(y\/N\)|:(\([^()]*\))?)$/.test(text.replace(/\s+/g, ''));
+      const endsLikeAQuestion = (text) => /(⏎(select|submit)|\(Y\/n\)|\(y\/N\)|[:：](\([^()]*\)|（[^（）]*）)?)$/.test(text.replace(/\s+/g, ''));
       const armIdle = () => {
         if (!drive) return;
         clearTimeout(idle);

@@ -22,10 +22,20 @@ import ora from 'ora';
  * @returns {import('ora').Ora}
  */
 export function createSpinner(options) {
-  if (typeof options === 'string') {
-    return ora({ text: options, stream: process.stdout });
-  }
-  return ora({ stream: process.stdout, ...options });
+  const base = typeof options === 'string' ? { text: options } : options;
+  return ora({ stream: process.stdout, ...base, ...disabledWhenNoWidth(process.stdout) });
+}
+
+/**
+ * ora's clear step divides the length of the line by the stream's width to know how many lines to erase. A terminal that
+ * reports a width of 0 (a pty opened with no window size, which is what `expect` and some CI runners give a child) makes
+ * that Infinity, and the spinner sat in the erase loop at full CPU, so the command never finished (XSPEC-482 R14f).
+ * With no usable width there is nothing to animate: the spinner is switched off and prints its plain lines instead.
+ * @param {{isTTY?: boolean, columns?: number}} stream
+ * @returns {{isEnabled?: boolean}}
+ */
+export function disabledWhenNoWidth(stream) {
+  return stream && stream.isTTY && !(stream.columns > 0) ? { isEnabled: false } : {}; // wire:spinner-off-without-width
 }
 
 export default createSpinner;

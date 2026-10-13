@@ -96,8 +96,8 @@ export function gitEnv(home) {
 }
 
 /** Run a program; `{ code, all }` where all is stdout then stderr. */
-export function runProgram(cmd, args, cwd, env) {
-  const r = spawnSync(cmd, args, { cwd, env, encoding: 'utf8', timeout: 120000 });
+export function runProgram(cmd, args, cwd, env, { input } = {}) {
+  const r = spawnSync(cmd, args, { cwd, env, encoding: 'utf8', timeout: 120000, ...(input !== undefined ? { input } : {}) });
   return { code: r.status, out: r.stdout || '', err: r.stderr || '', all: `${r.stdout || ''}${r.stderr || ''}` };
 }
 
@@ -147,4 +147,27 @@ export function installPublishedUds(version, home) {
 export function cleanPublished() {
   for (const { dir } of published.values()) rmSync(dir, { recursive: true, force: true });
   published.clear();
+}
+
+// ── a real terminal ──────────────────────────────────────────────────────────────────────────────
+
+const PTY_RUN = join(import.meta.dirname, 'pty-run.py');
+
+/** Is a pseudo-terminal available here? (python3 with the standard `pty` module; not on Windows.) */
+export function ptyAvailable() {
+  if (process.platform === 'win32') return false;
+  const r = spawnSync('python3', ['-c', 'import pty, termios'], { encoding: 'utf8' });
+  return r.status === 0;
+}
+
+/**
+ * Run `cmd` on a pseudo-terminal of the given size and answer its prompts (see pty-run.py).
+ * @param {{cmd: string[], cwd: string, env: Object, cols?: number, rows?: number, timeout?: number, script?: Array<{expect: string, send: string}>}} spec
+ * @returns {{code: number|null, timedOut: boolean, out: string, unanswered: string[]}}
+ */
+export function runInPty(spec) {
+  const r = spawnSync('python3', [PTY_RUN, JSON.stringify(spec)], { encoding: 'utf8', timeout: ((spec.timeout || 30) + 20) * 1000 });
+  if (r.status !== 0) throw new Error(`pty-run failed (${r.status}): ${r.stderr}`);
+  const parsed = JSON.parse(r.stdout);
+  return { ...parsed, out: stripAnsi(parsed.out) };
 }
