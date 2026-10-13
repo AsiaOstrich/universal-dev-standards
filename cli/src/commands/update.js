@@ -76,7 +76,7 @@ import {
   cleanupBackups
 } from '../reconciler/index.js';
 import { stepWritePaths } from '../reconciler/install-roots.js';
-import { alignRecordedVersions } from '../reconciler/recorded-versions.js';
+import { alignRecordedVersions, alignUpstreamVersion } from '../reconciler/recorded-versions.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile, SUPPORTED_AI_TOOLS, getToolFormat } from '../core/constants.js';
@@ -3789,7 +3789,9 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     // (they only ever get corrected by a write, and an up-to-date project has none coming).
     const current = readManifest(projectPath);
     // XSPEC-475 R6: nothing to apply means the files are what this UDS ships; the recorded versions say so too.
-    const aligned = current ? alignRecordedVersions(current).changed : false; // wire:up-to-date-aligns-versions
+    let aligned = current ? alignRecordedVersions(current).changed : false; // wire:up-to-date-aligns-versions
+    // XSPEC-482 R6: the same for the standards version, which only an executed plan used to record.
+    if (current && alignUpstreamVersion(current).changed) aligned = true; // wire:up-to-date-aligns-upstream
     if (current && ((pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0 || aligned)) writeManifest(current, projectPath);
     console.log(chalk.green('Everything is up to date. No changes needed.'));
     // XSPEC-458 R2: "up to date" is about the files UDS manages; say what UDS ships that is not managed here.

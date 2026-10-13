@@ -43,6 +43,7 @@ import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 import * as yaml from 'js-yaml';
 import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
+import { manifestListsStandard } from '../utils/xspec-482.js';
 
 const REAL_CLI_DIR = resolve(import.meta.dirname, '../..');
 const REAL_REPO = resolve(REAL_CLI_DIR, '..');
@@ -173,5 +174,6 @@ it('uds init installs ai-response-navigation with the Rule 12 hedge clause requi
 
   // 7. The manifest `uds init` wrote lists this standard.
   const manifest = JSON.parse(readFileSync(join(projectDir, '.standards', 'manifest.json'), 'utf-8'));
-  expect(manifest.standards).toContain('ai/standards/' + STANDARD);
+  // The manifest lists it by path or by registry id: `uds init` leaves the manifest in the form `uds update` writes (XSPEC-482 R6), which is the id.
+  expect(manifestListsStandard(manifest, 'ai/standards/' + STANDARD)).toBe(true);
 });

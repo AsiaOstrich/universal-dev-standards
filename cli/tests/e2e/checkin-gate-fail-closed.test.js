@@ -424,7 +424,7 @@ describe('the native hook `uds init` writes for a non-Node project can say no', 
     expect(r.code).toBe(0);
     expect(r.all).toContain('Pre-commit checks passed');
     expect(hasCommit(dir, env)).toBe(true);
-    expect(readFileSync(log, 'utf8').trim()).toBe('check');
+    expect(readFileSync(log, 'utf8').trim()).toBe('check --ci'); // the hook runs the check in the mode whose exit code says "issues" (XSPEC-482 R3)
   });
 
   itPosix('the UDS CLI not being installed blocks the commit and says how to fix it (it used to skip in silence)', () => {

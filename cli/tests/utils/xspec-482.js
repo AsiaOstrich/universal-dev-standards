@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync, chmodSync, mkdtempSync, rmSync 
 import { tmpdir } from 'os';
 import { spawnSync } from 'child_process';
 import { join } from 'path';
-import { stripAnsi } from './staged-cli-harness.js';
+import { stripAnsi, REAL_CLI_DIR } from './staged-cli-harness.js';
 import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
 
 export const DOWN = '\x1b[B';
@@ -170,4 +170,19 @@ export function runInPty(spec) {
   if (r.status !== 0) throw new Error(`pty-run failed (${r.status}): ${r.stderr}`);
   const parsed = JSON.parse(r.stdout);
   return { ...parsed, out: stripAnsi(parsed.out) };
+}
+
+// ── what the manifest lists ─────────────────────────────────────────────────────────────────────
+
+
+/**
+ * Does `manifest.standards` list the standard whose AI source is `aiSource` (e.g. `ai/standards/error-codes.ai.yaml`)?
+ * `uds init` used to write the file path; since XSPEC-482 R6 it leaves the manifest in the form `uds update` writes, which
+ * lists the registry id. The id is looked up in the registry file, not derived from the file name.
+ */
+export function manifestListsStandard(manifest, aiSource) {
+  if (manifest.standards.includes(aiSource)) return true;
+  const registry = JSON.parse(readFileSync(join(REAL_CLI_DIR, 'standards-registry.json'), 'utf-8'));
+  const entry = registry.standards.find((s) => s.source === aiSource || s.source?.ai === aiSource);
+  return Boolean(entry && manifest.standards.includes(entry.id));
 }

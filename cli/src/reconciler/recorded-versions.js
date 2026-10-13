@@ -29,3 +29,21 @@ export function alignRecordedVersions(manifest) {
   }
   return { manifest, changed };
 }
+
+/**
+ * Set `upstream.version` (and the date it was recorded) to the standards version this UDS ships (XSPEC-482 R6).
+ *
+ * The same reasoning as for skills and commands above: when a reconcile finds nothing to do, every standard file is exactly
+ * what this UDS ships, so the version recorded for the standards is the shipped one. Only a reconcile that EXECUTED a plan
+ * recorded it, so a project whose files were already current kept the version of the UDS that installed them; it surfaced
+ * once `uds init` left a project with nothing for the first `--apply` to do (the XSPEC-382 R5 end-to-end test seeds an old
+ * version and expects `--apply` to move it).
+ * @param {Object} manifest
+ * @returns {{ manifest: Object, changed: boolean }}
+ */
+export function alignUpstreamVersion(manifest) {
+  const shipped = getRepositoryInfo()?.standards?.version;
+  if (!shipped || !manifest?.upstream || manifest.upstream.version === shipped) return { manifest, changed: false };
+  manifest.upstream = { ...manifest.upstream, version: shipped, installed: new Date().toISOString().split('T')[0] };
+  return { manifest, changed: true };
+}

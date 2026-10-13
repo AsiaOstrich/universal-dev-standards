@@ -20,7 +20,7 @@
  */
 
 import { it, expect, afterAll } from 'vitest';
-import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, cpSync, readdirSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, cpSync, readdirSync, statSync } from 'fs';
 import { join, resolve } from 'path';
 import { createHarness } from '../utils/staged-cli-harness.js';
 import { CURRENT_SCHEMA_VERSION } from '../../src/core/manifest.js';
@@ -30,6 +30,7 @@ const h = createHarness('xspec482-r6-r7-r11');
 afterAll(() => h.cleanup());
 
 const FIXTURE_BACKUP = resolve(import.meta.dirname, '../fixtures/older-uds-backup-6.11.0');
+const FIXTURE_MANIFEST_611 = resolve(import.meta.dirname, '../fixtures/upgrade-from-6.11.0/manifest.json');
 const OFFLINE = '--offline';
 const read = (dir, rel) => readFileSync(join(dir, rel), 'utf-8');
 /** The backup folders in .uds-backups/ (it also holds a .gitignore of its own). */
@@ -84,6 +85,48 @@ it('uds init keeps the uninstall records: uds uninstall right after init removes
   expect(existsSync(join(dir, '.standards'))).toBe(false);
   expect(read(dir, 'GEMINI.md')).toContain('# mine');
   expect(read(dir, '.cursorrules')).toContain('# mine');
+}, 240000);
+
+
+it('uds init --format both keeps both copies of every standard: the convergence step does not run when the plan holds more than integration blocks (XSPEC-482 R6)', async () => {
+  const dir = h.makeDir('both');
+  mkdirSync(join(dir, '.claude'), { recursive: true });
+  const init = await h.runCli(['init', '--yes', '--format', 'both', '--skills-location', 'project'], dir);
+  expect(init.code, out(init)).toBe(0);
+  const files = readdirSync(join(dir, '.standards'));
+  expect(files.filter((f) => f.endsWith('.ai.yaml')).length, 'the AI copies are still there').toBeGreaterThan(50);
+  expect(files.filter((f) => f.endsWith('.md')).length, 'and the human copies').toBeGreaterThan(50);
+}, 240000);
+
+it('update --apply on a project whose files are all current moves an old upstream.version to the shipped one (XSPEC-482 R6)', async () => {
+  const dir = await fullProject();
+  const shipped = readManifest(dir).upstream.version;
+  const m = readManifest(dir);
+  m.upstream.version = '0.0.0-behaviour-probe';
+  writeManifest(dir, m);
+  const apply = await h.runCli(['update', '--apply', '--yes', OFFLINE], dir);
+  expect(apply.code, out(apply)).toBe(0);
+  expect(out(apply)).toContain('Everything is up to date');
+  expect(readManifest(dir).upstream.version).toBe(shipped);
+}, 240000);
+
+/** Every file under `dir` with its size and modification time, to compare before and after a run that must write nothing. */
+const tree = (dir, rel = '') => readdirSync(join(dir, rel)).sort().flatMap((name) => {
+  const next = rel ? `${rel}/${name}` : name;
+  const st = statSync(join(dir, next));
+  return st.isDirectory() ? [`${next}/`, ...tree(dir, next)] : [`${next} ${st.size} ${st.mtimeMs}`];
+});
+
+it('update --plan, --plan --skills and --plan --commands write nothing, also for a project that still has the manifest 6.11.0 wrote (XSPEC-482 R7)', async () => {
+  const dir = await fullProject();
+  // The manifest a real 6.11.0 wrote (path-form standards, old versions): the one the reconciler migrates when it reads it.
+  writeFileSync(join(dir, '.standards', 'manifest.json'), readFileSync(FIXTURE_MANIFEST_611));
+  const before = tree(dir);
+  for (const args of [['--plan'], ['--plan', '--skills'], ['--plan', '--commands']]) {
+    const run = await h.runCli(['update', ...args, OFFLINE], dir);
+    expect(run.code, `${args.join(' ')}\n${out(run)}`).toBe(0);
+    expect(tree(dir), `${args.join(' ')} left the project as it was`).toEqual(before);
+  }
 }, 240000);
 
 // ── R7 ──────────────────────────────────────────────────────────────────────
