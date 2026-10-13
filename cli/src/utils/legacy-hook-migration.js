@@ -164,7 +164,9 @@ export function migrateOlderNativeHook(projectPath, { plan = false } = {}) {
   if (known === 'legacy-6.11' || known === 'without-ci') {
     if (plan) return { ...none, state: 'would-migrate', from: known };
     try {
-      writeFileSync(abs, buildNativePreCommitHook(), 'utf-8');
+      // Keep the file's own line endings: a hook saved with CRLF stays CRLF (the husky path below does the same).
+      const fresh = buildNativePreCommitHook();
+      writeFileSync(abs, content.includes('\r\n') ? fresh.replace(/\n/g, '\r\n') : fresh, 'utf-8'); // wire:native-migration-keeps-eol
       // writeFileSync keeps an existing file's mode; make sure git will still run it.
       if (process.platform !== 'win32') chmodSync(abs, 0o755);
     } catch (e) {

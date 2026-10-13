@@ -9,12 +9,14 @@ import { join, resolve } from 'path';
 import { classifyNativePreCommitHook, buildNativePreCommitHook, LEGACY_NATIVE_HOOK_6_11 } from '../../../src/utils/git-hooks.js';
 
 const FIXTURES = resolve(import.meta.dirname, '../../fixtures/older-uds-hooks');
-const fixture = (name) => readFileSync(join(FIXTURES, name), 'utf-8');
+// The fixtures are byte-for-byte what the releases wrote (.gitattributes: -text), so LF. Normalised here anyway so these
+// tests never depend on how a checkout treats line endings; the CRLF cases below are built from this LF text.
+const fixture = (name) => readFileSync(join(FIXTURES, name), 'utf-8').replace(/\r\n/g, '\n');
 
 describe('classifyNativePreCommitHook', () => {
   it('knows the hook universal-dev-standards@6.11.0 wrote, byte for byte', () => {
     expect(classifyNativePreCommitHook(fixture('native-6.11.0.pre-commit'))).toBe('legacy-6.11');
-    expect(fixture('native-6.11.0.pre-commit')).toBe(LEGACY_NATIVE_HOOK_6_11);
+    expect(readFileSync(join(FIXTURES, 'native-6.11.0.pre-commit'), 'utf-8'), 'the file as checked out, untouched by git').toBe(LEGACY_NATIVE_HOOK_6_11);
   });
 
   it('knows the hook universal-dev-standards@6.14.0-beta.12 wrote, byte for byte', () => {
@@ -29,7 +31,12 @@ describe('classifyNativePreCommitHook', () => {
   });
 
   it('reads a hook saved with CRLF line endings as the same text', () => {
-    expect(classifyNativePreCommitHook(fixture('native-6.11.0.pre-commit').replace(/\n/g, '\r\n'))).toBe('legacy-6.11');
+    const crlf = fixture('native-6.11.0.pre-commit').replace(/\n/g, '\r\n');
+    expect(crlf).toContain('\r\n');
+    expect(crlf).not.toContain('\r\r');
+    expect(classifyNativePreCommitHook(crlf)).toBe('legacy-6.11');
+    expect(classifyNativePreCommitHook(fixture('native-6.14.0-beta.12.pre-commit').replace(/\n/g, '\r\n'))).toBe('without-ci');
+    expect(classifyNativePreCommitHook(buildNativePreCommitHook().replace(/\n/g, '\r\n'))).toBe('current');
   });
 
   it('answers null for a hook that differs by a single line, an empty file, and a non-string', () => {

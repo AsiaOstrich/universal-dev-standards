@@ -10,7 +10,8 @@ import { migrateOlderNativeHook, migrateHuskyBlockWithoutCi } from '../../../src
 import { buildNativePreCommitHook, buildPreCommitBlock } from '../../../src/utils/git-hooks.js';
 
 const FIXTURES = resolve(import.meta.dirname, '../../fixtures/older-uds-hooks');
-const fixture = (name) => readFileSync(join(FIXTURES, name), 'utf-8');
+// LF whatever the checkout did to the file (the folder has .gitattributes -text); CRLF cases are built from it below.
+const fixture = (name) => readFileSync(join(FIXTURES, name), 'utf-8').replace(/\r\n/g, '\n');
 
 let dir;
 beforeEach(() => {
@@ -45,6 +46,15 @@ describe('migrateOlderNativeHook', () => {
     writeFileSync(native(), fixture('native-6.14.0-beta.12.pre-commit'));
     expect(migrateOlderNativeHook(dir)).toMatchObject({ state: 'migrated', from: 'without-ci' });
     expect(readFileSync(native(), 'utf-8')).toBe(buildNativePreCommitHook());
+  });
+
+  it('a 6.11.0 hook saved with CRLF is recognised, swapped, and stays CRLF', () => {
+    writeFileSync(native(), fixture('native-6.11.0.pre-commit').replace(/\n/g, '\r\n'), { mode: 0o755 });
+    expect(migrateOlderNativeHook(dir, { plan: true })).toMatchObject({ state: 'would-migrate', from: 'legacy-6.11' });
+    expect(migrateOlderNativeHook(dir)).toMatchObject({ state: 'migrated', from: 'legacy-6.11' });
+    const after = readFileSync(native(), 'utf-8');
+    expect(after).toBe(buildNativePreCommitHook().replace(/\n/g, '\r\n'));
+    expect(after).not.toContain('\r\r');
   });
 
   it('the current hook is left alone', () => {
