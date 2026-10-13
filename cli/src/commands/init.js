@@ -151,7 +151,8 @@ export async function initCommand(options) {
           if (config.releaseMode && config.releaseMode !== 'ci-cd') {
             const releaseConfigData = generateReleaseConfig(config.releaseMode);
             const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-            const yaml = (await import('js-yaml')).default;
+            // js-yaml 5 has no default export: use the namespace (XSPEC-482 R1).
+            const yaml = await import('js-yaml'); // wire:init-release-config-yaml
             mkdirSync(join(projectPath, '.standards'), { recursive: true });
             writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
             console.log(chalk.green(`  ✓ release-config.yaml (${config.releaseMode})`));
