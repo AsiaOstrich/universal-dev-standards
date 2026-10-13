@@ -1,5 +1,5 @@
 import { existsSync, rmSync, rmdirSync, readdirSync, unlinkSync } from 'fs';
-import { dirname, join, relative, isAbsolute } from 'path';
+import { dirname, join, relative, isAbsolute, resolve } from 'path';
 import {
   getSkillsDirForAgent,
   getCommandsDirForAgent
@@ -148,10 +148,17 @@ function processInstallation(install, type, projectPath, manifest, options, resu
       if (existsSync(marker)) rmSync(marker, { force: true });
     }
     // Folders UDS emptied, deepest first, then the installation folder itself.
+    // The installation folder is compared as a resolved path: `dir` carries the trailing slash the path table
+    // gives it (`.gemini/commands/`) and `dirname(file)` does not, so the old `d !== dir` was true for the
+    // installation folder itself. It was removed in this loop, `removeIfEmpty(dir)` below then found nothing to
+    // remove and answered "not gone": the line said "folder kept" for a folder that was deleted, and the tool's
+    // own parent (`.gemini/`, `.opencode/`) was never looked at, so an empty one stayed (XSPEC-482 R8).
+    const installDir = resolve(dir);
     for (const d of [...touched].sort((a, b) => b.length - a.length)) {
-      if (d !== dir) removeIfEmpty(d);
+      if (resolve(d) !== installDir) removeIfEmpty(d);
     }
-    const gone = removeIfEmpty(dir);
+    removeIfEmpty(dir);
+    const gone = !existsSync(dir); // wire:uninstall-folder-removed-is-reported
     // XSPEC-475 R5(d): the tool's own folder (`.claude/`, `.codex/` ...) that held only what UDS wrote is empty now; an
     // empty `.claude/` left in the project is a trace of UDS. Only an EMPTY folder inside the project, never the project
     // root, and never a user-level folder.

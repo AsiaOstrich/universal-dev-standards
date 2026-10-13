@@ -60,7 +60,7 @@ import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
 import { installGateScripts, gateStandardInstalled, GATE_SCRIPTS } from '../utils/gate-scripts.js';
-import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
+import { migrateLegacyHuskyHook, migrateHuskyBlockWithoutCi, migrateOlderNativeHook } from '../utils/legacy-hook-migration.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -1941,7 +1941,6 @@ export function migrateLegacyPreCommitHook(projectPath, manifest, { plan = false
   if (r.state === 'error') {
     console.log(chalk.yellow(`  ${msg.hookMigrateFailed.replace('{error}', r.error)}`));
     console.log();
-    return r;
   }
   if (r.state === 'migrated') console.log(chalk.green(`  ${msg.hookMigrated}`));
   if (r.state === 'would-migrate') console.log(chalk.cyan(`  ${msg.hookWouldMigrate}`));
@@ -1954,6 +1953,30 @@ export function migrateLegacyPreCommitHook(projectPath, manifest, { plan = false
     // The manifest object is written again later in most update paths; without
     // this the record persisted just above would be overwritten by the older copy.
     Object.assign(manifest, mergeRecorderInto(manifest, r.recorder));
+  }
+
+  // XSPEC-482 R3 + R5: hooks that run the check and cannot stop a commit - the husky block that runs `check`
+  // without `--ci`, and the native hook of 5.x .. 6.13.1 / the betas. Same treatment as above: only a text UDS
+  // provably wrote is replaced, anything else is named and left alone, and --plan lists it.
+  const huskyCi = migrateHuskyBlockWithoutCi(projectPath, { plan, manifest });
+  if (huskyCi.state === 'error') console.log(chalk.yellow(`  ${msg.hookMigrateFailed.replace('{error}', huskyCi.error)}`));
+  if (huskyCi.state === 'migrated') console.log(chalk.green(`  ${msg.hookHuskyCiMigrated}`)); // wire:update-migrates-husky-ci
+  if (huskyCi.state === 'would-migrate') console.log(chalk.cyan(`  ${msg.hookHuskyCiWouldMigrate}`));
+
+  const native = migrateOlderNativeHook(projectPath, { plan }); // wire:update-migrates-native-hook
+  const nativeFrom = native.from === 'legacy-6.11' ? msg.hookNativeFromLegacy : msg.hookNativeFromWithoutCi;
+  if (native.state === 'error') console.log(chalk.yellow(`  ${msg.hookNativeFailed.replace('{error}', native.error)}`));
+  if (native.state === 'migrated') console.log(chalk.green(`  ${msg.hookNativeMigrated.replace('{from}', nativeFrom)}`));
+  if (native.state === 'would-migrate') console.log(chalk.cyan(`  ${msg.hookNativeWouldMigrate.replace('{from}', nativeFrom)}`));
+  for (const k of native.kept) {
+    console.log(chalk.yellow(`  ${msg.hookNativeKept.replace('{line}', k.line).replace('{text}', k.text)}`));
+  }
+  if (huskyCi.state !== 'none' || native.state !== 'none') console.log();
+  for (const extra of [huskyCi.recorder, native.recorder]) {
+    if (extra) {
+      persistRecorder(projectPath, extra);
+      Object.assign(manifest, mergeRecorderInto(manifest, extra));
+    }
   }
   return r;
 }
@@ -3760,10 +3783,6 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     }
   }
 
-  // XSPEC-458 R2: the count of what UDS ships and this project lacks, with the command that installs one.
-  printAvailableStandardsSection(result.manifest || planResult.manifest, { phase: 'apply' });
-  console.log();
-}
   if (!result.success) {
     // XSPEC-482 R10: say what a partly failed run left behind and the way to finish it.
     console.log();
@@ -3776,3 +3795,7 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     process.exitCode = 1; // wire:apply-fails-exit-1
   }
 
+  // XSPEC-458 R2: the count of what UDS ships and this project lacks, with the command that installs one.
+  printAvailableStandardsSection(result.manifest || planResult.manifest, { phase: 'apply' });
+  console.log();
+}

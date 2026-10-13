@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, rmdirSync } from 'fs';
 import { join, basename } from 'path';
 import { proveUnchanged, RECORD_KINDS, RECORDS_KEY, isRealDirectory } from '../core/install-records.js';
-import { stripUdsHookBlock } from '../utils/git-hooks.js';
+import { stripUdsHookBlock, classifyNativePreCommitHook } from '../utils/git-hooks.js';
 import {
   collectHookConfigs, standardsSourceDir, hooksSourceDir,
   CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT,
@@ -426,6 +426,14 @@ export function uninstallHook(projectPath, options = {}) {
         // "Pre-commit checks passed".
         if (!dryRun) unlinkSync(nativeHookPath);
         result.removed.push(`.git/hooks/pre-commit (UDS native hook, file removed — ${proof.why})`);
+        result.deletedPaths.push('.git/hooks/pre-commit');
+      } else if (classifyNativePreCommitHook(content)) { // wire:uninstall-removes-known-native-hook
+        // XSPEC-482 R8: no install record (an older UDS wrote it, and old versions recorded nothing), but the file
+        // is byte for byte a hook UDS has written - the always-pass hook of 5.x to 6.13.1, or one of the later ones.
+        // Exact text is the proof; deleting only the matching lines used to leave a script behind that still
+        // printed "Pre-commit checks passed" and checked nothing.
+        if (!dryRun) unlinkSync(nativeHookPath);
+        result.removed.push('.git/hooks/pre-commit (UDS native hook, file removed - its text is exactly what UDS writes, so nothing of yours is in it)');
         result.deletedPaths.push('.git/hooks/pre-commit');
       } else if (!NATIVE_UDS_LINE.test(content) && !stripUdsHookBlock(content).removed) {
         result.skipped.push('.git/hooks/pre-commit (no UDS lines found)');

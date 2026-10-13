@@ -26,9 +26,12 @@
  * @module utils/legacy-hook-migration
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, chmodSync } from 'fs';
 import { join } from 'path';
-import { buildPreCommitBlock, UDS_HOOK_MARKER, BARE_UDS_RUNNER_RE, hasBareUdsRunner } from './git-hooks.js';
+import {
+  buildPreCommitBlock, buildNativePreCommitHook, classifyNativePreCommitHook,
+  UDS_HOOK_MARKER, UDS_HOOK_END_MARKER, BARE_UDS_RUNNER_RE, hasBareUdsRunner
+} from './git-hooks.js';
 import { getFileRecord, proveUnchanged, recordFile, newRecorder, RECORD_KINDS } from '../core/install-records.js';
 
 /** The exact command lines UDS itself has written under the marker, and the extra arguments each carried. */
@@ -109,4 +112,118 @@ export function migrateLegacyHuskyHook(projectPath, { plan = false, manifest = n
     recordFile(recorder, projectPath, rel, RECORD_KINDS.GIT_HOOK);
   }
   return { state: 'migrated', replaced, kept, recorder };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// XSPEC-482 R3 + R5: pre-commit hooks that look like a check and cannot stop a commit.
+//
+// Two shapes are on disk in projects UDS set up earlier, and both let every commit through:
+//   - `.git/hooks/pre-commit` of 5.x .. 6.13.1: `uds check 2>/dev/null || true` (the CLI PATH happens to
+//     hold, errors thrown away, "Pre-commit checks passed" printed whatever happened);
+//   - the hook of 6.14.0-beta.2 .. beta.12 (native file, or the block inside `.husky/pre-commit`): it runs
+//     the installed CLI, but `check` without `--ci` exits 0 when a standard file was edited.
+// `uds init` now writes `check --ci`. These functions bring the files already on disk to it.
+//
+// What counts as "UDS wrote this": the whole file equals one of the known texts (native hook), or the
+// block between UDS's two marker lines equals the known block (husky). Exact equality, not a pattern: a
+// hook someone edited is NOT replaced - it is reported with the line number and what to write instead.
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+/** A hook line that runs a UDS check and is built never to fail: `... check ... || true`. */
+const ALWAYS_PASS_CHECK_RE = /\b(?:uds|universal-dev-standards)\s+check\b[^\n]*\|\|\s*true\b/;
+
+/**
+ * Bring the native `.git/hooks/pre-commit` of an older UDS to the one this CLI writes.
+ *
+ * @param {string} projectPath
+ * @param {{plan?: boolean}} [opts] plan - report what would change, write nothing
+ * @returns {{
+ *   file: '.git/hooks/pre-commit',
+ *   state: 'none'|'migrated'|'would-migrate'|'kept'|'error',
+ *   from?: 'legacy-6.11'|'without-ci',
+ *   kept: Array<{line: number, text: string}>,   // lines that make the check always pass, in a file UDS cannot prove it wrote
+ *   recorder: object|null,                        // install record to fold into the manifest when non-null
+ *   error?: string
+ * }}
+ */
+export function migrateOlderNativeHook(projectPath, { plan = false } = {}) {
+  const file = '.git/hooks/pre-commit';
+  const abs = join(projectPath, '.git', 'hooks', 'pre-commit');
+  const none = { file, state: 'none', kept: [], recorder: null };
+  if (!existsSync(abs)) return none;
+
+  let content;
+  try {
+    content = readFileSync(abs, 'utf-8');
+  } catch (e) {
+    return { ...none, state: 'error', error: e.message };
+  }
+
+  const known = classifyNativePreCommitHook(content);
+  if (known === 'legacy-6.11' || known === 'without-ci') {
+    if (plan) return { ...none, state: 'would-migrate', from: known };
+    try {
+      writeFileSync(abs, buildNativePreCommitHook(), 'utf-8');
+      // writeFileSync keeps an existing file's mode; make sure git will still run it.
+      if (process.platform !== 'win32') chmodSync(abs, 0o755);
+    } catch (e) {
+      return { ...none, state: 'error', from: known, error: e.message };
+    }
+    // The whole file is UDS's again: record it, so `uds uninstall` can delete it as provably ours.
+    const recorder = newRecorder();
+    recordFile(recorder, projectPath, file, RECORD_KINDS.GIT_HOOK);
+    return { ...none, state: 'migrated', from: known, recorder };
+  }
+  if (known === 'current') return none;
+
+  // Not a text UDS wrote: if it still carries the always-pass check, say where. It is not replaced.
+  const kept = [];
+  content.split('\n').forEach((raw, i) => {
+    const text = raw.replace(/\r$/, '');
+    if (ALWAYS_PASS_CHECK_RE.test(text)) kept.push({ line: i + 1, text: text.trim() });
+  });
+  return kept.length > 0 ? { ...none, state: 'kept', kept } : none;
+}
+
+/**
+ * Bring the block `.husky/pre-commit` carries from beta.2 .. beta.12 (`check` without `--ci`) to the current one.
+ * Only the block between UDS's two marker lines, and only when it is exactly the old text; the lines around it
+ * are the adopter's and stay as they are.
+ *
+ * @param {string} projectPath
+ * @param {{plan?: boolean, manifest?: object|null}} [opts] manifest - read only to see whether the whole file was provably UDS's
+ * @returns {{file: '.husky/pre-commit', state: 'none'|'migrated'|'would-migrate'|'error', recorder: object|null, error?: string}}
+ */
+export function migrateHuskyBlockWithoutCi(projectPath, { plan = false, manifest = null } = {}) {
+  const file = '.husky/pre-commit';
+  const abs = join(projectPath, '.husky', 'pre-commit');
+  const none = { file, state: 'none', recorder: null };
+  if (!existsSync(abs)) return none;
+
+  let content;
+  try {
+    content = readFileSync(abs, 'utf-8');
+  } catch (e) {
+    return { ...none, state: 'error', error: e.message };
+  }
+  const eol = content.includes('\r\n') ? '\r\n' : '\n';
+  const text = content.replace(/\r\n/g, '\n');
+  const oldBlock = buildPreCommitBlock({ ci: false });
+  if (!text.includes(oldBlock) || !text.includes(UDS_HOOK_END_MARKER)) return none;
+  if (plan) return { ...none, state: 'would-migrate' };
+
+  const wasProven = !!manifest && !!getFileRecord(manifest, file) && proveUnchanged(manifest, projectPath, file).state === 'proven';
+  try {
+    const next = text.replace(oldBlock, buildPreCommitBlock());
+    writeFileSync(abs, eol === '\r\n' ? next.replace(/\n/g, '\r\n') : next, 'utf-8');
+  } catch (e) {
+    return { ...none, state: 'error', error: e.message };
+  }
+  let recorder = null;
+  if (wasProven) {
+    recorder = newRecorder();
+    recordFile(recorder, projectPath, file, RECORD_KINDS.GIT_HOOK);
+  }
+  return { ...none, state: 'migrated', recorder };
 }
