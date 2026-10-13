@@ -35,7 +35,7 @@ const deployments = (dir) => yaml.load(readFileSync(join(dir, 'deployments.yaml'
 
 it('uds release deploy staging works in a project whose release-config.yaml UDS generated (environments are objects)', async () => {
   const dir = project(generateReleaseConfig('manual'));
-  const run = await h.runCli(['release', 'deploy', 'staging'], dir);
+  const run = await h.runCli(['release', 'deploy', 'staging'], dir, { ui: 'zh-tw' });
   expect(run.stdout, run.stderr).toContain('已記錄部署: 1.2.0-rc.1 → staging');
   expect(run.stdout).not.toContain('未知的部署環境');
   expect(run.stdout).not.toContain('[object Object]');
@@ -46,7 +46,7 @@ it('uds release deploy staging works in a project whose release-config.yaml UDS 
 
 it('uds release deploy still refuses an environment the generated configuration does not declare, and names the allowed ones', async () => {
   const dir = project(generateReleaseConfig('manual'));
-  const run = await h.runCli(['release', 'deploy', 'qa'], dir);
+  const run = await h.runCli(['release', 'deploy', 'qa'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('未知的部署環境: qa');
   expect(run.stdout).toContain('允許的環境: staging, production');
   expect(run.stdout).not.toContain('[object Object]');
@@ -57,7 +57,7 @@ it('uds release deploy still reads environments written as plain names', async (
   const config = generateReleaseConfig('manual');
   config.release.environments = ['canary'];
   const dir = project(config);
-  const run = await h.runCli(['release', 'deploy', 'canary'], dir);
+  const run = await h.runCli(['release', 'deploy', 'canary'], dir, { ui: 'zh-tw' });
   expect(run.stdout, run.stderr).toContain('已記錄部署: 1.2.0-rc.1 → canary');
   expect(deployments(dir)[0].environment).toBe('canary');
 });

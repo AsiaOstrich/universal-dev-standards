@@ -8,6 +8,7 @@ import {
   SUPPORTED_CONTENT_MODES
 } from '../core/manifest.js';
 import { t, detectLanguage } from '../i18n/messages.js';
+import { getAllStandards } from '../utils/registry.js';
 import { detectAll } from '../utils/detector.js';
 import { promptConfirm } from '../prompts/init.js';
 import { runInitFlow } from '../flows/init-flow.js';
@@ -33,9 +34,20 @@ import { readInstallYaml } from '../utils/config-manager.js';
 import { resolveIntegrationTargetFile } from '../utils/integration-generator.js';
 import { withFileTransaction } from '../utils/transaction.js';
 import { newRecorder, mkdirTracked, recordFile, persistRecorder, RECORD_KINDS } from '../core/install-records.js';
-import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock } from '../utils/git-hooks.js';
+import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock, buildNativePreCommitHook } from '../utils/git-hooks.js';
 import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 import { installGateScripts } from '../utils/gate-scripts.js';
+
+/**
+ * The values `--output-lang` accepts: the ids of the commit-message option files this UDS ships (the registry lists
+ * them under the commit-message standard's `output_language` options), so a new option file is accepted without
+ * a second list to keep in step.
+ * @returns {string[]}
+ */
+export function supportedOutputLanguages() {
+  const commitMessage = getAllStandards().find((s) => s.id === 'commit-message');
+  return (commitMessage?.options?.output_language?.choices || []).map((c) => c.id);
+}
 
 /**
  * Init command - initialize standards in current project
@@ -50,6 +62,18 @@ export async function initCommand(options) {
   // See DEC-044 / XSPEC-071 — UDS source repo already ships its standards;
   // running `uds init` here is nonsensical. `--force` bypasses.
   guardAgainstSelfAdoption('init', options, projectPath);
+
+  // XSPEC-482 R13: `--output-lang` takes the ids of the commit-message option files UDS ships. Anything else
+  // (`simplified-chinese`, `klingon`) used to be recorded in the manifest as if it were a choice while no option
+  // file was installed for it. Say which values exist, before anything is written.
+  if (options.outputLang !== undefined) {
+    const valid = supportedOutputLanguages();
+    if (!valid.includes(options.outputLang)) { // wire:init-validates-output-lang
+      console.error(chalk.red(`Unsupported --output-lang "${options.outputLang}". Supported: ${valid.join(', ')}.`));
+      process.exit(1);
+      return;
+    }
+  }
 
   console.log();
   console.log(chalk.bold(msg.title));
@@ -151,7 +175,8 @@ export async function initCommand(options) {
           if (config.releaseMode && config.releaseMode !== 'ci-cd') {
             const releaseConfigData = generateReleaseConfig(config.releaseMode);
             const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-            const yaml = (await import('js-yaml')).default;
+            // js-yaml 5 has no default export: use the namespace (XSPEC-482 R1).
+            const yaml = await import('js-yaml'); // wire:init-release-config-yaml
             mkdirSync(join(projectPath, '.standards'), { recursive: true });
             writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
             console.log(chalk.green(`  ✓ release-config.yaml (${config.releaseMode})`));
@@ -366,6 +391,33 @@ export async function initCommand(options) {
     console.log(chalk.yellow(`  ⚠ scripts/${file} not installed — the template is missing from this UDS package`));
   }
   persistRecorder(projectPath, installRecorder);
+
+  // 4.85. XSPEC-482 R6: leave the project in the form `uds update` would leave it in. The init writers and the
+  // reconciler are two generators: init wrote the manifest in the 3.3.0 form (standards as file paths) and an
+  // integration block whose list of standards is ordered differently from the one `update` writes, so the first
+  // `uds update --plan` on a brand new project already showed changes (CLAUDE.md, AGENTS.md "Migrate Block") and the
+  // first `--apply` rewrote the manifest and GEMINI.md's whole index. Running the reconciler once, without a backup
+  // (there is nothing to go back to yet), makes the two agree by construction instead of by keeping two writers in step.
+  // A failure here is reported and does not fail the install: the project is complete without it.
+  //
+  // Only when the whole difference is integration blocks to rewrite (and the manifest to bring forward). A project whose
+  // plan holds anything else is left exactly as init wrote it: `--format both`, for one, installs the human and the AI
+  // copy of each standard, and the reconciler's plan for it deletes the AI copies (a separate defect, found while doing this),
+  // which an install must never do to what it has just written.
+  if (config.contentLayout !== 'layered') {
+    try {
+      const { reconcile, plan: reconcilerPlan } = await import('../reconciler/index.js');
+      const preview = await reconcilerPlan(projectPath);
+      if (preview.plan.actions.every((a) => a.type === 'migrate_block')) {
+        const converged = await reconcile(projectPath, { backup: false }); // wire:init-converges-to-current-format
+        if (!converged.success) {
+          console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${converged.errors.join('; ')} (\`uds update --apply\` will finish it)`));
+        }
+      }
+    } catch (e) {
+      console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${e.message} (\`uds update --apply\` will finish it)`));
+    }
+  }
 
   // 4.9. XSPEC-465 R1: tell the adopter now if a personal skill of theirs has the same name as a UDS skill
   // that was just installed (the personal one wins, with no error). Information only: it does not change
@@ -670,35 +722,14 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
       } else {
         // Fail-closed (XSPEC-444 R1 class sweep). This script used to run the linters
         // as `... 2>/dev/null || true` and `uds check 2>/dev/null || true`, then print
-        // "Pre-commit checks passed" — it could not block a commit for any reason.
+        // "Pre-commit checks passed" - it could not block a commit for any reason.
         // Now: a linter that is installed and fails blocks the commit; one that is not
         // installed is skipped. The UDS check is the same block the husky path writes
         // (buildPreCommitBlock): its exit status stops the commit, and a missing CLI
-        // says so and blocks rather than being skipped in silence.
-        const hookContent = `#!/bin/sh
-# UDS pre-commit hook
-# Auto-generated by uds init
-
-echo "Running UDS pre-commit checks..."
-
-# Lint, when the language's linter is installed. A failing linter blocks the commit.
-if [ -f pyproject.toml ] || [ -f requirements.txt ]; then
-  if python -m ruff --version >/dev/null 2>&1; then
-    python -m ruff check . || exit $?
-  fi
-elif [ -f go.mod ]; then
-  if command -v go >/dev/null 2>&1; then
-    go vet ./... || exit $?
-  fi
-elif [ -f Cargo.toml ]; then
-  if command -v cargo >/dev/null 2>&1; then
-    cargo clippy || exit $?
-  fi
-fi
-
-${buildPreCommitBlock({ hookFile: '.git/hooks/pre-commit' })}
-echo "Pre-commit checks passed"
-`;
+        // says so and blocks rather than being skipped in silence. It runs `check --ci`,
+        // the mode whose exit code says "issues" (XSPEC-482 R3). The text lives in
+        // git-hooks.js (buildNativePreCommitHook) so `uds update` can recognise it exactly.
+        const hookContent = buildNativePreCommitHook(); // wire:init-native-hook-check-ci
         writeFileSync(hookPath, hookContent, { mode: 0o755 });
         // Created from nothing (the branch above is "file does not exist"), so the
         // whole file is UDS's — record its hash for `uds uninstall`.

@@ -1,0 +1,3 @@
+# Byte-for-byte copies of what published UDS releases wrote (see README.md). Git must not touch their line endings:
+# a checkout that converts them to CRLF (Windows, core.autocrlf=true) would make "exactly what 6.11.0 wrote" false.
+* -text

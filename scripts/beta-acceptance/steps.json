@@ -56,6 +56,14 @@
     {
       "changelog": "The acceptance step init-locale-pack-missing-is-said failed under",
       "reason": "A repair of an acceptance step itself (the prepare script in scripts/beta-acceptance/steps.json); the installed uds did not change and the step already runs on every platform against the published package. Tested by cli/tests/e2e/xspec-471-r5-locale-pack-step-source-checkout.test.js, which runs the step in --local-bin mode on a source checkout that has cli/bundled."
+    },
+    {
+      "changelog": "A spinner is switched off on a terminal that reports a width of 0",
+      "reason": "Needs a pseudo-terminal that reports a width of 0; the acceptance program is standard-library only and Node has no pty, so no step can open one. It is tested by cli/tests/e2e/xspec-482-r9-r12-r13-r14-small-fixes.test.js, which runs the command on a pty of width 0 and of width 80."
+    },
+    {
+      "step": "xspec482-human-audit-report-asks",
+      "reason": "A person answers the prompt on their own terminal and nothing is captured, so only the exit code can be checked; what the person sees is asked in the step itself."
     }
   ],
   "steps": [
@@ -8980,6 +8988,1463 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-relmode-init",
+      "workspace": "xspec482-relmode",
+      "title": "uds init sets up a project for the release-mode steps of XSPEC-482",
+      "titleZh": "uds init 建立專案，供 XSPEC-482 的發布模式步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "drive.cjs",
+          "content": "const { spawn } = require('child_process');\nconst [bin, answersJson, ...args] = process.argv.slice(2);\nconst answers = JSON.parse(answersJson);\nconst seen = new Set();\nconst strip = (s) => s.replace(/\\u001b\\[[0-9;?]*[ -/]*[@-~]/g, '');\nconst p = spawn(process.execPath, [bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'], env: process.env });\nlet screen = '', all = '', idle = null, sends = 0;\nconst ask = () => {\n  const plain = strip(screen);\n  if (/(⏎(select|submit)|\\(Y\\/n\\)|\\(y\\/N\\)|[:：](\\([^()]*\\)|（[^（）]*）)?)$/.test(plain.replace(/\\s+/g, '')) && sends < 60) {\n    let keys = '\\r';\n    for (const [needle, k] of answers) if (!seen.has(needle) && plain.includes(needle)) { seen.add(needle); keys = k; break; }\n    screen = ''; sends += 1; p.stdin.write(keys);\n  }\n  arm();\n};\nconst arm = () => { clearTimeout(idle); idle = setTimeout(ask, 900); };\np.stdout.on('data', (d) => { all += d; screen += d; arm(); });\np.stderr.on('data', (d) => { all += d; });\np.stdin.on('error', () => {});\nconst guard = setTimeout(() => p.kill(), 150000);\np.on('close', (code) => { clearTimeout(guard); clearTimeout(idle); process.stdout.write(strip(all) + '\\nDRIVE-EXIT=' + code + '\\n'); process.exit(0); });\narm();\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "drive.cjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-config-release-manual",
+      "workspace": "xspec482-relmode",
+      "title": "uds config --type release_mode: choosing Manual succeeds and writes release-config.yaml",
+      "titleZh": "uds config --type release_mode：選手動模式會成功並寫出 release-config.yaml",
+      "changelog": [
+        "Choosing the Manual or Hybrid release mode no longer crashes uds init and uds config"
+      ],
+      "run": [
+        "{node}",
+        "drive.cjs",
+        "{bin}",
+        "[[\"Select release mode\", \"\\u001b[B\\r\"]]",
+        "config",
+        "--type",
+        "release_mode"
+      ],
+      "expect": {
+        "contains": [
+          "DRIVE-EXIT=0",
+          "Configuration updated successfully"
+        ],
+        "notContains": [
+          "TypeError",
+          "Cannot read properties"
+        ],
+        "files": [
+          {
+            "path": ".standards/release-config.yaml",
+            "contains": [
+              "mode: manual"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"release_mode\": \"manual\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-init-interactive-manual",
+      "workspace": "xspec482-relmode-init",
+      "title": "Interactive uds init choosing Manual installs and writes release-config.yaml (a typed-answer driver stands in for the person)",
+      "titleZh": "互動式 uds init 選手動模式：安裝成功並寫出 release-config.yaml（由輸入答案的小程式代替人）",
+      "changelog": [
+        "Choosing the Manual or Hybrid release mode no longer crashes uds init and uds config"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "drive.cjs",
+          "content": "const { spawn } = require('child_process');\nconst [bin, answersJson, ...args] = process.argv.slice(2);\nconst answers = JSON.parse(answersJson);\nconst seen = new Set();\nconst strip = (s) => s.replace(/\\u001b\\[[0-9;?]*[ -/]*[@-~]/g, '');\nconst p = spawn(process.execPath, [bin, ...args], { stdio: ['pipe', 'pipe', 'pipe'], env: process.env });\nlet screen = '', all = '', idle = null, sends = 0;\nconst ask = () => {\n  const plain = strip(screen);\n  if (/(⏎(select|submit)|\\(Y\\/n\\)|\\(y\\/N\\)|[:：](\\([^()]*\\)|（[^（）]*）)?)$/.test(plain.replace(/\\s+/g, '')) && sends < 60) {\n    let keys = '\\r';\n    for (const [needle, k] of answers) if (!seen.has(needle) && plain.includes(needle)) { seen.add(needle); keys = k; break; }\n    screen = ''; sends += 1; p.stdin.write(keys);\n  }\n  arm();\n};\nconst arm = () => { clearTimeout(idle); idle = setTimeout(ask, 900); };\np.stdout.on('data', (d) => { all += d; screen += d; arm(); });\np.stderr.on('data', (d) => { all += d; });\np.stdin.on('error', () => {});\nconst guard = setTimeout(() => p.kill(), 150000);\np.on('close', (code) => { clearTimeout(guard); clearTimeout(idle); process.stdout.write(strip(all) + '\\nDRIVE-EXIT=' + code + '\\n'); process.exit(0); });\narm();\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "drive.cjs",
+        "{bin}",
+        "[[\"Select release mode\", \"\\u001b[B\\r\"]]",
+        "init"
+      ],
+      "timeoutSec": 240,
+      "expect": {
+        "contains": [
+          "DRIVE-EXIT=0",
+          "Standards initialized successfully"
+        ],
+        "notContains": [
+          "rolled back",
+          "Cannot read properties"
+        ],
+        "files": [
+          {
+            "path": ".standards/release-config.yaml",
+            "contains": [
+              "mode: manual"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-apply-init",
+      "workspace": "xspec482-apply",
+      "title": "uds init sets up a project for the update --apply failure steps",
+      "titleZh": "uds init 建立專案，供 update --apply 失敗步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "fault.cjs",
+          "content": "const fs = require('fs');\nfor (const fn of ['copyFileSync', 'writeFileSync']) {\n  const real = fs[fn];\n  fs[fn] = function (...args) {\n    const dest = String(fn === 'copyFileSync' ? args[1] : args[0]).replace(/\\\\/g, '/');\n    for (const spec of JSON.parse(process.env.UDS_TEST_FS_FAULTS || '[]')) {\n      if (spec.fn === fn && dest.includes(spec.contains)) {\n        const err = new Error(spec.code + ': permission denied, open \\'' + dest + '\\'');\n        err.code = spec.code;\n        throw err;\n      }\n    }\n    return real.apply(this, args);\n  };\n}\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "fault.cjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-apply-standard-fails",
+      "workspace": "xspec482-apply",
+      "title": "uds update --apply exits 1 and lists the file when a standard cannot be written",
+      "titleZh": "uds update --apply 在標準檔寫不進去時結束碼為 1 並列出該檔",
+      "changelog": [
+        "Behavior change - uds update --apply exits 1 when any action failed"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".standards/testing.ai.yaml"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--require=\"{workPosix}/fault.cjs\"",
+        "UDS_TEST_FS_FAULTS": "[{\"fn\": \"copyFileSync\", \"contains\": \".standards/testing.ai.yaml\", \"code\": \"EACCES\"}]"
+      },
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Reconciliation completed with errors: 1 failed",
+          "EACCES",
+          ".standards/testing.ai.yaml",
+          "run `uds update --apply` again",
+          "The overall version record did not advance"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-apply-again-completes",
+      "workspace": "xspec482-apply",
+      "title": "Running uds update --apply again, with nothing failing, puts the file back",
+      "titleZh": "不再有失敗時再執行一次 uds update --apply，檔案就補回來",
+      "changelog": [
+        "Behavior change - uds update --apply exits 1 when any action failed"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Reconciliation complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/testing.ai.yaml"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-apply-skill-fails",
+      "workspace": "xspec482-apply",
+      "title": "A skills batch that fails names the skill folder and the cause, not \"Unknown error\"",
+      "titleZh": "技能批次失敗時指出技能資料夾與原因，而不是「Unknown error」",
+      "changelog": [
+        "Behavior change - uds update --apply exits 1 when any action failed"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".claude/skills/commit-standards"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--require=\"{workPosix}/fault.cjs\"",
+        "UDS_TEST_FS_FAULTS": "[{\"fn\": \"writeFileSync\", \"contains\": \".claude/skills/commit-standards/\", \"code\": \"EACCES\"}]"
+      },
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "commit-standards: EACCES"
+        ],
+        "notContains": [
+          "Unknown error"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-hook-init",
+      "workspace": "xspec482-hook",
+      "title": "uds init sets up a git project with the pre-commit hook for the hook steps of XSPEC-482",
+      "titleZh": "uds init 建立含 pre-commit 掛鉤的 git 專案，供 XSPEC-482 的掛鉤步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "node_modules/.bin/universal-dev-standards",
+          "executable": true,
+          "content": "#!/bin/sh\nexec \"{nodePosix}\" \"{binPosix}\" \"$@\"\n"
+        },
+        {
+          "writeFile": "edit-and-commit.cjs",
+          "content": "const fs = require('fs'), cp = require('child_process');\nconst run = (args) => cp.spawnSync('git', args, { encoding: 'utf8', env: process.env });\nfs.appendFileSync('.standards/testing.ai.yaml', '\\n# edited by hand\\n');\nrun(['add', '-A']);\nconst r = run(['-c', 'user.name=Acceptance', '-c', 'user.email=acceptance@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'edit a standard']);\nprocess.stdout.write((r.stdout || '') + (r.stderr || '') + '\\nCOMMIT-EXIT=' + r.status + '\\n');\nconst log = run(['rev-list', '--count', 'HEAD']);\nprocess.stdout.write('COMMITS=' + (log.status === 0 ? log.stdout.trim() : '0') + '\\n');\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit",
+            "contains": [
+              "universal-dev-standards check --ci"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-hook-blocks-edited-standard",
+      "workspace": "xspec482-hook",
+      "title": "The pre-commit hook refuses a commit that edits an installed standard, says why, and git records nothing",
+      "titleZh": "pre-commit 掛鉤擋下修改已安裝標準的 commit、說明原因，git 沒有記錄任何 commit",
+      "changelog": [
+        "Behavior change - the pre-commit hook runs check --ci"
+      ],
+      "run": [
+        "{node}",
+        "edit-and-commit.cjs"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "COMMIT-EXIT=1",
+          "This commit is blocked: the UDS check found the issues listed above",
+          ".standards/testing.ai.yaml",
+          "COMMITS=0"
+        ],
+        "notContains": [
+          "COMMIT-EXIT=0"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-oldhook-init",
+      "workspace": "xspec482-oldhook",
+      "title": "uds init sets up a git project, then the hook of UDS 6.11.0 is put in place",
+      "titleZh": "uds init 建立 git 專案，然後放入 UDS 6.11.0 的掛鉤",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-oldhook-plan",
+      "workspace": "xspec482-oldhook",
+      "title": "uds update --plan lists the swap of the always-pass hook and writes nothing",
+      "titleZh": "uds update --plan 列出換掉永遠放行掛鉤的動作，且不寫任何檔案",
+      "changelog": [
+        "uds update replaces the older pre-commit hooks that let every commit through"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".git/hooks/pre-commit",
+          "executable": true,
+          "content": "#!/bin/sh\n# UDS pre-commit hook\n# Auto-generated by uds init\n\necho \"Running UDS pre-commit checks...\"\n\n# Run lint if available\nif [ -f pyproject.toml ] || [ -f requirements.txt ]; then\n  python -m ruff check . 2>/dev/null || true\nelif [ -f go.mod ]; then\n  go vet ./... 2>/dev/null || true\nelif [ -f Cargo.toml ]; then\n  cargo clippy 2>/dev/null || true\nfi\n\n# UDS Standard Check\nuds check 2>/dev/null || true\n\necho \"Pre-commit checks passed\"\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          ".git/hooks/pre-commit: would replace the hook an older UDS wrote",
+          "uds check 2>/dev/null || true"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit",
+            "contains": [
+              "uds check 2>/dev/null || true"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-oldhook-apply",
+      "workspace": "xspec482-oldhook",
+      "title": "uds update --apply swaps the always-pass hook for the current one",
+      "titleZh": "uds update --apply 把永遠放行的掛鉤換成現行版本",
+      "changelog": [
+        "uds update replaces the older pre-commit hooks that let every commit through"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          ".git/hooks/pre-commit: replaced the hook an older UDS wrote"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit",
+            "contains": [
+              "universal-dev-standards check --ci"
+            ],
+            "notContains": [
+              "uds check 2>/dev/null || true"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-oldhook-edited-kept",
+      "workspace": "xspec482-oldhook",
+      "title": "An edited old hook is left alone and the always-pass line is named",
+      "titleZh": "被改過的舊掛鉤不動，並指出永遠放行的那一行",
+      "changelog": [
+        "uds update replaces the older pre-commit hooks that let every commit through"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".git/hooks/pre-commit",
+          "executable": true,
+          "content": "#!/bin/sh\n# UDS pre-commit hook\n# Auto-generated by uds init\n\necho \"Running UDS pre-commit checks...\"\n\n# Run lint if available\nif [ -f pyproject.toml ] || [ -f requirements.txt ]; then\n  python -m ruff check . 2>/dev/null || true\nelif [ -f go.mod ]; then\n  go vet ./... 2>/dev/null || true\nelif [ -f Cargo.toml ]; then\n  cargo clippy 2>/dev/null || true\nfi\n\n# UDS Standard Check\nuds check 2>/dev/null || true\n\necho \"my own step\"\necho \"Pre-commit checks passed\"\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          ".git/hooks/pre-commit line",
+          "runs the UDS check and lets the commit through whatever it finds",
+          "universal-dev-standards check --ci"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/pre-commit",
+            "contains": [
+              "my own step",
+              "uds check 2>/dev/null || true"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-uninstall-init",
+      "workspace": "xspec482-uninstall",
+      "title": "uds init sets up a project that uses Gemini CLI and OpenCode commands, with the 6.11.0 hook",
+      "titleZh": "uds init 建立使用 Gemini CLI 與 OpenCode 指令的專案，並放入 6.11.0 的掛鉤",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "GEMINI.md",
+          "content": "# mine\n"
+        },
+        {
+          "writeFile": "AGENTS.md",
+          "content": "# mine\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".gemini/commands"
+          },
+          {
+            "path": ".opencode/command"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-uninstall-leaves-nothing",
+      "workspace": "xspec482-uninstall",
+      "title": "uds uninstall removes the command folders and the empty tool folders above them, and the always-pass hook of an older UDS",
+      "titleZh": "uds uninstall 移除指令資料夾與其上層空的工具資料夾，以及舊版 UDS 的永遠放行掛鉤",
+      "changelog": [
+        "uds uninstall says what it did, leaves no empty tool folder"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".git/hooks/pre-commit",
+          "executable": true,
+          "content": "#!/bin/sh\n# UDS pre-commit hook\n# Auto-generated by uds init\n\necho \"Running UDS pre-commit checks...\"\n\n# Run lint if available\nif [ -f pyproject.toml ] || [ -f requirements.txt ]; then\n  python -m ruff check . 2>/dev/null || true\nelif [ -f go.mod ]; then\n  go vet ./... 2>/dev/null || true\nelif [ -f Cargo.toml ]; then\n  cargo clippy 2>/dev/null || true\nfi\n\n# UDS Standard Check\nuds check 2>/dev/null || true\n\necho \"Pre-commit checks passed\"\n"
+        },
+        {
+          "setManifest": {
+            "installedArtifacts.files": {}
+          }
+        }
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const fs=require('fs');const cp=require('child_process');const r=cp.spawnSync(process.execPath,[process.argv[1],'uninstall','--yes'],{encoding:'utf8',env:process.env});process.stdout.write((r.stdout||'')+(r.stderr||'')+'\\nUNINSTALL-EXIT='+r.status+'\\nGEMINI-DIR='+fs.existsSync('.gemini')+'\\nOPENCODE-DIR='+fs.existsSync('.opencode')+'\\nHOOK='+fs.existsSync('.git/hooks/pre-commit')+'\\n');",
+        "{bin}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "UNINSTALL-EXIT=0",
+          "GEMINI-DIR=false",
+          "OPENCODE-DIR=false",
+          "HOOK=false"
+        ],
+        "notContains": [
+          "folder kept"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-compile-init",
+      "workspace": "xspec482-compile",
+      "title": "uds init --with-hooks sets up a project with hook scripts for the compile steps",
+      "titleZh": "uds init --with-hooks 建立含掛鉤腳本的專案，供 compile 步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks"
+          },
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "node scripts/hooks/"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-compile-keeps-user-hook",
+      "workspace": "xspec482-compile",
+      "title": "uds compile keeps the user's own Edit hook and writes string matchers",
+      "titleZh": "uds compile 保留使用者自己的 Edit 掛鉤並寫出字串 matcher",
+      "changelog": [
+        "uds compile keeps your hooks and writes the format Claude Code documents"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".claude/settings.json",
+          "content": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Edit\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"echo my-edit-hook\"\n          }\n        ]\n      }\n    ]\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "compile"
+      ],
+      "expect": {
+        "contains": [
+          "Compiled"
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "contains": [
+              "echo my-edit-hook",
+              "\"matcher\": \"Bash\"",
+              "node scripts/hooks/"
+            ],
+            "notContains": [
+              "\"tool\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-compile-no-scripts-init",
+      "workspace": "xspec482-compile-bare",
+      "title": "uds init without --with-hooks sets up a project that has no hook scripts",
+      "titleZh": "不帶 --with-hooks 的 uds init 建立沒有掛鉤腳本的專案",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-compile-skips-missing-scripts",
+      "workspace": "xspec482-compile-bare",
+      "title": "uds compile writes no entry for a hook script that is not in the project, and says which were skipped",
+      "titleZh": "uds compile 不為專案裡不存在的掛鉤腳本寫入項目，並說明略過了哪些",
+      "changelog": [
+        "uds compile keeps your hooks and writes the format Claude Code documents"
+      ],
+      "uds": [
+        "compile"
+      ],
+      "expect": {
+        "contains": [
+          "Compiled 0 enforcement standard(s)",
+          "hook script not found: scripts/hooks/",
+          "uds update --with-hooks"
+        ],
+        "files": [
+          {
+            "path": ".claude/settings.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-fresh-init",
+      "workspace": "xspec482-fresh",
+      "title": "uds init sets up a project with Claude Code, Cursor, Gemini CLI and OpenCode for the preview steps",
+      "titleZh": "uds init 建立含 Claude Code、Cursor、Gemini CLI、OpenCode 的專案，供預覽步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": ".cursorrules",
+          "content": "# mine\n"
+        },
+        {
+          "writeFile": "GEMINI.md",
+          "content": "# mine\n"
+        },
+        {
+          "writeFile": "AGENTS.md",
+          "content": "# mine\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-fresh-plan-no-changes",
+      "workspace": "xspec482-fresh",
+      "title": "A project uds init just made previews as \"No changes needed\" (no block to migrate)",
+      "titleZh": "uds init 剛建好的專案預覽為「No changes needed」（沒有要遷移的區塊）",
+      "changelog": [
+        "A brand new project previews as \"No changes needed\""
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "No changes needed"
+        ],
+        "notContains": [
+          "Migrate Block"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-fresh-plan-skills",
+      "workspace": "xspec482-fresh",
+      "title": "update --plan --skills calls the installation unchanged",
+      "titleZh": "update --plan --skills 把安裝判為沒有變更",
+      "changelog": [
+        "update --plan --commands and --plan --skills agree with update --plan"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--skills",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Summary: 0 installation(s) would be updated"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-fresh-plan-commands",
+      "workspace": "xspec482-fresh",
+      "title": "update --plan --commands calls the installations unchanged, as the other two previews do",
+      "titleZh": "update --plan --commands 與另外兩種預覽一致，把安裝判為沒有變更",
+      "changelog": [
+        "update --plan --commands and --plan --skills agree with update --plan"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--commands",
+        "--offline"
+      ],
+      "expect": {
+        "matches": [
+          "Summary: 0 installation\\(s\\) would be reinstalled, \\d+ unchanged"
+        ],
+        "notContains": [
+          "command(s) would be reinstalled"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-rollback-init",
+      "workspace": "xspec482-rollback",
+      "title": "uds init sets up a project for the rollback steps",
+      "titleZh": "uds init 建立專案，供 rollback 步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-rollback-newer-backup",
+      "workspace": "xspec482-rollback",
+      "title": "uds update --apply makes a backup next to the one an older UDS left",
+      "titleZh": "uds update --apply 在舊版 UDS 留下的備份旁做一份新備份",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".uds-backup-2026-10-13T05-53-52-485Z-0001/backup-manifest.json",
+          "content": "{\n  \"backupId\": \".uds-backup-2026-10-13T05-53-52-485Z-0001\",\n  \"createdAt\": \"2026-10-13T05:53:52.485Z\",\n  \"plan\": {\n    \"summary\": {\n      \"create\": 0,\n      \"update\": 0,\n      \"delete\": 0,\n      \"unchanged\": 1,\n      \"migrate_block\": 1\n    },\n    \"actionCount\": 1,\n    \"actions\": [\n      {\n        \"type\": \"migrate_block\",\n        \"category\": \"integration\",\n        \"path\": \"CLAUDE.md\",\n        \"reason\": \"integration content differs from what would be generated\"\n      }\n    ]\n  },\n  \"backedUpFiles\": [\n    \"CLAUDE.md\"\n  ],\n  \"failedToBackUp\": [],\n  \"coverage\": {\n    \"planned\": 1,\n    \"backedUp\": 1,\n    \"failed\": 0\n  }\n}\n"
+        },
+        {
+          "writeFile": ".uds-backup-2026-10-13T05-53-52-485Z-0001/CLAUDE.md",
+          "content": "restored from the old backup\n"
+        },
+        {
+          "removeFile": ".standards/testing.ai.yaml"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Reconciliation complete",
+          "Backup:"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-rollback-names-older-backup",
+      "workspace": "xspec482-rollback",
+      "title": "uds update --rollback says the older backup cannot be joined to the series, lists it and names --from",
+      "titleZh": "uds update --rollback 說明舊備份無法串進系列、列出它並指出 --from",
+      "changelog": [
+        "uds update --rollback --from <backup> restores a named backup"
+      ],
+      "uds": [
+        "update",
+        "--rollback"
+      ],
+      "expect": {
+        "contains": [
+          "older backup(s) are not part of that series (it was made by an older UDS, which did not record what links one backup to the next",
+          "uds update --rollback --from <backup>",
+          ".uds-backup-2026-10-13T05-53-52-485Z-0001"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-rollback-from-older-backup",
+      "workspace": "xspec482-rollback",
+      "title": "uds update --rollback --from restores the backup an older UDS made",
+      "titleZh": "uds update --rollback --from 還原舊版 UDS 做的備份",
+      "changelog": [
+        "uds update --rollback --from <backup> restores a named backup"
+      ],
+      "uds": [
+        "update",
+        "--rollback",
+        "--from",
+        ".uds-backup-2026-10-13T05-53-52-485Z-0001"
+      ],
+      "expect": {
+        "contains": [
+          "Rolling back from: .uds-backup-2026-10-13T05-53-52-485Z-0001",
+          "Restored 1 file(s)"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "restored from the old backup"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-json-init",
+      "workspace": "xspec482-json",
+      "title": "uds init sets up a project for the check --json steps",
+      "titleZh": "uds init 建立專案，供 check --json 步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-json-compliant",
+      "workspace": "xspec482-json",
+      "title": "uds check --json prints a JSON document that says the project is compliant",
+      "titleZh": "uds check --json 印出一份 JSON，說明專案合規",
+      "changelog": [
+        "uds check --json always prints one JSON document"
+      ],
+      "uds": [
+        "check",
+        "--json",
+        "--offline"
+      ],
+      "expect": {
+        "matches": [
+          "^\\{"
+        ],
+        "contains": [
+          "\"compliant\": true",
+          "\"initialized\": true"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-json-edited",
+      "workspace": "xspec482-json",
+      "title": "uds check --json names the edited standard and says the project is not compliant",
+      "titleZh": "uds check --json 指出被修改的標準並說明專案不合規",
+      "changelog": [
+        "uds check --json always prints one JSON document"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/testing.ai.yaml",
+          "content": "# replaced by hand\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--json",
+        "--offline"
+      ],
+      "expect": {
+        "matches": [
+          "^\\{"
+        ],
+        "contains": [
+          "\"compliant\": false",
+          ".standards/testing.ai.yaml"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-types-init",
+      "workspace": "xspec482-types",
+      "title": "uds init --with-hooks sets up the commit hook for the commit-type steps",
+      "titleZh": "uds init --with-hooks 建立提交掛鉤，供提交型別步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/validate-commit-msg.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-types-hook-accepts-security",
+      "workspace": "xspec482-types",
+      "title": "The commit hook accepts security(auth): ... as uds simulate does",
+      "titleZh": "提交掛鉤與 uds simulate 一樣接受 security(auth): ...",
+      "changelog": [
+        "The Claude Code commit hook and uds simulate -s commit-message read the same commit types"
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const r=require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs','security(auth): rotate keys'],{encoding:'utf8'});process.stdout.write('HOOK-EXIT='+r.status+'\\n'+r.stderr);"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "HOOK-EXIT=0"
+        ],
+        "notContains": [
+          "Invalid commit message format"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-types-simulate-accepts-security",
+      "workspace": "xspec482-types",
+      "title": "uds simulate -s commit-message accepts security(auth): ... (the other half of the pair)",
+      "titleZh": "uds simulate -s commit-message 接受 security(auth): ...（成對的另一半）",
+      "changelog": [
+        "The Claude Code commit hook and uds simulate -s commit-message read the same commit types"
+      ],
+      "uds": [
+        "simulate",
+        "-s",
+        "commit-message",
+        "-i",
+        "security(auth): rotate keys"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Simulation Passed"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-outputlang-rejects",
+      "workspace": "xspec482-outputlang",
+      "title": "uds init --output-lang with a value no option file exists for exits 1, lists the values and installs nothing",
+      "titleZh": "uds init --output-lang 給了沒有選項檔的值會以 1 結束、列出可用值、什麼都不安裝",
+      "changelog": [
+        "Behavior change - uds init --output-lang rejects a value no option file exists for"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--output-lang",
+        "klingon"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Unsupported --output-lang \"klingon\". Supported: english, traditional-chinese, bilingual."
+        ],
+        "files": [
+          {
+            "path": ".standards",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-zhcn-bilingual",
+      "workspace": "xspec482-zhcn",
+      "title": "A Simplified Chinese project with bilingual commits gets \"English + 简体中文\" and Simplified sentences",
+      "titleZh": "簡體中文專案選雙語提交時得到「英文 + 简体中文」與簡體句子",
+      "changelog": [
+        "Behavior change - uds init --output-lang rejects a value no option file exists for"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--locale",
+        "zh-cn",
+        "--output-lang",
+        "bilingual",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "英文 + 简体中文",
+              "这个区块是索引，不是标准本文"
+            ],
+            "notContains": [
+              "繁體中文",
+              "這個區塊是索引"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-release-head-wording",
+      "workspace": "xspec482-release",
+      "title": "uds release verify says it compared the current HEAD",
+      "titleZh": "uds release verify 說明比對的是目前的 HEAD",
+      "changelog": [
+        "Behavior change - uds release prints in the display language"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/release-config.yaml",
+          "content": "release:\n  mode: manual\n  versioning: semver\n"
+        },
+        {
+          "writeFile": "package.json",
+          "content": "{\"name\":\"acme\",\"version\":\"1.2.0-rc.1\"}\n"
+        },
+        {
+          "writeFile": "build-manifest.json",
+          "content": "{\"version\":\"1.2.0-rc.1\",\"commit\":\"deadbee\",\"branch\":\"main\",\"builder\":\"t\",\"build_date\":\"2026-10-13T00:00:00Z\"}\n"
+        }
+      ],
+      "uds": [
+        "release",
+        "verify"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "commit mismatch: manifest has \"deadbee\", the current HEAD is \""
+        ],
+        "notContains": [
+          "git tag points to"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-release-english",
+      "workspace": "xspec482-release",
+      "title": "uds release promote prints English under --ui-lang en",
+      "titleZh": "uds release promote 在 --ui-lang en 下印出英文",
+      "changelog": [
+        "Behavior change - uds release prints in the display language"
+      ],
+      "uds": [
+        "--ui-lang",
+        "en",
+        "release",
+        "promote",
+        "1.2.0"
+      ],
+      "expect": {
+        "contains": [
+          "This command records no promotion and creates no Git tag",
+          "Next steps (you run them):"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-release-zh-cn",
+      "workspace": "xspec482-release",
+      "title": "uds release promote prints Simplified Chinese under --ui-lang zh-cn",
+      "titleZh": "uds release promote 在 --ui-lang zh-cn 下印出簡體中文",
+      "changelog": [
+        "Behavior change - uds release prints in the display language"
+      ],
+      "uds": [
+        "--ui-lang",
+        "zh-cn",
+        "release",
+        "promote",
+        "1.2.0"
+      ],
+      "expect": {
+        "contains": [
+          "这个命令不会创建晋升记录，也不会创建 Git tag"
+        ],
+        "notContains": [
+          "這個指令不會建立晉升紀錄"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-mcp-ping-and-tool-error",
+      "workspace": "xspec482-mcp",
+      "title": "The MCP server answers ping and reports a failed tool as an isError result",
+      "titleZh": "MCP 伺服器回應 ping，並把失敗的工具以 isError 結果回報",
+      "changelog": [
+        "The MCP server answers ping, and a tool that fails answers with an isError result"
+      ],
+      "uds": [
+        "mcp",
+        "serve"
+      ],
+      "stdin": "{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"initialize\", \"params\": {}}\n{\"jsonrpc\": \"2.0\", \"id\": 2, \"method\": \"ping\"}\n{\"jsonrpc\": \"2.0\", \"id\": 3, \"method\": \"tools/call\", \"params\": {\"name\": \"validate_design_token\", \"arguments\": {\"design_md_path\": \"no-such-DESIGN.md\"}}}\n",
+      "expect": {
+        "contains": [
+          "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{}}",
+          "\"isError\":true",
+          "no-such-DESIGN.md"
+        ],
+        "notContains": [
+          "\"code\":-32000"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-noupdatecheck-init",
+      "workspace": "xspec482-noupdate",
+      "title": "uds init sets up a project for the update-check steps",
+      "titleZh": "uds init 建立專案，供查版本步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "net.cjs",
+          "content": "const https = require('https'), http = require('http'), fs = require('fs');\nconst { EventEmitter } = require('events');\nconst note = (u) => fs.appendFileSync('net.log', String(u) + '\\n');\nconst blocked = (...a) => {\n  note(typeof a[0] === 'string' ? a[0] : (a[0] && (a[0].href || a[0].hostname)) || '?');\n  const req = new EventEmitter();\n  req.end = () => req; req.destroy = () => req; req.setTimeout = () => req; req.write = () => true;\n  setImmediate(() => req.emit('error', new Error('network blocked by the acceptance step')));\n  return req;\n};\nhttps.get = https.request = http.get = http.request = blocked;\nglobalThis.fetch = async (u) => { note(u); throw new Error('network blocked by the acceptance step'); };\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "net.cjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-noupdatecheck-asks-nothing",
+      "workspace": "xspec482-noupdate",
+      "title": "uds check with UDS_NO_UPDATE_CHECK=1 makes no request to the npm registry",
+      "titleZh": "UDS_NO_UPDATE_CHECK=1 時 uds check 不向 npm registry 發出請求",
+      "changelog": [
+        "UDS_NO_UPDATE_CHECK=1 stops uds check from asking npm"
+      ],
+      "uds": [
+        "check"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--require=\"{workPosix}/net.cjs\"",
+        "UDS_NO_UPDATE_CHECK": "1"
+      },
+      "expect": {
+        "contains": [
+          "Standards initialized"
+        ],
+        "files": [
+          {
+            "path": "net.log",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-noupdatecheck-control",
+      "workspace": "xspec482-noupdate",
+      "title": "Without UDS_NO_UPDATE_CHECK the same check does ask the registry (control: the request log works)",
+      "titleZh": "不設 UDS_NO_UPDATE_CHECK 時同一個檢查會查 registry（對照：請求紀錄有效）",
+      "changelog": [
+        "UDS_NO_UPDATE_CHECK=1 stops uds check from asking npm"
+      ],
+      "uds": [
+        "check"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--require=\"{workPosix}/net.cjs\"",
+        "UDS_NO_UPDATE_CHECK": ""
+      },
+      "expect": {
+        "contains": [
+          "Standards initialized"
+        ],
+        "files": [
+          {
+            "path": "net.log",
+            "contains": [
+              "registry.npmjs.org"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-auditask-init",
+      "workspace": "xspec482-auditask",
+      "title": "uds init sets up a project for the audit --report step",
+      "titleZh": "uds init 建立專案，供 audit --report 步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec482-human-audit-report-asks",
+      "workspace": "xspec482-auditask",
+      "title": "uds audit --report shows the whole report and asks before sending (answer n: nothing is sent)",
+      "titleZh": "uds audit --report 先顯示完整報告並詢問才送出（回答 n：不會送出）",
+      "changelog": [
+        "Behavior change - uds audit --report shows the whole report and asks before sending it"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/testing.ai.yaml",
+          "content": "# replaced by hand so the audit has a finding\n"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--report"
+      ],
+      "expect": {
+        "exit": 0
+      },
+      "human": {
+        "inherit": true,
+        "prompt": "You were shown the whole report and then asked \"Send this report as a public issue ...?\". Select the findings, leave the comment empty, and answer n. Did it print \"Not sent. Nothing was submitted.\" and create no issue?",
+        "promptZh": "你應該先看到完整報告，接著被問「Send this report as a public issue ...?」。請選取項目、備註留空並回答 n。它是否印出「Not sent. Nothing was submitted.」且沒有建立任何 issue？"
+      },
+      "smoke": true
     }
   ]
 }

@@ -132,7 +132,7 @@ for (const name of ['exec', 'execFile']) {
  * @param {{ overrides?: Object<string, string> }} [opts] - `overrides` maps a path under `cli/` (e.g.
  *   `src/utils/foo.js`) to the source text that replaces that file in the STAGED copy only. It builds a
  *   "feature switched off" twin of the CLI: run the same commands on both and the difference is the feature.
- * @returns {{ runCli: Function, newProject: Function, sandbox: Function, cleanup: Function }}
+ * @returns {{ runCli: Function, newProject: Function, makeDir: Function, cleanup: Function, cliPath: Function }}
  */
 export function createHarness(label, { overrides = {} } = {}) {
   let sandbox = null;
@@ -209,9 +209,9 @@ export function createHarness(label, { overrides = {} } = {}) {
       // Quiet is not enough: on a slow machine the CLI can be quiet while it is still working, and a key typed
       // before the question is drawn waits in the input buffer and answers the NEXT question (the update question
       // of the uds.project.yaml wizard would get the default, no). So a key is typed only when the screen ends
-      // the way a question ends: a select or checkbox footer, a (Y/n) confirm, or a text input ending in a colon (with its default, in parentheses, after it).
+      // the way a question ends: a select or checkbox footer, a (Y/n) confirm, or a text input ending in a colon (ASCII or full-width, with its default, in parentheses, after it).
       // (Whitespace is dropped first: the library wraps a long question at the terminal width, even inside "(y/N)".)
-      const endsLikeAQuestion = (text) => /(⏎(select|submit)|\(Y\/n\)|\(y\/N\)|:(\([^()]*\))?)$/.test(text.replace(/\s+/g, ''));
+      const endsLikeAQuestion = (text) => /(⏎(select|submit)|\(Y\/n\)|\(y\/N\)|[:：](\([^()]*\)|（[^（）]*）)?)$/.test(text.replace(/\s+/g, ''));
       const armIdle = () => {
         if (!drive) return;
         clearTimeout(idle);
@@ -262,5 +262,11 @@ export function createHarness(label, { overrides = {} } = {}) {
     if (sandbox && sandbox.includes(`uds-test-${label}-`)) rmSync(sandbox, { recursive: true, force: true });
   }
 
-  return { runCli, newProject, makeDir, cleanup };
+  /** Path of the staged `bin/uds.js` (for a shim that stands in for an installed `universal-dev-standards`). */
+  function cliPath() {
+    ensureSandbox();
+    return stagedCli;
+  }
+
+  return { runCli, newProject, makeDir, cleanup, cliPath };
 }

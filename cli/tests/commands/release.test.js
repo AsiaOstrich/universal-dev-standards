@@ -38,12 +38,15 @@ vi.mock('js-yaml', () => {
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { releaseCommand } from '../../src/commands/release.js';
+import { setLanguage } from '../../src/i18n/messages.js';
 
 describe('Release Command', () => {
   let consoleLogs;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // These assertions are about the Traditional Chinese text; the command now follows the display language (XSPEC-482 R14b).
+    setLanguage('zh-tw');
     consoleLogs = [];
     vi.spyOn(console, 'log').mockImplementation((...args) => {
       consoleLogs.push(args.join(' '));

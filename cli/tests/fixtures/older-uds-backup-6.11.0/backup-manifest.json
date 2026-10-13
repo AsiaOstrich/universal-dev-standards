@@ -1,0 +1,39 @@
+{
+  "backupId": ".uds-backup-2026-10-13T05-53-52-485Z-0001",
+  "createdAt": "2026-10-13T05:53:52.485Z",
+  "plan": {
+    "summary": {
+      "create": 0,
+      "update": 0,
+      "delete": 0,
+      "unchanged": 128,
+      "migrate_block": 2
+    },
+    "actionCount": 2,
+    "actions": [
+      {
+        "type": "migrate_block",
+        "category": "integration",
+        "path": "CLAUDE.md",
+        "reason": "integration content differs from what would be generated"
+      },
+      {
+        "type": "migrate_block",
+        "category": "integration",
+        "path": "AGENTS.md",
+        "reason": "integration content differs from what would be generated"
+      }
+    ]
+  },
+  "backedUpFiles": [
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "failedToBackUp": [],
+  "coverage": {
+    "planned": 2,
+    "backedUp": 2,
+    "failed": 0
+  },
+  "projectPath": "<scratch project folder>"
+}

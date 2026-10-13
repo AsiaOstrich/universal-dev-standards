@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.12
 It installs the published 6.14.0-beta.12 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.12 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 278 steps (271 checked by the program, 7 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 278 步（271 步由程式判定、7 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 322 steps (314 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 322 步（314 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -888,6 +888,138 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 278 steps (271
 278. `xspec475-secret-management-points-at-psg` — The installed secret-management-standards is 1.1.0 and REQ-003 points at PSG-1 to PSG-3 of pipeline-security-gates.
    安裝後的 secret-management-standards 為 1.1.0，REQ-003 指向 pipeline-security-gates 的 PSG-1～PSG-3。
    `uds update --apply --yes --offline --add-standard secret-management-standards` → exit 0
+279. `xspec482-relmode-init` — uds init sets up a project for the release-mode steps of XSPEC-482.
+   uds init 建立專案，供 XSPEC-482 的發布模式步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+280. `xspec482-config-release-manual` (**new 新**) — uds config --type release_mode: choosing Manual succeeds and writes release-config.yaml.
+   uds config --type release_mode：選手動模式會成功並寫出 release-config.yaml。
+   `{node} drive.cjs {bin} "[[\"Select release mode\", \"\\u001b[B\\r\"]]" config --type release_mode` → exit 0; output has "DRIVE-EXIT=0", "Configuration updated successfully"
+281. `xspec482-init-interactive-manual` (**new 新**) — Interactive uds init choosing Manual installs and writes release-config.yaml (a typed-answer driver stands in for the person).
+   互動式 uds init 選手動模式：安裝成功並寫出 release-config.yaml（由輸入答案的小程式代替人）。
+   `{node} drive.cjs {bin} "[[\"Select release mode\", \"\\u001b[B\\r\"]]" init` → exit 0; output has "DRIVE-EXIT=0", "Standards initialized successfully"
+282. `xspec482-apply-init` — uds init sets up a project for the update --apply failure steps.
+   uds init 建立專案，供 update --apply 失敗步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+283. `xspec482-apply-standard-fails` (**new 新**) — uds update --apply exits 1 and lists the file when a standard cannot be written.
+   uds update --apply 在標準檔寫不進去時結束碼為 1 並列出該檔。
+   `uds update --apply --yes --offline` → exit 1; output has "Reconciliation completed with errors: 1 failed", "EACCES" (+3)
+284. `xspec482-apply-again-completes` (**new 新**) — Running uds update --apply again, with nothing failing, puts the file back.
+   不再有失敗時再執行一次 uds update --apply，檔案就補回來。
+   `uds update --apply --yes --offline` → exit 0; output has "Reconciliation complete"
+285. `xspec482-apply-skill-fails` (**new 新**) — A skills batch that fails names the skill folder and the cause, not "Unknown error".
+   技能批次失敗時指出技能資料夾與原因，而不是「Unknown error」。
+   `uds update --apply --yes --offline` → exit 1; output has "commit-standards: EACCES"
+286. `xspec482-hook-init` — uds init sets up a git project with the pre-commit hook for the hook steps of XSPEC-482.
+   uds init 建立含 pre-commit 掛鉤的 git 專案，供 XSPEC-482 的掛鉤步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+287. `xspec482-hook-blocks-edited-standard` (**new 新**) — The pre-commit hook refuses a commit that edits an installed standard, says why, and git records nothing.
+   pre-commit 掛鉤擋下修改已安裝標準的 commit、說明原因，git 沒有記錄任何 commit。
+   `{node} edit-and-commit.cjs` → exit 0; output has "COMMIT-EXIT=1", "This commit is blocked: the UDS check found the issues listed above" (+2)
+288. `xspec482-oldhook-init` — uds init sets up a git project, then the hook of UDS 6.11.0 is put in place.
+   uds init 建立 git 專案，然後放入 UDS 6.11.0 的掛鉤。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+289. `xspec482-oldhook-plan` (**new 新**) — uds update --plan lists the swap of the always-pass hook and writes nothing.
+   uds update --plan 列出換掉永遠放行掛鉤的動作，且不寫任何檔案。
+   `uds update --plan --offline` → exit 0; output has ".git/hooks/pre-commit: would replace the hook an older UDS wrote", "uds check 2>/dev/null || true"
+290. `xspec482-oldhook-apply` (**new 新**) — uds update --apply swaps the always-pass hook for the current one.
+   uds update --apply 把永遠放行的掛鉤換成現行版本。
+   `uds update --apply --yes --offline` → exit 0; output has ".git/hooks/pre-commit: replaced the hook an older UDS wrote"
+291. `xspec482-oldhook-edited-kept` (**new 新**) — An edited old hook is left alone and the always-pass line is named.
+   被改過的舊掛鉤不動，並指出永遠放行的那一行。
+   `uds update --apply --yes --offline` → exit 0; output has ".git/hooks/pre-commit line", "runs the UDS check and lets the commit through whatever it finds" (+1)
+292. `xspec482-uninstall-init` — uds init sets up a project that uses Gemini CLI and OpenCode commands, with the 6.11.0 hook.
+   uds init 建立使用 Gemini CLI 與 OpenCode 指令的專案，並放入 6.11.0 的掛鉤。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+293. `xspec482-uninstall-leaves-nothing` (**new 新**) — uds uninstall removes the command folders and the empty tool folders above them, and the always-pass hook of an older UDS.
+   uds uninstall 移除指令資料夾與其上層空的工具資料夾，以及舊版 UDS 的永遠放行掛鉤。
+   `{node} -e "const fs=require('fs');const cp=require('child_process');const r=cp.spawnSync(process.execPath,[process.argv[1],'uninstall','--yes'],{encoding:'utf8',env:process.env});process.stdout.write((r.stdout||'')+(r.stderr||'')+'\\nUNINSTALL-EXIT='+r.status+'\\nGEMINI-DIR='+fs.existsSync('.gemini')+'\\nOPENCODE-DIR='+fs.existsSync('.opencode')+'\\nHOOK='+fs.existsSync('.git/hooks/pre-commit')+'\\n');" {bin}` → exit 0; output has "UNINSTALL-EXIT=0", "GEMINI-DIR=false" (+2)
+294. `xspec482-compile-init` — uds init --with-hooks sets up a project with hook scripts for the compile steps.
+   uds init --with-hooks 建立含掛鉤腳本的專案，供 compile 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
+295. `xspec482-compile-keeps-user-hook` (**new 新**) — uds compile keeps the user's own Edit hook and writes string matchers.
+   uds compile 保留使用者自己的 Edit 掛鉤並寫出字串 matcher。
+   `uds compile` → exit 0; output has "Compiled"
+296. `xspec482-compile-no-scripts-init` — uds init without --with-hooks sets up a project that has no hook scripts.
+   不帶 --with-hooks 的 uds init 建立沒有掛鉤腳本的專案。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+297. `xspec482-compile-skips-missing-scripts` (**new 新**) — uds compile writes no entry for a hook script that is not in the project, and says which were skipped.
+   uds compile 不為專案裡不存在的掛鉤腳本寫入項目，並說明略過了哪些。
+   `uds compile` → exit 0; output has "Compiled 0 enforcement standard(s)", "hook script not found: scripts/hooks/" (+1)
+298. `xspec482-fresh-init` — uds init sets up a project with Claude Code, Cursor, Gemini CLI and OpenCode for the preview steps.
+   uds init 建立含 Claude Code、Cursor、Gemini CLI、OpenCode 的專案，供預覽步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+299. `xspec482-fresh-plan-no-changes` (**new 新**) — A project uds init just made previews as "No changes needed" (no block to migrate).
+   uds init 剛建好的專案預覽為「No changes needed」（沒有要遷移的區塊）。
+   `uds update --plan --offline` → exit 0; output has "No changes needed"
+300. `xspec482-fresh-plan-skills` (**new 新**) — update --plan --skills calls the installation unchanged.
+   update --plan --skills 把安裝判為沒有變更。
+   `uds update --plan --skills --offline` → exit 0; output has "Summary: 0 installation(s) would be updated"
+301. `xspec482-fresh-plan-commands` (**new 新**) — update --plan --commands calls the installations unchanged, as the other two previews do.
+   update --plan --commands 與另外兩種預覽一致，把安裝判為沒有變更。
+   `uds update --plan --commands --offline` → exit 0; output has "/Summary: 0 installation\(s\) would be reinstalled, \d+ unchanged/"
+302. `xspec482-rollback-init` — uds init sets up a project for the rollback steps.
+   uds init 建立專案，供 rollback 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+303. `xspec482-rollback-newer-backup` — uds update --apply makes a backup next to the one an older UDS left.
+   uds update --apply 在舊版 UDS 留下的備份旁做一份新備份。
+   `uds update --apply --yes --offline` → exit 0; output has "Reconciliation complete", "Backup:"
+304. `xspec482-rollback-names-older-backup` (**new 新**) — uds update --rollback says the older backup cannot be joined to the series, lists it and names --from.
+   uds update --rollback 說明舊備份無法串進系列、列出它並指出 --from。
+   `uds update --rollback` → exit 0; output has "older backup(s) are not part of that series (it was made by an older UDS, which did not record what links one backup to the next", "uds update --rollback --from <backup>" (+1)
+305. `xspec482-rollback-from-older-backup` (**new 新**) — uds update --rollback --from restores the backup an older UDS made.
+   uds update --rollback --from 還原舊版 UDS 做的備份。
+   `uds update --rollback --from .uds-backup-2026-10-13T05-53-52-485Z-0001` → exit 0; output has "Rolling back from: .uds-backup-2026-10-13T05-53-52-485Z-0001", "Restored 1 file(s)"
+306. `xspec482-json-init` — uds init sets up a project for the check --json steps.
+   uds init 建立專案，供 check --json 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+307. `xspec482-json-compliant` (**new 新**) — uds check --json prints a JSON document that says the project is compliant.
+   uds check --json 印出一份 JSON，說明專案合規。
+   `uds check --json --offline` → exit 0; output has ""compliant": true", ""initialized": true" (+1)
+308. `xspec482-json-edited` (**new 新**) — uds check --json names the edited standard and says the project is not compliant.
+   uds check --json 指出被修改的標準並說明專案不合規。
+   `uds check --json --offline` → exit 0; output has ""compliant": false", ".standards/testing.ai.yaml" (+1)
+309. `xspec482-types-init` — uds init --with-hooks sets up the commit hook for the commit-type steps.
+   uds init --with-hooks 建立提交掛鉤，供提交型別步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
+310. `xspec482-types-hook-accepts-security` (**new 新**) — The commit hook accepts security(auth): ... as uds simulate does.
+   提交掛鉤與 uds simulate 一樣接受 security(auth): ...。
+   `{node} -e "const r=require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs','security(auth): rotate keys'],{encoding:'utf8'});process.stdout.write('HOOK-EXIT='+r.status+'\\n'+r.stderr);"` → exit 0; output has "HOOK-EXIT=0"
+311. `xspec482-types-simulate-accepts-security` (**new 新**) — uds simulate -s commit-message accepts security(auth): ... (the other half of the pair).
+   uds simulate -s commit-message 接受 security(auth): ...（成對的另一半）。
+   `uds simulate -s commit-message -i "security(auth): rotate keys"` → exit 0; output has "Simulation Passed"
+312. `xspec482-outputlang-rejects` (**new 新**) — uds init --output-lang with a value no option file exists for exits 1, lists the values and installs nothing.
+   uds init --output-lang 給了沒有選項檔的值會以 1 結束、列出可用值、什麼都不安裝。
+   `uds init -y --output-lang klingon` → exit 1; output has "Unsupported --output-lang "klingon". Supported: english, traditional-chinese, bilingual."
+313. `xspec482-zhcn-bilingual` (**new 新**) — A Simplified Chinese project with bilingual commits gets "English + 简体中文" and Simplified sentences.
+   簡體中文專案選雙語提交時得到「英文 + 简体中文」與簡體句子。
+   `uds init -y --locale zh-cn --output-lang bilingual --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+314. `xspec482-release-head-wording` (**new 新**) — uds release verify says it compared the current HEAD.
+   uds release verify 說明比對的是目前的 HEAD。
+   `uds release verify` → exit 1; output has "commit mismatch: manifest has "deadbee", the current HEAD is ""
+315. `xspec482-release-english` (**new 新**) — uds release promote prints English under --ui-lang en.
+   uds release promote 在 --ui-lang en 下印出英文。
+   `uds --ui-lang en release promote 1.2.0` → exit 0; output has "This command records no promotion and creates no Git tag", "Next steps (you run them):"
+316. `xspec482-release-zh-cn` (**new 新**) — uds release promote prints Simplified Chinese under --ui-lang zh-cn.
+   uds release promote 在 --ui-lang zh-cn 下印出簡體中文。
+   `uds --ui-lang zh-cn release promote 1.2.0` → exit 0; output has "这个命令不会创建晋升记录，也不会创建 Git tag"
+317. `xspec482-mcp-ping-and-tool-error` (**new 新**) — The MCP server answers ping and reports a failed tool as an isError result.
+   MCP 伺服器回應 ping，並把失敗的工具以 isError 結果回報。
+   `uds mcp serve` → exit 0; output has "{"jsonrpc":"2.0","id":2,"result":{}}", ""isError":true" (+1)
+318. `xspec482-noupdatecheck-init` — uds init sets up a project for the update-check steps.
+   uds init 建立專案，供查版本步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+319. `xspec482-noupdatecheck-asks-nothing` (**new 新**) — uds check with UDS_NO_UPDATE_CHECK=1 makes no request to the npm registry.
+   UDS_NO_UPDATE_CHECK=1 時 uds check 不向 npm registry 發出請求。
+   `uds check` → exit 0; output has "Standards initialized"
+320. `xspec482-noupdatecheck-control` (**new 新**) — Without UDS_NO_UPDATE_CHECK the same check does ask the registry (control: the request log works).
+   不設 UDS_NO_UPDATE_CHECK 時同一個檢查會查 registry（對照：請求紀錄有效）。
+   `uds check` → exit 0; output has "Standards initialized"
+321. `xspec482-auditask-init` — uds init sets up a project for the audit --report step.
+   uds init 建立專案，供 audit --report 步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+322. `xspec482-human-audit-report-asks` (needs a person 需人眼; **new 新**) — uds audit --report shows the whole report and asks before sending (answer n: nothing is sent).
+   uds audit --report 先顯示完整報告並詢問才送出（回答 n：不會送出）。
+   `uds audit --report` → exit 0
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

@@ -86,7 +86,14 @@ vi.mock('../../src/config/ai-agent-paths.js', () => ({
 
 vi.mock('../../src/utils/registry.js', () => ({
   getAllStandards: vi.fn(() => [
-    { id: 'test-standard', category: 'reference', name: 'Test Standard' }
+    { id: 'test-standard', category: 'reference', name: 'Test Standard' },
+    // `--output-lang` is checked against the option files the commit-message standard lists (XSPEC-482 R13).
+    {
+      id: 'commit-message',
+      category: 'reference',
+      name: 'Commit Message',
+      options: { output_language: { choices: [{ id: 'english' }, { id: 'traditional-chinese' }, { id: 'bilingual' }] } }
+    }
   ]),
   getStandardsByLevel: vi.fn(() => [
     { id: 'test-standard', category: 'reference', name: 'Test Standard' }

@@ -316,6 +316,37 @@ function displayAdoptionStatus(manifest, msg, common, repoInfo, standardsUpdate)
 }
 
 /**
+ * `uds check --json` (without --standard / --i18n): run the whole check with its text held back, then print one JSON
+ * document. Held back means console output and anything written to stdout while it runs (a spinner, a warning from a
+ * helper); what the check decides is read from the report the main body fills in. The exit code is the one the text mode
+ * would give (`--ci` and a non-compliant project: 1).
+ * @param {Object} options
+ */
+async function checkAsJson(options) {
+  const report = { initialized: null, compliant: null };
+  const realWrite = process.stdout.write.bind(process.stdout);
+  const quiet = () => true;
+  const saved = { log: console.log, info: console.info, warn: console.warn };
+  process.stdout.write = quiet;
+  console.log = console.info = console.warn = () => {};
+  try {
+    await checkCommand({ ...options, _report: report });
+  } finally {
+    process.stdout.write = realWrite;
+    console.log = saved.log;
+    console.info = saved.info;
+    console.warn = saved.warn;
+  }
+  const completed = report.compliant !== null;
+  console.log(JSON.stringify({
+    success: report.compliant === true,
+    initialized: report.initialized,
+    completed,
+    ...report
+  }, null, 2));
+}
+
+/**
  * Check command - verify adoption status
  * @param {Object} options - Command options
  */
@@ -376,9 +407,20 @@ export async function checkCommand(options = {}) {
     return;
   }
 
+  // XSPEC-482 R9: `--json` is documented as "Output result in JSON format" and used to be honoured only together with
+  // `--standard` / `--i18n`; on its own it printed the human text. The checks below run unchanged with their text held
+  // back, and what they found is printed as one JSON document.
+  if (options.json && !options._report) {
+    await checkAsJson(options); // wire:check-json-prints-json
+    return;
+  }
+
   // Phase 0: Initialization
   const context = initializeCheckContext(projectPath);
-  if (!context) return;
+  if (!context) {
+    if (options._report) options._report.initialized = false;
+    return;
+  }
 
   const { manifest, msg, common, repoInfo } = context;
 
@@ -389,7 +431,10 @@ export async function checkCommand(options = {}) {
   // XSPEC-342 R1：先問 npm 最新，判斷「已裝標準」是否落後（離線則跳過，不誤用 CLI bundled 版本）。
   // fetchLatestVersion 有 60s 模組級快取，故此處與下方 checkCliVersion 共兩次呼叫只打一次網路。
   let standardsUpdate = null;
-  if (!options.offline) {
+  // XSPEC-482 R14e: UDS_NO_UPDATE_CHECK=1 is the documented switch for "do not ask the npm registry"; `check` asked
+  // anyway (and wrote ~/.uds/update-check.json) unless --offline was also given. The variable now counts as --offline here.
+  const offline = options.offline || process.env.UDS_NO_UPDATE_CHECK === '1'; // wire:check-honours-no-update-check
+  if (!offline) {
     standardsUpdate = await checkForUpdates(manifest.upstream.version, {
       checkBeta: manifest.upstream.version.includes('-')
     });
@@ -399,7 +444,7 @@ export async function checkCommand(options = {}) {
   displayAdoptionStatus(manifest, msg, common, repoInfo, standardsUpdate);
 
   // Check for CLI updates from npm registry (unless --offline)
-  if (!options.offline) {
+  if (!offline) {
     await checkCliVersion(repoInfo.standards.version);
   }
 
@@ -592,6 +637,30 @@ export async function checkCommand(options = {}) {
                   integrationBlockStatus.missing.length === 0 &&
                   integrationBlockStatus.noMarkers.length === 0 &&
                   integrationBlockStatus.ambiguous.length === 0;
+  if (options._report) {
+    Object.assign(options._report, {
+      initialized: true,
+      compliant: allGood,
+      version: manifest.upstream?.version ?? null,
+      installed: manifest.upstream?.installed ?? null,
+      files: {
+        unchanged: fileStatus.unchanged.length,
+        modified: fileStatus.modified,
+        missing: fileStatus.missing,
+        retired: fileStatus.retired || []
+      },
+      skillIssues: skillIssues.length,
+      commandIssues: commandIssues.length,
+      integrationBlocks: {
+        modified: integrationBlockStatus.modified,
+        missing: integrationBlockStatus.missing,
+        noMarkers: integrationBlockStatus.noMarkers,
+        ambiguous: integrationBlockStatus.ambiguous
+      },
+      testChangeBlocked: !!testChange.blocked,
+      testGatesBlocked: !!testGates.blocked
+    });
+  }
   if (allGood) {
     console.log(chalk.green(msg.projectCompliant));
   } else {

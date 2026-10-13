@@ -12,6 +12,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 
 import { join } from 'path';
 import { load } from 'js-yaml';
 import { ClaudeCodeCompiler } from '../compilers/claude-code-compiler.js';
+import { mergeHookArray, normalizeMatcher } from '../installers/hooks-installer.js';
 
 const COMPILERS = {
   'claude-code': ClaudeCodeCompiler,
@@ -35,6 +36,17 @@ function parseStandard(filePath) {
   } catch {
     return null;
   }
+}
+
+/**
+ * An entry an earlier `uds compile` wrote with an object matcher (`{ "tool": "Bash" }`) is brought to the string form.
+ * Only entries that run a UDS hook script (`node scripts/hooks/...`) are touched; any other entry is returned as it is.
+ */
+function repairUdsMatcher(entry) {
+  const command = entry && entry.hooks && entry.hooks[0] && entry.hooks[0].command;
+  if (typeof command !== 'string' || !command.startsWith('node scripts/hooks/')) return entry;
+  if (typeof entry.matcher === 'string' || entry.matcher === undefined) return entry;
+  return { ...entry, matcher: normalizeMatcher(entry.matcher) };
 }
 
 /**
@@ -72,10 +84,22 @@ export function compileStandards(projectPath, options = {}) {
     .map((f) => parseStandard(join(standardsDir, f)))
     .filter(Boolean);
 
+  // Only a standard whose hook script is really in the project is compiled. A settings.json entry for a script that
+  // is not there makes the tool fail on every call of that event (XSPEC-482 R4c); `uds init --with-hooks` /
+  // `uds update --with-hooks` skip such a standard and say so, and so does this.
+  const skipped = [];
+  const present = standards.filter((s) => {
+    if (s.enforcement == null) return true;
+    const script = s.enforcement.hook_script;
+    if (typeof script === 'string' && script && existsSync(join(projectPath, script))) return true; // wire:compile-skips-missing-script
+    skipped.push({ id: s.id || s._file, why: `hook script not found: ${script ?? '(none declared)'}` });
+    return false;
+  });
+
   // Compile
   const compiler = new CompilerClass();
-  const config = compiler.compile(standards);
-  const compiledCount = compiler.filterEnforceable(standards).length;
+  const config = compiler.compile(present);
+  const compiledCount = compiler.filterEnforceable(present).length;
 
   // Write output (unless dry-run)
   if (!options.dryRun && compiledCount > 0) {
@@ -96,8 +120,16 @@ export function compileStandards(projectPath, options = {}) {
       }
     }
 
-    // Merge hooks (replace UDS-compiled hooks entirely)
-    settings.hooks = { ...(settings.hooks || {}), ...config.hooks };
+    // Merge hooks the way `uds update --with-hooks` does (XSPEC-482 R4a): the project's own entries, on the same event
+    // or not, stay exactly as they are, and an entry UDS already wrote is not written twice. This used to replace the
+    // whole array of every event the standards touched, which deleted a user's own hook on that event.
+    settings.hooks = settings.hooks || {};
+    for (const [event, entries] of Object.entries(settings.hooks)) {
+      settings.hooks[event] = (entries || []).map(repairUdsMatcher);
+    }
+    for (const [event, incoming] of Object.entries(config.hooks)) {
+      settings.hooks[event] = mergeHookArray(settings.hooks[event] || [], incoming); // wire:compile-merges-hooks
+    }
     writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
   }
 
@@ -105,6 +137,7 @@ export function compileStandards(projectPath, options = {}) {
     success: true,
     config,
     compiledCount,
+    skipped,
     dryRun: !!options.dryRun,
   };
 }

@@ -233,7 +233,8 @@ program
   .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope')
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
-  .option('--rollback', 'Rollback to the most recent backup')
+  .option('--rollback', 'Rollback to the most recent backup (with the series of updates that follow from it)')
+  .option('--from <backup>', 'With --rollback: restore this one backup instead of the most recent series (the id --rollback prints, or its folder name); use it for a backup an older UDS made')
   .option('--add-standard <id>', 'With --plan or --apply: also install this standard UDS ships and the project lacks, and record it in the manifest (repeatable; `uds update --plan` lists what is available)', (value, previous) => [...previous, value], [])
   .option('--claude-target <target>', 'Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
@@ -308,10 +309,16 @@ program
       console.error(result.error);
       process.exit(1);
     }
+    // What was left out goes to stderr in a dry run, so stdout stays the JSON it has always been.
+    const note = result.dryRun ? console.error : console.log;
     if (result.dryRun) {
       console.log(JSON.stringify(result.config, null, 2));
     } else {
       console.log(`Compiled ${result.compiledCount} enforcement standard(s) for ${options.target}`);
+    }
+    for (const s of result.skipped || []) note(`  Skipped ${s.id}: ${s.why}`);
+    if ((result.skipped || []).length > 0) {
+      note('  Install the hook scripts with \'uds update --with-hooks\' (or \'uds init --with-hooks\'), then compile again.');
     }
   });
 

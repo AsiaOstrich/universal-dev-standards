@@ -2472,11 +2472,17 @@ export function generateIndexDisclosure(format, language = 'en') {
       'follow its contents. Working from this block alone means working without the',
       'standards.'
     ]
-    : [
-      '**這個區塊是索引，不是標準本文。** 規則並未複製於此。',
-      '在依照下方任何一項行動之前，請打開 `.standards/` 底下對應的檔案並遵守其內容。',
-      '只憑這個區塊工作，等同於沒有採用標準。'
-    ];
+    : language === 'zh-cn'
+      ? [
+        '**这个区块是索引，不是标准本文。** 规则并未复制于此。',
+        '在依照下方任何一项行动之前，请打开 `.standards/` 底下对应的文件并遵守其内容。',
+        '只凭这个区块工作，等同于没有采用标准。'
+      ]
+      : [
+        '**這個區塊是索引，不是標準本文。** 規則並未複製於此。',
+        '在依照下方任何一項行動之前，請打開 `.standards/` 底下對應的檔案並遵守其內容。',
+        '只憑這個區塊工作，等同於沒有採用標準。'
+      ];
 
   if (format === 'markdown') {
     return lines.map((l) => `> ${l}`).join('\n');
@@ -2484,6 +2490,22 @@ export function generateIndexDisclosure(format, language = 'en') {
   // Plaintext targets (.cursorrules / .clinerules / .windsurfrules) render
   // neither blockquotes nor backticks, so both are stripped rather than shown.
   return lines.map((l) => l.replace(/\*\*/g, '').replace(/`/g, '')).join('\n');
+}
+
+/**
+ * Pick the text for a content language: English, Traditional Chinese (also used for 'bilingual', whose second language
+ * is Traditional unless the display language is Simplified), or Simplified Chinese for 'zh-cn'.
+ * XSPEC-482 R13: these functions chose between English and Traditional only, so a Simplified Chinese project got
+ * Traditional sentences in the block `uds init` wrote.
+ * @param {string} language
+ * @param {string} en
+ * @param {string} zhTw
+ * @param {string} zhCn
+ * @returns {string}
+ */
+function byLanguage(language, en, zhTw, zhCn) {
+  if (language === 'en') return en;
+  return language === 'zh-cn' ? zhCn : zhTw;
 }
 
 /**
@@ -2537,17 +2559,16 @@ export function generateMinimalStandardsReference(
   const sections = [];
 
   if (format === 'markdown') {
-    sections.push(language === 'en'
-      ? '## Standards Reference'
-      : '## 規範文件參考');
+    sections.push(byLanguage(language, '## Standards Reference', '## 規範文件參考', '## 规范文档参考'));
     sections.push('');
-    sections.push(language === 'en'
-      ? '**IMPORTANT**: When performing related tasks, you MUST read and follow the standards in `.standards/`:'
-      : '**重要**：執行相關任務時，務必讀取並遵循 `.standards/` 目錄下的對應規範：');
+    sections.push(byLanguage(language,
+      '**IMPORTANT**: When performing related tasks, you MUST read and follow the standards in `.standards/`:',
+      '**重要**：執行相關任務時，務必讀取並遵循 `.standards/` 目錄下的對應規範：',
+      '**重要**：执行相关任务时，务必读取并遵循 `.standards/` 目录下的对应规范：'));
     sections.push('');
 
     if (coreStandards.length > 0) {
-      sections.push(language === 'en' ? '**Core Standards:**' : '**核心規範：**');
+      sections.push(byLanguage(language, '**Core Standards:**', '**核心規範：**', '**核心规范：**'));
       for (const std of coreStandards) {
         sections.push(`- \`.standards/${std.filename}\``);
       }
@@ -2555,7 +2576,7 @@ export function generateMinimalStandardsReference(
     }
 
     if (optionStandards.length > 0) {
-      sections.push(language === 'en' ? '**Options:**' : '**選項：**');
+      sections.push(byLanguage(language, '**Options:**', '**選項：**', '**选项：**'));
       for (const std of optionStandards) {
         sections.push(`- \`.standards/options/${std.filename}\``);
       }
@@ -2565,20 +2586,20 @@ export function generateMinimalStandardsReference(
     // Said out loud rather than dropped quietly. A shorter list and a complete
     // one read the same, and only the manifest knows which this is.
     if (unresolved.length > 0) {
-      sections.push(language === 'en'
-        ? `> ${unresolved.length} manifest entr${unresolved.length === 1 ? 'y' : 'ies'} could not be matched to an installed file and ${unresolved.length === 1 ? 'is' : 'are'} not listed above: ${unresolved.join(', ')}. Run \`uds update\` — if that does not clear it, the manifest and the registry disagree.`
-        : `> 有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列於上方：${unresolved.join('、')}。請執行 \`uds update\`；若仍未消失，代表 manifest 與 registry 不一致。`);
+      sections.push(byLanguage(language,
+        `> ${unresolved.length} manifest entr${unresolved.length === 1 ? 'y' : 'ies'} could not be matched to an installed file and ${unresolved.length === 1 ? 'is' : 'are'} not listed above: ${unresolved.join(', ')}. Run \`uds update\` — if that does not clear it, the manifest and the registry disagree.`,
+        `> 有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列於上方：${unresolved.join('、')}。請執行 \`uds update\`；若仍未消失，代表 manifest 與 registry 不一致。`,
+        `> 有 ${unresolved.length} 笔 manifest 项目对不到已安装的文件，未列于上方：${unresolved.join('、')}。请执行 \`uds update\`；若仍未消失，代表 manifest 与 registry 不一致。`));
       sections.push('');
     }
   } else {
     // Plaintext format
-    sections.push(language === 'en'
-      ? '## Standards Reference'
-      : '## 規範文件參考');
+    sections.push(byLanguage(language, '## Standards Reference', '## 規範文件參考', '## 规范文档参考'));
     sections.push('');
-    sections.push(language === 'en'
-      ? 'IMPORTANT: When performing related tasks, read and follow the standards in .standards/:'
-      : '重要：執行相關任務時，務必讀取並遵循 .standards/ 目錄下的對應規範：');
+    sections.push(byLanguage(language,
+      'IMPORTANT: When performing related tasks, read and follow the standards in .standards/:',
+      '重要：執行相關任務時，務必讀取並遵循 .standards/ 目錄下的對應規範：',
+      '重要：执行相关任务时，务必读取并遵循 .standards/ 目录下的对应规范：'));
     sections.push('');
 
     for (const std of coreStandards) {
@@ -2587,7 +2608,7 @@ export function generateMinimalStandardsReference(
 
     if (optionStandards.length > 0) {
       sections.push('');
-      sections.push(language === 'en' ? 'Options:' : '選項：');
+      sections.push(byLanguage(language, 'Options:', '選項：', '选项：'));
       for (const std of optionStandards) {
         sections.push(`- .standards/options/${std.filename}`);
       }
@@ -2595,9 +2616,10 @@ export function generateMinimalStandardsReference(
 
     if (unresolved.length > 0) {
       sections.push('');
-      sections.push(language === 'en'
-        ? `NOTE: ${unresolved.length} manifest entries could not be matched to an installed file and are not listed: ${unresolved.join(', ')}`
-        : `注意：有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列出：${unresolved.join('、')}`);
+      sections.push(byLanguage(language,
+        `NOTE: ${unresolved.length} manifest entries could not be matched to an installed file and are not listed: ${unresolved.join(', ')}`,
+        `注意：有 ${unresolved.length} 筆 manifest 項目對不到已安裝的檔案，未列出：${unresolved.join('、')}`,
+        `注意：有 ${unresolved.length} 笔 manifest 项目对不到已安装的文件，未列出：${unresolved.join('、')}`));
     }
     sections.push('');
   }
@@ -3045,7 +3067,10 @@ export function generateIntegrationContent(config) {
 
     // Include commit message language directive inside markers so it updates with marker-based updates
     if (outputLanguage) {
-      const commitLangSection = generateOutputLanguageDirective(outputLanguage, language);
+      // A Simplified Chinese project that chose bilingual commits gets the Simplified directive, as the commit-standards
+      // section above already does; the Traditional one named "English + 繁體中文" for a project that asked for 简体中文 (XSPEC-482 R13).
+      const directiveLanguage = (outputLanguage === 'bilingual' && language === 'zh-cn') ? 'bilingual-zhcn' : outputLanguage;
+      const commitLangSection = generateOutputLanguageDirective(directiveLanguage, language);
       if (commitLangSection) {
         standardsContent += commitLangSection + '\n\n';
       }
@@ -3332,9 +3357,7 @@ export function generateComplianceInstructions(
     sections.push('');
 
     if (mustFollow.length > 0) {
-      sections.push(language === 'en'
-        ? '**MUST follow** (always required):'
-        : '**MUST follow** (每次都要遵守):');
+      sections.push(byLanguage(language, '**MUST follow** (always required):', '**MUST follow** (每次都要遵守):', '**MUST follow** (每次都要遵守):'));
       sections.push('| Task | Standard | When |');
       sections.push('|------|----------|------|');
       for (const entry of mustFollow) {
@@ -3344,9 +3367,7 @@ export function generateComplianceInstructions(
     }
 
     if (shouldFollow.length > 0) {
-      sections.push(language === 'en'
-        ? '**SHOULD follow** (when relevant):'
-        : '**SHOULD follow** (相關任務時參考):');
+      sections.push(byLanguage(language, '**SHOULD follow** (when relevant):', '**SHOULD follow** (相關任務時參考):', '**SHOULD follow** (相关任务时参考):'));
       sections.push('| Task | Standard | When |');
       sections.push('|------|----------|------|');
       for (const entry of shouldFollow) {
@@ -3363,9 +3384,7 @@ export function generateComplianceInstructions(
     sections.push('');
 
     if (mustFollow.length > 0) {
-      sections.push(language === 'en'
-        ? 'MUST follow (always required):'
-        : 'MUST follow (每次都要遵守):');
+      sections.push(byLanguage(language, 'MUST follow (always required):', 'MUST follow (每次都要遵守):', 'MUST follow (每次都要遵守):'));
       for (const entry of mustFollow) {
         sections.push(`- ${entry.task}: Read ${entry.standard} ${entry.when.toLowerCase()}`);
       }
@@ -3373,9 +3392,7 @@ export function generateComplianceInstructions(
     }
 
     if (shouldFollow.length > 0) {
-      sections.push(language === 'en'
-        ? 'SHOULD follow (when relevant):'
-        : 'SHOULD follow (相關任務時參考):');
+      sections.push(byLanguage(language, 'SHOULD follow (when relevant):', 'SHOULD follow (相關任務時參考):', 'SHOULD follow (相关任务时参考):'));
       for (const entry of shouldFollow) {
         sections.push(`- ${entry.task}: Reference ${entry.standard}`);
       }
@@ -3429,14 +3446,23 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
         ? ['', `${unresolved.length} further manifest entr${unresolved.length === 1 ? 'y has' : 'ies have'} no installed file and ${unresolved.length === 1 ? 'is' : 'are'} not counted above: ${unresolved.join(', ')}. Standards removed upstream stay in a manifest until someone drops them; \`uds update\` does not prune them.`]
         : [])
     ]
-    : [
-      `本專案採用 UDS 標準共 **${total}** 條（core ${coreCount}、options ${optionCount}），安裝於 \`.standards/\`。`,
-      '',
-      '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。',
-      ...(unresolved.length > 0
-        ? ['', `另有 ${unresolved.length} 筆 manifest 項目沒有已安裝的檔案，未計入上方數字：${unresolved.join('、')}。上游移除的標準會留在 manifest 裡直到有人拿掉它；\`uds update\` 不會修剪它們。`]
-        : [])
-    ];
+    : language === 'zh-cn'
+      ? [
+        `本项目采用 UDS 标准共 **${total}** 条（core ${coreCount}、options ${optionCount}），安装于 \`.standards/\`。`,
+        '',
+        '权威清单为 `.standards/manifest.json` 的 `standards` 字段。要知道某标准要求什么，读它自己的文件——并看第一行，已弃用的标准会在那里写明。',
+        ...(unresolved.length > 0
+          ? ['', `另有 ${unresolved.length} 笔 manifest 项目没有已安装的文件，未计入上方数字：${unresolved.join('、')}。上游移除的标准会留在 manifest 里直到有人拿掉它；\`uds update\` 不会修剪它们。`]
+          : [])
+      ]
+      : [
+        `本專案採用 UDS 標準共 **${total}** 條（core ${coreCount}、options ${optionCount}），安裝於 \`.standards/\`。`,
+        '',
+        '權威清單為 `.standards/manifest.json` 的 `standards` 欄位。要知道某標準要求什麼，讀它自己的檔案——並看第一行，已棄用的標準會在那裡寫明。',
+        ...(unresolved.length > 0
+          ? ['', `另有 ${unresolved.length} 筆 manifest 項目沒有已安裝的檔案，未計入上方數字：${unresolved.join('、')}。上游移除的標準會留在 manifest 裡直到有人拿掉它；\`uds update\` 不會修剪它們。`]
+          : [])
+      ];
 
   const plainBody = body.map((l) => l.replace(/`/g, ''));
   return [heading, '', ...(md ? body : plainBody), ''].join('\n');
@@ -3492,7 +3518,7 @@ function withSelectedOptions(manifest) {
  * Both call sites now use this function instead of re-deriving the value.
  *
  * @param {Object} manifest - Project manifest
- * @returns {'en'|'zh-tw'|'bilingual'} Resolved content language
+ * @returns {'en'|'zh-tw'|'zh-cn'|'bilingual'} Resolved content language
  */
 export function resolveIntegrationLanguage(manifest) {
   const selected = manifest.options?.output_language || manifest.options?.commit_language || 'english';
@@ -3500,7 +3526,7 @@ export function resolveIntegrationLanguage(manifest) {
   const fromOutput = selected === 'bilingual'
     ? 'bilingual'
     : selected === 'traditional-chinese' ? 'zh-tw' : 'en';
-  return ['en', 'zh-tw', 'bilingual'].includes(display) ? display : fromOutput;
+  return ['en', 'zh-tw', 'zh-cn', 'bilingual'].includes(display) ? display : fromOutput; // wire:integration-language-zh-cn
 }
 
 export function buildToolIntegrationConfig(manifest, tool) {

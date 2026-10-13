@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-10-12
+> Quick reference for all UDS features | Last updated: 2026-10-13
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 

@@ -26,6 +26,7 @@ import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import { resolveReleaseWorkflow, VALID_MODES } from '../utils/release-config.js';
 import { formatGitTag, parseRCVersion, isStableVersion } from '../utils/version-promote.js';
+import { releaseText } from './release-messages.js';
 
 // Default deployment environments (overridable via release-config.yaml release.environments)
 const DEFAULT_ENVIRONMENTS = ['development', 'staging', 'canary', 'preview', 'production'];
@@ -43,7 +44,7 @@ function loadReleaseConfig(projectPath) {
   try {
     return yaml.load(readFileSync(configPath, 'utf-8'));
   } catch (err) {
-    console.log(chalk.yellow(`⚠ release-config.yaml 解析失敗: ${err.message}`));
+    console.log(chalk.yellow(releaseText().configParseFailed(err.message)));
     return null;
   }
 }
@@ -76,24 +77,23 @@ function manifestReleaseMode(projectPath) {
  */
 function resolveReleaseMode(projectPath, releaseConfig) {
   const fileMode = releaseConfig?.release?.mode;
+  const text = releaseText();
   if (fileMode) {
-    return { config: releaseConfig, source: 'config', reason: `模式 ${fileMode} 來自 .standards/release-config.yaml。` };
+    return { config: releaseConfig, source: 'config', reason: text.modeFromConfig(fileMode) };
   }
-  const fileMissing = releaseConfig === null
-    ? '找不到 .standards/release-config.yaml（或它無法解析）'
-    : '.standards/release-config.yaml 沒有指定 release.mode';
+  const fileMissing = releaseConfig === null ? text.configMissing : text.configNoMode;
   const recorded = manifestReleaseMode(projectPath); // wire:release-mode-from-manifest
   if (recorded) {
     return {
       config: { ...(releaseConfig ?? {}), release: { ...(releaseConfig?.release ?? {}), mode: recorded } },
       source: 'manifest',
-      reason: `${fileMissing}；模式 ${recorded} 取自 .standards/manifest.json 的 options.release_mode。`
+      reason: text.modeFromManifest(fileMissing, recorded)
     };
   }
   return {
     config: releaseConfig,
     source: 'default',
-    reason: `${fileMissing}，.standards/manifest.json 也沒有記錄 options.release_mode，所以使用預設的 ci-cd。`
+    reason: text.modeDefault(fileMissing)
   };
 }
 
@@ -201,9 +201,9 @@ export async function releaseCommand(subcommand, args, options) {
   switch (subcommand) {
     case 'promote':
       if (!workflow.hasPromote) {
-        console.log(chalk.red('promote 子命令僅在 manual 或 hybrid 模式下可用。'));
-        console.log(chalk.gray('  目前模式: ' + workflow.type));
-        console.log(chalk.gray('  使用 `uds config --type release_mode` 切換模式'));
+        console.log(chalk.red(releaseText().promoteOnly));
+        console.log(chalk.gray(releaseText().currentMode(workflow.type)));
+        console.log(chalk.gray(releaseText().switchMode));
         explainMode();
         return;
       }
@@ -212,8 +212,8 @@ export async function releaseCommand(subcommand, args, options) {
 
     case 'deploy':
       if (!workflow.hasDeploy) {
-        console.log(chalk.red('deploy 子命令僅在 manual 或 hybrid 模式下可用。'));
-        console.log(chalk.gray('  目前模式: ' + workflow.type));
+        console.log(chalk.red(releaseText().deployOnly));
+        console.log(chalk.gray(releaseText().currentMode(workflow.type)));
         explainMode();
         return;
       }
@@ -222,7 +222,7 @@ export async function releaseCommand(subcommand, args, options) {
 
     case 'manifest':
       if (!workflow.hasManifest) {
-        console.log(chalk.red('manifest 子命令僅在 manual 或 hybrid 模式下可用。'));
+        console.log(chalk.red(releaseText().manifestOnly));
         explainMode();
         return;
       }
@@ -231,7 +231,7 @@ export async function releaseCommand(subcommand, args, options) {
 
     case 'verify':
       if (!workflow.hasManifest) {
-        console.log(chalk.red('verify 子命令僅在 manual 或 hybrid 模式下可用。'));
+        console.log(chalk.red(releaseText().verifyOnly));
         explainMode();
         process.exitCode = EXIT_CANNOT_VERIFY; // nothing was verified; 0 would read as "verified"
         return;
@@ -255,22 +255,22 @@ export async function releaseCommand(subcommand, args, options) {
 async function handlePromote(targetVersion, projectPath) {
 
   if (!targetVersion) {
-    console.log(chalk.red('請指定目標 stable 版本號。'));
-    console.log(chalk.gray('  用法: uds release promote 1.2.0'));
+    console.log(chalk.red(releaseText().promoteNeedVersion));
+    console.log(chalk.gray(releaseText().promoteUsage));
     return;
   }
 
   // Verify this is a valid stable version (no pre-release suffix)
   if (targetVersion.includes('-')) {
-    console.log(chalk.red('目標版本不應包含 pre-release 後綴。'));
-    console.log(chalk.gray(`  請使用: uds release promote ${targetVersion.split('-')[0]}`));
+    console.log(chalk.red(releaseText().noPrerelease));
+    console.log(chalk.gray(releaseText().useInstead(targetVersion.split('-')[0])));
     return;
   }
 
   // Validate stable semver format (catches typos like 1.a.0, 1.2, abc)
   if (!isStableVersion(targetVersion)) {
-    console.log(chalk.red(`版本格式無效: ${targetVersion}`));
-    console.log(chalk.gray('  需為 stable semver（X.Y.Z），例如: uds release promote 1.2.0'));
+    console.log(chalk.red(releaseText().badVersion(targetVersion)));
+    console.log(chalk.gray(releaseText().needStable));
     return;
   }
 
@@ -279,26 +279,26 @@ async function handlePromote(targetVersion, projectPath) {
   const parsed = currentVersion ? parseRCVersion(currentVersion) : null;
 
   console.log();
-  console.log(chalk.bold('Release Promote: RC → Stable'));
+  console.log(chalk.bold(releaseText().promoteTitle));
   console.log(chalk.gray('─'.repeat(40)));
 
   if (parsed) {
-    console.log(chalk.gray(`  目前版本: ${currentVersion}`));
-    console.log(chalk.gray(`  晉升目標: ${targetVersion}`));
+    console.log(chalk.gray(releaseText().currentVersion(currentVersion)));
+    console.log(chalk.gray(releaseText().promoteTarget(targetVersion)));
   } else {
-    console.log(chalk.gray(`  晉升目標: ${targetVersion}`));
+    console.log(chalk.gray(releaseText().promoteTarget(targetVersion)));
   }
 
   // This command only prints. It writes no promotion record and creates no git tag, so it must not say it did.
   const tag = formatGitTag(targetVersion);
   console.log();
-  console.log(chalk.yellow('這個指令不會建立晉升紀錄，也不會建立 Git tag；它只列出下一步要執行的事。'));
+  console.log(chalk.yellow(releaseText().promotePrintsOnly));
   console.log();
-  console.log(chalk.cyan('下一步（由你執行）:'));
-  console.log(chalk.gray(`  1. 更新版本檔案為 ${targetVersion}`));
-  console.log(chalk.gray(`  2. git tag ${tag}`));
-  console.log(chalk.gray('  3. 從此 commit 重新打包'));
-  console.log(chalk.gray('  4. 執行 uds release deploy production 記錄部署'));
+  console.log(chalk.cyan(releaseText().nextStepsHeader));
+  console.log(chalk.gray(releaseText().step1(targetVersion)));
+  console.log(chalk.gray(releaseText().step2(tag)));
+  console.log(chalk.gray(releaseText().step3));
+  console.log(chalk.gray(releaseText().step4));
 }
 
 /**
@@ -307,10 +307,10 @@ async function handlePromote(targetVersion, projectPath) {
 async function handleDeploy(environment, options, projectPath) {
 
   if (!environment) {
-    console.log(chalk.red('請指定部署環境。'));
-    console.log(chalk.gray('  用法: uds release deploy staging'));
-    console.log(chalk.gray('  用法: uds release deploy staging --result passed'));
-    console.log(chalk.gray('  用法: uds release deploy production'));
+    console.log(chalk.red(releaseText().deployNeedEnv));
+    console.log(chalk.gray(releaseText().deployUsage1));
+    console.log(chalk.gray(releaseText().deployUsage2));
+    console.log(chalk.gray(releaseText().deployUsage3));
     return;
   }
 
@@ -318,9 +318,9 @@ async function handleDeploy(environment, options, projectPath) {
   const deployConfig = loadReleaseConfig(projectPath);
   const allowedEnvironments = configuredEnvironmentNames(deployConfig) || DEFAULT_ENVIRONMENTS;
   if (!allowedEnvironments.includes(environment)) {
-    console.log(chalk.red(`未知的部署環境: ${environment}`));
-    console.log(chalk.gray(`  允許的環境: ${allowedEnvironments.join(', ')}`));
-    console.log(chalk.gray('  自訂環境請在 .standards/release-config.yaml 設定 release.environments'));
+    console.log(chalk.red(releaseText().unknownEnv(environment)));
+    console.log(chalk.gray(releaseText().allowedEnvs(allowedEnvironments.join(', '))));
+    console.log(chalk.gray(releaseText().customEnvHint));
     return;
   }
 
@@ -335,11 +335,11 @@ async function handleDeploy(environment, options, projectPath) {
       result: options.result,
     });
     if (updatedCount === 0) {
-      console.log(chalk.yellow(`⚠ 找不到 ${currentVersion} 在 ${environment} 的部署紀錄`));
+      console.log(chalk.yellow(releaseText().noDeployRecord(currentVersion, environment)));
       return;
     }
     saveDeployments(projectPath, updated);
-    console.log(chalk.green(`✓ 已更新 ${currentVersion} 在 ${environment} 的結果: ${options.result}`));
+    console.log(chalk.green(releaseText().resultUpdated(currentVersion, environment, options.result)));
     return;
   }
 
@@ -351,7 +351,7 @@ async function handleDeploy(environment, options, projectPath) {
     });
     if (warnings.length > 0) {
       console.log();
-      console.log(chalk.yellow('⚠ 警告:'));
+      console.log(chalk.yellow(releaseText().warningHeader));
       for (const w of warnings) {
         console.log(chalk.yellow(`  - ${w}`));
       }
@@ -369,14 +369,14 @@ async function handleDeploy(environment, options, projectPath) {
   deployments.push(record);
   saveDeployments(projectPath, deployments);
 
-  console.log(chalk.green(`✓ 已記錄部署: ${currentVersion} → ${environment}`));
-  console.log(chalk.gray(`  部署者: ${record.deployer}`));
-  console.log(chalk.gray(`  時間: ${record.date}`));
+  console.log(chalk.green(releaseText().deployRecorded(currentVersion, environment)));
+  console.log(chalk.gray(releaseText().deployer(record.deployer)));
+  console.log(chalk.gray(releaseText().time(record.date)));
 
   if (environment === 'staging') {
     console.log();
-    console.log(chalk.cyan('後續步驟:'));
-    console.log(chalk.gray('  測試完成後執行:'));
+    console.log(chalk.cyan(releaseText().followUp));
+    console.log(chalk.gray(releaseText().afterTesting));
     console.log(chalk.gray('  uds release deploy staging --result passed'));
   }
 }
@@ -401,12 +401,12 @@ async function handleManifest(versionArg, options, projectPath) {
   const manifestPath = join(projectPath, 'build-manifest.json');
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
 
-  console.log(chalk.green('✓ build-manifest.json 已產生'));
-  console.log(chalk.gray(`  版本: ${manifest.version}`));
-  console.log(chalk.gray(`  Commit: ${manifest.commit}`));
-  console.log(chalk.gray(`  分支: ${manifest.branch}`));
-  console.log(chalk.gray(`  建置者: ${manifest.builder}`));
-  console.log(chalk.gray(`  時間: ${manifest.build_date}`));
+  console.log(chalk.green(releaseText().manifestWritten));
+  console.log(chalk.gray(releaseText().mVersion(manifest.version)));
+  console.log(chalk.gray(releaseText().mCommit(manifest.commit)));
+  console.log(chalk.gray(releaseText().mBranch(manifest.branch)));
+  console.log(chalk.gray(releaseText().mBuilder(manifest.builder)));
+  console.log(chalk.gray(releaseText().mTime(manifest.build_date)));
 }
 
 /**
@@ -421,8 +421,8 @@ async function handleVerify(projectPath, options = {}) {
   const manifestPath = join(projectPath, 'build-manifest.json');
 
   if (!existsSync(manifestPath)) {
-    console.log(chalk.red('找不到 build-manifest.json'));
-    console.log(chalk.gray('  請先執行 uds release manifest'));
+    console.log(chalk.red(releaseText().noManifest));
+    console.log(chalk.gray(releaseText().runManifestFirst));
     return EXIT_CANNOT_VERIFY;
   }
 
@@ -430,7 +430,7 @@ async function handleVerify(projectPath, options = {}) {
   try {
     manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
   } catch {
-    console.log(chalk.red('build-manifest.json 格式不正確'));
+    console.log(chalk.red(releaseText().badManifest));
     return EXIT_CANNOT_VERIFY;
   }
   const currentCommit = getGitCommit();
@@ -440,7 +440,7 @@ async function handleVerify(projectPath, options = {}) {
   const artifactPath = options.artifact || null;
   if (artifactPath) {
     if (!existsSync(artifactPath)) {
-      console.log(chalk.red(`找不到 artifact：${artifactPath}`));
+      console.log(chalk.red(releaseText().noArtifact(artifactPath)));
       return EXIT_CANNOT_VERIFY;
     }
     actualChecksum = createHash('sha256').update(readFileSync(artifactPath)).digest('hex');
@@ -449,14 +449,14 @@ async function handleVerify(projectPath, options = {}) {
   const result = verifyManifest(manifest, currentCommit, { actualChecksum });
 
   if (result.valid) {
-    console.log(chalk.green('✓ Manifest 驗證通過'));
-    console.log(chalk.gray(`  版本: ${manifest.version}`));
-    console.log(chalk.gray(`  Commit: ${manifest.commit} (一致)`));
+    console.log(chalk.green(releaseText().verifyPassed));
+    console.log(chalk.gray(releaseText().mVersion(manifest.version)));
+    console.log(chalk.gray(releaseText().commitSame(manifest.commit)));
     if (actualChecksum && manifest.checksum?.package) {
-      console.log(chalk.gray(`  Checksum: ${actualChecksum} (一致)`));
+      console.log(chalk.gray(releaseText().checksumSame(actualChecksum)));
     }
   } else {
-    console.log(chalk.red('✗ Manifest 驗證失敗'));
+    console.log(chalk.red(releaseText().verifyFailed));
     for (const err of result.errors) {
       console.log(chalk.red(`  - ${err}`));
     }
@@ -473,9 +473,9 @@ async function handleVerify(projectPath, options = {}) {
   );
 
   if (stagingPassed) {
-    console.log(chalk.green('  Staging: 已通過 ✓'));
+    console.log(chalk.green(releaseText().stagingPassed));
   } else {
-    console.log(chalk.yellow('  Staging: 未通過或無紀錄'));
+    console.log(chalk.yellow(releaseText().stagingNone));
   }
 
   return result.valid ? 0 : EXIT_VERIFY_FAILED;
@@ -486,21 +486,21 @@ async function handleVerify(projectPath, options = {}) {
  */
 function showReleaseHelp(workflow) {
   console.log();
-  console.log(chalk.bold('uds release — 版本發布管理'));
+  console.log(chalk.bold(releaseText().helpTitle));
   console.log(chalk.gray('─'.repeat(40)));
-  console.log(chalk.gray(`  目前模式: ${workflow.type}`));
+  console.log(chalk.gray(releaseText().currentMode(workflow.type)));
   console.log();
 
   if (workflow.hasPromote) {
-    console.log(chalk.cyan('  可用子命令:'));
-    console.log(chalk.gray('    promote <version>     RC → Stable 晉升'));
-    console.log(chalk.gray('    deploy <env>          記錄部署紀錄'));
-    console.log(chalk.gray('    deploy <env> --result  更新測試結果'));
-    console.log(chalk.gray('    manifest              產生 build-manifest.json'));
-    console.log(chalk.gray('    verify [--artifact <path>]  驗證 manifest 一致性（含 checksum 比對）'));
+    console.log(chalk.cyan(releaseText().subcommands));
+    console.log(chalk.gray(releaseText().helpPromote));
+    console.log(chalk.gray(releaseText().helpDeploy));
+    console.log(chalk.gray(releaseText().helpDeployResult));
+    console.log(chalk.gray(releaseText().helpManifest));
+    console.log(chalk.gray(releaseText().helpVerify));
   } else {
-    console.log(chalk.gray('  CI/CD 模式下，請使用 /release start 和 /release finish'));
-    console.log(chalk.gray('  切換到手動模式: uds config --type release_mode'));
+    console.log(chalk.gray(releaseText().helpCiCd));
+    console.log(chalk.gray(releaseText().helpSwitch));
   }
   console.log();
 }

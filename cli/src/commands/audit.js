@@ -12,7 +12,7 @@
  */
 
 import chalk from 'chalk';
-import { checkbox, input } from '@inquirer/prompts';
+import { checkbox, input, confirm } from '@inquirer/prompts';
 import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
@@ -464,6 +464,33 @@ async function handleReport(auditResult, options, msg) {
   };
 
   const issue = formatIssueContent(filteredResult, userComments);
+
+  // XSPEC-482 R14g: what is about to be sent is shown in full, and sent only after a yes. The interactive path used to go
+  // from "your comments" straight to a public issue under the user's GitHub account, so the person never saw the text
+  // they were sending. `--yes` (CI, scripts) stays as it was, and a dry run already prints the same text.
+  if (!isDryRun && !submitAll) {
+    console.log();
+    console.log(chalk.bold(msg.reviewBeforeSend || 'This is the report that will be sent:'));
+    console.log(chalk.gray('─'.repeat(40)));
+    console.log(chalk.cyan(`Title: ${issue.title}`));
+    console.log(chalk.cyan(`Labels: ${issue.labels.join(', ')}`));
+    console.log(chalk.gray('─'.repeat(40)));
+    console.log(issue.body);
+    console.log(chalk.gray('─'.repeat(40)));
+    let send = false;
+    try {
+      send = await confirm({
+        message: msg.confirmSend || `Send this report as a public issue to ${REPO}?`, // wire:audit-report-confirms
+        default: false
+      });
+    } catch (err) {
+      if (!(err && err.name === 'ExitPromptError')) throw err;
+    }
+    if (!send) {
+      console.log(chalk.yellow(msg.notSent || 'Not sent. Nothing was submitted.'));
+      return;
+    }
+  }
 
   if (isDryRun) {
     console.log();

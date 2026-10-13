@@ -437,6 +437,36 @@ function recordInstalledSet(manifest, kind, installResult) {
 }
 
 /**
+ * The outcome of one skill or command action after its batch ran (XSPEC-482 R10).
+ *
+ * The batch installer answers once for all of them. The old code copied that one answer onto every action and gave
+ * no reason, so a read-only skills folder printed "8 failed" and then eight lines of "Unknown error" with neither a path nor a
+ * cause, and a skill that had installed fine was counted as failed too. Here each action is judged on its own: it fails when
+ * the installer recorded an error for its name (or for its whole agent), and the error says which path and why.
+ *
+ * @param {Object} action - plan action (category 'skill' or 'command')
+ * @param {Object} installResult - from installSkills/CommandsToMultipleAgents
+ * @param {'skill'|'command'} kind
+ * @returns {{ action: Object, success: boolean, error?: string }}
+ */
+export function judgeBatchAction(action, installResult, kind) {
+  const meta = action.details?.metadata;
+  const name = kind === 'skill' ? meta?.skillName : meta?.commandName;
+  const installs = (installResult.installations || []).filter(i => !meta?.agent || i.agent === meta.agent);
+  const reasons = [];
+  for (const inst of installs) {
+    if (inst.error) reasons.push(inst.error);
+    for (const e of inst.errors || []) {
+      if (e && e[kind] === name && e.error) reasons.push(e.error);
+    }
+  }
+  if (reasons.length > 0) return { action, success: false, error: `${action.path}: ${reasons[0]}` };
+  if (installResult.success) return { action, success: true };
+  if (installs.some(i => (i.installed || []).includes(name))) return { action, success: true };
+  return { action, success: false, error: `${action.path}: the installer did not install ${kind} "${name}" and gave no reason` };
+}
+
+/**
  * Batch execute skill installations.
  */
 async function executeSkillBatch(projectPath, skillActions, manifest) {
@@ -504,11 +534,11 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
         }
 
         for (const action of toInstall) {
-          results.push({ action, success: installResult.success });
+          results.push(judgeBatchAction(action, installResult, 'skill')); // wire:skill-batch-names-its-failures
         }
       } catch (err) {
         for (const action of toInstall) {
-          results.push({ action, success: false, error: err.message });
+          results.push({ action, success: false, error: `${action.path}: ${err.message}` });
         }
       }
     }
@@ -594,11 +624,11 @@ async function executeCommandBatch(projectPath, commandActions, manifest) {
         }
 
         for (const action of toInstall) {
-          results.push({ action, success: installResult.success });
+          results.push(judgeBatchAction(action, installResult, 'command'));
         }
       } catch (err) {
         for (const action of toInstall) {
-          results.push({ action, success: false, error: err.message });
+          results.push({ action, success: false, error: `${action.path}: ${err.message}` });
         }
       }
     }

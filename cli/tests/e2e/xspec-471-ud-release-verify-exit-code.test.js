@@ -45,7 +45,7 @@ function project({ withConfig = true } = {}) {
 /** project() plus the manifest `uds release manifest` writes for app.bin. */
 async function projectWithManifest() {
   const dir = project();
-  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir);
+  const made = await h.runCli(['release', 'manifest', '--checksum', sha256(ARTIFACT)], dir, { ui: 'zh-tw' });
   expect(made.code, made.stdout + made.stderr).toBe(0);
   return dir;
 }
@@ -53,7 +53,7 @@ const manifestText = (dir) => readFileSync(join(dir, 'build-manifest.json'), 'ut
 
 it('uds release verify ends with 0 when the commit and the artifact checksum match the manifest', async () => {
   const dir = await projectWithManifest();
-  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir);
+  const run = await h.runCli(['release', 'verify', '--artifact', 'app.bin'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('Manifest 驗證通過');
   expect(run.stdout).not.toContain('Manifest 驗證失敗');
   expect(run.code).toBe(0);
@@ -62,7 +62,7 @@ it('uds release verify ends with 0 when the commit and the artifact checksum mat
 it('uds release verify ends with 1 and says so when the artifact is not the one the manifest recorded', async () => {
   const dir = await projectWithManifest();
   const before = manifestText(dir);
-  const run = await h.runCli(['release', 'verify', '--artifact', 'other.bin'], dir);
+  const run = await h.runCli(['release', 'verify', '--artifact', 'other.bin'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('Manifest 驗證失敗');
   expect(run.stdout).toContain(`checksum mismatch: manifest records "${sha256(ARTIFACT)}"`);
   expect(run.stdout).not.toContain('Manifest 驗證通過');
@@ -75,7 +75,7 @@ it('uds release verify ends with 1 when the manifest records a different commit 
   const manifest = JSON.parse(manifestText(dir));
   manifest.commit = 'deadbee';
   writeFileSync(join(dir, 'build-manifest.json'), JSON.stringify(manifest, null, 2));
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('Manifest 驗證失敗');
   expect(run.stdout).toContain('commit mismatch: manifest has "deadbee"');
   expect(run.code).toBe(1);
@@ -83,7 +83,7 @@ it('uds release verify ends with 1 when the manifest records a different commit 
 
 it('uds release verify still ends with 0 when the manifest records a checksum and no artifact was given (a warning, not a failure)', async () => {
   const dir = await projectWithManifest();
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('Manifest 驗證通過');
   expect(run.stdout).toContain('pass --artifact <path> to verify integrity');
   expect(run.code).toBe(0);
@@ -91,7 +91,7 @@ it('uds release verify still ends with 0 when the manifest records a checksum an
 
 it('uds release verify ends with 2, not 0, when there is no manifest to verify', async () => {
   const dir = project();
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('找不到 build-manifest.json');
   expect(run.stdout).not.toContain('Manifest 驗證通過');
   expect(run.code).toBe(2);
@@ -100,14 +100,14 @@ it('uds release verify ends with 2, not 0, when there is no manifest to verify',
 it('uds release verify ends with 2 when build-manifest.json is not valid JSON', async () => {
   const dir = project();
   writeFileSync(join(dir, 'build-manifest.json'), '{ this is not json');
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('build-manifest.json 格式不正確');
   expect(run.code).toBe(2);
 });
 
 it('uds release verify ends with 2 when the artifact named by --artifact is not there', async () => {
   const dir = await projectWithManifest();
-  const run = await h.runCli(['release', 'verify', '--artifact', 'missing.bin'], dir);
+  const run = await h.runCli(['release', 'verify', '--artifact', 'missing.bin'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('找不到 artifact：missing.bin');
   expect(run.stdout).not.toContain('Manifest 驗證通過');
   expect(run.code).toBe(2);
@@ -115,7 +115,7 @@ it('uds release verify ends with 2 when the artifact named by --artifact is not 
 
 it('uds release verify ends with 2 in a project whose release mode has no verify (nothing was verified)', async () => {
   const dir = project({ withConfig: false });
-  const run = await h.runCli(['release', 'verify'], dir);
+  const run = await h.runCli(['release', 'verify'], dir, { ui: 'zh-tw' });
   expect(run.stdout).toContain('verify 子命令僅在 manual 或 hybrid 模式下可用');
   expect(run.code).toBe(2);
 });

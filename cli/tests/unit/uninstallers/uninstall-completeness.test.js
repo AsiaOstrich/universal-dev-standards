@@ -377,14 +377,25 @@ describe('uninstall completeness', () => {
       expect(left).not.toMatch(/exit 1\n\) \|\| exit/);
     });
 
-    it('a script from before records existed is kept and explained', async () => {
+    it('a script from before records existed that the user has since edited is kept and explained', async () => {
       await installNative();
       dropRecords();
+      writeFileSync(join(dir, '.git', 'hooks', 'pre-commit'), read('.git/hooks/pre-commit') + '\nmake lint\n');
 
       await uninstallCommand({ all: true, yes: true });
 
       expect(exists('.git/hooks/pre-commit')).toBe(true);
       expect(printed()).toMatch(/\.git\/hooks\/pre-commit \(kept: the rest of the script — no install record/);
+    });
+
+    it('a script from before records existed that is exactly the text UDS writes is removed whole (XSPEC-482 R8)', async () => {
+      await installNative();
+      dropRecords();
+
+      await uninstallCommand({ all: true, yes: true });
+
+      expect(exists('.git/hooks/pre-commit')).toBe(false);
+      expect(printed()).toMatch(/\.git\/hooks\/pre-commit \(UDS native hook, file removed/);
     });
 
     it('an adopter\'s own pre-commit hook, which UDS never wrote, is not deleted', async () => {

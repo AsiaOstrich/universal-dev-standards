@@ -66,7 +66,7 @@ describe.skipIf(process.platform === 'win32').each(shells)('the pre-commit block
     stub(join(dir, 'node_modules', '.bin', 'universal-dev-standards'), 'echo "ran-local $*" >> "$LOG"; exit 0');
     const r = runHook(block, { sh });
     expect(r.status).toBe(0);
-    expect(calls()).toBe('ran-local check\n');
+    expect(calls()).toBe('ran-local check --ci\n');
   });
 
   it('runs a CLI that is on PATH when the project has none', () => {
@@ -74,7 +74,7 @@ describe.skipIf(process.platform === 'win32').each(shells)('the pre-commit block
     stub(join(globalBin, 'universal-dev-standards'), 'echo "ran-global $*" >> "$LOG"; exit 0');
     const r = runHook(block, { sh, extraPath: [globalBin] });
     expect(r.status).toBe(0);
-    expect(calls()).toBe('ran-global check\n');
+    expect(calls()).toBe('ran-global check --ci\n');
   });
 
   it('prefers the project\'s copy over one on PATH', () => {
@@ -85,9 +85,24 @@ describe.skipIf(process.platform === 'win32').each(shells)('the pre-commit block
     expect(calls()).toBe('local\n');
   });
 
-  it('a failing check stops the commit with the check\'s own status', () => {
+  it('a failing check stops the commit with the check\'s own status, and says the commit is blocked (XSPEC-482 R3)', () => {
     stub(join(dir, 'node_modules', '.bin', 'universal-dev-standards'), 'exit 3');
-    expect(runHook(block, { sh }).status).toBe(3);
+    const r = runHook(block, { sh });
+    expect(r.status).toBe(3);
+    expect(r.out).toContain('This commit is blocked: the UDS check found the issues listed above');
+  });
+
+  it('a passing check lets the commit through and prints nothing about blocking', () => {
+    stub(join(dir, 'node_modules', '.bin', 'universal-dev-standards'), 'exit 0');
+    const r = runHook(block, { sh });
+    expect(r.status).toBe(0);
+    expect(r.out).not.toContain('blocked');
+  });
+
+  it('the check runs as `check --ci`: the plain `check` exits 0 on an edited standard and could not stop a commit (XSPEC-482 R3)', () => {
+    stub(join(dir, 'node_modules', '.bin', 'universal-dev-standards'), 'echo "$*" >> "$LOG"');
+    runHook(block, { sh });
+    expect(calls()).toBe('check --ci\n');
   });
 
   it('NOT installed: exits non-zero, says what to install, and never calls npm/npx/pnpm/yarn/bunx', () => {

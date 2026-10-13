@@ -449,12 +449,10 @@ describe('E2E: uds update', () => {
       // Read manifest to find installed standards
       const manifestPath = join(testDir, '.standards/manifest.json');
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      const standardFiles = (manifest.standards || []).map(s => {
-        const fileName = s.split('/').pop();
-        return s.includes('options/')
-          ? join('.standards', 'options', fileName)
-          : join('.standards', fileName);
-      });
+      // The files the install tracks by hash: `manifest.standards` lists registry ids (not file names) since `uds init`
+      // leaves the manifest in the form `uds update` writes (XSPEC-482 R6).
+      const standardFiles = Object.keys(manifest.fileHashes || {}).filter(p => p.startsWith('.standards/') && !p.endsWith('manifest.json'));
+      expect(standardFiles.length, 'fixture: the install tracks standard files by hash').toBeGreaterThan(10);
 
       // Delete a few standard files to simulate missing files
       const filesToDelete = standardFiles.slice(0, 3);

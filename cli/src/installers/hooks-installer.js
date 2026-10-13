@@ -57,7 +57,7 @@ export const hooksSourceDir = () => resolveDir(['hooks'], ['scripts', 'hooks']);
  * (`matcher: { tool: Bash }`), which would be written into settings.json
  * verbatim and never match anything.
  */
-function normalizeMatcher(matcher) {
+export function normalizeMatcher(matcher) {
   if (typeof matcher === 'string') return matcher;
   if (matcher && typeof matcher === 'object' && typeof matcher.tool === 'string') return matcher.tool;
   return '';

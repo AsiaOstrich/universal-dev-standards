@@ -29,6 +29,7 @@ import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { createHarness, REAL_REPO, stripAnsi } from '../utils/staged-cli-harness.js';
+import { manifestListsStandard } from '../utils/xspec-482.js';
 
 const harness = createHarness('transient-lock');
 afterAll(() => harness.cleanup());
@@ -91,7 +92,7 @@ it('uds init copies a standard after two EBUSY errors on that file and installs 
   expect(existsSync(installed)).toBe(true);
   expect(readFileSync(installed, 'utf-8')).toBe(readFileSync(ORIGINAL, 'utf-8'));
   const manifest = JSON.parse(readFileSync(join(project, '.standards', 'manifest.json'), 'utf-8'));
-  expect(manifest.standards).toContain(`ai/standards/${LOCKED_FILE}`);
+  expect(manifestListsStandard(manifest, `ai/standards/${LOCKED_FILE}`), 'the manifest lists it (by path or, since XSPEC-482 R6, by registry id)').toBe(true);
 }, 180000);
 
 it('uds init --locale zh-cn installs the locale pack after two EBUSY errors on it (the extension copy retries too)', async () => {

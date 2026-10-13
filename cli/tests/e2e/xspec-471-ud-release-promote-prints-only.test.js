@@ -40,7 +40,7 @@ const tree = (dir) => readdirSync(dir, { recursive: true }).filter((p) => !Strin
 
 it('uds release promote says it creates no record and no tag, and lists the commands to run', async () => {
   const dir = releaseProject();
-  const run = await h.runCli(['release', 'promote', '1.2.0'], dir);
+  const run = await h.runCli(['release', 'promote', '1.2.0'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stderr).toBe(0);
   expect(run.stdout).toContain('目前版本: 1.2.0-rc.1');
   expect(run.stdout).toContain('晉升目標: 1.2.0');
@@ -51,7 +51,7 @@ it('uds release promote says it creates no record and no tag, and lists the comm
 
 it('uds release promote prints no success mark for a record or a tag it did not create', async () => {
   const dir = releaseProject();
-  const run = await h.runCli(['release', 'promote', '1.2.0'], dir);
+  const run = await h.runCli(['release', 'promote', '1.2.0'], dir, { ui: 'zh-tw' });
   expect(run.stdout).not.toContain('✓');
   expect(run.stdout).not.toContain('晉升紀錄建立');
   expect(run.stdout).not.toContain('Git tag: v1.2.0');
@@ -60,7 +60,7 @@ it('uds release promote prints no success mark for a record or a tag it did not 
 it('uds release promote creates no git tag and writes no file', async () => {
   const dir = releaseProject();
   const filesBefore = tree(dir);
-  const run = await h.runCli(['release', 'promote', '1.2.0'], dir);
+  const run = await h.runCli(['release', 'promote', '1.2.0'], dir, { ui: 'zh-tw' });
   expect(run.code, run.stderr).toBe(0);
   const tags = git(dir, 'tag', '--list');
   expect(tags.status, tags.stderr).toBe(0);

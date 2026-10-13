@@ -260,6 +260,26 @@ export const messages = {
     },
 
     // Release Mode
+    // Prompts of the optional uds.project.yaml step of `uds init` (XSPEC-482 R13: they were English in every language).
+    projectContract: {
+      confirmCreate: 'Create uds.project.yaml (project command contract)?',
+      title: '📋 Project Command Contract (uds.project.yaml)',
+      intro1: 'Tell UDS how to run standard commands in this project (language-agnostic).',
+      intro2: 'Press Enter to accept a suggestion, or type your own. Leave blank to skip.',
+      detected: 'Detected suggestions:',
+      alreadyExists: 'uds.project.yaml already exists.',
+      keptSections: 'These sections are kept exactly as they are: {sections}.',
+      noOtherSections: 'It has no other sections.',
+      updateQuestion: 'Update the commands (test, lint, build, security) in the existing uds.project.yaml? {kept}',
+      replaceQuestion: 'The existing uds.project.yaml cannot be read as YAML, so none of its content can be kept. Replace the whole file?',
+      skippedKeeping: 'Skipped — keeping existing uds.project.yaml',
+      commandOptional: '{intent} command (optional):',
+      commandDefault: '{intent} command (default: {value}):',
+      noneEntered: 'No commands entered — uds.project.yaml not created.',
+      updated: '✔ uds.project.yaml updated (other sections kept as they were)',
+      created: '✔ uds.project.yaml created',
+      path: 'Path: {path}'
+    },
     releaseMode: {
       title: 'Release Mode:',
       description: 'Choose release mode, affects how versions are published',
@@ -1146,6 +1166,14 @@ export const messages = {
         hookWouldMigrate: '+ .husky/pre-commit: would replace the line an older UDS wrote (it asks npm to resolve the bare name "uds", which is not this project) with one that runs only the installed UDS CLI.',
         hookLegacyKept: '⚠ .husky/pre-commit line {line} ("{text}") asks npm to resolve the bare name "uds", which on the npm registry is an unrelated package. UDS did not write this exact line, so it was left alone. Change it to "universal-dev-standards check" — it needs the UDS CLI installed in this project or on PATH.',
         hookMigrateFailed: '⚠ Could not rewrite .husky/pre-commit: {error}. The line that asks npm for the bare name "uds" is still there — change it to "universal-dev-standards check".',
+        hookNativeMigrated: '✓ .git/hooks/pre-commit: replaced the hook an older UDS wrote ({from}) with the current one. The old one ran the check with its errors thrown away and let every commit through; the new one stops a commit when `check --ci` reports an issue.',
+        hookNativeWouldMigrate: '+ .git/hooks/pre-commit: would replace the hook an older UDS wrote ({from}) with the current one. The old one ran the check with its errors thrown away and let every commit through; the new one stops a commit when `check --ci` reports an issue.',
+        hookNativeKept: '⚠ .git/hooks/pre-commit line {line} ("{text}") runs the UDS check and lets the commit through whatever it finds. The file is not exactly what UDS wrote, so it was left alone. Change that line to "universal-dev-standards check --ci" — it needs the UDS CLI installed in this project or on PATH.',
+        hookHuskyCiMigrated: '✓ .husky/pre-commit: the UDS block now runs `check --ci`, so the hook stops a commit when the check finds an issue. (The block an earlier beta wrote ran `check` alone, which exits 0 even when a standard file was edited.)',
+        hookHuskyCiWouldMigrate: '+ .husky/pre-commit: would change the UDS block to run `check --ci`, so the hook stops a commit when the check finds an issue. (The block an earlier beta wrote ran `check` alone, which exits 0 even when a standard file was edited.)',
+        hookNativeFromLegacy: 'UDS 5.x to 6.13.1: `uds check 2>/dev/null || true`',
+        hookNativeFromWithoutCi: 'UDS 6.14.0 betas: `check` without `--ci`',
+        hookNativeFailed: '⚠ Could not rewrite .git/hooks/pre-commit: {error}. It still lets every commit through — replace its UDS check line with "universal-dev-standards check --ci".',
         newerVersion: '(You have a newer version than the registry: {version})',
         updateAvailable: 'Update available: {current} → {latest}',
         // Files
@@ -1637,6 +1665,26 @@ export const messages = {
     },
 
     // Release Mode
+    // `uds init` 選填 uds.project.yaml 步驟的提問（XSPEC-482 R13：原本每種語言都是英文）。
+    projectContract: {
+      confirmCreate: '要建立 uds.project.yaml（專案指令契約）嗎？',
+      title: '📋 專案指令契約（uds.project.yaml）',
+      intro1: '告訴 UDS 這個專案如何執行標準指令（與程式語言無關）。',
+      intro2: '按 Enter 接受建議值，或自行輸入。留空代表略過。',
+      detected: '偵測到的建議值：',
+      alreadyExists: 'uds.project.yaml 已存在。',
+      keptSections: '這些區段會原封不動保留：{sections}。',
+      noOtherSections: '它沒有其他區段。',
+      updateQuestion: '要更新現有 uds.project.yaml 裡的指令（test、lint、build、security）嗎？{kept}',
+      replaceQuestion: '現有的 uds.project.yaml 無法當成 YAML 讀取，所以其中內容都無法保留。要整份取代嗎？',
+      skippedKeeping: '已略過——保留現有的 uds.project.yaml',
+      commandOptional: '{intent} 指令（選填）：',
+      commandDefault: '{intent} 指令（預設：{value}）：',
+      noneEntered: '沒有輸入任何指令——未建立 uds.project.yaml。',
+      updated: '✔ uds.project.yaml 已更新（其他區段維持原樣）',
+      created: '✔ 已建立 uds.project.yaml',
+      path: '路徑：{path}'
+    },
     releaseMode: {
       title: '發布模式:',
       description: '選擇發布模式，影響版本如何發布',
@@ -2518,6 +2566,14 @@ export const messages = {
         hookWouldMigrate: '+ .husky/pre-commit：將把舊版 UDS 寫入的那一行（它會請 npm 解析裸名稱 uds，而那不是本專案）換成只執行已安裝 UDS CLI 的寫法。',
         hookLegacyKept: '⚠ .husky/pre-commit 第 {line} 行（「{text}」）會請 npm 解析裸名稱 uds，而它在 npm registry 上是不相干的套件。這一行不是 UDS 寫入的原樣，所以沒有動它。請自行改成 universal-dev-standards check——需要在本專案或 PATH 上已安裝 UDS CLI。',
         hookMigrateFailed: '⚠ 無法改寫 .husky/pre-commit：{error}。請 npm 解析裸名稱 uds 的那一行仍在，請自行改成 universal-dev-standards check。',
+        hookNativeMigrated: '✓ .git/hooks/pre-commit：已把舊版 UDS 寫入的掛鉤（{from}）換成現行版本。舊的會把檢查的錯誤丟掉、讓每個 commit 都通過；新的會在 `check --ci` 回報問題時擋下 commit。',
+        hookNativeWouldMigrate: '+ .git/hooks/pre-commit：將把舊版 UDS 寫入的掛鉤（{from}）換成現行版本。舊的會把檢查的錯誤丟掉、讓每個 commit 都通過；新的會在 `check --ci` 回報問題時擋下 commit。',
+        hookNativeKept: '⚠ .git/hooks/pre-commit 第 {line} 行（「{text}」）會執行 UDS 檢查，但不論查到什麼都讓 commit 通過。這個檔案不是 UDS 寫入的原樣，所以沒有動它。請自行把那一行改成 universal-dev-standards check --ci——需要在本專案或 PATH 上已安裝 UDS CLI。',
+        hookHuskyCiMigrated: '✓ .husky/pre-commit：UDS 區塊現在執行 `check --ci`，檢查發現問題時掛鉤會擋下 commit。（較早的 beta 寫入的區塊只跑 `check`，標準檔被改了也回 0。）',
+        hookHuskyCiWouldMigrate: '+ .husky/pre-commit：將把 UDS 區塊改成執行 `check --ci`，檢查發現問題時掛鉤會擋下 commit。（較早的 beta 寫入的區塊只跑 `check`，標準檔被改了也回 0。）',
+        hookNativeFromLegacy: 'UDS 5.x 至 6.13.1：`uds check 2>/dev/null || true`',
+        hookNativeFromWithoutCi: 'UDS 6.14.0 的 beta：`check` 沒帶 `--ci`',
+        hookNativeFailed: '⚠ 無法改寫 .git/hooks/pre-commit：{error}。它仍會讓每個 commit 通過——請自行把其中的 UDS 檢查那一行換成 universal-dev-standards check --ci。',
         newerVersion: '（你的版本比登錄庫更新：{version}）',
         updateAvailable: '有可用更新：{current} → {latest}',
         // Files
@@ -3007,6 +3063,26 @@ export const messages = {
     },
 
     // Release Mode
+    // `uds init` 可选的 uds.project.yaml 步骤的提问（XSPEC-482 R13：原本每种语言都是英文）。
+    projectContract: {
+      confirmCreate: '要创建 uds.project.yaml（项目命令契约）吗？',
+      title: '📋 项目命令契约（uds.project.yaml）',
+      intro1: '告诉 UDS 这个项目如何执行标准命令（与编程语言无关）。',
+      intro2: '按 Enter 接受建议值，或自行输入。留空表示跳过。',
+      detected: '检测到的建议值：',
+      alreadyExists: 'uds.project.yaml 已存在。',
+      keptSections: '这些区段会原封不动保留：{sections}。',
+      noOtherSections: '它没有其他区段。',
+      updateQuestion: '要更新现有 uds.project.yaml 里的命令（test、lint、build、security）吗？{kept}',
+      replaceQuestion: '现有的 uds.project.yaml 无法当作 YAML 读取，所以其中内容都无法保留。要整份替换吗？',
+      skippedKeeping: '已跳过——保留现有的 uds.project.yaml',
+      commandOptional: '{intent} 命令（可选）：',
+      commandDefault: '{intent} 命令（默认：{value}）：',
+      noneEntered: '没有输入任何命令——未创建 uds.project.yaml。',
+      updated: '✔ uds.project.yaml 已更新（其他区段保持原样）',
+      created: '✔ 已创建 uds.project.yaml',
+      path: '路径：{path}'
+    },
     releaseMode: {
       title: '发布模式:',
       description: '选择发布模式，影响版本如何发布',
@@ -3812,6 +3888,14 @@ export const messages = {
         hookWouldMigrate: '+ .husky/pre-commit：将把旧版 UDS 写入的那一行（它会请 npm 解析裸名称 uds，而那不是本项目）换成只执行已安装 UDS CLI 的写法。',
         hookLegacyKept: '⚠ .husky/pre-commit 第 {line} 行（“{text}”）会请 npm 解析裸名称 uds，而它在 npm registry 上是不相干的包。这一行不是 UDS 写入的原样，所以没有动它。请自行改成 universal-dev-standards check——需要在本项目或 PATH 上已安装 UDS CLI。',
         hookMigrateFailed: '⚠ 无法改写 .husky/pre-commit：{error}。请 npm 解析裸名称 uds 的那一行仍在，请自行改成 universal-dev-standards check。',
+        hookNativeMigrated: '✓ .git/hooks/pre-commit：已把旧版 UDS 写入的钩子（{from}）换成现行版本。旧的会把检查的错误丢掉、让每个 commit 都通过；新的会在 `check --ci` 报告问题时拦下 commit。',
+        hookNativeWouldMigrate: '+ .git/hooks/pre-commit：将把旧版 UDS 写入的钩子（{from}）换成现行版本。旧的会把检查的错误丢掉、让每个 commit 都通过；新的会在 `check --ci` 报告问题时拦下 commit。',
+        hookNativeKept: '⚠ .git/hooks/pre-commit 第 {line} 行（“{text}”）会执行 UDS 检查，但不论查到什么都让 commit 通过。这个文件不是 UDS 写入的原样，所以没有动它。请自行把那一行改成 universal-dev-standards check --ci——需要在本项目或 PATH 上已安装 UDS CLI。',
+        hookHuskyCiMigrated: '✓ .husky/pre-commit：UDS 区块现在执行 `check --ci`，检查发现问题时钩子会拦下 commit。（较早的 beta 写入的区块只跑 `check`，标准文件被改了也返回 0。）',
+        hookHuskyCiWouldMigrate: '+ .husky/pre-commit：将把 UDS 区块改成执行 `check --ci`，检查发现问题时钩子会拦下 commit。（较早的 beta 写入的区块只跑 `check`，标准文件被改了也返回 0。）',
+        hookNativeFromLegacy: 'UDS 5.x 至 6.13.1：`uds check 2>/dev/null || true`',
+        hookNativeFromWithoutCi: 'UDS 6.14.0 的 beta：`check` 没带 `--ci`',
+        hookNativeFailed: '⚠ 无法改写 .git/hooks/pre-commit：{error}。它仍会让每个 commit 通过——请自行把其中的 UDS 检查那一行换成 universal-dev-standards check --ci。',
         newerVersion: '（您有比注册表更新的版本：{version}）',
         updateAvailable: '有可用更新：{current} → {latest}',
         // Files

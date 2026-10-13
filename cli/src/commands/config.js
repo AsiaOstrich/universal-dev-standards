@@ -1053,6 +1053,34 @@ export async function runProjectConfiguration(options) {
     }
   }
 
+  // Release-config.yaml first, manifest second (XSPEC-482 R1). The order matters: when the file cannot be
+  // written, the manifest must not already say "manual" with no release-config.yaml beside it (the half state
+  // beta.12 left). So a failure here stops before the manifest is touched.
+  try {
+    if (newOptions.release_mode && newOptions.release_mode !== 'ci-cd') {
+      const { generateReleaseConfig } = await import('../utils/release-config.js');
+      const yaml = await import('js-yaml'); // js-yaml 5 has no default export (XSPEC-482 R1) // wire:config-release-config-yaml
+      const releaseConfigData = generateReleaseConfig(newOptions.release_mode);
+      const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+      mkdirSync(join(projectPath, '.standards'), { recursive: true });
+      writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
+    } else if (newOptions.release_mode === 'ci-cd') {
+      const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
+      try {
+        if (existsSync(releaseConfigPath)) {
+          unlinkSync(releaseConfigPath);
+        }
+      } catch {
+        // Ignore deletion errors — file may already be removed
+      }
+    }
+  } catch (error) {
+    spinner.fail(msgObj.updatingConfig);
+    console.error(chalk.red(`release-config.yaml: ${error.message}`));
+    console.error(chalk.yellow(t('config.releaseConfigWriteFailed', 'The configuration was not changed (manifest left as it was).')));
+    process.exit(1);
+  }
+
   // Update manifest
   manifest.format = newFormat;
   manifest.options = newOptions;
@@ -1077,25 +1105,6 @@ export async function runProjectConfiguration(options) {
   }
 
   writeManifest(manifest, projectPath);
-
-  // Generate or remove release-config.yaml based on release mode
-  if (newOptions.release_mode && newOptions.release_mode !== 'ci-cd') {
-    const { generateReleaseConfig } = await import('../utils/release-config.js');
-    const yaml = (await import('js-yaml')).default;
-    const releaseConfigData = generateReleaseConfig(newOptions.release_mode);
-    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-    mkdirSync(join(projectPath, '.standards'), { recursive: true });
-    writeFileSync(releaseConfigPath, yaml.dump(releaseConfigData), 'utf-8');
-  } else if (newOptions.release_mode === 'ci-cd') {
-    const releaseConfigPath = join(projectPath, '.standards', 'release-config.yaml');
-    try {
-      if (existsSync(releaseConfigPath)) {
-        unlinkSync(releaseConfigPath);
-      }
-    } catch {
-      // Ignore deletion errors — file may already be removed
-    }
-  }
 
   spinner.succeed(msgObj.configUpdated);
 
