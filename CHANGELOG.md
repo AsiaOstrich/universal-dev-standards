@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-> **Pre-release (planned 6.14.0-beta.13)** — fixes what the beta.12 macOS and Linux retests of the untested items found (XSPEC-482 R1–R14). Install with `npm install -g universal-dev-standards@beta` once it is published.
+## [6.14.0-beta.13] - 2026-10-13
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Fixes what the beta.12 macOS and Linux retests of the untested items found (XSPEC-482 R1–R14).
 >
 > **Behavior changes:** `uds update --apply` now **exits 1** when any action failed; the pre-commit hook `uds init` writes runs `check --ci`, so it **refuses a commit** that edits an installed standard, and `uds update` replaces the older hooks that let everything through; `uds init --output-lang` **rejects** a value that has no option file; `uds release` prints in the display language (it printed Traditional Chinese in every language); `uds compile` **merges** into `.claude/settings.json` instead of replacing the entries of the events it touches; `uds audit --report` asks before sending in interactive mode.
 
