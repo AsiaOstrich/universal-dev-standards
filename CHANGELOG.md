@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0-beta.14] - 2026-10-13
+
+> **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Replaces 6.14.0-beta.13, whose post-publish acceptance failed on 16 steps: one product regression (retired names kept when the project is current) and acceptance steps that still expected the behavior XSPEC-482 changed. Contains everything in 6.14.0-beta.13 below.
+
 ### Fixed
 
 - **`uds update --apply` drops the skill and command names UDS cannot vouch for also when the project is current and the plan is empty (XSPEC-456 R4, found by the post-publish acceptance of 6.14.0-beta.13).** Since beta.6 `--apply` removed `_shared` and retired names from `skills.names` / `commands.names`, but only through the reconciler's own run, which happens when the plan holds an action. beta.13 made a project that `uds init` just made current (XSPEC-482 R6), so an empty plan became the normal case, took the "Everything is up to date" early return, and left those names in the manifest. The early return now drops them too, says how many, and still moves the recorded versions.
