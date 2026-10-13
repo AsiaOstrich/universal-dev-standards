@@ -132,7 +132,7 @@ for (const name of ['exec', 'execFile']) {
  * @param {{ overrides?: Object<string, string> }} [opts] - `overrides` maps a path under `cli/` (e.g.
  *   `src/utils/foo.js`) to the source text that replaces that file in the STAGED copy only. It builds a
  *   "feature switched off" twin of the CLI: run the same commands on both and the difference is the feature.
- * @returns {{ runCli: Function, newProject: Function, sandbox: Function, cleanup: Function }}
+ * @returns {{ runCli: Function, newProject: Function, makeDir: Function, cleanup: Function, cliPath: Function }}
  */
 export function createHarness(label, { overrides = {} } = {}) {
   let sandbox = null;
@@ -262,5 +262,11 @@ export function createHarness(label, { overrides = {} } = {}) {
     if (sandbox && sandbox.includes(`uds-test-${label}-`)) rmSync(sandbox, { recursive: true, force: true });
   }
 
-  return { runCli, newProject, makeDir, cleanup };
+  /** Path of the staged `bin/uds.js` (for a shim that stands in for an installed `universal-dev-standards`). */
+  function cliPath() {
+    ensureSandbox();
+    return stagedCli;
+  }
+
+  return { runCli, newProject, makeDir, cleanup, cliPath };
 }

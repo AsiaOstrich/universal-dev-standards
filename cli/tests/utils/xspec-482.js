@@ -3,9 +3,12 @@
  * Every test using them spawns the real CLI through tests/utils/staged-cli-harness.js.
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, chmodSync, mkdtempSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { spawnSync } from 'child_process';
 import { join } from 'path';
 import { stripAnsi } from './staged-cli-harness.js';
+import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
 
 export const DOWN = '\x1b[B';
 export const ENTER = '\r';
@@ -32,4 +35,116 @@ export function typist(answers = {}) {
     }
     return ENTER;
   };
+}
+
+/**
+ * Preload (CommonJS) that makes chosen file writes fail the way a read-only file does, on any system (a chmod does
+ * nothing on Windows and nothing to root). The fault is injected below the product, in `fs`, so the product's own error
+ * handling is what is measured. `UDS_TEST_FS_FAULTS` is a JSON list of `{ fn, contains, code }`: a call of `fs[fn]`
+ * whose destination path (separators normalised to "/") contains `contains` throws an error with that code.
+ */
+export const FS_FAULT_PRELOAD = `
+const fs = require('fs');
+const wrap = (fn) => {
+  const real = fs[fn];
+  fs[fn] = function (...args) {
+    const dest = String(fn === 'copyFileSync' ? args[1] : args[0]).replace(/\\\\/g, '/');
+    const specs = JSON.parse(process.env.UDS_TEST_FS_FAULTS || '[]');
+    for (const spec of specs) {
+      if (spec.fn === fn && dest.includes(spec.contains)) {
+        const err = new Error(spec.code + ': permission denied, ' + (fn === 'copyFileSync' ? 'copyfile' : 'open') + " '" + dest + "'");
+        err.code = spec.code;
+        throw err;
+      }
+    }
+    return real.apply(this, args);
+  };
+};
+for (const fn of ['copyFileSync', 'writeFileSync']) wrap(fn);
+`;
+
+/** Write the preload into `dir` and return `{ preloads, env }` to pass to `runCli` for the given faults. */
+export function faultsFor(dir, faults) {
+  const file = join(dir, 'fs-fault-preload.cjs');
+  writeFileSync(file, FS_FAULT_PRELOAD);
+  return { preloads: [file], env: { UDS_TEST_FS_FAULTS: JSON.stringify(faults) } };
+}
+
+// ── real git, real hooks ─────────────────────────────────────────────────────────────────────────
+
+/** Names of the GIT_* variables git sets for a hook (GIT_DIR, GIT_INDEX_FILE ...): a nested `git commit` must not inherit them. */
+function gitLocalEnvVars() {
+  const r = spawnSync('git', ['rev-parse', '--local-env-vars'], { encoding: 'utf8' });
+  return r.stdout.split('\n').map((x) => x.trim()).filter(Boolean);
+}
+
+/** An environment that reaches neither the real HOME, nor the real git config, nor the repo this suite runs in. */
+export function gitEnv(home) {
+  const env = { ...isolatedEnv(home, process.env) };
+  for (const name of gitLocalEnvVars()) delete env[name];
+  return {
+    ...env,
+    VITEST: '', // `uds init` writes no hook while VITEST is set; the child works in a throwaway directory and must see what a user would
+    FORCE_COLOR: '0',
+    NO_COLOR: '1',
+    UDS_NO_UPDATE_CHECK: '1',
+    GIT_CONFIG_GLOBAL: '/dev/null',
+    GIT_CONFIG_NOSYSTEM: '1',
+    GIT_TERMINAL_PROMPT: '0',
+    GIT_AUTHOR_NAME: 'T', GIT_AUTHOR_EMAIL: 't@example.invalid', GIT_COMMITTER_NAME: 'T', GIT_COMMITTER_EMAIL: 't@example.invalid'
+  };
+}
+
+/** Run a program; `{ code, all }` where all is stdout then stderr. */
+export function runProgram(cmd, args, cwd, env) {
+  const r = spawnSync(cmd, args, { cwd, env, encoding: 'utf8', timeout: 120000 });
+  return { code: r.status, out: r.stdout || '', err: r.stderr || '', all: `${r.stdout || ''}${r.stderr || ''}` };
+}
+
+/** Number of commits on HEAD (0 before the first). */
+export function commitCount(dir, env) {
+  const r = runProgram('git', ['rev-list', '--count', 'HEAD'], dir, env);
+  return r.code === 0 ? Number(r.out.trim()) : 0;
+}
+
+/** Make `universal-dev-standards` resolvable the way `npm i -D` leaves it: a shim in node_modules/.bin that runs `cliPath`. */
+export function installCliShim(dir, cliPath) {
+  const bin = join(dir, 'node_modules', '.bin');
+  mkdirSync(bin, { recursive: true });
+  const shim = join(bin, 'universal-dev-standards');
+  writeFileSync(shim, `#!/bin/sh\nexec "${process.execPath}" "${cliPath}" "$@"\n`);
+  chmodSync(shim, 0o755);
+}
+
+// ── a real published UDS, installed from npm ───────────────────────────────────────────────────────
+
+
+const published = new Map();
+
+/**
+ * Install `universal-dev-standards@<version>` from the npm registry into a throwaway folder, once per test file.
+ * Resolves to `{ bin, env, dir, why }`: `bin` is its `bin/uds.js` (null with `why` set when the registry cannot be
+ * reached, so a caller can skip with the reason instead of failing offline), `env` an isolated environment for running it.
+ */
+export function installPublishedUds(version, home) {
+  if (!published.has(version)) {
+    published.set(version, (() => {
+      const dir = mkdtempSync(join(tmpdir(), `uds-test-published-${version}-`));
+      const env = { ...gitEnv(home), npm_config_update_notifier: 'false', npm_config_audit: 'false', npm_config_fund: 'false' };
+      writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'old-uds-holder', version: '1.0.0' }));
+      const install = runProgram(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['install', `universal-dev-standards@${version}`, '--no-audit', '--no-fund'], dir, env);
+      const bin = join(dir, 'node_modules', 'universal-dev-standards', 'bin', 'uds.js');
+      if (install.code !== 0) return { bin: null, env, dir, why: `cannot install universal-dev-standards@${version} from npm (offline?): ${install.all.slice(-200)}` };
+      const got = JSON.parse(readFileSync(join(dir, 'node_modules', 'universal-dev-standards', 'package.json'), 'utf-8')).version;
+      if (got !== version) return { bin: null, env, dir, why: `npm installed ${got}, not ${version}` };
+      return { bin, env, dir, why: null };
+    })());
+  }
+  return published.get(version);
+}
+
+/** Remove what installPublishedUds put on disk (call from afterAll). */
+export function cleanPublished() {
+  for (const { dir } of published.values()) rmSync(dir, { recursive: true, force: true });
+  published.clear();
 }

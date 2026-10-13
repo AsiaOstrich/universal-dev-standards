@@ -3764,3 +3764,15 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
   printAvailableStandardsSection(result.manifest || planResult.manifest, { phase: 'apply' });
   console.log();
 }
+  if (!result.success) {
+    // XSPEC-482 R10: say what a partly failed run left behind and the way to finish it.
+    console.log();
+    console.log(chalk.yellow(
+      'Not everything was applied. The overall version record did not advance, and a skills or commands batch that failed keeps its ' +
+      'old version record; a batch that succeeded has already recorded its new version. ' +
+      'Fix the cause, then run `uds update --apply` again: it completes what is left.'
+    ));
+    // XSPEC-482 R2: a failed action is a failed run. CI and scripts read the exit code, not the colour of a line.
+    process.exitCode = 1; // wire:apply-fails-exit-1
+  }
+
