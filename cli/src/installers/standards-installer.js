@@ -11,6 +11,7 @@ import { copyStandard, copyExtension } from '../utils/copier.js';
 import { t } from '../i18n/messages.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { MANIFEST_OPTION_BINDINGS } from '../core/constants.js';
+import { getInstalledFormats } from '../core/installed-formats.js';
 
 // Extension file mappings
 export const EXTENSION_MAPPINGS = {
@@ -78,7 +79,8 @@ export async function installStandards(config, projectPath) {
   const copySpinner = createSpinner(msg.copyingStandards).start();
 
   // Copy standards based on format
-  const formatsToUse = config.format === 'both' ? ['ai', 'human'] : [config.format];
+  // The reconciler expects the same list (XSPEC-483), so the two cannot disagree about what `both` installs.
+  const formatsToUse = config.format === 'both' ? getInstalledFormats('both') : [config.format];
 
   for (const std of standardsToCopy) {
     for (const targetFormat of formatsToUse) {

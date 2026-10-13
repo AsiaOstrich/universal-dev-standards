@@ -10536,6 +10536,222 @@
         "promptZh": "你應該先看到完整報告，接著被問「Send this report as a public issue ...?」。請選取項目、備註留空並回答 n。它是否印出「Not sent. Nothing was submitted.」且沒有建立任何 issue？"
       },
       "smoke": true
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-init",
+      "workspace": "xspec483-both",
+      "title": "uds init --format both installs the human and the AI copy of every standard (XSPEC-483)",
+      "titleZh": "uds init --format both 同時安裝每份標準的人類版與 AI 版（XSPEC-483）",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "both"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"format\": \"both\""
+            ]
+          },
+          {
+            "path": ".standards/checkin-standards.ai.yaml",
+            "exists": true
+          },
+          {
+            "path": ".standards/checkin-standards.md",
+            "exists": true
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-plan-no-changes",
+      "workspace": "xspec483-both",
+      "title": "A project uds init --format both just made previews as \"No changes needed\", with no deletion of the AI copies (XSPEC-483 R1, R2)",
+      "titleZh": "uds init --format both 剛建好的專案預覽為「No changes needed」，不刪除 AI 版（XSPEC-483 R1、R2）",
+      "changelog": [
+        "`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "No changes needed"
+        ],
+        "notContains": [
+          "Delete (",
+          "no longer selects it",
+          "Migrate Block"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-plan-restores-missing-copies",
+      "workspace": "xspec483-both",
+      "title": "update --plan on a --format both project plans to create a missing AI copy and a missing human copy, and deletes nothing (XSPEC-483 R1)",
+      "titleZh": "update --plan 對 --format both 專案：缺少的 AI 版與人類版列為建立，不刪除任何檔案（XSPEC-483 R1）",
+      "changelog": [
+        "`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".standards/checkin-standards.ai.yaml"
+        },
+        {
+          "removeFile": ".standards/code-review-checklist.md"
+        }
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Create (2):",
+          ".standards/checkin-standards.ai.yaml",
+          ".standards/code-review-checklist.md",
+          "Delete: 0"
+        ],
+        "notContains": [
+          "Delete (",
+          "no longer selects it"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-apply-keeps-both-copies",
+      "workspace": "xspec483-both",
+      "title": "update --apply on a --format both project writes the missing copies back and keeps every .md and .ai.yaml (XSPEC-483 R3)",
+      "titleZh": "update --apply 對 --format both 專案：把缺少的檔案補回，並保留每個 .md 與 .ai.yaml（XSPEC-483 R3）",
+      "changelog": [
+        "`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Reconciliation complete: 2 succeeded"
+        ],
+        "notContains": [
+          "Delete (",
+          "Reconciliation completed with errors"
+        ],
+        "files": [
+          {
+            "path": ".standards/checkin-standards.ai.yaml",
+            "exists": true
+          },
+          {
+            "path": ".standards/code-review-checklist.md",
+            "exists": true
+          },
+          {
+            "path": ".standards/commit-message.ai.yaml",
+            "exists": true
+          },
+          {
+            "path": ".standards/commit-message-guide.md",
+            "exists": true
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"format\": \"both\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-plan-clean-after-apply",
+      "workspace": "xspec483-both",
+      "title": "After that apply the --format both project previews as \"No changes needed\" again (XSPEC-483 R2)",
+      "titleZh": "套用之後 --format both 專案再次預覽為「No changes needed」（XSPEC-483 R2）",
+      "changelog": [
+        "`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "No changes needed"
+        ],
+        "notContains": [
+          "Delete ("
+        ],
+        "files": [
+          {
+            "path": ".standards/commit-message.ai.yaml",
+            "exists": true
+          },
+          {
+            "path": ".standards/commit-message-guide.md",
+            "exists": true
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec483-both-plan-follows-format-change",
+      "workspace": "xspec483-both",
+      "title": "Only a real change of format removes files: with the manifest saying ai, the plan lists the .md copies for deletion and keeps the .ai.yaml copies (XSPEC-483 R1)",
+      "titleZh": "只有格式真的改變才會移除檔案：manifest 改成 ai 時，預覽把 .md 版列為刪除、保留 .ai.yaml 版（XSPEC-483 R1）",
+      "changelog": [
+        "`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "format": "ai"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Delete (",
+          ".standards/commit-message-guide.md"
+        ],
+        "notContains": [
+          ".standards/commit-message.ai.yaml"
+        ]
+      }
     }
   ]
 }
