@@ -514,6 +514,11 @@ export async function updateCommand(options) {
     migrateLegacyPreCommitHook(projectPath, manifest, { plan: !!options.plan });
   }
 
+  if (options.from && !options.rollback) {
+    console.log(chalk.yellow('  ! --from names the backup for --rollback; without --rollback it does nothing and is ignored.'));
+    console.log();
+  }
+
   // Handle --rollback option (DSR). It restores a whole backup, so a scope
   // flag cannot narrow it — say so rather than appearing to honour it.
   if (options.rollback) {
@@ -521,7 +526,7 @@ export async function updateCommand(options) {
       console.log(chalk.yellow('  ! --rollback restores a complete backup; --skills/--commands cannot narrow it and are ignored.'));
       console.log();
     }
-    await handleRollback(projectPath);
+    await handleRollback(projectPath, options);
     return;
   }
 
@@ -2748,13 +2753,21 @@ async function planSkills(projectPath, manifest, options) {
     return;
   }
 
+  // XSPEC-482 R7: "unchanged" needs the files to agree too, as `uds update --plan` judges them - a recorded version
+  // equal to the shipped one says nothing about a skill file that was deleted or edited.
+  const skillActions = await skillActionsOf(projectPath);
+
   let changed = 0;
   for (const inst of installations) {
     const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
     const current = info?.version || 'unknown';
     const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
-    if (current === latestVersion) {
+    const differing = skillActions.filter((a) => a.details?.metadata?.agent === inst.agent && (a.details?.metadata?.level || 'project') === inst.level);
+    if (current === latestVersion && differing.length === 0) {
       console.log(chalk.gray(`  = ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} — unchanged`));
+    } else if (current === latestVersion) {
+      changed++;
+      console.log(chalk.yellow(`  ~ ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} — ${differing.length} skill file(s) differ from what this UDS ships  ${dir}`));
     } else {
       changed++;
       console.log(chalk.yellow(`  ~ ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} → v${latestVersion}  ${dir}`));
@@ -2783,19 +2796,42 @@ async function planCommands(projectPath, manifest, options) {
     return;
   }
 
+  // XSPEC-482 R7: ask the reconciler, the same question `uds update --plan` answers, instead of saying "would be
+  // reinstalled" for every installation whatever is on disk. A project that is current used to get "51 command(s)
+  // would be reinstalled" here, "unchanged" from `--plan --skills` and "No changes" from `--plan`.
+  const actions = await commandActionsOf(projectPath);
+
+  let changed = 0;
   for (const inst of installations) {
     const agent = typeof inst === 'string' ? inst : inst.agent;
     const level = typeof inst === 'string' ? 'project' : (inst.level || 'project');
     const info = getInstalledCommandsForAgent(agent, level, projectPath);
     const dir = getCommandsDirForAgent(agent, level, projectPath);
-    console.log(chalk.yellow(`  ~ ${getAgentDisplayName(agent)} (${level}): ${info?.count || 0} command(s) would be reinstalled  ${dir}`));
+    const differing = actions.filter((a) => a.details?.metadata?.agent === agent && (a.details?.metadata?.level || 'project') === level);
+    if (differing.length === 0) {
+      console.log(chalk.gray(`  = ${getAgentDisplayName(agent)} (${level}): ${info?.count || 0} command(s) — unchanged`));
+    } else {
+      changed++;
+      console.log(chalk.yellow(`  ~ ${getAgentDisplayName(agent)} (${level}): ${differing.length} command file(s) would be written or removed  ${dir}`)); // wire:plan-commands-asks-reconciler
+    }
   }
 
   console.log();
-  console.log(`Summary: ${installations.length} installation(s) would be reinstalled.`);
+  console.log(`Summary: ${changed} installation(s) would be reinstalled, ${installations.length - changed} unchanged.`);
   console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
-  console.log(chalk.gray('  Run `uds update --apply --yes --commands` to apply.'));
+  if (changed > 0) console.log(chalk.gray('  Run `uds update --apply --yes --commands` to apply.'));
   console.log();
+}
+
+/** The reconciler's plan actions for skill and command files (what `uds update --plan` would list). */
+async function commandActionsOf(projectPath) {
+  const { plan } = await reconcilerPlan(projectPath, {});
+  return plan.actions.filter((a) => a.category === 'command');
+}
+
+async function skillActionsOf(projectPath) {
+  const { plan } = await reconcilerPlan(projectPath, {});
+  return plan.actions.filter((a) => a.category === 'skill');
 }
 
 async function updateSkillsOnly(projectPath, manifest, options) {
@@ -3600,20 +3636,37 @@ function printPaths(prefix, paths, limit, colour) {
  * updates, then say, item by item, what was restored, what was removed, and what was NOT put back.
  * It never ends in "successful" while any of those lists is not empty (XSPEC-454 R1).
  */
-async function handleRollback(projectPath) {
+async function handleRollback(projectPath, options = {}) {
   const backups = listBackups(projectPath);
   if (backups.length === 0) {
     console.log(chalk.yellow('No backups found. Nothing to rollback.'));
     console.log();
+    if (options.from) process.exitCode = 1;
     return;
   }
 
-  const latest = backups[0];
+  // XSPEC-482 R11: `--from` names the one backup to restore. The default picks the newest series, and a backup an older
+  // UDS made is never in it (it records no manifest hash to chain on), so without this there was no way to reach it.
+  let chosen = null;
+  if (options.from) {
+    const wanted = String(options.from).replace(/\\/g, '/').replace(/\/+$/, '');
+    const leaf = (id) => id.slice(id.lastIndexOf('/') + 1);
+    chosen = backups.find((b) => b.backupId === wanted) || backups.find((b) => leaf(b.backupId) === leaf(wanted));
+    if (!chosen) {
+      console.log(chalk.red(`No backup named "${options.from}". Backups in this project:`));
+      for (const b of backups) console.log(chalk.gray(`  ${b.backupId}  (${b.createdAt || 'no date'})`));
+      console.log();
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  const latest = chosen || backups[0];
   console.log(chalk.cyan(`Rolling back from: ${latest.backupId}`));
   console.log(chalk.gray(`  Created: ${latest.createdAt}`));
   console.log();
 
-  const result = rollbackLast(projectPath);
+  const result = rollbackLast(projectPath, chosen ? chosen.backupId : undefined);
 
   for (const step of result.steps || []) {
     console.log(chalk.cyan(`${step.backupId}${step.label ? ` (${step.label})` : ''}`));
@@ -3631,7 +3684,16 @@ async function handleRollback(projectPath) {
     console.log(chalk.gray(`  ${result.steps.length} consecutive updates were undone together (each one started from where the previous one ended).`));
   }
   if (result.olderBackups > 0) {
-    console.log(chalk.gray(`  ${result.olderBackups} older backup(s) are not part of that series (something else changed the project in between) and were left alone.`));
+    // Say the true reason. A backup an older UDS made records no manifest hash, so there is nothing to tell whether it
+    // continues the series; one that does carry the hash and still does not match means something else changed the project.
+    const inSeries = (result.steps || []).length;
+    const next = backups[inSeries];
+    const why = next && !next.postManifestHash
+      ? 'it was made by an older UDS, which did not record what links one backup to the next, so it cannot be joined to the series'
+      : 'something else changed the project after it was made';
+    console.log(chalk.gray(`  ${result.olderBackups} older backup(s) are not part of that series (${why}) and were left alone.`));
+    console.log(chalk.gray('  To restore one of them on its own: `uds update --rollback --from <backup>`. They are:'));
+    for (const b of backups.slice(inSeries)) console.log(chalk.gray(`    ${b.backupId}  (${b.createdAt || 'no date'})`)); // wire:rollback-names-older-backups
   }
 
   if (result.errors.length > 0) {

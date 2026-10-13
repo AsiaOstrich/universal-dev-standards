@@ -392,6 +392,25 @@ export async function initCommand(options) {
 
   // 5. Setup Pre-commit Hook
   await setupHuskyHook(projectPath);
+  // 4.85. XSPEC-482 R6: leave the project in the form `uds update` would leave it in. The init writers and the
+  // reconciler are two generators: init wrote the manifest in the 3.3.0 form (standards as file paths) and an
+  // integration block whose list of standards is ordered differently from the one `update` writes, so the first
+  // `uds update --plan` on a brand new project already showed changes (CLAUDE.md, AGENTS.md "Migrate Block") and the
+  // first `--apply` rewrote the manifest and GEMINI.md's whole index. Running the reconciler once, without a backup
+  // (there is nothing to go back to yet), makes the two agree by construction instead of by keeping two writers in step.
+  // A failure here is reported and does not fail the install: the project is complete without it.
+  if (config.contentLayout !== 'layered') {
+    try {
+      const { reconcile } = await import('../reconciler/index.js');
+      const converged = await reconcile(projectPath, { backup: false }); // wire:init-converges-to-current-format
+      if (!converged.success) {
+        console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${converged.errors.join('; ')} (\`uds update --apply\` will finish it)`));
+      }
+    } catch (e) {
+      console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${e.message} (\`uds update --apply\` will finish it)`));
+    }
+  }
+
 
   process.exit(0);
 }
