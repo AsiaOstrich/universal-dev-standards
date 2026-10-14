@@ -190,11 +190,15 @@ export async function promptSkillsInstallLocation(selectedTools = []) {
     const config = getAgentConfig(tool);
     const displayName = getAgentDisplayName(tool);
 
-    // User level option
-    choices.push({
-      name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.skills.user.replace(os.homedir(), '~')})`)}`,
-      value: `${tool}:user`
-    });
+    // User level option - only for a tool whose path table has a user-level skills folder (XSPEC-486 R1).
+    // Antigravity has none on purpose (agy knows one skills location, the workspace); offering the choice there
+    // called `.replace` on undefined and ended the whole `uds init`.
+    if (config.skills.user) { // wire:skills-prompt-user-level-only-if-path
+      choices.push({
+        name: `${chalk.blue(displayName)} - ${msg.choices.userLevel} ${chalk.gray(`(${config.skills.user.replace(os.homedir(), '~')})`)}`,
+        value: `${tool}:user`
+      });
+    }
 
     // Project level option. Pre-selected (XSPEC-468 R1): the project way is the main path, so pressing Enter
     // installs the skills into the project. Deselect everything to skip them (for example, to use the plugin).

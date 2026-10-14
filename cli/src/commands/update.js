@@ -52,6 +52,7 @@ import {
   getAgentDisplayName,
   getAgentConfig,
   getSkillsDirForAgent,
+  hasSkillsLevel,
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
@@ -2761,7 +2762,7 @@ async function planSkills(projectPath, manifest, options) {
   for (const inst of installations) {
     const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
     const current = info?.version || 'unknown';
-    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath) ?? '(no such folder)'; // XSPEC-486: null when the tool has no folder at that level
     const differing = skillActions.filter((a) => a.details?.metadata?.agent === inst.agent && (a.details?.metadata?.level || 'project') === inst.level);
     if (current === latestVersion && differing.length === 0) {
       console.log(chalk.gray(`  = ${getAgentDisplayName(inst.agent)} (${inst.level}): v${current} — unchanged`));
@@ -2879,7 +2880,11 @@ async function updateSkillsOnly(projectPath, manifest, options) {
             return Boolean(config?.supportsSkills && config?.skills);
           });
         const agents = detectedSkillsTools.length > 0 ? detectedSkillsTools : ['claude-code'];
-        for (const agent of agents) skillsInstallations.push({ agent, level: legacyLocation });
+        // XSPEC-486 R2: a tool with no folder at the recorded level (antigravity has no user-level one) is not given
+        // an installation that has nowhere to go.
+        for (const agent of agents) {
+          if (hasSkillsLevel(agent, legacyLocation)) skillsInstallations.push({ agent, level: legacyLocation });
+        }
       } else if (legacyLocation === 'marketplace') {
         console.log(chalk.yellow(msg.skillsViaMarketplace || 'Skills installed via Marketplace'));
         console.log(chalk.gray(`  ${msg.updateViaMarketplace || 'Update through Plugin Marketplace'}`));
@@ -2952,7 +2957,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // Build location summary
   const locations = fileBasedInstallations.map(inst => {
     const displayName = getAgentDisplayName(inst.agent);
-    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+    const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath) ?? '(no such folder)'; // XSPEC-486
     return `${displayName}: ${dir}`;
   }).join(', ');
 
@@ -3426,7 +3431,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     console.log(chalk.yellow(msg.skillsOutdatedFor || 'Skills updates available for these AI tools:'));
     for (const skill of outdatedSkills) {
       const levelLabel = skill.level === 'user' ? 'user' : 'project';
-      const pathDisplay = skill.path || getSkillsDirForAgent(skill.agent, skill.level);
+      const pathDisplay = skill.path || getSkillsDirForAgent(skill.agent, skill.level) || '(no such folder)';
       console.log(chalk.gray(`  • ${skill.displayName} (${levelLabel}: ${pathDisplay})`));
       console.log(chalk.gray(`      ${skill.currentVersion} → ${skill.latestVersion}`));
     }
@@ -3435,7 +3440,7 @@ async function promptNewFeatureInstallation(missingSkills, outdatedSkills, missi
     // Build checkbox choices with path info
     const updateChoices = outdatedSkills.map(skill => {
       const levelLabel = skill.level === 'user' ? 'user' : 'project';
-      const pathDisplay = skill.path || getSkillsDirForAgent(skill.agent, skill.level);
+      const pathDisplay = skill.path || getSkillsDirForAgent(skill.agent, skill.level) || '(no such folder)';
       return {
         name: `${skill.displayName} ${chalk.gray(`(${levelLabel}: ${pathDisplay}) ${skill.currentVersion} → ${skill.latestVersion}`)}`,
         value: skill.agent,
