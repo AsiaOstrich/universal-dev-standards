@@ -1,8 +1,8 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.14
-translation_version: 6.14.0-beta.14
-last_synced: 2026-10-13
+source_version: 6.14.0-beta.15
+translation_version: 6.14.0-beta.15
+last_synced: 2026-10-14
 status: current
 ---
 

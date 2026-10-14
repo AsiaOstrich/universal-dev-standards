@@ -45,11 +45,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.14
+node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.15
 ```
 
-It installs the published 6.14.0-beta.14 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.0-beta.14 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.14.0-beta.15 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.14.0-beta.15 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 334 steps (326 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 334 步（326 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1026,34 +1026,34 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 334 steps (326
 324. `xspec483-both-init` — uds init --format both installs the human and the AI copy of every standard (XSPEC-483).
    uds init --format both 同時安裝每份標準的人類版與 AI 版（XSPEC-483）。
    `uds init -y --skills-location project --format both` → exit 0; output has "Standards initialized successfully"
-325. `xspec483-both-plan-no-changes` (**new 新**) — A project uds init --format both just made previews as "No changes needed", with no deletion of the AI copies (XSPEC-483 R1, R2).
+325. `xspec483-both-plan-no-changes` — A project uds init --format both just made previews as "No changes needed", with no deletion of the AI copies (XSPEC-483 R1, R2).
    uds init --format both 剛建好的專案預覽為「No changes needed」，不刪除 AI 版（XSPEC-483 R1、R2）。
    `uds update --plan --offline` → exit 0; output has "No changes needed"
-326. `xspec483-both-plan-restores-missing-copies` (**new 新**) — update --plan on a --format both project plans to create a missing AI copy and a missing human copy, and deletes nothing (XSPEC-483 R1).
+326. `xspec483-both-plan-restores-missing-copies` — update --plan on a --format both project plans to create a missing AI copy and a missing human copy, and deletes nothing (XSPEC-483 R1).
    update --plan 對 --format both 專案：缺少的 AI 版與人類版列為建立，不刪除任何檔案（XSPEC-483 R1）。
    `uds update --plan --offline` → exit 0; output has "Create (2):", ".standards/checkin-standards.ai.yaml" (+2)
-327. `xspec483-both-apply-keeps-both-copies` (**new 新**) — update --apply on a --format both project writes the missing copies back and keeps every .md and .ai.yaml (XSPEC-483 R3).
+327. `xspec483-both-apply-keeps-both-copies` — update --apply on a --format both project writes the missing copies back and keeps every .md and .ai.yaml (XSPEC-483 R3).
    update --apply 對 --format both 專案：把缺少的檔案補回，並保留每個 .md 與 .ai.yaml（XSPEC-483 R3）。
    `uds update --apply --yes --offline` → exit 0; output has "Reconciliation complete: 2 succeeded"
-328. `xspec483-both-plan-clean-after-apply` (**new 新**) — After that apply the --format both project previews as "No changes needed" again (XSPEC-483 R2).
+328. `xspec483-both-plan-clean-after-apply` — After that apply the --format both project previews as "No changes needed" again (XSPEC-483 R2).
    套用之後 --format both 專案再次預覽為「No changes needed」（XSPEC-483 R2）。
    `uds update --plan --offline` → exit 0; output has "No changes needed"
-329. `xspec483-both-plan-follows-format-change` (**new 新**) — Only a real change of format removes files: with the manifest saying ai, the plan lists the .md copies for deletion and keeps the .ai.yaml copies (XSPEC-483 R1).
+329. `xspec483-both-plan-follows-format-change` — Only a real change of format removes files: with the manifest saying ai, the plan lists the .md copies for deletion and keeps the .ai.yaml copies (XSPEC-483 R1).
    只有格式真的改變才會移除檔案：manifest 改成 ai 時，預覽把 .md 版列為刪除、保留 .ai.yaml 版（XSPEC-483 R1）。
    `uds update --plan --offline` → exit 0; output has "Delete (", ".standards/commit-message-guide.md"
-330. `xspec486-yes-user-level-leaves-antigravity-out` (**new 新**) — uds init --yes --skills-location user in an Antigravity project says Antigravity has no user-level skills folder, installs nothing for it and exits 0 (XSPEC-486 R2).
+330. `xspec486-yes-user-level-leaves-antigravity-out` — uds init --yes --skills-location user in an Antigravity project says Antigravity has no user-level skills folder, installs nothing for it and exits 0 (XSPEC-486 R2).
    在 Antigravity 專案執行 uds init --yes --skills-location user：說明 Antigravity 沒有使用者層級的 skills 資料夾、不為它安裝任何東西、結束碼 0（XSPEC-486 R2）。
    `uds init --yes --skills-location user` → exit 0; output has "no user-level skills folder"
-331. `xspec486-config-antigravity-user-level-says-so` (**new 新**) — uds config --type skills --ai-tool antigravity --skills-location user names the missing user-level folder and installs nothing (XSPEC-486 R2).
+331. `xspec486-config-antigravity-user-level-says-so` — uds config --type skills --ai-tool antigravity --skills-location user names the missing user-level folder and installs nothing (XSPEC-486 R2).
    uds config --type skills --ai-tool antigravity --skills-location user 說明沒有使用者層級資料夾、不安裝任何東西（XSPEC-486 R2）。
    `uds config --type skills --ai-tool antigravity --skills-location user` → exit 0; output has "no user-level skills folder"
-332. `xspec486-config-antigravity-project-level-installs` (**new 新**) — uds config --type skills --ai-tool antigravity --skills-location project installs the skills into .agents/skills (XSPEC-486 R1).
+332. `xspec486-config-antigravity-project-level-installs` — uds config --type skills --ai-tool antigravity --skills-location project installs the skills into .agents/skills (XSPEC-486 R1).
    uds config --type skills --ai-tool antigravity --skills-location project 把 skills 裝進 .agents/skills（XSPEC-486 R1）。
    `uds config --type skills --ai-tool antigravity --skills-location project` → exit 0; output has "Skills installed for Google Antigravity"
 333. `xspec486-rel-init` — uds init --yes in a Claude Code + Gemini CLI project (the project the next step uses).
    在 Claude Code + Gemini CLI 專案執行 uds init --yes（下一步使用的專案）。
    `uds init --yes --skills-location project` → exit 0
-334. `xspec486-plan-names-files-with-slash` (**new 新**) — update --plan names a deleted skill folder and a deleted command file with / between the parts, as it does the standards (XSPEC-486 R4; this is the step that fails on Windows without the fix).
+334. `xspec486-plan-names-files-with-slash` — update --plan names a deleted skill folder and a deleted command file with / between the parts, as it does the standards (XSPEC-486 R4; this is the step that fails on Windows without the fix).
    update --plan 以 / 分隔路徑列出被刪掉的技能資料夾與指令檔，和標準檔一致（XSPEC-486 R4；沒有修正時在 Windows 上會失敗的就是這一步）。
    `uds update --plan --offline` → exit 0; output has ".claude/skills/commit-standards (skill not found on disk)", ".gemini/commands/ac-coverage.toml (command not found on disk)"
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1063,14 +1063,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.14/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.0-beta.14/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0-beta.15/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.14.0-beta.15/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.14 沒有 6.14.0-beta.14 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.14 沒有 6.14.0-beta.14 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.14 沒有 6.14.0-beta.14 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.14.0-beta.15 沒有 6.14.0-beta.15 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.14.0-beta.15 沒有 6.14.0-beta.15 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.14.0-beta.15 沒有 6.14.0-beta.15 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
