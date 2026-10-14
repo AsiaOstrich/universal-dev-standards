@@ -10864,6 +10864,79 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-rel-init",
+      "workspace": "xspec486-rel",
+      "smoke": true,
+      "title": "uds init --yes in a Claude Code + Gemini CLI project (the project the next step uses)",
+      "titleZh": "在 Claude Code + Gemini CLI 專案執行 uds init --yes（下一步使用的專案）",
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "GEMINI.md",
+          "content": "# mine\n"
+        },
+        {
+          "writeFile": "AGENTS.md",
+          "content": "# mine\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "expect": {
+        "exit": 0,
+        "files": [
+          {
+            "path": ".gemini/commands/ac-coverage.toml"
+          },
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-plan-names-files-with-slash",
+      "workspace": "xspec486-rel",
+      "title": "update --plan names a deleted skill folder and a deleted command file with / between the parts, as it does the standards (XSPEC-486 R4; this is the step that fails on Windows without the fix)",
+      "titleZh": "update --plan 以 / 分隔路徑列出被刪掉的技能資料夾與指令檔，和標準檔一致（XSPEC-486 R4；沒有修正時在 Windows 上會失敗的就是這一步）",
+      "changelog": [
+        "`uds update --plan` and the error list of `uds update --apply` name skill and command files with `/` on Windows too"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".gemini/commands/ac-coverage.toml"
+        },
+        {
+          "removeFile": ".claude/skills/commit-standards"
+        }
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          ".claude/skills/commit-standards (skill not found on disk)",
+          ".gemini/commands/ac-coverage.toml (command not found on disk)"
+        ],
+        "notContains": [
+          ".claude\\skills",
+          ".gemini\\commands"
+        ]
+      }
     }
   ]
 }

@@ -11,6 +11,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { createHash } from 'crypto';
 import { join, relative } from 'path';
 import { readManifest } from '../core/manifest.js';
+import { projectRelative } from './relative-path.js';
 import { computeFileHash, computeIntegrationBlockHash, normalizeLineEndings } from '../utils/hasher.js';
 import { SUPPORTED_AI_TOOLS, UDS_MARKERS } from '../core/constants.js';
 import { locateMarkerBlock, AmbiguousMarkerError } from '../utils/marker-locator.js';
@@ -600,12 +601,5 @@ function scanDirectoryRecursive(dirPath, callback, baseDir = dirPath) {
  * Get relative path from project root.
  */
 function getRelativePath(projectPath, absPath) {
-  if (absPath.startsWith(projectPath)) {
-    let rel = absPath.slice(projectPath.length);
-    if (rel.startsWith('/') || rel.startsWith('\\')) {
-      rel = rel.slice(1);
-    }
-    return rel;
-  }
-  return absPath;
+  return projectRelative(projectPath, absPath); // `/` on every system (XSPEC-486 R4)
 }
