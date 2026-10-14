@@ -299,9 +299,10 @@ describe('ActualStateScanner', () => {
 
       expect(state.commands.has('command:gemini-cli:project:commit')).toBe(true);
       expect(state.commands.has('command:gemini-cli:project:commit.toml')).toBe(false);
-      // The path must keep the extension even though the key drops it.
+      // The path must keep the extension even though the key drops it, and is written with `/` on every system
+      // (XSPEC-486 R4; a literal, not `join`, which would give `\\` on Windows).
       expect(state.commands.get('command:gemini-cli:project:commit').relativePath)
-        .toBe(join('.gemini', 'commands', 'commit.toml'));
+        .toBe('.gemini/commands/commit.toml');
     });
 
     // XSPEC-343 R2. Everything under the skills folder used to count as UDS's to

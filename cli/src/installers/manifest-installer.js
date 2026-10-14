@@ -94,7 +94,7 @@ export function writeFinalManifest(config, results, projectPath) {
     } else if (results.skills?.length > 0) {
       const skillLocations = (config.skillsConfig.skillsInstallations || []).map(inst => {
         const displayName = getAgentDisplayName(inst.agent);
-        const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+        const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath) ?? '(no such folder)'; // XSPEC-486
         return `${displayName}: ${dir}`;
       }).join(' and ');
       console.log(chalk.gray(`  ${msg.skillsInstalledTo.replace('{count}', results.skills.length).replace('{locations}', skillLocations)}`));

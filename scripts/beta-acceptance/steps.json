@@ -10752,6 +10752,191 @@
           ".standards/commit-message.ai.yaml"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-yes-user-level-leaves-antigravity-out",
+      "workspace": "xspec486-agy",
+      "title": "uds init --yes --skills-location user in an Antigravity project says Antigravity has no user-level skills folder, installs nothing for it and exits 0 (XSPEC-486 R2)",
+      "titleZh": "在 Antigravity 專案執行 uds init --yes --skills-location user：說明 Antigravity 沒有使用者層級的 skills 資料夾、不為它安裝任何東西、結束碼 0（XSPEC-486 R2）",
+      "changelog": [
+        "Interactive `uds init` no longer crashes on Google Antigravity, and no command asks for a user-level skills folder a tool does not have"
+      ],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": ".agents/AGENTS.md",
+          "content": "# agy\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--skills-location",
+        "user"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "no user-level skills folder"
+        ],
+        "notContains": [
+          "TypeError",
+          "undefined"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          },
+          {
+            "path": ".agents/skills",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-config-antigravity-user-level-says-so",
+      "workspace": "xspec486-agy",
+      "title": "uds config --type skills --ai-tool antigravity --skills-location user names the missing user-level folder and installs nothing (XSPEC-486 R2)",
+      "titleZh": "uds config --type skills --ai-tool antigravity --skills-location user 說明沒有使用者層級資料夾、不安裝任何東西（XSPEC-486 R2）",
+      "changelog": [
+        "Interactive `uds init` no longer crashes on Google Antigravity, and no command asks for a user-level skills folder a tool does not have"
+      ],
+      "uds": [
+        "config",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "antigravity",
+        "--skills-location",
+        "user"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "no user-level skills folder"
+        ],
+        "notContains": [
+          "TypeError",
+          "undefined"
+        ],
+        "files": [
+          {
+            "path": ".agents/skills",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-config-antigravity-project-level-installs",
+      "workspace": "xspec486-agy",
+      "title": "uds config --type skills --ai-tool antigravity --skills-location project installs the skills into .agents/skills (XSPEC-486 R1)",
+      "titleZh": "uds config --type skills --ai-tool antigravity --skills-location project 把 skills 裝進 .agents/skills（XSPEC-486 R1）",
+      "changelog": [
+        "Interactive `uds init` no longer crashes on Google Antigravity, and no command asks for a user-level skills folder a tool does not have"
+      ],
+      "uds": [
+        "config",
+        "--type",
+        "skills",
+        "--ai-tool",
+        "antigravity",
+        "--skills-location",
+        "project"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Skills installed for Google Antigravity"
+        ],
+        "notContains": [
+          "TypeError"
+        ],
+        "files": [
+          {
+            "path": ".agents/skills/plan/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-rel-init",
+      "workspace": "xspec486-rel",
+      "smoke": true,
+      "title": "uds init --yes in a Claude Code + Gemini CLI project (the project the next step uses)",
+      "titleZh": "在 Claude Code + Gemini CLI 專案執行 uds init --yes（下一步使用的專案）",
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "GEMINI.md",
+          "content": "# mine\n"
+        },
+        {
+          "writeFile": "AGENTS.md",
+          "content": "# mine\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "expect": {
+        "exit": 0,
+        "files": [
+          {
+            "path": ".gemini/commands/ac-coverage.toml"
+          },
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "xspec486-plan-names-files-with-slash",
+      "workspace": "xspec486-rel",
+      "title": "update --plan names a deleted skill folder and a deleted command file with / between the parts, as it does the standards (XSPEC-486 R4; this is the step that fails on Windows without the fix)",
+      "titleZh": "update --plan 以 / 分隔路徑列出被刪掉的技能資料夾與指令檔，和標準檔一致（XSPEC-486 R4；沒有修正時在 Windows 上會失敗的就是這一步）",
+      "changelog": [
+        "`uds update --plan` and the error list of `uds update --apply` name skill and command files with `/` on Windows too"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".gemini/commands/ac-coverage.toml"
+        },
+        {
+          "removeFile": ".claude/skills/commit-standards"
+        }
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          ".claude/skills/commit-standards (skill not found on disk)",
+          ".gemini/commands/ac-coverage.toml (command not found on disk)"
+        ],
+        "notContains": [
+          ".claude\\skills",
+          ".gemini\\commands"
+        ]
+      }
     }
   ]
 }

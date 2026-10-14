@@ -147,7 +147,7 @@ export async function installSkills(skillsConfig, projectPath, messages, results
     // Build location summary for display
     const targetLocations = (skillsConfig.skillsInstallations || []).map(inst => {
       const displayName = getAgentDisplayName(inst.agent);
-      const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath);
+      const dir = getSkillsDirForAgent(inst.agent, inst.level, projectPath) ?? '(no such folder)'; // XSPEC-486
       return `${displayName} (${dir})`;
     }).join(', ');
 

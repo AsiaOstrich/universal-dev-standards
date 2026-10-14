@@ -354,11 +354,24 @@ export function getSkillsDirForAgent(agent, level = 'user', projectPath = null) 
   if (!config || !config.skills) return null;
 
   if (level === 'user') {
-    return config.skills.user;
+    // A tool can have no user-level folder (antigravity, on purpose). `null`, never `undefined`: every caller
+    // already treats a falsy answer as "no such place" (XSPEC-486 R2).
+    return config.skills.user || null; // wire:skills-dir-user-null-not-undefined
   } else if (level === 'project' && projectPath) {
     return join(projectPath, config.skills.project);
   }
   return null;
+}
+
+/**
+ * Does the agent have a skills folder at this level? A tool may have only a project folder (antigravity: agy
+ * knows one skills location, the workspace) - then no user-level skills can be listed, installed or removed.
+ * @param {string} agent - Agent identifier
+ * @param {string} level - 'user' or 'project'
+ * @returns {boolean}
+ */
+export function hasSkillsLevel(agent, level) {
+  return Boolean(AI_AGENT_PATHS[agent]?.skills?.[level]);
 }
 
 /**

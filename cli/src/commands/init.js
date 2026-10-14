@@ -25,6 +25,7 @@ import {
   getAgentConfig,
   getAgentDisplayName
 } from '../utils/github.js';
+import { hasSkillsLevel } from '../config/ai-agent-paths.js';
 import { displayLanguageToLocale, normalizeRequestedLocale } from '../utils/locale.js';
 import localeUtils from '../utils/locale.js';
 const LOCALE_MAP_FOR_INIT = localeUtils.LOCALE_MAP;
@@ -213,6 +214,12 @@ export async function initCommand(options) {
             console.log(chalk.yellow(
               `⚠ ${getAgentDisplayName(tool) || tool}: ` +
               `${msg.skillsPathUnknown || 'no verified skills path — nothing was installed for this tool'}`
+            ));
+          }
+          for (const tool of config.skillsConfig.skillsNoUserPathTools || []) {
+            console.log(chalk.yellow(
+              `⚠ ${getAgentDisplayName(tool) || tool}: ` +
+              `${msg.skillsNoUserPath || 'has no user-level skills folder (only the project one) — nothing was installed for it at the user level; run again with --skills-location project to install it into this project'}`
             ));
           }
           await installSkills(config.skillsConfig, projectPath, msg, skillsResults);
@@ -852,6 +859,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
   }
   let skillsConfig = {};
   let skillsInstallationsForYes = [];
+  let skillsNoUserPathTools = [];
 
   if (skillsLocationFlag === 'marketplace') {
     skillsConfig = {
@@ -885,7 +893,13 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     // path from the table. Without this the config carries only `updateTargets`,
     // `installSkills()` takes its legacy branch, and every tool's skills land in
     // `.claude/skills/` — see the block above for what that measured.
-    skillsInstallationsForYes = skillsCapableTools.map(agent => ({ agent, level: location }));
+    // XSPEC-486 R2: at the user level a tool with no user-level folder (antigravity) gets nothing, and the run says so
+    // (printed by the caller from `skillsNoUserPathTools`). Not a project install in its place: the adopter asked for
+    // the user level, and writing into the project instead would be a guess.
+    skillsNoUserPathTools = location === 'user' ? skillsCapableTools.filter(agent => !hasSkillsLevel(agent, 'user')) : [];
+    skillsInstallationsForYes = skillsCapableTools
+      .filter(agent => !skillsNoUserPathTools.includes(agent))
+      .map(agent => ({ agent, level: location }));
     // Nothing detected: name Claude Code's folder explicitly. Leaving the list empty sent the install down
     // the legacy branch of `installSkills()`, which does not take the locale (so `--locale zh-tw` in a
     // project with no tool marker would have installed English and said nothing).
@@ -897,7 +911,9 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
     // guess and is kept. Without this split, `--skills-location project` in an
     // Antigravity-only repo wrote 55 skills into `.claude/skills/`, a directory
     // nothing in that repo reads. Caught by `check:install-paths`, not by me.
-    const knowinglyUnsupported = skillsCapableTools.length === 0 && aiToolsNormalized.length > 0;
+    // The same holds when every skills-capable tool was left out for having no folder at the asked level (XSPEC-486):
+    // an empty installation list would send the install down the legacy `.claude/skills/` branch.
+    const knowinglyUnsupported = aiToolsNormalized.length > 0 && skillsInstallationsForYes.length === 0;
 
     skillsConfig = knowinglyUnsupported
       ? {
@@ -935,6 +951,7 @@ function buildNonInteractiveConfig(options, detected, projectPath) {
 
   skillsConfig.locale = displayLanguageToLocale(displayLanguage);
   skillsConfig.skillsPathUnknownTools = skippedSkillsTools;
+  skillsConfig.skillsNoUserPathTools = skillsNoUserPathTools;
 
   // AGENTS.md: default to true in --yes mode unless codex/opencode selected or --no-agents-md
   // When codex/opencode is selected, they already generate AGENTS.md — no need for universal output

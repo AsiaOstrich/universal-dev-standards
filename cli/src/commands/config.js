@@ -40,7 +40,8 @@ import {
 } from '../utils/skills-installer.js';
 import {
   getAgentConfig,
-  getAgentDisplayName
+  getAgentDisplayName,
+  hasSkillsLevel
 } from '../config/ai-agent-paths.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import {
@@ -1235,6 +1236,13 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
     const validLocations = ['project', 'user'];
     const level = skillsLocation && validLocations.includes(skillsLocation) ? skillsLocation : 'project';
 
+    // XSPEC-486 R2: a tool with no user-level skills folder (antigravity) cannot be asked for one.
+    if (!hasSkillsLevel(specificTool, level)) {
+      console.log(chalk.yellow(`${getAgentDisplayName(specificTool)} has no ${level}-level skills folder; nothing was installed.`));
+      console.log(chalk.gray('  Use --skills-location project to install its Skills into this project.'));
+      return;
+    }
+
     // Install to specified level (defaults to project)
     const installations = [{ agent: specificTool, level }];
     const spinner = createSpinner(`Installing Skills for ${getAgentDisplayName(specificTool)} (${level} level)...`).start();
@@ -1368,10 +1376,18 @@ async function handleSkillsConfiguration(manifest, projectPath, msgObj, common, 
       default: 'project'
     });
 
-    const installations = declinedToolsWithSupport.map(agent => ({
-      agent,
-      location: skillsLevel
-    }));
+    // XSPEC-486 R2: at the user level, a tool with no user-level folder is named and left out, not sent to an installer
+    // that has no folder to write into.
+    for (const agent of declinedToolsWithSupport.filter(a => !hasSkillsLevel(a, skillsLevel))) {
+      console.log(chalk.yellow(`${getAgentDisplayName(agent)} has no ${skillsLevel}-level skills folder; nothing was installed for it.`));
+    }
+    const installations = declinedToolsWithSupport
+      .filter(agent => hasSkillsLevel(agent, skillsLevel))
+      .map(agent => ({ agent, level: skillsLevel }));
+    if (installations.length === 0) {
+      console.log(chalk.gray(msgObj.noChanges || 'No changes made'));
+      return;
+    }
 
     // Install Skills
     const spinner = createSpinner(msgObj.installingSkills || 'Installing Skills...').start();

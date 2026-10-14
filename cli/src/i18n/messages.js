@@ -1106,6 +1106,7 @@ export const messages = {
         // Named per detected tool, never per one tool: the install now goes to each
         // tool's own path (XSPEC-408 §18.3), so a Claude-only label would be a lie.
         skillsPathUnknown: 'no verified skills path for this tool — nothing was installed for it',
+        skillsNoUserPath: 'has no user-level skills folder (only the project one) — nothing was installed for it at the user level; run again with --skills-location project to install it into this project',
         installedSkills: 'Installed {count} Skills to {locations}',
         installedSkillsWithErrors: 'Installed {count} Skills with {errors} errors',
         // P1-CLI-1: locale fallback summary (printed after install when some
@@ -2507,6 +2508,7 @@ export const messages = {
         couldNotGenerateAgentsMd: '無法產生 AGENTS.md',
         installingSkills: '安裝 Skills 中...',
         skillsPathUnknown: '沒有查證過的 skills 路徑，這個工具沒有安裝任何東西',
+        skillsNoUserPath: '沒有使用者層級的 skills 資料夾（只有專案層級）— 沒有為它安裝使用者層級的 skills；要裝進這個專案，請改用 --skills-location project 再執行一次',
         installedSkills: '已安裝 {count} 個 Skills 到 {locations}',
         installedSkillsWithErrors: '已安裝 {count} 個 Skills，有 {errors} 個錯誤',
         // P1-CLI-1：locale fallback 摘要（安裝結束後顯示，列出沒有對應語系變體而退回英文來源的 skill）
@@ -3568,6 +3570,7 @@ export const messages = {
         generatedAgentsMd: '已生成 AGENTS.md（通用摘要）',
         couldNotGenerateAgentsMd: '无法生成 AGENTS.md',
         installingSkills: '正在安装 Claude Code Skills...',
+        skillsNoUserPath: '没有用户级别的 skills 文件夹（只有项目级别）— 没有为它安装用户级别的 skills；要装进这个项目，请改用 --skills-location project 再执行一次',
         installedSkills: '已安装 {count} 个 Skills 到 {locations}',
         installedSkillsWithErrors: '已安装 {count} 个 Skills，有 {errors} 个错误',
         // P1-CLI-1：locale fallback 摘要（安装结束后显示，列出没有对应语种变体而退回英文来源的 skill）

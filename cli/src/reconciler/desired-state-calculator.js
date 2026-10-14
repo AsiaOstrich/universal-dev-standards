@@ -26,6 +26,7 @@ import {
   buildAgentsMdSummaryConfig
 } from '../utils/integration-generator.js';
 import { PathResolver } from '../core/paths.js';
+import { projectRelative } from './relative-path.js';
 import { computeFileHash } from '../utils/hasher.js';
 import { createHash } from 'crypto';
 import {
@@ -572,12 +573,5 @@ function calculateCommands(state, projectPath, manifest) {
  * @returns {string}
  */
 function getRelativePath(projectPath, absPath) {
-  if (absPath.startsWith(projectPath)) {
-    let rel = absPath.slice(projectPath.length);
-    if (rel.startsWith('/') || rel.startsWith('\\')) {
-      rel = rel.slice(1);
-    }
-    return rel;
-  }
-  return absPath;
+  return projectRelative(projectPath, absPath); // `/` on every system (XSPEC-486 R4)
 }
