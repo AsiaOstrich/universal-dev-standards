@@ -1,12 +1,12 @@
 /**
- * E2E: the end-to-end tests run on ubuntu, windows and macos when main is pushed, and the job says how many tests
+ * E2E: the end-to-end tests run on ubuntu, windows and macos when main is pushed and for a pull request (XSPEC-486 R5), and the job says how many tests
  * were skipped (dev-platform XSPEC-469 R4).
  *
  * What can be tested here, and what cannot. A workflow runs on GitHub; no test in this repository can start it. So:
  *   - `scripts/ci-vitest-summary.mjs` is a program, and is started as the workflow starts it, on a result file that a
  *     real vitest run wrote (a passing test and a test that calls `ctx.skip()`);
  *   - the workflow file is read as YAML and its job is checked for the properties R4 asks for (three systems on a
- *     push, Ubuntu for a pull request, the skip count written, the zero-ran failure). That proves the file says it,
+ *     push and on a pull request, the skip count written, the zero-ran failure). That proves the file says it,
  *     not that GitHub did it. AC-3 ("the three jobs really ran") can only be read from the Actions page after a push.
  *
  * Wire that makes the summary tests red when cut (one line of source):
@@ -127,18 +127,15 @@ it('weakening the summary turns the property red: counting skipped tests as pass
 
 const workflow = () => load(readFileSync(join(REPO, '.github', 'workflows', 'ci.yml'), 'utf-8'));
 
-it('ci.yml is valid YAML and its e2e job runs on all three systems for a push and on Ubuntu alone for a pull request, without cancelling the other systems when one is red (XSPEC-469 R4)', () => {
+it('ci.yml is valid YAML and its e2e job runs on all three systems for a push and for a pull request (XSPEC-486 R5), without cancelling the other systems when one is red (XSPEC-469 R4)', () => {
   const ci = workflow();
   expect(ci.on.push.branches).toEqual(['main']);
   expect(ci.on.pull_request.branches).toEqual(['main']);
   const e2e = ci.jobs.e2e;
 
-  // the matrix expression: fromJSON(<push> && '<three systems>' || '<one system>')
-  const expr = e2e.strategy.matrix.os;
-  expect(expr).toMatch(/^\$\{\{ fromJSON\(github\.event_name == 'push' && '(\[.*?\])' \|\| '(\[.*?\])'\) \}\}$/);
-  const [, onPush, onPull] = /fromJSON\(github\.event_name == 'push' && '(\[.*?\])' \|\| '(\[.*?\])'\)/.exec(expr);
-  expect(JSON.parse(onPush)).toEqual(['ubuntu-latest', 'windows-latest', 'macos-latest']);
-  expect(JSON.parse(onPull)).toEqual(['ubuntu-latest']);
+  // the same three systems for a push and for a pull request (XSPEC-486 R5: a pull request that ran Ubuntu alone let
+  // two Windows-only failures reach main), so the matrix is a plain list, not an expression on the event
+  expect(e2e.strategy.matrix.os).toEqual(['ubuntu-latest', 'windows-latest', 'macos-latest']);
   expect(e2e.strategy['fail-fast'], 'one red system must not hide the other two').toBe(false);
   expect(e2e['runs-on']).toBe('${{ matrix.os }}');
   expect(e2e.name).toContain('${{ matrix.os }}');
