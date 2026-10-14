@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds update --plan` no longer plans to delete the AI copy of every standard in a `--format both` project, and `uds init --format both` ends in the current form (XSPEC-483 R1-R3).** `--format both` puts the human copy (`.md`) and the AI copy (`.ai.yaml`) of every standard and option in `.standards/`, but the reconciler read `both` as one format, expected only the `.md` files and listed about 71 `.ai.yaml` files as "no longer selected"; `uds update --apply` on that plan would have removed half of the installed standards. The plan now follows the format the manifest records: `both` expects both files, and files are added or removed only when `format` really changes (`both` to `ai` plans the `.md` copies for removal, `ai` to `both` plans them for creation). Because the plan is right, the convergence step XSPEC-482 R6 had to skip for these projects runs for them too: a project `uds init --format both` just made previews as "No changes needed". A project 6.11.0 or 6.14.0-beta.14 made with `--format both` upgrades with every `.md` and `.ai.yaml` kept, and `uds update --rollback` restores the files it had. If you applied the old plan and lost the `.ai.yaml` copies, `uds update --apply` creates them again.
+
 ## [6.14.0-beta.14] - 2026-10-13
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Replaces 6.14.0-beta.13, whose post-publish acceptance failed on 16 steps: one product regression (retired names kept when the project is current) and acceptance steps that still expected the behavior XSPEC-482 changed. Contains everything in 6.14.0-beta.13 below.

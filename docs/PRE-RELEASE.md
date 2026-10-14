@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0-beta.14
 It installs the published 6.14.0-beta.14 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0-beta.14 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 323 steps (315 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 323 步（315 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 329 steps (321 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 329 步（321 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1023,6 +1023,24 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 323 steps (315
 323. `xspec482-human-audit-report-asks` (needs a person 需人眼) — uds audit --report shows the whole report and asks before sending (answer n: nothing is sent).
    uds audit --report 先顯示完整報告並詢問才送出（回答 n：不會送出）。
    `uds audit --report` → exit 0
+324. `xspec483-both-init` — uds init --format both installs the human and the AI copy of every standard (XSPEC-483).
+   uds init --format both 同時安裝每份標準的人類版與 AI 版（XSPEC-483）。
+   `uds init -y --skills-location project --format both` → exit 0; output has "Standards initialized successfully"
+325. `xspec483-both-plan-no-changes` (**new 新**) — A project uds init --format both just made previews as "No changes needed", with no deletion of the AI copies (XSPEC-483 R1, R2).
+   uds init --format both 剛建好的專案預覽為「No changes needed」，不刪除 AI 版（XSPEC-483 R1、R2）。
+   `uds update --plan --offline` → exit 0; output has "No changes needed"
+326. `xspec483-both-plan-restores-missing-copies` (**new 新**) — update --plan on a --format both project plans to create a missing AI copy and a missing human copy, and deletes nothing (XSPEC-483 R1).
+   update --plan 對 --format both 專案：缺少的 AI 版與人類版列為建立，不刪除任何檔案（XSPEC-483 R1）。
+   `uds update --plan --offline` → exit 0; output has "Create (2):", ".standards/checkin-standards.ai.yaml" (+2)
+327. `xspec483-both-apply-keeps-both-copies` (**new 新**) — update --apply on a --format both project writes the missing copies back and keeps every .md and .ai.yaml (XSPEC-483 R3).
+   update --apply 對 --format both 專案：把缺少的檔案補回，並保留每個 .md 與 .ai.yaml（XSPEC-483 R3）。
+   `uds update --apply --yes --offline` → exit 0; output has "Reconciliation complete: 2 succeeded"
+328. `xspec483-both-plan-clean-after-apply` (**new 新**) — After that apply the --format both project previews as "No changes needed" again (XSPEC-483 R2).
+   套用之後 --format both 專案再次預覽為「No changes needed」（XSPEC-483 R2）。
+   `uds update --plan --offline` → exit 0; output has "No changes needed"
+329. `xspec483-both-plan-follows-format-change` (**new 新**) — Only a real change of format removes files: with the manifest saying ai, the plan lists the .md copies for deletion and keeps the .ai.yaml copies (XSPEC-483 R1).
+   只有格式真的改變才會移除檔案：manifest 改成 ai 時，預覽把 .md 版列為刪除、保留 .ai.yaml 版（XSPEC-483 R1）。
+   `uds update --plan --offline` → exit 0; output has "Delete (", ".standards/commit-message-guide.md"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

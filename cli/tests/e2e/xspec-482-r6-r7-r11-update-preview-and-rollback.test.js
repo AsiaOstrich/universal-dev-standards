@@ -88,7 +88,9 @@ it('uds init keeps the uninstall records: uds uninstall right after init removes
 }, 240000);
 
 
-it('uds init --format both keeps both copies of every standard: the convergence step does not run when the plan holds more than integration blocks (XSPEC-482 R6)', async () => {
+it('uds init --format both keeps both copies of every standard and, like any other project, ends in the current form (XSPEC-482 R6, XSPEC-483 R2)', async () => {
+  // XSPEC-482 R6 skipped the convergence step for these projects because the plan for them deleted the AI copies;
+  // the plan reads `both` correctly now (XSPEC-483 R1), so the step runs and the first preview has nothing to do.
   const dir = h.makeDir('both');
   mkdirSync(join(dir, '.claude'), { recursive: true });
   const init = await h.runCli(['init', '--yes', '--format', 'both', '--skills-location', 'project'], dir);
@@ -96,6 +98,9 @@ it('uds init --format both keeps both copies of every standard: the convergence 
   const files = readdirSync(join(dir, '.standards'));
   expect(files.filter((f) => f.endsWith('.ai.yaml')).length, 'the AI copies are still there').toBeGreaterThan(50);
   expect(files.filter((f) => f.endsWith('.md')).length, 'and the human copies').toBeGreaterThan(50);
+  expect(readManifest(dir).version, 'the manifest is in the current format').toBe(CURRENT_SCHEMA_VERSION);
+  const plan = await h.runCli(['update', '--plan', OFFLINE], dir);
+  expect(out(plan)).toContain('No changes needed');
 }, 240000);
 
 it('update --apply on a project whose files are all current moves an old upstream.version to the shipped one (XSPEC-482 R6)', async () => {

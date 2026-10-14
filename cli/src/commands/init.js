@@ -401,14 +401,14 @@ export async function initCommand(options) {
   // A failure here is reported and does not fail the install: the project is complete without it.
   //
   // Only when the whole difference is integration blocks to rewrite (and the manifest to bring forward). A project whose
-  // plan holds anything else is left exactly as init wrote it: `--format both`, for one, installs the human and the AI
-  // copy of each standard, and the reconciler's plan for it deletes the AI copies (a separate defect, found while doing this),
-  // which an install must never do to what it has just written.
+  // plan holds anything else is left exactly as init wrote it, because an install must never delete, or overwrite, what
+  // it has just written. This used to skip every `--format both` project: the plan for it deleted the AI copy of each
+  // standard. The reconciler now expects both copies for `both` (XSPEC-483 R1), so those projects reach the step like any other.
   if (config.contentLayout !== 'layered') {
     try {
       const { reconcile, plan: reconcilerPlan } = await import('../reconciler/index.js');
       const preview = await reconcilerPlan(projectPath);
-      if (preview.plan.actions.every((a) => a.type === 'migrate_block')) {
+      if (preview.plan.actions.every((a) => a.type === 'migrate_block')) { // wire:init-converges-both
         const converged = await reconcile(projectPath, { backup: false }); // wire:init-converges-to-current-format
         if (!converged.success) {
           console.log(chalk.yellow(`  ⚠ Could not bring the new project to the current manifest format: ${converged.errors.join('; ')} (\`uds update --apply\` will finish it)`));

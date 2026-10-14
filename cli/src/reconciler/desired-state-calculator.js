@@ -9,6 +9,7 @@
 
 import { join, basename } from 'path';
 import { getAllStandards, getStandardSource, findOption, getOptionSource } from '../utils/registry.js';
+import { getInstalledFormats } from '../core/installed-formats.js';
 import {
   resolveToolKey,
   SUPPORTED_AI_TOOLS,
@@ -106,7 +107,7 @@ export function calculateDesiredState(projectPath, manifest) {
  * Calculate expected standard files.
  */
 function calculateStandards(state, manifest) {
-  const format = manifest.format || 'ai';
+  const formats = getInstalledFormats(manifest.format); // wire:calculator-standards-formats
   const allStandards = getAllStandards();
 
   for (const standardId of (manifest.standards || [])) {
@@ -131,35 +132,39 @@ function calculateStandards(state, manifest) {
 
     if (!registryEntry) continue;
 
-    const source = getStandardSource(registryEntry, format);
-    if (!source) continue;
+    // `format: both` installs the human and the AI copy of every standard, so it expects both files. Reading
+    // `both` as if it were one format resolved only the human copy and planned to delete every AI copy (XSPEC-483).
+    for (const fileFormat of formats) {
+      const source = getStandardSource(registryEntry, fileFormat);
+      if (!source) continue;
 
-    // Target path in .standards/
-    const fileName = basename(source);
-    const relativePath = `.standards/${fileName}`;
+      // Target path in .standards/
+      const fileName = basename(source);
+      const relativePath = `.standards/${fileName}`;
 
-    // Resolve source to absolute path
-    const absSource = PathResolver.getStandardSource(source);
+      // Resolve source to absolute path
+      const absSource = PathResolver.getStandardSource(source);
 
-    // Compute hash from source if available
-    let hash = null;
-    let size = null;
-    if (absSource) {
-      const hashInfo = computeFileHash(absSource);
-      if (hashInfo) {
-        hash = hashInfo.hash;
-        size = hashInfo.size;
+      // Compute hash from source if available
+      let hash = null;
+      let size = null;
+      if (absSource) {
+        const hashInfo = computeFileHash(absSource);
+        if (hashInfo) {
+          hash = hashInfo.hash;
+          size = hashInfo.size;
+        }
       }
-    }
 
-    state.standards.set(relativePath, {
-      relativePath,
-      hash,
-      size,
-      category: 'standard',
-      sourcePath: absSource,
-      metadata: { standardId, format, registryEntry }
-    });
+      state.standards.set(relativePath, {
+        relativePath,
+        hash,
+        size,
+        category: 'standard',
+        sourcePath: absSource,
+        metadata: { standardId, format: fileFormat, registryEntry }
+      });
+    }
   }
 }
 
@@ -180,7 +185,7 @@ function calculateStandards(state, manifest) {
  * not into a `<standardId>/<categoryKey>/` tree.
  */
 function calculateOptions(state, manifest) {
-  const format = manifest.format || 'ai';
+  const formats = getInstalledFormats(manifest.format); // wire:calculator-options-formats
   const allStandards = getAllStandards();
 
   if (!manifest.options) return;
@@ -201,30 +206,33 @@ function calculateOptions(state, manifest) {
       const option = findOption(registryEntry, binding.categoryKey, optionId);
       if (!option) continue;
 
-      const source = getOptionSource(option, format);
-      if (!source) continue;
+      // As for the standards: `format: both` installs each option in both formats (XSPEC-483).
+      for (const fileFormat of formats) {
+        const source = getOptionSource(option, fileFormat);
+        if (!source) continue;
 
-      const relativePath = `${OPTIONS_INSTALL_DIR}/${basename(source)}`;
-      const absSource = PathResolver.getStandardSource(source);
+        const relativePath = `${OPTIONS_INSTALL_DIR}/${basename(source)}`;
+        const absSource = PathResolver.getStandardSource(source);
 
-      let hash = null;
-      let size = null;
-      if (absSource) {
-        const hashInfo = computeFileHash(absSource);
-        if (hashInfo) {
-          hash = hashInfo.hash;
-          size = hashInfo.size;
+        let hash = null;
+        let size = null;
+        if (absSource) {
+          const hashInfo = computeFileHash(absSource);
+          if (hashInfo) {
+            hash = hashInfo.hash;
+            size = hashInfo.size;
+          }
         }
-      }
 
-      state.options.set(relativePath, {
-        relativePath,
-        hash,
-        size,
-        category: 'option',
-        sourcePath: absSource,
-        metadata: { standardId: binding.standardId, categoryKey: binding.categoryKey, optionId, format }
-      });
+        state.options.set(relativePath, {
+          relativePath,
+          hash,
+          size,
+          category: 'option',
+          sourcePath: absSource,
+          metadata: { standardId: binding.standardId, categoryKey: binding.categoryKey, optionId, format: fileFormat }
+        });
+      }
     }
   }
 }
