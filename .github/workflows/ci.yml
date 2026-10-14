@@ -629,13 +629,13 @@ jobs:
   # - push to main: ubuntu, windows and macos, every time, with no path filter. A job that is skipped because
   #   nothing under cli/ changed is not a pass ("被 skip 不等於通過"), and the point of this one is that the three
   #   systems are looked at after every push. The public repository's hosted runners cost nothing.
-  # - pull request: as before, Ubuntu only, and only when cli/** changed.
+  # - pull request: the same three systems (since 2026-10-14, dev-platform XSPEC-486 R5), only when cli/** changed.
+  #   Until then a pull request ran Ubuntu alone, and two Windows-only failures of XSPEC-482 (289ff132) reached main
+  #   and stayed red through two beta releases: a green pull request said nothing about Windows.
   # - `fail-fast: false`: one red system must not hide the state of the other two.
   # - A test that needs a POSIX shell calls `ctx.skip()` on Windows. A skipped test is not hidden: the last step
   #   writes how many ran, passed, failed and were skipped into the job summary (scripts/ci-vitest-summary.mjs),
   #   and fails the job when nothing ran.
-  # - The matrix is chosen by the event, so the job names on a pull request ("E2E Tests (ubuntu-latest)") are the
-  #   ones to look at; on a push there are three.
   #
   # NOT verified by running it: this file has been read by a YAML parser and by
   # cli/tests/e2e/xspec-469-r4-ci-matrix.test.js, never by GitHub. The first push to main is the first real run.
@@ -651,7 +651,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(github.event_name == 'push' && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest"]') }}
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout
