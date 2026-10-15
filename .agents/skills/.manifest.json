@@ -1,0 +1,8 @@
+{
+  "version": "6.14.0-beta.15",
+  "source": "universal-dev-standards",
+  "agent": "antigravity",
+  "level": "project",
+  "locale": "zh-TW",
+  "generatedBy": "scripts/generate-adoption-skills.mjs"
+}

@@ -1,0 +1,101 @@
+---
+name: refactor
+source: ../../../../skills/refactoring-assistant/SKILL.md
+source_version: 2.0.0
+translation_version: 2.1.0
+last_synced: 2026-10-12
+source_hash: 22be2c4ae81e
+status: current
+scope: universal
+description: |
+  [UDS] 引導重構決策與策略選擇，包含「重構還是重寫」這個判斷。
+  Use when: 程式碼已經難以修改、在戰術性與架構性重構之間做選擇、要在老舊程式碼裡安全地動手。
+  Not for: 換到不同框架或主版本——請用 /migrate；清除除錯殘留與死碼——請用 /sweep。
+  Keywords: refactor, rewrite, strangler, legacy code, technical debt, code smell, 重構, 重寫, 技術債, 壞味道.
+allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx:*)
+argument-hint: "[file or module | 檔案或模組]"
+---
+
+# 重構助手
+
+> **語言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 繁體中文
+
+引導重構決策、推薦策略，並提供逐步執行工作流程。
+
+## 使用方式
+
+| 命令 | 用途 |
+|------|------|
+| `/refactor` | 啟動互動式重構引導 |
+| `/refactor decide` | 執行重構 vs 重寫決策樹 |
+| `/refactor tactical` | 建議戰術性（日常）策略 |
+| `/refactor strategic` | 引導戰略性/架構重構 |
+| `/refactor legacy` | 遺留程式碼安全策略 |
+| `/refactor debt` | 技術債評估 |
+
+## 策略快速參考
+
+### 戰術性策略（日常）
+
+| 策略 | 使用時機 |
+|------|---------|
+| **準備式重構** | 新增被阻擋的功能之前 |
+| **童子軍法則** | 任何維護工作中 |
+| **紅-綠-重構** | TDD 開發循環 |
+
+### 戰略性策略（架構）
+
+| 策略 | 使用時機 |
+|------|---------|
+| **絞殺者無花果** | 逐步替換整個系統 |
+| **防腐層** | 與遺留系統整合 |
+| **抽象分支** | 在主幹上重構共享程式碼 |
+
+### 安全防護策略（遺留程式碼）
+
+| 策略 | 使用時機 |
+|------|---------|
+| **特徵化測試** | 任何遺留程式碼重構之前 |
+| **草稿式重構** | 理解黑盒程式碼 |
+| **尋找接縫** | 在遺留程式碼中注入測試替身 |
+
+## 工作流程
+
+1. **評估** - 識別要重構的程式碼，評估測試覆蓋率
+2. **決策** - 需要時執行決策樹（重構 vs 重寫）
+3. **選擇策略** - 根據範圍和風險選擇適當策略
+4. **執行** - 遵循逐步工作流程，包含安全檢查
+5. **驗證** - 執行測試以確認行為未被改變
+
+## 使用範例
+
+```
+User: /refactor src/legacy-auth/
+AI: Analyzing src/legacy-auth/...
+    Test coverage: 23% — recommending safety-first approach.
+    Suggested strategy: Characterization Tests + Preparatory Refactoring
+```
+
+```
+User: /refactor decide
+AI: Let me help you decide whether to refactor or rewrite.
+    Question 1: Is the code currently working in production? [Y/N]
+```
+
+## 下一步引導
+
+`/refactor` 完成後，AI 助手應建議：
+
+> **重構完成。建議下一步：**
+> - 執行 `/checkin` 通過品質關卡 ⭐ **推薦**
+> - 執行 `/coverage` 確認重構後覆蓋率不下降
+> - 執行 `/commit` 提交重構變更
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[refactoring-standards.md](../../../../core/refactoring-standards.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/refactor`](../../../../skills/commands/refactor.md#ai-agent-behavior--ai-代理行為)

@@ -1,11 +1,19 @@
 {
   "recorded": "2026-08-20",
   "expires": "2027-06-18",
-  "why": "本檔在 2026-08-20 上午建立時，是一份「延後決定」的紀錄：UDS repo 自己的兩個自採用 skill 副本（.claude/skills/、.gemini/skills/）合計 88 份 SKILL.md，Use when: 0、Not for: 0，而當時判斷「修不了」——理由是唯一會寫這兩個目錄的機制是 CLI 安裝器，只從 uds init / uds update 進入，兩者都被 DEC-044 的 self-adoption 防護擋下。\n\n**那個「修不了」在同一天被推翻了。** 前提是「唯一的寫入者是 CLI 安裝器」，而那只在「沒有人寫第二個寫入者」的條件下成立。本檔自己的 howToShrink 第 (1) 條寫的就是解法：為 source repo 補一條受支援的重新產生路徑。scripts/generate-adoption-skills.mjs 就是那條路徑——它從 skills/ 與 locales/<locale>/skills/ 生成，不讀 cli/bundled/、不寫任何來源目錄，因此不在 DEC-044 的射程內（DEC-044 講的是 bundled → source 的覆寫方向）。\n\n所以本檔不再是延後決定的紀錄，而是一份**兩個 root 狀態不同**的棘輪。一個數字描述不了兩種狀態，因此兩條各自寫明理由：\n\n• .claude/skills — **已修好且已上閘門**。由 scripts/generate-adoption-skills.mjs 生成，npm run check:adoption-skills 是它的時鐘（CI job: adoption-skills）。此處的 0 是**地板不是目標**：任何一份副本掉出觸發面，棘輪立刻紅，不必等到期日。\n\n• .gemini/skills — **刻意凍結，不是延後**。Gemini CLI 已於 2026-06-18 停止服務，.gemini/DEPRECATED.md 明文寫「Not updated when skills/ changes … that drift is expected — do not 'fix' it」與「Do not edit the files in this directory」。生成器讀 integrations/REGISTRY.json 的 agents[\"gemini-cli\"].deprecated 把它排除，不是在腳本裡寫死目錄名。40/40 沒有觸發面是**這個決定的預期結果**，不是待辦事項。",
-  "howToShrink": ".claude/skills 已經是 0，沒有東西可縮；要維持它，只要不要繞過 npm run check:adoption-skills 即可。\n\n剩下的唯一一個待決事項是 .gemini/skills 的長期處置，而它是「刪或不刪」不是「修或不修」。expires 設為 2027-06-18（Gemini CLI 停止服務滿一年）的理由：.gemini/DEPRECATED.md 當初拒絕刪除的論據是「sunset 不代表沒有人還裝著這個工具」——那是一個**會隨時間衰減**的事實宣稱，不是永久成立的原則。到期時要做的是重新檢查那個宣稱是否還成立，然後在「刪掉這 141 個檔」與「再展延一次並寫下新的到期日」之間擇一，而不是重新討論已經做完的凍結決定。\n\n到期後本檢查一律回 1，逼人做這個決定。沒有時鐘的例外只是有禮貌的刪除鍵。",
+  "why": "本檔在 2026-08-20 上午建立時，是一份「延後決定」的紀錄：UDS repo 自己的兩個自採用 skill 副本（.claude/skills/、.gemini/skills/）合計 88 份 SKILL.md，Use when: 0、Not for: 0，而當時判斷「修不了」——理由是唯一會寫這兩個目錄的機制是 CLI 安裝器，只從 uds init / uds update 進入，兩者都被 DEC-044 的 self-adoption 防護擋下。\n\n**那個「修不了」在同一天被推翻了。** 前提是「唯一的寫入者是 CLI 安裝器」，而那只在「沒有人寫第二個寫入者」的條件下成立。本檔自己的 howToShrink 第 (1) 條寫的就是解法：為 source repo 補一條受支援的重新產生路徑。scripts/generate-adoption-skills.mjs 就是那條路徑——它從 skills/ 與 locales/<locale>/skills/ 生成，不讀 cli/bundled/、不寫任何來源目錄，因此不在 DEC-044 的射程內（DEC-044 講的是 bundled → source 的覆寫方向）。\n\n所以本檔不再是延後決定的紀錄，而是一份**兩個 root 狀態不同**的棘輪。一個數字描述不了兩種狀態，因此兩條各自寫明理由：\n\n• .claude/skills — **已修好且已上閘門**。由 scripts/generate-adoption-skills.mjs 生成，npm run check:adoption-skills 是它的時鐘（CI job: adoption-skills）。此處的 0 是**地板不是目標**：任何一份副本掉出觸發面，棘輪立刻紅，不必等到期日。\n\n• .gemini/skills — **刻意凍結，不是延後**。Gemini CLI 已於 2026-06-18 停止服務，.gemini/DEPRECATED.md 明文寫「Not updated when skills/ changes … that drift is expected — do not 'fix' it」與「Do not edit the files in this directory」。生成器讀 integrations/REGISTRY.json 的 agents[\"gemini-cli\"].deprecated 把它排除，不是在腳本裡寫死目錄名。40/40 沒有觸發面是**這個決定的預期結果**，不是待辦事項。\n\n• .agents/skills — **2026-10-15 加入（XSPEC-488 R3），已修好且已上閘門**。Google Antigravity（agy）的專案技能路徑是 .agents/skills；同一個目錄 Codex 也讀。它與 .claude/skills 由同一支 scripts/generate-adoption-skills.mjs 生成、被同一道 npm run check:adoption-skills 守住，所以和 .claude/skills 一樣，0 是地板不是目標。不加這一條時，check-skill-trigger-surface 會因「no baseline entry」而紅。",
+  "howToShrink": ".claude/skills 與 .agents/skills 已經是 0，沒有東西可縮；要維持它，只要不要繞過 npm run check:adoption-skills 即可。\n\n剩下的唯一一個待決事項是 .gemini/skills 的長期處置，而它是「刪或不刪」不是「修或不修」。expires 設為 2027-06-18（Gemini CLI 停止服務滿一年）的理由：.gemini/DEPRECATED.md 當初拒絕刪除的論據是「sunset 不代表沒有人還裝著這個工具」——那是一個**會隨時間衰減**的事實宣稱，不是永久成立的原則。到期時要做的是重新檢查那個宣稱是否還成立，然後在「刪掉這 141 個檔」與「再展延一次並寫下新的到期日」之間擇一，而不是重新討論已經做完的凍結決定。\n\n到期後本檢查一律回 1，逼人做這個決定。沒有時鐘的例外只是有禮貌的刪除鍵。",
   "roots": {
+    ".agents/skills": {
+      "skills": 56,
+      "withTriggerSurface": 56,
+      "withoutTriggerSurface": 0,
+      "state": "generated-and-gated",
+      "generator": "scripts/generate-adoption-skills.mjs",
+      "gate": "npm run check:adoption-skills"
+    },
     ".claude/skills": {
-      "skills": 55,
+      "skills": 56,
       "withTriggerSurface": 55,
       "withoutTriggerSurface": 0,
       "state": "generated-and-gated",

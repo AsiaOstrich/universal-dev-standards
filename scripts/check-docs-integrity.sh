@@ -266,6 +266,7 @@ find "$ROOT_DIR" -name "*.md" -type f \
     ! -path "*/cli/node_modules/*" \
     ! -path "*/cli/bundled/*" \
     ! -path "*/.claude/*" \
+    ! -path "*/.agents/*" \
     ! -path "*/.gemini/*" \
     ! -path "*/docs/archive/*" \
     ! -path "*/tests/bats/*" 2>/dev/null | \
@@ -298,6 +299,7 @@ files_checked=$(find "$ROOT_DIR" -name "*.md" -type f \
     ! -path "*/cli/node_modules/*" \
     ! -path "*/cli/bundled/*" \
     ! -path "*/.claude/*" \
+    ! -path "*/.agents/*" \
     ! -path "*/.gemini/*" \
     ! -path "*/docs/archive/*" \
     ! -path "*/tests/bats/*" \

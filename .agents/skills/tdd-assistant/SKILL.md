@@ -1,0 +1,91 @@
+---
+name: tdd
+source: ../../../../skills/tdd-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-10-12
+source_hash: 63e273612cc3
+status: current
+scope: partial
+description: |
+  [UDS] 測試驅動開發（TDD）的參考資料：紅-綠-重構循環、FIRST 原則與 Arrange-Act-Assert 結構。
+  Use when: 在實作前先寫一個會失敗的測試、用 Arrange-Act-Assert 組織測試、以 FIRST 檢視既有測試。
+  Not for: 互動式地驅動 RED/GREEN 循環——該部分已移至採用層（XSPEC-095）；量測測試涵蓋了多少程式碼——請用 /coverage。
+  Keywords: TDD, test first, Red Green Refactor, FIRST, Arrange Act Assert, unit test, 測試驅動開發, 紅綠重構, 單元測試.
+allowed-tools: Read, Write, Grep, Glob, Bash(npm test:*), Bash(npx vitest:*)
+argument-hint: "[feature or file | 功能或檔案]"
+---
+
+# TDD 助手
+
+> **語言**: [English](../../../../skills/tdd-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — TDD 流程協調（RED→GREEN→REFACTOR 循環、測試執行 gates）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 TDD 原則、FIRST 規則、AAA 格式、語言範例、流程指南供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
+引導測試驅動開發（TDD）流程：紅-綠-重構。
+
+## TDD 循環
+
+```
+    ┌─────┐       ┌───────┐       ┌──────────┐
+    │ RED │ ────► │ GREEN │ ────► │ REFACTOR │
+    └─────┘       └───────┘       └──────────┘
+       ▲                                │
+       └────────────────────────────────┘
+```
+
+## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+
+### 階段 1：RED - 撰寫失敗測試
+- 撰寫描述期望行為的測試
+- 執行測試 - 確認它因**正確的原因失敗**
+- 使用 AAA 模式（Arrange-Act-Assert）
+
+### 階段 2：GREEN - 讓測試通過
+- 撰寫**最少的**程式碼使測試通過
+- 此階段可以接受硬編碼
+- 執行測試 - 確認它**通過**
+
+### 階段 3：REFACTOR - 改善程式碼
+- 消除重複（DRY）
+- 改善命名和結構
+- **每次**修改後都執行測試
+- 不新增功能
+
+## FIRST 原則
+
+| 原則 | 說明 | Description |
+|------|------|-------------|
+| **F**ast | 測試快速執行（< 100ms/單元） | Tests run quickly |
+| **I**ndependent | 測試間無共享狀態 | No shared state between tests |
+| **R**epeatable | 每次結果相同 | Same result every time |
+| **S**elf-validating | 明確的通過/失敗結果 | Clear pass/fail result |
+| **T**imely | 在產品程式碼之前撰寫 | Written before production code |
+
+## 使用方式
+
+- `/tdd` - 開始互動式 TDD 工作階段
+- `/tdd calculateTotal` - 對特定函式進行 TDD
+- `/tdd "user can login"` - 對使用者故事進行 TDD
+
+## 下一步引導
+
+`/tdd` 完成後，AI 助手應建議：
+
+> **TDD 循環完成。建議下一步：**
+> - 執行 `/checkin` 通過品質關卡 ⭐ **推薦**
+> - 執行 `/coverage` 確認測試覆蓋率
+> - 執行 `/code-review` 自我審查程式碼
+
+## 參考
+
+- [TDD 語言範例](./language-examples.md) — 需要某個特定語言的實際範例時讀它。
+- [TDD 工作流程指南](./tdd-workflow.md) — 要完整跑一輪紅-綠-重構時讀它。
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[test-driven-development.md](../../../../core/test-driven-development.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/tdd`](../../../../skills/commands/tdd.md#ai-agent-behavior--ai-代理行為)

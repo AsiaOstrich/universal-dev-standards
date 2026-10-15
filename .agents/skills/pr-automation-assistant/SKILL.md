@@ -1,0 +1,118 @@
+---
+name: pr
+scope: universal
+source: ../../../../skills/pr-automation-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-10-12
+source_hash: a54acd269f70
+status: current
+description: |
+  引導 pull request 建立、審查自動化與合併策略。
+  Use when: 建立 PR、自動化審查流程、設定合併政策。
+  Not for: 審查本身的內容實質——請用 /code-review；分支命名與合併策略——請用 /git-workflow-guide。
+  Keywords: pull request, PR, merge, review, GitHub, GitLab, 合併請求, 審查自動化, 合併策略.
+allowed-tools: Read, Grep, Glob, Bash(git:*, gh:*)
+argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
+---
+
+# PR 自動化助手
+
+> **語言**: [English](../../../../skills/pr-automation-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — PR 生命週期協調（5 步驟 CREATE→REVIEW→APPROVE→MERGE→CLEANUP、>400 行 size gate、CI gate、squash/merge 策略、gh CLI 整合）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 PR 描述模板、合併策略決策矩陣、auto-review 觸發規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
+簡化從建立到合併的 Pull Request 生命週期。
+
+## PR 建立檢查清單
+
+| 項目 | 規則 |
+|------|------|
+| 標題 | `<type>(<scope>): <summary>`，70 字元內 |
+| 描述 | 使用結構化模板 |
+| 標籤 | 至少一個分類標籤 |
+| 審查者 | 依 CODEOWNERS 或領域指派 |
+| 分支 | 與基礎分支同步 |
+
+## PR 描述模板
+
+```markdown
+## 摘要
+<1-3 個重點描述變更>
+
+## 變更內容
+- 新增 / 修改 / 移除 ...
+
+## 測試計畫
+- [ ] 單元測試通過
+- [ ] 手動驗證步驟
+
+## 截圖
+（如有 UI 變更）
+```
+
+## 合併策略決策
+
+| 策略 | 使用時機 |
+|------|----------|
+| **Squash merge** | 功能分支，提交記錄零散 |
+| **Merge commit** | 發布分支，保留完整歷史 |
+| **Rebase** | 線性歷史，小幅變更 |
+
+## 自動審查觸發條件
+
+| 觸發條件 | 閾值 | 動作 |
+|----------|------|------|
+| PR 大小 | > 400 行變更 | 要求拆分 |
+| 無測試 | 0 個測試檔案變更 | 阻止合併 |
+| CI 失敗 | 任何檢查失敗 | 阻止合併 |
+| 過期 PR | > 7 天無活動 | 通知作者 |
+| 草稿 PR | 標記為草稿 | 跳過審查者指派 |
+
+## 工作流程
+
+```
+CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
+```
+
+1. **建立（Create）** — 建立分支、提交、推送，並以模板開啟 PR
+2. **審查（Review）** — 自動化檢查 + 人工審查
+3. **核准（Approve）** — 所有檢查通過，且達到必要的核准數
+4. **合併（Merge）** — 套用選定的合併策略
+5. **清理（Cleanup）** — 刪除來源分支，更新關聯的 issue
+
+## 使用方式
+
+- `/pr` - 引導建立當前分支的 PR
+- `/pr create` - 使用模板建立 PR
+- `/pr --template` - 顯示 PR 描述模板
+- `/pr review 123` - 審查特定 PR
+
+## 下一步引導
+
+`/pr` 完成後，AI 助手應建議：
+
+> **PR 操作完成。建議下一步：**
+> - 執行 `/code-review` 進行詳細程式碼審查 ⭐ **推薦**
+> - 執行 `/commit` 修正審查發現的問題
+> - 執行 `/changelog` 更新變更日誌
+> - 檢查 CI 狀態 → `gh pr checks`
+
+## 參考
+
+- 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
+- 核心規範：[git-workflow.md](../../../../core/git-workflow.md)
+
+## 版本歷史
+
+| 版本 | 日期 | 變更說明 |
+|------|------|----------|
+| 1.0.0 | 2026-03-23 | 初始版本 |
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/pr`](../../../../skills/commands/pr.md#ai-agent-behavior--ai-代理行為)
+
+## 授權
+
+CC BY 4.0 — 文件內容

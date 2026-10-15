@@ -1,0 +1,88 @@
+---
+name: code-review
+source: ../../../../skills/code-review-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: e573a23283c0
+status: current
+scope: universal
+description: |
+  [UDS] 系統性程式碼審查的參考資料：八大審查類別，以及 BLOCKING/IMPORTANT/SUGGESTION 評論前綴。
+  Use when: 審查 pull request 或 diff、決定審查意見的措辭與優先序、與團隊議定審查範圍。
+  Not for: 執行有關卡的審查流程——該部分已移至採用層（XSPEC-095）；提交前的關卡驗證——請用 /checkin。
+  Keywords: code review, pull request review, review checklist, BLOCKING, comment prefix, 程式碼審查, 審查類別, 評論前綴, 審查清單.
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git log:*), Bash(git show:*)
+argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
+---
+<!-- 棄用通知（XSPEC-086 Phase 4，2026-04-28）：
+  程式碼審查流程協調（4 步驟序列、outcome gating）已移至 adoption layer
+  （XSPEC-095，2026-04-28）。此 Skill 保留：8 大審查類別定義、
+  BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意。
+  需要強制執行時，請使用你的 adoption layer 工具鏈。
+-->
+
+# 程式碼審查助手
+
+> **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
+使用標準化的檢查清單和評論前綴，執行系統性的程式碼審查。
+
+## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+
+1. **識別變更** - 透過 `git diff` 或 `git show` 取得待審查檔案的差異
+2. **套用檢查清單** - 系統性地檢查每個審查類別
+3. **產生報告** - 使用標準評論前綴輸出發現
+4. **總結** - 提供整體評估和建議的後續行動
+
+## 審查類別
+
+1. **功能性** - 功能是否正確？ | Does it work correctly?
+2. **設計** - 架構是否合適？ | Is the architecture appropriate?
+3. **品質** - 程式碼是否乾淨可維護？ | Is the code clean and maintainable?
+4. **可讀性** - 是否容易理解？ | Is it easy to understand?
+5. **測試** - 測試覆蓋是否足夠？ | Is there adequate test coverage?
+6. **安全性** - 是否有安全漏洞？ | Are there any vulnerabilities?
+7. **效能** - 是否有效率？ | Is it efficient?
+8. **錯誤處理** - 錯誤處理是否妥當？ | Are errors handled properly?
+
+## 評論前綴
+
+| 前綴 | 意義 | 動作 | Action |
+|------|------|------|--------|
+| **BLOCKING** | 必須在合併前修復 | 必須修復 | Required |
+| **IMPORTANT** | 應該修復 | 建議修復 | Recommended |
+| **SUGGESTION** | 錦上添花 | 可選改善 | Optional |
+| **QUESTION** | 需要說明 | 需要討論 | Discuss |
+| **NOTE** | 資訊性 | 僅供參考 | FYI |
+
+## 使用方式
+
+- `/code-review` - 審查目前分支的所有變更
+- `/code-review src/auth.js` - 審查特定檔案
+- `/code-review feature/login` - 審查特定分支
+
+## 下一步引導
+
+`/code-review` 完成後，AI 助手應建議：
+
+> **程式碼審查完成。建議下一步：**
+> - 有 ❗ BLOCKING 項目 → 修復後重新執行 `/code-review`
+> - 全部通過 → 執行 `/checkin` 品質關卡 ⭐ **推薦**
+> - 僅有 💡 SUGGESTION → 執行 `/commit` 提交變更
+> - 審查中發現規範不實用或缺失 → 執行 `/audit --report` 回報
+
+## 參考
+
+- [Pre-Commit Checklist（提交前檢查清單）](./checkin-checklist.md) — 提交之前當作最後一道檢查時讀它。
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
+
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../../../../skills/commands/code-review.md#ai-agent-behavior--ai-代理行為)
