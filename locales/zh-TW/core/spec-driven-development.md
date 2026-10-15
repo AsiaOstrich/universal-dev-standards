@@ -1,18 +1,18 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 2.3.0
+source_version: 2.5.0
 translation_version: 2.3.0
-last_synced: 2026-06-10
-source_hash: 08dd8c2bee20
-status: stale
+last_synced: 2026-10-15
+source_hash: 66eefffe8309
+status: current
 ---
 
 # 規格驅動開發 (SDD) 標準
 
 > **語言**: [English](../../../core/spec-driven-development.md) | 繁體中文
 
-**版本**: 2.3.0
-**最後更新**: 2026-06-08
+**版本**: 2.5.0
+**最後更新**: 2026-08-24
 **適用性**: 所有採用規格驅動開發的專案
 **範圍**: 通用 (Universal)
 
@@ -60,6 +60,35 @@ UDS 支援兩種 AC 記法。**GWT 為預設與首選**（Forward Derivation／B
 | 選配 Optional | `WHERE <feature included> THE SYSTEM SHALL <response>` | 選配功能 |
 
 每個 AC 提供 **GWT 或 EARS** 之一（`.ac.yaml` 的 `given/when/then` 或 `ears`）。BDD 可推導行為優先 GWT；GWT 表達牽強時改用 EARS。不強制兩者並存、不移除 GWT。
+
+## 沒有驗證項的 AC 不是 AC
+
+每一條驗收標準都必須有一個**指向它的驗證項**——測試、檢查、閘門，或一則明確記錄的手動步驟。沒有任何驗證項引用的 AC 是**一張沒有人兌現的支票**，而且它不會大聲失敗：它只是安靜地停止成立，而規格繼續宣稱它為真。
+
+**規則**：沒有驗證項的 AC 必須**降級為設計意圖**，不得繼續掛在 AC 欄。降級是誠實的，未經驗證的 AC 不是。
+
+### 實測案例
+
+一份 2026-05-14 的規格寫著 `AC-7：舊版系統報告完整保留（無回歸）`。它的 Test Plan 有七項，**沒有一項指向 AC-7**。該報告的 timer 是 disabled、部署函式從未被呼叫——**從那條 AC 被寫下的同一天起**。三個月後在驗證另一件無關的安裝時偶然發現。
+
+**它不是後來斷線的。它從來沒有被接上過。**
+
+### 為什麼「有人會檢查」不是驗證項
+
+「有人會檢查」不是驗證項。它必須**可執行或有紀錄**，不能是隱含的。「審查者會注意到」不算——因為審查者讀的是規格，而規格說那條 AC 成立。**AC 是一個關於世界的宣稱，只有碰得到世界的東西才能證偽它。**
+
+### 關聯
+
+- [verification-evidence](verification-evidence.md) — VE-011 要求證據必須來自**最後一次編輯後**的新鮮執行（fresh run）；本標準則是其上游問題：一開始到底有沒有任何執行指向該宣稱。
+- [class-level-fix](class-level-fix.md) — 同一套紀律套用於*範圍*：走訪集合而非列舉它。
+
+## v2.5.0 新增內容
+
+- **指向 [deferred-item-exit](deferred-item-exit.md) 的指標**（XSPEC-391 R5）。規格記下的未納入條目、open questions 與仍待確認的 assumptions 皆為延後項目，且它們必須滿足的不變量已在該處陳述。**是指標，不是摘要**——同一條規則的六份副本會往六個方向腐壞。
+
+## v2.4.0 新增內容
+
+- **沒有驗證項的 AC 不是 AC**（XSPEC-380 R5）。每一條驗收標準都必須有一個指向它的驗證項；沒有驗證項的 AC 必須降級為設計意圖，不得繼續掛在 AC 欄。實測案例：一份規格的 `AC-7` 沒有對應的 Test Plan 項目，而它所保護的項目**從那條 AC 被寫下的同一天起**就停止運行——三個月後偶然被發現。AC 是一個關於世界的宣稱，只有碰得到世界的東西才能證偽它。
 
 ## v2.3.0 新增內容
 
