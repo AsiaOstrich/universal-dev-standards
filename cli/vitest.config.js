@@ -41,7 +41,11 @@ export default defineConfig({
       }
     },
     testTimeout: 30000,
-    hookTimeout: 30000,
+    // 120 s, not 30: on windows-latest the afterAll that deletes an e2e test's scratch projects can take longer
+    // than 30 s when each project holds a full skills install (main run 38671926068, xspec-486: "Hook timed out
+    // in 30000ms" at `afterAll(() => h.cleanup())`, while the same file passed on the pull request). A hook that
+    // only deletes temp folders failing the build says nothing about the product; the tests keep their 30 s.
+    hookTimeout: 120000,
     setupFiles: ['./tests/setup.js']
   }
 });
