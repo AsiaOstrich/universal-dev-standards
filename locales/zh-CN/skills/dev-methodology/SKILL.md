@@ -3,8 +3,8 @@ name: methodology
 source: ../../../../skills/dev-methodology/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
-source_hash: bc54ca1f49d5
+last_synced: 2026-10-16
+source_hash: 21380a968a9a
 status: current
 scope: partial
 description: |
@@ -105,6 +105,8 @@ argument-hint: "[动作] [参数]"
 ## 参考
 
 - [创建自定义 Methodology 指南](./create-methodology.md) — 要自建方法论而不是用现成的那几套时读它。
+- [整合开发流程指南](./integrated-flow.md) — 将多个方法论整合为一个流程时读它。
+- [Workflow Prerequisite Checking / 工作流前置步骤检查](./prerequisite-check.md) — 工作流步骤需要先检查其前置条件时读它。
 - [Methodology Runtime 指南](./runtime.md) — 需要知道方法论在执行当下如何运作时读它。
 - 详细指南：[guide.md](./guide.md)
 

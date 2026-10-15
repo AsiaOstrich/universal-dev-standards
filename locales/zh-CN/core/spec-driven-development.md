@@ -1,16 +1,16 @@
 ---
 source: ../../../core/spec-driven-development.md
-source_version: 2.3.0
+source_version: 2.5.0
 translation_version: 2.3.0
-last_synced: 2026-06-10
-source_hash: 08dd8c2bee20
-status: stale
+last_synced: 2026-10-16
+source_hash: 66eefffe8309
+status: current
 ---
 
 # 规格驱动开发 (SDD) 标准
 
-**版本**: 2.3.0
-**最后更新**: 2026-06-08
+**版本**: 2.5.0
+**最后更新**: 2026-08-24
 **适用范围**: 所有采用规格驱动开发的项目
 **范围**: universal
 
@@ -135,6 +135,8 @@ SDD **不是** "ATDD → BDD → TDD" 序列的一部分。相反，它通过正
 | **AC YAML Sidecar** | 推荐使用 .ac.yaml 实现机器可读的 AC（当 AC 数量 > 3 时） |
 | **AI Agent 行为** | 可选章节，定义规格内的 agent 角色、规则、质量检查和约束 |
 
+> 规格记下的**延后项目**（未纳入／不在本版的条目、open questions、仍待确认的 assumptions）适用 [deferred-item-exit](deferred-item-exit.md)。
+
 ## AC 格式
 
 UDS 支持两种 AC 记法。**GWT 为预设与首选**（Forward Derivation／BDD 场景生成依赖它）。**EARS**（Easy Approach to Requirements Syntax，IBM Rational）为可选补充，对事件／状态／恒常／异常需求表达更精准（XSPEC-263）。
@@ -148,6 +150,35 @@ UDS 支持两种 AC 记法。**GWT 为预设与首选**（Forward Derivation／B
 | 选配 Optional | `WHERE <feature included> THE SYSTEM SHALL <response>` | 选配功能 |
 
 每个 AC 提供 **GWT 或 EARS** 之一（`.ac.yaml` 的 `given/when/then` 或 `ears`）。BDD 可推导行为优先 GWT；GWT 表达牵强时改用 EARS。不强制两者并存、不移除 GWT。
+
+## 没有验证项的 AC 不是 AC
+
+每一条验收标准都必须有一个**指向它的验证项**——测试、检查、闸门，或一则明确记录的手动步骤。没有任何验证项引用的 AC 是**一张没有人兑现的支票**，而且它不会大声失败：它只是安静地停止成立，而规格继续宣称它为真。
+
+**规则**：没有验证项的 AC 必须**降级为设计意图**，不得继续挂在 AC 栏。降级是诚实的，未经验证的 AC 不是。
+
+### 实测案例
+
+一份 2026-05-14 的规格写着 `AC-7：旧版系统报告完整保留（无回归）`。它的 Test Plan 有七项，**没有一项指向 AC-7**。该报告的 timer 是 disabled、部署函数从未被调用——**从那条 AC 被写下的同一天起**。三个月后在验证另一件无关的安装时偶然发现。
+
+**它不是后来断线的。它从来没有被接上过。**
+
+### 为什么「有人会检查」不是验证项
+
+「有人会检查」不是验证项。它必须**可执行或有记录**，不能是隐含的。「审查者会注意到」不算——因为审查者读的是规格，而规格说那条 AC 成立。**AC 是一个关于世界的宣称，只有碰得到世界的东西才能证伪它。**
+
+### 关联
+
+- [verification-evidence](verification-evidence.md) — VE-011 要求证据必须来自**最后一次编辑后**的新鲜运行（fresh run）；本标准则是其上游问题：一开始到底有没有任何运行指向该宣称。
+- [class-level-fix](class-level-fix.md) — 同一套纪律套用于*范围*：遍历集合而非列举它。
+
+## v2.5.0 新增内容
+
+- **指向 [deferred-item-exit](deferred-item-exit.md) 的指针**（XSPEC-391 R5）。规格记下的未纳入条目、open questions 与仍待确认的 assumptions 皆为延后项目，且它们必须满足的不变量已在该处陈述。**是指针，不是摘要**——同一条规则的六份副本会往六个方向腐烂。
+
+## v2.4.0 新增内容
+
+- **没有验证项的 AC 不是 AC**（XSPEC-380 R5）。每一条验收标准都必须有一个指向它的验证项；没有验证项的 AC 必须降级为设计意图，不得继续挂在 AC 栏。实测案例：一份规格的 `AC-7` 没有对应的 Test Plan 项目，而它所保护的项目**从那条 AC 被写下的同一天起**就停止运行——三个月后偶然被发现。AC 是一个关于世界的宣称，只有碰得到世界的东西才能证伪它。
 
 ## v2.3.0 新增内容
 

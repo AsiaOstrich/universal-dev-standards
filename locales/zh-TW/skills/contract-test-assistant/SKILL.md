@@ -2,9 +2,9 @@
 name: contract-test-assistant
 source: ../../../../skills/contract-test-assistant/SKILL.md
 source_version: 1.0.0
-source_hash: 35b654f0b277
+source_hash: b70b27fd7177
 translation_version: 1.1.0
-last_synced: 2026-08-17
+last_synced: 2026-10-16
 status: current
 description: |
   [UDS] 引導 API 與微服務的合約測試策略。
