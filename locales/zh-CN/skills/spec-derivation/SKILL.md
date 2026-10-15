@@ -3,8 +3,8 @@ name: spec-derive
 source: ../../../../skills/spec-derivation/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
-last_synced: 2026-08-17
-source_hash: 3f875cea1cad
+last_synced: 2026-10-15
+source_hash: bb58d7a7d687
 status: current
 scope: partial
 description: |
