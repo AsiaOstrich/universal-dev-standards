@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/reverse-engineer/SKILL.md
 source_version: 1.2.0
-source_hash: 4645517162ab
+source_hash: b340e9fbb301
 translation_version: 1.3.0
-last_synced: 2026-08-17
+last_synced: 2026-10-16
 status: current
 description: |
   [UDS] 系统考古——从逻辑、数据、运行时三个维度对既有系统做逆向工程。
