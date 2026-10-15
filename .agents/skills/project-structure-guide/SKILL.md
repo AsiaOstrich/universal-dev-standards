@@ -1,0 +1,181 @@
+---
+name: project-structure-guide
+source: ../../../../skills/project-structure-guide/SKILL.md
+source_version: 1.1.0
+translation_version: 1.2.0
+last_synced: 2026-10-12
+source_hash: 0c1ad1961de0
+status: current
+description: |
+  依各語言的最佳實踐組織專案目錄結構的指南。
+  Use when: 建立專案、重整結構、新增模組、設定建置流程、決定檔案該放哪裡。
+  Not for: 專門為 AI 導覽而設計的結構——請用 /ai-friendly-architecture；原地重整既有程式碼——請用 /refactor。
+  Keywords: project, structure, directory, layout, gitignore, scaffold, file placement, utils, helpers, shared, 專案結構, 目錄配置, 檔案擺放.
+scope: universal
+---
+
+# 專案結構指南
+
+> **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 繁體中文
+
+**版本**：1.1.0
+**最後更新**：2026-03-04
+**適用性**：Claude Code Skills
+
+---
+
+## 目的
+
+此技能提供根據語言和框架慣例建構專案的指引，協助建立一致、可維護的目錄佈局。
+
+# [Physical Binding]
+## 現實檢查（Reality Check）
+在確認專案結構有效之前，你**必須**：
+1. 執行驗證器：`uds check --standard project-structure`
+2. 若 exit_code != 0：
+   - 讀取錯誤訊息（例如 "Missing required directories"）。
+   - 向使用者回報違規項目。
+   - 建議具體的修正指令（`mkdir ...`）。
+   - 套用修正後**重新執行**驗證。
+
+## 觸發時機
+
+在以下情況使用此技能：
+- 建立新專案
+- 重組現有專案結構
+- 新增模組或功能
+- 設定建構配置
+- 建立 .gitignore 檔案
+- 決定檔案的放置位置（程式碼、文件、設定、資源）
+- 在 utils/、helpers/、shared/、lib/ 或 internal/ 之間做選擇
+- 放置開發中間產物（腦力激盪、RFC、POC、技術調查）
+
+## 支援的語言
+
+| 語言 | 框架/模式 |
+|------|-----------|
+| Node.js | Express、NestJS、Next.js |
+| Python | Django、Flask、FastAPI |
+| Java | Spring Boot、Maven、Gradle |
+| .NET | ASP.NET Core、Console |
+| Go | 標準佈局、cmd/pkg |
+| Rust | Binary、Library、Workspace |
+| Kotlin | Gradle、Android、Multiplatform |
+| PHP | Laravel、Symfony、PSR-4 |
+| Ruby | Rails、Gem、Sinatra |
+| Swift | SPM、iOS App、Vapor |
+
+## 常見結構模式
+
+### 標準目錄
+
+```
+project-root/
+├── src/              # 原始碼
+├── tests/            # 測試檔案
+├── docs/             # 文件
+├── tools/            # 建構/部署腳本
+├── examples/         # 使用範例
+├── config/           # 配置檔案
+└── .github/          # GitHub 配置
+```
+
+### 建構輸出（始終 gitignore）
+
+```
+dist/                 # 發佈輸出
+build/                # 編譯產物
+out/                  # 輸出目錄
+bin/                  # 二進位執行檔
+```
+
+## 語言特定指南
+
+### Node.js
+
+```
+project/
+├── src/
+│   ├── index.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/
+│   └── models/
+├── tests/
+├── package.json
+└── .gitignore
+```
+
+### Python
+
+```
+project/
+├── src/
+│   └── package_name/
+│       ├── __init__.py
+│       └── main.py
+├── tests/
+├── pyproject.toml
+└── .gitignore
+```
+
+### Go
+
+```
+project/
+├── cmd/
+│   └── appname/
+│       └── main.go
+├── internal/
+├── pkg/
+├── go.mod
+└── .gitignore
+```
+
+## 快速操作
+
+### 建立專案結構
+
+當被要求建立專案時：
+1. 詢問語言/框架
+2. 生成適當的目錄結構
+3. 建立必要的配置檔案
+4. 生成 .gitignore
+
+### 審查結構
+
+審查現有結構時：
+1. 檢查語言慣例
+2. 驗證 gitignore 模式
+3. 建議改進
+4. 識別放錯位置的檔案
+
+## 規則
+
+1. **遵循語言慣例** - 每種語言都有既定模式
+2. **分離關注點** - 將原始碼、測試、文件分開
+3. **Gitignore 建構輸出** - 永不提交 dist/、build/、out/
+4. **一致命名** - 使用語言適當的命名風格
+5. **配置在根目錄** - 將配置檔案放在專案根目錄
+6. **辨析目錄術語** - utils/（無狀態、通用）、helpers/（層級綁定）、shared/（跨模組）、lib/（包裝依賴）
+7. **工作文件放 docs/working/** - 腦力激盪、RFC、POC、技術調查放在 docs/working/ 並進行生命週期管理
+8. **生成碼分離** - 放在 src/generated/{type}/，永不與手寫程式碼混合
+
+## Next Steps Guidance | 下一步引導
+
+`/project-structure` 完成後，AI 助手應建議：
+
+> **專案結構已建立或審查完成。建議下一步 / Project structure created or reviewed. Suggested next steps:**
+> - 執行 `/sdd` 開始規格驅動開發，將專案結構納入正式規格 ⭐ **Recommended / 推薦** — 確保結構決策有規格追蹤 / Ensures structure decisions are tracked in specs
+> - 執行 `/docs` 產生專案文件（README、ARCHITECTURE.md 等） — 讓結構決策有文件記錄 / Document structure decisions
+> - 執行 `/ai-friendly-architecture` 設定 AI 上下文配置 — 讓 AI 助手更好地理解專案結構 / Help AI assistants understand the project structure
+
+---
+
+## 相關標準
+
+- [各語言的專案結構](./language-patterns.md) — 逐語言的實際目錄配置（Node.js/TypeScript、Python、Go 等）。要為某個特定語言擺放專案結構時讀它。
+- [核心：專案結構](../../core/project-structure.md)
+- [核心：文件結構](../../core/documentation-structure.md)
+- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
+- [AI：專案結構選項](../../../../ai/options/project-structure/)

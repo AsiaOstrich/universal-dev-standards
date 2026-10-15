@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The self-adoption skill generator now derives `.agents/skills/` (Google Antigravity, which Codex reads too) as well as `.claude/skills/`, and the drift gate covers both (XSPEC-488 R3).** Antigravity reads project skills from `.agents/skills/`. A copy installed there once with `uds config --type skills --ai-tool antigravity` would have sat outside the "Self-Adoption Skill Drift Gate" and gone stale without anything turning red, so `scripts/generate-adoption-skills.mjs` writes it from `skills/` and `locales/zh-TW/skills/` like the Claude Code copy, `npm run check:adoption-skills` fails when either copy differs from its sources, and `--self-test` runs its arms against both. The content is the same as `uds` installs: the installer has no per-agent branch for skills, and installing antigravity, claude-code and codex into three empty directories with locale zh-TW differs only in the `agent` line of `.manifest.json`. Codex and Antigravity share the directory, so a directory is one target and its manifest says which agent it was adopted for (a manifest naming neither is "could not derive", exit 2). `scripts/self-adoption-skills-baseline.json` gets a `.agents/skills` entry (without it `check:trigger-surface` fails on "no baseline entry"), `check-docs-integrity.sh` skips `.agents/` like `.claude/` (it counted 465 link warnings in the copies against 22 without them), and `bump-version.mjs` regenerates both manifests. Only this repository changes; `uds init` and `uds config` behave as before.
+
 ## [6.14.0-beta.15] - 2026-10-14
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). Fixes a crash of interactive `uds init` when Google Antigravity is selected (found by hand on 6.14.0-beta.14 in Windows), Windows path separators in `uds update` output, and the `--format both` plan (XSPEC-483). Contains everything in 6.14.0-beta.14 below.

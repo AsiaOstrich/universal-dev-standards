@@ -2,6 +2,10 @@
   "schema": 1,
   "exemptions": [
     {
+      "changelog": "The self-adoption skill generator now derives .agents/skills/ (Google Antigravity, which Codex reads too) as well as .claude/skills/",
+      "reason": "Maintainer tooling in the repository (scripts/generate-adoption-skills.mjs and the Self-Adoption Skill Drift Gate); it writes this repository's own committed skill copies, nothing of it is in the npm package, and uds init and uds config behave as before. Tested from the script's entry by cli/tests/integration/xspec-488-r3-agents-adoption-skills.test.js, which runs it on a copy of the tree, compares what it writes with what the installer writes for antigravity, and cuts three wires."
+    },
+    {
       "changelog": "CI: a standards orphan matrix",
       "reason": "A CI gate that reads the repository's own registry and scripts (npm run check:orphan-matrix); it runs in the repository, ships nothing in the npm package and changes no command a user runs."
     },

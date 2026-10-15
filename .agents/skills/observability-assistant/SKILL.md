@@ -1,0 +1,56 @@
+---
+name: observability
+source: ../../../../skills/observability-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-08-17
+status: current
+description: |
+  引導可觀測性建置、指標設計與告警設定。
+  Use when: 新服務的埋點、SLO 定義、告警設計、成熟度評估。
+  Not for: 設定數值目標與 Error Budget 政策——請用 /slo；日誌格式與層級——請用 /logging-guide。
+  Keywords: observability, metrics, traces, golden signals, alerting, SLO, 可觀測性, 指標, 追蹤, 告警.
+allowed-tools: Read, Write, Grep, Glob
+scope: universal
+argument-hint: "[service name or observability topic | 服務名稱或可觀測性主題]"
+---
+
+# 可觀測性助手
+
+> **語言**: [English](../../../../skills/observability-assistant/SKILL.md) | 繁體中文
+
+引導三支柱可觀測性實作：Logs、Metrics、Traces。
+
+## 功能
+
+| 功能 | 說明 |
+|------|------|
+| **儀器檢查** | 上線前可觀測性檢查表 |
+| **成熟度評估** | L0-L4 成熟度自評 |
+| **指標設計** | 協助設計 Metrics（類型、命名、標籤） |
+| **告警設計** | 設計 SLO-based 告警並降低雜訊 |
+| **黃金信號** | 驗證四大黃金信號覆蓋 |
+
+## 使用方式
+
+```bash
+/observability                        # 顯示可觀測性指南
+/observability --checklist            # 執行儀器檢查表
+/observability --maturity             # 成熟度評估（L0-L4）
+/observability --alerting             # 告警設計指南
+/observability "payment-service"      # 特定服務的引導
+```
+
+## 下一步引導
+
+> **可觀測性引導完成。建議下一步：**
+> - 執行 `/slo` 定義 SLI/SLO/Error Budget ⭐ **推薦**
+> - 執行 `/incident` 設定事故回應流程
+> - 執行 `/checkin` 提交變更
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md) — 日誌、指標、追蹤三大支柱的完整說明。要建立監控、挑選指標型別、導入追蹤或評估成熟度時讀它。
+- 核心規範：[observability-standards.md](../../../../core/observability-standards.md)
+- 核心規範：[alerting-standards.md](../../../../core/alerting-standards.md)
+- 核心規範：[slo-standards.md](../../../../core/slo-standards.md)

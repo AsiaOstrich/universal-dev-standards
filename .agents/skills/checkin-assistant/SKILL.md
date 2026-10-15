@@ -1,0 +1,87 @@
+---
+name: checkin
+source: ../../../../skills/checkin-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-10-11
+source_hash: f2ee56f211d6
+status: current
+scope: partial
+description: |
+  [UDS] 提交前品質關卡的參考資料：關卡定義、檢查清單項目，以及絕不可提交的規則。
+  Use when: 決定 commit 前必須通過哪些檢查、稽核專案實際強制了哪些品質關卡、確認是否已可簽入。
+  Not for: 執行關卡流程或中止 commit——該部分已移至採用層（XSPEC-095）；找出並清除除錯殘留——請用 /sweep。
+  Keywords: check-in, pre-commit, quality gate, commit readiness, never commit, 簽入, 提交前檢查, 品質關卡, 檢查清單.
+allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm test:*), Bash(npm run lint:*)
+---
+<!-- 棄用說明（XSPEC-086 Phase 4，2026-04-28）：
+  簽入工作流程協調（關卡執行序列、abort 邏輯）已移至採用層
+  （XSPEC-095，2026-04-28）。本 Skill 保留：品質關卡定義、檢查清單項目、
+  never-commit 規則。
+  需要強制執行時，請使用你的採用層工具鏈。
+-->
+
+# 簽入助手
+
+> **語言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
+
+> ⚠️ **狀態：參考用（非可執行流程）** — 簽入流程協調（關卡執行序列、abort 邏輯）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留品質關卡定義、檢查清單項、never-commit 規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
+
+在提交程式碼前驗證品質關卡，確保程式碼庫的穩定性。
+
+## 工作流程
+
+> 📖 以下為流程的**參考結構**，非可執行步驟；自動化／強制執行請用 adoption layer 工具鏈（XSPEC-095）。
+
+1. **檢查 git 狀態** - 執行 `git status` 和 `git diff` 了解待提交的變更
+2. **執行測試** - 執行 `npm test`（或專案測試指令）驗證所有測試通過
+3. **執行程式碼檢查** - 執行 `npm run lint` 檢查程式碼風格合規
+4. **驗證品質關卡** - 根據以下清單逐項檢查
+5. **報告結果** - 呈現通過/失敗摘要並建議後續步驟
+
+## 品質關卡
+
+| 關卡 | 檢查項目 | Check |
+|------|---------|-------|
+| **建置** | 編譯零錯誤 | Code compiles with zero errors |
+| **測試** | 所有測試通過（100%） | All existing tests pass |
+| **覆蓋率** | 覆蓋率未下降 | Test coverage not decreased |
+| **程式碼品質** | 符合編碼規範、無程式碼異味 | Follows coding standards |
+| **安全性** | 無硬編碼密鑰或漏洞 | No hardcoded secrets |
+| **文件** | API 文件和 CHANGELOG 已更新 | Documentation updated |
+| **工作流程** | 分支命名和提交訊息格式正確 | Branch naming and commit correct |
+| **上游檔案** | `.standards/` 或 `.claude/skills/` 無修改（建議性） | No UDS upstream file modifications (advisory) |
+
+## 禁止提交的情況
+
+- 建置有錯誤 | Build has errors
+- 測試失敗 | Tests are failing
+- 功能不完整會破壞現有功能 | Feature is incomplete and would break functionality
+- 關鍵邏輯中有 WIP/TODO | Contains WIP/TODO in critical logic
+- 包含除錯程式碼（console.log、print） | Contains debugging code
+- 包含被註解的程式碼區塊 | Contains commented-out code blocks
+
+## 使用方式
+
+- `/checkin` - 對目前變更執行完整品質關卡驗證
+- 驗證通過後，使用 `/commit` 建立 commit message
+
+## 下一步引導
+
+`/checkin` 完成後，AI 助手應建議：
+
+> **品質關卡驗證完成。建議下一步：**
+> - 全部通過 ✅ → 執行 `/commit` 提交變更 ⭐ **推薦**
+> - 有失敗項目 ❌ → 修復問題後重新執行 `/checkin`
+> - 需要程式碼審查 → 執行 `/code-review` 進行自我審查
+> - UDS 安裝有異常 → 執行 `/audit` 診斷問題
+
+## 參考
+
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[checkin-standards.md](../../../../core/checkin-standards.md)
+
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/checkin`](../../../../skills/commands/checkin.md#ai-agent-behavior--ai-代理行為)

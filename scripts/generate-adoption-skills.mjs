@@ -88,6 +88,28 @@
  * frozen tree keeps its own clock in
  * `scripts/self-adoption-skills-baseline.json`.
  *
+ * ── `.agents/skills/` — Antigravity (and Codex) — XSPEC-488 R3 ──────────────
+ * Google Antigravity reads project skills from `.agents/skills/` (the path table in
+ * cli/src/config/ai-agent-paths.js, confirmed there against the agy binary). Installing that copy with
+ * `uds config --type skills --ai-tool antigravity` would have left it outside this gate: nothing would notice
+ * when `skills/` moved on, which is the quiet failure XSPEC-385 exists to stop. So the copy is derived here,
+ * by the same registry walk as `.claude/skills/`, and `--check` and `--self-test` cover both.
+ *
+ * Nothing about that copy is special-cased by directory name. It is a target because the registry lists
+ * antigravity with `supportsSkills`, the path table gives it a project skills path, and the directory exists.
+ * Two things were needed beyond that:
+ *   - The directory has a `.manifest.json` with the adopted locale, like any target. It is the one input that
+ *     cannot be derived (zh-TW here, the same as `.claude/skills/`).
+ *   - Codex reads the very same `.agents/skills/`. A directory is one target, so `oneTargetPerDirectory`
+ *     collapses the two registry agents into one, and the manifest's `agent` says which one it was adopted for.
+ *
+ * Is the CONTENT the same as for Claude Code? Measured 2026-10-15 instead of assumed: the CLI's
+ * `installSkillsForAgent` was run for antigravity, claude-code and codex with locale zh-TW into three empty
+ * directories. `diff -r` between them: the `.manifest.json` `agent` line, nothing else. The installer has no
+ * per-agent branch for skills; locale, the frontmatter merge and the per-file fallback are agent-independent.
+ * Against the committed `.claude/skills/`: the manifest, plus `_shared/`, `agents/` and `workflows/`, which
+ * the installer does not write (they are "left alone" below and are not part of what `uds` installs).
+ *
  * ── What may be deleted, decided by provenance rather than by a list ────────
  * A directory under a target is removed only when it carries a `SKILL.md` with
  * a frontmatter `source:` pointer — UDS's own installer stamp — and its name is
@@ -172,6 +194,22 @@
  *   unmeasured  — --bogus                                                → rc 2
  *   --self-test — 9/9 arms fired (1 exclusion, 1 green, 3 reds,
  *                 1 no-delete, 2 underivable, 1 flag rejection)          → rc 0
+ *
+ * ── Measured arms, 2026-10-15, XSPEC-488 R3 (`.agents/skills` joins the gate) ─
+ *   check       — 2 targets (.agents/skills as antigravity, .claude/skills as claude-code),
+ *                 codex excluded as sharing .agents/skills                    → rc 0
+ *   red         — .agents/skills/commit-standards/ deleted: 4 MISSING items, all under
+ *                 .agents/skills/, none under .claude/skills/                  → rc 1
+ *   red         — `name:` of skills/commit-standards/SKILL.md edited, nothing regenerated:
+ *                 DIFFERS on .agents/skills/commit-standards/SKILL.md AND on
+ *                 .claude/skills/commit-standards/SKILL.md                     → rc 1
+ *   cut         — the `oneTargetPerDirectory` call removed: --self-test reports
+ *                 "expected exactly 2 targets … got 3" (rc 2) and two integration tests go red
+ *   cut         — `.agents` skipped in discoverTargets: plain --check stays green (rc 0), which is
+ *                 why --self-test (rc 2: "got 1") and the six integration tests
+ *                 (cli/tests/integration/xspec-488-r3-agents-adoption-skills.test.js) exist
+ *   --self-test — 14/14 arms fired (the 9 above, doubled where an arm now runs per copy, plus 2 for
+ *                 the shared directory and 1 for "both copies out of date")      → rc 0
  *
  * The no-delete arm is there because the dangerous failure of a generator that
  * prunes is not that it misses something — it is that it deletes something it
@@ -383,7 +421,57 @@ export function discoverTargets(repoRoot) {
     targets.push({ agent: agentKey, dir: rel, abs });
   }
 
-  return { targets, excluded };
+  return { targets: oneTargetPerDirectory(targets, excluded), excluded };
+}
+
+/**
+ * Two agents may share one skills directory: Codex and Antigravity both read `.agents/skills/`
+ * (cli/src/config/ai-agent-paths.js). The registry walk above yields one candidate per AGENT, so the same
+ * directory would be derived twice, with a different `agent` in its `.manifest.json` each time — the second
+ * write overwrites the first and `--check` can never be green. A directory is one target.
+ *
+ * Which agent the directory was adopted for is the same kind of fact as its locale: not derivable from any
+ * source, recorded in the target's own `.manifest.json`. So that field decides, and a manifest that does not
+ * name one of the claimants is "could not derive" — never "pick the alphabetically first".
+ *
+ * Content does not depend on the agent: the CLI's `installSkillsForAgent` writes the same files for
+ * antigravity, codex and claude-code, and only the manifest's `agent` line differs (checked 2026-10-15 by
+ * installing all three into a throwaway dir and `diff -r`; the e2e test for XSPEC-488 R3 repeats that check).
+ * That is why one derivation can serve every agent that reads the directory.
+ */
+function oneTargetPerDirectory(candidates, excluded) {
+  const byDir = new Map();
+  for (const c of candidates) byDir.set(c.dir, [...(byDir.get(c.dir) ?? []), c]);
+
+  const targets = [];
+  for (const [dir, group] of byDir) {
+    if (group.length === 1) {
+      targets.push(group[0]);
+      continue;
+    }
+    const claimants = group.map((g) => g.agent);
+    const manifest = join(group[0].abs, MANIFEST_NAME);
+    const recorded = existsSync(manifest) ? readJsonOrThrow(manifest, `${dir}/${MANIFEST_NAME}`).agent : undefined;
+    const chosen = group.find((g) => g.agent === recorded); // wire:shared-skills-dir-one-target
+    if (!chosen) {
+      throw new Underivable(
+        `${dir} is read by ${claimants.join(' and ')}, so it is one directory with one \`agent\` in its ` +
+          `${MANIFEST_NAME}, and that manifest ${
+            recorded === undefined ? 'does not record one' : `records \`${recorded}\`, which is none of them`
+          }. Set it to one of: ${claimants.join(', ')}.`
+      );
+    }
+    for (const g of group) {
+      if (g === chosen) continue;
+      excluded.push({
+        agent: g.agent,
+        dir,
+        reason: `shares ${dir} with ${chosen.agent} (recorded in ${MANIFEST_NAME}) — one directory, derived once, and read by both`,
+      });
+    }
+    targets.push(chosen);
+  }
+  return targets.sort((a, b) => (a.dir < b.dir ? -1 : 1));
 }
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -621,7 +709,7 @@ function writeTarget(target, derived) {
 // ───────────────────────────────────────────────────────────────────────────
 
 /** Copy the minimum tree this script reads, so arms cannot touch the real repo. */
-function scaffold(base, { withSkills = true, withManifest = true, locale = 'zh-TW' } = {}) {
+function scaffold(base, { withSkills = true, withManifest = true, locale = 'zh-TW', agentsAgent = 'antigravity' } = {}) {
   const root = mkdtempSync(join(base, 'tree-'));
   if (withSkills) cpSync(join(ROOT_DIR, 'skills'), join(root, 'skills'), { recursive: true });
   cpSync(join(ROOT_DIR, 'locales', locale, 'skills'), join(root, 'locales', locale, 'skills'), {
@@ -632,16 +720,24 @@ function scaffold(base, { withSkills = true, withManifest = true, locale = 'zh-T
   mkdirSync(join(root, 'cli'), { recursive: true });
   cpSync(join(ROOT_DIR, 'cli', 'package.json'), join(root, 'cli', 'package.json'));
   mkdirSync(join(root, '.claude', 'skills'), { recursive: true });
+  // `.agents/skills` is read by two registry agents (antigravity and codex); the manifest says which one the
+  // directory was adopted for. The scaffold copies the real REGISTRY.json, so that collision is the real one.
+  mkdirSync(join(root, '.agents', 'skills'), { recursive: true });
   // A frozen deprecated tree, present on disk — the real `.gemini/skills/`
   // shape. Arm 0 requires it to be excluded for being deprecated, not for
   // being absent, which is the difference between the rule and an accident.
   mkdirSync(join(root, '.gemini', 'skills', 'placeholder'), { recursive: true });
   writeFileSync(join(root, '.gemini', 'skills', 'placeholder', 'SKILL.md'), `---\nname: frozen\n---\n\n# frozen\n`);
   if (withManifest) {
-    writeFileSync(
-      join(root, '.claude', 'skills', MANIFEST_NAME),
-      JSON.stringify({ version: '0.0.0', source: 'universal-dev-standards', agent: 'claude-code', level: 'project', locale }, null, 2)
-    );
+    for (const [dir, agent] of [
+      [join('.claude', 'skills'), 'claude-code'],
+      [join('.agents', 'skills'), agentsAgent],
+    ]) {
+      writeFileSync(
+        join(root, dir, MANIFEST_NAME),
+        JSON.stringify({ version: '0.0.0', source: 'universal-dev-standards', agent, level: 'project', locale }, null, 2)
+      );
+    }
   }
   return root;
 }
@@ -651,7 +747,9 @@ function selfTest() {
   console.log(`${DIM}Each arm builds a throwaway tree, generates into it, then breaks one thing.${NC}\n`);
 
   let failures = 0;
+  let armCount = 0;
   const report = (ok, name, got) => {
+    armCount++;
     console.log(
       `  ${ok ? `${GREEN}[FIRED]${NC}` : `${RED}[DID NOT FIRE]${NC}`} ${name}\n          ${DIM}${got}${NC}`
     );
@@ -664,8 +762,17 @@ function selfTest() {
 
     const root = scaffold(tmp);
     const { targets, excluded } = discoverTargets(root);
-    if (targets.length !== 1) throw new Underivable(`expected exactly 1 target in the scaffold, got ${targets.length}`);
-    const target = targets[0];
+    // Two live copies: .claude/skills (claude-code) and .agents/skills (antigravity, shared with codex).
+    // If the shared directory were NOT collapsed to one target this would be 3 and `.agents/skills` would be
+    // derived twice with two different manifests.
+    if (targets.length !== 2) {
+      throw new Underivable(
+        `expected exactly 2 targets in the scaffold, got ${targets.length}: ${targets.map((t) => `${t.agent}:${t.dir}`).join(', ')}`
+      );
+    }
+    const target = targets.find((t) => t.dir === '.claude/skills');
+    const agentsTarget = targets.find((t) => t.dir === '.agents/skills');
+    if (!target || !agentsTarget) throw new Underivable('expected targets .claude/skills and .agents/skills');
 
     // Arm 0 — the deprecated integration is excluded, and by reading the
     // registry rather than by name. Without this the whole exclusion is a claim.
@@ -676,40 +783,88 @@ function selfTest() {
       gem ? gem.reason : 'gemini-cli was not in the exclusion list at all'
     );
 
+    // Arm 0b — a directory read by two agents is ONE target, and the manifest picks which agent it is.
+    const cdx = excluded.find((e) => e.agent === 'codex');
+    report(
+      agentsTarget.agent === 'antigravity' && Boolean(cdx && /shares \.agents\/skills with antigravity/.test(cdx.reason)),
+      '.agents/skills (antigravity + codex) is derived once, as the agent its manifest names',
+      `target agent ${agentsTarget.agent}; codex: ${cdx ? cdx.reason : 'not excluded — it would be derived a second time'}`
+    );
+
+    // Arm 0c — a manifest naming neither claimant is "could not derive", not "take the first one".
+    let sharedUnresolved = false;
+    let sharedMsg = '';
+    try {
+      discoverTargets(scaffold(tmp, { agentsAgent: 'some-other-agent' }));
+    } catch (e) {
+      sharedUnresolved = e instanceof Underivable;
+      sharedMsg = e.message;
+    }
+    report(
+      sharedUnresolved,
+      'a shared directory whose manifest names none of its agents → Underivable, not a guess',
+      sharedMsg.slice(0, 110)
+    );
+
     // Arm 1 — the green arm. Without it every red arm below proves nothing.
-    writeTarget(target, deriveTarget(root, target));
-    const green = driftOf(target, deriveTarget(root, target));
-    report(green.length === 0, 'freshly generated tree checks clean', `${green.length} drift item(s)`);
+    for (const t of targets) writeTarget(t, deriveTarget(root, t));
+    const green = targets.flatMap((t) => driftOf(t, deriveTarget(root, t)));
+    report(
+      green.length === 0,
+      `freshly generated tree checks clean — all ${targets.length} copies`,
+      `${green.length} drift item(s)`
+    );
 
     const ids = sourceSkillIds(root);
     const [v1, v2] = [...ids].sort();
 
-    // Arm 2 — one line hand-edited. The commonest real drift.
-    const f1 = join(target.abs, v1, 'SKILL.md');
-    writeFileSync(f1, readFileSync(f1, 'utf8').replace(/^\s*Use when:.*$/im, '  Use when: something else'));
-    const d2 = driftOf(target, deriveTarget(root, target));
-    report(
-      d2.length === 1 && d2[0].path.includes(`${v1}/SKILL.md`) && d2[0].kind === 'differs',
-      `a hand edit in ${v1}/SKILL.md → drift, naming that file and no other`,
-      d2.map((d) => `${d.kind}:${d.path}`).join(', ') || 'no drift at all'
-    );
-    writeTarget(target, deriveTarget(root, target)); // restore
+    // Arms 2 and 3 run against EVERY live copy, not only the first: a gate that covers `.claude/skills` but
+    // not `.agents/skills` would pass the arms for one and say nothing about the other (XSPEC-488 R3).
+    for (const t of targets) {
+      // Arm 2 — one line hand-edited. The commonest real drift.
+      const f1 = join(t.abs, v1, 'SKILL.md');
+      writeFileSync(f1, readFileSync(f1, 'utf8').replace(/^\s*Use when:.*$/im, '  Use when: something else'));
+      const d2 = driftOf(t, deriveTarget(root, t));
+      report(
+        d2.length === 1 && d2[0].path === `${t.dir}/${v1}/SKILL.md` && d2[0].kind === 'differs',
+        `a hand edit in ${t.dir}/${v1}/SKILL.md → drift, naming that file and no other`,
+        d2.map((d) => `${d.kind}:${d.path}`).join(', ') || 'no drift at all'
+      );
+      writeTarget(t, deriveTarget(root, t)); // restore
 
-    // Arm 3 — a skill directory deleted. Missing must be a failure, not a skip.
-    rmSync(join(target.abs, v2), { recursive: true, force: true });
-    const d3 = driftOf(target, deriveTarget(root, target));
+      // Arm 3 — a skill directory deleted. Missing must be a failure, not a skip.
+      rmSync(join(t.abs, v2), { recursive: true, force: true });
+      const d3 = driftOf(t, deriveTarget(root, t));
+      report(
+        d3.some((d) => d.kind === 'missing' && d.path.includes(`${t.dir}/${v2}/`)),
+        `${t.dir}/${v2}/ deleted → reported missing, not skipped`,
+        d3.filter((d) => d.kind === 'missing').map((d) => d.path).join(', ') || 'nothing reported missing'
+      );
+      writeTarget(t, deriveTarget(root, t)); // restore
+    }
+
+    // Arm 3b — a source skill changes and nobody regenerates: BOTH copies must say so. `name:` is one of the
+    // frontmatter fields taken from skills/ even for a localized copy, so this edit reaches the zh-TW output.
+    const srcSkill = join(root, 'skills', v1, 'SKILL.md');
+    writeFileSync(srcSkill, readFileSync(srcSkill, 'utf8').replace(/^name:\s*(.+)$/m, 'name: $1-edited'));
+    const stale = targets.map((t) => ({
+      t,
+      drift: driftOf(t, deriveTarget(root, t)).filter((d) => d.kind === 'differs' && d.path === `${t.dir}/${v1}/SKILL.md`),
+    }));
     report(
-      d3.some((d) => d.kind === 'missing' && d.path.includes(`${v2}/`)),
-      `${v2}/ deleted → reported missing, not skipped`,
-      d3.filter((d) => d.kind === 'missing').map((d) => d.path).join(', ') || 'nothing reported missing'
+      stale.every((x) => x.drift.length === 1),
+      `skills/${v1}/SKILL.md changed, nothing regenerated → ${targets.map((t) => t.dir).join(' and ')} both reported out of date`,
+      stale.map((x) => `${x.t.dir}: ${x.drift.length} item(s)`).join('; ')
     );
-    writeTarget(target, deriveTarget(root, target)); // restore
+    for (const t of targets) writeTarget(t, deriveTarget(root, t)); // pick up the new source
+    writeFileSync(srcSkill, readFileSync(srcSkill, 'utf8').replace(/-edited$/m, '')); // and put the source back
+    for (const t of targets) writeTarget(t, deriveTarget(root, t));
 
     // Arm 4 — a stale UDS-derived directory. This is the shape of the four
     // pre-rename leftovers, and it must be caught by provenance, not by name.
-    const stale = join(target.abs, 'zz-renamed-away');
-    mkdirSync(stale, { recursive: true });
-    writeFileSync(join(stale, 'SKILL.md'), `---\nsource: ../../../../skills/gone/SKILL.md\nname: gone\n---\n\n# gone\n`);
+    const staleDir = join(target.abs, 'zz-renamed-away');
+    mkdirSync(staleDir, { recursive: true });
+    writeFileSync(join(staleDir, 'SKILL.md'), `---\nsource: ../../../../skills/gone/SKILL.md\nname: gone\n---\n\n# gone\n`);
     const d4 = driftOf(target, deriveTarget(root, target));
     report(
       d4.some((d) => d.kind === 'stale' && d.path.includes('zz-renamed-away')),
@@ -773,9 +928,7 @@ function selfTest() {
     console.log(`${RED}  Until they do, a clean run of this gate means nothing.${NC}\n`);
     return 1;
   }
-  console.log(
-    `${GREEN}${BOLD}✓ All 9 arms behaved as required — 1 exclusion, 1 green, 3 reds, 1 no-delete, 2 underivable, 1 flag rejection.${NC}\n`
-  );
+  console.log(`${GREEN}${BOLD}✓ All ${armCount} arms behaved as required.${NC}\n`);
   return 0;
 }
 

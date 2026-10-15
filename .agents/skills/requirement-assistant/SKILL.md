@@ -1,0 +1,91 @@
+---
+name: requirement
+source: ../../../../skills/requirement-assistant/SKILL.md
+source_version: 1.0.0
+translation_version: 1.1.0
+last_synced: 2026-10-12
+source_hash: 8d19b66b3220
+status: current
+scope: universal
+description: |
+  [UDS] 撰寫符合 INVEST 準則的使用者故事與需求。
+  Use when: 把一個功能構想轉成使用者故事、定義可測試的驗收條件、檢視待辦項目的品質。
+  Not for: 帶有設計與差異操作的完整規格文件——請用 /sdd；判斷這個構想本身對不對——請用 /brainstorm。
+  Keywords: requirement, user story, INVEST, acceptance criteria, backlog refinement, 需求, 使用者故事, 驗收條件, 待辦整理.
+allowed-tools: Read, Write, Grep
+argument-hint: "[feature description | 功能描述]"
+---
+
+# 需求助手
+
+> **語言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 繁體中文
+
+撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
+
+## 工作流程
+
+1. **理解情境** - 收集功能資訊
+2. **識別利害關係人** - 誰從這個功能受益？
+3. **撰寫使用者故事** - 遵循標準格式
+4. **定義驗收條件** - 具體、可測試的條件
+5. **以 INVEST 驗證** - 檢查品質準則
+
+## 使用者故事格式
+
+```markdown
+As a [role],
+I want [feature],
+So that [benefit].
+
+### Acceptance Criteria
+
+- [ ] Given [context], when [action], then [result]
+- [ ] Given [context], when [action], then [result]
+```
+
+## INVEST 準則
+
+| 準則 | 說明 | Criterion | Description |
+|------|------|-----------|-------------|
+| **I**ndependent | 可獨立開發 | Independent | Can be developed separately |
+| **N**egotiable | 可協商細節 | Negotiable | Details can be discussed |
+| **V**aluable | 提供使用者價值 | Valuable | Delivers value to user |
+| **E**stimable | 可估算工作量 | Estimable | Can estimate effort |
+| **S**mall | 適合單一迭代 | Small | Fits in one sprint |
+| **T**estable | 有明確測試標準 | Testable | Has clear test criteria |
+
+## 品質檢查清單
+
+- [ ] 使用者故事遵循「As a / I want / So that」格式
+- [ ] 至少定義 2 個驗收條件
+- [ ] 滿足全部 6 個 INVEST 準則
+- [ ] 已考慮邊界案例和錯誤情境
+- [ ] 已記錄範圍外項目
+
+## 使用方式
+
+```
+/requirement                         - 互動式需求撰寫精靈
+/requirement user login              - 為功能撰寫需求
+/requirement "users can export data" - 根據描述撰寫需求
+```
+
+## 下一步引導
+
+`/requirement` 完成後，AI 助手應建議：
+
+> **需求文件已完成。建議下一步：**
+> - 執行 `/sdd` 建立規格文件 ⭐ **推薦**
+> - 執行 `/atdd` 定義驗收測試
+> - 執行 `/brainstorm` 進一步探索需求空間
+
+## 參考
+
+- [需求完整性檢查清單](./requirement-checklist.md) — 要在需求被接受之前檢查它完不完整時讀它。
+- [需求撰寫指南](./requirement-writing.md) — 要從零開始寫一份需求時讀它。
+- 詳細指南：[guide.md](./guide.md)
+- 核心規範：[requirement-engineering.md](../../../../core/requirement-engineering.md)
+
+## AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/requirement`](../../../../skills/commands/requirement.md#ai-agent-behavior--ai-代理行為)
