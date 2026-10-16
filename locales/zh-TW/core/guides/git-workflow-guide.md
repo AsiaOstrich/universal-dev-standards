@@ -1,30 +1,44 @@
 ---
 source: ../../../../core/guides/git-workflow-guide.md
-source_version: 1.3.0
-translation_version: 1.3.0
-last_synced: 2026-01-24
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-10-16
+source_hash: f27182c48509
 status: current
 ---
 
-# Git 工作流程標準
+# Git 工作流程指南
 
-> **語言**: [English](../../../../core/git-workflow.md) | 繁體中文
+> **語言**: [English](../../../../core/guides/git-workflow-guide.md) | 繁體中文
 
-**版本**: 1.3.0
-**最後更新**: 2026-01-24
-**適用範圍**: 所有使用 Git 版本控制的專案
+**版本**: 1.0.0
+**最後更新**: 2026-01-29
+**相關標準**: [Git 工作流程標準](../git-workflow.md)
 
 ---
 
 ## 目的
 
-本標準定義 Git 分支策略與工作流程，確保團隊與專案間的一致、可預測的協作模式。
+本指南提供 Git 工作流程策略的詳細說明、教學與範例。有關可執行的規則與檢查清單，請參閱 [Git 工作流程標準](../git-workflow.md)。
 
 ---
 
-## 工作流程策略選擇
+## 目錄
 
-**專案必須選擇一種**工作流程策略並明確記錄。
+1. [工作流程選擇指南](#workflow-selection-guide)
+2. [GitFlow 詳細教學](#gitflow-detailed-tutorial)
+3. [GitHub Flow 詳細教學](#github-flow-detailed-tutorial)
+4. [Trunk-Based Development 教學](#trunk-based-development-tutorial)
+5. [功能開關實作](#feature-flags-implementation)
+6. [Ship/Show/Ask 決策模型](#shipshowask-decision-model)
+7. [堆疊式 PR 工作流程](#stacked-prs-workflow)
+8. [傳統式 PR 標題指南](#conventional-pr-titles-guide)
+9. [Git 指令參考](#git-commands-reference)
+10. [疑難排解指南](#troubleshooting-guide)
+
+---
+
+## 工作流程選擇指南
 
 ### 決策樹
 
@@ -34,7 +48,6 @@ status: current
                     ┌─────────────────────────────────────┐
                     │ How often do you deploy to         │
                     │ production?                        │
-                    │ 您多常部署到正式環境？                │
                     └───────────────┬─────────────────────┘
                                     │
             ┌───────────────────────┼───────────────────────┐
@@ -42,7 +55,6 @@ status: current
    ┌────────────────┐    ┌────────────────┐    ┌────────────────┐
    │ Multiple times │    │ Weekly to      │    │ Monthly or     │
    │ per day        │    │ bi-weekly      │    │ longer         │
-   │ 每天多次        │    │ 每週或雙週      │    │ 每月或更久      │
    └───────┬────────┘    └───────┬────────┘    └───────┬────────┘
            │                     │                     │
            ▼                     ▼                     ▼
@@ -97,11 +109,11 @@ status: current
 
 1. **記錄在專案 README** 或 CONTRIBUTING.md 中：
    ```markdown
-   ## Git 工作流程
-   本專案使用 **GitHub Flow**。
-   - 決定日期：2025-01-15
-   - 決定者：@techlead
-   - 理由：每週部署，單一正式版本
+   ## Git Workflow
+   This project uses **GitHub Flow**.
+   - Decision date: 2025-01-15
+   - Decision maker: @techlead
+   - Rationale: Weekly deployments, single production version
    ```
 
 2. **設定分支保護**規則以強制執行所選的工作流程。
@@ -112,10 +124,13 @@ status: current
 
 ---
 
-## 策略 A: GitFlow
+## GitFlow 詳細教學
 
 **最適合**:
-定期發布（每月、每季）、同時維護多個正式版本、開發與正式環境明確分離、大型團隊與正式發布流程
+- 定期發布（每月、每季）
+- 同時維護多個正式版本
+- 開發與正式環境明確分離
+- 擁有正式發布流程的大型團隊
 
 ### 分支結構
 
@@ -130,16 +145,6 @@ release/*                      ●───● (Release preparation)
                                    ╱
 hotfix/*                      ────● (Emergency fixes)
 ```
-
-### 分支類型
-
-| 分支類型 | 目的 | 基礎分支 | 合併目標 | 生命週期 |
-|---------|------|---------|----------|---------|
-| `main` | 正式環境程式碼 | - | - | 永久 |
-| `develop` | 整合分支 | - | - | 永久 |
-| `feature/*` | 新功能 | `develop` | `develop` | 暫時 |
-| `release/*` | 發布準備 | `develop` | `main` + `develop` | 暫時 |
-| `hotfix/*` | 緊急修復 | `main` | `main` + `develop` | 暫時 |
 
 ### 工作流程步驟
 
@@ -171,7 +176,7 @@ git push origin --delete feature/oauth-login
 
 #### 2. 發布準備
 
-> **變更日誌更新**：將 `[Unreleased]` 的條目移至新版本區段並加上發布日期。詳細指南請參閱 [changelog-standards.md](../../../../core/changelog-standards.md)。
+> **CHANGELOG 更新**：將條目從 `[Unreleased]` 移至新版本區段並加上發布日期。詳細指南請參閱 [changelog-standards.md](../changelog-standards.md)。
 
 ```bash
 # Create release branch from develop
@@ -232,10 +237,13 @@ git push origin --delete hotfix/critical-security-fix
 
 ---
 
-## 策略 B: GitHub Flow
+## GitHub Flow 詳細教學
 
 **最適合**:
-持續部署、Web 應用程式、中小型團隊、快速迭代週期
+- 持續部署
+- Web 應用程式
+- 中小型團隊
+- 快速迭代週期
 
 ### 分支結構
 
@@ -246,15 +254,6 @@ feature/*       ●───●───●      ╱  (Feature + PR)
                               ╱
 bugfix/*                 ────●  (Bug fixes)
 ```
-
-### 分支類型
-
-| 分支類型 | 目的 | 基礎分支 | 合併目標 | 生命週期 |
-|---------|------|---------|----------|---------|
-| `main` | 正式環境程式碼 | - | - | 永久 |
-| `feature/*` | 新功能 | `main` | `main` | 暫時 |
-| `bugfix/*` | Bug 修復 | `main` | `main` | 暫時 |
-| `hotfix/*` | 緊急修復 | `main` | `main` | 暫時 |
 
 ### 工作流程步驟
 
@@ -292,10 +291,13 @@ git pull origin main
 
 ---
 
-## 策略 C: Trunk-Based Development
+## Trunk-Based Development 教學
 
 **最適合**:
-成熟的 CI/CD 管道、高信任度且經驗豐富的團隊、頻繁整合（每天多次）、使用功能開關控制未完成功能
+- 成熟的 CI/CD 管線
+- 高信任度且經驗豐富的團隊
+- 頻繁整合（每天多次）
+- 使用功能開關控制未完成功能
 
 ### 分支結構
 
@@ -304,13 +306,6 @@ main  ────●─●─●─●─●─●─●──► (Single long-
            ╲│╱ ╲│╱ ╲│╱
 feature/*   ●   ●   ●  (Very short-lived, ≤2 days)
 ```
-
-### 分支類型
-
-| 分支類型 | 目的 | 基礎分支 | 合併目標 | 生命週期 |
-|---------|------|---------|----------|---------|
-| `main` | 主幹 | - | - | 永久 |
-| `feature/*` | 小型變更 | `main` | `main` | ≤2 天 |
 
 ### 工作流程步驟
 
@@ -350,7 +345,7 @@ git push origin --delete feature/add-validation
 
 ---
 
-## Trunk-Based Development 與功能開關
+## 功能開關實作
 
 ### 為何功能開關不可或缺
 
@@ -358,18 +353,59 @@ git push origin --delete feature/add-validation
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                       程式碼生命週期                              │
+│                    Code Lifecycle                                │
 ├─────────────────────────────────────────────────────────────────┤
-│   合併到 main      部署到正式環境      對使用者啟用               │
-│      │                 │                   │                     │
-│      ▼                 ▼                   ▼                     │
+│                                                                  │
+│   Merge to main    Deploy to Prod    Enable for Users           │
+│        │                │                   │                    │
+│        ▼                ▼                   ▼                    │
 │   ┌─────────┐      ┌─────────┐        ┌─────────┐              │
-│   │  提交   │─────►│  部署   │───────►│  發布   │              │
-│   │ (程式碼) │      │ (二進位) │        │ (使用者) │              │
+│   │ Commit  │─────►│ Deploy  │───────►│ Release │              │
+│   │ (Code)  │      │ (Binary)│        │ (Users) │              │
 │   └─────────┘      └─────────┘        └─────────┘              │
-│                         └────── 功能開關 ──────┘                 │
-│                              (解耦)                              │
+│                         │                   │                    │
+│                         │    Feature Flag   │                    │
+│                         └───────────────────┘                    │
+│                              (Decoupled)                         │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+### 實作模式
+
+**基本切換**：
+
+```javascript
+// Simple on/off flag
+if (featureFlags.isEnabled('new-checkout-flow')) {
+  return newCheckoutFlow(cart);
+} else {
+  return legacyCheckoutFlow(cart);
+}
+```
+
+**逐步推出**：
+
+```javascript
+// Percentage-based rollout
+const flag = featureFlags.get('new-checkout-flow');
+if (flag.isEnabledForPercentage(user.id, 10)) {
+  // 10% of users see new flow
+  return newCheckoutFlow(cart);
+}
+```
+
+**使用者分群鎖定**：
+
+```javascript
+// Target specific user segments
+if (featureFlags.isEnabledFor('new-checkout-flow', {
+  userId: user.id,
+  plan: user.plan,        // e.g., 'enterprise'
+  region: user.region,    // e.g., 'asia-pacific'
+  betaTester: user.isBetaTester
+})) {
+  return newCheckoutFlow(cart);
+}
 ```
 
 ### 功能開關生命週期
@@ -383,6 +419,25 @@ git push origin --delete feature/add-validation
 | 完整發布 | 對所有人開啟 | 預設行為 |
 | 清理 | 移除開關 | 技術債清理 |
 
+### 開關衛生最佳實踐
+
+1. **具描述性地命名開關**：`enable-new-checkout-v2` 而非 `flag-123`
+2. **設定到期日**：審查並移除陳舊開關
+3. **限制使用中開關數量**：過多開關 = 複雜度
+4. **記錄開關用途**：內容、原因以及何時移除
+
+```javascript
+// Flag metadata example
+{
+  "name": "enable-new-checkout-v2",
+  "description": "New checkout flow with improved UX",
+  "owner": "checkout-team",
+  "createdAt": "2026-01-15",
+  "targetRemovalDate": "2026-03-15",
+  "status": "gradual-rollout"
+}
+```
+
 ---
 
 ## Ship/Show/Ask 決策模型
@@ -391,25 +446,131 @@ git push origin --delete feature/add-validation
 
 並非所有變更都需要相同的審查流程。Ship/Show/Ask 模型幫助團隊決定：
 
-| 模式 | 說明 | 適用時機 |
-|------|------|---------|
-| **SHIP** | 直接推送到 main | 低風險、高信心 |
-| **SHOW** | 合併後通知團隊 | 中等風險、需要知會 |
-| **ASK** | 開 PR，等待審批 | 高風險、需要討論 |
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Ship / Show / Ask                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   SHIP                SHOW                ASK                    │
+│   ────                ────                ───                    │
+│   Push directly       Merge, then         Open PR, wait          │
+│   to main            notify team         for approval            │
+│                                                                  │
+│   Low risk           Medium risk         High risk               │
+│   High confidence    Need awareness      Need discussion         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### 何時 Ship（直接推送）
 
+**準則**：
+- 小型、低風險變更
+- 對正確性具有高度信心
+- 若出錯容易還原
+- 健全的測試覆蓋率
+
+**範例**：
 - 文件中的錯字修正
 - 新增除錯日誌
 - 更新依賴（CI 通過時）
+- 設定變更（非破壞性）
 - 明顯的 bug 修復（有測試）
+
+```bash
+# Ship: Direct push to main
+git checkout main
+git pull origin main
+# Make small change
+git add .
+git commit -m "fix: correct typo in error message"
+git push origin main
+```
+
+### 何時 Show（合併後通知）
+
+**準則**：
+- 團隊應該知悉
+- 程式碼審查是可有可無（錦上添花），不具阻塞性
+- 變更單純直接
+- 希望獲得回饋但非阻塞式核准
+
+**範例**：
+- 改善程式碼品質的重構
+- 為既有功能新增測試
+- 非關鍵的功能增強
+- 更新內部文件
+
+```bash
+# Show: Merge and notify
+git checkout -b refactor/extract-validation
+# Make changes
+git add .
+git commit -m "refactor: extract validation logic"
+git push origin refactor/extract-validation
+
+# Create PR and immediately merge (no blocking review)
+gh pr create --title "refactor: extract validation logic" --body "FYI: Extracting validation for reuse"
+gh pr merge --auto --squash
+
+# Notify team in Slack/Teams
+```
 
 ### 何時 Ask（PR 加阻塞審查）
 
+**準則**：
 - 架構決策
 - 重大變更
 - 安全敏感程式碼
+- 新模式或慣例
+- 您不確定的變更
+
+**範例**：
+- 新 API 端點
+- 資料庫 schema 變更
+- 身分驗證／授權變更
 - 共用函式庫的變更
+- 效能關鍵程式碼
+
+```bash
+# Ask: Full PR process
+git checkout -b feature/new-auth-flow
+# Make changes
+git push origin feature/new-auth-flow
+
+# Create PR and request review
+gh pr create --title "feat(auth): implement OAuth2 PKCE flow" \
+  --body "## What\nNew authentication flow\n\n## Why\nImproved security" \
+  --reviewer security-team,backend-team
+```
+
+### 決策流程圖
+
+```
+┌────────────────────────────────────────┐
+│ Is this change risky or complex?       │
+└────────────────────┬───────────────────┘
+                     │
+         ┌───────────┴───────────┐
+         ▼                       ▼
+        YES                      NO
+         │                       │
+         ▼                       ▼
+┌─────────────────┐    ┌────────────────────────┐
+│ Does it need    │    │ Should team be aware?  │
+│ discussion?     │    └───────────┬────────────┘
+└────────┬────────┘                │
+         │                ┌────────┴────────┐
+    ┌────┴────┐           ▼                 ▼
+    ▼         ▼          YES                NO
+   YES        NO          │                 │
+    │         │           ▼                 ▼
+    ▼         ▼     ┌──────────┐      ┌──────────┐
+┌───────┐ ┌───────┐ │   SHOW   │      │   SHIP   │
+│  ASK  │ │  ASK  │ │ (notify) │      │ (direct) │
+│(review)│ │(review)│ └──────────┘      └──────────┘
+└───────┘ └───────┘
+```
 
 ---
 
@@ -420,27 +581,123 @@ git push origin --delete feature/add-validation
 堆疊式 PR 將大型功能拆分為可漸進審查的較小、相依的 pull request：
 
 ```
-main ────●─────────────────────────────────────────►
-          ╲
-           PR #1 (資料庫 schema) ────●
-                                      ╲
-                                       PR #2 (API) ────●
-                                                        ╲
-                                                   PR #3 (UI) ●
+┌─────────────────────────────────────────────────────────────────┐
+│                    Stacked PRs Structure                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   main ────●─────────────────────────────────────────►          │
+│             ╲                                                    │
+│              PR #1 (Database schema) ────●                       │
+│                                           ╲                      │
+│                                            PR #2 (API) ────●     │
+│                                                            ╲     │
+│                                                      PR #3 (UI) ●│
+│                                                                  │
+│   Review: PR #1 first, then #2, then #3                         │
+│   Merge: PR #1 → PR #2 → PR #3                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ### 何時使用堆疊式 PR
 
 | 情境 | 推薦使用堆疊式 PR |
 |------|-----------------|
-| 功能 > 500 行 | ✅ 是 |
-| 多個邏輯元件 | ✅ 是 |
-| 需要早期回饋 | ✅ 是 |
-| 簡單 bug 修復 | ❌ 否，使用單一 PR |
+| 功能 > 500 行 | 是 |
+| 多個邏輯元件 | 是 |
+| 需要早期回饋 | 是 |
+| 簡單 bug 修復 | 否，使用單一 PR |
+| 獨立變更 | 否，使用平行 PR |
+
+### 建立堆疊式 PR
+
+**步驟 1：規劃堆疊**
+
+```
+Feature: User Authentication
+├── PR #1: Database schema for users table
+├── PR #2: User service and repository
+├── PR #3: REST API endpoints
+└── PR #4: Frontend login form
+```
+
+**步驟 2：建立基礎分支**
+
+```bash
+# Start from main
+git checkout main
+git pull origin main
+
+# Create first PR branch
+git checkout -b feature/auth-1-schema
+# Make database changes
+git add .
+git commit -m "feat(db): add users table schema"
+git push origin feature/auth-1-schema
+```
+
+**步驟 3：堆疊下一個分支**
+
+```bash
+# Branch from previous, NOT from main
+git checkout -b feature/auth-2-service feature/auth-1-schema
+# Make service changes
+git add .
+git commit -m "feat(auth): add user service"
+git push origin feature/auth-2-service
+```
+
+**步驟 4：建立連結的 PR**
+
+```bash
+# PR #1: Against main
+gh pr create --base main --head feature/auth-1-schema \
+  --title "feat(db): add users table schema" \
+  --body "Part 1/4 of user authentication feature"
+
+# PR #2: Against PR #1's branch
+gh pr create --base feature/auth-1-schema --head feature/auth-2-service \
+  --title "feat(auth): add user service" \
+  --body "Part 2/4 - depends on #1"
+```
+
+### 處理基礎 PR 的更新
+
+當 PR #1 在 PR #2 建立後發生變更時：
+
+```bash
+# Rebase PR #2 on updated PR #1
+git checkout feature/auth-2-service
+git fetch origin
+git rebase origin/feature/auth-1-schema
+git push --force-with-lease origin feature/auth-2-service
+```
+
+### 合併堆疊式 PR
+
+```bash
+# Merge in order
+# 1. Merge PR #1 to main (squash or merge commit)
+gh pr merge 1 --squash
+
+# 2. Update PR #2 base to main (GitHub auto-updates)
+# 3. Merge PR #2 to main
+gh pr merge 2 --squash
+
+# Continue for remaining PRs...
+```
+
+### 堆疊式 PR 的工具
+
+| 工具 | 說明 |
+|------|------|
+| [Graphite](https://graphite.dev/) | 專為堆疊式 PR 打造 |
+| [ghstack](https://github.com/ezyang/ghstack) | 用於堆疊 PR 的 CLI |
+| [git-branchless](https://github.com/arxanas/git-branchless) | 進階 Git 工作流程 |
+| 手動 | 使用 git rebase 和 gh CLI |
 
 ---
 
-## 傳統式 PR 標題
+## 傳統式 PR 標題指南
 
 ### 格式
 
@@ -454,368 +711,79 @@ PR 標題應遵循與 commit 訊息相同的格式：
 
 | 類型 | 用途 | 範例 |
 |------|------|------|
-| `feat` | 新功能 | `feat(auth): 新增 OAuth2 登入` |
-| `fix` | Bug 修復 | `fix(api): 處理空值回應` |
-| `docs` | 文件 | `docs(readme): 更新安裝步驟` |
-| `refactor` | 重構 | `refactor(utils): 抽取驗證邏輯` |
-| `test` | 新增測試 | `test(auth): 新增登入單元測試` |
-| `chore` | 維護 | `chore(deps): 更新 lodash 到 4.17.21` |
+| `feat` | 新功能 | `feat(auth): add OAuth2 login` |
+| `fix` | Bug 修復 | `fix(api): handle null response` |
+| `docs` | 文件 | `docs(readme): update install steps` |
+| `refactor` | 程式碼重構 | `refactor(utils): extract validation` |
+| `test` | 新增測試 | `test(auth): add login unit tests` |
+| `chore` | 維護 | `chore(deps): update lodash to 4.17.21` |
+| `perf` | 效能 | `perf(query): optimize user lookup` |
+| `style` | 程式碼風格 | `style(lint): fix eslint warnings` |
+| `ci` | CI/CD 變更 | `ci(actions): add caching step` |
+| `build` | 建置系統 | `build(webpack): upgrade to v5` |
 
 ### 重大變更
 
-用 `!` 在類型後面表示重大變更：
+在類型後加上 `!` 表示重大變更：
 
 ```
-feat(api)!: 變更使用者端點的回應格式
+feat(api)!: change response format for users endpoint
 ```
 
----
+### PR 標題最佳實踐
 
-## 開新分支前檢查清單
-
-開始新功能開發前，完成以下檢查以避免常見問題。
-
-### 適用於 GitFlow 和 GitHub Flow
-
-#### 1. 確認無未合併分支
-
-```bash
-git branch --no-merged main
-# For GitFlow, also check:
-git branch --no-merged develop
+**良好範例**：
+```
+feat(checkout): add Apple Pay support
+fix(auth): prevent session fixation attack
+refactor(orders): extract shipping calculator
+docs(api): document rate limiting headers
+chore(deps): update security patches
 ```
 
-- **如有未合併分支，必須先處理**（合併或關閉）
-- **禁止在有未合併分支的情況下開新功能分支**
-
-#### 2. 同步最新程式碼
-
-```bash
-git checkout main  # or develop for GitFlow
-git pull origin main
+**不良範例**：
+```
+❌ Update code                    (too vague)
+❌ fix bug                        (not descriptive)
+❌ WIP: working on auth          (WIP shouldn't be in title)
+❌ JIRA-1234                      (no description)
+❌ Final fixes                    (meaningless)
 ```
 
-#### 3. 確認測試通過
-
-```bash
-# Run your project's test suite
-npm test        # Node.js
-pytest          # Python
-./gradlew test  # Java/Kotlin
-```
-
-#### 4. 建立分支
-
-```bash
-git checkout -b feature/description
-```
-
-### 為什麼重要
-
-| 跳過檢查的後果 | 影響 |
-|--------------|------|
-| 修復散落各處 | `main` 仍有 bug |
-| 功能互相依賴 | 新分支缺少前一個功能的程式碼 |
-| 合併順序混亂 | 衝突變多、歷史難追蹤 |
-| 測試不完整 | 每個分支只測自己的部分 |
-
-### 適用於 Trunk-Based Development
-
-Trunk-Based Development 因其短命分支特性（≤2 天）有**不同的要求**：
-
-| 檢查項目 | 適用性 | 說明 |
-|---------|-------|------|
-| 確認無未合併分支 | ⚠️ **較不適用** | 設計上分支不應存在超過 2 天 |
-| 同步最新程式碼 | ✅ **關鍵** | 因頻繁整合，更為重要 |
-| 確認測試通過 | ✅ **關鍵** | 自動化是此工作流程的核心 |
-
-**關鍵差異**：若在 Trunk-Based Development 中有超過 2 天的未合併分支，這本身就違反了工作流程原則。重點應放在**頻繁整合**而非檢查未合併分支。
-
----
-
-## 分支命名慣例
-
-### 標準格式
-
-```
-<type>/<short-description>
-```
-
-### 類型
-
-| 類型 | 用途 | 範例 |
-|------|------|------|
-| `feature/` | 新功能 | `feature/oauth-login` |
-| `fix/` 或 `bugfix/` | Bug 修復 | `fix/memory-leak` |
-| `hotfix/` | 緊急正式環境修復 | `hotfix/security-patch` |
-| `refactor/` | 程式碼重構 | `refactor/extract-service` |
-| `docs/` | 僅文件更新 | `docs/api-reference` |
-| `test/` | 測試新增 | `test/integration-tests` |
-| `chore/` | 維護任務 | `chore/update-dependencies` |
-| `release/` | 發布準備 (僅 GitFlow) | `release/v1.2.0` |
-
-### 命名規則
-
-1. **使用小寫**
-2. **使用連字號分隔單詞**
-3. **具描述性但簡潔**
-4. **避免僅用 issue 編號**
-
-**良好範例**:
-```
-feature/user-authentication
-fix/null-pointer-in-payment
-hotfix/critical-data-loss
-refactor/database-connection-pool
-docs/update-installation-guide
-```
-
-**不良範例**:
-```
-feature/123                    # ❌ 沒有描述性
-Fix-Bug                        # ❌ 非小寫，過於籠統
-feature/add_new_feature        # ❌ 使用底線，過於籠統
-myFeature                      # ❌ 駝峰式命名，無類型前綴
-```
-
----
-
-## 合併策略
-
-**專案必須為每種分支類型選擇一種**。
-
-### 選項 1: 合併提交 (--no-ff)
-
-**保留分支歷史**
-
-```bash
-git merge --no-ff feature/user-auth
-```
-
-**優點**:
-- ✅ 完整保留歷史
-- ✅ 易於還原整個功能
-- ✅ 清楚的功能邊界
-
-**缺點**:
-- ❌ Git 日誌雜亂
-- ❌ 複雜的圖形視覺化
-
-**最適合**: GitFlow、長期功能分支
-
----
-
-### 選項 2: 壓縮合併
-
-**將所有提交合併為一個**
-
-```bash
-git merge --squash feature/user-auth
-git commit -m "feat(auth): add user authentication"
-```
-
-**優點**:
-- ✅ 乾淨、線性的歷史
-- ✅ 每個功能一個提交
-- ✅ 易於閱讀的 git 日誌
-
-**缺點**:
-- ❌ 失去詳細歷史
-- ❌ 無法精選個別提交
-
-**最適合**: GitHub Flow、功能分支
-
----
-
-### 選項 3: 變基與快轉
-
-**在目標分支上重播提交**
-
-```bash
-git rebase main feature/user-auth
-git checkout main
-git merge --ff-only feature/user-auth
-```
-
-**優點**:
-- ✅ 線性、乾淨的歷史
-- ✅ 保留個別提交
-- ✅ 無合併提交
-
-**缺點**:
-- ❌ 改寫歷史（不要用於共享分支）
-- ❌ 解決衝突可能繁瑣
-
-**最適合**: Trunk-Based Development、短期分支
-
----
-
-## 衝突解決
-
-### 預防
-
-1. **頻繁同步**
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout feature/my-feature
-   git merge main  # or git rebase main
-   ```
-
-2. **保持分支小型化**
-   - 避免長期功能分支
-   - 將大型功能拆分為小型 PR
-
-3. **溝通**
-   - 宣告重大重構
-   - 協調共享檔案的修改
-
-### 解決步驟
-
-```bash
-# 1. Attempt merge
-git checkout main
-git pull origin main
-git checkout feature/my-feature
-git merge main
-
-# 2. Conflicts occur - Git marks them in files
-# Open files and resolve conflicts:
-# <<<<<<< HEAD
-# Current branch changes
-# =======
-# Incoming changes
-# >>>>>>> main
-
-# 3. After resolving, stage files
-git add resolved-file.js
-
-# 4. Complete the merge
-git commit -m "chore: resolve merge conflicts with main"
-
-# 5. Test thoroughly
-npm test
-
-# 6. Push
-git push origin feature/my-feature
-```
-
----
-
-## 標籤與發布
-
-### 語義化版本
-
-遵循 [Semantic Versioning 2.0.0](https://semver.org/):
-
-```
-MAJOR.MINOR.PATCH
-
-例如: v2.3.1
-```
-
-- **MAJOR**: 重大變更（不相容的 API 變更）
-- **MINOR**: 新功能（向後相容）
-- **PATCH**: Bug 修復（向後相容）
-
-### 建立標籤
-
-```bash
-# Annotated tag (recommended)
-git tag -a v1.2.0 -m "Release version 1.2.0: Add OAuth2 support"
-
-# Push tag to remote
-git push origin v1.2.0
-
-# Push all tags
-git push origin --tags
-
-# List tags
-git tag -l
-```
-
-### 預發布版本
-
-```
-v1.2.0-alpha.1      # Alpha release
-v1.2.0-beta.2       # Beta release
-v1.2.0-rc.1         # Release candidate
-```
-
----
-
-## 保護分支
-
-設定分支保護規則：
-
-### 建議的 `main`/`develop` 保護:
-
-- ✅ **需要 pull request 審查** (1-2 位審查者)
-- ✅ **需要狀態檢查通過** (CI 測試、linting)
-- ✅ **需要分支保持最新** 才能合併
-- ✅ **管理員也受限制**
-- ❌ **不允許強制推送**
-- ❌ **不允許刪除**
-
-**設定範例 (GitHub)**:
-```
-Settings → Branches → Branch protection rules
-
-Rule: main
-☑ Require pull request before merging
-  ☑ Require approvals: 1
-☑ Require status checks before merging
-  ☑ Require branches to be up to date
-  ☑ Status checks: CI/Build, Lint, Tests
-☑ Do not allow bypassing the above settings
-☐ Allow force pushes
-☐ Allow deletions
-```
-
----
-
-## Pull Request 工作流程
-
-### PR 建立檢查清單
-
-- [ ] **標題遵循提交慣例** (例如 `feat(auth): add OAuth2`)
-- [ ] **描述說明原因** (不只是做了什麼)
-- [ ] **連結到 issue** (例如 "Closes #123")
-- [ ] **新功能包含測試**
-- [ ] **必要時更新文件**
-- [ ] **在描述中標示重大變更**
-- [ ] **UI 變更包含截圖/GIF**
-
-### PR 描述範本
-
-```markdown
-## What
-
-[簡短描述此 PR 做了什麼]
-
-## Why
-
-[說明為什麼需要此變更]
-
-## Changes
-
-- [主要變更的條列清單]
-- [用 ⚠️ 標記重大變更]
-
-## Testing
-
-- [ ] 已新增/更新單元測試
-- [ ] 整合測試通過
-- [ ] 已執行手動測試
-
-## Screenshots (if applicable)
-
-[為 UI 變更新增截圖]
-
-## Related Issues
-
-Closes #123
-Refs #456
+### 自動化強制執行
+
+設定 GitHub Actions 來驗證 PR 標題：
+
+```yaml
+# .github/workflows/pr-title.yml
+name: PR Title Check
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            refactor
+            test
+            chore
+            perf
+            style
+            ci
+            build
+          requireScope: false
+          subjectPattern: ^[A-Z].+$
+          subjectPatternError: |
+            Subject must start with uppercase letter
 ```
 
 ---
@@ -896,6 +864,46 @@ git rebase -i HEAD~3
 
 ---
 
+## 疑難排解指南
+
+### 不小心提交到錯誤分支
+
+```bash
+# Undo last commit but keep changes
+git reset --soft HEAD~1
+
+# Switch to correct branch
+git checkout correct-branch
+
+# Commit changes
+git add .
+git commit -m "feat: add feature"
+```
+
+### 需要從 main 更新分支
+
+```bash
+# Option 1: Merge (preserves history)
+git checkout feature/my-feature
+git merge main
+
+# Option 2: Rebase (cleaner history)
+git checkout feature/my-feature
+git rebase main
+```
+
+### 不小心強制推送到受保護分支
+
+```bash
+# ⚠️ Contact team immediately
+# ⚠️ Check if branch protection was enabled
+# ⚠️ Restore from reflog if needed:
+git reflog
+git reset --hard <previous-commit-hash>
+```
+
+---
+
 ## 專案設定範本
 
 在 `CONTRIBUTING.md` 中記錄您的工作流程：
@@ -937,80 +945,19 @@ Example: `feature/oauth-login`, `fix/memory-leak`
 
 ---
 
-## 疑難排解
-
-### 不小心提交到錯誤的分支
-
-```bash
-# Undo last commit but keep changes
-git reset --soft HEAD~1
-
-# Switch to correct branch
-git checkout correct-branch
-
-# Commit changes
-git add .
-git commit -m "feat: add feature"
-```
-
-### 需要從 main 更新分支
-
-```bash
-# Option 1: Merge (preserves history)
-git checkout feature/my-feature
-git merge main
-
-# Option 2: Rebase (cleaner history)
-git checkout feature/my-feature
-git rebase main
-```
-
-### 不小心強制推送到保護分支
-
-```bash
-# ⚠️ Contact team immediately
-# ⚠️ Check if branch protection was enabled
-# ⚠️ Restore from reflog if needed:
-git reflog
-git reset --hard <previous-commit-hash>
-```
-
----
-
-## 相關標準
-
-- [Commit Message Guide](../../../../core/commit-message-guide.md) - Commit 訊息規範
-- [Code Check-in Standards](../../../../core/checkin-standards.md) - 程式碼簽入標準
-- [Versioning Standard](../../../../core/versioning.md) - 語義化版本標準
-- [Changelog Standards](../../../../core/changelog-standards.md) - 變更日誌標準
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.3.0 | 2026-01-24 | 新增：Trunk-Based + 功能開關整合、Ship/Show/Ask 決策模型、堆疊式 PR、傳統式 PR 標題 |
-| 1.2.1 | 2025-12-24 | 新增：相關標準區段 |
-| 1.2.0 | 2025-12-16 | 新增：工作流程策略決策樹、選擇矩陣和快速選擇指南 |
-| 1.1.0 | 2025-12-08 | 新增：開分支前檢查清單區段，含工作流程特定指引 |
-| 1.0.0 | 2025-11-12 | 初始 Git 工作流程標準 |
-
----
-
 ## 參考資料
 
-- [GitFlow Original Article](https://nvie.com/posts/a-successful-git-branching-model/)
-- [GitHub Flow Guide](https://guides.github.com/introduction/flow/)
+- [GitFlow 原始文章](https://nvie.com/posts/a-successful-git-branching-model/)
+- [GitHub Flow 指南](https://guides.github.com/introduction/flow/)
 - [Trunk-Based Development](https://trunkbaseddevelopment.com/)
 - [Semantic Versioning](https://semver.org/)
 - [Ship/Show/Ask](https://martinfowler.com/articles/ship-show-ask.html) - Rouan Wilsenach 的程式碼變更決策模型
-- [功能開關最佳實踐](https://launchdarkly.com/blog/best-practices-feature-flags/) - LaunchDarkly 的全面指南
-- [堆疊式 Diffs](https://graphite.dev/guides/stacked-diffs) - Graphite 的堆疊式 PR 工作流程指南
-- [傳統式 Commits](https://www.conventionalcommits.org/) - Commit 訊息規範
+- [Feature Flags 最佳實踐](https://launchdarkly.com/blog/best-practices-feature-flags/) - LaunchDarkly 的完整指南
+- [Stacked Diffs](https://graphite.dev/guides/stacked-diffs) - Graphite 的堆疊式 PR 工作流程指南
+- [Conventional Commits](https://www.conventionalcommits.org/) - commit 訊息規範
 
 ---
 
-## 授權
+## 授權條款
 
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
+本指南採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。
