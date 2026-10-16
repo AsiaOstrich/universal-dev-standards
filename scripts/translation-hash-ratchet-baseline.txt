@@ -24,8 +24,6 @@ locales/zh-CN/core/ai-friendly-architecture.md
 locales/zh-CN/core/alerting-standards.md
 locales/zh-CN/core/changelog-standards.md
 locales/zh-CN/core/commit-message-guide.md
-locales/zh-CN/core/containerization-standards.md
-locales/zh-CN/core/design-document-standards.md
 locales/zh-CN/core/documentation-structure.md
 locales/zh-CN/core/documentation-writing-standards.md
 locales/zh-CN/core/environment-standards.md
@@ -35,19 +33,13 @@ locales/zh-CN/core/frontend-design-standards.md
 locales/zh-CN/core/observability-standards.md
 locales/zh-CN/core/performance-standards.md
 locales/zh-CN/core/postmortem-standards.md
-locales/zh-CN/core/project-context-memory.md
 locales/zh-CN/core/project-structure.md
 locales/zh-CN/core/reverse-engineering-standards.md
 locales/zh-CN/core/runbook-standards.md
-locales/zh-CN/core/security-standards.md
 locales/zh-CN/core/slo-standards.md
-locales/zh-CN/core/supply-chain-security-standards.md
-locales/zh-CN/core/tech-debt-standards.md
 locales/zh-CN/core/test-data-standards.md
 locales/zh-CN/core/versioning.md
 locales/zh-CN/skills/ai-instruction-standards/SKILL.md
-locales/zh-CN/skills/commit-standards/guide.md
-locales/zh-CN/skills/docs-generator/guide.md
 locales/zh-CN/skills/project-discovery/guide.md
 locales/zh-TW/CHANGELOG.md
 locales/zh-TW/CLAUDE.md
@@ -55,9 +47,7 @@ locales/zh-TW/core/accessibility-standards.md
 locales/zh-TW/core/ai-friendly-architecture.md
 locales/zh-TW/core/alerting-standards.md
 locales/zh-TW/core/containerization-standards.md
-locales/zh-TW/core/design-document-standards.md
 locales/zh-TW/core/environment-standards.md
-locales/zh-TW/core/feature-flag-standards.md
 locales/zh-TW/core/forward-derivation-standards.md
 locales/zh-TW/core/guides/git-workflow-guide.md
 locales/zh-TW/core/guides/testing-guide.md
@@ -66,6 +56,4 @@ locales/zh-TW/core/performance-standards.md
 locales/zh-TW/core/postmortem-standards.md
 locales/zh-TW/core/runbook-standards.md
 locales/zh-TW/core/slo-standards.md
-locales/zh-TW/skills/commit-standards/guide.md
-locales/zh-TW/skills/docs-generator/guide.md
 locales/zh-TW/skills/tdd-assistant/language-examples.md
