@@ -18,13 +18,8 @@
 # ⚠️ 不得自動延期或自動關閉。
 locales/README.md
 locales/zh-CN/CHANGELOG.md
-locales/zh-CN/CLAUDE.md
-locales/zh-CN/core/commit-message-guide.md
 locales/zh-CN/core/documentation-structure.md
-locales/zh-CN/core/documentation-writing-standards.md
-locales/zh-CN/core/forward-derivation-standards.md
 locales/zh-TW/CHANGELOG.md
 locales/zh-TW/CLAUDE.md
-locales/zh-TW/core/forward-derivation-standards.md
 locales/zh-TW/core/guides/testing-guide.md
 locales/zh-TW/skills/tdd-assistant/language-examples.md
