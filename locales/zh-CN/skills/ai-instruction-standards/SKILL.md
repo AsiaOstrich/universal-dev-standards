@@ -295,7 +295,7 @@ project/
 
 ---
 
-## 后续步骤指引
+## 下一步引导
 
 在 `/ai-instruction-standards` 完成后，建议：
 
