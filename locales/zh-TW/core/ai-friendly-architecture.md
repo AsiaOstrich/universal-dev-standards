@@ -2,7 +2,8 @@
 source: ../../../core/ai-friendly-architecture.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-04-22
+last_synced: 2026-10-16
+source_hash: 7381f66445c3
 status: current
 ---
 
@@ -13,6 +14,8 @@ status: current
 **版本**: 1.0.0
 **最後更新**: 2026-01-21
 **適用範圍**: 所有與 AI 助手協作的軟體專案
+**範疇**: 通用
+**業界標準**: 無（新興 AI 協作實踐）
 
 ---
 
@@ -29,15 +32,15 @@ status: current
 
 ## 目錄
 
-1. [核心原則](#核心原則)
-2. [模組設計標準](#模組設計標準)
-3. [上下文邊界標記](#上下文邊界標記)
-4. [文件分層](#文件分層)
-5. [元資料標準](#元資料標準)
-6. [查詢介面設計](#查詢介面設計)
-7. [AI 上下文配置](#ai-上下文配置)
-8. [反模式](#反模式)
-9. [實施清單](#實施清單)
+1. [核心原則](#core-principles)
+2. [模組設計標準](#module-design-standards)
+3. [上下文邊界標記](#context-boundary-markers)
+4. [文件分層](#documentation-layering)
+5. [元資料標準](#metadata-standards)
+6. [查詢介面設計](#query-interface-design)
+7. [AI 上下文配置](#ai-context-configuration)
+8. [反模式](#anti-patterns)
+9. [實施清單](#implementation-checklist)
 
 ---
 
@@ -49,20 +52,20 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   明確 vs 隱含                               │
+│                 Explicit vs Implicit                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│  ❌ 隱含（AI 難以理解）                                      │
-│  └── 魔術命名慣例                                            │
-│  └── 未記錄的資料夾結構                                      │
-│  └── 基於慣例的路由                                          │
-│  └── 假定框架行為已知                                        │
+│  ❌ IMPLICIT (Hard for AI)                                  │
+│  └── Magic naming conventions                               │
+│  └── Undocumented folder structures                         │
+│  └── Convention-based routing                               │
+│  └── Assumed knowledge of framework behavior                │
 │                                                              │
-│  ✅ 明確（AI 友善）                                          │
-│  └── 記錄模組職責                                            │
-│  └── 清楚標註進入點                                          │
-│  └── 明確宣告依賴關係                                        │
-│  └── 自我說明的配置檔案                                      │
+│  ✅ EXPLICIT (AI-Friendly)                                  │
+│  └── Documented module responsibilities                     │
+│  └── Clear entry point annotations                          │
+│  └── Explicit dependency declarations                       │
+│  └── Self-documenting configuration files                   │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -73,28 +76,28 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  上下文分層策略                               │
+│               Context Layering Strategy                      │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│  第一層：快速參考（< 500 tokens）                            │
-│  └── 單行描述                                                │
-│  └── 僅 API 簽名                                             │
-│  └── 關鍵進入點                                              │
+│  Layer 1: Quick Reference (< 500 tokens)                    │
+│  └── One-liner descriptions                                 │
+│  └── API signatures only                                    │
+│  └── Key entry points                                       │
 │                                                              │
-│  第二層：詳細指南（< 5,000 tokens）                          │
-│  └── 完整 API 文件                                           │
-│  └── 使用範例                                                │
-│  └── 配置選項                                                │
+│  Layer 2: Detailed Guide (< 5,000 tokens)                   │
+│  └── Full API documentation                                 │
+│  └── Usage examples                                         │
+│  └── Configuration options                                  │
 │                                                              │
-│  第三層：完整範例（無限制）                                  │
-│  └── 完整實作範例                                            │
-│  └── 邊界案例文件                                            │
-│  └── 遷移指南                                                │
+│  Layer 3: Full Examples (unlimited)                         │
+│  └── Complete implementation examples                       │
+│  └── Edge case documentation                                │
+│  └── Migration guides                                       │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 3. 語義邊界
+### 3. 語意邊界
 
 設計清楚的模組邊界，讓 AI 可以獨立分析元件，而不需要完整專案上下文。
 
@@ -112,15 +115,15 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   模組標頭範本                               │
+│              Module Header Template                          │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  /**                                                         │
 │   * @module auth                                             │
-│   * @description 處理應用程式的使用者驗證和                  │
-│   *              Session 管理。                              │
+│   * @description Handles user authentication and session    │
+│   *              management for the application.            │
 │   *                                                          │
-│   * @responsibility 驗證和授權                               │
+│   * @responsibility Authentication and authorization         │
 │   * @dependencies [database, crypto, config]                │
 │   * @exports {login, logout, verify, refreshToken}          │
 │   * @entrypoint ./index.ts                                  │
@@ -129,20 +132,38 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 清楚的輸入/輸出契約
+### 清楚的輸入／輸出契約
 
 每個公開介面都應有明確的型別定義或文件說明。
 
 | 元素 | 要求 | 範例 |
 |------|------|------|
-| 函式參數 | 型別 + 描述 | `@param {string} email - 使用者電子郵件` |
+| 函式參數 | 型別 + 描述 | `@param {string} email - User's email address` |
 | 回傳值 | 型別 + 可能值 | `@returns {Promise<User \| null>}` |
-| 副作用 | 明確記錄 | `@sideeffect 寫入資料庫` |
-| 錯誤條件 | 所有可能錯誤 | `@throws {AuthError} 無效憑證` |
+| 副作用 | 明確記錄 | `@sideeffect Writes to database` |
+| 錯誤條件 | 所有可能錯誤 | `@throws {AuthError} Invalid credentials` |
 
 ### 明確的依賴宣告
 
 依賴應在模組層級宣告，而非隱藏在實作細節中。
+
+**JavaScript/TypeScript:**
+```javascript
+// module: src/auth/index.ts
+// dependencies: [database, crypto, config]
+import { db } from '../database';
+import { hash } from '../crypto';
+import { config } from '../config';
+```
+
+**Python:**
+```python
+# module: src/auth/__init__.py
+# dependencies: [database, crypto, config]
+from ..database import db
+from ..crypto import hash_password
+from ..config import settings
+```
 
 ---
 
@@ -155,24 +176,46 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 ```javascript
 /**
  * ═══════════════════════════════════════════════════════════
- * 模組：付款處理
+ * MODULE: Payment Processing
  * ═══════════════════════════════════════════════════════════
  *
- * 用途：處理所有付款相關操作，包括
- *       處理、退款和訂閱管理。
+ * PURPOSE: Handles all payment-related operations including
+ *          processing, refunds, and subscription management.
  *
- * 依賴：
- *   - stripe: 付款閘道整合
- *   - database: 交易儲存
- *   - events: 付款事件發布
+ * DEPENDENCIES:
+ *   - stripe: Payment gateway integration
+ *   - database: Transaction storage
+ *   - events: Payment event publishing
  *
- * 匯出：
- *   - processPayment(amount, method): 處理單筆付款
- *   - refund(transactionId): 發出退款
- *   - createSubscription(plan): 開始訂閱
+ * EXPORTS:
+ *   - processPayment(amount, method): Process single payment
+ *   - refund(transactionId): Issue refund
+ *   - createSubscription(plan): Start subscription
+ *
+ * CONFIGURATION:
+ *   - STRIPE_SECRET_KEY: Required
+ *   - PAYMENT_WEBHOOK_SECRET: Required
  *
  * ═══════════════════════════════════════════════════════════
  */
+```
+
+### 區段分隔線
+
+在大型檔案中使用一致的區段分隔線：
+
+```javascript
+// ============================================================
+// SECTION: Validation Helpers
+// ============================================================
+
+// ... validation code ...
+
+// ============================================================
+// SECTION: API Handlers
+// ============================================================
+
+// ... handler code ...
 ```
 
 ---
@@ -184,42 +227,104 @@ AI 助手在行為和結構明確記錄時表現最佳，而非依賴慣例推�
 在每個主要模組建立 `QUICK-REF.md`：
 
 ```markdown
-# Auth 模組 - 快速參考
+# Auth Module - Quick Reference
 
-## 用途
-使用者驗證和 Session 管理。
+## Purpose
+User authentication and session management.
 
-## 關鍵函式
+## Key Functions
 - `login(email, password)` → `Promise<Session>`
 - `logout(sessionId)` → `void`
 - `verify(token)` → `Promise<User | null>`
 
-## 配置
-- `AUTH_SECRET`: JWT 簽名密鑰
-- `SESSION_DURATION`: Session 生命週期（預設：24h）
+## Configuration
+- `AUTH_SECRET`: JWT signing secret
+- `SESSION_DURATION`: Session lifetime (default: 24h)
 
-## 進入點
+## Entry Point
 `src/auth/index.ts`
 ```
 
 ### 第二層：詳細指南（< 5,000 tokens）
 
-主要 `README.md` 包含完整文件。
+主要 `README.md` 包含完整文件：
+
+```markdown
+# Authentication Module
+
+## Overview
+[2-3 paragraph description]
+
+## Architecture
+[Diagram or description of internal structure]
+
+## API Reference
+[Full function signatures with parameters]
+
+## Configuration Options
+[All configuration with defaults and descriptions]
+
+## Usage Examples
+[Common use cases with code samples]
+
+## Error Handling
+[Error types and handling strategies]
+```
 
 ### 第三層：完整範例（無限制）
 
-獨立的 `examples/` 目錄包含完整實作。
+獨立的 `examples/` 目錄包含完整實作：
+
+```
+auth/
+├── QUICK-REF.md          # Level 1
+├── README.md             # Level 2
+└── examples/             # Level 3
+    ├── basic-login.ts
+    ├── oauth-integration.ts
+    └── custom-middleware.ts
+```
 
 ---
 
 ## 元資料標準
+
+### 套件元資料擴充
+
+使用 AI 相關的元資料擴充標準套件檔案：
+
+**package.json (JavaScript/TypeScript):**
+```json
+{
+  "name": "my-project",
+  "ai-context": {
+    "entryPoints": ["src/index.ts", "src/api/index.ts"],
+    "modules": {
+      "auth": "src/auth/",
+      "api": "src/api/",
+      "database": "src/db/"
+    },
+    "ignorePatterns": ["node_modules", "dist", "coverage"],
+    "quickRef": "docs/QUICK-REF.md"
+  }
+}
+```
+
+**pyproject.toml (Python):**
+```toml
+[tool.ai-context]
+entry_points = ["src/main.py", "src/api/__init__.py"]
+modules = { auth = "src/auth/", api = "src/api/" }
+ignore_patterns = ["__pycache__", ".venv", "*.pyc"]
+quick_ref = "docs/QUICK-REF.md"
+```
 
 ### .ai-context.yaml 配置
 
 專用的 AI 上下文配置檔案：
 
 ```yaml
-# .ai-context.yaml - AI 上下文配置
+# .ai-context.yaml - AI Context Configuration
 version: 1.0.0
 
 project:
@@ -231,22 +336,146 @@ modules:
   - name: auth
     path: src/auth/
     entry: index.ts
-    description: 驗證和授權
+    description: Authentication and authorization
     dependencies: [database, crypto]
     priority: high
+
+  - name: api
+    path: src/api/
+    entry: routes.ts
+    description: REST API endpoints
+    dependencies: [auth, database]
+    priority: high
+
+  - name: utils
+    path: src/utils/
+    entry: index.ts
+    description: Shared utility functions
+    dependencies: []
+    priority: low
 
 analysis-hints:
   entry-points:
     - src/main.ts
+    - src/index.ts
   ignore-patterns:
     - node_modules
     - dist
+    - coverage
+    - "*.test.ts"
+  architecture-type: layered  # layered | microservices | modular | monolith
+
+documentation:
+  quick-ref: docs/QUICK-REF.md
+  detailed: docs/ARCHITECTURE.md
+  examples: docs/examples/
 
 context-strategy:
   max-chunk-size: 50000
   overlap: 500
   analysis-pattern: hierarchical
 ```
+
+---
+
+## 查詢介面設計
+
+### 結構化 API 文件格式
+
+設計易於查詢的 API 文件：
+
+```markdown
+## API: createUser
+
+**Endpoint**: `POST /api/users`
+**Module**: `src/api/users.ts:45`
+
+### Parameters
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| email | string | Yes | User's email address |
+| password | string | Yes | Min 8 characters |
+| name | string | No | Display name |
+
+### Response
+```json
+{
+  "id": "string",
+  "email": "string",
+  "createdAt": "ISO8601"
+}
+```
+
+### Errors
+| Code | Condition |
+|------|-----------|
+| 400 | Invalid email format |
+| 409 | Email already exists |
+
+### Example
+```javascript
+const user = await api.createUser({
+  email: 'user@example.com',
+  password: 'securePassword123'
+});
+```
+```
+
+### 可搜尋的程式碼註解
+
+使用 AI 可以搜尋的一致註解模式：
+
+```javascript
+// @ai-hint: This function is performance-critical
+// @ai-complexity: O(n log n)
+// @ai-dependencies: [sortUtils, comparators]
+function sortLargeDataset(data) {
+  // ...
+}
+
+// @ai-security: Validates user input
+// @ai-validation: email, password strength
+function validateRegistration(input) {
+  // ...
+}
+```
+
+---
+
+## AI 上下文配置
+
+### 建議的目錄結構
+
+```
+project/
+├── .ai-context.yaml          # AI context configuration
+├── docs/
+│   ├── QUICK-REF.md          # Level 1 documentation
+│   ├── ARCHITECTURE.md       # Level 2 documentation
+│   └── examples/             # Level 3 documentation
+├── src/
+│   ├── auth/
+│   │   ├── index.ts          # Entry point with module header
+│   │   ├── QUICK-REF.md      # Module-level quick reference
+│   │   └── README.md         # Module documentation
+│   ├── api/
+│   │   ├── index.ts
+│   │   └── README.md
+│   └── index.ts              # Application entry point
+└── CLAUDE.md / INSTRUCTIONS.md  # AI instruction file
+```
+
+### 上下文優先順序指引
+
+當 AI 上下文有限時，請優先考慮：
+
+| 優先順序 | 內容類型 | 原因 |
+|----------|--------------|--------|
+| 1 | 進入點 | 理解應用程式結構 |
+| 2 | .ai-context.yaml | 模組地圖與依賴關係 |
+| 3 | QUICK-REF 檔案 | 快速理解 API |
+| 4 | 修改的檔案 | 與任務直接相關 |
+| 5 | 依賴鏈 | 變更的上下文 |
 
 ---
 
@@ -261,6 +490,16 @@ context-strategy:
 | **全域狀態** | 不可預測的依賴 | 依賴注入，明確連結 |
 | **循環依賴** | 上下文混亂 | 清楚的層次依賴 |
 | **巨大檔案** | 上下文溢出 | 分割成專注的模組 |
+| **慣例優於文件** | 假設已知知識 | 明確記錄文件 |
+
+### ❌ 文件反模式
+
+| 反模式 | 問題 | 解決方案 |
+|--------|------|----------|
+| **過時文件** | 誤導 AI | 保持文件與程式碼同步 |
+| **僅自動產生** | 缺少上下文 | 加入人工撰寫的上下文 |
+| **缺乏範例** | 用法模糊 | 包含可運作的範例 |
+| **文字牆** | 難以解析 | 使用結構化格式 |
 
 ---
 
@@ -294,7 +533,7 @@ context-strategy:
 ## 版本歷史
 
 | 版本 | 日期 | 變更 |
-|------|------|------|
+|---------|------|---------|
 | 1.0.0 | 2026-01-21 | 初始版本 |
 
 ---
