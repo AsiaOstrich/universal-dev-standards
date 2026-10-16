@@ -6,13 +6,14 @@ description: |
 source: ../../../../skills/docs-generator/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-26
+last_synced: 2026-10-16
+source_hash: d132a50f69e4
 status: current
 ---
 
 # 文件產生器技能
 
-> **Language**: [English](../../../../skills/docs-generator/SKILL.md) | 繁體中文
+> **語言**: [English](../../../../skills/docs-generator/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-26

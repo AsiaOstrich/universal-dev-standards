@@ -6,13 +6,14 @@ description: |
 source: ../../../../skills/docs-generator/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-10-16
+source_hash: d132a50f69e4
 status: current
 ---
 
 # 文档生成器技能
 
-> **Language**: [English](../../../../skills/docs-generator/SKILL.md) | 简体中文
+> **语言**: [English](../../../../skills/docs-generator/guide.md) | [繁體中文](../../../zh-TW/skills/docs-generator/guide.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2026-01-26
@@ -171,7 +172,7 @@ templates:
 | 语言 | FEATURE-REFERENCE | CHEATSHEET |
 |------|-------------------|------------|
 | English | `docs/FEATURE-REFERENCE.md` | `docs/CHEATSHEET.md` |
-| 繁體中文 | `locales/zh-TW/docs/FEATURE-REFERENCE.md` | `locales/zh-TW/docs/CHEATSHEET.md` |
+| 繁体中文 | `locales/zh-TW/docs/FEATURE-REFERENCE.md` | `locales/zh-TW/docs/CHEATSHEET.md` |
 | 简体中文 | `locales/zh-CN/docs/FEATURE-REFERENCE.md` | `locales/zh-CN/docs/CHEATSHEET.md` |
 
 ## 整合到发布前检查
@@ -243,9 +244,9 @@ echo "Checking usage documentation sync..."
 
 ## 相关规范
 
-- [文档撰写规范](../../../../core/documentation-writing-standards.md)
-- [文档结构规范](../../../../core/documentation-structure.md)
-- [AI 友善架构](../../../../core/ai-friendly-architecture.md)
+- [文档撰写规范](../../core/documentation-writing-standards.md)
+- [文档结构规范](../../core/documentation-structure.md)
+- [AI 友善架构](../../core/ai-friendly-architecture.md)
 
 ## 版本历史
 
