@@ -41,7 +41,7 @@ Universal Development Standards 是一个语言无关、框架无关的开发标
 
 > **单一事实来源优先级（仅限源码仓库）**：
 > 在此 UDS 源码仓库中，`core/*.md` 是**实时单一事实来源**。
-> `<!-- UDS:STANDARDS:START -->` 区块内的 `.standards/*.ai.yaml` 文件是由 `npx uds install/update` 维护的**采用者狗粮快照**——根据 DEC-044，`uds update` 不能在源码仓库内运行，因此该快照会滞后于 `core/`。
+> `<!-- UDS:STANDARDS:START -->` 区块内的 `.standards/*.ai.yaml` 文件是由 `npx universal-dev-standards install/update` 维护的**采用者狗粮快照**——根据 DEC-044，`uds update` 不能在源码仓库内运行，因此该快照会滞后于 `core/`。
 > 当两者出现分歧时，**始终以 `core/` 为准**。从该仓库 CWD 启动的子代理必须将 `core/*.md` 视为权威依据。
 
 ### 1. Commit 信息格式
@@ -501,8 +501,8 @@ UDS（标准定义；MIT + CC BY 4.0）──→ 采用层（任意 Adapter / Pi
 ---
 
 <!-- UDS:STANDARDS:START -->
-<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
-<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx uds install' or 'npx uds update' to modify. -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx universal-dev-standards install' or 'npx universal-dev-standards update' to modify. -->
+<!-- WARNING: This block is managed by UDS (universal-dev-standards). DO NOT manually edit. Use 'npx universal-dev-standards install' or 'npx universal-dev-standards update' to modify. -->
 ## Commit 消息语言
 以**双语**格式（英文 + 繁体中文）编写 commit 消息。
 格式：`<type>(<scope>): <English>. <中文>.`
