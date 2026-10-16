@@ -1,152 +1,77 @@
 ---
 source: ../../../../core/guides/refactoring-guide.md
-source_version: 2.0.0
-translation_version: 2.0.0
-last_synced: 2026-01-21
+source_version: 1.0.0
+translation_version: 1.0.0
+last_synced: 2026-10-16
+source_hash: a34c3eab7aca
 status: current
 ---
 
-# 重構標準
+# 重構指南
 
-> **語言**: [English](../../../../core/refactoring-standards.md) | 繁體中文
+> **語言**: [English](../../../../core/guides/refactoring-guide.md) | 繁體中文
 
-**版本**: 2.0.0
-**最後更新**: 2026-01-21
-**適用範圍**: 所有進行程式碼改善的軟體專案
+**版本**: 1.0.0
+**最後更新**: 2026-01-29
+**相關標準**: [重構標準](../refactoring-standards.md)
 
 ---
 
 ## 目的
 
-本標準定義程式碼重構的完整指引，涵蓋從日常 TDD 重構循環到大型遺留系統現代化的所有場景。確保重構工作安全、可衡量，並與業務目標一致。
-
-**主要優點**：
-- 系統化的程式碼品質改善方法
-- 降低重構過程中引入錯誤的風險
-- 清晰的重構 vs 重寫決策框架
-- 可衡量的成果與投資報酬率追蹤
+本指南提供程式碼重構的詳細說明、模式與教學。有關可執行的規則、檢查清單與門檻值，請參見[重構標準](../refactoring-standards.md)。
 
 ---
 
 ## 目錄
 
-1. [重構 vs 重寫決策矩陣](#重構-vs-重寫決策矩陣)
-2. [戰術性重構策略](#戰術性重構策略)
-   - [預備性重構](#預備性重構)
-   - [童子軍規則](#童子軍規則)
-   - [紅-綠-重構](#紅-綠-重構)
-3. [戰略性重構策略](#戰略性重構策略)
-   - [絞殺榕模式](#絞殺榕模式)
-   - [防腐層](#防腐層)
-   - [抽象分支](#抽象分支)
-   - [平行變更](#平行變更expand-migrate-contract)
-4. [遺留程式碼安全策略](#遺留程式碼安全策略)
-   - [特徵測試](#特徵測試)
-   - [探針式重構](#探針式重構)
-   - [尋找接縫](#尋找接縫)
-   - [Sprout 與 Wrap 技術](#sprout-與-wrap-技術)
-5. [資料庫重構](#資料庫重構)
-6. [安全重構工作流程](#安全重構工作流程)
-7. [重構度量指標](#重構度量指標)
-8. [團隊協作](#團隊協作)
-9. [技術債管理](#技術債管理)
-10. [決策矩陣摘要](#決策矩陣摘要)
-11. [相關標準](#相關標準)
-12. [參考資料](#參考資料)
-13. [版本歷程](#版本歷程)
-
----
-
-## 重構 vs 重寫決策矩陣
-
-在開始任何大型重構工作之前，評估重構或重寫哪個更合適。
-
-### 決策流程圖
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     重構 vs 重寫決策樹                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  程式碼目前在生產環境運行嗎？                                     │
-│  ├─ 否 → 考慮重寫（風險較低）                                    │
-│  └─ 是 ↓                                                        │
-│                                                                 │
-│  你了解程式碼在做什麼嗎？                                         │
-│  ├─ 否 → 先寫特徵測試，再決定                                    │
-│  └─ 是 ↓                                                        │
-│                                                                 │
-│  測試覆蓋率足夠嗎（>60%）？                                       │
-│  ├─ 否 → 先補測試，再決定                                        │
-│  └─ 是 ↓                                                        │
-│                                                                 │
-│  核心架構可以保留嗎？                                             │
-│  ├─ 否 → Strangler Fig（漸進替換）                               │
-│  └─ 是 → 漸進式重構 ✓                                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### 比較矩陣
-
-| 因素 | 傾向重構 | 傾向重寫 |
-|------|---------|---------|
-| **程式碼規模** | 大型、複雜 | 小型、獨立 |
-| **測試覆蓋率** | 良好（>60%）| 差或沒有 |
-| **業務連續性** | 關鍵 | 可容忍停機 |
-| **團隊知識** | 團隊理解程式碼 | 無組織知識 |
-| **核心架構** | 健全，只是混亂 | 根本性缺陷 |
-| **時間壓力** | 緊迫期限 | 彈性時間 |
-| **風險容忍度** | 低 | 較高 |
-
-### 警告：第二系統效應
-
-> 「第二個系統是一個人設計過最危險的系統。」— Fred Brooks
-
-重寫時，團隊常常過度工程化。避免：
-- 新增原本沒有的功能
-- 「為了未來彈性」過度抽象
-- 忽視現有系統的教訓
+1. [戰術性重構策略](#tactical-refactoring-strategies)
+2. [戰略性重構策略](#strategic-refactoring-strategies)
+3. [遺留程式碼安全策略](#safety-strategies-for-legacy-code)
+4. [資料庫重構模式](#database-refactoring-patterns)
+5. [團隊協作實踐](#team-collaboration-practices)
+6. [技術債管理](#technical-debt-management)
+7. [參考資料](#references)
 
 ---
 
 ## 戰術性重構策略
 
-戰術性策略用於日常開發工作。運作時間為分鐘到小時級別，需要最小的協調。
+戰術性策略應用於日常開發工作。它們在分鐘至小時級別的時間尺度上運作，且僅需最少的協調。
 
 ### 預備性重構
 
-**定義**：在新增功能之前，先調整既有結構，使其易於接納新功能。
+**定義**：重構現有程式碼，使即將進行的變更更容易實作。
 
 > 「先把改變變容易（這可能很難），然後再做那個容易的改變。」— Kent Beck
 
 **適用情境**：
-- 現有架構難以直接插入新功能
-- 程式碼結構需要調整以支援新需求
-- 降低即將到來的變更的阻力
+- 現有架構難以容納你要新增的功能
+- 程式碼結構需要調整以適應新需求
+- 你希望減少後續變更的阻力
 
 **工作流程**：
 
 ```
-1. 識別你想要做的改變
-2. 識別是什麼讓這個改變變困難
-3. 重構以讓改變變容易
-4. 做那個（現在已經變容易的）改變
+1. Identify the change you want to make
+2. Identify what makes this change difficult
+3. Refactor to make the change easy
+4. Make the (now easy) change
 ```
 
 **範例**：
-- 改變前：為一個緊耦合的服務加入快取很複雜
-- 預備性重構：抽取介面、注入依賴
-- 改變後：加入快取變得簡單直接
+- 變更前：為緊密耦合的服務新增快取非常複雜
+- 預備性重構：提取介面、注入依賴
+- 變更後：新增快取變得簡單直接
 
 **關鍵原則**：
-- 預備性重構是與功能分開的提交
+- 預備性重構是與功能分開的獨立提交
 - 每一步都維持測試通過
 - 不要在同一個提交中混合重構與功能開發
 
 ### 童子軍規則
 
-**定義**：離開時讓程式碼比你來的時候更乾淨。這是一種「機會主義重構」— 不刻意安排重構衝刺，而是在修復 Bug 或新增功能時，順手清理所接觸到的程式碼。
+**定義**：離開時讓程式碼比你發現它時更乾淨。這是一種「機會主義重構」— 不刻意安排重構衝刺，而是在修復 Bug 或新增功能時，順手清理所接觸到的程式碼。
 
 > 「離開營地時，讓它比你來的時候更乾淨。」— Robert C. Martin
 
@@ -154,20 +79,20 @@ status: current
 - 任何維護作業
 - Bug 修復
 - 功能新增
-- 對抗軟體熵（Software Entropy）
+- 對抗軟體熵（software entropy）
 
 **指導原則**：
-- 只做小改進（分鐘，不是小時）
+- 只做小改進（數分鐘，而非數小時）
 - 不可改變行為
 - 不可破壞現有測試
-- 改動範圍保持在你的任務內
+- 改動範圍保持在當前任務之內
 
 **童子軍改進的範例**：
-- 重新命名一個令人困惑的變數
+- 重新命名令人困惑的變數
 - 將幾行程式碼提取為命名良好的方法
 - 移除你注意到的死程式碼
 - 加入澄清註解
-- 修復一個小的程式碼風格問題
+- 修復微小的程式碼風格問題
 
 **應避免的反模式**：
 - 把 Bug 修復變成大規模重構專案
@@ -177,12 +102,12 @@ status: current
 
 ### 紅-綠-重構
 
-測試驅動開發（TDD）循環的一部分。完整細節請見[測試驅動開發](../test-driven-development.md)。
+測試驅動開發（TDD）循環的一部分。完整細節請參見[測試驅動開發](../test-driven-development.md)。
 
 **特點**：
 - 時長：每循環 5-15 分鐘
 - 範圍：單一方法或類別
-- 測試：重構後必須保持綠色
+- 測試：重構後必須保持綠燈
 
 **循環**：
 
@@ -190,7 +115,7 @@ status: current
 ┌─────────────────────────────────────────┐
 │                                         │
 │    ┌─────┐     ┌─────┐     ┌─────────┐ │
-│    │ 紅燈│ ──► │綠燈 │ ──► │  重構   │ │
+│    │ RED │ ──► │GREEN│ ──► │REFACTOR │ │
 │    └─────┘     └─────┘     └─────────┘ │
 │       ▲                          │      │
 │       └──────────────────────────┘      │
@@ -198,7 +123,7 @@ status: current
 └─────────────────────────────────────────┘
 ```
 
-**常用重構技術**：
+**常見重構技術**：
 - 提取方法（Extract Method）
 - 重新命名（Rename）
 - 內聯變數（Inline Variable）
@@ -213,9 +138,9 @@ status: current
 
 ### 絞殺榕模式
 
-**定義**：透過逐步將功能路由到新系統，漸進替換遺留系統。
+**定義**：透過逐步將功能路由至新系統，漸進替換遺留系統。
 
-**來源**：命名自絞殺榕樹，它們環繞宿主樹生長，最終取代它。
+**來源**：得名於絞殺榕樹，它們環繞宿主樹生長，最終取代它。
 
 **適用情境**：
 - 漸進替換遺留系統
@@ -226,58 +151,58 @@ status: current
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    絞殺榕模式 (Strangler Fig)                    │
+│                    Strangler Fig Pattern                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  階段 1: 攔截（INTERCEPT）                                       │
+│  Phase 1: INTERCEPT                                              │
 │  ┌─────────┐     ┌─────────┐     ┌─────────────┐               │
-│  │  請求   │────▶│  門面   │────▶│ 舊系統(100%)│               │
+│  │ Request │────▶│ Facade  │────▶│ Legacy (100%)│               │
 │  └─────────┘     └─────────┘     └─────────────┘               │
 │                                                                 │
-│  階段 2: 遷移（MIGRATE）                                         │
+│  Phase 2: MIGRATE                                                │
 │  ┌─────────┐     ┌─────────┐     ┌─────────────┐               │
-│  │  請求   │────▶│  門面   │──┬─▶│ 新系統(功能A)│               │
+│  │ Request │────▶│ Facade  │──┬─▶│ New (Feature A)│            │
 │  └─────────┘     └─────────┘  │  └─────────────┘               │
-│                               └─▶│ 舊系統(其餘) │               │
+│                               └─▶│ Legacy (Rest) │               │
 │                                  └─────────────┘               │
 │                                                                 │
-│  階段 3: 完成（COMPLETE）                                        │
+│  Phase 3: COMPLETE                                               │
 │  ┌─────────┐     ┌─────────────┐                               │
-│  │  請求   │────▶│ 新系統(100%)│  [舊系統已下線]                │
+│  │ Request │────▶│ New (100%)  │  [Legacy decommissioned]      │
 │  └─────────┘     └─────────────┘                               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**檢查清單**：
+**實作檢查清單**：
 - [ ] 識別攔截點（API 閘道、門面、代理）
 - [ ] 建立事件捕獲層
 - [ ] 在新系統中實作第一個功能
 - [ ] 漸進式路由流量
 - [ ] 監控並比較結果
-- [ ] 下線舊元件
+- [ ] 下線遺留元件
 
 ### 防腐層
 
-**定義**：在遺留系統與新系統之間建立的翻譯層，防止遺留系統混亂的領域模型「污染」新系統的整潔架構。
+**定義**：在遺留系統與新系統之間的翻譯層，防止遺留系統混亂的領域模型「污染」新系統的整潔架構。
 
-**來源**：Eric Evans,《領域驅動設計》(2003)
+**來源**：Eric Evans, Domain-Driven Design (2003)
 
 **適用情境**：
 - 新舊系統必須並存且頻繁互動
-- 遺留系統有複雜/混亂的領域模型
+- 遺留系統有複雜／混亂的領域模型
 - 保護新系統的限界上下文（Bounded Context）
 
 **架構**：
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                    防腐層 (ACL)                              │
+│                    Anti-Corruption Layer (ACL)              │
 ├────────────────────────────────────────────────────────────┤
 │                                                            │
 │  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐  │
-│  │   新系統    │────▶│    ACL      │────▶│  遺留系統   │  │
-│  │ (整潔 API) │     │             │     │(混亂模型)   │  │
+│  │  New System │────▶│     ACL     │────▶│Legacy System│  │
+│  │ (Clean API) │     │             │     │(Messy Model)│  │
 │  └─────────────┘     │ ┌─────────┐ │     └─────────────┘  │
 │                      │ │ Adapter │ │                      │
 │                      │ │ Facade  │ │                      │
@@ -291,14 +216,14 @@ status: current
 **組件**：
 
 | 組件 | 用途 |
-|------|------|
-| **Facade（門面）** | 簡化複雜的遺留介面 |
-| **Adapter（轉接器）** | 將遺留資料格式轉換為新領域模型 |
-| **Translator（翻譯器）** | 將遺留術語映射到通用語言 |
+|-----------|---------|
+| **Facade** | 簡化複雜的遺留介面 |
+| **Adapter** | 將遺留資料格式轉換為新領域模型 |
+| **Translator** | 將遺留術語映射到通用語言 |
 
 **實作檢查清單**：
 - [ ] 定義 ACL 的清晰介面
-- [ ] 映射遺留實體到新領域模型
+- [ ] 將遺留實體映射至新領域模型
 - [ ] 處理資料格式轉換
 - [ ] 實作錯誤翻譯
 - [ ] 加入日誌以便除錯
@@ -307,43 +232,43 @@ status: current
 **與絞殺榕的比較**：
 
 | 面向 | 絞殺榕 | 防腐層 |
-|------|--------|--------|
+|--------|---------------|----------------------|
 | **目標** | 取代遺留系統 | 與遺留系統共存 |
-| **方向** | 遷移離開遺留 | 整合遺留 |
+| **方向** | 遷移離開遺留系統 | 與遺留系統整合 |
 | **最終狀態** | 遺留系統下線 | 兩個系統繼續運作 |
 
 ### 抽象分支
 
-**定義**：透過引入抽象層，在不使用長期分支的情況下重構共享程式碼。
+**定義**：透過引入抽象層，在不使用長期分支的情況下重構共用程式碼。
 
 **適用情境**：
-- 在不用長期分支的情況下重構共享程式碼
-- 需要主幹開發
-- 變更風險太高，無法單一提交
+- 在不使用長期分支的情況下重構共用程式碼
+- 需要基於主幹的開發（trunk-based development）
+- 變更風險過高，無法以單一 commit 完成
 
 **步驟**：
 
 ```
-步驟 1：引入抽象
-        客戶端 → 抽象（介面）→ 舊實作
+Step 1: Introduce Abstraction
+        Client → Abstraction (interface) → Old Implementation
 
-步驟 2：新增新實作
-        客戶端 → 抽象 → 舊實作
-                     └─→ 新實作（功能開關控制）
+Step 2: Add New Implementation
+        Client → Abstraction → Old Implementation
+                           └─→ New Implementation (feature-toggled)
 
-步驟 3：切換並移除
-        客戶端 → 新實作
-        [舊實作已移除]
+Step 3: Switch and Remove
+        Client → New Implementation
+        [Old Implementation removed]
 ```
 
 **關鍵原則**：
-- 所有變更在主幹（trunk）上（沒有長期分支）
-- 功能開關控制哪個實作是活躍的
-- 兩個實作可以在過渡期共存
+- 所有變更皆在 main/trunk 上（無長期分支）
+- 功能開關（feature toggles）控制哪個實作生效
+- 兩個實作可以在過渡期間共存
 
 ### 平行變更（Expand-Migrate-Contract）
 
-**定義**：透過三階段方法變更被多個客戶端使用的介面。
+**定義**：透過三階段方法變更由多個客戶端使用的介面。
 
 **適用情境**：
 - 變更多個客戶端使用的介面
@@ -353,20 +278,20 @@ status: current
 **階段**：
 
 ```
-階段 1: 擴展（EXPAND）
-├─ 在舊的旁邊新增新欄位/方法
-├─ 新程式碼使用新介面
-└─ 舊程式碼仍然運作
+Phase 1: EXPAND
+├─ Add new field/method alongside old
+├─ New code uses new interface
+└─ Old code still works
 
-階段 2: 遷移（MIGRATE）
-├─ 更新所有客戶端使用新介面
-├─ 驗證所有客戶端已遷移
-└─ 資料遷移（如需要）
+Phase 2: MIGRATE
+├─ Update all clients to use new interface
+├─ Verify all clients migrated
+└─ Data migration (if needed)
 
-階段 3: 收縮（CONTRACT）
-├─ 移除舊欄位/方法
-├─ 清理遷移程式碼
-└─ 更新文件
+Phase 3: CONTRACT
+├─ Remove old field/method
+├─ Clean up migration code
+└─ Update documentation
 ```
 
 ---
@@ -395,26 +320,26 @@ status: current
 **流程**：
 
 ```
-1. 呼叫你想了解的程式碼
-2. 寫一個你預期會失敗的斷言
-3. 執行測試看實際發生什麼
-4. 更新斷言以符合實際行為
-5. 重複直到覆蓋你需要修改的行為
+1. Call the code you want to understand
+2. Write an assertion you expect to FAIL
+3. Run the test and see what actually happens
+4. Update the assertion to match actual behavior
+5. Repeat until you've covered the behavior you need to change
 ```
 
 **範例**：
 
 ```javascript
-// 步驟 1：初始（預期會失敗）
-test('calculateDiscount 回傳... 某個值', () => {
+// Step 1: Initial (expected to fail)
+test('calculateDiscount returns... something', () => {
   const result = calculateDiscount(100, 'GOLD');
-  expect(result).toBe(0); // 猜測 - 可能會失敗
+  expect(result).toBe(0); // Guess - will probably fail
 });
 
-// 步驟 2：執行後，更新為實際值
-test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
+// Step 2: After running, update with actual value
+test('calculateDiscount returns 15 for GOLD customers', () => {
   const result = calculateDiscount(100, 'GOLD');
-  expect(result).toBe(15); // 實際行為
+  expect(result).toBe(15); // Actual behavior
 });
 ```
 
@@ -429,11 +354,11 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 **工作流程**：
 
 ```
-1. 建立探針分支（或使用 git stash）
-2. 大膽重構以理解程式碼
-3. 記錄學到的內容
-4. 捨棄所有變更（git reset --hard）
-5. 將學習成果應用於撰寫特徵測試
+1. Create a scratch branch (or use git stash)
+2. Aggressively refactor to understand the code
+3. Take notes on what you learn
+4. Discard all changes (git reset --hard)
+5. Apply learnings to write characterization tests
 ```
 
 **適用情境**：
@@ -448,7 +373,7 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 **定義**：接縫是可以在不編輯程式碼的情況下改變行為的地方。
 
 | 接縫類型 | 運作方式 | 範例 |
-|---------|---------|------|
+|----------|--------------|---------|
 | **物件接縫** | 透過多型覆寫 | 透過介面注入測試替身 |
 | **預處理接縫** | 編譯時替換 | 條件編譯、巨集 |
 | **連結接縫** | 連結時替換 | 依賴注入、模組替換 |
@@ -458,7 +383,7 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 ### Sprout 與 Wrap 技術
 
 | 技術 | 使用時機 | 做法 |
-|-----|---------|-----|
+|-----------|-------------|-----|
 | **Sprout Method** | 在現有方法中加入新邏輯 | 建立新方法，從舊方法呼叫 |
 | **Sprout Class** | 新邏輯需要獨立演進 | 建立新類別，從舊程式碼參照 |
 | **Wrap Method** | 需要在前後加入行為 | 重命名原方法，建立包裝器 |
@@ -471,52 +396,52 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 理解無文件程式碼的技術：
 
 ```
-1. 探針式重構（見上方）
-   ├─ 重構以理解，不是保留
-   ├─ 使用 git stash 或分支
-   └─ 完成後捨棄（git reset --hard）
+1. Scratch Refactoring (see above)
+   ├─ Refactor to understand, not to keep
+   ├─ Use git stash or branch
+   └─ Discard when done (git reset --hard)
 
-2. 追蹤變數流動
-   ├─ 從輸入追蹤到輸出
-   ├─ 標記關鍵轉換點
-   └─ 邊發現邊記錄
+2. Trace Variable Flow
+   ├─ Follow data from input to output
+   ├─ Mark key transformation points
+   └─ Document as you discover
 
-3. 執行時觀察
-   ├─ 加入暫時性日誌
-   ├─ 使用除錯器逐步執行
-   └─ 建立心智模型
+3. Runtime Observation
+   ├─ Add temporary logging
+   ├─ Use debugger step-through
+   └─ Build mental model
 
-4. Git 考古
-   ├─ git log -p <file>（查看所有變更）
-   ├─ git blame（找到原作者）
-   └─ 搜尋提交訊息找脈絡
+4. Git Archaeology
+   ├─ git log -p <file> (see all changes)
+   ├─ git blame (find original author)
+   └─ Search commit messages for context
 ```
 
 ---
 
-## 資料庫重構
+## 資料庫重構模式
 
 ### Schema 變更的 Expand-Contract 模式
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              資料庫重構（Expand-Contract）                        │
+│              Database Refactoring (Expand-Contract)              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  階段 1: 擴展（新增新的，保留舊的）                                │
-│  ├─ 新增新欄位/表                                               │
-│  ├─ 應用程式同時寫入新舊                                         │
-│  └─ 此時可安全回滾                                              │
+│  Phase 1: EXPAND (Add new, keep old)                            │
+│  ├─ Add new column/table                                        │
+│  ├─ Application writes to BOTH old and new                      │
+│  └─ Safe to rollback at this point                              │
 │                                                                 │
-│  階段 2: 遷移（搬移資料）                                         │
-│  ├─ 從舊複製資料到新                                            │
-│  ├─ 驗證資料一致性                                              │
-│  └─ 應用程式開始從新讀取                                         │
+│  Phase 2: MIGRATE (Move data)                                    │
+│  ├─ Copy data from old to new                                   │
+│  ├─ Verify data consistency                                     │
+│  └─ Application starts reading from new                         │
 │                                                                 │
-│  階段 3: 收縮（移除舊的）                                         │
-│  ├─ 確認舊欄位/表不再被讀取                                      │
-│  ├─ 移除舊欄位/表                                               │
-│  └─ 清理雙寫程式碼                                              │
+│  Phase 3: CONTRACT (Remove old)                                  │
+│  ├─ Confirm old column/table no longer read                     │
+│  ├─ Remove old column/table                                     │
+│  └─ Clean up dual-write code                                    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -524,7 +449,7 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 ### 常見 Schema 重構場景
 
 | 場景 | 策略 | 風險等級 |
-|-----|------|---------|
+|----------|----------|------------|
 | **重命名欄位** | 新增新的 → 遷移 → 刪除舊的 | 中 |
 | **拆分表格** | 新表 + 外鍵 → 遷移 → 調整應用程式 | 高 |
 | **合併表格** | 新表 → 合併資料 → 切換應用程式 | 高 |
@@ -534,29 +459,29 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 ### 資料庫遷移安全檢查清單
 
 ```
-遷移前：
-□ 完整備份已完成
-□ 遷移腳本已在測試環境驗證
-□ 回滾腳本已準備
-□ 遷移時間已估算（考慮資料量）
-□ 維護視窗已通知
+Pre-Migration:
+□ Full backup completed
+□ Migration script tested in staging
+□ Rollback script prepared
+□ Migration time estimated (consider data volume)
+□ Maintenance window communicated
 
-遷移中：
-□ 監控資料庫效能
-□ 增量驗證資料完整性
-□ 應用程式健康檢查通過
+During Migration:
+□ Monitor database performance
+□ Verify data integrity incrementally
+□ Application health checks passing
 
-遷移後：
-□ 資料一致性驗證
-□ 應用程式功能驗證
-□ 效能基線比較
-□ 備份保留一段時間以供回滾
+Post-Migration:
+□ Data consistency verification
+□ Application functionality verification
+□ Performance baseline comparison
+□ Backup retained for rollback period
 ```
 
 ### 零停機遷移技術
 
 | 技術 | 說明 | 使用場景 |
-|-----|------|---------|
+|-----------|-------------|----------|
 | **Online Schema Change** | pt-osc, gh-ost | MySQL 大表變更 |
 | **Blue-Green Database** | 雙資料庫切換 | 高可用需求 |
 | **Shadow Write** | 同時寫入兩個資料庫並比較 | 驗證遷移正確性 |
@@ -564,157 +489,57 @@ test('calculateDiscount 對 GOLD 客戶回傳 15', () => {
 
 ---
 
-## 安全重構工作流程
-
-### 重構前
-
-```
-□ 定義成功標準（可衡量的）
-□ 確保足夠的測試覆蓋率（建議 >80%）
-□ 提交/暫存當前工作（乾淨的工作目錄）
-□ 建立功能分支（或在主幹上使用功能開關）
-□ 與團隊溝通以避免衝突
-```
-
-### 重構中
-
-```
-□ 一次只做一個小變更
-□ 每次變更後執行測試
-□ 如果測試失敗，立即復原
-□ 頻繁提交（每次測試通過都是一個存檔點）
-□ 重構時絕不加入新功能
-```
-
-### 重構後
-
-```
-□ 所有測試通過（與之前相同）
-□ 程式碼可衡量地更好（複雜度、重複等）
-□ 如需要則更新文件
-□ 團隊審查完成
-□ 沒有新增功能
-```
-
----
-
-## 重構度量指標
-
-### 程式碼品質指標
-
-| 指標 | 測量方式 | 目標 |
-|-----|---------|-----|
-| **循環複雜度** | 靜態分析工具 | 每函式 < 10 |
-| **認知複雜度** | SonarQube 等 | 越低越好 |
-| **耦合度** | 模組間依賴數 | 降低 |
-| **內聚性** | LCOM 指標 | 提高 |
-| **程式碼重複** | 重複程式碼百分比 | < 3% |
-| **程式碼行數** | 僅供參考 | 較少 ≠ 一定更好 |
-
-### 測試品質指標
-
-| 指標 | 目標 | 備註 |
-|-----|-----|------|
-| **測試覆蓋率** | ≥ 80% | 重構期間不要降低 |
-| **測試速度** | 更快 | 重構應改善可測試性 |
-| **不穩定測試數** | 降低 | 穩定性改善 |
-
-### 運維指標（DORA 指標）
-
-| 指標 | 測量方式 | 預期改善 |
-|-----|---------|---------|
-| **部署頻率** | CI/CD 記錄 | 提高（可維護性改善）|
-| **變更失敗率** | 回滾次數 | 降低 |
-| **平均恢復時間** | 事故記錄 | 縮短 |
-| **前置時間** | 從提交到部署 | 縮短 |
-
-### 團隊效率指標
-
-| 指標 | 測量方式 | 備註 |
-|-----|---------|------|
-| **新人上手時間** | 新員工熟悉時間 | 縮短 = 更好的可讀性 |
-| **PR 審查時間** | Git 記錄 | 縮短 = 更好的可理解性 |
-| **Bug 修復時間** | Issue 追蹤 | 縮短 = 更好的可維護性 |
-
-### 重構 ROI 框架
-
-```
-成本：
-├─ 開發時間 × 時薪
-├─ 測試時間
-├─ 部署風險成本
-└─ 機會成本（未建置的功能）
-
-收益：
-├─ 減少的維護時間 × 未來年數
-├─ 減少的 Bug × 修復成本
-├─ 更快的功能開發
-└─ 更低的人員流動成本
-```
-
----
-
-## 團隊協作
+## 團隊協作實踐
 
 ### 重構專案啟動
 
 ```
-啟動會議議程：
-1. 範圍定義
-   ├─ 哪些模組/檔案在範圍內
-   └─ 明確排除什麼
+Kickoff Meeting Agenda:
+1. Scope Definition
+   ├─ What modules/files are in scope
+   └─ What is explicitly excluded
 
-2. 成功標準對齊
-   ├─ 量化目標（複雜度降低 X%）
-   └─ 功能目標（行為不變）
+2. Success Criteria Alignment
+   ├─ Quantitative goals (complexity reduction X%)
+   └─ Functional goals (behavior unchanged)
 
-3. 工作分配
-   ├─ 按模組（垂直切分）
-   └─ 按層級（水平切分）
+3. Work Division
+   ├─ By module (vertical slicing)
+   └─ By layer (horizontal slicing)
 
-4. 風險評估
-   ├─ 最高風險區域
-   └─ 回滾策略
+4. Risk Assessment
+   ├─ Highest-risk areas
+   └─ Rollback strategy
 ```
 
 ### 分工策略
 
 | 策略 | 使用時機 | 注意事項 |
-|-----|---------|---------|
-| **垂直切分** | 獨立模組 | 確保介面不變 |
-| **水平切分** | 跨模組重構（如命名規範）| 需嚴格同步 |
-| **Strangler 分工** | 大型系統替換 | 一人一個 Strangler 切片 |
-| **Mob Programming** | 核心/高風險區域 | 全團隊一起，降低風險 |
+|------|----------|---------|
+| **垂直切片（Vertical Slicing）** | 獨立模組 | 確保介面不變 |
+| **水平切片（Horizontal Slicing）** | 跨模組重構（例如命名慣例） | 需要嚴格同步 |
+| **絞殺榕分工（Strangler Division）** | 大型系統替換 | 每一絞殺切片一人負責 |
+| **暴民程式設計（Mob Programming）** | 核心／高風險區域 | 全員參與，降低風險 |
 
 ### 溝通機制
 
 ```
-日常溝通：
-├─ 站立會議同步重構進度
-├─ 共享的重構看板（Kanban）
-└─ 專用頻道（#refactoring-xxx）
+Daily Communication:
+├─ Sync refactoring progress in standup
+├─ Shared Refactoring Board (Kanban)
+└─ Dedicated channel (#refactoring-xxx)
 
-PR 規範：
-├─ 標題加 [Refactor] 前綴
-├─ 說明改了什麼以及為什麼
-├─ 包含前後複雜度比較
-└─ 遺留程式碼需要特徵測試
+PR Standards:
+├─ [Refactor] prefix in title
+├─ Explain what changed and why
+├─ Include before/after complexity comparison
+└─ Require Characterization Tests for legacy code
 
-衝突處理：
-├─ 小範圍：立即解決
-├─ 中範圍：每日同步會議
-└─ 大範圍：考慮 Branch by Abstraction
+Conflict Resolution:
+├─ Small scope: Resolve immediately
+├─ Medium scope: Daily sync meeting
+└─ Large scope: Consider Branch by Abstraction
 ```
-
-### PR 大小指引
-
-| 大小 | 變更行數 | 審查時間 |
-|-----|---------|---------|
-| 小 | < 200 | < 30 分鐘 |
-| 中 | 200-500 | < 1 小時 |
-| 大 | > 500 | **應該拆分** |
-
-**原則**：多個小 PR > 一個大 PR
 
 ---
 
@@ -722,104 +547,41 @@ PR 規範：
 
 ### 技術債象限
 
-基於 Martin Fowler 的技術債象限：
+基於 Martin Fowler 的技術債象限（Technical Debt Quadrant）：
 
 ```
-                       刻意的
-                         │
-        ┌────────────────┼────────────────┐
-        │                │                │
-        │    審慎的      │     魯莽的     │
-        │   「我們知道   │   「我們沒時間  │
-        │    這是債務」  │    做設計」    │
-        │                │                │
-審慎的  ├────────────────┼────────────────┤ 魯莽的
-        │                │                │
-        │    審慎的      │     魯莽的     │
-        │   「現在我們   │   「什麼是     │
-        │    知道該怎麼  │    分層？」    │
-        │    做了」      │                │
-        │                │                │
-        └────────────────┼────────────────┘
-                         │
-                      無意的
+                    Deliberate
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+        │  Prudent      │  Reckless     │
+        │  "We know     │  "We don't    │
+        │  this is      │  have time    │
+        │  debt"        │  for design"  │
+        │               │               │
+Prudent ├───────────────┼───────────────┤ Reckless
+        │               │               │
+        │  Prudent      │  Reckless     │
+        │  "Now we      │  "What's      │
+        │  know how     │  layering?"   │
+        │  we should    │               │
+        │  have done it"│               │
+        │               │               │
+        └───────────────┼───────────────┘
+                        │
+                   Inadvertent
 ```
-
-### 債務優先順序
-
-| 優先級 | 標準 | 行動 |
-|-------|------|-----|
-| **高** | 阻擋開發、導致頻繁 Bug | 立即處理 |
-| **中** | 拖慢開發、增加複雜度 | 排入下個 Sprint |
-| **低** | 小煩惱、影響隔離 | 隨機處理 |
 
 ### 追蹤技術債
 
 ```
-每個債務項目記錄：
-├─ 描述：問題是什麼？
-├─ 影響：如何影響開發？
-├─ 估計工作量：修復需要多久？
-├─ 忽視的風險：不處理會怎樣？
-└─ 相關程式碼：受影響的檔案/模組連結
+For each debt item, record:
+├─ Description: What is the issue?
+├─ Impact: How does it affect development?
+├─ Estimated Effort: How long to fix?
+├─ Risk if Ignored: What happens if not addressed?
+└─ Related Code: Links to affected files/modules
 ```
-
----
-
-## 決策矩陣摘要
-
-選擇適當重構策略的快速參考：
-
-| 策略 | 規模 | 風險 | 關鍵用途 |
-|------|------|------|----------|
-| **預備性重構** | 小 | 低 | 降低功能開發阻力 |
-| **童子軍規則** | 極小 | 低 | 持續償還技術債 |
-| **紅-綠-重構** | 小 | 低 | TDD 開發循環 |
-| **絞殺榕模式** | 大 | 中 | 系統汰換、架構遷移 |
-| **防腐層** | 中 | 低 | 新舊系統共存 |
-| **抽象分支** | 大 | 中 | 主幹上的長期重構 |
-| **平行變更** | 中 | 低 | 介面/Schema 遷移 |
-| **特徵測試** | — | — | **所有遺留重構的前置條件** |
-| **探針式重構** | 小 | 低 | 理解黑盒程式碼 |
-
-### 策略選擇指南
-
-```
-你的情境是什麼？
-
-功能開發被混亂程式碼阻擋？
-└─► 預備性重構
-
-在 Bug 修復中接觸程式碼？
-└─► 童子軍規則
-
-用 TDD 寫新程式碼？
-└─► 紅-綠-重構
-
-取代整個遺留系統？
-└─► 絞殺榕模式
-
-需要整合遺留而不被污染？
-└─► 防腐層
-
-在主幹上重構共享程式碼？
-└─► 抽象分支
-
-變更被廣泛使用的介面？
-└─► 平行變更（Expand-Migrate-Contract）
-
-處理未測試的遺留程式碼？
-└─► 先用特徵測試 + 探針式重構
-```
-
----
-
-## 相關標準
-
-- [測試驅動開發](../test-driven-development.md) - TDD 循環包含重構階段
-- [程式碼審查清單](../code-review-checklist.md) - 重構 PR 審查指引
-- [提交訊息指南](../commit-message-guide.md) - `refactor` 提交類型
-- [程式碼簽入標準](../checkin-standards.md) - 提交前要求
 
 ---
 
@@ -827,12 +589,12 @@ PR 規範：
 
 ### 書籍
 
-- Martin Fowler -《重構：改善既有程式的設計》第二版（2018）
-- Michael Feathers -《Working Effectively with Legacy Code》（2004）
-- Joshua Kerievsky -《Refactoring to Patterns》（2004）
-- Kent Beck -《Implementation Patterns》（2007）
-- Robert C. Martin -《Clean Code》（2008）
-- Eric Evans -《Domain-Driven Design》（2003）
+- Martin Fowler - "Refactoring: Improving the Design of Existing Code" (2nd Edition, 2018)
+- Michael Feathers - "Working Effectively with Legacy Code" (2004)
+- Joshua Kerievsky - "Refactoring to Patterns" (2004)
+- Kent Beck - "Implementation Patterns" (2007)
+- Robert C. Martin - "Clean Code" (2008)
+- Eric Evans - "Domain-Driven Design" (2003)
 
 ### 文章
 
@@ -850,15 +612,6 @@ PR 規範：
 
 ---
 
-## 版本歷程
+## 授權條款
 
-| 版本 | 日期 | 變更 |
-|-----|------|------|
-| 2.0.0 | 2026-01-21 | 重大重構：新增戰術性策略（預備性重構、童子軍規則）、防腐層、決策矩陣摘要。重組為戰術性/戰略性/安全防護三層分類。 |
-| 1.0.0 | 2026-01-12 | 初始重構標準定義 |
-
----
-
-## 授權
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權釋出。
+本指引依 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權條款釋出。

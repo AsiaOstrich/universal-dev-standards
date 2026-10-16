@@ -49,7 +49,6 @@ locales/zh-CN/skills/ai-instruction-standards/SKILL.md
 locales/zh-CN/skills/commit-standards/guide.md
 locales/zh-CN/skills/docs-generator/guide.md
 locales/zh-CN/skills/project-discovery/guide.md
-locales/zh-CN/skills/reverse-engineer/guide.md
 locales/zh-TW/CHANGELOG.md
 locales/zh-TW/CLAUDE.md
 locales/zh-TW/core/accessibility-standards.md
@@ -61,7 +60,6 @@ locales/zh-TW/core/environment-standards.md
 locales/zh-TW/core/feature-flag-standards.md
 locales/zh-TW/core/forward-derivation-standards.md
 locales/zh-TW/core/guides/git-workflow-guide.md
-locales/zh-TW/core/guides/refactoring-guide.md
 locales/zh-TW/core/guides/testing-guide.md
 locales/zh-TW/core/observability-standards.md
 locales/zh-TW/core/performance-standards.md
