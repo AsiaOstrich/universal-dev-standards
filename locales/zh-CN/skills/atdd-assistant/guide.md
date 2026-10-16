@@ -14,7 +14,7 @@ description: |
 
 # ATDD 助手
 
-> **语言**: English | [繁体中文](../../../zh-TW/skills/atdd-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/atdd-assistant/guide.md) | [繁體中文](../../../zh-TW/skills/atdd-assistant/guide.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2026-01-19

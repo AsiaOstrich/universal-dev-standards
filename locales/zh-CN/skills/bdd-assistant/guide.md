@@ -14,7 +14,7 @@ description: |
 
 # BDD 助手
 
-> **语言**: [English](../../../../skills/bdd-assistant/guide.md) | 简体中文
+> **语言**: [English](../../../../skills/bdd-assistant/guide.md) | [繁體中文](../../../zh-TW/skills/bdd-assistant/guide.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2026-01-19

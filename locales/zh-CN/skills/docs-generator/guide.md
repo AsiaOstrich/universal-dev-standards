@@ -3,7 +3,7 @@ description: |
   从项目来源生成使用说明文档。
   使用时机：「生成文档」、「创建速查表」、「使用指南」、「功能参考」、「列出所有功能」
   关键字：documentation, usage, reference, cheatsheet, features, 功能文档, 速查表, 使用说明
-source: ../../../../skills/docs-generator/SKILL.md
+source: ../../../../skills/docs-generator/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-05

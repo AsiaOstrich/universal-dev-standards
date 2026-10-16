@@ -13,7 +13,7 @@ description: |
 
 # 程序码审查助理
 
-> **语言**: English | [繁体中文](../../../zh-TW/skills/code-review-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/code-review-assistant/guide.md) | [繁體中文](../../../zh-TW/skills/code-review-assistant/guide.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2025-12-24

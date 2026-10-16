@@ -9,7 +9,7 @@ status: current
 
 # 防幻覺指引
 
-> **語言**: English | [繁體中文](anti-hallucination-guide.md)
+> **語言**: [English](../../../../core/guides/anti-hallucination-guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-29
