@@ -1,8 +1,9 @@
 ---
-source: ../../../../skills/tdd-assistant/SKILL.md
+source: ../../../../skills/tdd-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-01-07
+last_synced: 2026-10-16
+source_hash: dfe1437a04b0
 status: current
 description: |
   引导开发者完成测试驱动开发工作流程。
@@ -12,150 +13,150 @@ description: |
 
 # TDD 助手
 
-> **语言**: [English](../../../../skills/tdd-assistant/SKILL.md) | 简体中文
+> **语言**: English | [繁体中文](../../../zh-TW/skills/tdd-assistant/SKILL.md)
 
 **版本**: 1.0.0
-**最後更新**: 2026-01-07
-**適用範圍**: Claude Code Skills
+**最后更新**: 2026-01-07
+**适用范围**: Claude Code Skills
 
 ---
 
 ## 目的
 
-此技能引導开发者完成测试驅动开发工作流程，協助他們：
-- 撰写有效的失败测试（紅色阶段）
-- 实現最少程序码讓测试通過（綠色阶段）
-- 在保持测试綠色的同时安全重構（重構阶段）
-- 識别并避免常見的 TDD 反模式
-- 集成 TDD 与 BDD 和 ATDD 方法
-- 根据情境適當地应用 TDD
+此技能引导开发者完成测试驱动开发工作流程，帮助他们：
+- 编写有效的失败测试（红色阶段）
+- 实现最少代码让测试通过（绿色阶段）
+- 在保持测试绿色的同时安全重构（重构阶段）
+- 识别并避免常见的 TDD 反模式
+- 将 TDD 与 BDD 和 ATDD 方法集成
+- 根据上下文适当地应用 TDD
 
 ---
 
-## 快速參考
+## 快速参考
 
-### TDD 循環检查清单
+### TDD 循环检查清单
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  🔴 紅色阶段                                                     │
-│  □ 测试描述预期行为，而非实作                                     │
-│  □ 测试名称清楚说明正在测试什麼                                   │
-│  □ 测试遵循 AAA 模式（Arrange-Act-Assert）                       │
-│  □ 测试因为「正确的原因」而失败                                   │
-│  □ 失败消息清楚且可操作                                          │
+│  🔴 RED Phase                                                   │
+│  □ Test describes expected behavior, not implementation         │
+│  □ Test name clearly states what is being tested                │
+│  □ Test follows AAA pattern (Arrange-Act-Assert)                │
+│  □ Test fails for the RIGHT reason                              │
+│  □ Failure message is clear and actionable                      │
 ├─────────────────────────────────────────────────────────────────┤
-│  🟢 綠色阶段                                                     │
-│  □ 撰写「最少」程序码讓测试通過                                   │
-│  □ 「假裝」是可以接受的（如有需要可硬编码）                        │
-│  □ 不要優化或過度设计                                            │
-│  □ 测试現在通過                                                  │
-│  □ 所有其他测试仍然通過                                          │
+│  🟢 GREEN Phase                                                 │
+│  □ Write MINIMUM code to pass the test                          │
+│  □ "Fake it" is acceptable (hardcode if needed)                 │
+│  □ Don't optimize or over-engineer                              │
+│  □ Test now passes                                              │
+│  □ All other tests still pass                                   │
 ├─────────────────────────────────────────────────────────────────┤
-│  🔵 重構阶段                                                     │
-│  □ 消除重複（DRY）                                               │
-│  □ 改善命名                                                      │
-│  □ 如有需要提取方法                                              │
-│  □ 「每次」变更後执行测试                                         │
-│  □ 没有新增功能                                                  │
-│  □ 所有测试仍然通過                                              │
+│  🔵 REFACTOR Phase                                              │
+│  □ Remove duplication (DRY)                                     │
+│  □ Improve naming                                               │
+│  □ Extract methods if needed                                    │
+│  □ Run tests after EVERY change                                 │
+│  □ No new functionality added                                   │
+│  □ All tests still pass                                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### FIRST 原則快速參考
+### FIRST 原则快速参考
 
-| 原則 | 检查 | 常見違規 |
+| 原则 | 检查 | 常见违规 |
 |------|------|---------|
-| **F**ast（快速） | 每个单元测试 < 100ms | 数据庫呼叫、文件 I/O、网络 |
-| **I**ndependent（獨立） | 無共享状态 | 静态变數、执行順序依賴 |
-| **R**epeatable（可重複） | 結果總是相同 | DateTime.Now、Random、外部服务 |
-| **S**elf-validating（自我验证） | 清楚的通過/失败 | 手动检查日誌、無斷言 |
-| **T**imely（及时） | 程序码之前测试 | 实現後才写测试 |
+| **F**ast（快速） | 每个单元测试 < 100ms | 数据库调用、文件 I/O、网络 |
+| **I**ndependent（独立） | 无共享状态 | 静态变量、执行顺序依赖 |
+| **R**epeatable（可重复） | 结果总是相同 | DateTime.Now、Random、外部服务 |
+| **S**elf-validating（自验证） | 明确的通过/失败 | 手动检查日志、无断言 |
+| **T**imely（及时） | 先测试后编写代码 | 实现后才写测试 |
 
-### 反模式快速偵测
+### 反模式快速检测
 
-| 症状 | 可能的反模式 | 快速修復 |
+| 症状 | 可能的反模式 | 快速修复 |
 |------|-------------|---------|
-| 重構时测试失败 | 测试实作細节 | 只测试行为 |
-| 测试通過但生产環境有 bug | 過度 mock | 新增集成测试 |
-| 隨机测试失败 | 测试相依性 | 隔離测试状态 |
-| 测试套件緩慢 | 集成测试太多 | 增加单元测试比例 |
-| 团队回避写测试 | 测试设置複雜 | 用建構器簡化 |
+| 重构时测试失败 | 测试实现细节 | 只测试行为 |
+| 测试通过但生产环境有 Bug | 过度 Mock | 增加集成测试 |
+| 随机测试失败 | 测试相互依赖 | 隔离测试状态 |
+| 测试套件缓慢 | 集成测试过多 | 提高单元测试比例 |
+| 团队回避写测试 | 测试设置复杂 | 使用构建器简化 |
 
 ---
 
-## TDD vs BDD vs ATDD 快速參考
+## TDD vs BDD vs ATDD 快速参考
 
-| 面向 | TDD | BDD | ATDD |
+| 方面 | TDD | BDD | ATDD |
 |------|-----|-----|------|
-| **誰撰写** | 开发者 | 开发者 + BA + QA | 所有利益相关者 |
-| **语言** | 程序码 | Gherkin（Given-When-Then） | 业务语言 |
-| **层级** | 单元/元件 | 功能/場景 | 驗收 |
+| **谁编写** | 开发者 | 开发者 + BA + QA | 所有利益相关者 |
+| **语言** | 代码 | Gherkin (Given-When-Then) | 业务语言 |
+| **层级** | 单元/组件 | 功能/场景 | 验收 |
 | **时机** | 编码期间 | 编码之前 | Sprint 之前 |
 
 ### 何时使用哪个
 
 ```
-是技術实作細节嗎？
-├─ 是 → TDD
-└─ 否 → 有业务利益相关者嗎？
-         ├─ 是 → 利益相关者需要阅读/验证测试嗎？
-         │        ├─ 是 → ATDD → BDD → TDD
-         │        └─ 否 → BDD → TDD
-         └─ 否 → TDD
+Is it a technical implementation detail?
+├─ Yes → TDD
+└─ No → Is there a business stakeholder?
+         ├─ Yes → Does stakeholder need to read/validate tests?
+         │        ├─ Yes → ATDD → BDD → TDD
+         │        └─ No → BDD → TDD
+         └─ No → TDD
 ```
 
 ---
 
-## 工作流協助
+## 工作流程协助
 
-### 紅色阶段指導
+### 红色阶段指导
 
-撰写失败测试时，确保：
+编写失败测试时，确保：
 
-1. **清楚的意图**
+1. **清晰的意图**
    ```typescript
-   // ❌ 模糊
+   // ❌ Vague
    test('it works', () => { ... });
 
-   // ✅ 清楚
+   // ✅ Clear
    test('should calculate discount when order total exceeds threshold', () => { ... });
    ```
 
 2. **单一行为**
    ```typescript
-   // ❌ 多个行为
+   // ❌ Multiple behaviors
    test('should validate and save user', () => { ... });
 
-   // ✅ 单一行为
+   // ✅ Single behavior
    test('should reject invalid email format', () => { ... });
    test('should save user with valid data', () => { ... });
    ```
 
-3. **正确的斷言**
+3. **正确的断言**
    ```typescript
-   // ❌ 無斷言
+   // ❌ No assertion
    test('should process order', () => {
      orderService.process(order);
-     // 缺少斷言！
+     // Missing assertion!
    });
 
-   // ✅ 清楚的斷言
+   // ✅ Clear assertion
    test('should mark order as processed', () => {
      const result = orderService.process(order);
      expect(result.status).toBe('processed');
    });
    ```
 
-### 綠色阶段指導
+### 绿色阶段指导
 
-讓测试通過时，记住：
+让测试通过时，记住：
 
-1. **最少实現**
+1. **最少实现**
    ```typescript
-   // 测试：should return "FizzBuzz" for numbers divisible by both 3 and 5
+   // Test: should return "FizzBuzz" for numbers divisible by both 3 and 5
 
-   // ❌ 過度设计的第一次实現
+   // ❌ Over-engineered first pass
    function fizzBuzz(n: number): string {
      const divisibleBy3 = n % 3 === 0;
      const divisibleBy5 = n % 5 === 0;
@@ -165,151 +166,211 @@ description: |
      return n.toString();
    }
 
-   // ✅ 當前测试的最少实現（假裝！）
+   // ✅ Minimum for current test (fake it!)
    function fizzBuzz(n: number): string {
-     return 'FizzBuzz'; // 剛好足夠通過「这个」测试
+     return 'FizzBuzz'; // Just enough to pass THIS test
    }
    ```
 
-2. **漸进式泛化**
+2. **渐进式泛化**
    - 第一个测试：硬编码答案
-   - 第二个测试：新增簡单条件
+   - 第二个测试：添加简单条件
    - 第三个测试：泛化模式
 
-### 重構阶段指導
+### 重构阶段指导
 
-安全重構检查清单：
+安全重构检查清单：
 
 ```
-之前：
-□ 所有测试都是綠色
-□ 理解程序码在做什麼
+Before:
+□ All tests are GREEN
+□ Understand what the code does
 
-期间（一次一个）：
-□ 提取方法 → 执行测试
-□ 重新命名 → 执行测试
-□ 消除重複 → 执行测试
-□ 簡化条件 → 执行测试
+During (one at a time):
+□ Extract method → Run tests
+□ Rename → Run tests
+□ Remove duplication → Run tests
+□ Simplify conditional → Run tests
 
-之後：
-□ 所有测试仍然綠色
-□ 程序码更乾淨
-□ 没有新功能
+After:
+□ All tests still GREEN
+□ Code is cleaner
+□ No new functionality
 ```
 
 ---
 
 ## 与 SDD 集成
 
-使用規格驅动开发时：
+使用规格驱动开发时：
 
 ### Spec → 测试映射
 
-| Spec 區段 | 测试类型 |
-|----------|---------|
-| 驗收标准 | 驗收测试（ATDD/BDD） |
-| 业务規則 | 单元测试（TDD） |
-| 邊界情况 | 单元测试（TDD） |
+| Spec 区段 | 测试类型 |
+|-----------|----------|
+| 验收标准 | 验收测试（ATDD/BDD） |
+| 业务规则 | 单元测试（TDD） |
+| 边界情况 | 单元测试（TDD） |
 | 集成点 | 集成测试 |
 
 ### 工作流程
 
 ```
-1. 阅读 Spec (SPEC-XXX)
+1. Read Spec (SPEC-XXX)
    ↓
-2. 識别驗收标准
+2. Identify Acceptance Criteria
    ↓
-3. 撰写 BDD 場景（如適用）
+3. Write BDD scenarios (if applicable)
    ↓
-4. 对每个場景：
-   ├─ TDD：紅 → 綠 → 重構
-   └─ 標记 AC 为已实現
+4. For each scenario:
+   ├─ TDD: Red → Green → Refactor
+   └─ Mark AC as implemented
    ↓
-5. 所有 AC 已实現？
-   ├─ 是 → 標记 Spec 为完成
-   └─ 否 → 返回步骤 4
+5. All ACs implemented?
+   ├─ Yes → Mark Spec as complete
+   └─ No → Return to step 4
 ```
 
-### 测试文件參考
+### 测试文件参考
 
 ```typescript
 /**
- * SPEC-001：使用者验证 的测试
+ * Tests for SPEC-001: User Authentication
  *
- * 驗收标准：
- * - AC-1：使用者可以用有效憑证登入
- * - AC-2：無效密码顯示错误
- * - AC-3：3 次失败嘗試後帳号鎖定
+ * Acceptance Criteria:
+ * - AC-1: User can login with valid credentials
+ * - AC-2: Invalid password shows error
+ * - AC-3: Account locks after 3 failed attempts
  */
-describe('使用者验证 (SPEC-001)', () => {
-  // 依 AC 組織测试
+describe('User Authentication (SPEC-001)', () => {
+  // Tests organized by AC
 });
 ```
 
 ---
 
-## 配置偵测
+## 配置检测
 
-此技能支援项目特定配置。
+此技能支持项目特定配置。
 
-### 偵测順序
+### 检测顺序
 
-1. 检查 `CONTRIBUTING.md` 的「Disabled Skills」區段
-   - 如果此技能在列表中，則对此项目停用
-2. 检查 `CONTRIBUTING.md` 的「TDD Standards」區段
-3. 检查程序码庫中現有的测试模式
-4. 如果未找到，**预设使用标准 TDD 实踐**
+1. 检查 `CONTRIBUTING.md` 中的 "Disabled Skills" 区段
+   - 如果此技能在列表中，则对此项目禁用
+2. 检查 `CONTRIBUTING.md` 中的 "TDD Standards" 区段
+3. 检查代码库中现有的测试模式
+4. 如果未找到，**默认使用标准 TDD 实践**
 
 ### 首次设置
 
-如果未找到配置且情境不明确：
+如果未找到配置且上下文不明确：
 
-1. 詢問：「此项目尚未配置 TDD 偏好。您偏好哪种方法？」
-   - 純 TDD（紅-綠-重構）
-   - BDD 風格 TDD（Given-When-Then）
+1. 询问：“此项目尚未配置 TDD 偏好。您偏好哪种方法？”
+   - 纯 TDD（红-绿-重构）
+   - BDD 风格 TDD（Given-When-Then）
    - ATDD 搭配 BDD 和 TDD
 
-2. 选择後，建议在 `CONTRIBUTING.md` 中文件化：
+2. 选择后，建议在 `CONTRIBUTING.md` 中记录：
 
 ```markdown
-## TDD 标准
+## TDD Standards
 
-### 偏好方法
-- 主要：TDD（紅-綠-重構）
-- 对於有业务利益相关者的功能：BDD
+### Preferred Approach
+- Primary: TDD (Red-Green-Refactor)
+- For features with business stakeholders: BDD
 
-### 测试命名慣例
-- 模式：`should_[行为]_when_[条件]`
-- 範例：`should_return_error_when_email_invalid`
+### Test Naming Convention
+- Pattern: `should_[behavior]_when_[condition]`
+- Example: `should_return_error_when_email_invalid`
 
-### 覆蓋率目標
-- 单元：80%
-- 集成：60%
+### Coverage Targets
+- Unit: 80%
+- Integration: 60%
 ```
 
 ---
 
 ## 详细指南
 
-完整标准請參阅：
-- [TDD 核心标准](../../../../core/test-driven-development.md)
-- [TDD 工作流程指南](./tdd-workflow.md)
-- [语言範例](./language-examples.md)
+完整标准请参阅：
+- [TDD 核心标准](../../core/test-driven-development.md)
+- [TDD 工作流指南](./tdd-workflow.md)
+- [语言示例](./language-examples.md)
 
 相关测试标准：
-- [测试标准](../../../../core/testing-standards.md)
-- [测试完整性維度](../../../../core/test-completeness-dimensions.md)
+- [测试标准](../../core/testing-standards.md)
+- [测试完整性维度](../../core/test-completeness-dimensions.md)
+
+---
+
+## 重构阶段深度解析（YAML 压缩）
+
+```yaml
+# === TDD REFACTOR = SAFE SMALL REFACTORING ===
+refactor_phase:
+  scope: "Single method/class improvements"
+  duration: "5-15 minutes max"
+  prerequisite: "All tests GREEN"
+  rule: "No new functionality"
+
+techniques:
+  safe_refactorings:
+    - extract_method: "Long method → smaller methods"
+    - rename: "Improve naming clarity"
+    - inline_variable: "Remove unnecessary temp"
+    - replace_magic_number: "Constant with meaning"
+    - extract_class: "SRP violation fix"
+    - move_method: "Better cohesion"
+
+workflow:
+  steps:
+    1: "Confirm all tests GREEN"
+    2: "Make ONE small change"
+    3: "Run tests immediately"
+    4: "If RED → revert, try smaller step"
+    5: "If GREEN → commit, repeat"
+
+# === WHEN TO USE /refactor INSTEAD ===
+escalation:
+  use_tdd_refactor:
+    - "Improving code just written"
+    - "Single method/class cleanup"
+    - "Takes <15 minutes"
+  use_refactoring_assistant:
+    - "Legacy code modernization"
+    - "Refactor vs Rewrite decision"
+    - "Large-scale architectural change"
+    - "Technical debt management"
+    - "Strangler Fig pattern needed"
+
+# === REFACTOR ANTIPATTERNS ===
+antipatterns:
+  - name: "Refactoring without tests"
+    symptom: "No safety net"
+    fix: "Add characterization tests first"
+  - name: "Too large refactoring"
+    symptom: "Tests RED for hours"
+    fix: "Smaller steps, commit frequently"
+  - name: "Adding features while refactoring"
+    symptom: "Scope creep"
+    fix: "Separate commits: refactor then feature"
+  - name: "Refactoring everything"
+    symptom: "Perfectionism paralysis"
+    fix: "Only refactor code you're changing"
+```
 
 ---
 
 ## 相关标准
 
-- [测试驅动开发](../../../../core/test-driven-development.md) - TDD 核心标准
-- [测试标准](../../../../core/testing-standards.md) - 测试框架
-- [测试完整性維度](../../../../core/test-completeness-dimensions.md) - 7 維度
-- [規格驅动开发](../../../../core/spec-driven-development.md) - SDD 集成
+- [测试驱动开发](../../core/test-driven-development.md) - TDD 核心标准
+- [重构标准](../../core/refactoring-standards.md) - 大规模重构
+- [测试标准](../../core/testing-standards.md) - 测试框架
+- [测试完整性维度](../../core/test-completeness-dimensions.md) - 7 个维度
+- [规格驱动开发](../../core/spec-driven-development.md) - SDD 集成
 - [测试指南技能](../testing-guide/SKILL.md) - 测试指南
-- [测试覆蓋率助手](../test-coverage-assistant/SKILL.md) - 覆蓋率協助
+- [测试覆盖率助手](../test-coverage-assistant/SKILL.md) - 覆盖率支持
+- [重构助手](../refactoring-assistant/SKILL.md) - 大规模重构
 
 ---
 
@@ -321,8 +382,8 @@ describe('使用者验证 (SPEC-001)', () => {
 
 ---
 
-## 授权
+## 许可证
 
-此技能依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授权釋出。
+此技能依据 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可证发布。
 
-**來源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)
+**来源**: [universal-dev-standards](https://github.com/AsiaOstrich/universal-dev-standards)

@@ -1,518 +1,297 @@
 ---
-source: ../../core/anti-hallucination.md
-source_version: 1.4.0
+source: ../../../../core/guides/anti-hallucination-guide.md
+source_version: 1.0.0
 translation_version: 1.4.0
-last_synced: 2026-01-19
+last_synced: 2026-10-16
+source_hash: 884f338dfc76
 status: current
 ---
 
-# AI 協作防幻覺標準
+# 防幻覺指引
 
-> **語言**: [English](../../../../core/anti-hallucination.md) | 繁體中文
+> **語言**: English | [繁體中文](anti-hallucination-guide.md)
 
-**版本**: 1.4.0
-**最後更新**: 2026-01-19
-**適用範圍**: 所有使用 AI 助理協作的軟體專案
+**版本**: 1.0.0
+**最後更新**: 2026-01-29
+**相關標準**: [防幻覺標準](../anti-hallucination.md)
 
 ---
 
 ## 目的
 
-本標準定義 AI 助理的嚴格準則，以防止在分析程式碼、提出建議或撰寫系統文件時產生幻覺（生成錯誤或未經驗證的資訊）。
+本指引提供防止 AI 幻覺的詳細範例、對話模式與案例研究。關於核心規範、標籤系統與驗證檢查清單，請參見 [防幻覺標準](../anti-hallucination.md)。
 
 ---
 
-## AI 助手互動規範
+## 目錄
 
-### 對話語言
+1. [理解 AI 幻覺](#understanding-ai-hallucination)
+2. [對話語言指引](#conversation-language-guidelines)
+3. [建議的最佳實務](#recommendation-best-practices)
+4. [依類別的詳細範例](#detailed-examples-by-category)
+5. [審查情境](#review-scenarios)
+6. [AI 助理工作流程](#ai-assistant-workflow)
+7. [語言無關應用](#language-agnostic-application)
+8. [與程式碼審查整合](#integration-with-code-review)
 
-AI 助手應適應使用者的偏好語言。當專案指定對話語言時，請遵循以下準則:
+---
+
+## 理解 AI 幻覺
+
+AI 幻覺發生於 AI 助理生成看似具權威性但實際上卻是：
+- **捏造**：毫無證據憑空編造
+- **假設**：基於模式而非事實
+- **過時**：來自訓練資料，而非當前現實
+- **錯誤歸屬**：與相似但不同的系統混淆
+
+### 為什麼這在軟體開發中很重要
+
+| 風險 | 影響 | 範例 |
+|------|------|------|
+| **捏造的 API** | 執行期錯誤、浪費除錯時間 | 「呼叫 `user.authenticate()` 方法」（不存在） |
+| **錯誤的設定** | 安全性弱點、系統故障 | 「在正式環境中設定 `DEBUG=true`」（錯誤的變數） |
+| **假設的需求** | 建置錯誤的功能 | 「使用者需要 SSO」（從未被指定） |
+| **過時的模式** | 技術債、安全性問題 | 「使用 `componentWillMount`」（在 React 17 中已棄用） |
+
+---
+
+## 對話語言指引
+
+### 適應使用者偏好
+
+AI 助理應適應使用者的偏好語言，同時保持技術準確性：
 
 | 情境 | 準則 | 範例 |
 |------|------|------|
-| 對話互動 | 使用專案指定語言 | 繁體中文、英文等 |
-| 確定性標籤 | 使用專案指定語言 | `[已確認]` 或 `[Confirmed]` |
-| 錯誤訊息解釋 | 使用專案指定語言 | 以使用者語言解釋編譯/執行錯誤 |
+| 對話 | 使用專案指定語言 | 繁體中文、英文等 |
+| 確定性標籤 | 使用專案指定語言 | `[Confirmed]` 或 `[已確認]` |
+| 錯誤解釋 | 使用專案指定語言 | 以使用者的語言解釋編譯／執行期錯誤 |
 | 技術術語 | 保留原文 | JWT、BCrypt、API、Token |
 | 程式碼註解 | 遵循專案慣例 | 通常為英文 |
-| Commit 訊息 | 遵循專案慣例 | 如 `feat(auth): 新增登入功能` |
+| Commit 訊息 | 遵循專案慣例 | 例如 `feat(auth): add login feature` |
 
-### 選項建議原則
+---
 
-**規則**: 當提供多個選項時，必須同時提出最推薦的選項並說明理由。
+## 建議的最佳實務
 
-| 情境 | 要求 | 範例 |
-|------|------|------|
-| 提供 2+ 選項 | 必須明確標示推薦選項並說明理由 | 「推薦選項 A，因為...」 |
-| 選項優劣明顯 | 直接推薦最佳選項，說明理由 | 「建議使用 BCrypt，因為安全性較高」 |
-| 選項各有優劣 | 推薦最適合當前情境的選項，說明權衡考量 | 「考量專案需求，推薦選項 B」 |
-| 無法判斷優劣 | 說明需要哪些資訊才能給出推薦 | 「需要確認效能需求才能推薦」 |
+### 永遠包含推薦的選項
 
-**範例**:
+當提供多個選項時，永遠包含推薦的選項並說明理由：
 
-❌ **錯誤**:
+**❌ 錯誤**:
 ```
-有三個選項:
-1. 使用 Redis 快取
-2. 使用記憶體快取
-3. 使用檔案快取
+There are three options:
+1. Use Redis caching
+2. Use in-memory caching
+3. Use file-based caching
 
-請選擇一個。
+Please choose one.
 ```
 
-✅ **正確**:
+**✅ 正確**:
 ```
-有三個選項:
-1. 使用 Redis 快取
-2. 使用記憶體快取
-3. 使用檔案快取
+There are three options:
+1. Use Redis caching
+2. Use in-memory caching
+3. Use file-based caching
 
-**推薦: 選項 1 (Redis)**: 考量專案已有 Redis 基礎設施且需要跨實例共享快取，Redis 是最適合的選擇。
+**Recommended: Option 1 (Redis)**: Given the project already has Redis infrastructure
+and needs cross-instance cache sharing, Redis is the most suitable choice.
 ```
 
 ### 下一步建議
 
-**規則**: 當完成一項任務或子任務時，AI 助手**必須**建議合理的下一步工作，並明確標示**最推薦**的選項。
+當完成一項任務或子任務時，永遠建議合理的下一步：
 
-**指引**:
-- **主動性**: 不要等待使用者問「接下來呢？」。
-- **情境相關**: 建議應遵循專案的工作流程（如：提案 -> 實作 -> 測試）。
-- **明確推薦**: 使用 `[推薦]` 或 `[Recommended]` 標示最佳路徑。
-
-**範例**:
-
-✅ **正確**:
+**✅ 正確**:
 ```
-任務完成: API 端點已實作。
+Task completed: API endpoint implemented.
 
-**建議下一步**:
-1. **[推薦]** 為新端點新增單元測試 (`src/tests/api/`)
-2. 更新 API 文件 (`docs/api-reference.md`)
-3. 開始前端整合
+**Suggested Next Steps**:
+1. **[Recommended]** Add unit tests for the new endpoint (`src/tests/api/`)
+2. Update API documentation (`docs/api-reference.md`)
+3. Start frontend integration
 ```
 
 ---
 
-## 核心原則
+## 各類別詳細範例
 
-### 1. 僅基於證據的分析
+### 1. 捏造 API 或函式簽名
 
-**規則**: 僅分析和引用已明確提供或讀取的內容。
-
-**指引**:
-- ✅ 分析已使用檔案讀取工具讀取的程式碼檔案
-- ✅ 引用已擷取的文件
-- ✅ 引用已檢查的設定檔
-- ❌ 不要推測未見過的 API、函式或設定
-- ❌ 不要在未驗證的情況下假設框架行為
-- ❌ 不要捏造需求細節
-
-**範例**:
-
-✅ **正確**:
+**❌ 錯誤**:
 ```
-[證據] 在 src/auth/service.ts:45，JWT 驗證邏輯使用 'jsonwebtoken' 函式庫
-[證據] package.json 檔案（第 12-18 行）列出 Express 4.18.2 作為相依項目
-```
-
-❌ **錯誤**:
-```
-此系統使用 Redis 進行快取（程式碼未審查）
-UserService 應該有 authenticate() 方法（API 未驗證）
-需求指出我們需要 SSO 登入支援（需求未確認）
-```
-
----
-
-### 2. 明確來源標註
-
-**規則**: 所有引用必須包含來源類型、位置與可驗證性資訊。
-
-#### 2.1 來源類型
-
-| 來源類型 | 標籤 | 說明 | 可靠度 |
-|---------|------|------|--------|
-| 專案程式碼 | `[來源: 程式碼]` | 直接從程式碼庫讀取 | ⭐⭐⭐⭐⭐ 最高 |
-| 專案文件 | `[來源: 文件]` | README、Wiki、程式碼註解 | ⭐⭐⭐⭐ 高 |
-| 外部文件 | `[來源: 外部]` | 官方文件（附 URL） | ⭐⭐⭐⭐ 高 |
-| 網路搜尋 | `[來源: 搜尋]` | 搜尋結果（包含日期） | ⭐⭐⭐ 中 |
-| AI 知識 | `[來源: 知識]` | AI 訓練資料（需驗證） | ⭐⭐ 低 |
-| 使用者提供 | `[來源: 使用者]` | 使用者對話中的資訊 | ⭐⭐⭐ 中 |
-
-#### 2.2 標註格式
-
-**程式碼引用**:
-```
-[來源: 程式碼] 檔案路徑:行號 - 描述
-```
-
-**外部文件**:
-```
-[來源: 外部] URL - 描述（版本: x.x.x，存取: YYYY-MM-DD）
-```
-
-**AI 知識**:
-```
-[來源: 知識] 主題 - 描述（⚠️ 需要驗證）
-```
-
-#### 2.3 範例
-
-✅ **正確**:
-```
-[來源: 程式碼] UserService.cs:142 - 密碼雜湊使用 BCrypt
-[來源: 程式碼] app.config:23-28 - 資料庫連線字串設定為 SQL Server
-[來源: 文件] README.md:15 - 專案需要 .NET 8.0 SDK
-[來源: 外部] https://react.dev/reference/react/useState - useState hook API（版本: React 18，存取: 2025-12-10）
-[來源: 搜尋] "Express.js middleware order" - 中介軟體依註冊順序執行（搜尋: 2025-12-10）
-[來源: 知識] HTTP 狀態碼 - 404 表示資源未找到（⚠️ 一般知識，請驗證您的 API）
-[來源: 使用者] 使用者在對話中表示 - 驗證必須支援 OAuth2
-```
-
-❌ **錯誤**:
-```
-驗證服務使用 BCrypt（無來源類型，無檔案引用）
-設定檔案中某處有資料庫連線（模糊引用）
-我認為 README 提到 .NET 8（不確定語言，無來源）
-React useState 的運作方式是...（無版本，無引用）
-```
-
-#### 2.4 版本敏感性
-
-**規則**: 引用函式庫、框架或 API 時，必須包含版本資訊（如有）。
-
-**為何重要**:
-- API 在不同版本間會改變
-- 已棄用的功能可能仍出現在 AI 訓練資料中
-- 安全性漏洞是版本特定的
-
-**範例**:
-```
-✅ [來源: 外部] Next.js App Router (v14.x) - Server Components 是預設值
-✅ [來源: 程式碼] package.json:12 - 使用 "express": "^4.18.2"
-❌ "Next.js 使用 Server Components"（哪個版本？v12 和 v14 行為不同）
-```
-
----
-
-### 3. 分類確定性等級
-
-**規則**: 明確區分已確認事實、推測與未知事項。
-
-**分類標籤**:
-
-| 標籤 | 使用時機 |
-|-----|---------|
-| `[已確認]` | 直接來自程式碼/文件的證據 |
-| `[推測]` | 基於現有證據的邏輯推論 |
-| `[假設]` | 基於常見模式（需驗證）|
-| `[未知]` | 資訊不可得 |
-| `[需確認]` | 需要使用者澄清 |
-
-**範例**:
-
-✅ **正確**:
-```
-[已確認] src/database/connection.ts:12 - 使用 PostgreSQL 驅動程式 'pg'
-[推測] 基於 src/repositories/ 中的 repository 模式，可能使用依賴注入
-[假設] 專案可能使用 OAuth2，但需要審查驗證設定
-[未知] API 速率限制策略未記錄
-[需確認] 新功能是否應支援多租戶？
-```
-
-❌ **錯誤**:
-```
-系統使用 Redis（無分類，無證據）
-我們應該實作快取（以事實呈現，非建議）
-使用者需要 SSO 支援（假設以已確認需求呈現）
-```
-
-#### 統一標籤系統
-
-本標準定義兩類互補的標籤類別，用於相關標準：
-
-**類別 1：確定性標籤**（用於分析現有內容）
-
-用於分析程式碼、審查文件或討論系統時。參見[反向工程標準](../reverse-engineering-standards.md)。
-
-| 標籤 | 用途 | 範例情境 |
-|-----|------|---------|
-| `[已確認]` | 直接來自程式碼/文件的證據 | 程式碼分析、測試提取 |
-| `[推測]` | 基於模式的邏輯推論 | 行為分析、架構審查 |
-| `[假設]` | 需驗證的合理猜測 | 缺口識別、推測 |
-| `[未知]` | 無法從現有資訊判斷 | 缺少文件 |
-| `[需確認]` | 需要人類輸入 | 模糊的需求 |
-
-**類別 2：推導標籤**（用於生成新內容）
-
-用於從已核准來源生成測試、規格或文件時。參見[正向推演標準](../forward-derivation-standards.md)。
-
-| 標籤 | 用途 | 範例情境 |
-|-----|------|---------|
-| `[來源]` | 直接來自規格/需求的內容 | SPEC 標題、AC 文字原文 |
-| `[推導]` | 從來源內容轉換而來 | 從條列 AC 轉換的 GWT |
-| `[生成]` | AI 生成的結構 | 測試骨架、TODO 註解 |
-| `[待辦]` | 需要人類實作 | Step definitions、斷言 |
-
-**何時使用哪種**：
-
-| 工作流程 | 主要標籤 | 次要標籤 |
-|----------|---------|---------|
-| 程式碼分析 | 確定性標籤 | - |
-| 反向工程 | 確定性標籤 | - |
-| 正向推演 | 推導標籤 | 確定性標籤（用於缺口）|
-| 規格生成 | 推導標籤 | 確定性標籤（用於未知）|
-
----
-
-### 4. 禁止行為
-
-**AI 助手不得**:
-
-1. **捏造 API 或函式簽名**
-   - ❌ 不要編造方法名稱、參數或回傳類型
-   - ✅ 要讀取實際原始碼或詢問使用者
-
-2. **假設需求**
-   - ❌ 不要猜測使用者需求或業務規則
-   - ✅ 當需求模糊時要提出澄清問題
-
-3. **推測未讀取的程式碼**
-   - ❌ 不要描述未審查檔案的功能
-   - ✅ 要明確表示「需要讀取 [檔案] 以確認」
-
-4. **編造設定**
-   - ❌ 不要假設環境變數、設定鍵或資料庫結構
-   - ✅ 要審查實際設定檔
-
-5. **憑空產生錯誤或 Bug**
-   - ❌ 不要在無證據的情況下聲稱程式碼有問題
-   - ✅ 要分析實際程式碼並引用特定行號
-
-6. **提出選項但不推薦**
-   - ❌ 不要列出選項後要求使用者選擇而不提供指引
-   - ✅ 要永遠包含推薦選項並附理由
-
-7. **未分析副作用即實作**
-   - ❌ 不要在未識別潛在副作用的情況下開始寫程式碼
-   - ✅ 要在實作前列出至少 3 個潛在副作用
-   - ✅ 要考慮：狀態變更、相依性、連鎖效應
-
-#### 詳細範例
-
-##### 1. 捏造 API 或函式名稱
-
-❌ **錯誤**:
-```
-助理: 「你可以呼叫 UserService.GetUserById(int id) 來取得使用者」
+Assistant: "You can call UserService.GetUserById(int id) to retrieve users"
 ```
 **問題**: 方法不存在或簽名不同。
 
-✅ **正確**:
+**✅ 正確**:
 ```
-助理: 「讓我讀取 UserService 檔案以找到正確的方法簽名。」
+Assistant: "Let me read the UserService file to find the correct method signature."
 
-[讀取 src/services/UserService.cs 後]
+[After reading src/services/UserService.cs]
 
-[來源: 程式碼] UserService.cs:45 - 找到方法: FindUser(Guid userId)
-實際方法使用 Guid 而非 int 作為使用者 ID 參數。
-```
-
----
-
-##### 2. 假設使用者需求
-
-❌ **錯誤**:
-```
-助理: 「系統需要支援 OAuth 和 SAML 以提供企業 SSO。」
-```
-**問題**: 使用者只詢問認證，未指定協議。
-
-✅ **正確**:
-```
-助理: 「[需確認] 您提到需要驗證功能。
-能否澄清:
-1. 這是給內部使用者、外部客戶，還是兩者都有？
-2. 您需要企業 SSO（OAuth/SAML）還是簡單的使用者名稱/密碼？
-3. 有任何需要整合的現有身分提供者嗎？
-
-這將幫助我推薦最適合的方法。」
+[Source: Code] UserService.cs:45 - Found method: FindUser(Guid userId)
+The actual method uses Guid instead of int for the user ID parameter.
 ```
 
 ---
 
-##### 3. 描述未讀取的程式碼功能
+### 2. 假設需求
 
-❌ **錯誤**:
+**❌ 錯誤**:
 ```
-助理: 「PaymentService 處理信用卡處理並與 Stripe 整合。」
+Assistant: "The system needs to support OAuth and SAML for enterprise SSO."
+```
+**問題**: 使用者只詢問驗證，未指定協定。
+
+**✅ 正確**:
+```
+Assistant: "[Need Confirmation] You mentioned needing authentication.
+Could you clarify:
+1. Is this for internal users, external customers, or both?
+2. Do you need enterprise SSO (OAuth/SAML) or simple username/password?
+3. Any existing identity providers to integrate with?
+
+This will help me recommend the most appropriate approach."
+```
+
+---
+
+### 3. 推測未讀取的程式碼
+
+**❌ 錯誤**:
+```
+Assistant: "The PaymentService handles credit card processing and integrates with Stripe."
 ```
 **問題**: 檔案未讀取，功能僅從名稱假設。
 
-✅ **正確**:
+**✅ 正確**:
 ```
-助理: 「我在您的專案結構中看到名為 PaymentService.cs 的檔案。
+Assistant: "I see a file named PaymentService.cs in your project structure.
 
-[未知] 我尚未讀取此檔案，因此無法確認其功能。
+[Unknown] I haven't read this file yet, so I cannot confirm its functionality.
 
-您想讓我讀取 src/services/PaymentService.cs 以了解:
-- 它使用哪個支付提供者？
-- 支援哪些支付方式？
-- 交易如何處理？」
-```
-
----
-
-##### 4. 編造設定細節
-
-❌ **錯誤**:
-```
-助理: 「設定 DATABASE_URL 環境變數以連線到 PostgreSQL。
-您的連線字串應在 appsettings.json 的 'ConnectionStrings:DefaultConnection' 下。」
-```
-**問題**: 設定結構和變數名稱未經驗證即假設。
-
-✅ **正確**:
-```
-助理: 「讓我檢查您的實際設定檔。」
-
-[讀取 appsettings.json 後]
-
-[來源: 程式碼] appsettings.json:8-12 - 找到資料庫設定:
-- 連線字串鍵: "ConnectionStrings:MainDb"（非 "DefaultConnection"）
-- 使用 SQL Server，非 PostgreSQL
-- 額外設定 "CommandTimeout": 30
-
-您的專案使用與 .NET 預設不同的鍵名稱。
+Would you like me to read src/services/PaymentService.cs to understand:
+- Which payment provider it uses?
+- What payment methods are supported?
+- How transactions are processed?"
 ```
 
 ---
 
-##### 5. 斷言程式碼有 Bug（無證據）
+### 4. 編造設定
 
-❌ **錯誤**:
+**❌ 錯誤**:
 ```
-助理: 「您的驗證程式碼有安全性漏洞 -
-您沒有正確進行密碼雜湊。」
+Assistant: "Set the DATABASE_URL environment variable to connect to PostgreSQL.
+Your connection string should be in appsettings.json under 'ConnectionStrings:DefaultConnection'."
+```
+**問題**: 設定結構與變數名稱未經驗證即假設。
+
+**✅ 正確**:
+```
+Assistant: "Let me check your actual configuration files."
+
+[After reading appsettings.json]
+
+[Source: Code] appsettings.json:8-12 - Found database configuration:
+- Connection string key: "ConnectionStrings:MainDb" (not "DefaultConnection")
+- Using SQL Server, not PostgreSQL
+- Additional setting "CommandTimeout": 30
+
+Your project uses a different key name than the .NET default.
+```
+
+---
+
+### 5. 憑空產生錯誤或 Bug
+
+**❌ 錯誤**:
+```
+Assistant: "Your authentication code has a security vulnerability -
+you're not hashing passwords properly."
 ```
 **問題**: 未讀取實際程式碼即聲稱有 Bug。
 
-✅ **正確**:
+**✅ 正確**:
 ```
-助理: 「讓我審查您的驗證實作。」
+Assistant: "Let me review your authentication implementation."
 
-[讀取 src/auth/AuthService.cs 後]
+[After reading src/auth/AuthService.cs]
 
-[已確認] AuthService.cs:67 - 找到密碼雜湊實作:
-- 使用 BCrypt，work factor 為 12 ✅
-- Salt 自動生成 ✅
-- 未偵測到時序攻擊漏洞 ✅
+[Confirmed] AuthService.cs:67 - Password hashing implementation found:
+- Using BCrypt with work factor 12 ✅
+- Salt is auto-generated ✅
+- No timing attack vulnerabilities detected ✅
 
-您的密碼雜湊實作遵循安全性最佳實務。
-在審查的程式碼中未發現問題。
-```
-
----
-
-##### 6. 選項未附推薦
-
-❌ **錯誤**:
-```
-助理: 「您可以使用: 1) JWT 2) Session 3) OAuth。您偏好哪個？」
-```
-**問題**: 列出選項但未提供指引或考慮情境。
-
-✅ **正確**:
-```
-助理: 「基於您的需求:
-
-**選項**:
-1. JWT - 無狀態、可擴展、適合 API
-2. Session - 伺服器端狀態、傳統 Web 應用程式
-3. OAuth - 第三方身分提供者
-
-**推薦: JWT**
-
-[推測] 基於您的微服務架構（見於 docker-compose.yml），
-JWT 是最適合的，因為:
-- 無狀態: 跨服務不需要 session 儲存
-- 可擴展: 每個服務可獨立驗證 token
-- 標準: 在您的技術堆疊（.NET、React）中有良好支援
-
-如果之後需要社交登入，可以在 JWT 之上加入 OAuth。」
+Your password hashing implementation follows security best practices.
+No issues found in the reviewed code.
 ```
 
 ---
 
-##### 7. 未分析副作用即實作
+### 6. 提出選項但不推薦
 
-❌ **錯誤**:
+**❌ 錯誤**:
 ```
-使用者: 「新增一個刪除使用者帳號的功能」
-助理: 「這是實作:
+Assistant: "You can use: 1) JWT 2) Session 3) OAuth. Which do you prefer?"
+```
+**問題**: 列出選項但未提供指引或考量情境。
+
+**✅ 正確**:
+```
+Assistant: "Based on your requirements:
+
+**Options**:
+1. JWT - Stateless, scalable, good for APIs
+2. Session - Server-side state, traditional web apps
+3. OAuth - Third-party identity providers
+
+**Recommended: JWT**
+
+[Inferred] Based on your microservices architecture (seen in docker-compose.yml),
+JWT is the best fit because:
+- Stateless: No session store needed across services
+- Scalable: Each service can validate tokens independently
+- Standard: Well-supported across your tech stack (.NET, React)
+
+If you need social login later, you can add OAuth on top of JWT."
+```
+
+---
+
+### 7. 未分析副作用即實作
+
+**❌ 錯誤**:
+```
+User: "Add a function to delete user accounts"
+Assistant: "Here's the implementation:
 
 public async Task DeleteUser(Guid userId) {
     await _dbContext.Users.Where(u => u.Id == userId).DeleteAsync();
 }
-」
+"
 ```
-**問題**: 未考慮連鎖效應即直接實作。
+**問題**: 未考量連鎖效應即直接實作。
 
-✅ **正確**:
+**✅ 正確**:
 ```
-使用者: 「新增一個刪除使用者帳號的功能」
-助理: 「在實作前，讓我先識別潛在副作用:
+User: "Add a function to delete user accounts"
+Assistant: "Before implementing, let me identify potential side effects:
 
-**潛在副作用**:
-1. **資料完整性**: 相關記錄（訂單、評論、工作階段）可能變成孤立資料
-2. **外部系統**: 可能需要通知第三方服務（支付提供者、電子郵件服務）
-3. **稽核軌跡**: 刪除可能違反合規要求（GDPR 被遺忘權 vs. 稽核日誌）
+**Potential Side Effects**:
+1. **Data Integrity**: Related records (orders, comments, sessions) may become orphaned
+2. **External Systems**: May need to notify third-party services (payment provider, email service)
+3. **Audit Trail**: Deletion may violate compliance requirements (GDPR right to be forgotten vs. audit logs)
 
-[需確認] 應如何處理:
-- 相關使用者資料（級聯刪除 vs. 匿名化）？
-- 活動中的工作階段？
-- 用於報表的歷史記錄？
+[Need Confirmation] How should we handle:
+- Related user data (cascade delete vs. anonymize)?
+- Active sessions?
+- Historical records for reporting?
 
-一旦確認後，我會提供實作。」
+Once clarified, I'll provide the implementation."
 ```
-
----
-
-## 實施檢查清單
-
-在對程式碼、需求或架構做出任何陳述前，請驗證:
-
-- [ ] **來源已驗證**
-  - 我是否已讀取實際的檔案/文件？
-
-- [ ] **來源類型已標註**
-  - 我是否已指定來源類型？（`[來源: 程式碼]`、`[來源: 外部]`、`[來源: 知識]` 等）
-
-- [ ] **引用已標註**
-  - 我是否已包含檔案路徑與行號（程式碼）？
-  - 我是否已包含 URL 與存取日期（外部文件）？
-
-- [ ] **版本已標註**
-  - 我是否已包含適用的函式庫/框架版本？
-
-- [ ] **確定性已分類**
-  - 我是否已標註為 [已確認]、[推測]、[假設]、[未知] 或 [需確認]？
-
-- [ ] **AI 知識已標記**
-  - 我是否已對 `[來源: 知識]` 標記 ⚠️ 驗證警告？
-
-- [ ] **無捏造**
-  - 我是否避免了捏造 API、設定或需求？
-
-- [ ] **使用者澄清**
-  - 我是否對模糊點請求澄清？
-
-- [ ] **包含推薦**
-  - 當提出選項時，我是否包含了推薦選項？
-
-- [ ] **已識別副作用**
-  - 我是否在實作前列出至少 3 個潛在副作用？
-  - 我是否考慮了：狀態變更、相依性、外部系統、資料完整性？
 
 ---
 
@@ -524,23 +303,23 @@ public async Task DeleteUser(Guid userId) {
 
 **❌ 不良回應**:
 ```
-您的驗證系統使用 JWT 搭配 RS256 簽名。
-Token 在 1 小時後過期。
-您應該加入 refresh token 支援。
+Your authentication system uses JWT with RS256 signing.
+The tokens expire after 1 hour.
+You should add refresh token support.
 ```
 **問題**: 未讀取程式碼即做出聲明，假設實作細節。
 
 **✅ 良好回應**:
 ```
-[需確認] 哪個檔案包含驗證邏輯？
-可能的位置包括:
+[Need Confirmation] Which file contains the authentication logic?
+Possible locations might be:
 - src/auth/
 - src/services/auth
 - src/middleware/
 
-請引導我找到正確的檔案，以便我提供準確分析。
+Please direct me to the correct file so I can provide accurate analysis.
 
-或者，我可以搜尋程式碼庫中與驗證相關的檔案。
+Alternatively, I can search the codebase for authentication-related files.
 ```
 
 ---
@@ -551,28 +330,28 @@ Token 在 1 小時後過期。
 
 **❌ 不良回應**:
 ```
-基於您現有的架構，您應該:
-1. 在 src/services/ 建立 PaymentService
-2. 使用 Stripe API
-3. 將交易儲存在 payments 資料表
+Based on your existing architecture, you should:
+1. Create PaymentService in src/services/
+2. Use the Stripe API
+3. Store transactions in the payments table
 ```
 **問題**: 未經證據即假設架構、支付提供者和資料庫結構。
 
 **✅ 良好回應**:
 ```
-為了提供準確的建議，我需要了解您目前的架構:
+To provide an accurate recommendation, I need to understand your current architecture:
 
-[需確認]
-1. 您計劃使用哪個支付提供者？（Stripe、PayPal、自訂等）
-2. 您現有的服務層結構是什麼？
-3. 您使用什麼資料庫？
+[Need Confirmation]
+1. What payment provider do you plan to use? (Stripe, PayPal, custom, etc.)
+2. What is your existing service layer structure?
+3. What database are you using?
 
-能否分享:
-- 專案結構（ls -R src/ 或類似）
-- 現有服務範例
-- 資料庫結構或 ORM 模型
+Could you share:
+- Project structure (ls -R src/ or similar)
+- Existing service examples
+- Database schema or ORM models
 
-一旦我審查了這些，就能建議與您的模式一致的結構。
+Once I review these, I can suggest a structure that aligns with your patterns.
 ```
 
 ---
@@ -583,26 +362,26 @@ Token 在 1 小時後過期。
 
 **❌ 不良回應**:
 ```
-問題可能在您的 validateCredentials() 函式中。
-您可能需要在比對前對密碼進行雜湊。
+The issue is likely in your validateCredentials() function.
+You probably need to hash the password before comparison.
 ```
 **問題**: 未看程式碼即猜測原因。
 
 **✅ 良好回應**:
 ```
-要調查登入失敗，我需要更多資訊:
+To investigate the login failure, I need more information:
 
-[需確認]
-1. 您看到什麼錯誤訊息？（主控台日誌、錯誤回應）
-2. 哪個檔案包含登入邏輯？
-3. 能否分享相關的程式碼片段或日誌？
+[Need Confirmation]
+1. What error message are you seeing? (console logs, error responses)
+2. Which file contains the login logic?
+3. Can you share relevant code snippets or logs?
 
-建議的除錯步驟:
-- 分享登入控制器/服務程式碼
-- 提供主控台/伺服器的錯誤日誌
-- 描述預期與實際行為
+Suggested debugging steps:
+- Share the login controller/service code
+- Provide error logs from console/server
+- Describe expected vs actual behavior
 
-一旦我審查了實際程式碼和錯誤，就能找出根本原因。
+Once I review the actual code and errors, I can identify the root cause.
 ```
 
 ---
@@ -613,32 +392,32 @@ Token 在 1 小時後過期。
 
 **❌ 不良回應**:
 ```
-您有幾個選項:
+You have several options:
 1. Redis
 2. Memcached
-3. 記憶體快取
+3. In-memory cache
 
-讓我知道您想使用哪一個。
+Let me know which one you'd like to use.
 ```
-**問題**: 列出選項但未推薦或考慮情境。
+**問題**: 列出選項但未提供推薦或考量情境。
 
 **✅ 良好回應**:
 ```
-基於可用的選項:
-1. Redis - 分散式、持久化、豐富的資料結構
-2. Memcached - 簡單、快速、分散式
-3. 記憶體快取 - 僅本機、無需設定
+Based on the options available:
+1. Redis - Distributed, persistent, rich data structures
+2. Memcached - Simple, fast, distributed
+3. In-memory cache - Local only, no setup required
 
-**推薦: Redis**
+**Recommended: Redis**
 
-[需確認] 在最終決定前，我想了解:
-- 您需要跨多個實例共享快取嗎？
-- 需要資料持久化嗎？
-- 您現有的基礎設施是什麼？
+[Need Confirmation] Before finalizing, I'd like to understand:
+- Do you need cache sharing across multiple instances?
+- Is data persistence required?
+- What's your existing infrastructure?
 
-如果您已有 Redis 基礎設施或需要跨實例共享，
-Redis 是最佳選擇。如果這是單實例應用程式且有
-簡單的快取需求，記憶體快取就足夠了。
+If you already have Redis infrastructure or need cross-instance sharing,
+Redis is the best choice. If this is a single-instance application with
+simple caching needs, in-memory cache would suffice.
 ```
 
 ---
@@ -647,62 +426,62 @@ Redis 是最佳選擇。如果這是單實例應用程式且有
 
 ```
 ┌─────────────────────────────────┐
-│  收到使用者請求                  │
+│  User Request Received          │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  識別所需資訊                    │
-│  - 程式碼檔案？                  │
-│  - 設定？                        │
-│  - 需求？                        │
+│  Identify Information Needed    │
+│  - Code files?                  │
+│  - Configuration?               │
+│  - Requirements?                │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  識別潛在副作用                  │
-│  - 狀態變更？                    │
-│  - 受影響的相依性？              │
-│  - 外部系統影響？                │
+│  Identify Potential Side Effects│
+│  - State changes?               │
+│  - Dependencies affected?       │
+│  - External system impacts?     │
 └─────────────┬───────────────────┘
               │
               ▼
          ┌────┴────┐
-         │  可取得？ │
+         │  Available?  │
          └────┬────┘
               │
       ┌───────┴───────┐
       │               │
-     是              否
+     YES              NO
       │               │
       ▼               ▼
 ┌──────────┐   ┌─────────────┐
-│  讀取/   │   │  向使用者   │
-│  分析    │   │  詢問資訊   │
+│  Read/   │   │  Ask User   │
+│  Analyze │   │  for Info   │
 └────┬─────┘   └──────┬──────┘
      │                │
      ▼                ▼
 ┌─────────────────────────────────┐
-│  為回應加上標籤:                 │
-│  - [已確認] 用於事實             │
-│  - [推測] 用於推論               │
-│  - [需確認] 用於缺口             │
+│  Tag Response with:             │
+│  - [Confirmed] for facts        │
+│  - [Inferred] for deductions    │
+│  - [Need Confirmation] for gaps │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  引用來源（檔案:行號）           │
+│  Cite Sources (file:line)       │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  包含推薦                        │
-│  （如提出選項）                  │
+│  Include Recommendation         │
+│  (if presenting options)        │
 └─────────────┬───────────────────┘
               │
               ▼
 ┌─────────────────────────────────┐
-│  提供回應                        │
+│  Deliver Response               │
 └─────────────────────────────────┘
 ```
 
@@ -734,46 +513,14 @@ Redis 是最佳選擇。如果這是單實例應用程式且有
 
 **審查評論範本**:
 ```
-[檔案:行號] - [嚴重性]
-[問題描述與程式碼摘錄]
-[證據或推理]
-[建議修正或澄清問題]
+[file:line] - [Severity]
+[Description of issue with code excerpt]
+[Evidence or reasoning]
+[Suggested fix or question for clarification]
 ```
 
 ---
 
-## 相關標準
+## 授權條款
 
-- [測試標準](../testing-standards.md) - 確保驗證 AI 分析結果（或使用 `/testing-guide` 技能）
-- [程式碼審查清單](../code-review-checklist.md) - 審查 AI 生成內容
-- [程式碼簽入標準](../checkin-standards.md) - AI 協作簽入流程
-
----
-
-## 版本歷史
-
-| 版本 | 日期 | 變更 |
-|------|------|------|
-| 1.4.0 | 2026-01-19 | 新增: 副作用分析規則（第 7 條禁止行為）、工作流程步驟及檢查清單項目 |
-| 1.3.1 | 2025-12-24 | 新增: 相關標準章節 |
-| 1.3.0 | 2025-12-22 | 增強: 禁止行為章節，新增詳細對比範例 |
-| 1.2.0 | 2025-12-15 | 新增: AI 助手互動規範章節（對話語言、推薦原則） |
-| 1.1.0 | 2025-12-10 | 增強來源標註，新增來源類型、版本敏感性與可靠度評級 |
-| 1.0.0 | 2025-11-12 | 初版發布 |
-
----
-
-## 授權
-
-本標準以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 授權發布。
-您可以自由調整用於您的專案，但需註明出處。
-
----
-
-**專案特定化**
-
-專案可透過以下方式擴充本標準:
-- 領域特定驗證需求（如醫療領域的 HIPAA 合規檢查）
-- 工具特定指引（如如何驗證 Terraform 設定）
-- 團隊特定證據格式（如 JIRA ticket 引用）
-- AI 助手對話的語言偏好
+本指南以 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 釋出。

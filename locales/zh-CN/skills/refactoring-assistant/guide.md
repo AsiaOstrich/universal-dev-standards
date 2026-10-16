@@ -1,8 +1,9 @@
 ---
-source: ../../../../skills/refactoring-assistant/SKILL.md
+source: ../../../../skills/refactoring-assistant/guide.md
 source_version: 2.0.0
 translation_version: 2.0.0
-last_synced: 2026-01-21
+last_synced: 2026-10-16
+source_hash: 40b6adf241b1
 status: current
 description: |
   引导重构决策和大规模代码改进。
@@ -12,7 +13,7 @@ description: |
 
 # 重构助手
 
-> **语言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 简体中文
+> **语言**: English | [繁体中文](../../../zh-TW/skills/refactoring-assistant/SKILL.md)
 
 **版本**: 2.0.0
 **最后更新**: 2026-01-21
@@ -29,237 +30,237 @@ description: |
 ## 快速参考（YAML 压缩格式）
 
 ```yaml
-# === 决策：重构 vs 重写 ===
+# === DECISION: Refactor vs Rewrite ===
 decision_tree:
-  - q: "代码在生产环境运行？"
-    n: "→ 考虑重写（风险较低）"
+  - q: "Code in production?"
+    n: "→ Consider rewrite (lower risk)"
     y: next
-  - q: "了解代码的功能？"
-    n: "→ 先写特征测试"
+  - q: "Understand what code does?"
+    n: "→ Characterization tests first"
     y: next
-  - q: "测试覆盖率 >60%？"
-    n: "→ 先补测试"
+  - q: "Test coverage >60%?"
+    n: "→ Add tests first"
     y: next
-  - q: "核心架构可修复？"
-    n: "→ Strangler Fig 模式"
-    y: "→ 增量重构 ✓"
+  - q: "Core architecture salvageable?"
+    n: "→ Strangler Fig pattern"
+    y: "→ Incremental Refactoring ✓"
 
 comparison_matrix:
-  favor_refactor: [大型代码库, 良好测试, 业务关键, 团队熟悉, 架构健全, 时间紧迫, 低风险]
-  favor_rewrite: [小型独立, 无测试, 可容忍停机, 无人熟悉, 架构有缺陷, 时间充裕, 较高风险]
+  favor_refactor: [large_codebase, good_tests, business_critical, team_knows_code, sound_arch, tight_deadline, low_risk]
+  favor_rewrite: [small_isolated, no_tests, can_tolerate_downtime, no_knowledge, flawed_arch, flexible_time, higher_risk]
 
-# === 警告：第二系统效应 ===
+# === WARNING: Second-System Effect ===
 rewrite_antipatterns:
-  - "加入原本没有的功能"
-  - "为未来弹性过度抽象"
-  - "忽略现有系统的经验教训"
-quote: "第二个系统是一个人设计过最危险的系统。— Fred Brooks"
+  - "Adding features not in original"
+  - "Over-abstracting for future flexibility"
+  - "Ignoring lessons from existing system"
+quote: "The second system is the most dangerous system a person ever designs. — Fred Brooks"
 
-# === 战术性策略：日常重构 ===
+# === TACTICAL: Daily Refactoring Strategies ===
 tactical:
   preparatory_refactoring:
-    definition: "在新增功能前调整结构，让改变更容易"
-    quote: "先把改变变容易（这可能很难），然后再做那个容易的改变。— Kent Beck"
-    when: [功能被阻挡, 降低阻力, 即将变更]
+    definition: "Restructure code to make upcoming change easier"
+    quote: "First make the change easy (this might be hard), then make the easy change. — Kent Beck"
+    when: [feature_blocked, reduce_friction, upcoming_changes]
     workflow:
-      1: "识别要做的改变"
-      2: "识别是什么让改变困难"
-      3: "重构以让改变变容易"
-      4: "做那个（现在变容易的）改变"
+      1: "Identify the change you want to make"
+      2: "Identify what makes this change difficult"
+      3: "Refactor to make the change easy"
+      4: "Make the (now easy) change"
     principles:
-      - "预备性重构与功能分开提交"
-      - "每一步都维持测试通过"
-      - "不要混合重构与功能工作"
+      - "Preparatory refactoring is separate commit from feature"
+      - "Each step maintains passing tests"
+      - "Don't combine refactoring with feature work"
 
   boy_scout_rule:
-    definition: "离开时让代码比来时更干净（机会主义重构）"
-    quote: "离开营地时，让它比你来的时候更干净。— Robert C. Martin"
-    when: [任何维护, Bug修复, 功能新增, 对抗熵]
+    definition: "Leave code cleaner than you found it (opportunistic refactoring)"
+    quote: "Leave the campground cleaner than you found it. — Robert C. Martin"
+    when: [any_maintenance, bug_fixes, feature_additions, fighting_entropy]
     guidelines:
-      - "只做小改进（分钟，不是小时）"
-      - "不改变行为"
-      - "不破坏现有测试"
-      - "保持范围在当前任务内"
+      - "Only small improvements (minutes, not hours)"
+      - "Don't change behavior"
+      - "Don't break existing tests"
+      - "Keep scope within current task"
     examples:
-      - "重新命名令人困惑的变量"
-      - "将几行代码提取为命名良好的方法"
-      - "移除死代码"
-      - "加入澄清注释"
+      - "Rename confusingly-named variable"
+      - "Extract lines into well-named method"
+      - "Remove dead code"
+      - "Add clarifying comment"
     antipatterns:
-      - "把 Bug 修复变成大重构"
-      - "重构不相关的代码"
-      - "没有测试覆盖就修改"
-      - "范围蔓延超出原始任务"
+      - "Turning bug fix into major refactoring"
+      - "Refactoring unrelated code"
+      - "Changes without test coverage"
+      - "Scope creep beyond original task"
 
   red_green_refactor:
-    definition: "TDD 重构阶段"
-    duration: "每循环 5-15 分钟"
-    scope: "单一方法/类"
-    techniques: [提取方法, 重新命名, 内联变量, 替换魔术数字]
-    reference: "→ 见 TDD 标准"
+    definition: "TDD refactoring phase"
+    duration: "5-15 min per cycle"
+    scope: "single method/class"
+    techniques: [extract_method, rename, inline_var, replace_magic_number]
+    reference: "→ See TDD Standards"
 
-# === 战略性策略：架构重构 ===
+# === STRATEGIC: Architectural Refactoring ===
 strategic:
   strangler_fig:
-    definition: "逐步将功能路由到新系统，渐进替换旧系统"
-    origin: "命名自绞杀榕树"
+    definition: "Gradually replace legacy by routing to new system"
+    origin: "Named after strangler fig trees"
     phases:
-      1_拦截: "请求 → 门面 → 旧系统(100%)"
-      2_迁移: "请求 → 门面 → [新系统(功能), 旧系统(其余)]"
-      3_完成: "请求 → 新系统(100%) [旧系统下线]"
+      1_intercept: "Request → Facade → Legacy(100%)"
+      2_migrate: "Request → Facade → [New(Feature), Legacy(Rest)]"
+      3_complete: "Request → New(100%) [Legacy decommissioned]"
     checklist:
-      - "识别拦截点"
-      - "建立事件捕获层"
-      - "在新系统实现第一个功能"
-      - "渐进式路由流量"
-      - "监控并比较"
-      - "下线旧系统"
+      - "Identify interception point"
+      - "Create event capture layer"
+      - "Implement first feature in new"
+      - "Route traffic incrementally"
+      - "Monitor and compare"
+      - "Decommission legacy"
 
   anti_corruption_layer:
-    definition: "防止遗留模型污染新系统的翻译层"
-    origin: "Eric Evans, 领域驱动设计 (2003)"
+    definition: "Translation layer preventing legacy model from polluting new system"
+    origin: "Eric Evans, Domain-Driven Design (2003)"
     when:
-      - "新旧系统必须共存并互动"
-      - "遗留系统有混乱的领域模型"
-      - "保护新系统的限界上下文"
+      - "New and legacy must coexist and interact"
+      - "Legacy has chaotic domain model"
+      - "Protecting new system's Bounded Context"
     components:
-      facade: "简化复杂的遗留接口"
-      adapter: "将遗留数据转换为新领域模型"
-      translator: "映射遗留术语到通用语言"
+      facade: "Simplifies complex legacy interfaces"
+      adapter: "Converts legacy data to new domain model"
+      translator: "Maps legacy terminology to ubiquitous language"
     checklist:
-      - "定义清晰的 ACL 接口"
-      - "映射遗留实体到新模型"
-      - "处理数据格式转换"
-      - "实现错误翻译"
-      - "加入日志以便调试"
-      - "彻底测试 ACL 隔离性"
+      - "Define clear ACL interface"
+      - "Map legacy entities to new model"
+      - "Handle data format conversions"
+      - "Implement error translation"
+      - "Add logging for debugging"
+      - "Test ACL isolation thoroughly"
     vs_strangler:
-      strangler: "目标是取代遗留"
-      acl: "目标是与遗留共存"
+      strangler: "Goal is to replace legacy"
+      acl: "Goal is to coexist with legacy"
 
   branch_by_abstraction:
     steps:
-      1: "客户端 → 抽象(接口) → 旧实现"
-      2: "客户端 → 抽象 → [旧实现, 新实现(切换)]"
-      3: "客户端 → 新实现 [旧实现已移除]"
-    principles: [所有变更在主干, 功能开关, 过渡期共存]
+      1: "Client → Abstraction(interface) → OldImpl"
+      2: "Client → Abstraction → [OldImpl, NewImpl(toggled)]"
+      3: "Client → NewImpl [OldImpl removed]"
+    principles: [all_changes_on_trunk, feature_toggles, coexist_during_transition]
 
   parallel_change:
     aka: "Expand-Migrate-Contract"
     phases:
-      expand: "新增新的在旧的旁边，新代码用新的，旧的仍运作"
-      migrate: "更新所有客户端用新的，验证，数据迁移"
-      contract: "移除旧的，清理，更新文档"
+      expand: "Add new alongside old, new code uses new, old still works"
+      migrate: "Update all clients to new, verify, data migration"
+      contract: "Remove old, clean up, update docs"
 
-# === 安全策略：遗留代码 ===
+# === SAFETY: Legacy Code Strategies ===
 safety:
   legacy:
-    definition: "没有测试的代码（不论年龄）"
-    dilemma: "安全修改需要测试 → 加测试需要修改代码"
-    solution: "使用安全技术先加测试"
+    definition: "Code without tests (regardless of age)"
+    dilemma: "Need tests to change safely → Need to change to add tests"
+    solution: "Safe techniques to add tests first"
 
   characterization_tests:
-    purpose: "捕捉现有行为（非验证正确性）"
+    purpose: "Capture existing behavior (not verify correctness)"
     process:
-      1: "调用要理解的代码"
-      2: "写预期会失败的断言"
-      3: "执行，观察实际结果"
-      4: "更新断言以匹配实际行为"
-      5: "重复直到涵盖需要修改的行为"
-    principle: "记录代码做什么，而非应该做什么"
+      1: "Call code to understand"
+      2: "Write assertion expected to FAIL"
+      3: "Run, see actual result"
+      4: "Update assertion to match actual"
+      5: "Repeat until behavior covered"
+    principle: "Document what code DOES, not what it SHOULD do"
 
   scratch_refactoring:
-    definition: "为了理解而重构，舍弃所有变更"
+    definition: "Refactor to understand, discard all changes"
     workflow:
-      1: "建立探针分支（或 git stash）"
-      2: "大胆重构以理解"
-      3: "记录学到的内容"
-      4: "舍弃变更（git reset --hard）"
-      5: "应用学习编写特征测试"
-    when: [代码太复杂, 无文档, 需要快速建立心智模型]
-    principle: "目标是理解，不是整洁代码"
+      1: "Create scratch branch (or git stash)"
+      2: "Aggressively refactor to understand"
+      3: "Take notes on learnings"
+      4: "Discard changes (git reset --hard)"
+      5: "Apply learnings to write characterization tests"
+    when: [code_too_complex, no_docs, need_mental_model_fast]
+    principle: "Goal is understanding, not clean code"
 
   seams:
-    definition: "可以在不编辑代码的情况下改变行为的地方"
-    object: "通过多态覆写（注入测试替身）"
-    preprocessing: "编译时替换（宏）"
-    link: "链接时替换（DI，模块替换）"
+    definition: "Place to alter behavior without editing code"
+    object: "Override via polymorphism (inject test double)"
+    preprocessing: "Compile-time substitution (macros)"
+    link: "Replace at link time (DI, module replacement)"
 
   sprout_wrap:
-    sprout_method: "新逻辑 → 建立新方法，从旧的调用"
-    sprout_class: "新逻辑独立演进 → 新类"
-    wrap_method: "加入前后行为 → 重命名原方法，建立包装器"
-    wrap_class: "装饰现有 → 装饰者模式"
-    principle: "新代码用 TDD；遗留代码在测试前保持不动"
+    sprout_method: "New logic → create new method, call from old"
+    sprout_class: "New logic evolves independently → new class"
+    wrap_method: "Add before/after → rename original, create wrapper"
+    wrap_class: "Decorate existing → decorator pattern"
+    principle: "New code uses TDD; legacy untouched until tested"
 
-# === 数据库：重构 ===
+# === DATABASE: Refactoring ===
 db_expand_contract:
-  expand: "新增新列/表，应用程序同时写入，可安全回滚"
-  migrate: "复制数据，验证一致性，应用程序从新的读取"
-  contract: "确认旧的未使用，移除旧的，清理双写"
+  expand: "Add new column/table, app writes BOTH, safe to rollback"
+  migrate: "Copy data, verify consistency, app reads from new"
+  contract: "Confirm old unused, remove old, cleanup dual-write"
 
 db_scenarios:
-  rename_column: {strategy: "新增→迁移→删除", risk: 中}
-  split_table: {strategy: "新表+外键→迁移→调整", risk: 高}
-  merge_tables: {strategy: "新表→合并→切换", risk: 高}
-  change_datatype: {strategy: "新列→转换→切换", risk: 中}
-  add_not_null: {strategy: "填默认→加约束", risk: 低}
+  rename_column: {strategy: "add→migrate→drop", risk: medium}
+  split_table: {strategy: "new+FK→migrate→adjust", risk: high}
+  merge_tables: {strategy: "new→merge→switch", risk: high}
+  change_datatype: {strategy: "new_col→convert→switch", risk: medium}
+  add_not_null: {strategy: "fill_defaults→add_constraint", risk: low}
 
-# === 工作流程：安全重构 ===
-before: [定义成功标准, "覆盖率>80%", 干净工作目录, 建立分支, 与团队沟通]
-during: [一次一个小变更, 每次变更后测试, 失败就恢复, 频繁提交, 不加新功能]
-after: [所有测试通过, 可衡量地更好, 文档已更新, 团队已审查, 没有新功能]
+# === WORKFLOW: Safe Refactoring ===
+before: [define_success_criteria, "coverage>80%", clean_working_dir, create_branch, communicate]
+during: [one_small_change, test_after_every_change, revert_if_fail, commit_frequently, no_new_functionality]
+after: [all_tests_pass, measurably_better, docs_updated, team_reviewed, no_new_functionality]
 
-# === 指标 ===
+# === METRICS ===
 code_quality:
-  cyclomatic_complexity: "每函数<10"
-  cognitive_complexity: "越低越好"
-  coupling: "降低"
-  cohesion: "提高"
+  cyclomatic_complexity: "<10/function"
+  cognitive_complexity: "lower=better"
+  coupling: "reduce"
+  cohesion: "increase"
   duplication: "<3%"
 
 test_quality:
-  coverage: "≥80%，不降低"
-  speed: "重构后更快"
-  flaky_count: "降低"
+  coverage: "≥80%, don't decrease"
+  speed: "faster after refactoring"
+  flaky_count: "decrease"
 
-# === 技术债管理 ===
+# === TECHNICAL DEBT ===
 quadrant: # Martin Fowler
-  prudent_deliberate: "我们知道这是债务"
-  reckless_deliberate: "没时间做设计"
-  prudent_inadvertent: "现在知道应该怎么做了"
-  reckless_inadvertent: "什么是分层？"
+  prudent_deliberate: "We know this is debt"
+  reckless_deliberate: "No time for design"
+  prudent_inadvertent: "Now we know how we should have done it"
+  reckless_inadvertent: "What's layering?"
 
 priority:
-  high: {criteria: "阻塞开发，频繁出错", action: "立即处理"}
-  medium: {criteria: "拖慢开发，增加复杂度", action: "规划到下个迭代"}
-  low: {criteria: "小麻烦，影响局部", action: "有机会就处理"}
+  high: {criteria: "blocks dev, frequent bugs", action: "address immediately"}
+  medium: {criteria: "slows dev, increases complexity", action: "plan next sprint"}
+  low: {criteria: "minor annoyance, isolated", action: "address opportunistically"}
 
 tracking:
-  fields: [描述, 影响, 估计工作量, 忽视风险, 相关代码]
+  fields: [description, impact, estimated_effort, risk_if_ignored, related_code]
 
-# === 决策矩阵摘要 ===
+# === DECISION MATRIX SUMMARY ===
 decision_matrix:
-  - {strategy: "预备性重构", scale: "小", risk: "低", use: "降低功能开发阻力"}
-  - {strategy: "童子军规则", scale: "极小", risk: "低", use: "持续偿债"}
-  - {strategy: "红-绿-重构", scale: "小", risk: "低", use: "TDD 开发循环"}
-  - {strategy: "绞杀榕", scale: "大", risk: "中", use: "系统汰换"}
-  - {strategy: "防腐层", scale: "中", risk: "低", use: "新旧共存"}
-  - {strategy: "抽象分支", scale: "大", risk: "中", use: "主干重构"}
-  - {strategy: "平行变更", scale: "中", risk: "低", use: "接口/Schema 迁移"}
-  - {strategy: "特征测试", scale: "—", risk: "—", use: "遗留重构的前置条件"}
-  - {strategy: "探针式重构", scale: "小", risk: "低", use: "理解黑盒代码"}
+  - {strategy: "Preparatory Refactoring", scale: "Small", risk: "Low", use: "Reduce friction before feature work"}
+  - {strategy: "Boy Scout Rule", scale: "Very Small", risk: "Low", use: "Continuous debt repayment"}
+  - {strategy: "Red-Green-Refactor", scale: "Small", risk: "Low", use: "TDD development cycle"}
+  - {strategy: "Strangler Fig", scale: "Large", risk: "Medium", use: "System replacement"}
+  - {strategy: "Anti-Corruption Layer", scale: "Medium", risk: "Low", use: "New-legacy coexistence"}
+  - {strategy: "Branch by Abstraction", scale: "Large", risk: "Medium", use: "Trunk refactoring"}
+  - {strategy: "Parallel Change", scale: "Medium", risk: "Low", use: "Interface/schema migration"}
+  - {strategy: "Characterization Tests", scale: "—", risk: "—", use: "Prerequisite for legacy refactoring"}
+  - {strategy: "Scratch Refactoring", scale: "Small", risk: "Low", use: "Understanding black-box code"}
 
-# === 策略选择 ===
+# === STRATEGY SELECTION ===
 selection_guide:
-  功能被混乱代码阻挡: "预备性重构"
-  在Bug修复中接触代码: "童子军规则"
-  用TDD写新代码: "红-绿-重构"
-  取代整个遗留系统: "绞杀榕"
-  整合遗留不被污染: "防腐层"
-  在主干重构共享代码: "抽象分支"
-  变更广泛使用的接口: "平行变更"
-  处理未测试的遗留: "特征测试 + 探针式重构 先做"
+  feature_blocked_by_messy_code: "Preparatory Refactoring"
+  touching_code_during_bug_fix: "Boy Scout Rule"
+  writing_new_code_with_tdd: "Red-Green-Refactor"
+  replacing_entire_legacy_system: "Strangler Fig"
+  integrating_without_pollution: "Anti-Corruption Layer"
+  refactoring_shared_code_on_trunk: "Branch by Abstraction"
+  changing_widely_used_interface: "Parallel Change"
+  working_with_untested_legacy: "Characterization Tests + Scratch Refactoring FIRST"
 ```
 
 ---
@@ -277,16 +278,16 @@ selection_guide:
 ## 详细指南
 
 完整标准请参阅：
-- [重构标准](../../../../core/refactoring-standards.md)
+- [重构标准](../../core/refactoring-standards.md)
 
 ---
 
 ## 相关标准
 
-- [重构标准](../../../../core/refactoring-standards.md) - 核心标准
-- [测试驱动开发](../../../../core/test-driven-development.md) - TDD 重构阶段
-- [代码审查检查清单](../../../../core/code-review-checklist.md) - 重构 PR 审查
-- [签入标准](../../../../core/checkin-standards.md) - 提交前要求
+- [重构标准](../../core/refactoring-standards.md) - 核心标准
+- [测试驱动开发](../../core/test-driven-development.md) - TDD 重构阶段
+- [代码审查检查清单](../../core/code-review-checklist.md) - 重构 PR 审查
+- [签入标准](../../core/checkin-standards.md) - 提交前要求
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 工作流程
 
 ---
