@@ -1,8 +1,9 @@
 ---
-source: ../../../../skills/atdd-assistant/SKILL.md
+source: ../../../../skills/atdd-assistant/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-02-05
+last_synced: 2026-10-16
+source_hash: 10e5e8da5ac4
 status: current
 scope: partial
 description: |
@@ -13,7 +14,7 @@ description: |
 
 # ATDD 助手
 
-> **语言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 简体中文
+> **语言**: English | [繁体中文](../../../zh-TW/skills/atdd-assistant/SKILL.md)
 
 **版本**: 1.0.0
 **最后更新**: 2026-01-19
@@ -27,8 +28,8 @@ description: |
 - 进行有效的规格研讨会
 - 以 Given-When-Then 格式撰写可测试的验收标准
 - 将标准转换为可执行的验收测试
-- 确保 PO、Dev 和 QA 之间的适当协作
-- 整合 ATDD 与 BDD 和 TDD 以完成完整工作流程
+- 确保 PO、Dev 和 QA 之间的良好协作
+- 整合 ATDD 与 BDD 和 TDD 以实现完整工作流程
 
 ---
 
@@ -38,52 +39,52 @@ description: |
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  🤝 规格研讨会阶段                                               │
-│  □ 产品负责人说明用户故事                                        │
-│  □ 团队提出澄清问题                                              │
-│  □ 共同定义验收标准                                              │
-│  □ 为每个 AC 撰写具体示例                                        │
-│  □ 讨论边界案例和错误情境                                        │
-│  □ 明确记录范围外内容                                            │
+│  🤝 SPECIFICATION WORKSHOP Phase                                 │
+│  □ Product Owner presents user story                            │
+│  □ Team asks clarifying questions                               │
+│  □ Acceptance criteria defined together                         │
+│  □ Concrete examples written for each AC                        │
+│  □ Edge cases and error scenarios discussed                     │
+│  □ Out of scope explicitly documented                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  🧪 精炼阶段                                                     │
-│  □ 将示例转换为可执行测试                                        │
-│  □ 移除测试中的歧义                                              │
-│  □ 测试采用可执行格式（Gherkin、FitNesse 等）                    │
-│  □ 产品负责人签核测试                                            │
+│  🧪 DISTILLATION Phase                                           │
+│  □ Examples converted to executable tests                       │
+│  □ Ambiguity removed from tests                                 │
+│  □ Tests in executable format (Gherkin, FitNesse, etc.)         │
+│  □ Product Owner signs off on tests                             │
 ├─────────────────────────────────────────────────────────────────┤
-│  💻 开发阶段                                                     │
-│  □ 验收测试初始失败（RED）                                       │
-│  □ 功能测试使用 BDD，单元测试使用 TDD                            │
-│  □ 逐步达成 AT 通过                                              │
-│  □ 所有验收测试通过（GREEN）                                     │
-│  □ 代码重构且整洁                                                │
+│  💻 DEVELOPMENT Phase                                            │
+│  □ Acceptance tests initially fail (RED)                        │
+│  □ BDD used for feature tests, TDD for unit tests               │
+│  □ Incremental progress toward passing ATs                      │
+│  □ All acceptance tests pass (GREEN)                            │
+│  □ Code refactored and clean                                    │
 ├─────────────────────────────────────────────────────────────────┤
-│  🎬 演示阶段                                                     │
-│  □ 所有验收测试通过                                              │
-│  □ 演示环境已准备                                                │
-│  □ 关键利益相关方出席                                            │
-│  □ 产品负责人验证功能                                            │
-│  □ 故事被接受或标准被优化                                        │
+│  🎬 DEMO Phase                                                   │
+│  □ All acceptance tests passing                                 │
+│  □ Demo environment prepared                                    │
+│  □ Key stakeholders present                                     │
+│  □ Product Owner validates functionality                        │
+│  □ Story accepted or criteria refined                           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### 验收标准快速参考
 
 | 元素 | 格式 | 示例 |
-|------|------|------|
-| **用户故事** | As a / I want / So that | 作为客户，我想要重设密码，以便我能重新访问账号 |
-| **AC 格式** | Given / When / Then | 假设我在登录页面，当我点击「忘记密码」，那么我应该看到重设表单 |
-| **范围外** | 项目清单 | - SMS 重设、- 管理员重设功能 |
-| **技术备注** | 项目清单 | - Token 24 小时后过期 |
+|---------|--------|---------|
+| **用户故事** | As a / I want / So that | 作为客户，我想要重设密码，以便我能重新获得访问权限 |
+| **AC 格式** | Given / When / Then | 假设我在登录页面，当我点击“忘记密码”，那么我应该看到重设表单 |
+| **范围外** | 项目列表 | - 短信重设，- 管理员重设功能 |
+| **技术备注** | 项目列表 | - Token 在 24 小时后过期 |
 
 ### INVEST 准则
 
 | 原则 | 描述 | 检查 |
-|------|------|------|
+|-----------|-------------|-------|
 | **I**ndependent 独立 | 可独立开发 | 无阻塞依赖 |
-| **N**egotiable 可协商 | 细节可讨论 | 非合约 |
-| **V**aluable 有价值 | 传递商业价值 | PO 能解释「为什么」 |
+| **N**egotiable 可协商 | 细节可讨论 | 非合同 |
+| **V**aluable 有价值 | 交付业务价值 | PO 能解释“为什么” |
 | **E**stimable 可估算 | 可被估算 | 团队理解范围 |
 | **S**mall 小 | 可在一个 Sprint 内完成 | < 1 周工作量 |
 | **T**estable 可测试 | 可被验证 | 明确的验收标准 |
@@ -98,26 +99,26 @@ description: |
 
 1. **故事说明** (5 分钟)
    ```
-   用户故事: [标题]
+   User Story: [Title]
 
-   作为 [角色]
-   我想要 [功能]
-   以便 [好处]
+   As a [role]
+   I want [feature]
+   So that [benefit]
 
-   商业价值: [为什么重要]
+   Business Value: [Why this matters]
    ```
 
 2. **澄清问题** (10 分钟)
-   - 商业：「价值是什么？」「用户是谁？」
-   - 开发：「影响是什么？」「依赖？」
-   - 测试：「可能出什么错？」「边界案例？」
+   - 业务：“价值是什么？”、“用户是谁？”
+   - 开发：“影响是什么？”、“依赖？”
+   - 测试：“可能出什么错？”、“边界用例？”
 
 3. **AC 定义** (20 分钟)
    ```markdown
-   ### AC-1: [标准名称]
-   **Given** [前置条件]
-   **When** [动作]
-   **Then** [预期结果]
+   ### AC-1: [Criterion name]
+   **Given** [precondition]
+   **When** [action]
+   **Then** [expected result]
    ```
 
 4. **范围外** (10 分钟)
@@ -126,7 +127,7 @@ description: |
 
 5. **技术备注** (5 分钟)
    - 实现提示
-   - 已知限制
+   - 已知约束
    - 依赖
 
 ### 精炼指引
@@ -136,26 +137,26 @@ description: |
 1. **审查每个 AC**
    - 是否明确无歧义？
    - 可以自动化吗？
-   - 是否验证商业价值？
+   - 是否验证业务价值？
 
 2. **选择测试格式**
    | 格式 | 最适合 |
-   |------|--------|
-   | Gherkin | 行为导向、商业可读 |
+   |--------|----------|
+   | Gherkin | 聚焦行为、业务可读 |
    | FitNesse | 数据驱动、Wiki 表格 |
    | Robot Framework | 复杂工作流程 |
-   | Code (xUnit) | 技术团队 |
+   | 代码 (xUnit) | 技术团队 |
 
 3. **撰写可执行测试**
    ```gherkin
-   # AC-1: 密码重设请求
-   Scenario: 请求密码重设
-     Given 我在登录页面
-     And 我有一个已注册账号
-     When 我点击「忘记密码」
-     And 我输入我的电子邮件地址
-     Then 我应该看到「重设链接已发送」
-     And 我应该在 5 分钟内收到电子邮件
+   # For AC-1: Password reset request
+   Scenario: Request password reset
+     Given I am on the login page
+     And I have a registered account
+     When I click "Forgot Password"
+     And I enter my email address
+     Then I should see "Reset link sent"
+     And I should receive an email within 5 minutes
    ```
 
 4. **取得 PO 签核**
@@ -168,63 +169,63 @@ description: |
 
 1. **演示前检查清单**
    ```
-   □ 所有验收测试通过
-   □ 演示环境就绪
-   □ 测试数据已准备
-   □ 利益相关方已通知
+   □ All acceptance tests passing
+   □ Demo environment ready
+   □ Test data prepared
+   □ Stakeholders notified
    ```
 
 2. **演示结构** (15-30 分钟)
-   - 背景 (1 分钟)：提醒故事和 AC
-   - 测试 (2 分钟)：现场执行验收测试
-   - 功能 (5-10 分钟)：逐一展示每个 AC
+   - 背景 (1 分钟)：重申故事和 AC
+   - 测试 (2 分钟)：现场运行验收测试
+   - 功能 (5-10 分钟)：逐一演示每个 AC
    - 反馈 (5 分钟)：收集反馈、问答
 
 3. **可能结果**
    - ✅ 接受：故事完成
-   - 🔄 需精炼：返回研讨会
-   - ❌ 拒绝：识别差距
+   - 🔄 精炼：返回研讨会
+   - ❌ 拒绝：找出差距
 
 ---
 
 ## 用户故事模板
 
 ```markdown
-## 用户故事: [标题]
+## User Story: [Title]
 
-**作为** [角色]
-**我想要** [功能]
-**以便** [好处]
+**As a** [role]
+**I want** [feature]
+**So that** [benefit]
 
-## 验收标准
+## Acceptance Criteria
 
 ### AC-1: [Happy path]
-**Given** [前置条件]
-**When** [动作]
-**Then** [预期结果]
+**Given** [precondition]
+**When** [action]
+**Then** [expected result]
 
-### AC-2: [错误情境]
-**Given** [前置条件]
-**When** [无效动作]
-**Then** [错误处理]
+### AC-2: [Error scenario]
+**Given** [precondition]
+**When** [invalid action]
+**Then** [error handling]
 
-### AC-3: [边界案例]
-**Given** [边界条件]
-**When** [动作]
-**Then** [适当结果]
+### AC-3: [Edge case]
+**Given** [edge condition]
+**When** [action]
+**Then** [appropriate result]
 
-## 范围外
-- [未包含的功能 1]
-- [延后至未来的功能 2]
+## Out of Scope
+- [Feature 1 not included]
+- [Feature 2 deferred to future]
 
-## 技术备注
-- [实现限制]
-- [依赖信息]
-- [性能需求]
+## Technical Notes
+- [Implementation constraint]
+- [Dependency information]
+- [Performance requirement]
 
-## 问题 / 假设
-- [开放问题 1]
-- [假设 1]
+## Questions / Assumptions
+- [Open question 1]
+- [Assumption 1]
 ```
 
 ---
@@ -234,27 +235,42 @@ description: |
 ### ATDD → BDD → TDD 流程
 
 ```
-ATDD 层级（商业验收）
+ATDD Level (Business Acceptance)
   │
-  │  用户故事 + 验收标准
-  │  PO 签核
-  │
-  ▼
-BDD 层级（行为规格）
-  │
-  │  Feature 文件（Gherkin）
-  │  三方协作
+  │  User Story + Acceptance Criteria
+  │  PO Sign-off
   │
   ▼
-TDD 层级（实现）
+BDD Level (Behavior Specification)
   │
-  │  单元测试
+  │  Feature Files (Gherkin)
+  │  Three Amigos collaboration
+  │
+  ▼
+TDD Level (Implementation)
+  │
+  │  Unit Tests
   │  Red → Green → Refactor
   │
   ▼
-验证（演示）
+Verification (Demo)
   │
-  └──▶ PO 验收
+  └──▶ PO Acceptance
+```
+
+### ATDD + SDD 整合
+
+```markdown
+# Link ATDD to SDD Spec
+
+## User Story: US-123
+
+**Spec Reference**: SPEC-001
+
+### AC-1: Implements SPEC-001 Section 3.1
+**Given** [from spec requirements]
+**When** [action per spec]
+**Then** [expected per spec]
 ```
 
 ---
@@ -282,19 +298,19 @@ TDD 层级（实现）
 2. 选择后，建议记录在 `CONTRIBUTING.md`：
 
 ```markdown
-## ATDD 标准
+## ATDD Standards
 
-### 验收测试格式
+### Acceptance Test Format
 - Gherkin (Cucumber.js)
 
-### 用户故事模板
-- 需要 INVEST 准则
-- AC 使用 Given-When-Then 格式
+### User Story Template
+- INVEST criteria required
+- Given-When-Then format for AC
 
-### 工作流程
-- 所有故事需要规格研讨会
-- 开发前需要 PO 签核
-- 每个完成的故事需要演示
+### Workflow
+- Specification workshop required for all stories
+- PO sign-off before development
+- Demo for each completed story
 ```
 
 ---
@@ -302,14 +318,14 @@ TDD 层级（实现）
 ## 详细指南
 
 完整标准请参阅：
-- [ATDD 核心标准](../../../../core/acceptance-test-driven-development.md)
+- [ATDD 核心标准](../../core/acceptance-test-driven-development.md)
 - [ATDD 工作流程指南](./atdd-workflow.md)
-- [验收标准撰写指南](./acceptance-criteria-guide.md)
+- [验收标准指南](./acceptance-criteria-guide.md)
 
 相关标准：
-- [BDD 标准](../../../../core/behavior-driven-development.md)
-- [TDD 标准](../../../../core/test-driven-development.md)
-- [测试标准](../../../../core/testing-standards.md)
+- [BDD 标准](../../core/behavior-driven-development.md)
+- [TDD 标准](../../core/test-driven-development.md)
+- [测试标准](../../core/testing-standards.md)
 
 ---
 
@@ -343,11 +359,11 @@ TDD 层级（实现）
 
 ## 相关标准
 
-- [验收测试驱动开发](../../../../core/acceptance-test-driven-development.md) - 核心 ATDD 标准
-- [行为驱动开发](../../../../core/behavior-driven-development.md) - BDD 标准
-- [测试驱动开发](../../../../core/test-driven-development.md) - TDD 标准
-- [规格驱动开发](../../../../core/spec-driven-development.md) - SDD 工作流程
-- [测试标准](../../../../core/testing-standards.md) - 测试框架
+- [验收测试驱动开发](../../core/acceptance-test-driven-development.md) - 核心 ATDD 标准
+- [行为驱动开发](../../core/behavior-driven-development.md) - BDD 标准
+- [测试驱动开发](../../core/test-driven-development.md) - TDD 标准
+- [规格驱动开发](../../core/spec-driven-development.md) - SDD 工作流程
+- [测试标准](../../core/testing-standards.md) - 测试框架
 - [BDD 助手](../bdd-assistant/SKILL.md) - BDD 技能
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
 
@@ -356,7 +372,7 @@ TDD 层级（实现）
 ## 版本历史
 
 | 版本 | 日期 | 变更 |
-|------|------|------|
+|---------|------|---------|
 | 1.0.0 | 2026-01-19 | 初始发布 |
 
 ---
