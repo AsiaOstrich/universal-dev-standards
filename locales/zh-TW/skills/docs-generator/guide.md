@@ -3,7 +3,7 @@ description: |
   從專案來源產生使用說明文件。
   使用時機：「產生文件」、「建立速查表」、「使用指南」、「功能參考」、「列出所有功能」
   關鍵字：documentation, usage, reference, cheatsheet, features, 功能文件, 速查表, 使用說明
-source: ../../../../skills/docs-generator/SKILL.md
+source: ../../../../skills/docs-generator/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-01-26

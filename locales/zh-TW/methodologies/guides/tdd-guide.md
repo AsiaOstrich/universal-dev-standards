@@ -14,7 +14,7 @@ status: current
 **適用範圍**: 所有採用測試驅動開發的專案
 **範圍**: universal
 
-> **語言**: [English](../../../../methodologies/guides/tdd-guide.md) | [繁體中文](../../core/test-driven-development.md)
+> **語言**: [English](../../../../methodologies/guides/tdd-guide.md) | 繁體中文
 
 ---
 

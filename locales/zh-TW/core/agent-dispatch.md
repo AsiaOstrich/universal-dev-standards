@@ -2,7 +2,8 @@
 source: ../../../core/agent-dispatch.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-03-24
+last_synced: 2026-10-16
+source_hash: d18ca22786b3
 status: current
 ---
 
@@ -19,6 +20,8 @@ status: current
 ---
 
 ## 目的
+
+定義 AI 子代理的並行派遣、工作協調與狀態回報標準。本標準確保高效並行化的同時，防止檔案衝突與整合失敗。
 
 定義 AI 子代理的並行派遣、工作協調與狀態回報標準。確保高效並行化的同時，防止檔案衝突與整合失敗。
 
@@ -37,53 +40,119 @@ status: current
 
 ## 核心原則 — 先獨立再並行
 
-> **派遣代理並行之前，必須驗證其任務域是獨立的（無共享可變狀態）。**
+> **在並行派遣代理之前，必須驗證其任務域是獨立的（無共享可變狀態）。**
+
+派遣前必須識別獨立域 — 無共享可變狀態才可並行。
 
 ---
 
 ## Prompt 設計原則
 
-每個子代理的 prompt 必須包含：
+每個子代理的 prompt 必須遵循三項原則：
 
-| 元素 | 說明 |
-|------|------|
-| **任務邊界** | 明確定義子代理可以操作的檔案與範圍 |
-| **禁止清單** | 不可修改的檔案路徑 |
-| **回傳格式** | 要求使用標準狀態協定回報結果 |
-| **超時機制** | 每個任務的最大執行時間 |
+### 1. 聚焦（Focused）
+
+每個代理只處理單一問題域。不要混合無關任務。
+
+每個代理只處理單一問題域，不混合無關任務。
+
+### 2. 自足（Self-contained）
+
+Prompt 包含執行所需的完整上下文。代理不應需要額外提問或搜尋補充資訊。
+
+Prompt 包含執行所需的完整上下文，代理不需要額外提問或搜尋。
+
+### 3. 明確輸出（Specific Output）
+
+明確定義代理回報結果時應使用的格式。
+
+明確定義期望的回報格式。
+
+---
 
 ## 狀態協定
 
-子代理必須使用以下狀態之一回報：
+每個子代理在完成時必須回報以下四種狀態之一：
 
-| 狀態 | 說明 | 後續動作 |
-|------|------|----------|
-| `DONE` | 任務成功完成 | 編排器繼續下一步 |
-| `BLOCKED` | 遇到無法自行解決的阻礙 | 編排器介入或重新分配 |
-| `FAILED` | 任務失敗 | 編排器決定重試或跳過 |
-| `NEEDS_REVIEW` | 完成但需要人工審查 | 暫停等待人工確認 |
+| 狀態 | 說明 | 編排器動作 |
+|------|------|------------|
+| `DONE` | 任務成功完成 | 繼續執行下一個任務 |
+| `DONE_WITH_CONCERNS` | 已完成但有需記錄的疑慮 | 記錄疑慮，繼續執行 |
+| `NEEDS_CONTEXT` | 需要更多上下文才能完成 | 注入上下文，重新派遣（非單純重試） |
+| `BLOCKED` | 無法完成，需要向上呈報 | 升級模型層級或拆分任務 |
 
-## 並行派遣條件
+### 狀態決策流程
 
-在派遣前必須驗證：
+```
+Agent completes work
+  ├── All acceptance criteria met? → DONE
+  ├── Criteria met but concerns exist? → DONE_WITH_CONCERNS
+  ├── Missing information to proceed? → NEEDS_CONTEXT
+  └── Fundamentally unable to complete? → BLOCKED
+```
 
-| 檢查項目 | 驗證方式 |
-|----------|----------|
-| 無共享可變檔案 | 比較各任務的檔案路徑清單 |
-| 無執行順序依賴 | 驗證任務之間無因果關係 |
-| 獨立測試範圍 | 各任務的測試套件不重疊 |
+---
 
-## 衝突解決
+## 衝突偵測
 
-當無法完全避免共享狀態時：
+當並行代理回傳時，編排器必須：
 
-1. **序列化** — 將衝突的任務改為依序執行
-2. **分區** — 將共享檔案拆分為獨立區段
-3. **鎖定** — 對共享資源實施寫入鎖
+1. **檢查檔案衝突** — 是否有多個代理修改了同一個檔案？
+2. **執行完整測試套件** — 在合併所有變更後驗證整合狀況
+3. **解決衝突** — 自動解決或標記供人工審查
 
-## 相關標準
+```
+Agent A (modifies: src/auth.ts, src/auth.test.ts)  ─┐
+                                                      ├─→ Conflict check → Integration test
+Agent B (modifies: src/api.ts, src/api.test.ts)     ─┘
+```
 
-- [Git Worktree 隔離](git-worktree.md)
-- [分支完成工作流程](branch-completion.md)
-- [AI 模型選擇策略](model-selection.md)
-- [驗證證據](verification-evidence.md)
+---
+
+## 規則
+
+| ID | 觸發條件 | 動作 | 優先級 |
+|----|----------|------|--------|
+| AD-001 | 多個代理編輯同一檔案 | 標記衝突，要求合併解決 | 嚴重 (Critical) |
+| AD-002 | 代理回報 BLOCKED | 升級模型層級並重試一次 | 高 (High) |
+| AD-003 | 所有並行代理完成 | 執行完整測試套件以驗證整合 | 高 (High) |
+
+---
+
+## 範例
+
+### 良好：並行獨立任務
+
+```yaml
+# Two agents working on independent modules
+Agent 1:
+  task: "Add rate limiting to /api/users endpoint"
+  files: [src/api/users.ts, src/api/users.test.ts]
+
+Agent 2:
+  task: "Add caching to /api/products endpoint"
+  files: [src/api/products.ts, src/api/products.test.ts]
+
+# No shared files → safe to parallelize
+```
+
+### 不良：並行相依任務
+
+```yaml
+# Two agents modifying shared state
+Agent 1:
+  task: "Refactor database connection pool"
+  files: [src/db.ts]  # ⚠️ shared file
+
+Agent 2:
+  task: "Add connection retry logic"
+  files: [src/db.ts]  # ⚠️ conflict!
+```
+
+---
+
+## 參考資料
+
+- **Superpowers**: [dispatching-parallel-agents](https://github.com/obra/superpowers)、[subagent-driven-development](https://github.com/obra/superpowers) (MIT)
+- **MapReduce**: 概念性並行執行模型
+- **Actor Model**: 獨立代理通訊模式

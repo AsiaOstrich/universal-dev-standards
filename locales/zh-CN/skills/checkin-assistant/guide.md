@@ -13,7 +13,7 @@ description: |
 
 # 签入助手
 
-> **语言**：English | [繁体中文](../../../zh-TW/skills/checkin-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/checkin-assistant/guide.md) | [繁體中文](../../../zh-TW/skills/checkin-assistant/guide.md) | 简体中文
 
 **版本**：1.0.0
 **最后更新**：2026-01-12

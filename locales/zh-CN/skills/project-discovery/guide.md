@@ -3,7 +3,7 @@ description: |
   在新增功能前评估项目健康度、架构与风险。
   使用时机：接手旧项目、在现有代码上新增功能、评估技术债。
   关键字：discovery, assessment, audit, legacy, health check, technical debt, 现况评估, 风险分析, 技术债, 项目盘点。
-source: ../../../../skills/project-discovery/SKILL.md
+source: ../../../../skills/project-discovery/guide.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-02-10

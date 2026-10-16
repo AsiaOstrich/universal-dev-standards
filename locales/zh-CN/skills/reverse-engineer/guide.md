@@ -3,7 +3,7 @@ description: |
   将现有代码反向工程成 SDD 规格文档。
   使用时机：分析旧有代码、为未文档化的系统撰写文档、从现有实作提取规格。
   关键字：reverse engineering, legacy code, documentation, spec extraction, code archaeology, 反向工程, 旧有代码, 规格提取。
-source: ../../../../skills/reverse-engineer/SKILL.md
+source: ../../../../skills/reverse-engineer/guide.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-01-25

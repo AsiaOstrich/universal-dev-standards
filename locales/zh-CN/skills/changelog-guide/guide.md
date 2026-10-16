@@ -13,7 +13,7 @@ status: current
 
 # 变更日志指南
 
-> **语言**: English | [繁体中文](../../../zh-TW/skills/changelog-guide/SKILL.md)
+> **语言**: [English](../../../../skills/changelog-guide/guide.md) | [繁體中文](../../../zh-TW/skills/changelog-guide/guide.md) | 简体中文
 
 **版本**: 1.0.0
 **最后更新**: 2025-12-30

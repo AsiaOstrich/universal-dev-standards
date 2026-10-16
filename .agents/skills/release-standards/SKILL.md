@@ -3,7 +3,8 @@ name: release
 source: ../../../../skills/release-standards/SKILL.md
 source_version: 1.1.0
 translation_version: 1.2.0
-last_synced: 2026-08-17
+last_synced: 2026-10-16
+source_hash: e9e935fd95a0
 status: current
 description: |
   [UDS] 引導發布流程——語意化版本、發布模式，以及 start/finish/promote/deploy 的順序。
@@ -15,67 +16,112 @@ scope: universal
 argument-hint: "[version]"
 ---
 
-# 發布助手
+# Release Assistant | 發布助手
 
-> **語言**: [English](../../../../skills/release-standards/SKILL.md) | 繁體中文
+Guide the release process following Semantic Versioning and changelog best practices.
 
-引導遵循語義化版本和變更日誌最佳實踐的發布流程。
+引導遵循語意化版本和變更日誌最佳實踐的發布流程。
 
-## 子命令
+## Subcommands | 子命令
 
-| 子命令 | 說明 | Description |
-|--------|------|-------------|
-| `start` | 開始發布流程 | Start a release branch/process |
-| `finish` | 完成發布（標籤、合併） | Finalize release (tag, merge) |
-| `changelog` | 產生或更新變更日誌 | Generate or update CHANGELOG.md |
-| `check` | 執行發布前檢查 | Run pre-release verification |
+| Subcommand | Mode | Description | 說明 |
+|------------|------|-------------|------|
+| `start` | All | Start a release branch/process | 開始發布流程 |
+| `finish` | CI/CD | Finalize release (tag, merge) | 完成發布（標籤、合併） |
+| `promote` | Manual/Hybrid | Promote RC to Stable | RC → Stable 晉級 |
+| `deploy` | Manual/Hybrid | Record deployment to environment | 記錄部署至環境 |
+| `manifest` | Manual/Hybrid | Generate build-manifest.json | 產生 build-manifest.json |
+| `verify` | Manual/Hybrid | Verify manifest consistency | 驗證資訊清單一致性 |
+| `changelog` | All | Generate or update CHANGELOG.md | 產生或更新 CHANGELOG.md |
+| `check` | All | Run pre-release verification | 執行發布前驗證 |
 
-## 版本類型
+## Release Modes | 發布模式
 
-| 類型 | 格式 | npm Tag | 用途 |
-|------|------|---------|------|
-| 正式版 | `X.Y.Z` | `@latest` | Stable |
-| 公開測試 | `X.Y.Z-beta.N` | `@beta` | Beta |
-| 內部測試 | `X.Y.Z-alpha.N` | `@alpha` | Alpha |
-| 候選版本 | `X.Y.Z-rc.N` | `@rc` | RC |
+Configure via `uds init` or `uds config --type release_mode`:
 
-## 工作流程
+| Mode | Description | 說明 |
+|------|-------------|------|
+| `ci-cd` | Automatic publishing via CI/CD pipeline (default) | 透過 CI/CD 管線自動發布（預設） |
+| `manual` | Manual packaging + RC workflow | 手動打包 + RC 工作流程 |
+| `hybrid` | CI builds artifact + manual deployment | CI 建置產物 + 手動部署 |
 
-1. **決定版本** - 根據變更決定版本類型（MAJOR/MINOR/PATCH）
-2. **更新版本檔案** - 更新 package.json 和相關版本參考
-3. **更新 CHANGELOG** - 將 [Unreleased] 條目移至新版本區段
-4. **執行發布前檢查** - 驗證測試、lint 和標準合規
-5. **建立 git tag** - 使用 `vX.Y.Z` 格式標籤
-6. **提交並推送** - 提交版本更新並推送標籤
+## Version Types | 版本類型
 
-### 版本遞增規則
+| Type | Pattern | npm Tag | 用途 |
+|------|---------|---------|------|
+| Stable | `X.Y.Z` | `@latest` | Production release | 正式發布版 |
+| Beta | `X.Y.Z-beta.N` | `@beta` | Public testing | 公開測試 |
+| Alpha | `X.Y.Z-alpha.N` | `@alpha` | Internal testing | 內部測試 |
+| RC | `X.Y.Z-rc.N` | `@rc` | Release candidate | 候選版本 |
 
-| 變更類型 | 遞增 | 範例 |
-|---------|------|------|
-| 破壞性變更 | MAJOR | 1.9.5 → 2.0.0 |
-| 新功能（向下相容） | MINOR | 2.3.5 → 2.4.0 |
-| 錯誤修復（向下相容） | PATCH | 3.1.2 → 3.1.3 |
+## Workflow | 工作流程
 
-## 使用方式
+1. **Determine version** - 根據變更決定版本類型（MAJOR/MINOR/PATCH）
+2. **Triage open issues/PRs** - `gh pr list` + `gh issue list`；將每一項分類為 **帶上 vs 延後 (bring-in vs defer)** (XSPEC-265) / 掃描 issue/PR、每項二分（帶上 vs backlog）
+3. **Update version files** - 更新 package.json 和相關版本參考
+4. **Update CHANGELOG** - 將 [Unreleased] 條目移至新版本區段
+5. **Run pre-release checks** - 驗證測試、lint、標準合規，**以及 issue/PR triage 閘門**
+6. **Create git tag** - 使用 `vX.Y.Z` 格式建立標籤
+7. **Commit and push** - 提交版本更新並推送標籤
 
+### Pre-release Issue/PR Triage Gate | 發版前 issue/PR triage 閘門 (XSPEC-265)
+
+在遞增版本之前，掃描開啟中的 issue/PR 並對每一項做出有意識的決策——**切勿**依賴記憶：
+
+| Class | Action |
+|-------|--------|
+| **Bring-in** | patch dependabot PR / release-blocking 阻擋發布的 bug / 與此版本主題相關的修復 → 在遞增版本前合併 |
+| **Defer** | major PR、audit/enhancement 稽核或強化議題、需要獨立評估 → 記錄於 signoff 的「deferred」+ release-notes 的 Known Issues |
+
+- 確認 `cross-project/sub-project-triage.md` 快照為近期產出（≤7 天）；若過期則予以重新整理。
+- 將結果記錄於 release sign-off (Tier-1)：`Pre-release issue/PR triage | PASS | N PRs / M issues: X merged / Y deferred`。
+- **不要求清空 backlog** — 僅要求每項都有經過有意識的決策 + 留下記錄。不要求清空 backlog，只要求每項有意識決策 + 留紀錄。
+
+### Version Increment Rules | 版本遞增規則
+
+| Change Type | Increment | Example |
+|-------------|-----------|---------|
+| Breaking changes | MAJOR | 1.9.5 → 2.0.0 |
+| New features (backward-compatible) | MINOR | 2.3.5 → 2.4.0 |
+| Bug fixes (backward-compatible) | PATCH | 3.1.2 → 3.1.3 |
+
+## Usage | 使用方式
+
+### CI/CD Mode (default)
 - `/release start 1.2.0` - 開始 v1.2.0 的發布流程
 - `/release changelog 1.2.0` - 更新 v1.2.0 的 CHANGELOG
-- `/release finish 1.2.0` - 完成並標籤 v1.2.0
+- `/release finish 1.2.0` - 完成並為 v1.2.0 上標籤
 - `/release check` - 執行發布前驗證
 
-## 下一步引導
+### Manual Mode (RC workflow)
+- `/release start 1.2.0-rc.1` - 建立 RC 版本
+- `uds release manifest` - 產生 build-manifest.json
+- `uds release deploy staging` - 記錄 staging 部署
+- `uds release deploy staging --result passed` - 記錄測試結果
+- `/release promote 1.2.0` - 將 RC 晉級為穩定版
+- `uds release deploy production` - 記錄 production 部署
+- `uds release verify` - 驗證資訊清單一致性
 
-`/release` 完成後，AI 助手應建議：
+## Next Steps Guidance | 下一步引導
 
-> **發布流程完成。建議下一步：**
-> - 驗證 npm 發布狀態 `npm view <pkg> dist-tags`
-> - 建立 GitHub Release 並撰寫發布說明
-> - 通知利害關係人新版本已發布
+After `/release` completes, the AI assistant should suggest:
 
-## 參考
+> **發布流程完成。建議下一步 / Release process complete. Suggested next steps:**
+> - 驗證 npm 發布狀態 `npm view <pkg> dist-tags` ⭐ **Recommended / 推薦** — Verify npm publication status
+> - 建立 GitHub Release 並撰寫發布說明 — Create GitHub Release with notes
+> - 通知利害關係人新版本已發布 — Notify stakeholders of new release
 
-- [變更日誌格式指南](./changelog-format.md) — 要撰寫或審查變更日誌時讀它。
-- [發布流程指南](./release-workflow.md) — 真的要發一版、需要逐步流程時讀它。
-- [語意化版本指南](./semantic-versioning.md) — 要判斷一個變更算 major、minor 還是 patch 時讀它。
-- 詳細指南：[guide.md](./guide.md)
-- 核心規範：[versioning.md](../../../../core/versioning.md)
+## Reference | 參考
+
+- [Changelog Format Guide](./changelog-format.md) — 撰寫或審查變更日誌條目時請閱讀此文件。
+- [Release Workflow Guide](./release-workflow.md) — 實際執行發布、進行逐步操作時請閱讀此文件。
+- [Semantic Versioning Guide](./semantic-versioning.md) — 決定變更屬於 major、minor 或 patch 時請閱讀此文件。
+- Detailed guide: [guide.md](./guide.md)
+- Core standard: [versioning.md](../../core/versioning.md)
+
+
+## AI Agent Behavior | AI 代理行為
+
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/release`](../commands/release.md#ai-agent-behavior--ai-代理行為)
+>
+> For complete AI agent behavior definition, see the corresponding command file: [`/release`](../commands/release.md#ai-agent-behavior--ai-代理行為)

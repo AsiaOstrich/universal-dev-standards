@@ -13,7 +13,7 @@ description: |
 
 # 重构助手
 
-> **语言**: English | [繁体中文](../../../zh-TW/skills/refactoring-assistant/SKILL.md)
+> **语言**: [English](../../../../skills/refactoring-assistant/guide.md) | [繁體中文](../../../zh-TW/skills/refactoring-assistant/guide.md) | 简体中文
 
 **版本**: 2.0.0
 **最后更新**: 2026-01-21
