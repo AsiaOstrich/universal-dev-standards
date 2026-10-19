@@ -256,6 +256,8 @@ it('uds update --skills on a legacy manifest that records only "user" does not g
   expect(out(run)).not.toMatch(CRASH);
   expect(out(run)).not.toMatch(/Google Antigravity \(user\)/);
   expect(existsSync(join(dir, '.agents', 'skills')), 'nothing was written for Antigravity').toBe(false);
+  // beta.15 Windows retest, Issue 1: left out, and the run says why — as init and config do.
+  expect(out(run), 'the update names Antigravity and why it was left out').toMatch(/Google Antigravity[^\n]*--skills-location project/);
   const recorded = readManifest(dir).skills.installations;
   expect(recorded.map((i) => i.agent), 'Antigravity was detected but has no user-level folder').not.toContain('antigravity');
   expect(recorded, 'control: the tools that do have one were kept').toContainEqual({ agent: 'claude-code', level: 'user' });

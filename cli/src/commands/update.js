@@ -2882,8 +2882,16 @@ async function updateSkillsOnly(projectPath, manifest, options) {
         const agents = detectedSkillsTools.length > 0 ? detectedSkillsTools : ['claude-code'];
         // XSPEC-486 R2: a tool with no folder at the recorded level (antigravity has no user-level one) is not given
         // an installation that has nowhere to go.
+        // …and the run says so, as `init` and `config` do (beta.15 Windows retest, Issue 1: this path was silent).
         for (const agent of agents) {
-          if (hasSkillsLevel(agent, legacyLocation)) skillsInstallations.push({ agent, level: legacyLocation });
+          if (hasSkillsLevel(agent, legacyLocation)) {
+            skillsInstallations.push({ agent, level: legacyLocation });
+          } else {
+            console.log(chalk.yellow(
+              `⚠ ${getAgentDisplayName(agent) || agent}: ` +
+              `${msg.skillsNoUserPath || 'has no user-level skills folder (only the project one), so this update left it out. To put its skills into this project instead: uds config --type skills --ai-tool antigravity --skills-location project'}`
+            ));
+          }
         }
       } else if (legacyLocation === 'marketplace') {
         console.log(chalk.yellow(msg.skillsViaMarketplace || 'Skills installed via Marketplace'));

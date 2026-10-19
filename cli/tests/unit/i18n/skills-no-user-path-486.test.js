@@ -17,3 +17,15 @@ describe('commands.init.skillsNoUserPath (XSPEC-486)', () => {
     seen.set(text, lang);
   });
 });
+
+describe('commands.update.skillsNoUserPath (XSPEC-486, beta.15 Windows retest Issue 1)', () => {
+  const seen = new Map();
+  it.each(['en', 'zh-tw', 'zh-cn'])('%s has its own text, and it points to --skills-location project', (lang) => {
+    setLanguage(lang);
+    const text = t().commands.update.skillsNoUserPath;
+    expect(typeof text).toBe('string');
+    expect(text).toContain('--skills-location project');
+    expect(seen.has(text), `${lang} repeats the text of ${seen.get(text)}`).toBe(false);
+    seen.set(text, lang);
+  });
+});

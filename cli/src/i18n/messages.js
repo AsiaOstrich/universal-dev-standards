@@ -1130,6 +1130,7 @@ export const messages = {
 
       // update command
       update: {
+        skillsNoUserPath: 'has no user-level skills folder (only the project one), so this update left it out. To put its skills into this project instead: uds config --type skills --ai-tool antigravity --skills-location project',
         errorExitOffer: {
           title: '  Single exit for error messages (gate)',
           guards: '    It guards against: every caller turning an error response into its own human-readable string.',
@@ -2531,6 +2532,7 @@ export const messages = {
 
       // update command
       update: {
+        skillsNoUserPath: '沒有使用者層級的 skills 資料夾（只有專案層級），這次更新沒有處理它。要把它的技能裝進這個專案，請執行：uds config --type skills --ai-tool antigravity --skills-location project',
         errorExitOffer: {
           title: '  錯誤訊息單一出口閘門',
           guards: '    防的是：每個呼叫端各自把錯誤回應拼成給人看的字串。',
@@ -3854,6 +3856,7 @@ export const messages = {
 
       // update command
       update: {
+        skillsNoUserPath: '没有用户级别的 skills 文件夹（只有项目级别），这次更新没有处理它。要把它的技能装进这个项目，请执行：uds config --type skills --ai-tool antigravity --skills-location project',
         errorExitOffer: {
           title: '  错误信息单一出口闸门',
           guards: '    防的是：每个调用端各自把错误响应拼成给人看的字符串。',
