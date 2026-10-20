@@ -9,8 +9,8 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
-import { resolvePluginLoad } from '../../../scripts/lib/plugin-manifest.mjs';
+import { basename, join } from 'path';
+import { isDocumentationFile, resolvePluginLoad } from '../../../scripts/lib/plugin-manifest.mjs';
 
 const scratch = mkdtempSync(join(tmpdir(), 'uds-plugin-load-unit-'));
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
@@ -44,7 +44,7 @@ describe('resolvePluginLoad', () => {
     const r = resolve(repo(goodPlugin));
     expect(r.skills).toEqual(['commit-standards', 'testing-guide']);
     expect(r.commands).toEqual([]);
-    expect(r.agents.map((p) => p.split('/').pop())).toEqual(['reviewer.md']);
+    expect(r.agents.map((p) => basename(p))).toEqual(['reviewer.md']);
     expect(r.problems).toEqual([]);
   });
 
@@ -72,5 +72,12 @@ describe('resolvePluginLoad', () => {
     writeFileSync(join(root, 'agents', 'README.md'), '# agents\n');
     const r = resolve(root);
     expect(r.problems.join('\n')).toMatch(/documentation file is loaded as a command or agent: .*agents\/README\.md/);
+  });
+
+  it('a README is recognised on Windows paths too (the first version anchored on / and missed C:\\...\\README.md)', () => {
+    expect(isDocumentationFile('C:\\uds\\skills\\agents\\README.md')).toBe(true);
+    expect(isDocumentationFile('C:\\uds\\skills\\commands\\COMMAND-FAMILY-OVERVIEW.md')).toBe(true);
+    expect(isDocumentationFile('/uds/skills/agents/README.md')).toBe(true);
+    expect(isDocumentationFile('C:\\uds\\skills\\agents\\reviewer.md')).toBe(false);
   });
 });

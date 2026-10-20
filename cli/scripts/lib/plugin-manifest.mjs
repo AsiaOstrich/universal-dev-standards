@@ -64,6 +64,15 @@ export function judgePluginDescriptions(descriptions, shipped) {
 }
 
 /**
+ * A README or *-OVERVIEW file, judged by its file name with either separator (Windows paths use \\).
+ * @param {string} path
+ */
+export function isDocumentationFile(path) {
+  const name = String(path).split(/[\\/]/).pop();
+  return /^(README|[A-Z-]*OVERVIEW)[^.]*\.md$/i.test(name);
+}
+
+/**
  * What a Claude Code marketplace install actually loads, worked out from the files (2026-10-20).
  *
  * The count check above assumed the plugin ships the skill folders under `skills/`. It did not: the marketplace
@@ -118,7 +127,8 @@ export function resolvePluginLoad({ repoRoot, marketplace, shippedSkillsDir }) {
   if (missing.length) problems.push(`the plugin does not load ${missing.length} of the ${shipped.length} skills UDS ships (e.g. ${missing.slice(0, 3).join(', ')}); plugin root is ${entry.source}`);
   if (extra.length) problems.push(`the plugin loads skills UDS does not ship: ${extra.slice(0, 3).join(', ')}`);
   for (const path of [...commands, ...agents]) {
-    if (/(^|\/)(README|[A-Z-]*OVERVIEW)[^/]*\.md$/i.test(path)) problems.push(`a documentation file is loaded as a command or agent: ${path}`);
+    // Judge the file name, not the path: on Windows the separator is \\ and a /-anchored pattern never matched.
+    if (isDocumentationFile(path)) problems.push(`a documentation file is loaded as a command or agent: ${path.split(/[\\/]/).join('/')}`);
   }
   for (const path of agentsField ? agents : []) {
     if (!path.endsWith('.md')) problems.push(`agents entry must point at a .md file: ${path}`);
