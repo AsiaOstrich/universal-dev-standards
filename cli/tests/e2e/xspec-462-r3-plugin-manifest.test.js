@@ -142,21 +142,24 @@ it('the check exits 2, not 0 and not 1, when it cannot measure: a settings file 
 });
 
 // ── 2026-10-20: what a marketplace install actually loads ─────────────────────────────────────────────────────
-// The count above matched 56 while the plugin root was skills/ and Claude Code loaded the 53 flat files under
-// skills/commands/ (README files included) and none of the 56 skills (`claude plugin details`, Claude Code 2.1.304).
+// The plugin root is skills/, so Claude Code loads the flat files under skills/commands/; before 2026-10-21 that
+// included README.md and COMMAND-FAMILY-OVERVIEW.md as commands and skills/agents/README.md as an agent
+// (`claude plugin details`, Claude Code 2.1.304). 6.x keeps the command names; 7.0 switches to the SKILL.md skills.
 // Wire that makes these red when cut (one line of CLI source):
 //   cli/scripts/check-plugin-manifest.mjs   const load = resolvePluginLoad({ repoRoot: ROOT, marketplace, shippedSkillsDir: join(ROOT, 'skills') });
 // The edge cases of the resolver itself are unit tests: tests/unit/scripts/plugin-load.test.js.
 
-it('a marketplace install of this repository loads every skill UDS ships, no commands, and no README as an agent', () => {
-  const n = shippedCount();
+it('a marketplace install of this repository (6.x layout) loads every command under skills/commands/ by its old name, the agents, and no README', () => {
+  // Counted here, not by the script: command files under skills/commands/ that are not README/OVERVIEW documents.
+  const commands = readdirSync(join(REPO, 'skills', 'commands')).filter((f) => f.endsWith('.md') && !/^(README|[A-Z-]*OVERVIEW)/i.test(f)).length;
+  expect(commands, 'control: UDS ships dozens of commands').toBeGreaterThan(40);
   const r = run();
   expect(r.code, r.out).toBe(0);
-  expect(r.stdout).toMatch(new RegExp(`skills: ${n}\\s+commands: 0\\s+agents: [1-9]`));
-  expect(r.stdout).toContain('the plugin loads exactly the skills UDS ships');
+  expect(r.stdout).toMatch(new RegExp(`skills: 0\\s+commands: ${commands}\\s+agents: [1-9]`));
+  expect(r.stdout).toContain('the plugin ships one complete form (every command)');
 });
 
-it('red: the old layout (marketplace source ./skills) loads none of the skills and loads README files as a command and an agent', () => {
+it('red: the layout before 2026-10-21 (source ./skills, no explicit lists) loads README files as a command and an agent', () => {
   const root = join(scratch, `old-layout-${++counter}`);
   for (const s of ['commit-standards', 'testing-guide']) {
     mkdirSync(join(root, 'skills', s), { recursive: true });
@@ -174,7 +177,7 @@ it('red: the old layout (marketplace source ./skills) loads none of the skills a
   const r = run(['--root', root]);
   expect(r.code, r.out).toBe(1);
   expect(r.stdout).toContain('skills: 0');
-  expect(r.stdout).toContain('does not load 2 of the 2 skills UDS ships');
+  expect(r.stdout).toContain('the plugin ships neither every skill nor every command');
   expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*commands\/README\.md/);
   expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*agents\/README\.md/);
 });

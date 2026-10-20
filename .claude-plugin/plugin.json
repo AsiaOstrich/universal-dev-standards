@@ -21,12 +21,5 @@
     "documentation",
     "git-workflow",
     "best-practices"
-  ],
-  "agents": [
-    "./skills/agents/code-architect.md",
-    "./skills/agents/doc-writer.md",
-    "./skills/agents/reviewer.md",
-    "./skills/agents/spec-analyst.md",
-    "./skills/agents/test-specialist.md"
   ]
 }

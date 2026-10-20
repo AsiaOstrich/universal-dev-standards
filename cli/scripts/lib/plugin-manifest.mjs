@@ -120,12 +120,29 @@ export function resolvePluginLoad({ repoRoot, marketplace, shippedSkillsDir }) {
   const agentsField = asList(manifest.agents);
   const agents = agentsField ? agentsField.map((p) => join(pluginRoot, p)) : listMd(join(pluginRoot, 'agents'));
 
+  // The plugin must ship one complete form of the content: every SKILL.md skill (the 7.0 layout) or every
+  // command file under skills/commands/ (the 6.x layout, kept so command names do not change before 7.0).
   const shipped = skillDirs(shippedSkillsDir).sort();
   const loaded = [...new Set(skills)].sort();
-  const missing = shipped.filter((s) => !loaded.includes(s));
-  const extra = loaded.filter((s) => !shipped.includes(s));
-  if (missing.length) problems.push(`the plugin does not load ${missing.length} of the ${shipped.length} skills UDS ships (e.g. ${missing.slice(0, 3).join(', ')}); plugin root is ${entry.source}`);
-  if (extra.length) problems.push(`the plugin loads skills UDS does not ship: ${extra.slice(0, 3).join(', ')}`);
+  const commandName = (path) => String(path).split(/[\\/]/).pop().replace(/\.md$/, '');
+  const shippedCommands = listMd(join(shippedSkillsDir, 'commands')).filter((f) => !isDocumentationFile(f)).map(commandName).sort();
+  const loadedCommands = [...new Set(commands.filter((f) => !isDocumentationFile(f)).map(commandName))].sort();
+  const sameSet = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+  const fullSkills = shipped.length > 0 && sameSet(loaded, shipped);
+  const fullCommands = shippedCommands.length > 0 && sameSet(loadedCommands, shippedCommands);
+  if (!fullSkills && !fullCommands) {
+    const missingSkills = shipped.filter((x) => !loaded.includes(x));
+    const missingCommands = shippedCommands.filter((x) => !loadedCommands.includes(x));
+    problems.push(
+      `the plugin ships neither every skill nor every command: ${missingSkills.length} of the ${shipped.length} skills ` +
+        `and ${missingCommands.length} of the ${shippedCommands.length} commands are not loaded ` +
+        `(e.g. ${[...missingCommands, ...missingSkills].slice(0, 3).join(', ')}); plugin root is ${entry.source}`
+    );
+  }
+  for (const path of commandsField ? commands : []) {
+    if (!path.endsWith('.md')) problems.push(`commands entry must point at a .md file: ${path.split(/[\\/]/).join('/')}`);
+    else if (!existsSync(path)) problems.push(`commands entry points at a missing file: ${path.split(/[\\/]/).join('/')}`);
+  }
   for (const path of [...commands, ...agents]) {
     // Judge the file name, not the path: on Windows the separator is \\ and a /-anchored pattern never matched.
     if (isDocumentationFile(path)) problems.push(`a documentation file is loaded as a command or agent: ${path.split(/[\\/]/).join('/')}`);

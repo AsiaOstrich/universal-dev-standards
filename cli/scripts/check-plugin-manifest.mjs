@@ -78,5 +78,5 @@ const load = resolvePluginLoad({ repoRoot: ROOT, marketplace, shippedSkillsDir: 
 console.log('What a marketplace install loads');
 console.log(`  skills: ${load.skills.length}   commands: ${load.commands.length}   agents: ${load.agents.length}`);
 for (const problem of load.problems) console.log(`  ✗ ${problem}`);
-if (load.problems.length === 0) console.log('  ✓ the plugin loads exactly the skills UDS ships, and no documentation file as a command or agent');
+if (load.problems.length === 0) console.log(`  ✓ the plugin ships one complete form (${load.skills.length ? 'every skill' : 'every command'}), and no documentation file as a command or agent`);
 process.exit(verdict.ok && load.problems.length === 0 ? 0 : 1);

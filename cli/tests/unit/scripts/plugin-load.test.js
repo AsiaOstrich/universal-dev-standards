@@ -74,6 +74,31 @@ describe('resolvePluginLoad', () => {
     expect(r.problems.join('\n')).toMatch(/documentation file is loaded as a command or agent: .*agents\/README\.md/);
   });
 
+  it('the 6.x layout passes: plugin root skills/, every command listed by file, no README', () => {
+    const root = repo(goodPlugin);
+    writeFileSync(join(root, 'skills', 'commands', 'commit.md'), '---\ndescription: x\n---\n');
+    const pluginDir = join(root, 'skills', '.claude-plugin');
+    mkdirSync(pluginDir, { recursive: true });
+    writeFileSync(join(pluginDir, 'plugin.json'), JSON.stringify({ name: 'p', description, repository: 'https://example.com/p.git', commands: ['./commands/commit.md'], agents: ['./agents/reviewer.md'] }));
+    const r = resolve(root, { ...goodMarketplace, plugins: [{ name: 'p', source: './skills', description }] });
+    expect(r.skills).toEqual([]);
+    expect(r.commands.map((p) => basename(p))).toEqual(['commit.md']);
+    expect(r.problems).toEqual([]);
+  });
+
+  it('the 6.x layout with a command left out of the list, or a listed command that does not exist, is named', () => {
+    const root = repo(goodPlugin);
+    writeFileSync(join(root, 'skills', 'commands', 'commit.md'), '---\ndescription: x\n---\n');
+    writeFileSync(join(root, 'skills', 'commands', 'tdd.md'), '---\ndescription: x\n---\n');
+    const pluginDir = join(root, 'skills', '.claude-plugin');
+    mkdirSync(pluginDir, { recursive: true });
+    writeFileSync(join(pluginDir, 'plugin.json'), JSON.stringify({ name: 'p', description, commands: ['./commands/commit.md', './commands/gone.md'] }));
+    const r = resolve(root, { ...goodMarketplace, plugins: [{ name: 'p', source: './skills', description }] });
+    const all = r.problems.join('\n');
+    expect(all).toContain('ships neither every skill nor every command');
+    expect(all).toContain('commands entry points at a missing file');
+  });
+
   it('a README is recognised on Windows paths too (the first version anchored on / and missed C:\\...\\README.md)', () => {
     expect(isDocumentationFile('C:\\uds\\skills\\agents\\README.md')).toBe(true);
     expect(isDocumentationFile('C:\\uds\\skills\\commands\\COMMAND-FAMILY-OVERVIEW.md')).toBe(true);

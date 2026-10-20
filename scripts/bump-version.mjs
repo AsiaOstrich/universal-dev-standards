@@ -312,6 +312,14 @@ if (!IS_PRERELEASE) {
     `"version": "${NEW_VERSION}"`
   );
 
+  // The manifest a marketplace install reads (plugin root is skills/); keep it on the same version.
+  updateFile(
+    'skills/.claude-plugin/plugin.json',
+    join(ROOT_DIR, 'skills', '.claude-plugin', 'plugin.json'),
+    /"version": "[^"]*"/,
+    `"version": "${NEW_VERSION}"`
+  );
+
   const marketplaceFile = join(ROOT_DIR, '.claude-plugin', 'marketplace.json');
   if (existsSync(marketplaceFile)) {
     const content = readFileSync(marketplaceFile, 'utf8');

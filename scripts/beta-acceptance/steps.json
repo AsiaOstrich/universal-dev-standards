@@ -70,8 +70,12 @@
       "reason": "A person answers the prompt on their own terminal and nothing is captured, so only the exit code can be checked; what the person sees is asked in the step itself."
     },
     {
-      "changelog": "The Claude Code plugin now installs the 56 skills UDS ships",
-      "reason": "The change is to .claude-plugin/ in the repository, which a Claude Code marketplace install reads from GitHub; those files are not part of the npm package, so no uds command shows it. cli/tests/e2e/xspec-462-r3-plugin-manifest.test.js runs check-plugin-manifest.mjs on what an install loads (resolver edge cases in cli/tests/unit/scripts/plugin-load.test.js), and claude plugin details on Claude Code 2.1.304 listed Skills (56)."
+      "changelog": "The Claude Code plugin no longer loads README files as commands or as an agent",
+      "reason": "The change is to .claude-plugin/ in the repository, which a Claude Code marketplace install reads from GitHub; those files are not part of the npm package, so no uds command shows it. cli/tests/e2e/xspec-462-r3-plugin-manifest.test.js runs check-plugin-manifest.mjs on what an install loads (resolver edge cases in cli/tests/unit/scripts/plugin-load.test.js), and a headless session on Claude Code 2.1.304 listed the commands under their old names and the five agents."
+    },
+    {
+      "changelog": "The Claude Code plugin will install the SKILL.md skills in 7.0",
+      "reason": "An announcement of a 7.0 change; nothing in this release behaves differently, so there is no effect for a step to read back."
     }
   ],
   "steps": [

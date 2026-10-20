@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "universal-dev-standards",
-      "source": "./",
+      "source": "./skills",
       "description": "Skills for development standards: commit messages, code review, testing, documentation, git workflow, release management, and more. Language-agnostic and framework-agnostic.",
       "version": "6.13.1",
       "license": "CC BY 4.0",
