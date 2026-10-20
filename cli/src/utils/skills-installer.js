@@ -158,7 +158,8 @@ export function getSkillsSourceEntryNames() {
   try {
     return new Set(
       readdirSync(SKILLS_LOCAL_DIR, { withFileTypes: true })
-        .filter((e) => e.isDirectory())
+        // Dot folders are settings, not skills (skills/.claude-plugin holds the plugin manifest, 2026-10-21).
+        .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
         .map((e) => e.name)
     );
   } catch {

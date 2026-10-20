@@ -212,7 +212,8 @@ let skippedNoAnchor = 0;
 
 for (const entry of readdirSync(skillsDir)) {
   const skillDir = join(skillsDir, entry);
-  if (!isDir(skillDir) || NON_SKILL_DIRS.has(entry)) continue;
+  // Dot folders are settings, not skills (skills/.claude-plugin holds the plugin manifest, 2026-10-21).
+  if (!isDir(skillDir) || NON_SKILL_DIRS.has(entry) || entry.startsWith('.')) continue;
 
   const skillMdPath = join(skillDir, 'SKILL.md');
   if (!existsSync(skillMdPath)) continue; // structural-integrity gate owns this
