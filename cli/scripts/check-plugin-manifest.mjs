@@ -21,7 +21,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { countShippedSkills, judgePluginDescriptions } from './lib/plugin-manifest.mjs';
+import { countShippedSkills, judgePluginDescriptions, resolvePluginLoad } from './lib/plugin-manifest.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const argv = process.argv.slice(2);
@@ -70,4 +70,13 @@ console.log(`  texts examined: ${descriptions.length}   skill counts claimed: ${
 for (const claim of verdict.claims) console.log(`    ${claim.label}: "${claim.text}"`);
 for (const problem of verdict.problems) console.log(`  ✗ ${problem}`);
 if (verdict.ok) console.log('  ✓ no skill count in the plugin settings differs from the skills UDS ships');
-process.exit(verdict.ok ? 0 : 1);
+
+// 2026-10-20: the count above can match while the plugin ships none of those skills (the plugin root was
+// skills/, so Claude Code loaded skills/commands/*.md instead). Work out what an install actually loads.
+// --skills-dir only feeds the count check above; what an install loads is always judged against the repository's own skills/.
+const load = resolvePluginLoad({ repoRoot: ROOT, marketplace, shippedSkillsDir: join(ROOT, 'skills') });
+console.log('What a marketplace install loads');
+console.log(`  skills: ${load.skills.length}   commands: ${load.commands.length}   agents: ${load.agents.length}`);
+for (const problem of load.problems) console.log(`  ✗ ${problem}`);
+if (load.problems.length === 0) console.log('  ✓ the plugin loads exactly the skills UDS ships, and no documentation file as a command or agent');
+process.exit(verdict.ok && load.problems.length === 0 ? 0 : 1);

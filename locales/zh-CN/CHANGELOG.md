@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.14.0-beta.15
 translation_version: 6.14.0-beta.15
 last_synced: 2026-10-16
-source_hash: 0fb9f9be3c71
+source_hash: 1cc5ba54fe00
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 修复
+
+- **Claude Code 插件现在安装的是 UDS 出货的 56 个技能，不再是 `skills/commands/` 下 53 个扁平文件。** 市场条目写的是 `source: "./skills"`，插件根目录因此成了 `skills/`，Claude Code 到不存在的 `skills/skills/` 找技能。结果插件安装拿到的是扁平命令文件（连 `README.md`、`COMMAND-FAMILY-OVERVIEW.md` 都被当成命令），`skills/agents/README.md` 被当成一个 agent；而 `uds update --apply --skills` 安装的是 SKILL.md 技能——同一个名字下两套不同内容。市场条目改指向仓库根目录，默认扫描就会找到 `skills/<name>/SKILL.md`；`plugin.json` 逐个列出五个 agent，不再加载 README；`repository` 改为字符串（Claude Code 拒收对象写法，`claude plugin validate .` 因此失败）；`marketplace.json` 删掉 Claude Code 不读的两个 `metadata` 字段。插件用户看到的会是技能名称（例如 `universal-dev-standards:commit-standards`），取代旧的命令名称。`cli/scripts/check-plugin-manifest.mjs` 现在也会推算安装实际加载什么，不等于 UDS 出货的技能、或有 README 被当成命令或 agent 加载时就失败；原本只比对技能数量的检查，在插件一个技能都没出货的期间一直是绿的。已在 Claude Code 2.1.304 实测：`claude plugin details` 列出 Skills (56)，无人值守的 session 列出五个 `universal-dev-standards:` agent。
 
 ### 变更
 

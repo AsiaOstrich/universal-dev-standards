@@ -140,3 +140,41 @@ it('the check exits 2, not 0 and not 1, when it cannot measure: a settings file 
   expect(noDescription.code, noDescription.out).toBe(2);
   expect(noDescription.stderr).toContain('has no description');
 });
+
+// ── 2026-10-20: what a marketplace install actually loads ─────────────────────────────────────────────────────
+// The count above matched 56 while the plugin root was skills/ and Claude Code loaded the 53 flat files under
+// skills/commands/ (README files included) and none of the 56 skills (`claude plugin details`, Claude Code 2.1.304).
+// Wire that makes these red when cut (one line of CLI source):
+//   cli/scripts/check-plugin-manifest.mjs   const load = resolvePluginLoad({ repoRoot: ROOT, marketplace, shippedSkillsDir: join(ROOT, 'skills') });
+// The edge cases of the resolver itself are unit tests: tests/unit/scripts/plugin-load.test.js.
+
+it('a marketplace install of this repository loads every skill UDS ships, no commands, and no README as an agent', () => {
+  const n = shippedCount();
+  const r = run();
+  expect(r.code, r.out).toBe(0);
+  expect(r.stdout).toMatch(new RegExp(`skills: ${n}\\s+commands: 0\\s+agents: [1-9]`));
+  expect(r.stdout).toContain('the plugin loads exactly the skills UDS ships');
+});
+
+it('red: the old layout (marketplace source ./skills) loads none of the skills and loads README files as a command and an agent', () => {
+  const root = join(scratch, `old-layout-${++counter}`);
+  for (const s of ['commit-standards', 'testing-guide']) {
+    mkdirSync(join(root, 'skills', s), { recursive: true });
+    writeFileSync(join(root, 'skills', s, 'SKILL.md'), `---\nname: ${s}\ndescription: x\n---\n`);
+  }
+  mkdirSync(join(root, 'skills', 'commands'), { recursive: true });
+  writeFileSync(join(root, 'skills', 'commands', 'README.md'), '# commands\n');
+  mkdirSync(join(root, 'skills', 'agents'), { recursive: true });
+  writeFileSync(join(root, 'skills', 'agents', 'README.md'), '# agents\n');
+  mkdirSync(join(root, '.claude-plugin'), { recursive: true });
+  const description = 'Skills for development standards.';
+  writeFileSync(join(root, '.claude-plugin', 'plugin.json'), json({ name: 'p', description }));
+  writeFileSync(join(root, '.claude-plugin', 'marketplace.json'), json({ name: 'm', owner: { name: 'o' }, plugins: [{ name: 'p', source: './skills', description }] }));
+
+  const r = run(['--root', root]);
+  expect(r.code, r.out).toBe(1);
+  expect(r.stdout).toContain('skills: 0');
+  expect(r.stdout).toContain('does not load 2 of the 2 skills UDS ships');
+  expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*commands\/README\.md/);
+  expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*agents\/README\.md/);
+});

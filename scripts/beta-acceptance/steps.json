@@ -68,6 +68,10 @@
     {
       "step": "xspec482-human-audit-report-asks",
       "reason": "A person answers the prompt on their own terminal and nothing is captured, so only the exit code can be checked; what the person sees is asked in the step itself."
+    },
+    {
+      "changelog": "The Claude Code plugin now installs the 56 skills UDS ships",
+      "reason": "The change is to .claude-plugin/ in the repository, which a Claude Code marketplace install reads from GitHub; those files are not part of the npm package, so no uds command shows it. cli/tests/e2e/xspec-462-r3-plugin-manifest.test.js runs check-plugin-manifest.mjs on what an install loads (resolver edge cases in cli/tests/unit/scripts/plugin-load.test.js), and claude plugin details on Claude Code 2.1.304 listed Skills (56)."
     }
   ],
   "steps": [

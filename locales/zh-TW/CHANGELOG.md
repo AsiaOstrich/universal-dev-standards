@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.14.0-beta.15
 translation_version: 6.14.0-beta.15
 last_synced: 2026-10-16
-source_hash: 0fb9f9be3c71
+source_hash: 1cc5ba54fe00
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 修正
+
+- **Claude Code 外掛現在安裝的是 UDS 出貨的 56 個技能，不再是 `skills/commands/` 底下 53 個扁平檔案。** 市集項目寫的是 `source: "./skills"`，外掛根目錄因此成了 `skills/`，Claude Code 到不存在的 `skills/skills/` 找技能。結果外掛安裝拿到的是扁平指令檔（連 `README.md`、`COMMAND-FAMILY-OVERVIEW.md` 都被當成指令），`skills/agents/README.md` 被當成一個 agent；而 `uds update --apply --skills` 安裝的是 SKILL.md 技能——同一個名字底下兩套不同內容。市集項目改指向儲存庫根目錄，預設掃描就會找到 `skills/<name>/SKILL.md`；`plugin.json` 逐檔列出五個 agent，不再載入 README；`repository` 改為字串（Claude Code 拒收物件寫法，`claude plugin validate .` 因此失敗）；`marketplace.json` 刪掉 Claude Code 不讀的兩個 `metadata` 欄位。外掛使用者看到的會是技能名稱（例如 `universal-dev-standards:commit-standards`），取代舊的指令名稱。`cli/scripts/check-plugin-manifest.mjs` 現在也會推算安裝實際載入什麼，不等於 UDS 出貨的技能、或有 README 被當成指令或 agent 載入時就失敗；原本只比對技能數量的檢查，在外掛一個技能都沒出貨的期間一直是綠的。已在 Claude Code 2.1.304 實測：`claude plugin details` 列出 Skills (56)，無人值守的 session 列出五個 `universal-dev-standards:` agent。
 
 ### 變更
 
