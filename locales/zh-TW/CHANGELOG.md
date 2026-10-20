@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.14.0-beta.15
 translation_version: 6.14.0-beta.15
 last_synced: 2026-10-16
-source_hash: 0fb9f9be3c71
+source_hash: 8102cd182c1e
 status: current
 ---
 
@@ -17,6 +17,14 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 修正
+
+- **Claude Code 外掛不再把 README 當成指令或 agent 載入，設定也通過 `claude plugin validate`。** 外掛安裝會載入 `skills/commands/` 與 `skills/agents/` 底下每一個 `.md`，所以 `README.md`、`COMMAND-FAMILY-OVERVIEW.md` 被當成指令，`skills/agents/README.md` 被當成一個 agent；`.claude-plugin/plugin.json` 的 `repository` 是物件，驗證失敗。`skills/.claude-plugin/plugin.json` 現在逐檔列出 51 個指令與五個 agent，`repository` 改為字串，`marketplace.json` 刪掉兩個 Claude Code 不讀的 `metadata` 欄位。指令名稱不變（例如 `/universal-dev-standards:commit`）。`cli/scripts/check-plugin-manifest.mjs` 現在會推算安裝實際載入什麼，除非外掛完整出貨一種形式（全部指令或全部技能）且沒有說明文件，否則失敗；`check-version-sync` 與 `bump-version` 涵蓋新的清單檔。已在 Claude Code 2.1.304 實測：無人值守的 session 以舊名稱列出各指令與五個 agent，沒有 README。
+
+### 棄用
+
+- **Claude Code 外掛將在 7.0 改為安裝 SKILL.md 技能，指令名稱會改變。** 6.x 的外掛安裝 `skills/commands/` 底下的舊版指令檔，而 `uds init` 安裝 56 個 SKILL.md 技能；7.0 讓外掛也安裝技能，`/universal-dev-standards:commit` 會變成 `/universal-dev-standards:commit-standards`，其餘依此類推。沒有對應技能的 16 個指令（`init`、`update`、`check`、`config`、`derive-*`、`reverse-*` 等）會在切換前補成技能。
 
 ### 變更
 

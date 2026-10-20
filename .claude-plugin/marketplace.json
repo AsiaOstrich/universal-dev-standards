@@ -5,9 +5,7 @@
     "email": "contact@asiaostrich.com"
   },
   "metadata": {
-    "description": "Official Universal Development Standards marketplace for Claude Code skills",
-    "homepage": "https://github.com/AsiaOstrich/universal-dev-standards",
-    "documentation": "https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/README.md"
+    "description": "Official Universal Development Standards marketplace for Claude Code skills"
   },
   "plugins": [
     {

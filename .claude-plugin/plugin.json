@@ -7,10 +7,7 @@
     "url": "https://github.com/AsiaOstrich"
   },
   "homepage": "https://github.com/AsiaOstrich/universal-dev-standards#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/AsiaOstrich/universal-dev-standards.git"
-  },
+  "repository": "https://github.com/AsiaOstrich/universal-dev-standards.git",
   "bugs": {
     "url": "https://github.com/AsiaOstrich/universal-dev-standards/issues"
   },

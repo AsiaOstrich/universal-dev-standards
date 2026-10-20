@@ -87,6 +87,11 @@ export function collectEvidence(root) {
     'tests/scripts', 'cli/src'
   ]);
   for (const rel of [...callerScope.keys()]) if (notACall(rel)) callerScope.delete(rel);
+  // skills/.claude-plugin/plugin.json lists the plugin's command files by path (`./commands/runbook.md`).
+  // A listed command file that shares a standard's file name is not a skill naming that standard; counting it
+  // made core/runbook.md look used (2026-10-21).
+  const skills = group(['skills']);
+  skills.delete('skills/.claude-plugin/plugin.json');
   return {
     ci: group(['.github/workflows']),
     hooks: group([
@@ -94,7 +99,7 @@ export function collectEvidence(root) {
       'cli/src/installers/hooks-installer.js', 'cli/src/utils/git-hooks.js', 'cli/src/utils/gate-scripts.js',
       'cli/src/commands/compile.js'
     ]),
-    skills: group(['skills']),
+    skills,
     // Where a check script's callers are looked for (a script naming itself is not a caller).
     callerScope
   };

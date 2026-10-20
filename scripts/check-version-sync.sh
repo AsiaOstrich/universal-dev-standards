@@ -27,6 +27,7 @@ PACKAGE_LOCK_JSON="$CLI_DIR/package-lock.json"
 REGISTRY_JSON="$CLI_DIR/standards-registry.json"
 PLUGIN_JSON="$ROOT_DIR/.claude-plugin/plugin.json"
 MARKETPLACE_JSON="$ROOT_DIR/.claude-plugin/marketplace.json"
+SKILLS_PLUGIN_JSON="$ROOT_DIR/skills/.claude-plugin/plugin.json"
 MANIFEST_JSON="$ROOT_DIR/uds-manifest.json"
 
 echo ""
@@ -164,6 +165,18 @@ if [ -f "$PLUGIN_JSON" ]; then
     fi
 else
     echo -e "${YELLOW}[SKIP]${NC}  plugin.json not found"
+fi
+
+# Check skills/.claude-plugin/plugin.json — the manifest a marketplace install reads (plugin root is skills/).
+# It must carry the same version as .claude-plugin/plugin.json, in pre-release and stable alike.
+if [ -f "$SKILLS_PLUGIN_JSON" ]; then
+    SKILLS_PLUGIN_VERSION=$(grep '"version"' "$SKILLS_PLUGIN_JSON" | head -1 | sed 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    if [ "$SKILLS_PLUGIN_VERSION" = "$PLUGIN_VERSION" ]; then
+        echo -e "${GREEN}[OK]${NC}     skills/.claude-plugin/plugin.json version: $SKILLS_PLUGIN_VERSION (same as .claude-plugin/plugin.json)"
+    else
+        echo -e "${RED}[MISMATCH]${NC} skills/.claude-plugin/plugin.json version: $SKILLS_PLUGIN_VERSION (expected: $PLUGIN_VERSION, the .claude-plugin/plugin.json version)"
+        ERRORS=$((ERRORS + 1))
+    fi
 fi
 
 # Check .claude-plugin/marketplace.json

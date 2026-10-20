@@ -135,6 +135,19 @@ if (Test-Path $PluginJson) {
     Write-Host "[SKIP]  plugin.json not found" -ForegroundColor Yellow
 }
 
+# Check skills/.claude-plugin/plugin.json — the manifest a marketplace install reads (plugin root is skills/).
+# It must carry the same version as .claude-plugin/plugin.json, in pre-release and stable alike.
+$SkillsPluginJson = Join-Path $RootDir "skills" ".claude-plugin" "plugin.json"
+if ((Test-Path $SkillsPluginJson) -and (Test-Path $PluginJson)) {
+    $skillsPluginVersion = (Get-Content $SkillsPluginJson -Raw | ConvertFrom-Json).version
+    if ($skillsPluginVersion -eq $pluginVersion) {
+        Write-Host "[OK]     skills/.claude-plugin/plugin.json version: $skillsPluginVersion (same as .claude-plugin/plugin.json)" -ForegroundColor Green
+    } else {
+        Write-Host "[MISMATCH] skills/.claude-plugin/plugin.json version: $skillsPluginVersion (expected: $pluginVersion, the .claude-plugin/plugin.json version)" -ForegroundColor Red
+        $errors++
+    }
+}
+
 # Check .claude-plugin/marketplace.json
 $MarketplaceJson = Join-Path $RootDir ".claude-plugin" "marketplace.json"
 if (Test-Path $MarketplaceJson) {

@@ -118,7 +118,8 @@ const entries = readdirSync(skillsDir);
 for (const entry of entries) {
   const fullPath = join(skillsDir, entry);
 
-  if (!isDir(fullPath) || NON_SKILL_DIRS.has(entry)) continue;
+  // Dot folders are settings, not skills (skills/.claude-plugin holds the plugin manifest, 2026-10-21).
+  if (!isDir(fullPath) || NON_SKILL_DIRS.has(entry) || entry.startsWith('.')) continue;
 
   const skillMdPath = join(fullPath, 'SKILL.md');
 

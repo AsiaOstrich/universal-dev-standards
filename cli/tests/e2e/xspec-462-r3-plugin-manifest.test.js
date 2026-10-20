@@ -140,3 +140,44 @@ it('the check exits 2, not 0 and not 1, when it cannot measure: a settings file 
   expect(noDescription.code, noDescription.out).toBe(2);
   expect(noDescription.stderr).toContain('has no description');
 });
+
+// ── 2026-10-20: what a marketplace install actually loads ─────────────────────────────────────────────────────
+// The plugin root is skills/, so Claude Code loads the flat files under skills/commands/; before 2026-10-21 that
+// included README.md and COMMAND-FAMILY-OVERVIEW.md as commands and skills/agents/README.md as an agent
+// (`claude plugin details`, Claude Code 2.1.304). 6.x keeps the command names; 7.0 switches to the SKILL.md skills.
+// Wire that makes these red when cut (one line of CLI source):
+//   cli/scripts/check-plugin-manifest.mjs   const load = resolvePluginLoad({ repoRoot: ROOT, marketplace, shippedSkillsDir: join(ROOT, 'skills') });
+// The edge cases of the resolver itself are unit tests: tests/unit/scripts/plugin-load.test.js.
+
+it('a marketplace install of this repository (6.x layout) loads every command under skills/commands/ by its old name, the agents, and no README', () => {
+  // Counted here, not by the script: command files under skills/commands/ that are not README/OVERVIEW documents.
+  const commands = readdirSync(join(REPO, 'skills', 'commands')).filter((f) => f.endsWith('.md') && !/^(README|[A-Z-]*OVERVIEW)/i.test(f)).length;
+  expect(commands, 'control: UDS ships dozens of commands').toBeGreaterThan(40);
+  const r = run();
+  expect(r.code, r.out).toBe(0);
+  expect(r.stdout).toMatch(new RegExp(`skills: 0\\s+commands: ${commands}\\s+agents: [1-9]`));
+  expect(r.stdout).toContain('the plugin ships one complete form (every command)');
+});
+
+it('red: the layout before 2026-10-21 (source ./skills, no explicit lists) loads README files as a command and an agent', () => {
+  const root = join(scratch, `old-layout-${++counter}`);
+  for (const s of ['commit-standards', 'testing-guide']) {
+    mkdirSync(join(root, 'skills', s), { recursive: true });
+    writeFileSync(join(root, 'skills', s, 'SKILL.md'), `---\nname: ${s}\ndescription: x\n---\n`);
+  }
+  mkdirSync(join(root, 'skills', 'commands'), { recursive: true });
+  writeFileSync(join(root, 'skills', 'commands', 'README.md'), '# commands\n');
+  mkdirSync(join(root, 'skills', 'agents'), { recursive: true });
+  writeFileSync(join(root, 'skills', 'agents', 'README.md'), '# agents\n');
+  mkdirSync(join(root, '.claude-plugin'), { recursive: true });
+  const description = 'Skills for development standards.';
+  writeFileSync(join(root, '.claude-plugin', 'plugin.json'), json({ name: 'p', description }));
+  writeFileSync(join(root, '.claude-plugin', 'marketplace.json'), json({ name: 'm', owner: { name: 'o' }, plugins: [{ name: 'p', source: './skills', description }] }));
+
+  const r = run(['--root', root]);
+  expect(r.code, r.out).toBe(1);
+  expect(r.stdout).toContain('skills: 0');
+  expect(r.stdout).toContain('the plugin ships neither every skill nor every command');
+  expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*commands\/README\.md/);
+  expect(r.stdout).toMatch(/documentation file is loaded as a command or agent: .*agents\/README\.md/);
+});
