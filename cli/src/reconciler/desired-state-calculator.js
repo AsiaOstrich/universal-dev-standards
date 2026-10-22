@@ -367,11 +367,38 @@ function isToolGenuinelySelected(toolName, manifest) {
 }
 
 /**
+ * Which integrations the manifest says are in use: tool keys or file paths.
+ *
+ * `manifest.integrations` is the declared list, but it is not the only record. An adopter manifest with
+ * `integrations: []`, `aiTools: ['claude-code']` and an `integrationBlockHashes` entry for CLAUDE.md produced
+ * an EMPTY desired set, so `uds update --plan` proposed "integration no longer configured, removing UDS block"
+ * while `uds check` called the same project compliant (issue #269; an empty array is a different shape from
+ * the file-name one XSPEC-343 R1 handled).
+ *
+ * When the list is empty or absent, fall back to the two other records of the same fact - `aiTools` (the
+ * declared configuration; update.js's orphan-hash pruning already treats it as the source of truth) and the
+ * files `integrationBlockHashes` says UDS wrote a block into. A non-empty `integrations` is used as written:
+ * this is a fallback for a missing declaration, not a second opinion on a present one. A genuinely removed
+ * integration has none of the three, so it is still proposed for removal.
+ *
+ * @param {Object} manifest
+ * @returns {string[]} tool keys or file paths, in the shapes `resolveToolKey` accepts
+ */
+function integrationEntriesOf(manifest) {
+  const declared = manifest.integrations;
+  if (Array.isArray(declared) && declared.length > 0) return declared;
+  const fromAiTools = (manifest.aiTools || []).map((t) => LEGACY_TOOL_MAPPINGS[t] || t);
+  const fromBlockHashes = Object.keys(manifest.integrationBlockHashes || {});
+  return [...fromAiTools, ...fromBlockHashes];
+}
+
+/**
  * Calculate expected integration files.
  * For integrations we track the UDS marker block, not the entire file.
  */
 function calculateIntegrations(state, manifest) {
-  for (const entry of (manifest.integrations || [])) {
+  const seenTools = new Set();
+  for (const entry of integrationEntriesOf(manifest)) {
     // Accept both shapes. `manifest.integrations` is normalised to tool keys by
     // the v3.5.0 migration, but a repo whose manifest has not been re-read and
     // rewritten still holds file paths — and treating those as unknown tools
@@ -385,6 +412,9 @@ function calculateIntegrations(state, manifest) {
     const toolName = resolveToolKey(entry);
     const toolConfig = toolName ? SUPPORTED_AI_TOOLS[toolName] : null;
     if (!toolConfig) continue;
+    // Two entries can name the same tool (`aiTools: ['claude-code']` plus a recorded `CLAUDE.md` block hash).
+    if (seenTools.has(toolName)) continue;
+    seenTools.add(toolName);
 
     // XSPEC-418 R2/R3: the desired path is the tool's ACTUAL target, not always
     // its default file — a local-target claude-code install's desired state
