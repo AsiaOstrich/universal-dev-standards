@@ -400,6 +400,27 @@ describe('Init Prompts', () => {
       expect(result).toBe('traditional-chinese');
     });
 
+    // Issue #254: a zh-cn user picked "简体中文" and got traditional-chinese written. Each locale's label for
+    // the option whose value is traditional-chinese must name Traditional Chinese.
+    it.each([
+      ['en', /Traditional Chinese/],
+      ['zh-tw', /繁體中文/],
+      ['zh-cn', /繁体中文/],
+    ])('labels the traditional-chinese option as Traditional Chinese in %s', async (lang, expected) => {
+      const { setLanguage } = await import('../../src/i18n/messages.js');
+      setLanguage(lang);
+      try {
+        mockSelect.mockResolvedValue('traditional-chinese');
+        await promptOutputLanguage(lang);
+        const { choices } = mockSelect.mock.calls.at(-1)[0];
+        const option = choices.find((c) => c.value === 'traditional-chinese');
+        expect(option.name).toMatch(expected);
+        expect(option.name).not.toMatch(/简体中文/);
+      } finally {
+        setLanguage('en');
+      }
+    });
+
     it('should accept displayLanguage parameter', async () => {
       mockSelect.mockResolvedValue('english');
 

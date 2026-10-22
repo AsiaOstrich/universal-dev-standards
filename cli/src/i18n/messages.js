@@ -3276,12 +3276,14 @@ export const messages = {
       question: '选择产出语言：',
       choices: {
         english: '标准国际格式',
-        chinese: '适合中文团队',
+        chinese: '适合中文团队（提交信息使用繁体；简体请选双语）',
         bilingual: '英文和中文并用'
       },
       labels: {
         english: 'English',
-        chinese: '简体中文',
+        // Issue #254: this option installs the traditional-chinese commit option (no simplified one ships),
+        // so the label must say so. Simplified Chinese reaches commits only through the bilingual option.
+        chinese: '繁体中文',
         bilingual: '双语'
       }
     },
