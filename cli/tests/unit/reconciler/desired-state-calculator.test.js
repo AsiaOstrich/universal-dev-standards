@@ -244,6 +244,52 @@ describe('DesiredStateCalculator', () => {
       expect(state.integrations.has('CLAUDE.md')).toBe(true);
     });
 
+    // Issue #269: `integrations: []` is a different shape from the file-name one above, and produced the same
+    // empty desired state - and the same "delete the UDS block" plan - for a project whose aiTools and recorded
+    // block hash both still said CLAUDE.md is in use.
+    it('derives integrations from aiTools when manifest.integrations is empty (#269)', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: [], aiTools: ['claude-code']
+      });
+      expect([...state.integrations.keys()]).toEqual(['CLAUDE.md']);
+      expect(state.integrations.get('CLAUDE.md').metadata.toolName).toBe('claude-code');
+    });
+
+    it('derives integrations from aiTools when manifest.integrations is missing (#269)', () => {
+      const state = calculateDesiredState('/proj', { standards: [], aiTools: ['claude-code', 'cursor'] });
+      expect([...state.integrations.keys()].sort()).toEqual(['.cursorrules', 'CLAUDE.md']);
+    });
+
+    it('keeps a file with a recorded block hash when integrations and aiTools are both empty (#269)', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: [], aiTools: [],
+        integrationBlockHashes: { 'CLAUDE.md': { blockHash: 'sha256:x' } }
+      });
+      expect(state.integrations.has('CLAUDE.md')).toBe(true);
+    });
+
+    it('lists a tool once when aiTools and a recorded block hash name the same one (#269)', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: [], aiTools: ['claude-code'],
+        integrationBlockHashes: { 'CLAUDE.md': { blockHash: 'sha256:x' } }
+      });
+      expect(state.integrations.size).toBe(1);
+    });
+
+    it('stays empty for a genuinely removed integration: no integrations, no aiTools, no recorded hash (#269)', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: [], aiTools: [], integrationBlockHashes: {}
+      });
+      expect(state.integrations.size).toBe(0);
+    });
+
+    it('does not add aiTools to a non-empty integrations list - that list is used as written (#269)', () => {
+      const state = calculateDesiredState('/proj', {
+        standards: [], integrations: ['claude-code'], aiTools: ['claude-code', 'cursor']
+      });
+      expect([...state.integrations.keys()]).toEqual(['CLAUDE.md']);
+    });
+
     it('does not treat a lookalike filename as the managed integration', () => {
       const state = calculateDesiredState('/proj', {
         standards: [], integrations: ['MY-CLAUDE.md']
