@@ -9,8 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.0] - 2026-10-22
+
+> **Stable Release**: everything in 6.14.0-beta.1 through beta.15 below, plus the fixes since beta.15 listed in this section. beta.15 was accepted on Windows, macOS and Linux (post-publish acceptance, 0 failed).
+
 ### Fixed
 
+- **`uds update` no longer plans to delete CLAUDE.md when `manifest.integrations` is empty but the tool is still in use** ([#269](https://github.com/AsiaOstrich/universal-dev-standards/issues/269)). With `integrations: []` and `aiTools` naming `claude-code`, or a recorded block hash for CLAUDE.md, the plan said "integration no longer configured" while `uds check` reported the project compliant. The integrations are now derived from `aiTools` and the recorded block hashes when the list is empty or missing.
+- **Removing an integration removes only the UDS block and keeps what the user wrote.** `uds update --apply` used to delete the whole integration file, including the user's own text around the UDS block. It now strips the marker block, deletes the file only when nothing else is left, leaves a file with no UDS block alone, and refuses a file with ambiguous markers.
+- **In a Simplified Chinese `uds init`, the Chinese output-language option is labelled Traditional Chinese** ([#254](https://github.com/AsiaOstrich/universal-dev-standards/issues/254)). The option installs the only Chinese commit option UDS ships, which is Traditional; the label used to say Simplified Chinese. Simplified Chinese commits are available through the bilingual option. The `uds init` crash in the same report (`Cannot read properties of undefined (reading 'dump')`) was fixed earlier in 6.14.0 (XSPEC-482 R1).
+- **`uds update` says why Antigravity is left out on a legacy user-only manifest** (XSPEC-486 R2).
 - **The Claude Code plugin no longer loads README files as commands or as an agent, and its settings pass `claude plugin validate`.** A plugin install loaded every `.md` file under `skills/commands/` and `skills/agents/`, so `README.md` and `COMMAND-FAMILY-OVERVIEW.md` appeared as commands and `skills/agents/README.md` as an agent, and `.claude-plugin/plugin.json` failed validation because `repository` was an object. `skills/.claude-plugin/plugin.json` now lists the 51 commands and the five agents by file, `repository` is a string, and `marketplace.json` drops two `metadata` fields Claude Code does not read. Command names do not change (for example `/universal-dev-standards:commit`). `cli/scripts/check-plugin-manifest.mjs` now works out what an install loads and fails unless the plugin ships one complete form (every command or every skill) and no documentation file; `check-version-sync` and `bump-version` cover the new manifest. Checked on Claude Code 2.1.304: a headless session lists the commands under their old names and the five agents, and no README.
 
 ### Deprecated

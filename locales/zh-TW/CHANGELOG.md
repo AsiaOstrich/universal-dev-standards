@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0-beta.15
-translation_version: 6.14.0-beta.15
-last_synced: 2026-10-16
-source_hash: 8102cd182c1e
+source_version: 6.14.0
+translation_version: 6.14.0
+last_synced: 2026-10-22
+source_hash: 94f283a77794
 status: current
 ---
 
@@ -18,8 +18,16 @@ status: current
 
 ## [Unreleased]
 
+## [6.14.0] - 2026-10-22
+
+> **正式版發布**：包含下方 6.14.0-beta.1 至 beta.15 的所有內容，加上本節列出的 beta.15 之後的修正。beta.15 已在 Windows、macOS、Linux 完成發布後驗收（0 項失敗）。
+
 ### 修正
 
+- **`manifest.integrations` 為空但工具仍在使用時，`uds update` 不再計畫刪除 CLAUDE.md**（[#269](https://github.com/AsiaOstrich/universal-dev-standards/issues/269)）。當 `integrations: []`、而 `aiTools` 含 `claude-code` 或留有 CLAUDE.md 的區塊雜湊紀錄時，計畫會寫「integration no longer configured」，`uds check` 卻回報符合。現在清單為空或缺漏時，改由 `aiTools` 與區塊雜湊紀錄推導整合。
+- **移除整合時只刪除 UDS 區塊，保留使用者寫的內容。** `uds update --apply` 原本會刪掉整個整合檔，連使用者在 UDS 區塊外寫的文字一起刪除。現在只移除標記區塊；檔案沒有其他內容才刪檔；沒有 UDS 區塊的檔案不動；標記重複時拒絕處理。
+- **簡體中文介面的 `uds init` 中，中文產出語言選項改標為繁體中文**（[#254](https://github.com/AsiaOstrich/universal-dev-standards/issues/254)）。該選項安裝的是 UDS 唯一提供的中文提交選項（繁體），標籤卻寫簡體中文。想要簡體提交訊息可選雙語。同一回報中的 `uds init` 閃退已在 6.14.0 較早的版本修正（XSPEC-482 R1）。
+- **舊版只記 user 的 manifest 略過 Antigravity 時，`uds update` 會說明原因**（XSPEC-486 R2）。
 - **Claude Code 外掛不再把 README 當成指令或 agent 載入，設定也通過 `claude plugin validate`。** 外掛安裝會載入 `skills/commands/` 與 `skills/agents/` 底下每一個 `.md`，所以 `README.md`、`COMMAND-FAMILY-OVERVIEW.md` 被當成指令，`skills/agents/README.md` 被當成一個 agent；`.claude-plugin/plugin.json` 的 `repository` 是物件，驗證失敗。`skills/.claude-plugin/plugin.json` 現在逐檔列出 51 個指令與五個 agent，`repository` 改為字串，`marketplace.json` 刪掉兩個 Claude Code 不讀的 `metadata` 欄位。指令名稱不變（例如 `/universal-dev-standards:commit`）。`cli/scripts/check-plugin-manifest.mjs` 現在會推算安裝實際載入什麼，除非外掛完整出貨一種形式（全部指令或全部技能）且沒有說明文件，否則失敗；`check-version-sync` 與 `bump-version` 涵蓋新的清單檔。已在 Claude Code 2.1.304 實測：無人值守的 session 以舊名稱列出各指令與五個 agent，沒有 README。
 
 ### 棄用
