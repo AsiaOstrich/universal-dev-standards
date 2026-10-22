@@ -318,7 +318,8 @@ const cut = (name, { rel, from, to, arm, holds }) => it(`cut: ${name}`, () => {
   // control: the same arm on an uncut tree does hold (otherwise the cut proves nothing)
   const uncut = go(arm.tree());
   expect(holds(uncut), `control: without the cut the sample holds:\n${uncut.out.slice(-1800)}`).toBe(true);
-});
+  // Two trees per cut, each a git repository with its preview tags (XSPEC-498): on windows-latest one took over the default 30s.
+}, 120000);
 
 const withoutPlatform = (p) => () => greenTree({ reports: cleanReports().filter((r) => r.environment.platform !== p) });
 const withBaselineGap = () => {
