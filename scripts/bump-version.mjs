@@ -20,6 +20,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import { syncSecurityVersions } from './lib/security-versions.mjs';
+import { BUMP_WRITES as VF } from './lib/version-files.mjs';
 import { evaluateStableGate, formatGate } from './beta-acceptance/lib/stable-gate.mjs';
 
 const IS_WINDOWS = process.platform === 'win32';
@@ -50,6 +51,8 @@ const SCRIPT_DIR = dirname(__filename);
 const ROOT_DIR   = dirname(SCRIPT_DIR);
 const CLI_DIR    = join(ROOT_DIR, 'cli');
 const TODAY      = new Date().toISOString().slice(0, 10);
+// The files this script rewrites are listed in ./lib/version-files.mjs (shared with the stable-release gate): paths come from there.
+const at         = (rel) => join(ROOT_DIR, ...rel.split('/'));
 
 // ── Validate argument ────────────────────────────────────────────────────────
 const NEW_VERSION = process.argv[2];
@@ -159,14 +162,14 @@ console.log('');
 // 1. cli/package.json
 updateFile(
   'cli/package.json',
-  join(CLI_DIR, 'package.json'),
+  at(VF.cliPackage),
   /"version": "[^"]*"/,
   `"version": "${NEW_VERSION}"`
 );
 
 // 1b. cli/package-lock.json — top-level + packages[""] version
 {
-  const file = join(CLI_DIR, 'package-lock.json');
+  const file = at(VF.cliLock);
   if (existsSync(file)) {
     const data = JSON.parse(readFileSync(file, 'utf8'));
     data.version = NEW_VERSION;
@@ -180,7 +183,7 @@ updateFile(
 
 // 2. cli/standards-registry.json (all occurrences)
 {
-  const file = join(CLI_DIR, 'standards-registry.json');
+  const file = at(VF.registry);
   if (existsSync(file)) {
     const original = readFileSync(file, 'utf8');
     const updated  = original.replace(/"version": "[^"]*"/g, `"version": "${NEW_VERSION}"`);
@@ -193,7 +196,7 @@ updateFile(
 
 // 3. uds-manifest.json (version + last_updated)
 {
-  const file = join(ROOT_DIR, 'uds-manifest.json');
+  const file = at(VF.manifest);
   if (existsSync(file)) {
     let content = readFileSync(file, 'utf8');
     content = content.replace(/"version": "[^"]*"/, `"version": "${NEW_VERSION}"`);
@@ -211,7 +214,7 @@ const VERSION_LABEL = IS_PRERELEASE ? `${NEW_VERSION} (Pre-release)` : NEW_VERSI
 // 4. README.md (English) — replace everything between "**Version**: " and the next " |"
 updateFile(
   'README.md',
-  join(ROOT_DIR, 'README.md'),
+  at(VF.readme),
   /\*\*Version\*\*:[^|]*/,
   `**Version**: ${VERSION_LABEL} `
 );
@@ -219,7 +222,7 @@ updateFile(
 // 5. locales/zh-TW/README.md
 updateFile(
   'locales/zh-TW/README.md',
-  join(ROOT_DIR, 'locales', 'zh-TW', 'README.md'),
+  at(VF.readmeZhTw),
   /\*\*版本\*\*:[^|]*/,
   `**版本**: ${VERSION_LABEL} `
 );
@@ -227,7 +230,7 @@ updateFile(
 // 6. locales/zh-CN/README.md
 updateFile(
   'locales/zh-CN/README.md',
-  join(ROOT_DIR, 'locales', 'zh-CN', 'README.md'),
+  at(VF.readmeZhCn),
   /\*\*版本\*\*:[^|]*/,
   `**版本**: ${VERSION_LABEL} `
 );
@@ -252,7 +255,7 @@ updateFile(
 // 這正是需要的順序——`stableVersion` 在預發布時要讀「上一個」正式版，
 // 在正式版時 buildSecurityTables() 根本不會用到它，兩種情況這個順序都正確。
 {
-  const pluginJsonForSecurity = join(ROOT_DIR, '.claude-plugin', 'plugin.json');
+  const pluginJsonForSecurity = at(VF.plugin);
   let stableVersion = NEW_VERSION;
   if (existsSync(pluginJsonForSecurity)) {
     try {
@@ -264,11 +267,7 @@ updateFile(
     }
   }
 
-  const securityTargets = [
-    { label: 'SECURITY.md', path: join(ROOT_DIR, 'SECURITY.md') },
-    { label: 'locales/zh-TW/SECURITY.md', path: join(ROOT_DIR, 'locales', 'zh-TW', 'SECURITY.md') },
-    { label: 'locales/zh-CN/SECURITY.md', path: join(ROOT_DIR, 'locales', 'zh-CN', 'SECURITY.md') },
-  ];
+  const securityTargets = VF.security.map((label) => ({ label, path: at(label) }));
 
   const results = syncSecurityVersions(NEW_VERSION, stableVersion, securityTargets.map((t) => t.path));
 
@@ -287,8 +286,8 @@ updateFile(
 }
 
 // 7. CHANGELOG frontmatter (zh-TW + zh-CN) — update source_version, translation_version, last_synced
-for (const locale of ['zh-TW', 'zh-CN']) {
-  const file = join(ROOT_DIR, 'locales', locale, 'CHANGELOG.md');
+for (const [locale, rel] of [['zh-TW', VF.changelogZhTw], ['zh-CN', VF.changelogZhCn]]) {
+  const file = at(rel);
   if (existsSync(file)) {
     let content = readFileSync(file, 'utf8');
     content = content.replace(/^source_version: .*/m,      `source_version: ${NEW_VERSION}`);
@@ -307,7 +306,7 @@ if (!IS_PRERELEASE) {
 
   updateFile(
     '.claude-plugin/plugin.json',
-    join(ROOT_DIR, '.claude-plugin', 'plugin.json'),
+    at(VF.plugin),
     /"version": "[^"]*"/,
     `"version": "${NEW_VERSION}"`
   );
@@ -315,12 +314,12 @@ if (!IS_PRERELEASE) {
   // The manifest a marketplace install reads (plugin root is skills/); keep it on the same version.
   updateFile(
     'skills/.claude-plugin/plugin.json',
-    join(ROOT_DIR, 'skills', '.claude-plugin', 'plugin.json'),
+    at(VF.skillsPlugin),
     /"version": "[^"]*"/,
     `"version": "${NEW_VERSION}"`
   );
 
-  const marketplaceFile = join(ROOT_DIR, '.claude-plugin', 'marketplace.json');
+  const marketplaceFile = at(VF.marketplace);
   if (existsSync(marketplaceFile)) {
     const content = readFileSync(marketplaceFile, 'utf8');
     const updated = content.replace(/"version": "[^"]*"/, `"version": "${NEW_VERSION}"`);

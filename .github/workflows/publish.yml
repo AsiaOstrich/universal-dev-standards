@@ -186,6 +186,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # The stable-release gate below compares this commit with the tag of
+          # the preview it was accepted as (XSPEC-498). Tags and history must be
+          # present; the default shallow checkout has neither.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -252,6 +257,23 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
             echo "Publishing version $VERSION with tag: latest"
           fi
+
+      # XSPEC-498. The stable-release gate (XSPEC-471 R5) used to run only inside
+      # `scripts/bump-version.mjs`, i.e. only for a release made through that
+      # script. A release created any other way (a GitHub Release made by hand,
+      # a bump skipped) reached `npm publish` without it: 6.14.0 (2026-10-22)
+      # was published that way, with four fixes its accepted preview did not
+      # have. The check belongs on the one step every release passes through.
+      #
+      # It runs for a stable version only (tag `latest`); a preview is never
+      # gated, and the script itself refuses a version with a pre-release mark.
+      # `working-directory: .` because this job defaults to `cli/`; the gate
+      # needs `cli/node_modules`, which "Install dependencies" above provides.
+      # A refusal fails the job, so the publish step below does not run.
+      - name: Stable-release gate (XSPEC-498)
+        if: steps.npm-tag.outputs.tag == 'latest'
+        working-directory: .
+        run: node scripts/beta-acceptance/check-stable-gate.mjs "${{ steps.npm-tag.outputs.version }}"
 
       # OIDC trusted publishing: npm authenticates via this job's id-token against
       # the trusted publisher configured on npmjs (universal-dev-standards →

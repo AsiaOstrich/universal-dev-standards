@@ -7,6 +7,10 @@
  * It runs the same gate `bump-version.mjs` runs in front of a stable version (rules: lib/stable-gate.mjs, README.md in this folder)
  * and prints the same list. Use it to see what is still missing after fetching the reports of a preview.
  *
+ * `.github/workflows/publish.yml` runs it too, before `npm publish`, for a stable version (XSPEC-498): a release created any other
+ * way than through the bump meets the gate there. It judges the commit it runs in (`HEAD`) against the preview's tag, so in CI the
+ * checkout needs full history and tags.
+ *
  * Exit codes: 0 the gate would pass; 1 it would refuse (the reasons are printed); 2 bad arguments (a version with a pre-release mark
  * is not gated, so asking about one is a mistake, not a pass).
  */

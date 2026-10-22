@@ -22,6 +22,14 @@
  *   7. every step of the current steps.json that applies to the platform is in the counted report of EVERY label (a step added
  *      after the preview was published has not run against a published package, so a newer preview is needed),
  *
+ *   8. the content of the release is the content of that preview (dev-platform XSPEC-498): the tree of `git HEAD` differs from the tree of
+ *      the preview's tag `v<preview>` only in the version files (`scripts/lib/version-files.mjs`, the same list the bump writes) and the
+ *      few release-only files of `RELEASE_ONLY_ALLOWED`. Rules 1 to 7 prove that the PREVIEW was accepted; without this one nothing
+ *      says the stable release IS that preview. 6.14.0 (2026-10-22) differed from its accepted 6.14.0-beta.15 by four fixes and a
+ *      translation sync, and shipped on the strength of the beta.15 reports. A tag that cannot be found, or a folder that is not a git
+ *      repository, is a refusal ("could not look"), not a pass. It compares commits, not the working tree: uncommitted edits are not
+ *      what will be tagged.
+ *
  * Not blocking, printed so nobody has to look for it: the manual (`human-*`) steps nobody confirmed, per platform; report files that were not counted.
  *
  * "Latest published preview": CHANGELOG.md is the project's own release record, needs no network and gives the same answer on
@@ -37,6 +45,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { parseChangelog } from './changelog.mjs';
+import { VERSION_FILES } from '../../lib/version-files.mjs';
 import { eligibleReports, newestPerLabel, SEVERITY } from './pre-release-doc.mjs';
 
 export const PLATFORMS = [['windows', 'Windows'], ['macos', 'macOS'], ['linux', 'Linux']];
@@ -90,6 +99,59 @@ export function knownBrokenExemptions(doc) {
   return (doc.exemptions || [])
     .filter((x) => KNOWN_BROKEN.test(String(x.reason || '')))
     .map((x) => ({ what: x.command ? `command "${x.command}"` : x.option ? `option "${x.option}"` : x.step ? `step "${x.step}"` : `CHANGELOG entry "${x.changelog}"`, reason: String(x.reason) }));
+}
+
+/**
+ * Differences between a preview and its stable release that are NOT the version number but are expected, so rule 8 lets them through
+ * (besides `VERSION_FILES`). Each one is here for a reason; a file that is not in either list refuses the release.
+ *   - the three CHANGELOG.md files: the release is recorded in them (an entry for the stable version, the preview sections stay).
+ *     The whole file is allowed, because telling "a section promoted" from "an entry added" is a judgement of text, not of tree.
+ *   - docs/PRE-RELEASE.md: its generated "What to test" and "Verified on" blocks are regenerated for the new version by the bump,
+ *     and the "Current beta" narrative around them is written by hand at release time.
+ *   - scripts/beta-acceptance/reports/**: the post-publish acceptance runs AFTER the preview is tagged and published, and its reports
+ *     are committed afterwards (that is what rules 2 and 3 read); they cannot be in the preview's own tree.
+ */
+export const RELEASE_ONLY_ALLOWED = Object.freeze({
+  files: Object.freeze(['CHANGELOG.md', 'locales/zh-TW/CHANGELOG.md', 'locales/zh-CN/CHANGELOG.md', 'docs/PRE-RELEASE.md']),
+  prefixes: Object.freeze(['scripts/beta-acceptance/reports/']),
+});
+
+/** Of the files that differ, the ones that are neither version files nor release-only records (git's paths, `/`-separated). */
+export function unexpectedDifferences(changed) {
+  const allowed = new Set([...VERSION_FILES, ...RELEASE_ONLY_ALLOWED.files]);
+  return changed.filter((f) => !allowed.has(f) && !RELEASE_ONLY_ALLOWED.prefixes.some((p) => f.startsWith(p)));
+}
+
+function runGit(root, args) {
+  const r = spawnSync('git', args, { cwd: root, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024, env: cleanEnv() });
+  return { code: r.status, stdout: r.stdout || '', stderr: `${r.stderr || ''}${r.error ? r.error.message : ''}`.trim() };
+}
+
+/**
+ * Rule 8: is `ref` (the commit being released) the preview's content, version files and release records aside?
+ * @param {{ root: string, preview: string, ref?: string, git?: (root: string, args: string[]) => { code: number|null, stdout: string, stderr: string } }} input
+ * @returns {{ problems: string[], checks: string[] }}
+ */
+export function checkContentConsistency({ root, preview, ref = 'HEAD', git = runGit }) {
+  const tag = `v${preview}`;
+  const cannot = (why) => ({ problems: [`cannot compare ${ref} with the preview ${tag}, so it is not known that the release is the accepted preview: ${why} 無法比較 ${ref} 與預覽版 ${tag}，不知道正式版是否就是驗收過的預覽版`], checks: [] });
+  const tagCommit = git(root, ['rev-parse', '-q', '--verify', `refs/tags/${tag}^{commit}`]);
+  if (tagCommit.code !== 0) return cannot(`tag ${tag} not found in this repository (in CI: checkout needs fetch-depth: 0 so tags are present)${tagCommit.stderr ? ` — ${clip(tagCommit.stderr, 200)}` : ''}`);
+  const head = git(root, ['rev-parse', '-q', '--verify', `${ref}^{commit}`]);
+  if (head.code !== 0) return cannot(`${ref} is not a commit here${head.stderr ? ` — ${clip(head.stderr, 200)}` : ''}`);
+  const diff = git(root, ['diff', '--name-only', '--no-renames', '-z', tagCommit.stdout.trim(), head.stdout.trim(), '--']);
+  if (diff.code !== 0) return cannot(`git diff failed (${clip(diff.stderr, 200)})`);
+  const changed = diff.stdout.split('\0').filter(Boolean);
+  const unexpected = unexpectedDifferences(changed);
+  if (unexpected.length) {
+    const shown = unexpected.slice(0, 30).map((f) => `\n      - ${f}`).join('');
+    const more = unexpected.length > 30 ? `\n      (+${unexpected.length - 30} more)` : '';
+    return {
+      problems: [`${unexpected.length} file(s) differ between ${ref} and the accepted preview ${tag} beyond the version files and release records, so the release is not the preview that was accepted. Publish a new preview that contains them, accept it, then release that 有 ${unexpected.length} 個檔案與驗收過的預覽版 ${tag} 不同（版本檔與發版紀錄除外），正式版不是被驗收的那個預覽版：先發含這些修改的新預覽版並驗收${shown}${more}`],
+      checks: [],
+    };
+  }
+  return { problems: [], checks: [`content of ${ref} equals ${tag}: ${changed.length} file(s) differ, all of them version files or release records 內容與預覽版一致（只差版本檔與發版紀錄）`] };
 }
 
 const clip = (s, n = 140) => (String(s).length > n ? `${String(s).slice(0, n - 1)}…` : String(s));
@@ -174,10 +236,10 @@ function runCheck(root, script) {
 
 /**
  * Look at the repository under `root` and decide.
- * @param {{ root: string, target: string, run?: (root: string, script: string) => { code: number|null, error: string|null, summary: string } }} input
+ * @param {{ root: string, target: string, run?: (root: string, script: string) => { code: number|null, error: string|null, summary: string }, git?: (root: string, args: string[]) => { code: number|null, stdout: string, stderr: string } }} input
  * @returns {{ ok: boolean, preview: string|null, problems: string[], notes: string[], platforms: object[], manual: object[], checks: string[] }}
  */
-export function evaluateStableGate({ root, target, run = runCheck }) {
+export function evaluateStableGate({ root, target, run = runCheck, git = runGit }) {
   const problems = [];
   const notes = [];
   const checks = [];
@@ -199,6 +261,9 @@ export function evaluateStableGate({ root, target, run = runCheck }) {
     if (!problems.length) problems.push(`no preview of ${target} (${target}-beta.N, -rc.N ...) in CHANGELOG.md or cli/package.json, so nothing was accepted for it. Publish a preview first, let the post-publish acceptance run, and fetch its reports. 沒有 ${target} 的預覽版可驗：先發預覽版、等發版後驗收跑完、再取回報告`);
   } else {
     checks.push(`latest preview of ${target}: ${preview.version} (from ${preview.from})`);
+    const same = checkContentConsistency({ root, preview: preview.version, git });
+    problems.push(...same.problems);
+    checks.push(...same.checks);
     const dir = join(accept, 'reports', preview.version);
     if (!existsSync(dir)) {
       problems.push(`scripts/beta-acceptance/reports/${preview.version}/ does not exist: no platform was reported for ${preview.version}. Run the post-publish acceptance for it, then: node scripts/beta-acceptance/fetch-ci-reports.mjs --version ${preview.version} 缺整個報告資料夾`);
