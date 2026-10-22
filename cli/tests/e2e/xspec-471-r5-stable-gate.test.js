@@ -26,53 +26,20 @@
 
 import { it, expect, afterAll } from 'vitest';
 import { spawnSync } from 'child_process';
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { REPO, scratch, weaken } from '../utils/xspec-469.js';
+import { chmodSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { REPO, scratch } from '../utils/xspec-469.js';
+import {
+  TARGET, PREVIEW, CURRENT_STEPS, cleanEnv, cleanupGitHome, gateTrees, readJson, writeJson,
+  report, cleanReports, edit, stepsFile, baselineFile, plainExemption,
+} from '../utils/xspec-471-gate-trees.js';
 
 const tmp = scratch('uds-xspec471-r5-gate-');
-afterAll(() => tmp.cleanup());
+afterAll(() => { tmp.cleanup(); cleanupGitHome(); });
+const { miniTree, fullTree, greenTree } = gateTrees(tmp);
 
-const TARGET = '9.9.0';
-const PREVIEW = '9.9.0-beta.3';
-const PLATFORM_LABELS = { windows: ['ci-windows', 'ci-windows-cmd', 'ci-windows-gitbash'], macos: ['ci-macos'], linux: ['ci-linux'] };
 const GATE_LIB = ['scripts', 'beta-acceptance', 'lib', 'stable-gate.mjs'];
 const BUMP = ['scripts', 'bump-version.mjs'];
-
-// GIT_* variables leak in when the tests run inside a git hook
-const cleanEnv = () => Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
-
-// ── the trees ──────────────────────────────────────────────────────────────────
-
-const writeJson = (file, value) => writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
-const readJson = (file) => JSON.parse(readFileSync(file, 'utf-8'));
-
-/** The files the gate reads and the bump needs up to the gate. The dependencies of cli/ are linked, not copied. */
-function miniTree() {
-  const root = tmp.next('mini');
-  mkdirSync(join(root, 'cli'), { recursive: true });
-  cpSync(join(REPO, 'scripts'), join(root, 'scripts'), { recursive: true, filter: (src) => !src.includes(join('beta-acceptance', 'reports')) });
-  cpSync(join(REPO, 'CHANGELOG.md'), join(root, 'CHANGELOG.md'));
-  for (const d of ['bin', 'src']) cpSync(join(REPO, 'cli', d), join(root, 'cli', d), { recursive: true });
-  for (const f of ['package.json', 'standards-registry.json']) cpSync(join(REPO, 'cli', f), join(root, 'cli', f));
-  symlinkSync(join(REPO, 'cli', 'node_modules'), join(root, 'cli', 'node_modules'), 'junction');
-  return root;
-}
-
-/** The tracked files of the repository, copied (a git submodule, tests/bats, is a directory in the list and is not needed). */
-function fullTree() {
-  const listed = spawnSync('git', ['ls-files', '-z'], { cwd: REPO, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024, env: cleanEnv() });
-  expect(listed.status, `control: git lists the tracked files (${listed.stderr})`).toBe(0);
-  const root = tmp.next('full');
-  for (const rel of listed.stdout.split('\0').filter(Boolean)) {
-    if (statSync(join(REPO, rel)).isDirectory()) continue;
-    mkdirSync(dirname(join(root, rel)), { recursive: true });
-    cpSync(join(REPO, rel), join(root, rel));
-  }
-  symlinkSync(join(REPO, 'cli', 'node_modules'), join(root, 'cli', 'node_modules'), 'junction');
-  return root;
-}
-
 /** An `npm` that succeeds and does nothing, first on PATH (the steps of the bump that need dependencies or build output). */
 function stubNpm() {
   const dir = tmp.next('stub');
@@ -88,70 +55,6 @@ const bump = (root, version = TARGET) => spawnSync(process.execPath, [join(root,
   timeout: 240000,
   env: { ...cleanEnv(), PATH: `${stubNpm()}${process.platform === 'win32' ? ';' : ':'}${process.env.PATH}`, SKIP_BUNDLE_PARITY: '1' },
 });
-
-// ── the reports ────────────────────────────────────────────────────────────────
-
-const CURRENT_STEPS = readJson(join(REPO, 'scripts', 'beta-acceptance', 'steps.json')).steps;
-
-/** A report the acceptance program could have written (the fields the gate and the PRE-RELEASE table read). */
-function report({ version = PREVIEW, platform, label, kind = 'npm-registry', failed = [], omit = [], verdict = null, seq = 1 }) {
-  // every step of the current steps.json, as a report of a preview made with the current list would have them
-  const steps = [...CURRENT_STEPS.filter((s) => !omit.includes(s.id)).map((s) => (s.human ? { id: s.id, status: 'unconfirmed', human: {} } : { id: s.id, status: failed.includes(s.id) ? 'fail' : 'pass' })), ...failed.filter((id) => !CURRENT_STEPS.some((s) => s.id === id)).map((id) => ({ id, status: 'fail' }))];
-  const counts = { planned: steps.length, passed: steps.filter((s) => s.status === 'pass').length, failed: failed.length, skipped: 0, humanConfirmed: 0, humanUnconfirmed: steps.filter((s) => s.status === 'unconfirmed').length, executed: steps.length };
-  return {
-    schema: 1,
-    tool: 'uds-beta-acceptance',
-    startedAt: '2026-01-01T00:00:00.000Z',
-    finishedAt: `2026-01-01T00:0${seq}:00.000Z`,
-    label,
-    verdict: verdict || (failed.length ? 'fail' : 'pass_with_unconfirmed'),
-    exitCode: failed.length ? 1 : 0,
-    error: null,
-    request: { version, source: kind === 'npm-registry' ? 'npm registry' : '--local-bin' },
-    uds: { version, installKind: kind },
-    environment: { platform, os: { type: 'TestOS', release: '1' }, node: { version: 'v22.0.0' }, shell: { value: 'sh' } },
-    counts,
-    steps,
-  };
-}
-
-/** The reports of a clean acceptance: three Windows shells, macOS, Linux. */
-const cleanReports = (version = PREVIEW) => Object.entries(PLATFORM_LABELS).flatMap(([platform, labels]) => labels.map((label) => report({ version, platform, label })));
-
-const put = (root, version, reports) => {
-  const dir = join(root, 'scripts', 'beta-acceptance', 'reports', version);
-  mkdirSync(dir, { recursive: true });
-  reports.forEach((r, i) => writeJson(join(dir, `${r.label}__uds-beta-acceptance-${version}-${r.environment.platform}-${i}.json`), r));
-};
-
-/** Replace one text in a file of the tree; it must apply exactly once, so a no-op cannot pass for a change. */
-const edit = (root, rel, from, to) => weaken(join(root, ...rel), from, to);
-
-const stepsFile = (root) => join(root, 'scripts', 'beta-acceptance', 'steps.json');
-const baselineFile = (root) => join(root, 'scripts', 'beta-acceptance', 'coverage-baseline.json');
-
-/**
- * A tree in which the gate for TARGET passes: a preview heading in the CHANGELOG, its reports, and no exemption that says "known broken"
- * (the repository may carry such an exemption at any moment; here it is reworded so this tree is green whatever the repository holds today).
- */
-function greenTree({ build = miniTree, reports = cleanReports(), previews = [PREVIEW] } = {}) {
-  const root = build();
-  const changelog = join(root, 'CHANGELOG.md');
-  writeFileSync(changelog, `${readFileSync(changelog, 'utf-8')}\n${previews.map((v) => `## [${v}] - 2026-01-01\n\n### Added\n\n- A made-up entry of the preview ${v}.\n`).join('\n')}`);
-  const doc = readJson(stepsFile(root));
-  for (const x of doc.exemptions) x.reason = x.reason.replace(/known[ -]broken|已知壞掉/gi, 'accepted and ignored');
-  writeJson(stepsFile(root), doc);
-  put(root, PREVIEW, reports);
-  return root;
-}
-
-/** The first exemption of a command or option that is not about being broken: the one the "known broken" samples reword. */
-function plainExemption(root) {
-  const doc = readJson(stepsFile(root));
-  const i = doc.exemptions.findIndex((x) => x.option || x.command);
-  expect(i, 'control: steps.json has an exemption of a command or option to reword for this sample').toBeGreaterThanOrEqual(0);
-  return { doc, i };
-}
 
 // ── reading the result ─────────────────────────────────────────────────────────
 
@@ -415,7 +318,8 @@ const cut = (name, { rel, from, to, arm, holds }) => it(`cut: ${name}`, () => {
   // control: the same arm on an uncut tree does hold (otherwise the cut proves nothing)
   const uncut = go(arm.tree());
   expect(holds(uncut), `control: without the cut the sample holds:\n${uncut.out.slice(-1800)}`).toBe(true);
-});
+  // Two trees per cut, each a git repository with its preview tags (XSPEC-498): on windows-latest one took over the default 30s.
+}, 120000);
 
 const withoutPlatform = (p) => () => greenTree({ reports: cleanReports().filter((r) => r.environment.platform !== p) });
 const withBaselineGap = () => {
