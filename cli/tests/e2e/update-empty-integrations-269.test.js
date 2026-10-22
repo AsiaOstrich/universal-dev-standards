@@ -168,8 +168,41 @@ describe('E2E: uds update with manifest.integrations empty (issue #269)', () => 
 
     uds('--apply', '--yes');
 
-    // Either the block is stripped or the whole file is removed - what --apply does with the human text around
-    // the block is a separate question (see the PR's "next release" notes); this arm only needs the block gone.
     expect(existsSync(join(project, 'CLAUDE.md')) ? claudeMd() : '').not.toContain(START);
+  }, 90000);
+
+  // Removing an integration used to unlink the whole file, taking the text the user wrote with it.
+  it('removing an integration keeps the text the user wrote and drops only the UDS block', () => {
+    writeManifest({ integrations: [], aiTools: [], integrationBlockHashes: {} });
+
+    const run = uds('--apply', '--yes');
+
+    expect(run.text).toContain('CLAUDE.md');
+    expect(existsSync(join(project, 'CLAUDE.md')), 'CLAUDE.md still holds human text, so it must stay').toBe(true);
+    const after = claudeMd();
+    expect(after).toContain('Written by a person, above the managed block.');
+    expect(after).toContain('# Project instructions');
+    expect(after).not.toContain(START);
+    expect(after).not.toContain(END);
+    expect(after).not.toContain('Write commit messages in English.');
+  }, 90000);
+
+  it('removing an integration whose file is only the UDS block deletes the file', () => {
+    writeFileSync(join(project, 'CLAUDE.md'), [START, 'managed', END, ''].join('\n'));
+    writeManifest({ integrations: [], aiTools: [], integrationBlockHashes: {} });
+
+    uds('--apply', '--yes');
+
+    expect(existsSync(join(project, 'CLAUDE.md'))).toBe(false);
+  }, 90000);
+
+  it('two UDS blocks in one file: nothing is guessed, the file is left exactly as it was', () => {
+    const doubled = CLAUDE_MD + [START, 'second', END, ''].join('\n');
+    writeFileSync(join(project, 'CLAUDE.md'), doubled);
+    writeManifest({ integrations: [], aiTools: [], integrationBlockHashes: {} });
+
+    uds('--apply', '--yes');
+
+    expect(claudeMd()).toBe(doubled);
   }, 90000);
 });

@@ -11,7 +11,9 @@
  * Each action is executed independently — single failures don't block the rest.
  */
 
-import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync } from 'fs';
+import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync, readFileSync, writeFileSync } from 'fs';
+import { UDS_MARKERS } from '../core/constants.js';
+import { tryLocateMarkerBlock } from '../utils/marker-locator.js';
 import { join, dirname } from 'path';
 import { copyStandard } from '../utils/copier.js';
 import {
@@ -331,6 +333,31 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
 }
 
 /**
+ * Remove the UDS marker block from an integration file, keeping everything else.
+ * Deletes the file only when the block was all it held. A file with no UDS block is left alone:
+ * nothing in it is ours to delete.
+ * @param {string} targetPath
+ * @returns {{ok: true} | {ok: false, error: string}}
+ */
+function removeUdsBlock(targetPath) {
+  const content = readFileSync(targetPath, 'utf-8');
+  for (const markers of [UDS_MARKERS.markdown, UDS_MARKERS.plaintext]) {
+    const found = tryLocateMarkerBlock(content, markers);
+    if (!found.ok) {
+      return { ok: false, error: `${found.error.message} — left ${targetPath} untouched` };
+    }
+    if (!found.block) continue;
+    let end = found.block.endIdx + markers.end.length;
+    if (content[end] === '\n') end += 1;
+    const rest = (content.slice(0, found.block.startIdx) + content.slice(end)).replace(/\n{3,}/g, '\n\n');
+    if (rest.trim() === '') unlinkSync(targetPath);
+    else writeFileSync(targetPath, rest, 'utf-8');
+    return { ok: true };
+  }
+  return { ok: true };
+}
+
+/**
  * Execute a delete action.
  */
 function executeDelete(projectPath, action, manifest) {
@@ -344,6 +371,12 @@ function executeDelete(projectPath, action, manifest) {
     const stat = statSync(targetPath);
     if (stat.isDirectory()) {
       rmSync(targetPath, { recursive: true, force: true });
+    } else if (action.category === 'integration') {
+      // An integration file (CLAUDE.md, AGENTS.md, ...) holds the user's own content around the UDS block.
+      // Removing the integration removes the block only; the file goes away only when nothing else is left.
+      // Unlinking the whole file deleted text the user wrote (found while fixing issue #269).
+      const removed = removeUdsBlock(targetPath);
+      if (!removed.ok) return { action, success: false, error: removed.error };
     } else {
       unlinkSync(targetPath);
     }
