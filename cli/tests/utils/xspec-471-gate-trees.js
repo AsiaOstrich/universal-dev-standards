@@ -10,7 +10,6 @@
 
 import { spawnSync } from 'child_process';
 import { cpSync, mkdirSync, readFileSync, statSync, symlinkSync, writeFileSync } from 'fs';
-import { devNull } from 'os';
 import { dirname, join } from 'path';
 import { expect } from 'vitest';
 import { REPO, weaken } from './xspec-469.js';
@@ -31,12 +30,16 @@ export const readJson = (file) => JSON.parse(readFileSync(file, 'utf-8'));
 const home = isolatedHome({ prefix: 'uds-gate-git-home-' });
 /** Release the throwaway home git runs under; call from `afterAll`. */
 export const cleanupGitHome = () => home.cleanup();
+// An empty file, not os.devNull: on Windows that is `\\.\nul`, which Git for Windows cannot open as a config file
+// ("fatal: unable to access '\\.\nul': Invalid argument"; every gate test failed on windows-latest, PR #273).
+const emptyGitConfig = join(home.home, 'gitconfig-empty');
+writeFileSync(emptyGitConfig, '');
 
 /** No global or system git configuration, a throwaway HOME, a fixed author: a fixture never touches the maintainer's git or keychain. */
 export const gitEnv = () => ({
   ...cleanEnv(),
   ...home.env,
-  GIT_CONFIG_GLOBAL: devNull,
+  GIT_CONFIG_GLOBAL: emptyGitConfig,
   GIT_CONFIG_NOSYSTEM: '1',
   GIT_AUTHOR_NAME: 'Gate Test',
   GIT_AUTHOR_EMAIL: 'gate-test@example.invalid',
