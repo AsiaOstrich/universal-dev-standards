@@ -225,10 +225,16 @@ beforeAll(async () => {
   const cliPath = stageCli(join(sandbox, 'stage'));
   const preload = join(sandbox, 'block-network.cjs');
   writeFileSync(preload, BLOCK_NETWORK);
-  await Promise.all([...DECLARED, ...EXTRA_SPELLINGS].map(async (id) => {
-    const home = join(sandbox, 'home-' + id);
-    const project = join(sandbox, 'project-' + id);
-    const netLog = join(sandbox, `net-${id}.log`);
+  // Directory names carry the index, not only the locale: zh-cn and zh-CN are the same folder on a
+  // case-insensitive file system (Windows, default macOS), and two inits racing in one folder made
+  // the zh-cn manifest unreadable now and then on Windows CI (run 40092341244, 2026-10-24).
+  const ids = [...DECLARED, ...EXTRA_SPELLINGS];
+  const dirKeys = ids.map((id, i) => `${i}-${id}`.toLowerCase());
+  if (new Set(dirKeys).size !== ids.length) throw new Error(`locale folders collide when case is ignored: ${dirKeys.join(', ')}`);
+  await Promise.all(ids.map(async (id, i) => {
+    const home = join(sandbox, `home-${i}-${id}`);
+    const project = join(sandbox, `project-${i}-${id}`);
+    const netLog = join(sandbox, `net-${i}-${id}.log`);
     mkdirSync(home, { recursive: true });
     // `.claude/` is Claude Code's own detector marker. Without any detected tool, `uds init` takes the
     // legacy path, which ignores --locale; with it, the unified installer runs (the path adopters use).
