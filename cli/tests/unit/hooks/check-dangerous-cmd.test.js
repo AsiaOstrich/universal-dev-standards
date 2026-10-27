@@ -19,8 +19,17 @@ describe('SPEC-HOOKS-001 / REQ-2: 危險命令偵測 Hook', () => {
       expect(result).toBe(true);
     });
 
-    it('should detect "rm -rf /home"', () => {
-      expect(isDangerousCommand('rm -rf /home')).toBe(true);
+    it('should detect "rm -rf" on the root and the home directory, in any flag order', () => {
+      for (const cmd of ['rm -rf /', 'rm -fr /', 'rm -r -f /', 'rm -rf ~', 'rm -rf $HOME']) {
+        expect(isDangerousCommand(cmd)).toBe(true);
+      }
+    });
+
+    it('should not flag "rm -rf" on a path below the root (replay of 11,617 real shell calls: 25 of the 26 old matches were temp cleanups)', () => {
+      // The old pattern `rm\s+-rf\s+\/` matched every absolute path. The rule now fires only when the
+      // target is the root or the home directory itself. The end-to-end cases are in check-dangerous-cmd-entry.test.js.
+      expect(isDangerousCommand('rm -rf /home')).toBe(false);
+      expect(isDangerousCommand('rm -rf /tmp/x')).toBe(false);
     });
 
     it('should detect mkfs commands', () => {

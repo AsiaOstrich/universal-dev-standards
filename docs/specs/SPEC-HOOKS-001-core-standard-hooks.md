@@ -42,11 +42,25 @@
 
 系統 SHALL 提供危險 shell 命令偵測腳本，攔截可能造成破壞的操作模式。
 
+腳本作為 Claude Code `PreToolUse`／`Bash` hook 執行：從 stdin 的 payload 取 `tool_input.command` 判斷（不比對 payload 的其他欄位）；stdin 不是 JSON 物件時，把整段文字當命令列。**Claude Code 只在 exit code 2 時攔下工具呼叫**，其他非零碼是不阻擋的 hook 錯誤、命令照跑，所以攔截一律以 exit code 2 結束。
+
 #### Scenario: 偵測強制刪除命令
 
-- **GIVEN** 使用者的 shell 命令包含 `rm -rf /` 或 `format` 等危險模式
+- **GIVEN** 使用者的 shell 命令是遞迴 `rm` 且目標正好是 `/`、`/*`、`~`、`~/`、`$HOME`，旗標順序不拘（`-rf`、`-fr`、`-r -f`、`--recursive --force`、前面加 `sudo`），或是 `mkfs`、`dd of=/dev/…`、`format X:`、寫入磁碟裝置、`chmod -R 777 /`、fork bomb
 - **WHEN** 執行 `check-dangerous-cmd.mjs`
-- **THEN** 腳本以 exit code 1 結束，輸出警告訊息
+- **THEN** 腳本以 exit code 2 結束，stderr 輸出命中的規則名稱
+
+#### Scenario: 刪除暫存或專案內路徑不被攔截
+
+- **GIVEN** 使用者的 shell 命令是 `rm -rf /tmp/x`、`rm -rf "$SP/dir"` 或 `rm -rf ./build`
+- **WHEN** 執行 `check-dangerous-cmd.mjs`
+- **THEN** 腳本以 exit code 0 結束（2026-10-27 重放 11,617 筆真實 shell 呼叫：舊規則命中 26 次，其中 25 次是這類合法清理）
+
+#### Scenario: 危險字串只出現在 payload 的其他欄位
+
+- **GIVEN** payload 的 `tool_input.command` 是 `ls -la`，`tool_input.description` 卻含 fork bomb 字串
+- **WHEN** 執行 `check-dangerous-cmd.mjs`
+- **THEN** 腳本以 exit code 0 結束
 
 #### Scenario: 安全命令通過
 
@@ -62,7 +76,7 @@
 
 - **GIVEN** 程式碼中包含 `console.log("debug info")` 等非結構化日誌
 - **WHEN** 執行 `check-logging-standard.mjs`
-- **THEN** 腳本以 exit code 1 結束，提示使用結構化日誌
+- **THEN** 腳本以 exit code 2 結束，stderr 提示使用結構化日誌（`PostToolUse` hook 的 stderr 只有在 exit code 2 時才會回給模型；寫入已經發生，exit 2 不會復原它）
 
 #### Scenario: 結構化日誌通過檢查
 
