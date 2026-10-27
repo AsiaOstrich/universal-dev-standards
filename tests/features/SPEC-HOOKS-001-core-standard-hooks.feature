@@ -38,8 +38,15 @@ Feature: 核心標準 Hook 實作
     # [Source: SPEC-HOOKS-001:REQ-2:AC-3]
     Given check-dangerous-cmd.js hook script exists
     When I run it with input containing "rm -rf /"
-    Then the exit code SHALL be 1
+    Then the exit code SHALL be 2
     And the output SHALL contain a warning message
+
+  @SPEC-HOOKS-001 @AC-3
+  Scenario: 刪除暫存路徑不被攔截
+    # [Source: SPEC-HOOKS-001:REQ-2:AC-3]
+    Given check-dangerous-cmd.js hook script exists
+    When I run it with input "rm -rf /tmp/x"
+    Then the exit code SHALL be 0
 
   @SPEC-HOOKS-001 @AC-3
   Scenario: 安全命令通過
@@ -62,7 +69,7 @@ Feature: 核心標準 Hook 實作
     # [Source: SPEC-HOOKS-001:REQ-3]
     Given check-logging-standard.js hook script exists
     When I run it against code containing 'console.log("debug info")'
-    Then the exit code SHALL be 1
+    Then the exit code SHALL be 2
     And the output SHALL suggest using structured logging
 
   @SPEC-HOOKS-001 @AC-5

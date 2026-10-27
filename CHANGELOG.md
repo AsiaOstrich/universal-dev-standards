@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The dangerous-command hook now blocks, and no longer blocks ordinary cleanups.** `scripts/hooks/check-dangerous-cmd.mjs` (the PreToolUse/Bash hook of the security standard) never stopped anything: it exited 1, and Claude Code blocks a tool call only on exit 2, so the command ran anyway. It also matched its patterns against the whole stdin JSON instead of `tool_input.command`. Replaying 11,617 real shell calls, the old `rm -rf /` pattern fired 26 times and 25 were harmless temp cleanups (`rm -rf /tmp/x`), while `rm -fr /` and `rm -r -f /` slipped through. Now the hook reads `tool_input.command` (a raw command line when stdin is not JSON), blocks with exit 2 and names the rule on stderr, and `rm` is blocked only when it is recursive and its target is exactly `/`, `/*`, `~`, `~/` or `$HOME`, with the flags in any order and after `sudo`. The fork-bomb pattern, which never matched anything (`()` was an empty regex group), now matches; `mkfs` without a dot, `dd of=/dev/…` without `if=`, and `chmod -R 777` on a path below `/` (it used to match `/home/me/x`) are judged on the command word, not on a substring. **Behavior change:** `rm -rf /home` and other paths below the root are no longer blocked; they are not what the rule was written for. The command-line mode (`node check-dangerous-cmd.mjs "<command>"`) now also exits 2 instead of 1.
+- **The structured-logging hook now reaches the model.** `scripts/hooks/check-logging-standard.mjs` (PostToolUse/Write) exited 1, which Claude Code treats as a non-blocking hook error whose message the model never sees; it now exits 2 so the stderr suggestion is fed back, and it judges only the written text (`tool_input.content` or `new_string`), not the rest of the payload. The Write has already happened, so this cannot undo anything.
+
 ## [6.14.0] - 2026-10-22
 
 > **Stable Release**: everything in 6.14.0-beta.1 through beta.15 below, plus the fixes since beta.15 listed in this section. beta.15 was accepted on Windows, macOS and Linux (post-publish acceptance, 0 failed).
