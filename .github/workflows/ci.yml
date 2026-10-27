@@ -482,6 +482,38 @@ jobs:
       - name: Check error-message single exit
         run: npm run check:error-exit
 
+  # ── Hook entry-test gate ─────────────────────────────────────────────
+  # scripts/hooks/check-dangerous-cmd.mjs shipped for months and never blocked
+  # anything: it exited 1, and Claude Code blocks a tool call only on exit 2.
+  # Its unit tests were green throughout because they imported the matcher
+  # function and never ran the hook as the host does (fixed in #281, which added
+  # the first entry tests). This gate walks the hooks the installer ships and
+  # fails any that can block without a test that spawns the script, writes a
+  # host-shaped payload to stdin and asserts the block signal (exit 2).
+  # It reads the installer (cli/src), which needs js-yaml, hence npm ci in cli/.
+  # Static check: it proves a test of the right shape exists, not that it passes
+  # (the test job runs it). Blind spots are listed in the script header.
+  hook-entry-tests:
+    name: Hook entry tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
+
+      - name: Install CLI dependencies (the gate loads the installer)
+        run: npm ci
+        working-directory: cli
+
+      - name: Prove the check can fail before trusting that it passed
+        run: npm run check:hook-entry-tests:self-test
+
+      - name: Check every blocking hook has an entry test
+        run: npm run check:hook-entry-tests
+
   # ── llms.txt 漂移閘門（XSPEC-385）────────────────────────────────────
   # PR #179 提議加一份**手寫的** llms.txt,2026-08-20 婉拒。理由就是
   # XSPEC-385 立的那條規則:手寫的 llms.txt 是專案自我描述的第二份複本,
