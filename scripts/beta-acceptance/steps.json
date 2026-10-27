@@ -11040,6 +11040,69 @@
           "LOGGING-EXIT=1"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "commit-msg-hook-forms-init",
+      "workspace": "commit-msg-hook-forms",
+      "title": "uds init --with-hooks installs the commit-message hook script for the message-form steps",
+      "titleZh": "uds init --with-hooks 安裝提交訊息 hook 腳本，供訊息寫法步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/validate-commit-msg.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "commit-msg-hook-checks-combined-flags",
+      "workspace": "commit-msg-hook-forms",
+      "title": "The installed commit-message hook exits 2 on git commit -am wip and on --message=wip, and exits 0 on a message with a semicolon inside quotes and on -F",
+      "titleZh": "裝好的提交訊息 hook 對 git commit -am wip 與 --message=wip 以 2 結束，對引號內含分號的訊息與 -F 以 0 結束",
+      "changelog": [
+        "The commit-message hook now checks every way git takes a message on the command line, and no longer blocks messages it misread."
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const q=String.fromCharCode(34),r=c=>require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:c}}),encoding:'utf8'});const a=r('git commit -am wip'),b=r('git commit --message=wip'),c=r('git commit -m '+q+'feat: a; b'+q),d=r('git commit -F msg.txt');process.stdout.write('COMBINED-EXIT='+a.status+'\\nLONG-EXIT='+b.status+'\\nSEMICOLON-EXIT='+c.status+'\\nFILE-EXIT='+d.status+'\\n'+a.stderr);"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "COMBINED-EXIT=2",
+          "LONG-EXIT=2",
+          "SEMICOLON-EXIT=0",
+          "FILE-EXIT=0",
+          "Invalid commit message format: \"wip\""
+        ],
+        "notContains": [
+          "COMBINED-EXIT=0"
+        ]
+      }
     }
   ]
 }
