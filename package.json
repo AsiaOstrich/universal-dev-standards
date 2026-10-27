@@ -67,6 +67,8 @@
     "check:install-paths": "tsx scripts/check-skills-install-paths.ts",
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test",
+    "check:hook-entry-tests": "node scripts/check-hook-entry-tests.mjs",
+    "check:hook-entry-tests:self-test": "node scripts/check-hook-entry-tests.mjs --self-test",
     "check:reference-only": "tsx scripts/check-reference-only-disclosure.ts",
     "check:reference-only:self-test": "tsx scripts/check-reference-only-disclosure.ts --self-test",
     "beta:acceptance": "node scripts/beta-acceptance/run.mjs",
