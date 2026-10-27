@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0
 It installs the published 6.14.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 339 steps (331 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 339 步（331 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 343 steps (335 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 343 步（335 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1071,6 +1071,18 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 339 steps (331
 339. `commit-msg-hook-checks-combined-flags` (**new 新**) — The installed commit-message hook exits 2 on git commit -am wip and on --message=wip, and exits 0 on a message with a semicolon inside quotes and on -F.
    裝好的提交訊息 hook 對 git commit -am wip 與 --message=wip 以 2 結束，對引號內含分號的訊息與 -F 以 0 結束。
    `{node} -e "const q=String.fromCharCode(34),r=c=>require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:c}}),encoding:'utf8'});const a=r('git commit -am wip'),b=r('git commit --message=wip'),c=r('git commit -m '+q+'feat: a; b'+q),d=r('git commit -F msg.txt');process.stdout.write('COMBINED-EXIT='+a.status+'\\nLONG-EXIT='+b.status+'\\nSEMICOLON-EXIT='+c.status+'\\nFILE-EXIT='+d.status+'\\n'+a.stderr);"` → exit 0; output has "COMBINED-EXIT=2", "LONG-EXIT=2" (+3)
+340. `update-both-scopes-init` — uds init in a Cursor project installs the skills and the slash commands for the --skills --commands steps.
+   uds init 在 Cursor 專案裡安裝技能與斜線指令，供 --skills --commands 步驟使用。
+   `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
+341. `update-both-scopes-apply` (**new 新**) — uds update --apply --yes --skills --commands --offline updates the Skills and the commands (both recorded versions move off 6.11.0, a deleted skill file and a deleted command come back).
+   uds update --apply --yes --skills --commands --offline 同時更新技能與指令（兩個記錄的版本都離開 6.11.0，被刪的技能檔與指令都補回）。
+   `uds update --apply --yes --skills --commands --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
+342. `update-both-scopes-apply-swapped` (**new 新**) — The same with the flags in the other order, --commands --skills.
+   旗標順序對調（--commands --skills）結果相同。
+   `uds update --apply --yes --commands --skills --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
+343. `update-both-scopes-no-apply` (**new 新**) — uds update --skills --commands --offline (no --apply) updates the Skills and the commands too.
+   uds update --skills --commands --offline（不加 --apply）同樣更新技能與指令。
+   `uds update --skills --commands --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

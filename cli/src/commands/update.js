@@ -551,20 +551,15 @@ export async function updateCommand(options) {
       return;
     }
     await handleReconcile(projectPath, options, { force: !!options.force, addStandards });
-    // These exit the process on completion, so run Skills last.
-    if (scopedToCommands) await updateCommandsOnly(projectPath, manifest, options);
-    if (scopedToSkills) await updateSkillsOnly(projectPath, manifest, options);
+    // A single scope exits the process on completion; two are chained and exit once.
+    await runScopes(projectPath, manifest, options, { skills: scopedToSkills, commands: scopedToCommands });
     return;
   }
 
-  // Scope without a mode: the original shortcuts.
-  if (scopedToSkills) {
-    await updateSkillsOnly(projectPath, manifest, options);
-    return;
-  }
-
-  if (scopedToCommands) {
-    await updateCommandsOnly(projectPath, manifest, options);
+  // Scope without a mode: the original shortcuts. Both flags mean both scopes —
+  // neither may be dropped for the other (the 6.14.0 bug).
+  if (scopedToSkills || scopedToCommands) {
+    await runScopes(projectPath, manifest, options, { skills: scopedToSkills, commands: scopedToCommands });
     return;
   }
 
@@ -2835,7 +2830,45 @@ async function skillActionsOf(projectPath) {
   return plan.actions.filter((a) => a.category === 'skill');
 }
 
-async function updateSkillsOnly(projectPath, manifest, options) {
+/**
+ * How one scope step (Skills or commands) ends.
+ *
+ * Alone, it ends the process, as it always did. When `--skills` and `--commands` come
+ * together the other scope still has to run, so it hands its exit code back instead and
+ * {@link runScopes} ends the process once, with the worse code of the two.
+ * (Found 2026-10-27 on Windows: `--skills --commands` ran one scope, exited 0 and said
+ * nothing about the other. The same two axes XSPEC-372 R1/R2 separated, one level down.)
+ * @param {number} code - 0 on success, non-zero on failure
+ * @param {boolean} chained - true when another scope runs after this one
+ * @returns {number} the code, so a caller can `return endScope(...)`
+ */
+function endScope(code, chained) {
+  if (!chained) process.exit(code);
+  return code;
+}
+
+/**
+ * Run the scope steps the flags name. One scope runs exactly as before (it exits the
+ * process itself). Both run in a fixed order, each printing its own section, and the
+ * process ends with the worst code: any failure is non-zero, and so is a failure the
+ * reconciler already recorded in `process.exitCode` (`--apply`).
+ * @param {string} projectPath
+ * @param {Object} manifest
+ * @param {Object} options
+ * @param {{skills: boolean, commands: boolean}} scopes
+ */
+async function runScopes(projectPath, manifest, options, { skills, commands }) {
+  if (skills && commands) {
+    const skillsCode = await updateSkillsOnly(projectPath, manifest, options, { chained: true });
+    const commandsCode = await updateCommandsOnly(projectPath, manifest, options, { chained: true });
+    process.exit(Math.max(skillsCode, commandsCode, Number(process.exitCode) || 0));
+    return;
+  }
+  if (skills) await updateSkillsOnly(projectPath, manifest, options);
+  if (commands) await updateCommandsOnly(projectPath, manifest, options);
+}
+
+async function updateSkillsOnly(projectPath, manifest, options, { chained = false } = {}) {
   const msg = t().commands.update;
   const repoInfo = getRepositoryInfo();
   const latestVersion = repoInfo.skills.version;
@@ -2897,8 +2930,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
         console.log(chalk.yellow(msg.skillsViaMarketplace || 'Skills installed via Marketplace'));
         console.log(chalk.gray(`  ${msg.updateViaMarketplace || 'Update through Plugin Marketplace'}`));
         console.log();
-        process.exit(0);
-        return;
+        return endScope(0, chained);
       }
     }
   }
@@ -2907,8 +2939,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
     console.log(chalk.yellow(msg.noSkillsInstalled || 'No Skills installations found'));
     console.log(chalk.gray(`  ${msg.runInitToInstall || 'Run uds init to install Skills'}`));
     console.log();
-    process.exit(0);
-    return;
+    return endScope(0, chained);
   }
 
   // Show current status
@@ -2938,8 +2969,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   if (fileBasedInstallations.length === 0) {
     console.log(chalk.green(msg.allSkillsUpToDate || 'All Skills are up to date'));
     console.log();
-    process.exit(0);
-    return;
+    return endScope(0, chained);
   }
 
   // XSPEC-454 R1: this step writes outside the reconciler, so it takes its own rollback point — the skill
@@ -2948,8 +2978,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // No backup, no write: an install that cannot be undone must not start.
   const skillsBackup = takeStepBackup(projectPath, 'skills', fileBasedInstallations, 'skills');
   if (!skillsBackup.ok) {
-    process.exit(1);
-    return;
+    return endScope(1, chained);
   }
 
   const spinner = createSpinner(msg.installingSkills || 'Installing Skills...').start();
@@ -3036,7 +3065,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
   // XSPEC-465 R1: a personal skill with the same name as one of the UDS skills just written wins silently.
   // Information only: it does not change what was installed or the exit code.
   printSkillNameCollisionWarning(projectPath);
-  process.exit(0);
+  return endScope(0, chained);
 }
 
 /**
@@ -3045,7 +3074,7 @@ async function updateSkillsOnly(projectPath, manifest, options) {
  * @param {Object} manifest - Manifest object
  * @param {Object} [options] - CLI options (forwarded for locale resolution)
  */
-async function updateCommandsOnly(projectPath, manifest, options) {
+async function updateCommandsOnly(projectPath, manifest, options, { chained = false } = {}) {
   const msg = t().commands.update;
 
   console.log(chalk.cyan(msg.updatingCommandsOnly || 'Updating slash commands for all AI Agents...'));
@@ -3072,8 +3101,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
     console.log(chalk.yellow(msg.noCommandsInstalled || 'No slash commands installations found'));
     console.log(chalk.gray(`  ${msg.runInitToInstall || 'Run uds init to install commands'}`));
     console.log();
-    process.exit(0);
-    return;
+    return endScope(0, chained);
   }
 
   // Show current status
@@ -3095,8 +3123,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   // XSPEC-454 R1: same as the Skills step — a rollback point first, and no write without one.
   const commandsBackup = takeStepBackup(projectPath, 'commands', commandsInstallations, 'commands');
   if (!commandsBackup.ok) {
-    process.exit(1);
-    return;
+    return endScope(1, chained);
   }
 
   const spinner = createSpinner(msg.installingCommands || 'Installing commands...').start();
@@ -3182,7 +3209,7 @@ async function updateCommandsOnly(projectPath, manifest, options) {
   finishStepBackup(projectPath, commandsBackup);
 
   console.log();
-  process.exit(0);
+  return endScope(0, chained);
 }
 
 /**
