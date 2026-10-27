@@ -11103,6 +11103,199 @@
           "COMBINED-EXIT=0"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "update-both-scopes-init",
+      "workspace": "update-skills-and-commands",
+      "title": "uds init in a Cursor project installs the skills and the slash commands for the --skills --commands steps",
+      "titleZh": "uds init 在 Cursor 專案裡安裝技能與斜線指令，供 --skills --commands 步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".cursorrules",
+          "content": "# my own Cursor rules\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/skills/commit-standards/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "update-both-scopes-apply",
+      "workspace": "update-skills-and-commands",
+      "title": "uds update --apply --yes --skills --commands --offline updates the Skills and the commands (both recorded versions move off 6.11.0, a deleted skill file and a deleted command come back)",
+      "titleZh": "uds update --apply --yes --skills --commands --offline 同時更新技能與指令（兩個記錄的版本都離開 6.11.0，被刪的技能檔與指令都補回）",
+      "changelog": [
+        "uds update --skills --commands now updates both; it used to update one and say nothing about the other"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".cursor/commands/audit.md"
+        },
+        {
+          "removeFile": ".cursor/skills/commit-standards/SKILL.md"
+        },
+        {
+          "setManifest": {
+            "skills.version": "6.11.0",
+            "commands.version": "6.11.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--skills",
+        "--commands",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Updating Skills for all AI Agents",
+          "Updating slash commands for all AI Agents"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "6.11.0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "update-both-scopes-apply-swapped",
+      "workspace": "update-skills-and-commands",
+      "title": "The same with the flags in the other order, --commands --skills",
+      "titleZh": "旗標順序對調（--commands --skills）結果相同",
+      "changelog": [
+        "uds update --skills --commands now updates both; it used to update one and say nothing about the other"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".cursor/commands/audit.md"
+        },
+        {
+          "removeFile": ".cursor/skills/commit-standards/SKILL.md"
+        },
+        {
+          "setManifest": {
+            "skills.version": "6.11.0",
+            "commands.version": "6.11.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--commands",
+        "--skills",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Updating Skills for all AI Agents",
+          "Updating slash commands for all AI Agents"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "6.11.0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "update-both-scopes-no-apply",
+      "workspace": "update-skills-and-commands",
+      "title": "uds update --skills --commands --offline (no --apply) updates the Skills and the commands too",
+      "titleZh": "uds update --skills --commands --offline（不加 --apply）同樣更新技能與指令",
+      "changelog": [
+        "uds update --skills --commands now updates both; it used to update one and say nothing about the other"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".cursor/commands/audit.md"
+        },
+        {
+          "removeFile": ".cursor/skills/commit-standards/SKILL.md"
+        },
+        {
+          "setManifest": {
+            "skills.version": "6.11.0",
+            "commands.version": "6.11.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--skills",
+        "--commands",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Updating Skills for all AI Agents",
+          "Updating slash commands for all AI Agents"
+        ],
+        "files": [
+          {
+            "path": ".cursor/commands/audit.md"
+          },
+          {
+            "path": ".cursor/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "6.11.0"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
