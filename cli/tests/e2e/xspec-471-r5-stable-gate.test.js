@@ -74,6 +74,12 @@ function outcome(r) {
   };
 }
 const run = (root, version) => outcome(bump(root, version));
+/**
+ * The time limit of a test that starts the bump more than once (a loop over cases, or a sample and its control). Each start copies a
+ * tree, and on windows-latest three such tests went over the default 30s (CI of 2026-10-24 and 2026-10-27) while every one-start test
+ * stayed under it. 120 s, as for the cut test at the end of this file.
+ */
+const SEVERAL_RUNS = 120000;
 
 /** A refusal must not have touched the repository. */
 const untouched = (root) => readJson(join(root, 'cli', 'package.json')).version === readJson(join(REPO, 'cli', 'package.json')).version;
@@ -102,7 +108,7 @@ it('with no report for a platform the gate refuses before changing any file and 
     for (const other of ['Windows', 'macOS', 'Linux'].filter((x) => x !== label)) expect(o.reasons).not.toContain(`缺 ${other} 報告`);
     expect(untouched(root), 'a refused bump changed no file').toBe(true);
   }
-});
+}, SEVERAL_RUNS);
 
 it('the scenario of the spec: the latest preview has only macOS and Linux reports, the bump is refused and says Windows is missing (XSPEC-471 R5)', () => {
   const o = run(greenTree({ reports: cleanReports().filter((r) => r.environment.platform !== 'windows') }));
@@ -126,7 +132,7 @@ it('a re-run of a shell replaces its earlier run: an old failure under the same 
   expect(run(greenTree({ reports: [...cleanReports().filter((r) => r.label !== 'ci-windows-cmd'), old, rerun] })).passed, 'failure then clean re-run').toBe(true);
   const worse = report({ platform: 'windows', label: 'ci-windows-cmd', failed: ['some-step'], seq: 3 });
   expect(run(greenTree({ reports: [...cleanReports().filter((r) => r.label !== 'ci-windows-cmd'), rerun, worse] })).refused, 'clean then failing re-run').toBe(true);
-});
+}, SEVERAL_RUNS);
 
 it('a run that tested nothing or could not run is not an acceptance (XSPEC-471 R5)', () => {
   const noSteps = { ...report({ platform: 'macos', label: 'ci-macos' }), verdict: 'no-steps', counts: { planned: 3, passed: 0, failed: 0, skipped: 3, humanConfirmed: 0, humanUnconfirmed: 0, executed: 0 } };
@@ -143,7 +149,7 @@ it('a report made with --local-bin, --source or an injected installer is not cou
     expect(o.reasons).toContain('缺 Linux 報告');
     expect(o.reasons, 'it says why the report that exists does not count').toContain(`${kind} ${PREVIEW}`);
   }
-});
+}, SEVERAL_RUNS);
 
 it('a report of another version in the folder is not counted either (XSPEC-471 R5)', () => {
   const reports = [...cleanReports().filter((r) => r.environment.platform !== 'linux'), report({ version: '9.9.0-beta.2', platform: 'linux', label: 'ci-linux' })];
@@ -170,7 +176,7 @@ it('a step of the current list that the preview report does not contain (added a
     const linuxWithout = cleanReports().map((r) => (r.label === 'ci-linux' ? report({ platform: 'linux', label: 'ci-linux', omit: [winOnly.id] }) : r));
     expect(run(greenTree({ reports: linuxWithout })).passed, 'a Windows-only step missing from the Linux report is fine').toBe(true);
   }
-});
+}, SEVERAL_RUNS);
 
 it('a baseline that still holds a gap refuses the release although the coverage check is green (XSPEC-471 R5)', () => {
   const root = greenTree();
@@ -223,7 +229,7 @@ it('an exemption in steps.json that says the feature is known broken refuses the
     expect(o.count).toBe(1);
     expect(untouched(root)).toBe(true);
   }
-});
+}, SEVERAL_RUNS);
 
 it('with no preview of the version, or a newer preview that nobody accepted, or no reports folder at all, the release is refused (XSPEC-471 R5)', () => {
   const none = run(greenTree({ previews: ['9.8.0-beta.1'] }));
@@ -241,7 +247,7 @@ it('with no preview of the version, or a newer preview that nobody accepted, or 
   const folder = run(root);
   expect(folder.refused).toBe(true);
   expect(folder.reasons).toContain(`reports/${PREVIEW}/ does not exist`);
-});
+}, SEVERAL_RUNS);
 
 it('everything that is wrong is listed in one refusal, not one thing per run (XSPEC-471 R5)', () => {
   const root = greenTree({ reports: cleanReports().filter((r) => r.environment.platform !== 'linux') });
@@ -271,7 +277,7 @@ it('a version with a pre-release mark is not checked: the gate does not even run
     expect(o.refused, preview).toBe(false);
     expect(o.out, 'the bump itself started').toContain(`New version : \x1b[0;34m${preview}`);
   }
-});
+}, SEVERAL_RUNS);
 
 it('a full bump to a stable version goes through with the gate in place and the version files change (XSPEC-471 R5)', (ctx) => {
   if (process.platform === 'win32') ctx.skip(); // the bump runs bash scripts and the stub npm is a shell script
