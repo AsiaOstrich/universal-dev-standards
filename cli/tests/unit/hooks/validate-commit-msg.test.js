@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { validateCommitMessage, commitMessageFrom } from '../../../../scripts/hooks/validate-commit-msg.mjs';
+import { validateCommitMessage, commitMessageFrom, commitMessagesFrom } from '../../../../scripts/hooks/validate-commit-msg.mjs';
 
 describe('SPEC-HOOKS-001 / REQ-1: Commit Message 驗證 Hook', () => {
   // [Source: SPEC-HOOKS-001:AC-2]
@@ -113,5 +113,66 @@ describe('commitMessageFrom', () => {
     expect(commitMessageFrom(undefined)).toBeNull();
     expect(commitMessageFrom(null)).toBeNull();
     expect(commitMessageFrom({})).toBeNull();
+  });
+});
+
+// Every way git accepts a message on the command line, as git itself assembles it (checked against git 2.56:
+// `commit -am x`, `-amx4`, `--mess=x`, `-m=eq`, `-m -n`, and two -m joined by a blank line give those messages).
+describe('commitMessageFrom: the forms git accepts', () => {
+  it.each([
+    ['git commit -am "wip"', 'wip'],
+    ['git commit -vam wip', 'wip'],
+    ['git commit -m"wip"', 'wip'],
+    ['git commit -mwip', 'wip'],
+    ['git commit -amx4', 'x4'],
+    ['git commit -m=eq', '=eq'],
+    ['git commit -m -n', '-n'],
+    ['git commit --message=wip', 'wip'],
+    ['git commit --message wip', 'wip'],
+    ['git commit --mess=wip', 'wip'],
+    ['git commit --m=wip', 'wip'],
+    ['git commit --author "A <a@b.c>" --date now -m wip', 'wip'],
+    ['git commit -m "say \\"hi\\""', 'say "hi"'],
+    ["git commit -m $'a\\nb'", 'a\nb'],
+    ['git commit -m "feat: a; b && c | d"', 'feat: a; b && c | d'],
+    ["git commit -m 'fix: $PATH'", 'fix: $PATH'],
+    ['FOO=1 git commit -m x', 'x'],
+    ['git -C /tmp/r -c a=b commit -m x', 'x'],
+  ])('%s -> %j', (command, message) => {
+    expect(commitMessageFrom(command)).toBe(message);
+  });
+
+  it('joins several -m with a blank line, as git does', () => {
+    expect(commitMessageFrom('git commit -m "feat: a" -m "body" --message=more')).toBe('feat: a\n\nbody\n\nmore');
+  });
+
+  it('reads the body of the $(cat <<EOF) form', () => {
+    expect(commitMessageFrom("git commit -m \"$(cat <<'EOF'\nfeat: x\n\nit's a body\nEOF\n)\"")).toBe("feat: x\n\nit's a body");
+  });
+
+  it.each([
+    'git commit -F msg.txt', 'git commit -aF msg.txt', 'git commit -C HEAD', 'git commit -c HEAD',
+    'git commit --reuse-message=HEAD', 'git commit --amend', 'git commit',
+    'git commit --fixup HEAD -m x', 'git commit --squash=HEAD -m x',
+    'git commit -m "$MSG"', 'git commit -m "$(date)"', 'git commit -m `date`', 'git commit -m "${MSG}"',
+    'git commit -- -m x', 'git commit -m', 'git commit -m "unterminated',
+    'git log -m x', 'git commit-tree -m x',
+  ])('%s -> null (nothing to judge)', (command) => {
+    expect(commitMessageFrom(command)).toBeNull();
+  });
+});
+
+describe('commitMessagesFrom', () => {
+  it('returns one message per commit in a chain', () => {
+    expect(commitMessagesFrom('git add . && git commit -am "x" && git commit -m "y"')).toEqual(['x', 'y']);
+  });
+
+  it('leaves out a commit with nothing to judge', () => {
+    expect(commitMessagesFrom('git commit -F f && git commit -m y')).toEqual(['y']);
+  });
+
+  it('is empty for non-strings and non-commits', () => {
+    expect(commitMessagesFrom(undefined)).toEqual([]);
+    expect(commitMessagesFrom('ls | grep git')).toEqual([]);
   });
 });

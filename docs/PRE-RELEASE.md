@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0
 It installs the published 6.14.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 337 steps (329 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 337 步（329 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 339 steps (331 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 339 步（331 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1065,6 +1065,12 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 337 steps (329
 337. `hook-logging-standard-exit-2` (**new 新**) — The installed structured-logging hook exits 2 with its suggestion on stderr when the written content has console.log, and 0 when it has none.
    裝好的結構化日誌 hook 在寫入內容含 console.log 時以 2 結束並在 stderr 給出建議，沒有時以 0 結束。
    `{node} -e "const r=t=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-logging-standard.mjs'],{input:JSON.stringify({hook_event_name:'PostToolUse',tool_name:'Write',tool_input:{file_path:'src/a.ts',content:t}}),encoding:'utf8'});const a=r('console.log(1);'),b=r('const x = 1;');process.stdout.write('LOGGING-EXIT='+a.status+'\\nCLEAN-EXIT='+b.status+'\\n'+a.stderr);"` → exit 0; output has "LOGGING-EXIT=2", "CLEAN-EXIT=0" (+1)
+338. `commit-msg-hook-forms-init` — uds init --with-hooks installs the commit-message hook script for the message-form steps.
+   uds init --with-hooks 安裝提交訊息 hook 腳本，供訊息寫法步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
+339. `commit-msg-hook-checks-combined-flags` (**new 新**) — The installed commit-message hook exits 2 on git commit -am wip and on --message=wip, and exits 0 on a message with a semicolon inside quotes and on -F.
+   裝好的提交訊息 hook 對 git commit -am wip 與 --message=wip 以 2 結束，對引號內含分號的訊息與 -F 以 0 結束。
+   `{node} -e "const q=String.fromCharCode(34),r=c=>require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:c}}),encoding:'utf8'});const a=r('git commit -am wip'),b=r('git commit --message=wip'),c=r('git commit -m '+q+'feat: a; b'+q),d=r('git commit -F msg.txt');process.stdout.write('COMBINED-EXIT='+a.status+'\\nLONG-EXIT='+b.status+'\\nSEMICOLON-EXIT='+c.status+'\\nFILE-EXIT='+d.status+'\\n'+a.stderr);"` → exit 0; output has "COMBINED-EXIT=2", "LONG-EXIT=2" (+3)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
