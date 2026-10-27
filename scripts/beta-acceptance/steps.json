@@ -10949,6 +10949,97 @@
           ".gemini\\commands"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "hook-exit-codes-init",
+      "workspace": "hook-exit-codes",
+      "title": "uds init --with-hooks installs the dangerous-command and structured-logging hook scripts for the hook exit-code steps",
+      "titleZh": "uds init --with-hooks 安裝危險命令與結構化日誌 hook 腳本，供 hook 結束碼步驟使用",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs"
+          },
+          {
+            "path": "scripts/hooks/check-logging-standard.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-dangerous-cmd-blocks-with-exit-2",
+      "workspace": "hook-exit-codes",
+      "title": "The installed dangerous-command hook exits 2 on rm -rf /, exits 0 on rm -rf /tmp/x, and ignores a dangerous string in the description field",
+      "titleZh": "裝好的危險命令 hook 對 rm -rf / 以 2 結束，對 rm -rf /tmp/x 以 0 結束，且不理會 description 欄位裡的危險字串",
+      "changelog": [
+        "The dangerous-command hook now blocks, and no longer blocks ordinary cleanups."
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const r=(c,e)=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:Object.assign({command:c},e)}),encoding:'utf8'});const a=r('rm -rf /'),b=r('rm -rf /tmp/x'),c=r('ls -la',{description:'rm -rf /'});process.stdout.write('BLOCK-EXIT='+a.status+'\\nCLEANUP-EXIT='+b.status+'\\nDESCRIPTION-EXIT='+c.status+'\\n'+a.stderr);"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "BLOCK-EXIT=2",
+          "CLEANUP-EXIT=0",
+          "DESCRIPTION-EXIT=0",
+          "rm-recursive-root-or-home"
+        ],
+        "notContains": [
+          "BLOCK-EXIT=1"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-logging-standard-exit-2",
+      "workspace": "hook-exit-codes",
+      "title": "The installed structured-logging hook exits 2 with its suggestion on stderr when the written content has console.log, and 0 when it has none",
+      "titleZh": "裝好的結構化日誌 hook 在寫入內容含 console.log 時以 2 結束並在 stderr 給出建議，沒有時以 0 結束",
+      "changelog": [
+        "The structured-logging hook now reaches the model."
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const r=t=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-logging-standard.mjs'],{input:JSON.stringify({hook_event_name:'PostToolUse',tool_name:'Write',tool_input:{file_path:'src/a.ts',content:t}}),encoding:'utf8'});const a=r('console.log(1);'),b=r('const x = 1;');process.stdout.write('LOGGING-EXIT='+a.status+'\\nCLEAN-EXIT='+b.status+'\\n'+a.stderr);"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "LOGGING-EXIT=2",
+          "CLEAN-EXIT=0",
+          "Unstructured logging detected"
+        ],
+        "notContains": [
+          "LOGGING-EXIT=1"
+        ]
+      }
     }
   ]
 }

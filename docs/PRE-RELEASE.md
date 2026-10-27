@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0
 It installs the published 6.14.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 334 steps (326 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 334 步（326 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 337 steps (329 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 337 步（329 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1056,6 +1056,15 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 334 steps (326
 334. `xspec486-plan-names-files-with-slash` — update --plan names a deleted skill folder and a deleted command file with / between the parts, as it does the standards (XSPEC-486 R4; this is the step that fails on Windows without the fix).
    update --plan 以 / 分隔路徑列出被刪掉的技能資料夾與指令檔，和標準檔一致（XSPEC-486 R4；沒有修正時在 Windows 上會失敗的就是這一步）。
    `uds update --plan --offline` → exit 0; output has ".claude/skills/commit-standards (skill not found on disk)", ".gemini/commands/ac-coverage.toml (command not found on disk)"
+335. `hook-exit-codes-init` — uds init --with-hooks installs the dangerous-command and structured-logging hook scripts for the hook exit-code steps.
+   uds init --with-hooks 安裝危險命令與結構化日誌 hook 腳本，供 hook 結束碼步驟使用。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
+336. `hook-dangerous-cmd-blocks-with-exit-2` (**new 新**) — The installed dangerous-command hook exits 2 on rm -rf /, exits 0 on rm -rf /tmp/x, and ignores a dangerous string in the description field.
+   裝好的危險命令 hook 對 rm -rf / 以 2 結束，對 rm -rf /tmp/x 以 0 結束，且不理會 description 欄位裡的危險字串。
+   `{node} -e "const r=(c,e)=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:Object.assign({command:c},e)}),encoding:'utf8'});const a=r('rm -rf /'),b=r('rm -rf /tmp/x'),c=r('ls -la',{description:'rm -rf /'});process.stdout.write('BLOCK-EXIT='+a.status+'\\nCLEANUP-EXIT='+b.status+'\\nDESCRIPTION-EXIT='+c.status+'\\n'+a.stderr);"` → exit 0; output has "BLOCK-EXIT=2", "CLEANUP-EXIT=0" (+2)
+337. `hook-logging-standard-exit-2` (**new 新**) — The installed structured-logging hook exits 2 with its suggestion on stderr when the written content has console.log, and 0 when it has none.
+   裝好的結構化日誌 hook 在寫入內容含 console.log 時以 2 結束並在 stderr 給出建議，沒有時以 0 結束。
+   `{node} -e "const r=t=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-logging-standard.mjs'],{input:JSON.stringify({hook_event_name:'PostToolUse',tool_name:'Write',tool_input:{file_path:'src/a.ts',content:t}}),encoding:'utf8'});const a=r('console.log(1);'),b=r('const x = 1;');process.stdout.write('LOGGING-EXIT='+a.status+'\\nCLEAN-EXIT='+b.status+'\\n'+a.stderr);"` → exit 0; output has "LOGGING-EXIT=2", "CLEAN-EXIT=0" (+1)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
