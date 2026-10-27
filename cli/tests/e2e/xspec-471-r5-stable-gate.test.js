@@ -76,8 +76,8 @@ function outcome(r) {
 const run = (root, version) => outcome(bump(root, version));
 /**
  * The time limit of a test that starts the bump more than once (a loop over cases, or a sample and its control). Each start copies a
- * tree, and on windows-latest three such tests went over the default 30s (CI of 2026-10-24 and 2026-10-27) while every one-start test
- * stayed under it. 120 s, as for the cut test at the end of this file.
+ * tree, and on windows-latest four such tests went over the default 30s (CI of 2026-10-24 and twice on 2026-10-27) while every
+ * one-start test stayed under it. 120 s, as for the cut test at the end of this file.
  */
 const SEVERAL_RUNS = 120000;
 
@@ -310,7 +310,7 @@ it('check-stable-gate.mjs gives the verdict of the bump without bumping: 0 when 
   expect(no.stdout).toContain('缺 Windows 報告');
   expect(untouched(missing), 'it changed no file').toBe(true);
   expect(check(green, '9.9.0-beta.4').status, 'a preview version is a mistake, not a pass').toBe(2);
-});
+}, SEVERAL_RUNS);
 
 // ── cuts: each decision of the gate taken out of a copy; the sample that depends on it must stop seeing it ─────────
 
