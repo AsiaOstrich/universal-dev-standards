@@ -112,3 +112,132 @@ describe('the block signals are written in one place', () => {
     expect(mdVersion(TCI_MD)).toBe(String(TCI_YAML.meta.version));
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// Cell by cell. The host table is a set of claims about other people's software. A cell that
+// says "not found" must keep saying it (and must not grow an exit-code claim nobody read in the
+// host's docs); a cell that was found must keep its key fact. The same expectations are applied
+// to the table in core/mock-boundary.md AND to host_block_signals in the .ai.yaml, so editing one
+// copy alone turns this red. The locale copies are held to the "not found" cells by position.
+// ---------------------------------------------------------------------------------------------
+
+const plain = (s) => String(s).replace(/\*\*/g, '').replace(/`/g, '');
+
+/** The core table as { host, event, blocks, doesNot, source } with markdown emphasis removed. */
+const MD_ROWS = hostTableRows().map(([host, event, blocks, doesNot, source]) => ({
+  host: plain(host), event: plain(event), blocks: plain(blocks), doesNot: plain(doesNot), source: plain(source),
+}));
+const HOST_LABEL = {
+  'claude-code': 'Claude Code', codex: 'Codex', 'gemini-cli': 'Gemini CLI',
+  'antigravity-cli': 'Antigravity CLI', 'cursor-and-others': 'Cursor',
+};
+const YAML_ROWS = MOCK_YAML.blocking_hooks.host_block_signals.map((e) => ({
+  host: HOST_LABEL[e.host], event: String(e.event), blocks: plain(e.blocks ?? ''), doesNot: plain(e.does_not_block ?? ''), source: plain(e.source ?? ''),
+}));
+
+const find = (rows, host, event) => rows.find((r) => r.host.startsWith(host) && r.event.startsWith(event));
+
+// Clauses that legitimately mention an exit code inside a "not found" cell: they say what NOT to assume.
+const ALLOWED_EXIT_MENTIONS = [
+  /do not assume Claude Code's exit 2( applies)?/i,
+  /a third-party [^.]*?not official[^.]*/i,
+];
+const withoutAllowedMentions = (s) => ALLOWED_EXIT_MENTIONS.reduce((t, re) => t.replace(re, ''), s);
+const EXIT_CLAIM = /exit\s*(?:code\s*)?\d|exit\s+\d|non-?zero|any other code/i;
+
+/** [host, event, field, phrase that must stay, kind of claim that must not appear around it] */
+const NOT_FOUND_CELLS = [
+  ['Antigravity CLI', 'PreToolUse', 'doesNot', 'exit-code semantics: not found'],
+  ['Codex', 'PreToolUse', 'doesNot', 'other non-zero exit codes: not found'],
+  ['Codex', 'UserPromptSubmit', 'doesNot', 'other non-zero exit codes: not found'],
+  ['Codex', 'PermissionRequest', 'doesNot', 'exit 2 for this event: not found'],
+];
+
+/** [host, event, field, facts that must stay in that cell] */
+const FOUND_CELLS = [
+  ['Claude Code', 'PreToolUse', 'blocks', ['exit 2', '"permissionDecision":"deny"']],
+  ['Claude Code', 'PreToolUse', 'doesNot', ['including 1', 'non-blocking', 'onFailure: "block"']],
+  ['Claude Code', 'PreToolUse', 'source', ['code.claude.com/docs/en/hooks']],
+  ['Claude Code', 'UserPromptSubmit', 'blocks', ['exit 2', '"decision":"block"']],
+  ['Claude Code', 'PostToolUse', 'blocks', ['cannot block', 'already ran']],
+  ['Codex', 'PreToolUse', 'blocks', ['exit 2', '"permissionDecision":"deny"']],
+  ['Codex', 'PreToolUse', 'doesNot', ['is ignored']],
+  ['Codex', 'PreToolUse', 'source', ['developers.openai.com/codex/hooks']],
+  ['Codex', 'UserPromptSubmit', 'blocks', ['exit 2', '"decision":"block"']],
+  ['Codex', 'PermissionRequest', 'blocks', ['"behavior":"deny"']],
+  ['Gemini CLI', 'BeforeTool', 'blocks', ['exit 2', '"decision":"deny"']],
+  ['Gemini CLI', 'BeforeTool', 'doesNot', ['warning']],
+  ['Gemini CLI', 'BeforeTool', 'source', ['geminicli.com/docs/hooks/reference']],
+  ['Gemini CLI', 'BeforeAgent', 'blocks', ['exit 2', 'aborts the turn']],
+  ['Antigravity CLI', 'PreToolUse', 'blocks', ['"decision":"deny"', 'toolCall.name', 'toolCall.args']],
+  ['Antigravity CLI', 'PreToolUse', 'doesNot', ["do not assume claude code's exit 2", 'not official']],
+  ['Antigravity CLI', 'PreToolUse', 'source', ['antigravity.google/docs/hooks']],
+];
+
+describe.each([
+  ['core/mock-boundary.md host table', MD_ROWS],
+  ['mock-boundary.ai.yaml host_block_signals', YAML_ROWS],
+])('%s, cell by cell', (_where, rows) => {
+  it.each(NOT_FOUND_CELLS)('%s %s keeps "not found" in %s ("%s") and claims no exit code beside it', (host, event, field, phrase) => {
+    const row = find(rows, host, event);
+    expect(row, `${host} / ${event} row exists`).toBeDefined();
+    const cell = row[field];
+    expect(cell).toContain(phrase);
+    const rest = withoutAllowedMentions(cell.replace(phrase, ''));
+    expect(rest, 'an exit-code claim next to a "not found" cell').not.toMatch(EXIT_CLAIM);
+  });
+
+  it('keeps the unsurveyed hosts as "not found" with no signal claimed', () => {
+    const row = find(rows, 'Cursor', 'any');
+    expect(row).toBeDefined();
+    expect(row.blocks).toMatch(/not found/);
+    expect(row.doesNot || 'not found').toMatch(/not found/);
+    expect(`${row.blocks} ${row.doesNot}`).not.toMatch(/exit\s*\d|decision|deny|block"/i);
+  });
+
+  it.each(FOUND_CELLS)('%s %s keeps its key facts in %s', (host, event, field, facts) => {
+    const row = find(rows, host, event);
+    expect(row, `${host} / ${event} row exists`).toBeDefined();
+    for (const fact of facts) expect(row[field].toLowerCase()).toContain(fact.toLowerCase());
+  });
+});
+
+describe('the two copies of the table agree', () => {
+  it('lists the same host and event rows in the same order', () => {
+    const key = (r) => `${r.host.split(' ').slice(0, 2).join(' ').replace(/ and$/, '')}|${r.event}`;
+    expect(YAML_ROWS.map(key)).toEqual(MD_ROWS.map(key));
+  });
+
+  it('says "not found" in the same cells', () => {
+    MD_ROWS.forEach((m, i) => {
+      for (const field of ['blocks', 'doesNot']) {
+        expect(/not found/.test(YAML_ROWS[i][field]), `${m.host} / ${m.event} / ${field}`).toBe(/not found/.test(m[field]));
+      }
+    });
+  });
+});
+
+describe.each([
+  ['zh-TW', 'locales/zh-TW/core/mock-boundary.md'],
+  ['zh-CN', 'locales/zh-CN/core/mock-boundary.md'],
+])('%s translation of the host table', (_loc, rel) => {
+  const lines = read(rel).split('\n');
+  const head = lines.findIndex((l) => /^\| (宿主) \| /.test(l));
+  expect(head, 'the host table is in the translation').toBeGreaterThan(-1);
+  const rows = [];
+  for (let i = head + 2; i < lines.length && lines[i].startsWith('|'); i += 1) {
+    rows.push(lines[i].replace(/^\||\|$/g, '').split(/ \| /).map((c) => c.trim()));
+  }
+
+  it('has the same number of rows as the English table', () => {
+    expect(rows).toHaveLength(MD_ROWS.length);
+  });
+
+  it('says 未查到 exactly where the English table says "not found", and nowhere else', () => {
+    MD_ROWS.forEach((m, i) => {
+      const [, , blocks, doesNot] = rows[i];
+      expect(/未查到/.test(blocks), `${m.host} / ${m.event} / blocks`).toBe(/not found/.test(m.blocks));
+      expect(/未查到/.test(doesNot), `${m.host} / ${m.event} / does not block`).toBe(/not found/.test(m.doesNot));
+    });
+  });
+});

@@ -276,6 +276,7 @@ blocking_hooks:
     - host: cursor-and-others
       event: any
       blocks: "not found (not surveyed in this revision)"
+      does_not_block: "not found"
       source: none
   replay_validates_wiring_not_rules:
     rule: >
