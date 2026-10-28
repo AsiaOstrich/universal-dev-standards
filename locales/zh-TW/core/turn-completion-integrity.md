@@ -1,9 +1,9 @@
 ---
 source: ../../../core/turn-completion-integrity.md
-source_version: 1.5.0
-translation_version: 1.5.0
-last_synced: 2026-09-29
-source_hash: 08579653d9a4
+source_version: 1.5.1
+translation_version: 1.5.1
+last_synced: 2026-10-28
+source_hash: 46c790f970d3
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **Language**: [English](../../../core/turn-completion-integrity.md) | 繁體中文
 
-**版本**: 1.5.0
-**最後更新**: 2026-09-29
+**版本**: 1.5.1
+**最後更新**: 2026-10-28
 **適用範圍**: 任何由 agent 結束回合、把控制權交還給人的執行環境
 **Scope**: universal
 **產業標準**: 不宣稱任何來源——由實際觀察到的失敗歸納，見「證據」
@@ -152,6 +152,8 @@ agent 寫下「我接著做 X」，然後結束回合，而 X 沒有做。
 | Codex | Stop | `.codex/hooks.json` | stdout 印 `{"decision":"block","reason":...}`，exit 0——官方文件寫明這個事件純文字或空輸出無效 |
 | Gemini CLI（過時） | AfterAgent | `.gemini/settings.json` | stdout 印 `{"decision":"deny","reason":...}`，exit 0——官方文件標記為優先於 exit code 2 的做法 |
 | Antigravity CLI（`agy`） | Stop | `.agents/hooks.json` | stdout 印 `{"decision":"continue","reason":...}`，exit 0；`{}` 即放行 |
+
+這張表只涵蓋 Stop 類事件。宿主對「擋下工具呼叫或提示」的事件（PreToolUse、UserPromptSubmit、BeforeTool）所讀的訊號，寫在 [mock-boundary](mock-boundary.md) 的「各宿主把什麼當成「已擋下」」表——那是唯一寫下它們的地方，連同「擋下型 hook 必須照宿主的方式執行來測」的規則，本處不重複。
 
 在 Codex 上，接上了不等於會執行。Codex 會略過專案層級的 hook，直到專案被信任、**而且**
 這一支 hook 的定義在互動式 Codex 工作階段裡透過 `/hooks` 被信任為止；信任紀錄綁在定義的

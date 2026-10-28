@@ -1,9 +1,9 @@
 ---
 source: ../../../core/mock-boundary.md
-source_version: 1.1.0
-translation_version: 1.1.0
-last_synced: 2026-07-01
-source_hash: fe4715991a4c
+source_version: 1.3.0
+translation_version: 1.3.0
+last_synced: 2026-10-28
+source_hash: b95f3da59a8e
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **Language**: [English](../../../core/mock-boundary.md) | 繁體中文
 
-**版本**: 1.1.0
-**最後更新**: 2026-07-01
+**版本**: 1.3.0
+**最後更新**: 2026-10-28
 **適用範圍**: 所有具備單元測試與整合測試的軟體專案
 **Scope**: universal
 **產業標準**: ISTQB Foundation（Test Doubles）, xUnit Patterns（Gerard Meszaros）
@@ -110,6 +110,67 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 
 ---
 
+## 攔截型 Hook：測宿主的入口，不是測比對函式
+
+**hook** 是 AI 宿主（Claude Code、Codex、Gemini CLI、Antigravity CLI 等）在生命週期事件上執行的腳本。有些 hook 能**擋下**宿主原本要做的事：拒絕一次工具呼叫、拒絕一則提示、不讓一個回合結束。對這類 hook，空心測試根本不需要任何 mock——測試只是從來沒碰到宿主會呼叫的入口。
+
+hook 有兩層。**判斷層**決定這條指令危不危險；**接線層**讀宿主送來的 stdin 資料，並用宿主會讀的訊號回答（結束碼，或標準輸出的 JSON）。匯入判斷函式的單元測試只練到第一層，而宿主讀的是第二層。結束碼錯、欄位名稱讀錯、輸出格式宿主不認，這些都不會讓那支測試變紅。
+
+### 反例：UDS 自己的危險指令 hook，擋下 0／26
+
+`scripts/hooks/check-dangerous-cmd.mjs` 是 PreToolUse hook。偵測到危險指令時它 `exit 1`。Claude Code 只有 `exit 2` 才擋下工具呼叫；其他非 0 結束碼都是不阻擋的 hook 錯誤，指令照樣執行。它的測試匯入比對函式（`isDangerousCommand()`）直接呼叫，所以綠了好幾個月。
+
+重播 11,617 次真實 shell 呼叫（2026-10-27），規則 `rm -rf /` 命中 26 次，宿主擋下 **0** 次。26 次中有 25 次是無害的暫存清理，例如 `rm -rf /tmp/x`；沒有任何一次是真的要清空根目錄。同一個規則還漏掉 `rm -fr /` 與 `rm -r -f /`。修正與入口測試在 PR #281 出貨。
+
+### 規則
+
+**H1（MUST）**：能擋下工具呼叫、提示或回合的 hook，至少要有一支測試同時做到下列三件事：
+
+1. **另起行程執行 hook**，用宿主設定檔裡執行它的同一個指令。啟動腳本算數；匯入不算。
+2. **在 stdin 送入宿主自己的資料**，欄位名稱用該宿主的（見下表：Claude Code 送 `tool_name`／`tool_input`，Antigravity 送 `toolCall`）。照作者想像的宿主格式做出來的資料什麼也證明不了。
+3. **斷言宿主據以判斷的訊號**：確切的結束碼，或宿主在標準輸出解析的 JSON。「非 0」「有錯誤結束」「stderr 含某個字」都不算：exit 1 是非 0，卻在 Claude Code 上什麼也沒擋。
+
+匯入並呼叫內部函式的測試可以存在，對判斷層也有用，但**不計入** H1。
+
+**H2（SHOULD）**：擋下的案例旁邊，用同樣方式跑一個放行的案例，並斷言宿主的放行訊號（例如 exit 0 且標準輸出為空）。一個什麼都擋的 hook 可以通過只測擋下的測試。
+
+**H3（SHOULD）**：切斷檢查——把 hook 的擋下訊號改掉（例如 `exit 2` 改成 `exit 1`），確認入口測試變紅。維持綠色，代表那支測試沒在守接線。
+
+H1 也適用於「唯一作用是讓宿主讀到它的訊號」的 hook，例如用 exit 2 把 stderr 送到模型面前的 PostToolUse hook。工具已經跑完、無法撤銷，但錯的結束碼一樣會讓這支 hook 無聲無息。
+
+### 各宿主把什麼當成「已擋下」
+
+2026-10-28 取自各宿主自己的官方文件。宿主會改這些約定；採信某一格之前請重查出處。格子寫「未查到」，是讀過該頁而頁面沒寫，不等於「沒有」。
+
+| 宿主 | 事件 | 擋下 | 不擋下 | 出處 |
+|---|---|---|---|---|
+| Claude Code | PreToolUse | exit **2**（stderr 是理由）；或 exit 0 並在 stdout 輸出 `{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}}` | 其他任何結束碼，**包含 1**，都是不阻擋的 hook 錯誤，動作照常進行；無效的 JSON 同理。文件寫明的例外：設定了 `onFailure: "block"` 的 hook，失敗時會擋下 | code.claude.com/docs/en/hooks：Exit code output、Exit code 2、Other exit codes、Decision control |
+| Claude Code | UserPromptSubmit | exit **2**（提示不會送到模型）；或 exit 0 並在 stdout 輸出 `{"decision":"block","reason":"..."}` | 其他任何結束碼（同樣有 `onFailure: "block"` 的例外） | 同頁，Exit code 2 behavior per event |
+| Claude Code | PostToolUse | 不能擋：工具已經執行。exit 2 只會把 stderr 顯示給模型 | 以擋下而言，任何結束碼都不行 | 同頁，Exit code 2 behavior per event |
+| Codex | PreToolUse | exit **2** 並把理由寫到 stderr；或 stdout 輸出 `{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}}`；舊式 `{"decision":"block","reason":"..."}` 也接受 | stdout 的純文字會被忽略；`permissionDecision:"ask"`、`continue:false`、`stopReason`、`suppressOutput` 尚不支援，該次 hook 執行被標為失敗而工具呼叫繼續；其他非 0 結束碼：未查到 | developers.openai.com/codex/hooks，PreToolUse |
+| Codex | UserPromptSubmit | exit **2** 並把理由寫到 stderr；或 stdout 輸出 `{"decision":"block","reason":"..."}` | stdout 純文字會被當成額外脈絡；其他非 0 結束碼：未查到 | 同頁，UserPromptSubmit |
+| Codex | PermissionRequest | stdout 輸出 `{"hookSpecificOutput":{"decision":{"behavior":"deny","message":"..."}}}`；任一 `deny` 即勝出 | 此事件的 exit 2：未查到；stdout 純文字會被忽略 | 同頁，PermissionRequest |
+| Gemini CLI（舊版） | BeforeTool | exit **2**（stderr 是送給 agent 的理由）；或 exit 0 並在 stdout 輸出 `{"decision":"deny","reason":"..."}`（`"block"` 是別名）。文件把 JSON 形式列為優先路徑 | 其他任何結束碼只是警告，CLI 繼續 | geminicli.com/docs/hooks/reference，Global hook mechanics 與 BeforeTool |
+| Gemini CLI（舊版） | BeforeAgent、BeforeModel | exit **2** 中止該回合（BeforeAgent 還會把提示從脈絡抹除；BeforeModel 跳過 LLM 呼叫）；或 `decision:"deny"` | 同上 | 同頁 |
+| Antigravity CLI（`agy`） | PreToolUse | exit 0 並在 stdout 輸出 `{"decision":"deny","reason":"..."}`（「Hard blocks execution immediately」）。`decision` 欄位必填，其他值為 `allow`、`auto_approve`、`ask`、`force_ask`、`deny_unless_prior_grant`。stdin 帶的是 `toolCall.name` 與 `toolCall.args`，不是 Claude Code 的欄位名 | 結束碼語意：未查到（官方頁面沒寫）。不要假設 Claude Code 的 exit 2 適用。第三方文章宣稱任何非 0 都視為拒絕；那不是官方說法，此處不採用 | antigravity.google/docs/hooks，Input and output contract，PreToolUse |
+| Cursor 與其他宿主 | 任何 | 未查到（本版未調查） | 未查到 | 無 |
+
+Stop 類事件（Claude Code 與 Codex 的 Stop、Gemini CLI 的 AfterAgent、Antigravity 的 Stop）**不在這裡重複**。它們的擋下約定寫在 [turn-completion-integrity](turn-completion-integrity.md) 的「支援的執行環境」表，那是唯一寫下它們的地方。該表也記錄了一個 Antigravity hook 失敗後被靜默放行的案例，與本節要防的接線失敗是同一型。
+
+### 重播驗證的是接線，不是規則
+
+把錄下的真實呼叫重播給 hook（例如用 rules-to-guards）是檢查接線的有力方法。但它有一個每次回報結果時都必須講明的限制：若同一份規則清單同時決定「該擋」與「不該擋」，重播只證明 hook 照它的規則運作，**不證明規則本身是對的**。
+
+0／26 之所以量得出來，是因為宿主的約定（exit 2 才擋）是 hook 之外的事實。至於「哪些指令值得擋」，手上只有 hook 自己的比對式：26 次命中都與它一致，真正的危險 0 次，而它沒涵蓋的 `rm -fr /` 永遠不會在重播裡顯示為漏掉，因為答案來源與 hook 共用同一個盲點。
+
+所以重播的結果只能報「接線正確」或「接線錯誤」，不要由它得出「規則正確」。要對規則下結論，請去讀實際命中的指令，或另備一份不看 hook 比對式寫成的獨立答案（見 [verification-oracle](verification-oracle.md)）。
+
+### UDS 的執行方式
+
+UDS 在 CI 對自己出貨的 hook 檢查這條規則：`node scripts/check-hook-entry-tests.mjs`（npm 指令 `check:hook-entry-tests`），出貨的、能擋下的 hook 若沒有「啟動它、送 stdin、斷言宿主訊號」的測試就判失敗。它是靜態文字分析：只證明「形狀對的測試存在」，不證明 hook 退化時那支測試會變紅——那是 H3 的工作。
+
+---
+
 ## 空心測試偵測
 
 提交測試檔之前，請檢查：
@@ -118,6 +179,7 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 2. **所有斷言都是 `.toHaveBeenCalled()` 系列** → 加入輸出值斷言
 3. **Mock 路徑與受測對象目錄相同** → 自我引用 mock；移除之
 4. **Mock 設定行數多於斷言行數** → 很可能是空心測試
+5. **攔截型 hook 的測試只匯入並呼叫它的函式** → 補一支啟動 hook 並斷言宿主訊號的入口測試（見「攔截型 Hook」）
 
 ---
 
@@ -128,6 +190,7 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 - **Orphan Mock**：跨模組 mock 卻沒有對應的整合測試
 - **Security Bypass Mock**：auth/權限邏輯被換成直接放行的 stub
 - **Database Mock Cascade**：DB 回傳寫死的資料，隱藏真實查詢錯誤
+- **Matcher-Only Hook Test**：攔截型 hook 的測試只匯入並呼叫其判斷函式，從未照宿主的方式執行 hook。hook 什麼也沒擋，測試卻是綠的（UDS 自己的 0／26）
 - **Poll/Sleep for Background Result**：用 sleep 或 poll 等待 fire-and-forget 背景工作完成。race 依然存在——timeout 只是多數時候把它遮住，同時拖慢整套測試；在共用 runner 上更會把 flakiness 洩漏進其他 MR 的 CI。改注入 deterministic runner 並 await 被追蹤的 task。
 
 ---
@@ -142,6 +205,8 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 | 禁止 mock 安全機制 | 測試涉及 auth/權限 | 使用真實測試使用者 + 真實 token |
 | 空心審查 | Mock 數量 ≥ import 數量 | 加入輸出值斷言 |
 | 背景工作禁止 poll/sleep | 測試斷言某個 fire-and-forget 副作用 | 注入 deterministic runner；await 被追蹤的 task |
+| 攔截型 hook 要有宿主入口測試 | hook 能擋下工具呼叫、提示或回合 | 啟動它、在 stdin 送宿主的資料、斷言宿主據以判斷的結束碼或 stdout JSON |
+| 重播只證明接線 | 回報把真實呼叫重播給 hook 的結果 | 報「接線正確」；除非規則另以獨立答案核對過，否則不報「規則正確」 |
 
 ---
 
@@ -150,6 +215,8 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 - **testing**：Mock 邊界規則適用於測試金字塔的所有測試層級
 - **test-completeness-dimensions**：維度 8（AI 測試品質）引用了這些規則
 - **flow-based-testing**：Flow 測試必須遵循 mock 邊界規則
+- **turn-completion-integrity**：Stop 類事件的擋下約定寫在那裡；工具與提示事件的寫在本標準，兩邊都不重複對方
+- **verification-oracle**：用來判斷 hook 規則對不對的答案來源，不得由 hook 自己的比對式推出
 
 ---
 
@@ -159,3 +226,4 @@ class DeterministicDispatcher implements BackgroundDispatcher {
 |------|------|------|
 | 1.0.0 | 2026-05-04 | 初始標準：空心測試問題、可／不可 Mock 表格、偵測、反模式、規則摘要 |
 | 1.1.0 | 2026-07-01 | 新增可注入的背景執行作為 seam（平行於 clock injection）：可 Mock 表列、`可注入的背景執行` 章節、`Poll/Sleep for Background Result` 反模式，以及背景工作禁止 poll/sleep 規則（issue #143） |
+| 1.3.0 | 2026-10-28 | 新增《攔截型 Hook：測宿主的入口，不是測比對函式》：H1 MUST（啟動 hook、送宿主的 stdin 資料、斷言宿主據以判斷的訊號）、H2／H3 SHOULD、各宿主擋下訊號對照表，以及「重播驗證接線、不驗證規則」的註記，並以 UDS 自己的 0／26 為反例。版本號與 `mock-boundary.ai.yaml` 對齊——該檔先前把「背景執行」那次新增記為 1.2.0，本檔記為 1.1.0 |

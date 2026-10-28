@@ -13,6 +13,13 @@
 //   A green component test says nothing about whether the component is wired to
 //   the host's contract. This gate makes the NEXT hook unable to repeat that.
 //
+// THE RULE IT APPLIES
+//   core/mock-boundary.md, "Blocking Hooks: Test the Host's Entry, Not the Matcher" (H1):
+//   spawn the hook, send the host's own stdin payload, assert the signal the host reads.
+//   That section also holds the per-host table of what counts as "blocked"; EVENT_CONTRACT
+//   below restates only the two shapes UDS's own hooks use, and the Stop-type block
+//   contracts are in core/turn-completion-integrity.md.
+//
 // WHAT IT CHECKS
 //   1. Which hooks exist. Derived, never hand-listed:
 //        - hooks the installer wires: cli/src/installers/hooks-installer.js
