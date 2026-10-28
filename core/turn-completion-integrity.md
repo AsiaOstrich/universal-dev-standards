@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/turn-completion-integrity.md)
 
-**Version**: 1.5.0
-**Last Updated**: 2026-09-29
+**Version**: 1.5.1
+**Last Updated**: 2026-10-28
 **Applicability**: Any harness where an agent ends a turn and hands control back to a human
 **Scope**: universal
 **Industry Standards**: none claimed — derived from observed failures, see Evidence
@@ -157,6 +157,12 @@ actually wired into that harness's own config. As of v1.5.0:
 | Codex | Stop | `.codex/hooks.json` | stdout `{"decision":"block","reason":...}`, exit 0 — plain text or empty stdout is documented as invalid for this event |
 | Gemini CLI (legacy) | AfterAgent | `.gemini/settings.json` | stdout `{"decision":"deny","reason":...}`, exit 0 — the documented preferred path over exit code 2 |
 | Antigravity CLI (`agy`) | Stop | `.agents/hooks.json` | stdout `{"decision":"continue","reason":...}`, exit 0; `{}` allows |
+
+This table covers Stop-type events only. The signals a host reads for events that
+stop a tool call or a prompt (PreToolUse, UserPromptSubmit, BeforeTool) are in the
+"What each host reads as 'blocked'" table of [mock-boundary](mock-boundary.md), the
+one place they are written down, together with the rule that a blocking hook must be
+tested by running it as the host does. They are not repeated here.
 
 Wired is not running on Codex. Codex skips a project hook until the project
 is trusted **and** that exact hook definition has been trusted through `/hooks`

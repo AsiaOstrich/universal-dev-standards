@@ -51,8 +51,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.0
 It installs the published 6.14.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 343 steps (335 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 343 步（335 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 344 步（336 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1083,6 +1083,9 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 343 steps (335
 343. `update-both-scopes-no-apply` (**new 新**) — uds update --skills --commands --offline (no --apply) updates the Skills and the commands too.
    uds update --skills --commands --offline（不加 --apply）同樣更新技能與指令。
    `uds update --skills --commands --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
+344. `std-hook-entry-test-rule` (**new 新**) — The installed mock-boundary standard requires a blocking hook to be tested through the host's own entry and carries the per-host block signals.
+   安裝後的 mock-boundary 標準要求攔截型 hook 照宿主的入口測，並附各宿主的擋下訊號表。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/mock-boundary.ai.yaml`
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

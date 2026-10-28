@@ -3,11 +3,12 @@
 
 id: turn-completion-integrity
 meta:
-  version: "1.5.0"
-  updated: "2026-09-29"
+  version: "1.5.1"
+  updated: "2026-10-28"
   source: core/turn-completion-integrity.md
   description: An agent must not end a turn having stated a next action it did not take; enforced at turn end, not by instruction
   related:
+    - mock-boundary
     - agent-behavior-discipline
     - ai-response-navigation
     - anti-hallucination
@@ -117,6 +118,9 @@ enforcement:
   severity: warning
   timeout_ms: 2000
 
+# Stop-type events only. Block signals for events that stop a tool call or a prompt
+# (PreToolUse, UserPromptSubmit, BeforeTool) live in mock-boundary (host_block_signals)
+# and are not repeated here.
 # The check is enforced only where an adapter exists AND a hook is wired into
 # that harness's own config. This is separate from `enforcement:` above, which
 # only describes the Claude Code entry the generic installer walks — Codex,

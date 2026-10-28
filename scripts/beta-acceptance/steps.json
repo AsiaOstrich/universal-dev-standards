@@ -11296,6 +11296,34 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "std-hook-entry-test-rule",
+      "workspace": "available",
+      "title": "The installed mock-boundary standard requires a blocking hook to be tested through the host's own entry and carries the per-host block signals",
+      "titleZh": "安裝後的 mock-boundary 標準要求攔截型 hook 照宿主的入口測，並附各宿主的擋下訊號表",
+      "changelog": [
+        "mock-boundary 1.3.0: a hook that can block must be tested the way the host runs it"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".standards/mock-boundary.ai.yaml",
+            "contains": [
+              "version: \"1.3.0\"",
+              "h1_host_entry_test:",
+              "level: MUST",
+              "host_block_signals:",
+              "exit 2 (stderr is the reason)",
+              "exit-code semantics: not found",
+              "replay_validates_wiring_not_rules:",
+              "id: blocking-hook-host-entry-test"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

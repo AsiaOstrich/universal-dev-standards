@@ -3,8 +3,8 @@
 
 id: mock-boundary
 meta:
-  version: "1.2.0"
-  updated: "2026-07-01"
+  version: "1.3.0"
+  updated: "2026-10-28"
   source: core/mock-boundary.md
   description: >
     Rules defining what can and cannot be mocked to prevent hollow tests —
@@ -14,6 +14,13 @@ meta:
     v1.2.0: Added injectable background execution as a seam (parallel to clock
     injection) — allowed background-runner seam, no-poll/sleep rule, and the
     poll/sleep-for-background-result anti-pattern (issue #143).
+    v1.3.0: Added blocking-hook entry testing (H1 MUST: spawn the hook, send the
+    host's stdin payload, assert the signal the host reads), the per-host block
+    signal table, and the replay-validates-wiring-not-rules note. Counter-example:
+    UDS's own dangerous-command hook blocked 0 of 26 (exit 1; Claude Code blocks on exit 2).
+  related:
+    - turn-completion-integrity
+    - verification-oracle
 
 # ─────────────────────────────────────────────────────────
 # Mock Levels (v1.1.0)
@@ -177,6 +184,115 @@ allowed:
         dispatch(work: () => Promise<void>): void { this.tasks.push(work()) }
         async settle(): Promise<void> { await Promise.all(this.tasks) }
       }
+
+# ─────────────────────────────────────────────────────────
+# Blocking Hooks: test the host's entry, not the matcher (v1.3.0)
+# ─────────────────────────────────────────────────────────
+blocking_hooks:
+  definition: >
+    A hook is a script an AI host (Claude Code, Codex, Gemini CLI, Antigravity CLI)
+    runs at a lifecycle event. It has a judgement layer (is this command dangerous?)
+    and a wiring layer (read the host's stdin payload, answer in the signal the host
+    reads). A unit test of the judgement function exercises only the first layer.
+  counter_example:
+    hook: scripts/hooks/check-dangerous-cmd.mjs (PreToolUse)
+    fault: "exited 1 on detection; Claude Code blocks a tool call only on exit 2, any other non-zero code is a non-blocking hook error"
+    why_tests_were_green: "tests imported isDangerousCommand() and called it; no test ran the hook as a process"
+    measurement: "replay of 11,617 real shell calls (2026-10-27): rule `rm -rf /` fired 26 times, the host blocked 0; 25 were harmless temp cleanups, none a real root wipe; `rm -fr /` and `rm -r -f /` were missed"
+    fixed_in: "PR #281"
+  rules:
+    h1_host_entry_test:
+      level: MUST
+      applies_to: "a hook that can stop a tool call, a prompt, or a turn"
+      rule: >
+        At least one test (1) runs the hook as a separate process with the command
+        the host config runs, (2) sends the host's own stdin payload with that host's
+        field names, (3) asserts the signal the host reads: the exact exit code or
+        the JSON the host parses on stdout.
+      does_not_count:
+        - "a test that imports and calls an internal function"
+        - "asserting only 'non-zero' or 'exited with error' (exit 1 is non-zero and blocks nothing on Claude Code)"
+        - "asserting only that stderr contains a word"
+        - "a payload shaped like the author's idea of the host"
+      also_applies_to: "a hook whose only effect is that the host reads its signal, e.g. PostToolUse exit 2 to put stderr in front of the model"
+    h2_pair_with_allow_case:
+      level: SHOULD
+      rule: Run an allowing case the same way and assert the host's allow signal; a hook that blocks everything passes a blocking-only test
+    h3_cut_check:
+      level: SHOULD
+      rule: Change the hook's block signal (e.g. exit 2 to exit 1) and confirm the entry test goes red
+  # Single place for non-Stop block signals. Stop-type events are in
+  # turn-completion-integrity (supported_harnesses) and are not repeated here.
+  # Retrieved 2026-10-28 from each host's own documentation; re-check before relying on a cell.
+  # "not found" = page read and silent, which is not "no".
+  host_block_signals:
+    - host: claude-code
+      event: PreToolUse
+      blocks: 'exit 2 (stderr is the reason); or exit 0 + stdout {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}}'
+      does_not_block: "any other exit code including 1 (non-blocking hook error, action proceeds); invalid JSON. Exception stated by the docs: a hook configured with onFailure: \"block\" blocks when it fails"
+      source: "code.claude.com/docs/en/hooks (Exit code output, Exit code 2, Other exit codes, Decision control)"
+    - host: claude-code
+      event: UserPromptSubmit
+      blocks: 'exit 2; or exit 0 + stdout {"decision":"block","reason":"..."}'
+      does_not_block: "any other exit code (same onFailure: \"block\" exception)"
+      source: "code.claude.com/docs/en/hooks (Exit code 2 behavior per event)"
+    - host: claude-code
+      event: PostToolUse
+      blocks: "cannot block: the tool already ran; exit 2 only shows stderr to the model"
+      does_not_block: "any exit code, for blocking purposes"
+      source: "code.claude.com/docs/en/hooks (Exit code 2 behavior per event)"
+    - host: codex
+      event: PreToolUse
+      blocks: 'exit 2 with reason on stderr; or stdout {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}}; legacy {"decision":"block","reason":"..."} also accepted'
+      does_not_block: "plain stdout is ignored; permissionDecision ask, continue:false, stopReason, suppressOutput unsupported (hook run marked failed, tool call continues); other non-zero exit codes: not found"
+      source: "developers.openai.com/codex/hooks (PreToolUse)"
+    - host: codex
+      event: UserPromptSubmit
+      blocks: 'exit 2 with reason on stderr; or stdout {"decision":"block","reason":"..."}'
+      does_not_block: "plain stdout is added as context; other non-zero exit codes: not found"
+      source: "developers.openai.com/codex/hooks (UserPromptSubmit)"
+    - host: codex
+      event: PermissionRequest
+      blocks: 'stdout {"hookSpecificOutput":{"decision":{"behavior":"deny","message":"..."}}}; any deny wins'
+      does_not_block: "exit 2 for this event: not found; plain stdout is ignored"
+      source: "developers.openai.com/codex/hooks (PermissionRequest)"
+    - host: gemini-cli
+      status: legacy
+      event: BeforeTool
+      blocks: 'exit 2 (stderr is the reason sent to the agent); or exit 0 + stdout {"decision":"deny","reason":"..."} ("block" is an alias; docs name the JSON form preferred)'
+      does_not_block: "any other exit code is a warning and the CLI continues"
+      source: "geminicli.com/docs/hooks/reference (Global hook mechanics, BeforeTool)"
+    - host: gemini-cli
+      status: legacy
+      event: BeforeAgent, BeforeModel
+      blocks: "exit 2 aborts the turn (BeforeAgent also erases the prompt; BeforeModel skips the LLM call); or decision deny"
+      does_not_block: "as BeforeTool"
+      source: "geminicli.com/docs/hooks/reference"
+    - host: antigravity-cli
+      event: PreToolUse
+      blocks: 'exit 0 + stdout {"decision":"deny","reason":"..."} (hard block). decision is required; other values: allow, auto_approve, ask, force_ask, deny_unless_prior_grant. stdin has toolCall.name and toolCall.args, not tool_name/tool_input'
+      does_not_block: "exit-code semantics: not found (official page silent); do not assume Claude Code's exit 2; a third-party claim that any non-zero denies is not official and not used"
+      source: "antigravity.google/docs/hooks (Input and output contract, PreToolUse)"
+    - host: cursor-and-others
+      event: any
+      blocks: "not found (not surveyed in this revision)"
+      source: none
+  replay_validates_wiring_not_rules:
+    rule: >
+      A replay of recorded calls through a hook, where the same rule list decides both
+      "should block" and "should not", proves the hook behaves as its rules say. It
+      does not prove the rules are right. Report it as "wiring correct", never as "rules correct".
+    evidence: >
+      The 0-of-26 result was measurable because the host's contract (exit 2 blocks)
+      is a fact outside the hook. For which commands deserve blocking there was only the
+      hook's own pattern: 26 hits consistent with it, 0 real dangers, and `rm -fr /`
+      could never appear as a miss because the oracle shares the blind spot.
+    instead: "read the commands that actually matched, or keep a separate answer key written without looking at the hook's patterns (see verification-oracle)"
+  enforcement_in_uds: >
+    CI runs `node scripts/check-hook-entry-tests.mjs` (npm run check:hook-entry-tests):
+    fails when a shipped hook that can block has no test that spawns it, feeds stdin and
+    asserts the host's signal. Static analysis: proves a test of the right shape exists,
+    not that it would go red if the hook regressed (that is H3).
 
 # ─────────────────────────────────────────────────────────
 # Forbidden Mocks
@@ -343,6 +459,24 @@ rules:
       the tracked task, then assert on success, exception, or retry.
     priority: required
 
+  - id: blocking-hook-host-entry-test
+    trigger: writing or reviewing tests for a hook that can stop a tool call, a prompt, or a turn
+    instruction: >
+      Require at least one test that spawns the hook as a process, sends the host's own
+      stdin payload, and asserts the exit code or stdout JSON the host reads
+      (see blocking_hooks.host_block_signals). A test that imports and calls an internal
+      function does not count. Pair with an allowing case; confirm the test goes red when
+      the block signal is changed.
+    priority: required
+
+  - id: replay-proves-wiring-only
+    trigger: reporting the result of replaying real calls through a hook
+    instruction: >
+      If the same rule list decided both "should block" and "should not", report
+      "wiring correct", not "rules correct". Check rules against matched commands or an
+      independent answer key.
+    priority: required
+
   - id: level-2-stub-server-rules
     trigger: UAT environment lacks a real external service (SMS, payment, IdP)
     instruction: >
@@ -385,3 +519,4 @@ quick_reference:
     □ Mock count < import count (or justified with comment)
     □ At least one assertion on actual output value (not mock call)
     □ Integration counterpart exists for each cross-module mock
+    □ Each blocking hook has a test that spawns it, sends the host's payload, and asserts the host's signal
