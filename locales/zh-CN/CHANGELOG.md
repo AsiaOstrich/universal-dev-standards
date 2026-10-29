@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.0
-translation_version: 6.14.0
-last_synced: 2026-10-22
-source_hash: 94f283a77794
+source_version: 6.14.1-beta.1
+translation_version: 6.14.1-beta.1
+last_synced: 2026-10-30
+source_hash: ba57d38f3b74
 status: current
 ---
 
@@ -17,6 +17,31 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.1-beta.1] - 2026-10-30
+
+> **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**安全修正：** 危险指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）侦测到时以 exit 1 回报，而 Claude Code 不把 exit 1 当成拦截，因此 6.14.0 及更早版本从未挡下任何指令（重播 11,617 笔真实 shell 调用，规则命中 26 次，宿主挡下 0 次）；现在改以 exit 2 结束，且只判断指令本身。**已经安装这个 hook 的项目会保留旧的脚本副本，直到你把它换掉；见“修复”的第一条。**另修正：提交信息 hook 略过 `git commit -am "..."` 与其他合并短旗标，以及 `uds update --skills --commands` 只运行两者其中之一。包含以下 6.14.0 的所有内容。
+
+### 新增
+
+- **mock-boundary 1.3.0：能拦截的 hook 必须以宿主运行它的方式测试，并使用各宿主读取的信号。** UDS 自己的 `scripts/hooks/check-dangerous-cmd.mjs` 以 exit 1 结束，而 Claude Code 只在 exit 2 时拦截；它的测试导入比对函数，因此一直是绿的；重播 11,617 笔真实 shell 调用，规则命中 26 次，宿主挡下 0 次（已于 #281 修正）。标准现在规定：能挡下工具调用、提示或回合的 hook，必须（MUST）至少有一支测试把它当成进程启动，送入宿主自己的 stdin 数据，并断言宿主读取的结束码或 stdout JSON（H1）；导入并调用内部函数的测试不计入，只断言「非 0」也不计入。同时应该（SHOULD）以同样方式运行一个放行案例（H2），并确认改掉挡下信号时测试会变红（H3）。标准附上一张表，列出 Claude Code、Codex、Gemini CLI 与 Antigravity CLI 在 PreToolUse 类事件中各自视为「已挡下」的信号，每一列都附官方出处，宿主页面没写的写「未查到」（Antigravity 的结束码行为没有文档，且其 stdin 使用 `toolCall` 而非 `tool_input`）。标准也注明：以同一份规则清单同时决定「该挡」与「不该挡」的真实调用重播，只证明接线，不证明规则（重播中 26 次命中全部与规则一致，0 次是真正的危险，而 `rm -fr /` 对它是隐形的）。`turn-completion-integrity` 1.5.1 仅在非 Stop 事件上指向新表；其 Stop 表与规则不变，信号只写在一处。对 UDS 自己出货的 hook 套用 H1 的 CI 闸门是 `npm run check:hook-entry-tests`。**谁会看到差异：** 采用者在下次 `uds update` 取得新文字；除非项目出货了拦截型 hook（此时标准要求多一支测试），否则项目内没有任何东西改变。同时更正 `mock-boundary.md` 的版本：同一份内容在 `mock-boundary.md` 写 1.1.0、在 `mock-boundary.ai.yaml` 写 1.2.0，现在两者都是 1.3.0。
+
+### 修复
+
+- **危险指令 hook 现在会拦截，且不再挡下一般的清理指令。** `scripts/hooks/check-dangerous-cmd.mjs`（安全标准的 PreToolUse/Bash hook）从来没有挡下过任何东西：它以 exit 1 结束，而 Claude Code 只在 exit 2 时拦截工具调用，所以指令照常运行。它还拿整段 stdin JSON 来比对，而不是 `tool_input.command`。重播 11,617 笔真实 shell 调用，旧的 `rm -rf /` 规则命中 26 次，其中 25 次是无害的暂存清理（`rm -rf /tmp/x`），而 `rm -fr /` 与 `rm -r -f /` 却漏网。现在 hook 读取 `tool_input.command`（stdin 不是 JSON 时读取原始指令列），以 exit 2 拦截并在 stderr 写出规则名称；`rm` 只在递归且目标正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 时才拦截，旗标顺序不拘，`sudo` 之后也适用。原本从未命中任何东西的 fork bomb 规则（`()` 是空的 regex 群组）现在会命中；没有点号的 `mkfs`、没有 `if=` 的 `dd of=/dev/…`，以及对 `/` 之下路径的 `chmod -R 777`（以前会误中 `/home/me/x`）改以指令词判断，而不是子字符串。**行为改变：** `rm -rf /home` 与其他根目录之下的路径不再被拦截；它们不是这条规则原本要防的对象。命令行模式（`node check-dangerous-cmd.mjs "<command>"`）现在也以 exit 2 而非 1 结束。 **已经安装这个 hook 的项目不会从 `uds update` 获得修复：** 安装器会保留 `scripts/hooks/` 里已有的 hook 脚本；在这个版本上实测，`uds update --with-hooks`、`uds update --with-hooks --force` 与 `uds update --apply` 都让旧的 `check-dangerous-cmd.mjs` 原封不动（旧副本对 `rm -rf /` 仍以 exit 1 结束）。要获得修复，请把随附的文件复制过去覆盖：`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`。在这个版本上运行 `uds init --with-hooks` 的项目会拿到修复后的脚本。
+- **结构化日志 hook 现在会传到模型。** `scripts/hooks/check-logging-standard.mjs`（PostToolUse/Write）原本以 exit 1 结束，Claude Code 视为不拦截的 hook 错误，模型看不到消息；现在改以 exit 2，让 stderr 的建议回馈给模型，且只判断写入的文字（`tool_input.content` 或 `new_string`），不看 payload 的其余部分。Write 已经发生，所以这无法复原任何事。
+- **提交信息 hook 现在检查 git 在命令行上接收消息的每一种写法，且不再挡下它误读的消息。** `scripts/hooks/validate-commit-msg.mjs`（PreToolUse/Bash hook）原本只在单独的 `-m` 之后找消息，所以 `git commit -am "wip"`（由它添加的进入点测试发现）与其他所有合并短旗标（`-vam`、`-sam`）都不经检查就放行。现在它像 git 一样读取命令：`-m` 出现在短旗标串的任何位置，值附在后面（`-m"msg"`、`-mmsg`、`-am"msg"`）或接在下一个词，`--message=msg`、`--message msg` 与 git 不含糊的缩写（`--mess=msg`），以及串接命令中的每一个 `git commit`（`git commit -m "feat: a" && git commit -m wip` 在第二个被挡下）。多个 `-m` 如 git 一样以空行相连，所以被判断的是第一个，即主旨。同一次重写也修掉两种误挡，成因是在读取引号之前就在 `;`、`&&`、`|` 与换行处切开命令：消息本身含其中之一（`-m "feat: a; b"`），以及 Claude Code 最常写的 `-m "$(cat <<'EOF' ... EOF)"` 形式——它以前被当成垃圾消息 `"$(cat` 挡下，现在改以本文判断。消息文字不在命令行上的提交照旧放行：`-F`、`-C`/`-c`、`--amend --no-edit`、编辑器、`--fixup`/`--squash`（git 自己写 `fixup!` 主旨，`-m` 变成本文），以及由 shell 计算的消息（`-m "$MSG"`、`$(...)`、反引号）。**行为改变：** 以前放行的命令，在消息不是 Conventional Commit 时现在会被挡下：`-am`/`-vam` 风格的提交、`--message`、串接命令的第二个提交，以及 `VAR=value` 之后的提交。
+- **`uds update --skills --commands` 现在两者都更新；以前只更新一边，对另一边什么也没说（在 6.14.0 的 Windows 11 上发现）。** 两个旗标都带并加 `--apply` 时，只有指令运行：Skills 段落从未出现，manifest 里的 Skills 停在旧版本（一个项目：51 个指令已更新，Skills 仍在 6.11.0），结束码是 0。两个旗标都带但不加 `--apply` 时，只有 Skills 运行，`--commands` 被丢掉。旗标的顺序没有差别。原因：两个步骤各自在完成时结束整个进程，所以另一个永远没开始，且不加 `--apply` 的路径在第一个之后就返回。现在两者都运行，不论旗标顺序都是 Skills 先、指令后，各自印出自己的段落，并以两者中较差的结束码结束（任一边失败即非 0，`--apply` 对帐已记下的失败也一样）。单一范围（只带 `--skills` 或只带 `--commands`）的行为与输出和以前完全相同，`--plan --skills --commands` 本来就会规划两者，没有改变。**谁会看到差异：** 传过两个旗标的人。请再运行一次 `uds update --apply --yes --skills --commands`；经过那次有问题的运行的项目没有损坏，只是它的 Skills（或指令）落后。有一件事这次没有改变：只带单一范围的 `--apply` 在对帐中失败时仍以结束码 0 结束，因为该步骤一向以明确的 0 结束进程。
+
+### 变更
+
+- **每个能拦截的 hook 现在都需要一支以宿主方式运行它的测试，并由 CI 强制运行（`npm run check:hook-entry-tests`）。** 新的 CI 工作 `scripts/check-hook-entry-tests.mjs` 从安装器推出 UDS 出货的 hook（各标准的 `enforcement:` 区块，加上 Codex、Gemini 与 Antigravity 的转接器），凡是能拦截的 hook，除非 `cli/tests` 下有测试真的启动该脚本、从 stdin 送入宿主格式的 payload 并断言 exit 2（Stop hook 则断言 stdout 的决定），否则失败。未分类的出货脚本同样失败。这是有已记载盲点的静态检查，附自我测试与样本测试。它抓到的第一个是没有进入点测试的 `validate-commit-msg.mjs`，现已补上一支。这就是上方 `mock-boundary` 1.3.0 规则所指的检查。它在 UDS 自己的 CI 中运行，不随 npm 套件出货。
+- **正式版闸门现在也在发布时运行，且正式版必须等于它验收过的预发布版（XSPEC-498）。** 闸门原本只在 `scripts/bump-version.mjs` 里运行，所以从别处创建的 GitHub Release 会绕过它直接走到 `npm publish`；6.14.0 就是这样发出去的，比它验收过的预发布版（6.14.0-beta.15）多了四个修正与一次翻译同步。`publish.yml` 现在对正式版（预发布版不受影响）在 `npm publish` 之前运行 `scripts/beta-acceptance/check-stable-gate.mjs`，checkout 取得完整历史与 tag。闸门添加一条规则：HEAD 与预发布版 tag 的差异只能是版本档与发版纪录（三份更新日志、`docs/PRE-RELEASE.md`、验收报告）；其他有变动的文件会使发布被拒绝并被列出，找不到 tag 或不是 git 保存库的文件夹同样被拒绝。版本档清单移到 `scripts/lib/version-files.mjs`，`bump-version.mjs` 现在由它写入，写入者与闸门共用同一份清单。**谁会看到差异：** 发布正式版的维护者；采用者与 CLI 用户看不到任何变化。
+- **开发相依套件已更新，`npm audit` 高风险公告从 3 笔降为 0。** 只动 `cli/package-lock.json`（`npm audit fix`）：`vite` 8.3.0 升到 8.3.5、`brace-expansion` 5.0.9 升到 5.0.12、`source-map-js` 1.2.1 升到 1.2.2，加上它们带进来的 `rolldown`、`postcss`、`nanoid` 升级；变动的每个套件都是开发相依，所以用户安装时不会拿到任何一项（#279）。6.14.0 之后的 Dependabot 更新是 `@commitlint/cli` 与 `@commitlint/config-conventional` 由 21.2.3 升到 21.2.4（根目录 `devDependencies`，#275、#276），以及 `/cli` 中 `lint-staged` 17.5.1 升到 17.6.0、`@vitest/coverage-v8` 5.0.3 升到 5.0.5、`@inquirer/prompts` 8.7.2 升到 8.7.4（#263、#261、#262）。这三项 `/cli` 更新只改了 `cli/package-lock.json`：`cli/package.json` 与 6.14.0 相同，所以用户安装时解析到的版本范围（`@inquirer/prompts` 是运行期相依，范围 `^8.7.2`）没有改变。
+
+### 测试
+
+- **修正正式版闸门测试与语系安装测试在 Windows CI 上的时间上限。** `xspec-471-r5-stable-gate.test.js` 中会多次启动 `bump-version.mjs` 的八项测试，现在共用一个具名的 120 秒上限（其中四项曾在 `windows-latest` 上超过预设的 30 秒：#284 计入三项，#286 又补上一项）；`init-every-declared-locale.test.js` 的每个语系安装现在各用一个以序号命名的文件夹，因为 `zh-cn` 与 `zh-CN` 在 Windows 与预设的 macOS 上是同一个文件夹，两个安装在里面互抢（准备阶段现在会拒绝忽略大小写后相同的名称，#280）。仅限测试；用户运行的东西没有任何改变。
 
 ## [6.14.0] - 2026-10-22
 

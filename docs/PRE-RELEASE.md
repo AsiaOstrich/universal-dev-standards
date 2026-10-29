@@ -9,7 +9,22 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.0-beta.9`
+## Current beta | 目前的測試版：`6.14.1-beta.1`
+
+> **New in 6.14.1-beta.1** — a security fix on top of stable 6.14.0. The dangerous-command hook (`scripts/hooks/check-dangerous-cmd.mjs`) exited 1 where Claude Code blocks only on exit 2, so it never stopped a command (replaying 11,617 real shell calls, the rule fired 26 times and the host blocked 0); it now exits 2 and judges only `tool_input.command`. Also: the commit-message hook checks `git commit -am` and every other way git takes a message; `uds update --skills --commands` runs both scopes; the structured-logging hook now reaches the model; `mock-boundary` 1.3.0 requires a test that runs a blocking hook the way the host does.
+> **6.14.1-beta.1 新增** — 建立在正式版 6.14.0 之上的安全修正。危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）原本以 exit 1 結束，而 Claude Code 只認 exit 2，所以從來沒擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2，且只判斷 `tool_input.command`。另有：提交訊息 hook 會檢查 `git commit -am` 與 git 接收訊息的其他寫法；`uds update --skills --commands` 兩邊都執行；結構化日誌 hook 的訊息現在會傳到模型；`mock-boundary` 1.3.0 要求為攔截型 hook 寫一支以宿主方式執行它的測試。
+
+**Behavior changes in 6.14.1-beta.1 — read this first.**
+- The dangerous-command hook now blocks (exit 2). `rm -rf /home` and other paths below the root are **no longer** blocked; `rm` is blocked only when it is recursive and its target is exactly `/`, `/*`, `~`, `~/` or `$HOME`.
+- The commit-message hook now blocks `git commit -am "wip"`, `--message`, the second commit of a chain and a commit after `VAR=value` when the message is not a Conventional Commit; messages that contain `;` or `&&`, and the `-m "$(cat <<'EOF' ... EOF)"` form, are no longer blocked by mistake.
+- A project that already has the dangerous-command hook **keeps its old script**: `uds update --with-hooks`, `uds update --with-hooks --force` and `uds update --apply` do not replace `scripts/hooks/check-dangerous-cmd.mjs`. Copy the shipped file over it (`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`).
+- `uds update --skills --commands` now ends with the worse of the two exit codes.
+
+**6.14.1-beta.1 的行為改變，請先讀。**
+- 危險指令 hook 現在會攔截（exit 2）。`rm -rf /home` 與根目錄之下的其他路徑**不再**被攔截；`rm` 只在遞迴且目標正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 時才攔截。
+- 提交訊息 hook 現在會在訊息不是 Conventional Commit 時擋下 `git commit -am "wip"`、`--message`、串接命令的第二個提交與 `VAR=value` 之後的提交；訊息裡含 `;` 或 `&&`，以及 `-m "$(cat <<'EOF' ... EOF)"` 寫法，不再被誤擋。
+- 已經安裝危險指令 hook 的專案**會保留舊腳本**：`uds update --with-hooks`、`uds update --with-hooks --force` 與 `uds update --apply` 都不會替換 `scripts/hooks/check-dangerous-cmd.mjs`。請把隨附的檔案複製過去覆蓋（`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`）。
+- `uds update --skills --commands` 現在以兩者較差的結束碼結束。
 
 > **New in 6.14.0-beta.9** — three small fixes found in the beta.8 macOS manual acceptance: `uds spec delete` says a spec is not there before asking whether to delete it (and exits 1); the spec `uds spec split` writes keeps the blank line before `**Confirmed**`; the error-exit gate hints of `uds check` and `uds update` follow the UI language instead of always printing Chinese. Everything below from beta.8 still applies.
 > **6.14.0-beta.9 新增** — beta.8 macOS 人工驗收發現的三個小修正：`uds spec delete` 先說規格不存在再問要不要刪（並以 1 結束）；`uds spec split` 寫出的規格在 `**Confirmed**` 前保留空行；`uds check` 與 `uds update` 的 error-exit 閘門提示改隨介面語言，不再一律印中文。以下 beta.8 的內容仍然適用。
@@ -45,11 +60,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.0
+node scripts/beta-acceptance/run.mjs --version 6.14.1-beta.1
 ```
 
-It installs the published 6.14.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.14.1-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.14.1-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 344 步（336 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1059,31 +1074,31 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336
 335. `hook-exit-codes-init` — uds init --with-hooks installs the dangerous-command and structured-logging hook scripts for the hook exit-code steps.
    uds init --with-hooks 安裝危險命令與結構化日誌 hook 腳本，供 hook 結束碼步驟使用。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
-336. `hook-dangerous-cmd-blocks-with-exit-2` (**new 新**) — The installed dangerous-command hook exits 2 on rm -rf /, exits 0 on rm -rf /tmp/x, and ignores a dangerous string in the description field.
+336. `hook-dangerous-cmd-blocks-with-exit-2` — The installed dangerous-command hook exits 2 on rm -rf /, exits 0 on rm -rf /tmp/x, and ignores a dangerous string in the description field.
    裝好的危險命令 hook 對 rm -rf / 以 2 結束，對 rm -rf /tmp/x 以 0 結束，且不理會 description 欄位裡的危險字串。
    `{node} -e "const r=(c,e)=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:Object.assign({command:c},e)}),encoding:'utf8'});const a=r('rm -rf /'),b=r('rm -rf /tmp/x'),c=r('ls -la',{description:'rm -rf /'});process.stdout.write('BLOCK-EXIT='+a.status+'\\nCLEANUP-EXIT='+b.status+'\\nDESCRIPTION-EXIT='+c.status+'\\n'+a.stderr);"` → exit 0; output has "BLOCK-EXIT=2", "CLEANUP-EXIT=0" (+2)
-337. `hook-logging-standard-exit-2` (**new 新**) — The installed structured-logging hook exits 2 with its suggestion on stderr when the written content has console.log, and 0 when it has none.
+337. `hook-logging-standard-exit-2` — The installed structured-logging hook exits 2 with its suggestion on stderr when the written content has console.log, and 0 when it has none.
    裝好的結構化日誌 hook 在寫入內容含 console.log 時以 2 結束並在 stderr 給出建議，沒有時以 0 結束。
    `{node} -e "const r=t=>require('child_process').spawnSync(process.execPath,['scripts/hooks/check-logging-standard.mjs'],{input:JSON.stringify({hook_event_name:'PostToolUse',tool_name:'Write',tool_input:{file_path:'src/a.ts',content:t}}),encoding:'utf8'});const a=r('console.log(1);'),b=r('const x = 1;');process.stdout.write('LOGGING-EXIT='+a.status+'\\nCLEAN-EXIT='+b.status+'\\n'+a.stderr);"` → exit 0; output has "LOGGING-EXIT=2", "CLEAN-EXIT=0" (+1)
 338. `commit-msg-hook-forms-init` — uds init --with-hooks installs the commit-message hook script for the message-form steps.
    uds init --with-hooks 安裝提交訊息 hook 腳本，供訊息寫法步驟使用。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
-339. `commit-msg-hook-checks-combined-flags` (**new 新**) — The installed commit-message hook exits 2 on git commit -am wip and on --message=wip, and exits 0 on a message with a semicolon inside quotes and on -F.
+339. `commit-msg-hook-checks-combined-flags` — The installed commit-message hook exits 2 on git commit -am wip and on --message=wip, and exits 0 on a message with a semicolon inside quotes and on -F.
    裝好的提交訊息 hook 對 git commit -am wip 與 --message=wip 以 2 結束，對引號內含分號的訊息與 -F 以 0 結束。
    `{node} -e "const q=String.fromCharCode(34),r=c=>require('child_process').spawnSync(process.execPath,['scripts/hooks/validate-commit-msg.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:c}}),encoding:'utf8'});const a=r('git commit -am wip'),b=r('git commit --message=wip'),c=r('git commit -m '+q+'feat: a; b'+q),d=r('git commit -F msg.txt');process.stdout.write('COMBINED-EXIT='+a.status+'\\nLONG-EXIT='+b.status+'\\nSEMICOLON-EXIT='+c.status+'\\nFILE-EXIT='+d.status+'\\n'+a.stderr);"` → exit 0; output has "COMBINED-EXIT=2", "LONG-EXIT=2" (+3)
 340. `update-both-scopes-init` — uds init in a Cursor project installs the skills and the slash commands for the --skills --commands steps.
    uds init 在 Cursor 專案裡安裝技能與斜線指令，供 --skills --commands 步驟使用。
    `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
-341. `update-both-scopes-apply` (**new 新**) — uds update --apply --yes --skills --commands --offline updates the Skills and the commands (both recorded versions move off 6.11.0, a deleted skill file and a deleted command come back).
+341. `update-both-scopes-apply` — uds update --apply --yes --skills --commands --offline updates the Skills and the commands (both recorded versions move off 6.11.0, a deleted skill file and a deleted command come back).
    uds update --apply --yes --skills --commands --offline 同時更新技能與指令（兩個記錄的版本都離開 6.11.0，被刪的技能檔與指令都補回）。
    `uds update --apply --yes --skills --commands --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
-342. `update-both-scopes-apply-swapped` (**new 新**) — The same with the flags in the other order, --commands --skills.
+342. `update-both-scopes-apply-swapped` — The same with the flags in the other order, --commands --skills.
    旗標順序對調（--commands --skills）結果相同。
    `uds update --apply --yes --commands --skills --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
-343. `update-both-scopes-no-apply` (**new 新**) — uds update --skills --commands --offline (no --apply) updates the Skills and the commands too.
+343. `update-both-scopes-no-apply` — uds update --skills --commands --offline (no --apply) updates the Skills and the commands too.
    uds update --skills --commands --offline（不加 --apply）同樣更新技能與指令。
    `uds update --skills --commands --offline` → exit 0; output has "Updating Skills for all AI Agents", "Updating slash commands for all AI Agents"
-344. `std-hook-entry-test-rule` (**new 新**) — The installed mock-boundary standard requires a blocking hook to be tested through the host's own entry and carries the per-host block signals.
+344. `std-hook-entry-test-rule` — The installed mock-boundary standard requires a blocking hook to be tested through the host's own entry and carries the per-host block signals.
    安裝後的 mock-boundary 標準要求攔截型 hook 照宿主的入口測，並附各宿主的擋下訊號表。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/mock-boundary.ai.yaml`
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1093,14 +1108,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.0/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.0/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.1-beta.1/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.14.1-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.0 沒有 6.14.0 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.0 沒有 6.14.0 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.0 沒有 6.14.0 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
