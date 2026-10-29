@@ -38,6 +38,7 @@ import { execFileSync } from 'child_process';
 import { load as parseYaml } from 'js-yaml';
 import { detectAITools } from '../utils/detector.js';
 import { newRecorder, mkdirTracked, recordFile, RECORD_KINDS } from '../core/install-records.js';
+import { shippedBefore, loadFingerprints } from './hook-script-fingerprint.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -564,23 +565,86 @@ export function hookStatus(projectPath, tool) {
   return { status: 'blocked', path: '', why: `no hook installer for ${tool}` };
 }
 
-/** Hook scripts UDS ships vs what the project already has: how many are new, identical, or edited. */
+/**
+ * Hook scripts UDS ships vs what the project already has, measured before anything is copied.
+ *
+ *   added      not in the project yet
+ *   identical  byte-for-byte the shipped one
+ *   stale      differs, but is exactly a copy some EARLIER UDS shipped (nobody edited it):
+ *              [{ path, since }] — safe to replace
+ *   kept       differs and matches nothing UDS ever shipped, so it was edited (or is not ours):
+ *              [path] — left alone unless `--force`
+ *
+ * 🔴 Why `stale` exists (2026-10-29): this used to be a single "differs -> kept" bucket, and it was
+ * only consulted when a hook config had to be written. A project whose config was already present
+ * never reached the copy at all, so the 6.14.1-beta.1 fix to check-dangerous-cmd.mjs (exit 2
+ * instead of a non-blocking exit 1) never arrived by any `uds update` form. "Differs" alone cannot
+ * separate an old UDS copy from an adopter's edit; only a match against what UDS shipped can.
+ */
 function scriptDiff(projectPath) {
   const src = hooksSourceDir();
-  const out = { added: 0, identical: 0, kept: [] };
+  const out = { added: 0, identical: 0, stale: [], kept: [] };
   if (!src) return out;
+  const table = loadFingerprints();
   const walk = (dir, rel = '') => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
       const r = rel ? `${rel}/${e.name}` : e.name;
       if (e.isDirectory()) { walk(join(dir, e.name), r); continue; }
       const dest = join(projectPath, 'scripts', 'hooks', r);
-      if (!existsSync(dest)) out.added++;
-      else if (readFileSync(dest).equals(readFileSync(join(dir, e.name)))) out.identical++;
+      if (!existsSync(dest)) { out.added++; continue; }
+      const have = readFileSync(dest);
+      if (have.equals(readFileSync(join(dir, e.name)))) { out.identical++; continue; }
+      const old = shippedBefore(r, have, table);
+      if (old) out.stale.push({ path: r, since: old.since });
       else out.kept.push(r);
     }
   };
   walk(src);
   return out;
+}
+
+/**
+ * Put the shipped version of a script that is already in the project, whatever the hook
+ * config looks like. Runs for a tool whose config is `present` too — that is the point.
+ *
+ *   stale scripts (an unmodified older UDS copy)  -> always replaced
+ *   kept scripts (edited)                         -> replaced only with `force`
+ *
+ * Mutates `scripts` so the caller reports what actually happened: replaced / overwritten are
+ * the paths written, and `kept` is what is still left alone.
+ */
+function refreshScripts(projectPath, scripts, { recorder, force = false } = {}) {
+  const src = hooksSourceDir();
+  if (!src) return;
+  const write = (rel) => {
+    const dest = join(projectPath, 'scripts', 'hooks', rel);
+    copyFileSync(join(src, rel), dest);
+    recordFile(recorder, projectPath, relative(projectPath, dest), RECORD_KINDS.HOOK_SCRIPT);
+  };
+  scripts.replaced = scripts.stale.map((s) => s.path);
+  for (const rel of scripts.replaced) write(rel);
+  scripts.overwritten = [];
+  if (force) {
+    scripts.overwritten = scripts.kept;
+    scripts.kept = [];
+    for (const rel of scripts.overwritten) write(rel);
+  }
+}
+
+/**
+ * Scripts in the project that are unmodified copies of an EARLIER UDS version. Read-only.
+ * Lets the other `uds update` forms (which do not manage hook scripts) say so instead of
+ * leaving the adopter to find out from a hook that never fires.
+ *
+ * @returns {Array<{ path: string, since: string }>}
+ */
+export function staleHookScripts(projectPath) {
+  // Advisory only: a notice about scripts must never be the reason `uds update` itself fails.
+  try {
+    return scriptDiff(projectPath).stale;
+  } catch {
+    return [];
+  }
 }
 
 const INSTALLERS = {
@@ -597,13 +661,18 @@ const INSTALLERS = {
  * - The adopter's own hooks are never touched: every installer merges (Claude,
  *   Codex, Gemini) or writes only under the key UDS owns (agy).
  * - A hook script the project already has and that differs from this version is
- *   KEPT unless `overwriteScripts` — it may have been edited. It is reported.
+ *   REPLACED when it is exactly a copy an earlier UDS shipped (nobody edited it; see
+ *   hook-script-fingerprint.js), and KEPT otherwise unless `overwriteScripts` — it may
+ *   have been edited. This holds whether or not the tool's hook config is already
+ *   present: "the config is there" says nothing about the script beside it.
  * - `plan: true` reads and reports, and writes nothing.
  *
  * @param {string} projectPath
  * @param {string[]} tools
  * @param {{ plan?: boolean, overwriteScripts?: boolean }} [opts]
- * @returns {{ results: Array<{tool:string, outcome:'installed'|'unchanged'|'would-install'|'blocked'|'failed', path:string, why?:string, repaired?:boolean}>, scripts: {added:number, identical:number, kept:string[]}, artifacts: object }}
+ * @returns {{ results: Array<{tool:string, outcome:'installed'|'unchanged'|'would-install'|'blocked'|'failed', path:string, why?:string, repaired?:boolean}>, scripts: {added:number, identical:number, stale:Array<{path:string, since:string}>, kept:string[], replaced?:string[], overwritten?:string[]}, artifacts: object }}
+ *   `scripts.stale` / `scripts.kept` are measured before anything is written; with `plan` they are
+ *   what WOULD be replaced / kept. Without `plan`, `replaced` / `overwritten` are what was written.
  *   `artifacts` is the recorder of what this call wrote (see core/install-records.js);
  *   the caller persists it into the manifest so `uds uninstall` can remove exactly that.
  */
@@ -620,5 +689,9 @@ export function installMissingHooks(projectPath, tools, { plan = false, overwrit
     if (r.installed) results.push({ tool, outcome: 'installed', path: r.settingsPath ?? st.path, repaired: st.status === 'stale' });
     else results.push({ tool, outcome: 'failed', path: r.settingsPath ?? st.path, why: r.reason ?? 'no standard produced a usable hook' });
   }
+  // The hook config being present (or absent) decides nothing about the scripts. Without this
+  // step an up-to-date config left an out-of-date, vulnerable script in place and reported
+  // "already installed, not touched".
+  if (!plan) refreshScripts(projectPath, scripts, { recorder, force: overwriteScripts });
   return { results, scripts, artifacts: recorder };
 }

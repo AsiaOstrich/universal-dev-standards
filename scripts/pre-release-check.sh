@@ -74,7 +74,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=29
+TOTAL=30
 
 # `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
 # Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
@@ -93,7 +93,7 @@ else
 fi
 
 if [ "$SKIP_TESTS" = true ]; then
-    TOTAL=24
+    TOTAL=25
 fi
 
 # Function to run a check
@@ -648,6 +648,12 @@ run_check "27" "Running skills install-path check | Skills 安裝路徑檢查" "
 # Step 28: every .ai.yaml parses (XSPEC-367 R1). The publish job runs it; 6.3.4 shipped four that
 # did not parse, and step 3 (standards sync) compares versions, which an unparseable file passes.
 run_check "28" "Running .ai.yaml parse check | .ai.yaml 可解析檢查" "node $SCRIPT_DIR/check-ai-yaml-parses.mjs"
+
+# Step 29: the hook-script fingerprint table covers every hook script content UDS has shipped and
+# now ships (found 2026-10-29: `uds update` never replaced an old check-dangerous-cmd.mjs; the fix
+# tells an unmodified old UDS copy from an adopter's edit by this table). The unit test already
+# pins the working tree; this also checks every release tag, which a shallow CI clone cannot.
+run_check "29" "Running hook-script fingerprint check | hook 腳本指紋表檢查" "node $SCRIPT_DIR/generate-hook-fingerprints.mjs --self-test && node $SCRIPT_DIR/generate-hook-fingerprints.mjs --check"
 
 # NOT wired here, and why it matters that this is written down: the other two 6.14.0-beta.2
 # failures (a test that parsed `npm pack --json` output, and a path-separator assumption in the

@@ -160,7 +160,7 @@
 | `--add-standard` | With --plan or --apply: also install this standard UDS ships and the project lacks, and record it in the manifest (repeatable; `uds update --plan` lists what is available) |
 | `--claude-target` | Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall |
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
-| `--with-hooks` | Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; with --plan, writes nothing; --force also overwrites edited hook scripts) |
+| `--with-hooks` | Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; a hook script that is an unmodified copy from an older UDS is replaced, an edited one is kept; with --plan, writes nothing; --force also overwrites edited hook scripts) |
 | `--ai-tool` | With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them |
 
 ### `uds skills`

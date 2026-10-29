@@ -58,7 +58,7 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
 import { detectAITools } from '../utils/detector.js';
-import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks } from '../installers/hooks-installer.js';
+import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks, staleHookScripts } from '../installers/hooks-installer.js';
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
 import { installGateScripts, gateStandardInstalled, GATE_SCRIPTS } from '../utils/gate-scripts.js';
 import { migrateLegacyHuskyHook, migrateHuskyBlockWithoutCi, migrateOlderNativeHook } from '../utils/legacy-hook-migration.js';
@@ -430,6 +430,19 @@ export async function updateCommand(options) {
   console.log();
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
+
+  // Hook scripts are not part of what this command (or --apply, --force, --plan) reconciles; only
+  // `--with-hooks` replaces them. Say so when one is out of date, because the symptom of an old
+  // script is a hook that quietly does not do what the new version does (6.14.1-beta.1: the
+  // dangerous-command hook that never blocked).
+  if (!options.withHooks && !options.rollback) {
+    const stale = staleHookScripts(projectPath);
+    if (stale.length) {
+      console.log(chalk.yellow(`  ! ${stale.length} hook script(s) in scripts/hooks/ are unmodified copies of an older UDS and are NOT updated by this command: ${stale.slice(0, 5).map((x) => x.path).join(', ')}${stale.length > 5 ? ', ...' : ''}`));
+      console.log(chalk.gray('    Replace them with:  uds update --with-hooks   (add --plan first to see what changes)'));
+      console.log();
+    }
+  }
 
   // XSPEC-458 R3: `--add-standard <id>` (repeatable) picks standards UDS ships and this project lacks.
   // Judged here, before any mode runs, so an unknown id stops everything instead of being skipped.
@@ -2053,9 +2066,27 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
     else if (r.outcome === 'unchanged') console.log(chalk.gray(`  · ${r.tool}: already installed, not touched — ${rel}`));
     else { failed = true; console.log(chalk.yellow(`  ⚠ ${r.tool}: not installed — ${r.why}`)); }
   }
-  const installedAny = results.some((r) => r.outcome === 'installed' || r.outcome === 'would-install');
-  if (installedAny && scripts.kept.length) {
-    console.log(chalk.yellow(`  ! ${scripts.kept.length} hook script(s) in scripts/hooks/ differ from this UDS version and were kept: ${scripts.kept.slice(0, 5).join(', ')}${scripts.kept.length > 5 ? ', ...' : ''}`));
+  // Scripts are judged apart from the hook config: a config that is already there says nothing about
+  // whether the script beside it is current (6.14.1-beta.1 shipped a security fix to exactly such a script).
+  const fmt = (list) => `${list.slice(0, 5).join(', ')}${list.length > 5 ? ', ...' : ''}`;
+  // A plan reports what is measured; a real run reports only what the installer says it WROTE
+  // (`replaced`), never what it measured — so a refresh that did nothing cannot print "replaced".
+  const sinceOf = new Map((scripts.stale ?? []).map((x) => [x.path, x.since]));
+  const stale = (options.plan ? (scripts.stale ?? []).map((x) => x.path) : (scripts.replaced ?? []));
+  if (stale.length) {
+    const named = fmt(stale.map((p) => `${p} (unmodified copy from UDS ${sinceOf.get(p)})`));
+    if (options.plan) console.log(chalk.cyan(`  + would replace ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
+    else console.log(chalk.green(`  ✓ replaced ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
+  }
+  const overwritten = options.plan ? (options.force ? scripts.kept : []) : (scripts.overwritten ?? []);
+  if (overwritten.length) {
+    if (options.plan) console.log(chalk.cyan(`  + --force would overwrite ${overwritten.length} edited hook script(s): ${fmt(overwritten)}`));
+    else console.log(chalk.yellow(`  ! --force: overwrote ${overwritten.length} edited hook script(s) with the shipped version: ${fmt(overwritten)}`));
+  }
+  const kept = options.plan && options.force ? [] : scripts.kept;
+  if (kept.length) {
+    console.log(chalk.yellow(`  ! ${kept.length} hook script(s) in scripts/hooks/ differ from this UDS version and ${options.plan ? 'would be' : 'were'} kept: ${fmt(kept)}`));
+    console.log(chalk.gray('    They match no copy UDS ever shipped, so they look edited (or are not UDS\'s). An edited script does not receive fixes made to the shipped one.'));
     console.log(chalk.gray('    Add --force to overwrite them with the shipped versions.'));
   }
   if (results.some((r) => r.tool === 'antigravity' && r.outcome === 'installed')) {
@@ -2064,7 +2095,7 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
   if (results.some((r) => r.tool === 'codex' && r.outcome === 'installed')) {
     console.log(chalk.yellow('    ⚠ Codex will not run it until you trust it: open Codex in this project, trust the project, then run /hooks and trust this hook.'));
   }
-  if (!results.some((r) => r.outcome === 'installed' || r.outcome === 'would-install')) {
+  if (!results.some((r) => r.outcome === 'installed' || r.outcome === 'would-install') && !stale.length && !overwritten.length) {
     console.log(chalk.gray('  Nothing to add.'));
   }
   console.log();
