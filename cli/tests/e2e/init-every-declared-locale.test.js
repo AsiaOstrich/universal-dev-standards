@@ -129,7 +129,10 @@ function runCli(cliPath, args, cwd, env, timeoutMs = 120000) {
   });
 }
 
-const body = (t) => t.replace(/^---\n[\s\S]*?\n---\n/, '');
+// The shipped text except for the TARGETS of links: the installer turns links that would open nothing from the
+// installed folder into GitHub addresses (dev-platform #61; tests/unit/commands/skills-installed-links-61.test.js checks
+// those). Everything else, link labels included, must still be byte for byte the source.
+const body = (t) => t.replace(/^---\n[\s\S]*?\n---\n/, '').replace(/\]\([^)\s]+/g, '](TARGET');
 
 /** Everything wrong with one locale's install, each line starting with `[<locale>]`. Empty = fine. */
 function problemsFor(id) {

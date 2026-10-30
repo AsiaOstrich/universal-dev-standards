@@ -24,7 +24,7 @@ import {
 import { computeDirectoryHashes, computeFileHash, normalizeLineEndings } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
-import { rewriteOutsideLinks } from './skill-link-rewriter.js';
+import { rewriteOutsideLinks, createRepoPathProbe } from './skill-link-rewriter.js';
 import { t } from '../i18n/messages.js';
 
 // Get the CLI package root directory
@@ -470,25 +470,10 @@ export function resolveSkillFiles(skillName, locale = 'en') {
 }
 
 /**
- * Whether `repoPath` (relative to the UDS repo root, posix) exists in the copy of UDS this CLI reads skills from.
- * `skills/` and `locales/<locale>/skills/` are always visible (the installer reads them); other paths are looked up
- * in the npm package's bundled folder or, in a checkout, in the repo. A path found nowhere is `undefined` when it
- * lies outside what the package carries (`docs/`, `.standards/`) and `false` when it is inside it (`core/`, `ai/`,
- * `templates/`, `extensions/`, `skills/`, `locales/`), where absence means the link was already dead.
- *
- * @param {string} repoPath
- * @returns {boolean|undefined}
+ * Whether a repo path (relative to the UDS repo root, posix) exists in the copy of UDS this CLI reads skills from:
+ * the npm package's `bundled/` folder or, in a checkout, the repo. Three-valued, see `createRepoPathProbe`.
  */
-function udsRepoPathExists(repoPath) {
-  const parts = repoPath.split('/');
-  if (parts[0] === 'skills') return existsSync(join(SKILLS_LOCAL_DIR, ...parts.slice(1)));
-  if (parts[0] === 'locales' && parts[2] === 'skills') {
-    const packDir = findLocalePackSkillsDir(parts[1]);
-    return packDir ? existsSync(join(packDir, ...parts.slice(3))) : false;
-  }
-  if (existsSync(join(BUNDLED_DIR, ...parts)) || existsSync(join(CLI_ROOT, '..', ...parts))) return true;
-  return ['core', 'ai', 'locales', 'templates', 'extensions'].includes(parts[0]) ? false : undefined;
-}
+const udsRepoPathExists = createRepoPathProbe([BUNDLED_DIR, join(CLI_ROOT, '..')]);
 
 /**
  * The file names an install of `skillName` writes into its folder (locale file where there is one, English

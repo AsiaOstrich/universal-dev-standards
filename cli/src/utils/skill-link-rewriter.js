@@ -24,10 +24,34 @@
  * @module utils/skill-link-rewriter
  */
 
-import { posix } from 'path';
+import { posix, join } from 'path';
+import { existsSync } from 'fs';
 
 export const UDS_REPO_BLOB_BASE = 'https://github.com/AsiaOstrich/universal-dev-standards/blob/main/';
 export const UDS_REPO_TREE_BASE = 'https://github.com/AsiaOstrich/universal-dev-standards/tree/main/';
+
+/** Top-level folders of the UDS repo that the npm package carries (cli/scripts/prepack.mjs): absence there is real. */
+const PACKAGED_DIRS = ['core', 'ai', 'locales', 'skills', 'templates', 'extensions'];
+
+/**
+ * The "does this repo path exist?" question `rewriteOutsideLinks` asks, answered from one or more folders that hold
+ * a copy of the UDS repo layout (the npm package's `bundled/`, a checkout). One definition, used by the installer and
+ * by the self-adoption generator, so the two cannot answer differently.
+ *
+ * `true` when any root has the path. When none has it: `false` for a folder the package carries (the link is
+ * dead in the source), `undefined` for the rest (`docs/`, `.standards/`, `LICENSE`: not part of the package, so
+ * "not found" says nothing about whether the repo has it).
+ *
+ * @param {string[]} roots
+ * @returns {(repoPath: string) => (boolean|undefined)}
+ */
+export function createRepoPathProbe(roots) {
+  return (repoPath) => {
+    const parts = repoPath.split('/');
+    if (roots.some((root) => existsSync(join(root, ...parts)))) return true;
+    return PACKAGED_DIRS.includes(parts[0]) ? false : undefined;
+  };
+}
 
 /** A link target that is not a relative file reference (URL with scheme, `//host`, absolute path, bare anchor). */
 export function isNotRelativeTarget(target) {

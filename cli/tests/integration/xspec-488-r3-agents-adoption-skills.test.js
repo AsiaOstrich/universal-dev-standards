@@ -42,7 +42,10 @@ function tree() {
   made.push(root);
   const copy = (rel) => { mkdirSync(resolve(root, rel, '..'), { recursive: true }); cpSync(join(REAL_REPO, rel), join(root, rel), { recursive: true }); };
   for (const rel of [
-    SCRIPT, 'cli/src', 'cli/package.json', 'package.json', 'skills', 'locales/zh-TW/skills',
+    SCRIPT, 'cli/src', 'cli/package.json', 'package.json', 'skills', 'locales',
+    // The folders the skills link into: the generator checks that a link target exists before it writes a GitHub address
+    // for it (dev-platform #61), so a copy without them would answer differently from the installer.
+    'core', 'ai', 'templates',
     'integrations/REGISTRY.json', '.claude/skills', '.agents/skills'
   ]) copy(rel);
   return root;

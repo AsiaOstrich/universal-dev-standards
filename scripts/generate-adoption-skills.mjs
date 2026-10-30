@@ -243,7 +243,7 @@ import {
   parseFrontmatter,
   rebuildWithFrontmatter,
 } from '../cli/src/utils/skill-frontmatter.js';
-import { rewriteOutsideLinks } from '../cli/src/utils/skill-link-rewriter.js';
+import { rewriteOutsideLinks, createRepoPathProbe } from '../cli/src/utils/skill-link-rewriter.js';
 import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -560,7 +560,7 @@ function resolveSkill(repoRoot, skillId, locale) {
       : existsSync(join(repoRoot, 'skills', other, 'SKILL.md')) &&
         (topLevelFiles(join(repoRoot, 'skills', other)).includes(fileName) ||
           (localized && topLevelFiles(join(repoRoot, 'locales', locale, 'skills', other)).includes(fileName)));
-  const repoPathExists = (repoPath) => existsSync(join(repoRoot, repoPath));
+  const repoPathExists = createRepoPathProbe([repoRoot]);
   for (const f of files) {
     if (!f.name.endsWith('.md')) continue;
     f.content = rewriteOutsideLinks(f.content, {

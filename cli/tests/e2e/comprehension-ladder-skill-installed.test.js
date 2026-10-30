@@ -24,7 +24,7 @@
  * of them through `uds init`; XSPEC-451 fixed `uds init --locale zh-cn`, which used to fail and roll back):
  *   1. `uds init` exits 0 and reports installing Skills (the entry ran).
  *   2. The skill's SKILL.md and its evaluation companion are on disk, and SKILL.md's body is
- *      byte-identical to the shipped source (a stale or truncated copy shows up here with its own message).
+ *      byte-identical to the shipped source apart from link targets (a stale or truncated copy shows up here with its own message).
  *   3. The three guards exist (no-new-facts, keep-hedges, trace-and-gaps), each is marked REQUIRED both in
  *      the summary table and in its own heading, and each carries a good and a bad example.
  *   4. The substance of each guard is still in the text (English copy): no new facts, hedges kept
@@ -236,7 +236,10 @@ it('uds installs the comprehension-ladder skill with its three guards: no new fa
     expect(existsSync(join(skillDir, 'eval-cases.md')), tag + 'the evaluation companion was installed').toBe(true);
     const installed = readFileSync(installedPath, 'utf-8');
     const source = readFileSync(loc.sourceFile('SKILL.md'), 'utf-8');
-    const body = (t) => t.replace(/^---\n[\s\S]*?\n---\n/, '');
+    // The body is the shipped text except for the TARGETS of links: the installer turns links that would open nothing
+    // from the installed folder into GitHub addresses (dev-platform #61; tests/unit/commands/skills-installed-links-61.test.js
+    // checks those). Everything else, link labels included, must still be byte for byte the source.
+    const body = (t) => t.replace(/^---\n[\s\S]*?\n---\n/, '').replace(/\]\([^)\s]+/g, '](TARGET');
     expect(body(installed) === body(source), tag + 'installed body is byte-identical to the shipped source').toBe(true);
     expect(installed).toMatch(/^name: comprehend$/m);
     expect(installed).toMatch(/^\s+Use when:/m);
