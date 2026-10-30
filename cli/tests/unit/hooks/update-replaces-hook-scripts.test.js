@@ -24,7 +24,7 @@
 //
 // MUTATION at the end: copies of the CLI with one wire cut each must fail the assertion that guards that wire.
 
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll, afterAll } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, cpSync, symlinkSync, realpathSync, existsSync,
@@ -57,12 +57,18 @@ afterEach(() => {
 });
 
 // git reads an empty file as every config level, so no test sees (or writes) the machine's git identity.
-const emptyGitConfig = (() => {
-  const d = realpathSync(mkdtempSync(join(tmpdir(), 'uds-empty-gitconfig-')));
-  const f = join(d, 'gitconfig');
-  writeFileSync(f, '');
-  return f;
-})();
+// Created before the tests and removed after them (a temp dir that survives is a leak).
+let emptyGitConfig;
+let emptyGitConfigDir;
+beforeAll(() => {
+  emptyGitConfigDir = realpathSync(mkdtempSync(join(tmpdir(), 'uds-empty-gitconfig-')));
+  emptyGitConfig = join(emptyGitConfigDir, 'gitconfig');
+  writeFileSync(emptyGitConfig, '');
+});
+afterAll(() => {
+  rmSync(emptyGitConfigDir, { recursive: true, force: true });
+  expect(existsSync(emptyGitConfigDir), 'empty git config dir removed').toBe(false);
+});
 
 const put = (root, rel, content = '') => {
   const p = join(root, rel);
