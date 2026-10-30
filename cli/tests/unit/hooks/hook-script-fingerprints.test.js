@@ -11,9 +11,9 @@
 
 import { describe, it, expect } from 'vitest';
 import { spawnSync } from 'node:child_process';
-import { readFileSync, readdirSync, mkdtempSync, rmSync, realpathSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, rmSync, realpathSync, writeFileSync, chmodSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, delimiter } from 'node:path';
 import { hashHookScript, loadFingerprints, shippedBefore } from '../../../src/installers/hook-script-fingerprint.js';
 import { missing } from '../../../../scripts/generate-hook-fingerprints.mjs';
 
@@ -84,6 +84,34 @@ describe('the generator', () => {
   it('--self-test passes (build/missing logic, plus a throwaway git repo with a tag)', () => {
     const r = spawnSync(process.execPath, [join(CLI_ROOT, '..', 'scripts', 'generate-hook-fingerprints.mjs'), '--self-test'], { encoding: 'utf8', timeout: 60000 });
     expect(r.status, `${r.stdout}${r.stderr}`).toBe(0);
+  });
+
+  // Red on windows-latest at 6.14.1-beta.2 and 6.14.1: the self-test handed git `os.devNull` as its global
+  // config, which on Windows is `\\.\nul` and which Git for Windows cannot open ("fatal: unable to access
+  // '//./nul': Invalid argument"). That cannot be reproduced on a Mac by running the script, because here
+  // os.devNull is /dev/null. So put a `git` ahead of the real one that applies the Windows rule: a
+  // GIT_CONFIG_GLOBAL that is not an existing regular file is refused with git's own message.
+  it.skipIf(process.platform === 'win32')('--self-test gives git a real file as its global config, never a null device (Git for Windows cannot open \\.\nul)', () => {
+    const which = spawnSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' });
+    expect(which.status, 'control: the real git was found').toBe(0);
+    const realGit = which.stdout.trim();
+    const shimDir = realpathSync(mkdtempSync(join(tmpdir(), 'uds-fp-gitshim-')));
+    try {
+      const shim = join(shimDir, 'git');
+      writeFileSync(shim, `#!/bin/sh\nif [ -n "$GIT_CONFIG_GLOBAL" ] && [ ! -f "$GIT_CONFIG_GLOBAL" ]; then\n  echo "fatal: unable to access '$GIT_CONFIG_GLOBAL': Invalid argument" >&2\n  exit 128\nfi\nexec "${realGit}" "$@"\n`);
+      chmodSync(shim, 0o755);
+      // control: the shim does refuse a null device, so a pass below is not the shim being asleep
+      const refused = spawnSync(shim, ['--version'], { encoding: 'utf8', env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null' } });
+      expect(refused.status, 'control: the shim refuses /dev/null as a config file').toBe(128);
+      expect(statSync(shim).isFile()).toBe(true);
+      const r = spawnSync(process.execPath, [join(CLI_ROOT, '..', 'scripts', 'generate-hook-fingerprints.mjs'), '--self-test'], {
+        encoding: 'utf8', timeout: 60000, env: { ...process.env, PATH: `${shimDir}${delimiter}${process.env.PATH}` },
+      });
+      expect(r.status, `${r.stdout}${r.stderr}`).toBe(0);
+      expect(r.stdout).toContain('all self-test arms passed');
+    } finally {
+      rmSync(shimDir, { recursive: true, force: true });
+    }
   });
 
   it('does not touch the repository named by an inherited GIT_DIR (a git hook runs the tests with one)', () => {

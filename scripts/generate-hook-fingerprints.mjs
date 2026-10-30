@@ -36,7 +36,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync, mkdirSync } from 'node:fs';
-import { tmpdir, devNull } from 'node:os';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FINGERPRINT_FILE, hashHookScript } from '../cli/src/installers/hook-script-fingerprint.js';
@@ -149,9 +149,17 @@ function selfTest() {
   check('a tag label replaces "unreleased"', build({ existing: { 'a.mjs': { zzz: UNRELEASED } }, tags: ['v2.0.0'], tagsPrints: [{ 'a.mjs': 'zzz' }], working: {} })['a.mjs'].zzz === 'v2.0.0');
 
   // Arm 2 (real git): a throwaway repo with one tag and a later edit.
-  const dir = mkdtempSync(join(tmpdir(), 'uds-fp-selftest-'));
+  const base = mkdtempSync(join(tmpdir(), 'uds-fp-selftest-'));
+  const dir = join(base, 'repo');
+  // An empty file as the global git config, NOT os.devNull: on Windows that is `\\.\nul`, which Git for
+  // Windows cannot open as a config file ("fatal: unable to access '//./nul': Invalid argument"; this
+  // self-test failed on windows-latest at 6.14.1-beta.2 and 6.14.1). It sits beside the repo, not in it,
+  // so `git add .` does not pick it up.
+  const emptyConfig = join(base, 'gitconfig-empty');
   try {
-    const run = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'pipe', env: cleanEnv({ GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t', GIT_CONFIG_GLOBAL: devNull, GIT_CONFIG_SYSTEM: devNull }) });
+    mkdirSync(dir);
+    writeFileSync(emptyConfig, '');
+    const run = (...a) => execFileSync('git', a, { cwd: dir, stdio: 'pipe', env: cleanEnv({ GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t', GIT_CONFIG_GLOBAL: emptyConfig, GIT_CONFIG_NOSYSTEM: '1' }) });
     mkdirSync(join(dir, HOOKS_DIR), { recursive: true });
     run('init', '-q');
     writeFileSync(join(dir, HOOKS_DIR, 'h.mjs'), 'old\r\n');
@@ -164,7 +172,7 @@ function selfTest() {
     check('git arm: the edited working-tree content is "unreleased"', t['h.mjs'][hashHookScript(Buffer.from('new\n'))] === UNRELEASED);
     check('git arm: a table built from tags only is flagged as missing the working-tree edit', missing(build({ existing: {}, ...g, working: {} }), g).length === 1);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    rmSync(base, { recursive: true, force: true });
   }
   console.log(failed ? `\n${failed} self-test arm(s) FAILED` : '\nall self-test arms passed');
   process.exit(failed ? 1 : 0);
