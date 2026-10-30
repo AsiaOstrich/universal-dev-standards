@@ -230,7 +230,7 @@ program
   .option('--commands', 'Install/update slash commands for configured AI tools')
   .option('--debug', 'Show debug output for Skills/Commands detection')
   .option('--plan', 'Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing')
-  .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope')
+  .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope. Also replaces hook scripts in scripts/hooks/ that are unmodified copies of an older UDS (copied to .uds-backups/ first; edited ones are kept), as plain `uds update` does')
   .option('--force', 'Force update all files, ignoring hash comparison')
   .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
   .option('--rollback', 'Rollback to the most recent backup (with the series of updates that follow from it)')
@@ -238,7 +238,7 @@ program
   .option('--add-standard <id>', 'With --plan or --apply: also install this standard UDS ships and the project lacks, and record it in the manifest (repeatable; `uds update --plan` lists what is available)', (value, previous) => [...previous, value], [])
   .option('--claude-target <target>', 'Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall')
   .option('--locale <locale>', 'Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env')
-  .option('--with-hooks', 'Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; a hook script that is an unmodified copy from an older UDS is replaced, an edited one is kept; with --plan, writes nothing; --force also overwrites edited hook scripts)')
+  .option('--with-hooks', 'Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; a hook script that is an unmodified copy from an older UDS is replaced, an edited one is kept; with --plan, writes nothing; --force also overwrites edited hook scripts; every script it rewrites is copied to .uds-backups/ first, and `uds update --rollback` puts it back)')
   .option('--ai-tool <tools>', 'With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them')
   .action(updateCommand);
 

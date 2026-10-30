@@ -2,8 +2,8 @@
 source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
-last_synced: 2026-10-11
-source_hash: 6e5aadbbb51d
+last_synced: 2026-10-30
+source_hash: bdccdf225333
 status: current
 ---
 
@@ -911,7 +911,12 @@ uds update --with-hooks --ai-tool antigravity    # 直接指定工具，不做�
 - **不会动什么。** 已经装好的 hook 不会被重写。你自己的 hooks 不会被移除或重排：Claude、Codex、Gemini 的
   条目是合并进去；Antigravity 的 `.agents/hooks.json` 只写在 `uds-turn-completion-integrity` 这个键下面
   （不是合法 JSON 的 `hooks.json` 会原样保留并报告）。`scripts/hooks/` 里与随附版本不同的 hook 脚本会被保留并报告；
-  加上 `--force` 才会覆盖。
+  加上 `--force` 才会覆盖。它改写的每一个脚本（没人改过的旧版，或加了 `--force` 时改过的那一个）都会先复制到
+  `.uds-backups/`，输出会打印出位置；`uds update --rollback` 会把它放回去。
+- **其他 `uds update` 形式。** 一般的 `uds update` 与 `uds update --apply`（含 `--force`）也会替换“旧版 UDS 装的、没人改过”的
+  hook 脚本，同样先备份；改过的会保留（它们不会新增尚未安装的 hook，也不会做 `--force` 的覆盖——那仍属于这里）。
+  `--plan` 会列出它会替换哪些脚本。缩限到 `--skills`、`--commands`、`--standards-only`、`--integrations-only`、
+  `--sync-refs` 或 `--claude-target` 的执行不会动它们，并会明说。
 - **它不做什么。** 不更新标准、技能或集成文件（那是一般的 `uds update`），也不会把工具加进 manifest。
   它不能与 `--skills`、`--commands` 等其他 update 模式合用，合用时会明说。
 

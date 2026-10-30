@@ -918,7 +918,15 @@ uds update --with-hooks --ai-tool antigravity    # name the tool(s) instead of d
   Antigravity's `.agents/hooks.json` is only written under the `uds-turn-completion-integrity`
   key (a `hooks.json` that is not valid JSON is left as it is and reported). A hook script
   in `scripts/hooks/` that differs from the shipped one is kept and reported; add `--force`
-  to overwrite it.
+  to overwrite it. Every script it rewrites (an unmodified old copy, or with `--force` an
+  edited one) is copied to `.uds-backups/` first and the output prints where;
+  `uds update --rollback` puts it back.
+- **The other `uds update` forms.** Plain `uds update` and `uds update --apply` (also with
+  `--force`) replace a hook script that is an unmodified copy from an older UDS, with the same
+  backup first, and keep an edited one (they never add a hook that is not installed and never
+  use `--force`'s overwrite; that stays here). `--plan` says which scripts it would replace.
+  A run narrowed to `--skills`, `--commands`, `--standards-only`, `--integrations-only`,
+  `--sync-refs` or `--claude-target` leaves them alone and says so.
 - **What it does not do.** It does not update standards, skills or integration files (that
   is plain `uds update`) and it does not add a tool to the manifest. It does not compose with
   `--skills`, `--commands` and the other update modes, and says so if you combine them.

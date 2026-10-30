@@ -11554,6 +11554,265 @@
           "✓ AGENTS.md standards synced"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-init",
+      "workspace": "hook-scripts-update",
+      "title": "uds init --with-hooks installs the hook scripts the update steps then replace, roll back and keep",
+      "titleZh": "uds init --with-hooks 安裝 hook 腳本，供後面的更新步驟替換、還原與保留",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--with-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-apply-replaces",
+      "workspace": "hook-scripts-update",
+      "title": "uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks",
+      "titleZh": "uds update --apply --yes 替換沒人改過的 6.14.0 危險命令腳本、說出備份位置，專案裡的腳本從此會擋",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "prepare": [
+        {
+          "writeFile": "scripts/hooks/check-dangerous-cmd.mjs",
+          "content": "#!/usr/bin/env node\n/**\n * UDS Hook: Dangerous Command Detection\n *\n * Detects potentially destructive shell commands and blocks execution.\n * Exit code: 0 = safe, 1 = dangerous\n *\n * Usage: echo \"rm -rf /\" | node check-dangerous-cmd.mjs\n *    or: node check-dangerous-cmd.mjs \"rm -rf /\"\n *\n * Performance target: < 500ms\n *\n * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md (REQ-2)\n */\n\nconst DANGEROUS_PATTERNS = [\n  /rm\\s+-rf\\s+\\//,\n  /mkfs\\./,\n  /dd\\s+if=.*of=\\/dev\\//,\n  /format\\s+[a-zA-Z]:/,\n  />\\s*\\/dev\\/sda/,\n  /chmod\\s+-R\\s+777\\s+\\//,\n  /:()\\{\\s*:\\|:&\\s*\\};:/,  // fork bomb\n];\n\n/**\n * Check if a command matches dangerous patterns.\n * @param {string} cmd - The shell command to check\n * @returns {boolean} true if dangerous\n */\nexport function isDangerousCommand(cmd) {\n  if (!cmd || typeof cmd !== 'string') return false;\n  return DANGEROUS_PATTERNS.some((p) => p.test(cmd));\n}\n\n// CLI mode\nif (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.mjs')) {\n  const input = process.argv[2];\n  if (input) {\n    if (isDangerousCommand(input)) {\n      console.error(`⚠️ Dangerous command detected: \"${input}\"`);\n      process.exit(1);\n    } else {\n      process.exit(0);\n    }\n  } else {\n    let data = '';\n    process.stdin.setEncoding('utf-8');\n    process.stdin.on('data', (chunk) => { data += chunk; });\n    process.stdin.on('end', () => {\n      const cmd = data.trim();\n      if (isDangerousCommand(cmd)) {\n        console.error(`⚠️ Dangerous command detected: \"${cmd}\"`);\n        process.exit(1);\n      } else {\n        process.exit(0);\n      }\n    });\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs",
+          "Backup: .uds-backups/"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ],
+            "notContains": [
+              "Exit code: 0 = safe, 1 = dangerous"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-backup-holds-original",
+      "workspace": "hook-scripts-update",
+      "title": "The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /",
+      "titleZh": "該步驟建立的備份逐位元組保存原本的腳本，而換上的腳本對 rm -rf / 以 2 結束",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "run": [
+        "{node}",
+        "-e",
+        "const fs=require('fs'),path=require('path'),cp=require('child_process');const root='.uds-backups';const ids=fs.existsSync(root)?fs.readdirSync(root).filter(n=>fs.existsSync(path.join(root,n,'backup-manifest.json'))):[];const hooks=ids.filter(n=>JSON.parse(fs.readFileSync(path.join(root,n,'backup-manifest.json'),'utf8')).label==='hooks');const f=hooks.length?path.join(root,hooks[0],'scripts','hooks','check-dangerous-cmd.mjs'):null;const old=f&&fs.existsSync(f)?fs.readFileSync(f,'utf8'):'';const r=cp.spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:'rm -rf /'}}),encoding:'utf8'});process.stdout.write('HOOK-BACKUPS='+hooks.length+'\\nBACKUP-HAS-ORIGINAL='+old.includes('Exit code: 0 = safe, 1 = dangerous')+'\\nBLOCK-EXIT='+r.status+'\\n');"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "HOOK-BACKUPS=1",
+          "BACKUP-HAS-ORIGINAL=true",
+          "BLOCK-EXIT=2"
+        ],
+        "notContains": [
+          "BACKUP-HAS-ORIGINAL=false"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-rollback-restores",
+      "workspace": "hook-scripts-update",
+      "title": "uds update --rollback puts the original script back",
+      "titleZh": "uds update --rollback 把原本的腳本放回去",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "uds": [
+        "update",
+        "--rollback"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Rollback successful"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "Exit code: 0 = safe, 1 = dangerous"
+            ],
+            "notContains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-keeps-edited",
+      "workspace": "hook-scripts-update",
+      "title": "uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it",
+      "titleZh": "uds update --apply --yes 保留採用者改過的腳本、點名它，並且不動它",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "prepare": [
+        {
+          "writeFile": "scripts/hooks/check-dangerous-cmd.mjs",
+          "content": "#!/usr/bin/env node\n/**\n * UDS Hook: Dangerous Command Detection\n *\n * Detects potentially destructive shell commands and blocks execution.\n * Exit code: 0 = safe, 1 = dangerous\n *\n * Usage: echo \"rm -rf /\" | node check-dangerous-cmd.mjs\n *    or: node check-dangerous-cmd.mjs \"rm -rf /\"\n *\n * Performance target: < 500ms\n *\n * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md (REQ-2)\n */\n\nconst DANGEROUS_PATTERNS = [\n  /rm\\s+-rf\\s+\\//,\n  /mkfs\\./,\n  /dd\\s+if=.*of=\\/dev\\//,\n  /format\\s+[a-zA-Z]:/,\n  />\\s*\\/dev\\/sda/,\n  /chmod\\s+-R\\s+777\\s+\\//,\n  /:()\\{\\s*:\\|:&\\s*\\};:/,  // fork bomb\n];\n\n/**\n * Check if a command matches dangerous patterns.\n * @param {string} cmd - The shell command to check\n * @returns {boolean} true if dangerous\n */\nexport function isDangerousCommand(cmd) {\n  if (!cmd || typeof cmd !== 'string') return false;\n  return DANGEROUS_PATTERNS.some((p) => p.test(cmd));\n}\n\n// CLI mode\nif (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.mjs')) {\n  const input = process.argv[2];\n  if (input) {\n    if (isDangerousCommand(input)) {\n      console.error(`⚠️ Dangerous command detected: \"${input}\"`);\n      process.exit(1);\n    } else {\n      process.exit(0);\n    }\n  } else {\n    let data = '';\n    process.stdin.setEncoding('utf-8');\n    process.stdin.on('data', (chunk) => { data += chunk; });\n    process.stdin.on('end', () => {\n      const cmd = data.trim();\n      if (isDangerousCommand(cmd)) {\n        console.error(`⚠️ Dangerous command detected: \"${cmd}\"`);\n        process.exit(1);\n      } else {\n        process.exit(0);\n      }\n    });\n  }\n}\n\n// local change: also block git push --force\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "were kept: check-dangerous-cmd.mjs"
+        ],
+        "notContains": [
+          "replaced 1 out-of-date"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "local change: also block git push --force",
+              "Exit code: 0 = safe, 1 = dangerous"
+            ],
+            "notContains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-plain-replaces",
+      "workspace": "hook-scripts-update",
+      "title": "Plain uds update (no flags) replaces the unmodified old script too",
+      "titleZh": "不加任何旗標的 uds update 也會替換沒人改過的舊腳本",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "prepare": [
+        {
+          "writeFile": "scripts/hooks/check-dangerous-cmd.mjs",
+          "content": "#!/usr/bin/env node\n/**\n * UDS Hook: Dangerous Command Detection\n *\n * Detects potentially destructive shell commands and blocks execution.\n * Exit code: 0 = safe, 1 = dangerous\n *\n * Usage: echo \"rm -rf /\" | node check-dangerous-cmd.mjs\n *    or: node check-dangerous-cmd.mjs \"rm -rf /\"\n *\n * Performance target: < 500ms\n *\n * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md (REQ-2)\n */\n\nconst DANGEROUS_PATTERNS = [\n  /rm\\s+-rf\\s+\\//,\n  /mkfs\\./,\n  /dd\\s+if=.*of=\\/dev\\//,\n  /format\\s+[a-zA-Z]:/,\n  />\\s*\\/dev\\/sda/,\n  /chmod\\s+-R\\s+777\\s+\\//,\n  /:()\\{\\s*:\\|:&\\s*\\};:/,  // fork bomb\n];\n\n/**\n * Check if a command matches dangerous patterns.\n * @param {string} cmd - The shell command to check\n * @returns {boolean} true if dangerous\n */\nexport function isDangerousCommand(cmd) {\n  if (!cmd || typeof cmd !== 'string') return false;\n  return DANGEROUS_PATTERNS.some((p) => p.test(cmd));\n}\n\n// CLI mode\nif (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.mjs')) {\n  const input = process.argv[2];\n  if (input) {\n    if (isDangerousCommand(input)) {\n      console.error(`⚠️ Dangerous command detected: \"${input}\"`);\n      process.exit(1);\n    } else {\n      process.exit(0);\n    }\n  } else {\n    let data = '';\n    process.stdin.setEncoding('utf-8');\n    process.stdin.on('data', (chunk) => { data += chunk; });\n    process.stdin.on('end', () => {\n      const cmd = data.trim();\n      if (isDangerousCommand(cmd)) {\n        console.error(`⚠️ Dangerous command detected: \"${cmd}\"`);\n        process.exit(1);\n      } else {\n        process.exit(0);\n      }\n    });\n  }\n}\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ],
+            "notContains": [
+              "Exit code: 0 = safe, 1 = dangerous"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "hook-scripts-update-force-backs-up-edit",
+      "workspace": "hook-scripts-update",
+      "title": "uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where",
+      "titleZh": "uds update --with-hooks --force 在覆蓋改過的腳本之前先把它複製進 .uds-backups/，並印出位置",
+      "changelog": [
+        "uds update and uds update --apply now replace hook scripts that an older UDS installed and nobody edited"
+      ],
+      "prepare": [
+        {
+          "writeFile": "scripts/hooks/check-dangerous-cmd.mjs",
+          "content": "#!/usr/bin/env node\n/**\n * UDS Hook: Dangerous Command Detection\n *\n * Detects potentially destructive shell commands and blocks execution.\n * Exit code: 0 = safe, 1 = dangerous\n *\n * Usage: echo \"rm -rf /\" | node check-dangerous-cmd.mjs\n *    or: node check-dangerous-cmd.mjs \"rm -rf /\"\n *\n * Performance target: < 500ms\n *\n * @see docs/specs/SPEC-HOOKS-001-core-standard-hooks.md (REQ-2)\n */\n\nconst DANGEROUS_PATTERNS = [\n  /rm\\s+-rf\\s+\\//,\n  /mkfs\\./,\n  /dd\\s+if=.*of=\\/dev\\//,\n  /format\\s+[a-zA-Z]:/,\n  />\\s*\\/dev\\/sda/,\n  /chmod\\s+-R\\s+777\\s+\\//,\n  /:()\\{\\s*:\\|:&\\s*\\};:/,  // fork bomb\n];\n\n/**\n * Check if a command matches dangerous patterns.\n * @param {string} cmd - The shell command to check\n * @returns {boolean} true if dangerous\n */\nexport function isDangerousCommand(cmd) {\n  if (!cmd || typeof cmd !== 'string') return false;\n  return DANGEROUS_PATTERNS.some((p) => p.test(cmd));\n}\n\n// CLI mode\nif (process.argv[1] && process.argv[1].endsWith('check-dangerous-cmd.mjs')) {\n  const input = process.argv[2];\n  if (input) {\n    if (isDangerousCommand(input)) {\n      console.error(`⚠️ Dangerous command detected: \"${input}\"`);\n      process.exit(1);\n    } else {\n      process.exit(0);\n    }\n  } else {\n    let data = '';\n    process.stdin.setEncoding('utf-8');\n    process.stdin.on('data', (chunk) => { data += chunk; });\n    process.stdin.on('end', () => {\n      const cmd = data.trim();\n      if (isDangerousCommand(cmd)) {\n        console.error(`⚠️ Dangerous command detected: \"${cmd}\"`);\n        process.exit(1);\n      } else {\n        process.exit(0);\n      }\n    });\n  }\n}\n\n// local change: kept in the backup\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--with-hooks",
+        "--force",
+        "--ai-tool",
+        "claude-code",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "overwrote 1 edited hook script",
+          "Backup: .uds-backups/"
+        ],
+        "files": [
+          {
+            "path": "scripts/hooks/check-dangerous-cmd.mjs",
+            "contains": [
+              "Exit code: 0 = allow, 2 = dangerous"
+            ],
+            "notContains": [
+              "local change: kept in the backup"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

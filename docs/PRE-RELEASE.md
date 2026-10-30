@@ -79,8 +79,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.1
 It installs the published 6.14.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 351 steps (343 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 351 步（343 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 358 steps (350 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 358 步（350 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1135,6 +1135,27 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 351 steps (343
 351. `ghost-standard-named-not-ticked` (**new 新**) — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
    manifest 有一個對不上任何已安裝標準的條目時，uds check 以警告記號點名它，不再為 AGENTS.md 打勾。
    `uds check --offline` → exit 0; output has "⚠ AGENTS.md standards synced", "Manifest entries that match no installed standard (1)" (+1)
+352. `hook-scripts-update-init` — uds init --with-hooks installs the hook scripts the update steps then replace, roll back and keep.
+   uds init --with-hooks 安裝 hook 腳本，供後面的更新步驟替換、還原與保留。
+   `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
+353. `hook-scripts-update-apply-replaces` (**new 新**) — uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks.
+   uds update --apply --yes 替換沒人改過的 6.14.0 危險命令腳本、說出備份位置，專案裡的腳本從此會擋。
+   `uds update --apply --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs", "Backup: .uds-backups/"
+354. `hook-scripts-update-backup-holds-original` (**new 新**) — The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /.
+   該步驟建立的備份逐位元組保存原本的腳本，而換上的腳本對 rm -rf / 以 2 結束。
+   `{node} -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const root='.uds-backups';const ids=fs.existsSync(root)?fs.readdirSync(root).filter(n=>fs.existsSync(path.join(root,n,'backup-manifest.json'))):[];const hooks=ids.filter(n=>JSON.parse(fs.readFileSync(path.join(root,n,'backup-manifest.json'),'utf8')).label==='hooks');const f=hooks.length?path.join(root,hooks[0],'scripts','hooks','check-dangerous-cmd.mjs'):null;const old=f&&fs.existsSync(f)?fs.readFileSync(f,'utf8'):'';const r=cp.spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:'rm -rf /'}}),encoding:'utf8'});process.stdout.write('HOOK-BACKUPS='+hooks.length+'\\nBACKUP-HAS-ORIGINAL='+old.includes('Exit code: 0 = safe, 1 = dangerous')+'\\nBLOCK-EXIT='+r.status+'\\n');"` → exit 0; output has "HOOK-BACKUPS=1", "BACKUP-HAS-ORIGINAL=true" (+1)
+355. `hook-scripts-update-rollback-restores` (**new 新**) — uds update --rollback puts the original script back.
+   uds update --rollback 把原本的腳本放回去。
+   `uds update --rollback` → exit 0; output has "Rollback successful"
+356. `hook-scripts-update-keeps-edited` (**new 新**) — uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it.
+   uds update --apply --yes 保留採用者改過的腳本、點名它，並且不動它。
+   `uds update --apply --yes --offline` → exit 0; output has "were kept: check-dangerous-cmd.mjs"
+357. `hook-scripts-update-plain-replaces` (**new 新**) — Plain uds update (no flags) replaces the unmodified old script too.
+   不加任何旗標的 uds update 也會替換沒人改過的舊腳本。
+   `uds update --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs"
+358. `hook-scripts-update-force-backs-up-edit` (**new 新**) — uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where.
+   uds update --with-hooks --force 在覆蓋改過的腳本之前先把它複製進 .uds-backups/，並印出位置。
+   `uds update --with-hooks --force --ai-tool claude-code --yes --offline` → exit 0; output has "overwrote 1 edited hook script", "Backup: .uds-backups/"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
