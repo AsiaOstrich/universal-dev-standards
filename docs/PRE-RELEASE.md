@@ -79,8 +79,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.1
 It installs the published 6.14.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 344 步（336 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 351 steps (343 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 351 步（343 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1114,6 +1114,27 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336
 344. `std-hook-entry-test-rule` — The installed mock-boundary standard requires a blocking hook to be tested through the host's own entry and carries the per-host block signals.
    安裝後的 mock-boundary 標準要求攔截型 hook 照宿主的入口測，並附各宿主的擋下訊號表。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.standards/mock-boundary.ai.yaml`
+345. `skills-prune-init` — uds init in a Cursor project installs the skills the prune and link steps read back.
+   uds init 在 Cursor 專案裡安裝技能，供修剪與連結步驟讀回。
+   `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
+346. `skills-prune-update-drops-record` (**new 新**) — uds update --apply --yes --skills deletes a skill file the package no longer ships and drops its skillHashes record.
+   uds update --apply --yes --skills 刪掉套件不再出貨的 skill 檔，並移除它在 skillHashes 的紀錄。
+   `uds update --apply --yes --skills --offline` → exit 0; output has "Updating Skills for all AI Agents"
+347. `skills-prune-check-reports-no-missing` (**new 新**) — uds check after that update reports no missing skill file and does not name the deleted one.
+   該次更新之後 uds check 不報任何遺失的 skill 檔，也不提被刪掉的那一個。
+   `uds check --offline` → exit 0; output has "Skills File Integrity", "0 modified, 0 missing"
+348. `dev-workflow-guide-links-resolve` (**new 新**) — The installed dev-workflow-guide skill links its sibling file relatively and the repository documents by their GitHub address.
+   安裝後的 dev-workflow-guide 以相對連結指向同資料夾檔案，其餘 repo 文件用 GitHub 位址。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/skills/dev-workflow-guide/SKILL.md`, `.cursor/skills/dev-workflow-guide/workflow-phases.md`
+349. `ghost-standard-init` — uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve.
+   uds init --agents-md 在 Cursor 專案寫出 AGENTS.md，且 manifest 的標準都對得上。
+   `uds init -y --skills-location project --format ai --agents-md` → exit 0; output has "Standards initialized successfully"
+350. `ghost-standard-control-ticks-synced` (**new 新**) — Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line.
+   對照：manifest 條目都對得上時，uds check 為 AGENTS.md 同步行打勾。
+   `uds check --offline` → exit 0; output has "AGENTS.md Standards Sync", "✓ AGENTS.md standards synced"
+351. `ghost-standard-named-not-ticked` (**new 新**) — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
+   manifest 有一個對不上任何已安裝標準的條目時，uds check 以警告記號點名它，不再為 AGENTS.md 打勾。
+   `uds check --offline` → exit 0; output has "⚠ AGENTS.md standards synced", "Manifest entries that match no installed standard (1)" (+1)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

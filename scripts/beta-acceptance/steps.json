@@ -11324,6 +11324,236 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "skills-prune-init",
+      "workspace": "skills-hash-prune",
+      "title": "uds init in a Cursor project installs the skills the prune and link steps read back",
+      "titleZh": "uds init 在 Cursor 專案裡安裝技能，供修剪與連結步驟讀回",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".cursorrules",
+          "content": "# my own Cursor rules\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".cursor/skills/commit-standards/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "skills-prune-update-drops-record",
+      "workspace": "skills-hash-prune",
+      "title": "uds update --apply --yes --skills deletes a skill file the package no longer ships and drops its skillHashes record",
+      "titleZh": "uds update --apply --yes --skills 刪掉套件不再出貨的 skill 檔，並移除它在 skillHashes 的紀錄",
+      "changelog": [
+        "uds update --skills (and --apply) now drops the skillHashes records of the skill files it deletes"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".cursor/skills/commit-standards/obsolete-guide",
+          "content": "a file an older UDS shipped\n"
+        },
+        {
+          "setManifest": {
+            "skillHashes.cursor/project/commit-standards/obsolete-guide": {
+              "hash": "sha256:cd2e40afc3e9c687bc9dd100bdc2e2496fdae8e963b38ec2af90318dc99a691a",
+              "size": 28
+            },
+            "skills.version": "6.11.0"
+          }
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--skills",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Updating Skills for all AI Agents"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "cursor/project/commit-standards/SKILL.md"
+            ],
+            "notContains": [
+              "obsolete-guide"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "skills-prune-check-reports-no-missing",
+      "workspace": "skills-hash-prune",
+      "title": "uds check after that update reports no missing skill file and does not name the deleted one",
+      "titleZh": "該次更新之後 uds check 不報任何遺失的 skill 檔，也不提被刪掉的那一個",
+      "changelog": [
+        "uds update --skills (and --apply) now drops the skillHashes records of the skill files it deletes"
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Skills File Integrity",
+          "0 modified, 0 missing"
+        ],
+        "notContains": [
+          "obsolete-guide"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "dev-workflow-guide-links-resolve",
+      "workspace": "skills-hash-prune",
+      "title": "The installed dev-workflow-guide skill links its sibling file relatively and the repository documents by their GitHub address",
+      "titleZh": "安裝後的 dev-workflow-guide 以相對連結指向同資料夾檔案，其餘 repo 文件用 GitHub 位址",
+      "changelog": [
+        "The dev-workflow-guide skill no longer ships links that open nothing in an adopter's project"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".cursor/skills/dev-workflow-guide/SKILL.md",
+            "contains": [
+              "](./workflow-phases.md)",
+              "https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/feature-dev.workflow.yaml",
+              "https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/DAILY-WORKFLOW-GUIDE.md"
+            ],
+            "notContains": [
+              "](../workflows/",
+              "](../../adoption/",
+              "](../../locales/",
+              "../../../../skills/"
+            ]
+          },
+          {
+            "path": ".cursor/skills/dev-workflow-guide/workflow-phases.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ghost-standard-init",
+      "workspace": "check-ghost-standard",
+      "title": "uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve",
+      "titleZh": "uds init --agents-md 在 Cursor 專案寫出 AGENTS.md，且 manifest 的標準都對得上",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": ".cursorrules",
+          "content": "# my own Cursor rules\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai",
+        "--agents-md"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "AGENTS.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ghost-standard-control-ticks-synced",
+      "workspace": "check-ghost-standard",
+      "title": "Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line",
+      "titleZh": "對照：manifest 條目都對得上時，uds check 為 AGENTS.md 同步行打勾",
+      "changelog": [
+        "uds check no longer ticks \"AGENTS.md standards synced\" while the manifest holds an entry no installed standard matches"
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "AGENTS.md Standards Sync",
+          "✓ AGENTS.md standards synced"
+        ],
+        "notContains": [
+          "Manifest entries that match no installed standard"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "ghost-standard-named-not-ticked",
+      "workspace": "check-ghost-standard",
+      "title": "With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced",
+      "titleZh": "manifest 有一個對不上任何已安裝標準的條目時，uds check 以警告記號點名它，不再為 AGENTS.md 打勾",
+      "changelog": [
+        "uds check no longer ticks \"AGENTS.md standards synced\" while the manifest holds an entry no installed standard matches"
+      ],
+      "prepare": [
+        {
+          "manifestPush": {
+            "standards": [
+              "ghost-standard-xyz"
+            ]
+          }
+        }
+      ],
+      "uds": [
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "⚠ AGENTS.md standards synced",
+          "Manifest entries that match no installed standard (1)",
+          "ghost-standard-xyz"
+        ],
+        "notContains": [
+          "✓ AGENTS.md standards synced"
+        ]
+      }
     }
   ]
 }
