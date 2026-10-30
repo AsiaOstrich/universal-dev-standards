@@ -38,13 +38,33 @@ fail() { echo "[hash-ratchet] $*" >&2; exit 2; }
 st_dir="$(mktemp -d)"; trap 'rm -rf "${st_dir}"' EXIT
 printf -- '---\nsource: ../x.md\nsource_hash: abc123def456\n---\n' > "${st_dir}/has.md"
 printf -- '---\nsource: ../x.md\nlast_synced: 2026-01-01\n---\n' > "${st_dir}/none.md"
-has_hash() { grep -qE '^source_hash:[[:space:]]*[0-9a-fA-F]' "$1"; }
+# 只看檔頭 YAML frontmatter（第一行必須是 `---`，到下一個 `---` 為止）。
+# 為什麼不能整檔 grep：locales/README.md 在說明「譯檔該怎麼寫 frontmatter」的
+# 程式碼區塊裡舉例寫了 `source: ../../core/example.md`，整檔 grep 因此把這份
+# 說明檔誤判為「宣告了來源的翻譯」，進而記成欠債。frontmatter 範圍是一條明確規則，
+# 不是目錄或檔名的放行清單：任何檔案只要 frontmatter 宣告 source 就受管，
+# 沒有 frontmatter（或只在內文舉例）就不是受管翻譯。
+frontmatter() {
+  awk 'NR==1 { if ($0 !~ /^---[[:space:]]*$/) exit; next }
+       /^---[[:space:]]*$/ { exit }
+       { print }' "$1"
+}
+declares_source() { frontmatter "$1" | grep -qE '^source:[[:space:]]*[^[:space:]]'; }
+has_hash() { frontmatter "$1" | grep -qE '^source_hash:[[:space:]]*[0-9a-fA-F]'; }
 st_ok=1
 if ! has_hash "${st_dir}/has.md"; then
   echo "[hash-ratchet] ✗ 自測（正向）：帶 source_hash 的檔被判成沒有" >&2; st_ok=0
 fi
 if has_hash "${st_dir}/none.md"; then
   echo "[hash-ratchet] ✗ 自測（負向）：不帶 source_hash 的檔被判成有 —— 閘門會永遠綠" >&2; st_ok=0
+fi
+# 範例區塊裡的 `source:` 不算宣告（locales/README.md 的情形）
+printf -- '# Title\n\n```yaml\n---\nsource: ../x.md\n---\n```\n' > "${st_dir}/doc.md"
+if declares_source "${st_dir}/doc.md"; then
+  echo "[hash-ratchet] ✗ 自測（說明檔）：內文範例裡的 source: 被當成宣告" >&2; st_ok=0
+fi
+if ! declares_source "${st_dir}/none.md"; then
+  echo "[hash-ratchet] ✗ 自測（宣告）：frontmatter 裡的 source: 沒被認出" >&2; st_ok=0
 fi
 [ "${st_ok}" -eq 1 ] || fail "自測臂失敗 —— 在修好之前，這支閘門的任何結果都不可信"
 echo "[hash-ratchet] 探針自證：✓ 正向　✓ 負向"
@@ -64,7 +84,7 @@ new_lines=""
 tmp_missing="$(mktemp)"; trap 'rm -rf "${st_dir}" "${tmp_missing}"' EXIT
 while IFS= read -r f; do
   walked=$((walked + 1))
-  grep -qE '^source:[[:space:]]*\S' "${f}" || continue   # 沒宣告來源的不是受管翻譯
+  declares_source "${f}" || continue   # frontmatter 沒宣告來源的不是受管翻譯
   if has_hash "${f}"; then continue; fi
   nohash=$((nohash + 1))
   rel="${f#"${ROOT}/"}"
