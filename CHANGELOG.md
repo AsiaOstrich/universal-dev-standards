@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds check` no longer ticks "AGENTS.md standards synced" while the manifest holds an entry no installed standard matches.** The AI-tool integration check already warned ("Index declares 1 standards but the manifest has 2"), but the AGENTS.md check dropped the unresolvable entry before counting, compared 1 with 1 and printed a green tick, in the same run. It now shows a warning mark instead of the tick and names the entries (with the fix: delete them from `standards` in `.standards/manifest.json`; `uds update` does not prune them). **Behaviour change for scripts that parse the output:** a project with such an entry used to print `✓ AGENTS.md standards synced (N)` and now prints `⚠ AGENTS.md standards synced (N)` plus two lines. The exit code is unchanged on purpose: nothing in `uds` removes these entries, so a non-zero exit would turn an adopter's CI red with no command that clears it. (dev-platform #45)
+
 ## [6.14.1] - 2026-10-30
 
 > **Stable Release**: everything in 6.14.1-beta.1 and beta.2 below, with no change since beta.2. beta.2 was accepted on Windows, macOS and Linux (post-publish acceptance, 0 failed). **Security fix:** the dangerous-command hook now blocks; a project that already has the hook gets the fixed script from `uds update --with-hooks` (beta.2).

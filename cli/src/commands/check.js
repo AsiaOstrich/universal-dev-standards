@@ -1815,17 +1815,43 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
     .map(entry => resolveStandardFilename(entry, manifest.format || 'ai'))
     .filter(Boolean);
 
+  // 🔴 The `.filter(Boolean)` above is also where a manifest entry the registry cannot resolve
+  // disappears. The AI-tool integration check compares the index against the manifest's raw length,
+  // so it warned "declares N, manifest has N+1"; this check compared against the filtered list, found
+  // N == N, and ticked green for the same file in the same run. Two checks reading one manifest, and
+  // only one of them noticed the entry. (reported as dev-platform #45, uds-check-ghost-standard)
+  // Not a failure of the exit code: `uds update` does not prune these (standards removed upstream
+  // stay in a manifest), so a non-zero exit would turn an adopter's CI red with no command that
+  // clears it. The fix is that this check never says "synced" without naming what it skipped.
+  const unresolvedEntries = (manifest.standards || [])
+    .filter(entry => !resolveStandardFilename(entry, manifest.format || 'ai'));
+  const printUnresolved = () => {
+    if (unresolvedEntries.length === 0) return;
+    const shown = unresolvedEntries.length <= 10
+      ? unresolvedEntries.join(', ')
+      : `${unresolvedEntries.slice(0, 10).join(', ')}... (+${unresolvedEntries.length - 10})`;
+    console.log(chalk.yellow(`    ${(msg.agentsMdUnresolvedEntries
+      || 'Manifest entries that match no installed standard ({count}), not counted above: {list}')
+      .replace('{count}', unresolvedEntries.length).replace('{list}', shown)}`));
+    console.log(chalk.gray(`    ${msg.agentsMdUnresolvedFix
+      || 'They were removed upstream or misspelled. `uds update` does not prune them: delete them from the "standards" list in .standards/manifest.json.'}`));
+  };
+
   // Same as the AI-tool integration check above: an index-mode block declares a
   // count instead of listing names, so the name grep below cannot apply to it.
   const declaredCount = parseStandardsIndexCount(content);
   if (declaredCount !== null) {
     const actual = installedStandards.length;
     if (declaredCount === actual) {
-      console.log(chalk.green(`  ✓ AGENTS.md ${msg.standardsSynced || 'standards synced'} (${declaredCount})`));
+      // A tick only when nothing was skipped; otherwise the same facts under a warning mark.
+      const mark = unresolvedEntries.length === 0 ? chalk.green('✓') : chalk.yellow('⚠');
+      const paint = unresolvedEntries.length === 0 ? chalk.green : chalk.yellow;
+      console.log(`  ${mark} ` + paint(`AGENTS.md ${msg.standardsSynced || 'standards synced'} (${declaredCount})`));
     } else {
       console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${declaredCount} != ${actual})`));
       console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
     }
+    printUnresolved();
     const idxLineCount = content.split('\n').length;
     if (idxLineCount > 150) {
       console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${idxLineCount} lines)`));
@@ -1848,7 +1874,9 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   }
 
   if (missingFromAgentsMd.length === 0) {
-    console.log(chalk.green(`  ✓ AGENTS.md ${msg.standardsSynced || 'standards synced'} (${listedCount}/${aiYamlStandards.length})`));
+    const mark = unresolvedEntries.length === 0 ? chalk.green('✓') : chalk.yellow('⚠');
+    const paint = unresolvedEntries.length === 0 ? chalk.green : chalk.yellow;
+    console.log(`  ${mark} ` + paint(`AGENTS.md ${msg.standardsSynced || 'standards synced'} (${listedCount}/${aiYamlStandards.length})`));
   } else {
     console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${listedCount}/${aiYamlStandards.length})`));
     if (missingFromAgentsMd.length <= 5) {
@@ -1858,6 +1886,7 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
     }
     console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
   }
+  printUnresolved();
 
   // Check line count
   const lineCount = content.split('\n').length;
