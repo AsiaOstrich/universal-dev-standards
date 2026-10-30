@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.1-beta.1
-translation_version: 6.14.1-beta.1
-last_synced: 2026-10-30
-source_hash: ba57d38f3b74
+source_version: 6.14.1-beta.2
+translation_version: 6.14.1-beta.2
+last_synced: 2026-10-29
+source_hash: 5dcc2a09effc
 status: current
 ---
 
@@ -18,9 +18,21 @@ status: current
 
 ## [Unreleased]
 
+## [6.14.1-beta.2] - 2026-10-30
+
+> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**在 6.14.1-beta.1 之上的一項修正：** `uds update --with-hooks` 現在會替換舊版 UDS 安裝、且沒有人改過的 hook 腳本，即使 hook 已經設定好。因此已有危險指令 hook 的專案會拿到會攔截的版本；beta.1 留下的是從不攔截的舊副本，還得你手動複製檔案。包含以下 6.14.1-beta.1 的所有內容。
+
+### 修正
+
+- **`uds update --with-hooks` 現在會替換舊版 UDS 安裝、且沒有人改過的 hook 腳本，即使 hook 已經設定好。** 在 6.14.1-beta.1，已經有危險指令 hook 的專案會留著 6.14.0 的 `scripts/hooks/check-dangerous-cmd.mjs`，它以 exit 1 結束、從不攔截：安裝器看到 hook 設定「已存在」，印出「已安裝、未動」，從不比對旁邊的腳本（實測：`uds update --with-hooks`、`uds update --with-hooks --force` 與 `uds update --apply` 都讓它原封不動）。現在不論設定是否已存在，每個工具都會比對。與出貨版不同的腳本依內容判斷：若與歷代 UDS 某版出貨的內容逐位元相同（忽略換行字元，所以 Windows 在 `core.autocrlf` 下的檢出仍算），表示沒人改過，直接替換，輸出會列出每個檔案與它來自哪一版；其他任何差異都表示被改過：保留、列出，並說明如何強制。歷代內容列在 `cli/src/installers/hook-script-fingerprints.json`，由 `scripts/generate-hook-fingerprints.mjs` 從 git 標籤產生（不是手寫，也不會被縮減）；單元測試在 `scripts/hooks/` 任一腳本的內容不在清單裡時失敗，所以改了 hook 就無法不更新清單而提交，`scripts/pre-release-check.sh` 的第 29 步另檢查每個發版標籤。回報依「實際寫入」而非「量測結果」。**`--force`：** 搭配 `--with-hooks` 時，現在連被改過的 hook 腳本也會用出貨版覆蓋，hook 已經安裝時也一樣（以前只在補裝缺少的 hook 時才會），輸出會說覆蓋了幾個；你的修改沒有備份。`--with-hooks --plan` 列出將替換或覆蓋的項目，且不寫任何檔。**`--apply`、單獨的 `--force` 與一般的 `uds update` 不管理 hook 腳本，仍然不會替換它們；**當其中一個是過期且未改過的副本時，它們現在會印一行說明，並指出 `uds update --with-hooks`。**誰會看到差異：** 用 6.14.0 或更早版本安裝過 hook、並在這個版本執行 `uds update --with-hooks` 的人：他們沒改過的每個 hook 腳本都會被替換（替換的檔案有記錄，所以 `uds uninstall` 仍會移除）。**如果你改過 hook 腳本**，它會被保留，在你手動合併或使用 `--force` 之前拿不到之後的修正（以危險指令 hook 來說，就是 exit 2 的修正）。
+
+### 測試
+
+- **macOS 發佈後驗收不再丟失步驟輸出的結尾（在 6.14.0 與 6.14.1-beta.1 發現）。** `xspec482-init-interactive-manual` 只在 macOS 上紅：擷取到的輸出在一行中間斷掉，沒有驅動程式最後印的 `DRIVE-EXIT=0`，但 `uds init` 其實成功了。`scripts/beta-acceptance/steps.json` 裡的驗收輔助程式（兩支互動式驅動程式與三支小包裝）在寫出結果後立刻呼叫 `process.exit()`。標準輸出是管線時，Node 在 macOS 上把放不進管線的部分非同步寫出，`process.exit()` 會把剩下的丟掉；Linux 上同樣的寫入是同步的，所以同一步在那裡是綠的。現在它們等寫完才結束（寫入的回呼，或 `process.exitCode`）。驗證：新增一支測試，用真正的驅動程式文字對一個印 300 KB 的替身、搭配讀得很慢的讀取端；在 macOS 上，修改前只收到 65,536 位元組、沒有 `DRIVE-EXIT` 行，修改後收到全部輸出。**沒有證明的部分：** 真實步驟只印約 2.8 KB，放得進管線，而且在維護者的 macOS 上修改前後都通過，所以 CI 上輸出遺失出自這個原因是合理的判讀，不是量到的結果；以本版的發佈後驗收為準。僅動測試與驗收程式；使用者執行的東西沒有變。
+
 ## [6.14.1-beta.1] - 2026-10-30
 
-> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**安全修正：** 危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）偵測到時以 exit 1 回報，而 Claude Code 不把 exit 1 當成攔截，因此 6.14.0 及更早版本從未擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2 結束，且只判斷指令本身。**已經安裝這個 hook 的專案會保留舊的腳本副本，直到你把它換掉；見「修正」的第一條。**另修正：提交訊息 hook 略過 `git commit -am "..."` 與其他合併短旗標，以及 `uds update --skills --commands` 只執行兩者其中之一。包含以下 6.14.0 的所有內容。
+> **測試版**——以 `npm install -g universal-dev-standards@beta` 安裝。要測什麼、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**安全修正：** 危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）偵測到時以 exit 1 回報，而 Claude Code 不把 exit 1 當成攔截，因此 6.14.0 及更早版本從未擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2 結束，且只判斷指令本身。**在這個版本，已經安裝這個 hook 的專案會保留舊的腳本副本，直到你手動換掉；6.14.1-beta.2（見上）已修正：`uds update --with-hooks` 會替換它。**另修正：提交訊息 hook 略過 `git commit -am "..."` 與其他合併短旗標，以及 `uds update --skills --commands` 只執行兩者其中之一。包含以下 6.14.0 的所有內容。
 
 ### 新增
 
@@ -28,7 +40,7 @@ status: current
 
 ### 修正
 
-- **危險指令 hook 現在會攔截，且不再擋下一般的清理指令。** `scripts/hooks/check-dangerous-cmd.mjs`（安全標準的 PreToolUse/Bash hook）從來沒有擋下過任何東西：它以 exit 1 結束，而 Claude Code 只在 exit 2 時攔截工具呼叫，所以指令照常執行。它還拿整段 stdin JSON 來比對，而不是 `tool_input.command`。重播 11,617 筆真實 shell 呼叫，舊的 `rm -rf /` 規則命中 26 次，其中 25 次是無害的暫存清理（`rm -rf /tmp/x`），而 `rm -fr /` 與 `rm -r -f /` 卻漏網。現在 hook 讀取 `tool_input.command`（stdin 不是 JSON 時讀取原始指令列），以 exit 2 攔截並在 stderr 寫出規則名稱；`rm` 只在遞迴且目標正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 時才攔截，旗標順序不拘，`sudo` 之後也適用。原本從未命中任何東西的 fork bomb 規則（`()` 是空的 regex 群組）現在會命中；沒有點號的 `mkfs`、沒有 `if=` 的 `dd of=/dev/…`，以及對 `/` 之下路徑的 `chmod -R 777`（以前會誤中 `/home/me/x`）改以指令詞判斷，而不是子字串。**行為改變：** `rm -rf /home` 與其他根目錄之下的路徑不再被攔截；它們不是這條規則原本要防的對象。命令列模式（`node check-dangerous-cmd.mjs "<command>"`）現在也以 exit 2 而非 1 結束。 **已經安裝這個 hook 的專案不會從 `uds update` 取得修正：** 安裝器會保留 `scripts/hooks/` 裡已有的 hook 腳本；在這個版本上實測，`uds update --with-hooks`、`uds update --with-hooks --force` 與 `uds update --apply` 都讓舊的 `check-dangerous-cmd.mjs` 原封不動（舊副本對 `rm -rf /` 仍以 exit 1 結束）。要取得修正，請把隨附的檔案複製過去覆蓋：`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`。在這個版本上執行 `uds init --with-hooks` 的專案會拿到修正後的腳本。
+- **危險指令 hook 現在會攔截，且不再擋下一般的清理指令。** `scripts/hooks/check-dangerous-cmd.mjs`（安全標準的 PreToolUse/Bash hook）從來沒有擋下過任何東西：它以 exit 1 結束，而 Claude Code 只在 exit 2 時攔截工具呼叫，所以指令照常執行。它還拿整段 stdin JSON 來比對，而不是 `tool_input.command`。重播 11,617 筆真實 shell 呼叫，舊的 `rm -rf /` 規則命中 26 次，其中 25 次是無害的暫存清理（`rm -rf /tmp/x`），而 `rm -fr /` 與 `rm -r -f /` 卻漏網。現在 hook 讀取 `tool_input.command`（stdin 不是 JSON 時讀取原始指令列），以 exit 2 攔截並在 stderr 寫出規則名稱；`rm` 只在遞迴且目標正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 時才攔截，旗標順序不拘，`sudo` 之後也適用。原本從未命中任何東西的 fork bomb 規則（`()` 是空的 regex 群組）現在會命中；沒有點號的 `mkfs`、沒有 `if=` 的 `dd of=/dev/…`，以及對 `/` 之下路徑的 `chmod -R 777`（以前會誤中 `/home/me/x`）改以指令詞判斷，而不是子字串。**行為改變：** `rm -rf /home` 與其他根目錄之下的路徑不再被攔截；它們不是這條規則原本要防的對象。命令列模式（`node check-dangerous-cmd.mjs "<command>"`）現在也以 exit 2 而非 1 結束。 **在這個版本，已經安裝這個 hook 的專案不會從 `uds update` 取得修正：** 安裝器會保留 `scripts/hooks/` 裡已有的 hook 腳本（實測：`uds update --with-hooks`、`uds update --with-hooks --force` 與 `uds update --apply` 都讓舊的 `check-dangerous-cmd.mjs` 原封不動，它對 `rm -rf /` 仍以 exit 1 結束），當時的解法是手動把隨附的檔案複製過去覆蓋。6.14.1-beta.2（見上）已修正這一點。在這個版本上執行 `uds init --with-hooks` 的專案拿到的是修正後的腳本。
 - **結構化日誌 hook 現在會傳到模型。** `scripts/hooks/check-logging-standard.mjs`（PostToolUse/Write）原本以 exit 1 結束，Claude Code 視為不攔截的 hook 錯誤，模型看不到訊息；現在改以 exit 2，讓 stderr 的建議回饋給模型，且只判斷寫入的文字（`tool_input.content` 或 `new_string`），不看 payload 的其餘部分。Write 已經發生，所以這無法復原任何事。
 - **提交訊息 hook 現在檢查 git 在命令列上接收訊息的每一種寫法，且不再擋下它誤讀的訊息。** `scripts/hooks/validate-commit-msg.mjs`（PreToolUse/Bash hook）原本只在單獨的 `-m` 之後找訊息，所以 `git commit -am "wip"`（由它新增的進入點測試發現）與其他所有合併短旗標（`-vam`、`-sam`）都不經檢查就放行。現在它像 git 一樣讀取命令：`-m` 出現在短旗標串的任何位置，值附在後面（`-m"msg"`、`-mmsg`、`-am"msg"`）或接在下一個詞，`--message=msg`、`--message msg` 與 git 不含糊的縮寫（`--mess=msg`），以及串接命令中的每一個 `git commit`（`git commit -m "feat: a" && git commit -m wip` 在第二個被擋下）。多個 `-m` 如 git 一樣以空行相連，所以被判斷的是第一個，即主旨。同一次重寫也修掉兩種誤擋，成因是在讀取引號之前就在 `;`、`&&`、`|` 與換行處切開命令：訊息本身含其中之一（`-m "feat: a; b"`），以及 Claude Code 最常寫的 `-m "$(cat <<'EOF' ... EOF)"` 形式——它以前被當成垃圾訊息 `"$(cat` 擋下，現在改以本文判斷。訊息文字不在命令列上的提交照舊放行：`-F`、`-C`/`-c`、`--amend --no-edit`、編輯器、`--fixup`/`--squash`（git 自己寫 `fixup!` 主旨，`-m` 變成本文），以及由 shell 計算的訊息（`-m "$MSG"`、`$(...)`、反引號）。**行為改變：** 以前放行的命令，在訊息不是 Conventional Commit 時現在會被擋下：`-am`/`-vam` 風格的提交、`--message`、串接命令的第二個提交，以及 `VAR=value` 之後的提交。
 - **`uds update --skills --commands` 現在兩者都更新；以前只更新一邊，對另一邊什麼也沒說（在 6.14.0 的 Windows 11 上發現）。** 兩個旗標都帶並加 `--apply` 時，只有指令執行：Skills 段落從未出現，manifest 裡的 Skills 停在舊版本（一個專案：51 個指令已更新，Skills 仍在 6.11.0），結束碼是 0。兩個旗標都帶但不加 `--apply` 時，只有 Skills 執行，`--commands` 被丟掉。旗標的順序沒有差別。原因：兩個步驟各自在完成時結束整個程序，所以另一個永遠沒開始，且不加 `--apply` 的路徑在第一個之後就返回。現在兩者都執行，不論旗標順序都是 Skills 先、指令後，各自印出自己的段落，並以兩者中較差的結束碼結束（任一邊失敗即非 0，`--apply` 對帳已記下的失敗也一樣）。單一範圍（只帶 `--skills` 或只帶 `--commands`）的行為與輸出和以前完全相同，`--plan --skills --commands` 本來就會規劃兩者，沒有改變。**誰會看到差異：** 傳過兩個旗標的人。請再執行一次 `uds update --apply --yes --skills --commands`；經過那次有問題的執行的專案沒有損壞，只是它的 Skills（或指令）落後。有一件事這次沒有改變：只帶單一範圍的 `--apply` 在對帳中失敗時仍以結束碼 0 結束，因為該步驟一向以明確的 0 結束程序。

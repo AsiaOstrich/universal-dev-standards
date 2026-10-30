@@ -9,21 +9,34 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.1-beta.1`
+## Current beta | 目前的測試版：`6.14.1-beta.2`
 
-> **New in 6.14.1-beta.1** — a security fix on top of stable 6.14.0. The dangerous-command hook (`scripts/hooks/check-dangerous-cmd.mjs`) exited 1 where Claude Code blocks only on exit 2, so it never stopped a command (replaying 11,617 real shell calls, the rule fired 26 times and the host blocked 0); it now exits 2 and judges only `tool_input.command`. Also: the commit-message hook checks `git commit -am` and every other way git takes a message; `uds update --skills --commands` runs both scopes; the structured-logging hook now reaches the model; `mock-boundary` 1.3.0 requires a test that runs a blocking hook the way the host does.
-> **6.14.1-beta.1 新增** — 建立在正式版 6.14.0 之上的安全修正。危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）原本以 exit 1 結束，而 Claude Code 只認 exit 2，所以從來沒擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2，且只判斷 `tool_input.command`。另有：提交訊息 hook 會檢查 `git commit -am` 與 git 接收訊息的其他寫法；`uds update --skills --commands` 兩邊都執行；結構化日誌 hook 的訊息現在會傳到模型；`mock-boundary` 1.3.0 要求為攔截型 hook 寫一支以宿主方式執行它的測試。
+> **New in 6.14.1-beta.2** — one fix on top of beta.1: `uds update --with-hooks` now replaces a hook script that an older UDS installed and nobody edited, also when the hook is already set up, so a project that has the dangerous-command hook gets the version that blocks (in beta.1 it kept the old copy, which never blocks, and you had to copy the file by hand). A script you edited is kept and listed; `--force` overwrites it. `--apply` and plain `uds update` still do not replace hook scripts; they print a line that says so when one is out of date. Everything below from beta.1 still applies.
+> **6.14.1-beta.2 新增** — 在 beta.1 之上的一項修正：`uds update --with-hooks` 現在會替換舊版 UDS 安裝、且沒有人改過的 hook 腳本，即使 hook 已經設定好，所以已有危險指令 hook 的專案會拿到會攔截的版本（beta.1 會留下從不攔截的舊副本，得手動複製檔案）。你改過的腳本會被保留並列出；`--force` 才會覆蓋。`--apply` 與一般的 `uds update` 仍不替換 hook 腳本；腳本過期時它們會印一行說明。以下 beta.1 的內容仍然適用。
 
-**Behavior changes in 6.14.1-beta.1 — read this first.**
+> **Carried from 6.14.1-beta.1** — a security fix on top of stable 6.14.0. The dangerous-command hook (`scripts/hooks/check-dangerous-cmd.mjs`) exited 1 where Claude Code blocks only on exit 2, so it never stopped a command (replaying 11,617 real shell calls, the rule fired 26 times and the host blocked 0); it now exits 2 and judges only `tool_input.command`. Also: the commit-message hook checks `git commit -am` and every other way git takes a message; `uds update --skills --commands` runs both scopes; the structured-logging hook now reaches the model; `mock-boundary` 1.3.0 requires a test that runs a blocking hook the way the host does.
+> **沿用自 6.14.1-beta.1** — 建立在正式版 6.14.0 之上的安全修正。危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）原本以 exit 1 結束，而 Claude Code 只認 exit 2，所以從來沒擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2，且只判斷 `tool_input.command`。另有：提交訊息 hook 會檢查 `git commit -am` 與 git 接收訊息的其他寫法；`uds update --skills --commands` 兩邊都執行；結構化日誌 hook 的訊息現在會傳到模型；`mock-boundary` 1.3.0 要求為攔截型 hook 寫一支以宿主方式執行它的測試。
+
+**Behavior changes in 6.14.1-beta.2 — read this first.**
+- `uds update --with-hooks` now replaces a hook script that is an unmodified copy of an older UDS release (compared by content, line endings ignored), also when the hook config is already present. The output names each file and the release it came from. `uds update --with-hooks --plan` lists them and writes nothing.
+- A hook script you edited is **kept** and listed, with a note that it will not receive later fixes. `uds update --with-hooks --force` overwrites it with the shipped version, **with no backup of your edit**, also when the hook is already installed (before, `--force` did so only while installing a missing hook).
+- `uds update --apply`, a bare `uds update --force` and plain `uds update` do **not** manage hook scripts. They print one line, naming `uds update --with-hooks`, when a script is an out-of-date unmodified copy.
+
+**Behavior changes in 6.14.1-beta.1 — still apply.**
 - The dangerous-command hook now blocks (exit 2). `rm -rf /home` and other paths below the root are **no longer** blocked; `rm` is blocked only when it is recursive and its target is exactly `/`, `/*`, `~`, `~/` or `$HOME`.
 - The commit-message hook now blocks `git commit -am "wip"`, `--message`, the second commit of a chain and a commit after `VAR=value` when the message is not a Conventional Commit; messages that contain `;` or `&&`, and the `-m "$(cat <<'EOF' ... EOF)"` form, are no longer blocked by mistake.
-- A project that already has the dangerous-command hook **keeps its old script**: `uds update --with-hooks`, `uds update --with-hooks --force` and `uds update --apply` do not replace `scripts/hooks/check-dangerous-cmd.mjs`. Copy the shipped file over it (`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`).
+- In beta.1 a project that already had the dangerous-command hook **kept its old script** (`uds update --with-hooks`, `--with-hooks --force` and `--apply` did not replace `scripts/hooks/check-dangerous-cmd.mjs`). Fixed in 6.14.1-beta.2 (first list above): run `uds update --with-hooks`.
 - `uds update --skills --commands` now ends with the worse of the two exit codes.
 
-**6.14.1-beta.1 的行為改變，請先讀。**
+**6.14.1-beta.2 的行為改變，請先讀。**
+- `uds update --with-hooks` 現在會替換「與舊版 UDS 出貨內容逐位元相同」的 hook 腳本（依內容比對，忽略換行字元），即使 hook 設定已存在。輸出會列出每個檔案與它來自哪一版。`uds update --with-hooks --plan` 只列出、不寫檔。
+- 你改過的 hook 腳本會被**保留**並列出，並說明它拿不到之後的修正。`uds update --with-hooks --force` 會用出貨版覆蓋它，**你的修改沒有備份**，hook 已經安裝時也一樣（以前 `--force` 只在補裝缺少的 hook 時才會覆蓋）。
+- `uds update --apply`、單獨的 `--force` 與一般的 `uds update` **不**管理 hook 腳本。腳本是過期且未改過的副本時，它們會印一行說明並指出 `uds update --with-hooks`。
+
+**6.14.1-beta.1 的行為改變，仍然適用。**
 - 危險指令 hook 現在會攔截（exit 2）。`rm -rf /home` 與根目錄之下的其他路徑**不再**被攔截；`rm` 只在遞迴且目標正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 時才攔截。
 - 提交訊息 hook 現在會在訊息不是 Conventional Commit 時擋下 `git commit -am "wip"`、`--message`、串接命令的第二個提交與 `VAR=value` 之後的提交；訊息裡含 `;` 或 `&&`，以及 `-m "$(cat <<'EOF' ... EOF)"` 寫法，不再被誤擋。
-- 已經安裝危險指令 hook 的專案**會保留舊腳本**：`uds update --with-hooks`、`uds update --with-hooks --force` 與 `uds update --apply` 都不會替換 `scripts/hooks/check-dangerous-cmd.mjs`。請把隨附的檔案複製過去覆蓋（`cp "$(npm root -g)/universal-dev-standards/bundled/hooks/check-dangerous-cmd.mjs" scripts/hooks/`）。
+- beta.1 中，已經安裝危險指令 hook 的專案**會保留舊腳本**（`uds update --with-hooks`、`--with-hooks --force` 與 `--apply` 都不替換 `scripts/hooks/check-dangerous-cmd.mjs`）。6.14.1-beta.2 已修正（見上方第一組）：請執行 `uds update --with-hooks`。
 - `uds update --skills --commands` 現在以兩者較差的結束碼結束。
 
 > **New in 6.14.0-beta.9** — three small fixes found in the beta.8 macOS manual acceptance: `uds spec delete` says a spec is not there before asking whether to delete it (and exits 1); the spec `uds spec split` writes keeps the blank line before `**Confirmed**`; the error-exit gate hints of `uds check` and `uds update` follow the UI language instead of always printing Chinese. Everything below from beta.8 still applies.
@@ -60,11 +73,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.1-beta.1
+node scripts/beta-acceptance/run.mjs --version 6.14.1-beta.2
 ```
 
-It installs the published 6.14.1-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.1-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.14.1-beta.2 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.14.1-beta.2 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 344 steps (336 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 344 步（336 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1108,14 +1121,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.1-beta.1/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.1-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.1-beta.2/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.14.1-beta.2/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.1-beta.1 沒有 6.14.1-beta.1 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.14.1-beta.2 沒有 6.14.1-beta.2 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.14.1-beta.2 沒有 6.14.1-beta.2 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.14.1-beta.2 沒有 6.14.1-beta.2 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
