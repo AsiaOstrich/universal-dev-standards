@@ -68,9 +68,23 @@ setup() {
 # SAME commit as pre-release-check.sh this time — the whole point of the two
 # red incidents above was that this file and pre-release-check.sh drift apart
 # when only one of them gets touched.
+# Red a fourth time 2026-10-30: 6.14.1-beta.2 added step 29 and bumped TOTAL 29 → 30 in
+# pre-release-check.sh; the literal below still said 29, so CI's "Check Script Ratchet" was red on
+# beta.2 and on 6.14.1. Hand-bumping a literal in a second file is what failed four times, so the
+# expected value is no longer a literal: TOTAL is the number of the highest-numbered step plus one
+# (the sub-steps 1.5 / 7.5 / 18.5..18.10 / 22.5 are why it is not the count of steps), and the
+# highest step is read from the `run_check "N"` calls and the `[N/$TOTAL]` banners themselves.
 @test "TOTAL counter matches the step count the script displays" {
-  run grep "^TOTAL=29" "$SCRIPT"
+  last=$(grep -oE 'run_check "[0-9]+|\[[0-9]+[./]' "$SCRIPT" | grep -oE '[0-9]+' | sort -n | tail -1)
+  [ -n "$last" ]
+  run grep -E "^TOTAL=$((last + 1))\$" "$SCRIPT"
   [ "$status" -eq 0 ]
+}
+
+@test "pre-release-check.sh defines Step 29 hook-script fingerprint check" {
+  run grep -c "generate-hook-fingerprints.mjs --self-test" "$SCRIPT"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
 }
 
 @test "--skip-tests does not skip Dogfooding Gate" {
