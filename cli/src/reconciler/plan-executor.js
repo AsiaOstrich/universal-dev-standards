@@ -27,7 +27,7 @@ import {
   installCommandsToMultipleAgents
 } from '../utils/skills-installer.js';
 import { writeManifest, mergeInstalledNames } from '../core/manifest.js';
-import { getRepositoryInfo } from '../utils/registry.js';
+import { getRepositoryInfo, isShippedFilename } from '../utils/registry.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js';
 import { createBackup, cleanupBackups, finalizeBackup } from './backup-manager.js';
@@ -359,6 +359,45 @@ function removeUdsBlock(targetPath) {
 }
 
 /**
+ * A standard UDS retired (its registry entry is gone) has just been deleted from `.standards/`: make `manifest.standards` stop naming it.
+ *
+ * Without this the file went and the name stayed. `uds check` then warned "Manifest entries that match no installed standard ...
+ * `uds update` does not prune them: delete them from the "standards" list", and the next `uds update` wrote the same sentence
+ * into the adopter's CLAUDE.md ("1 manifest entry could not be matched to an installed file"). Found when `open-work-tracking`
+ * stopped being a standard (dev-platform XSPEC-427): the one command that removes the file left the one entry that makes the
+ * project look broken.
+ *
+ * The CLAUDE.md and AGENTS.md blocks are generated from `manifest.standards` by the migrate_block actions. `diffPlan` lists the standards
+ * before the integrations, so by the time a block is rewritten the entry is already gone and the block does not name the standard.
+ *
+ * An entry is dropped when it is the file's path (`ai/standards/x.ai.yaml`) or the id the file is named after (`x`). A standard
+ * UDS still ships is never touched: the file is only deleted for it when the manifest does not list it, so there is nothing to drop.
+ *
+ * @param {Object} manifest - Manifest being rewritten (mutated)
+ * @param {string} deletedPath - Path of the deleted file, relative to the project (e.g. `.standards/x.ai.yaml`)
+ * @returns {string[]} The manifest entries that were dropped
+ */
+export function dropRetiredStandardEntries(manifest, deletedPath) {
+  if (!Array.isArray(manifest?.standards)) return [];
+  const fileName = String(deletedPath || '').replace(/\\/g, '/').split('/').pop();
+  if (!fileName || isShippedFilename(fileName)) return [];
+  const names = (entry) => {
+    if (typeof entry !== 'string') return false;
+    const normalized = entry.replace(/\\/g, '/');
+    const isThatPath = normalized.split('/').pop() === fileName;
+    const isThatId = !normalized.includes('/') && !normalized.includes('.') && `${normalized}.ai.yaml` === fileName;
+    return isThatPath || isThatId;
+  };
+  const dropped = manifest.standards.filter(names);
+  manifest.standards = manifest.standards.filter((entry) => !names(entry));
+  // The copy of the list that each integration file's config keeps (a snapshot taken when the file was written) names it too.
+  for (const config of Object.values(manifest.integrationConfigs || {})) {
+    if (Array.isArray(config?.installedStandards)) config.installedStandards = config.installedStandards.filter((entry) => !names(entry));
+  }
+  return dropped;
+}
+
+/**
  * Execute a delete action.
  */
 function executeDelete(projectPath, action, manifest) {
@@ -385,6 +424,7 @@ function executeDelete(projectPath, action, manifest) {
     // Remove from manifest tracking
     delete manifest.fileHashes[action.path];
     delete manifest.integrationBlockHashes[action.path];
+    if (action.category === 'standard') dropRetiredStandardEntries(manifest, action.path);
 
     return { action, success: true };
   } catch (err) {
