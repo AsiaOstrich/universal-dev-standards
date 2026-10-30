@@ -51,6 +51,7 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { regenerateIntegrations } from './update.js';
 import { mergeInstalledNames, bumpManifestVersion } from '../core/manifest.js';
+import { replaceSkillHashesForInstalled } from '../utils/skill-hash-ownership.js';
 
 /**
  * Get localized message with fallback (for config-specific keys)
@@ -1008,9 +1009,7 @@ export async function runProjectConfiguration(options) {
               }
             }
             manifest.skills.names = mergeInstalledNames(manifest.skills.names, skillResult);
-            if (skillResult.allFileHashes) {
-              manifest.skillHashes = { ...(manifest.skillHashes || {}), ...skillResult.allFileHashes };
-            }
+            replaceSkillHashesForInstalled(manifest, skillResult);
           }
         }
       }

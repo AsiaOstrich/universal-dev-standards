@@ -33,6 +33,7 @@ import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js'
 import { createBackup, cleanupBackups, finalizeBackup } from './backup-manager.js';
 import { bookkeepingFiles } from './install-roots.js';
 import { alignRecordedVersions } from './recorded-versions.js';
+import { replaceSkillHashesForInstalled } from '../utils/skill-hash-ownership.js';
 
 /**
  * @typedef {Object} ExecutionResult
@@ -555,9 +556,8 @@ async function executeSkillBatch(projectPath, skillActions, manifest) {
           skillLocale
         );
 
-        if (installResult.allFileHashes) {
-          Object.assign(manifest.skillHashes, installResult.allFileHashes);
-        }
+        // Replace, not merge: files the installer pruned from a rewritten skill must lose their records (#46).
+        replaceSkillHashesForInstalled(manifest, installResult);
         // XSPEC-475 R6: the skill files were just rewritten to what this UDS ships, so the records that describe them
         // are brought to match. They were left at the old version and name list (the 6.11.0 -> 6.14 upgrade rewrote about
         // 200 files and still recorded 6.11.0 and no `comprehension-ladder`), and the second command `--skills` was the

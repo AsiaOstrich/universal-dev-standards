@@ -31,7 +31,7 @@ import {
   getToolFromPath
 } from '../utils/reference-sync.js';
 import { checkForUpdates } from '../utils/npm-registry.js';
-import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
+import { pruneForeignSkillHashes, replaceSkillHashesForInstalled } from '../utils/skill-hash-ownership.js';
 import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
 import { pruneForeignSkillNames, pruneForeignCommandNames } from '../utils/installed-names-ownership.js';
 import { commandsUpdatedMessage } from '../utils/update-summary.js';
@@ -1360,8 +1360,7 @@ export async function updateCommand(options) {
 
           // Update skill hashes for integrity tracking
           if (skillResult.allFileHashes) {
-            if (!manifest.skillHashes) manifest.skillHashes = {};
-            Object.assign(manifest.skillHashes, skillResult.allFileHashes);
+            replaceSkillHashesForInstalled(manifest, skillResult);
           }
 
           if (skillResult.totalErrors === 0) {
@@ -1398,8 +1397,7 @@ export async function updateCommand(options) {
 
           // Update skill hashes for integrity tracking
           if (updateResult.allFileHashes) {
-            if (!manifest.skillHashes) manifest.skillHashes = {};
-            Object.assign(manifest.skillHashes, updateResult.allFileHashes);
+            replaceSkillHashesForInstalled(manifest, updateResult);
           }
 
           if (updateResult.totalErrors === 0) {
@@ -1529,8 +1527,7 @@ export async function updateCommand(options) {
           manifest.skills.installations = deduplicateInstallations([...(manifest.skills.installations || []), ...missingSkills]);
           manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
           if (result.allFileHashes) {
-            if (!manifest.skillHashes) manifest.skillHashes = {};
-            Object.assign(manifest.skillHashes, result.allFileHashes);
+            replaceSkillHashesForInstalled(manifest, result);
           }
           if (result.totalErrors === 0) {
             spinner.succeed((msg.newSkillsInstalled || 'Installed Skills for {count} AI tools').replace('{count}', missingSkills.length));
@@ -1553,8 +1550,7 @@ export async function updateCommand(options) {
             manifest.skills.location = uniqueLevels.length === 1 ? uniqueLevels[0] : (uniqueLevels.length > 1 ? 'multiple' : undefined);
           }
           if (result.allFileHashes) {
-            if (!manifest.skillHashes) manifest.skillHashes = {};
-            Object.assign(manifest.skillHashes, result.allFileHashes);
+            replaceSkillHashesForInstalled(manifest, result);
           }
           if (result.totalErrors === 0) {
             spinner.succeed((msg.skillsUpdated || 'Updated Skills for {count} AI tools').replace('{count}', outdatedSkills.length));
@@ -3054,8 +3050,7 @@ async function updateSkillsOnly(projectPath, manifest, options, { chained = fals
 
   // Update skill hashes for integrity tracking
   if (result.allFileHashes) {
-    if (!manifest.skillHashes) manifest.skillHashes = {};
-    Object.assign(manifest.skillHashes, result.allFileHashes);
+    replaceSkillHashesForInstalled(manifest, result);
   }
   // XSPEC-454 R2: and forget the records that were never UDS's (the manifest this merges into
   // may come from an installer that hashed the whole skills folder).
