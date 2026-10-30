@@ -179,15 +179,22 @@ describe('uds update --with-hooks on a project whose hooks are already installed
   });
 });
 
-describe('the other `uds update` forms do not replace hook scripts, and say so', { timeout: 60000 }, () => {
-  it('`uds update --plan` and `--apply` leave the old script and name the command that replaces it', () => {
-    for (const args of [['--plan'], ['--apply', '--yes']]) {
-      const root = projectWithInstalledHooks(OLD_SCRIPT);
-      const r = uds(root, args);
-      expect(readBytes(root, REL).equals(OLD_SCRIPT), `${args.join(' ')} does not manage hook scripts`).toBe(true);
-      expect(r.out, args.join(' ')).toMatch(/1 hook script\(s\) in scripts\/hooks\/ are unmodified copies of an older UDS and are NOT updated by this command: check-dangerous-cmd\.mjs/);
-      expect(r.out, args.join(' ')).toContain('uds update --with-hooks');
-    }
+// `--apply` and plain `uds update` replace them too since decision 212甲 (tests/unit/hooks/update-replaces-hook-scripts.test.js).
+// What is left here: the forms that do not write, or that are narrowed to something else.
+describe('`--plan` and the narrowed `uds update` forms do not replace hook scripts, and say so', { timeout: 60000 }, () => {
+  it('`--plan` leaves the old script and says `--apply` would replace it', () => {
+    const root = projectWithInstalledHooks(OLD_SCRIPT);
+    const r = uds(root, ['--plan']);
+    expect(readBytes(root, REL).equals(OLD_SCRIPT), '--plan writes nothing').toBe(true);
+    expect(r.out).toMatch(/would replace 1 out-of-date hook script\(s\) in scripts\/hooks\/: check-dangerous-cmd\.mjs/);
+  });
+
+  it('`--plan --skills` is narrowed: it leaves the old script and names the command that replaces it', () => {
+    const root = projectWithInstalledHooks(OLD_SCRIPT);
+    const r = uds(root, ['--plan', '--skills']);
+    expect(readBytes(root, REL).equals(OLD_SCRIPT)).toBe(true);
+    expect(r.out).toMatch(/1 hook script\(s\) in scripts\/hooks\/ are unmodified copies of an older UDS and are NOT updated by this command: check-dangerous-cmd\.mjs/);
+    expect(r.out).toContain('uds update --apply');
   });
 
   it('says nothing when the script is current, and nothing when it is the adopter\'s own edit', () => {

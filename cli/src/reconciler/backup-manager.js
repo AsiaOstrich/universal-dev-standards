@@ -295,12 +295,14 @@ export function createBackup(projectPath, plan, options = {}) {
  * @param {Object} spec
  * @param {string} spec.label - 'skills' | 'commands'
  * @param {string[]} spec.paths - Project-relative directories the step writes into
+ * @param {string[]} [spec.mustBackUp] - Project-relative paths the step is about to OVERWRITE (hook scripts):
+ *   the backup's `coverage` counts them, so a copy that did not happen shows as a gap instead of as nothing
  * @param {Array<{path: string, reason: string}>} [spec.notBackedUp] - Targets outside the project
  */
 export function createStepBackup(projectPath, spec) {
   return snapshot(projectPath, {
     label: spec.label,
-    mustBackUp: [],
+    mustBackUp: spec.mustBackUp || [],
     alsoWatch: spec.paths || [],
     notBackedUp: spec.notBackedUp || [],
     plan: { summary: null, actionCount: 0, actions: [] }

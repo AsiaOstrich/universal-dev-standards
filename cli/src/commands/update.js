@@ -58,7 +58,7 @@ import {
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
 import { detectAITools } from '../utils/detector.js';
-import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks, staleHookScripts } from '../installers/hooks-installer.js';
+import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks, diffHookScripts, replaceStaleHookScripts } from '../installers/hooks-installer.js';
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
 import { installGateScripts, gateStandardInstalled, GATE_SCRIPTS } from '../utils/gate-scripts.js';
 import { migrateLegacyHuskyHook, migrateHuskyBlockWithoutCi, migrateOlderNativeHook } from '../utils/legacy-hook-migration.js';
@@ -431,16 +431,23 @@ export async function updateCommand(options) {
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
 
-  // Hook scripts are not part of what this command (or --apply, --force, --plan) reconciles; only
-  // `--with-hooks` replaces them. Say so when one is out of date, because the symptom of an old
-  // script is a hook that quietly does not do what the new version does (6.14.1-beta.1: the
+  // Hook scripts in scripts/hooks/ (decision 212甲, 2026-10-30). The forms that update the project
+  // (`--apply`, `--force`, plain `uds update`) replace the ones that are unmodified copies of an older UDS,
+  // after taking a backup, and keep the ones the adopter edited; `--plan` says what they would replace.
+  // The forms that are narrowed to something else (`--skills`, `--commands`, `--integrations-only`,
+  // `--standards-only`, `--sync-refs`, `--claude-target`) leave them alone and say so, because the symptom of an
+  // old script is a hook that quietly does not do what the new version does (6.14.1-beta.1: the
   // dangerous-command hook that never blocked).
   if (!options.withHooks && !options.rollback) {
-    const stale = staleHookScripts(projectPath);
-    if (stale.length) {
-      console.log(chalk.yellow(`  ! ${stale.length} hook script(s) in scripts/hooks/ are unmodified copies of an older UDS and are NOT updated by this command: ${stale.slice(0, 5).map((x) => x.path).join(', ')}${stale.length > 5 ? ', ...' : ''}`));
-      console.log(chalk.gray('    Replace them with:  uds update --with-hooks   (add --plan first to see what changes)'));
-      console.log();
+    if (!hookStepApplies(options)) {
+      const stale = diffHookScriptsQuietly(projectPath).stale;
+      if (stale.length) {
+        console.log(chalk.yellow(`  ! ${stale.length} hook script(s) in scripts/hooks/ are unmodified copies of an older UDS and are NOT updated by this command: ${stale.slice(0, 5).map((x) => x.path).join(', ')}${stale.length > 5 ? ', ...' : ''}`));
+        console.log(chalk.gray('    Replace them with:  uds update --apply   (add --plan first to see what changes)'));
+        console.log();
+      }
+    } else if (options.plan) {
+      reportHookScriptsForPlan(projectPath);
     }
   }
 
@@ -681,7 +688,11 @@ export async function updateCommand(options) {
       writeManifest(manifest, projectPath);
     }
 
+    // Decision 212甲: a current version record says nothing about the scripts in scripts/hooks/. After the manifest
+    // write above, because the hook step reads and writes the manifest itself.
+    const hooksOnLatest = hookStepApplies(options) ? runHookScriptStep(projectPath) : { failed: false };
     console.log();
+    if (hooksOnLatest.failed) process.exitCode = 1;
     return;
   }
 
@@ -726,6 +737,14 @@ export async function updateCommand(options) {
     console.log(chalk.cyan(msg.newStandardsFound.replace('{count}', newStandards.length)));
     for (const ns of newStandards) {
       console.log(chalk.green(`  + .standards/${ns.name}`));
+    }
+  }
+  // Part of what the confirmation below agrees to (decision 212甲).
+  if (hookStepApplies(options)) {
+    const hookStale = diffHookScriptsQuietly(projectPath).stale;
+    if (hookStale.length) {
+      console.log();
+      console.log(chalk.gray(`  scripts/hooks/ - ${hookStale.length} unmodified copy(ies) of an older UDS will be replaced (copied to .uds-backups/ first): ${fmtHookList(hookStale.map((x) => x.path))}`));
     }
   }
   console.log();
@@ -1687,6 +1706,13 @@ export async function updateCommand(options) {
     }
   }
 
+  // Decision 212甲: replace the unmodified old hook scripts (backup first). After every manifest write above.
+  let hookStepFailed = false;
+  if (hookStepApplies(options)) {
+    console.log();
+    hookStepFailed = runHookScriptStep(projectPath).failed;
+  }
+
   console.log();
 
   // 錯誤訊息單一出口閘門：問過才寫，而且從不覆寫。
@@ -1697,7 +1723,7 @@ export async function updateCommand(options) {
 
   // Exit explicitly to prevent hanging.
   // T11: a partial update exits non-zero so CI / scripts can detect the failure.
-  process.exit(updateIncomplete ? 1 : 0);
+  process.exit(updateIncomplete || hookStepFailed ? 1 : 0);
 }
 
 /**
@@ -2044,15 +2070,24 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
     console.log(chalk.gray(`  ${tool}: ${resolved.sources[tool].join(', ')}`));
   }
 
-  const { results, scripts, artifacts } = installMissingHooks(projectPath, resolved.tools, {
+  const install = () => installMissingHooks(projectPath, resolved.tools, {
     plan: !!options.plan,
     overwriteScripts: !!options.force,
   });
+  // A real run takes a rollback point first: the unmodified old scripts that are about to be replaced, and with
+  // `--force` the edited ones that are about to be overwritten, are copied to `.uds-backups/` (decision 212甲).
+  const guarded = options.plan
+    ? { ok: true, value: install(), backupId: null }
+    : withHookScriptBackup(projectPath, { overwrite: !!options.force, watchNew: true }, install);
+  if (!guarded.ok) return; // nothing changed (no backup) or the write failed and was undone; already explained
+  const { results, scripts, artifacts } = guarded.value;
 
   // Record what was just written (hook scripts, and folders UDS had to create) in
   // the manifest, so `uds uninstall` can remove exactly that. Never on --plan: a
   // plan writes nothing, and the recorder is empty then anyway.
   if (!options.plan) persistRecorder(projectPath, artifacts);
+  // After the manifest write, so the backup records the manifest this step left behind.
+  if (guarded.backupId) finalizeBackup(projectPath, guarded.backupId);
 
   let failed = false;
   for (const r of results) {
@@ -2064,26 +2099,14 @@ export async function updateHooksOnly(projectPath, manifest, options = {}) {
   }
   // Scripts are judged apart from the hook config: a config that is already there says nothing about
   // whether the script beside it is current (6.14.1-beta.1 shipped a security fix to exactly such a script).
-  const fmt = (list) => `${list.slice(0, 5).join(', ')}${list.length > 5 ? ', ...' : ''}`;
-  // A plan reports what is measured; a real run reports only what the installer says it WROTE
-  // (`replaced`), never what it measured — so a refresh that did nothing cannot print "replaced".
-  const sinceOf = new Map((scripts.stale ?? []).map((x) => [x.path, x.since]));
-  const stale = (options.plan ? (scripts.stale ?? []).map((x) => x.path) : (scripts.replaced ?? []));
-  if (stale.length) {
-    const named = fmt(stale.map((p) => `${p} (unmodified copy from UDS ${sinceOf.get(p)})`));
-    if (options.plan) console.log(chalk.cyan(`  + would replace ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
-    else console.log(chalk.green(`  ✓ replaced ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
-  }
-  const overwritten = options.plan ? (options.force ? scripts.kept : []) : (scripts.overwritten ?? []);
-  if (overwritten.length) {
-    if (options.plan) console.log(chalk.cyan(`  + --force would overwrite ${overwritten.length} edited hook script(s): ${fmt(overwritten)}`));
-    else console.log(chalk.yellow(`  ! --force: overwrote ${overwritten.length} edited hook script(s) with the shipped version: ${fmt(overwritten)}`));
-  }
-  const kept = options.plan && options.force ? [] : scripts.kept;
-  if (kept.length) {
-    console.log(chalk.yellow(`  ! ${kept.length} hook script(s) in scripts/hooks/ differ from this UDS version and ${options.plan ? 'would be' : 'were'} kept: ${fmt(kept)}`));
-    console.log(chalk.gray('    They match no copy UDS ever shipped, so they look edited (or are not UDS\'s). An edited script does not receive fixes made to the shipped one.'));
-    console.log(chalk.gray('    Add --force to overwrite them with the shipped versions.'));
+  const { stale, overwritten } = printHookScriptReport(scripts, {
+    plan: !!options.plan,
+    force: !!options.force,
+    forceCommand: 'uds update --with-hooks --force'
+  });
+  if (guarded.backupId) {
+    printBackupLocation(guarded.backupId);
+    printBackupCleanup(guarded.cleanup);
   }
   if (results.some((r) => r.tool === 'antigravity' && r.outcome === 'installed')) {
     console.log(chalk.yellow('    ⚠ Verified against a real agy session for a single turn without tool calls in `agy -p` mode only; multi-turn, tool-call turns and interactive mode are not yet verified.'));
@@ -3647,6 +3670,159 @@ function finishStepBackup(projectPath, backup) {
   printBackupCleanup(backup.cleanup);
 }
 
+// ─── Hook scripts in scripts/hooks/ (decision 212甲) ─────────────────
+
+/**
+ * Does this invocation replace out-of-date hook scripts? Same gate as the pre-commit migration: a run narrowed to
+ * something else stays narrowed, and `--with-hooks` has its own path (updateHooksOnly).
+ */
+function hookStepApplies(options) {
+  return !options.rollback && !options.withHooks && !options.skills && !options.commands
+    && !options.standardsOnly && !options.integrationsOnly && !options.syncRefs && !options.claudeTarget;
+}
+
+/** The measured state of scripts/hooks/, or an empty one: a notice about scripts is never why `uds update` fails. */
+function diffHookScriptsQuietly(projectPath) {
+  try {
+    return diffHookScripts(projectPath);
+  } catch {
+    return { added: 0, addedPaths: [], identical: 0, stale: [], kept: [] };
+  }
+}
+
+const hookRel = (p) => `scripts/hooks/${p}`;
+const fmtHookList = (list) => `${list.slice(0, 5).join(', ')}${list.length > 5 ? ', ...' : ''}`;
+
+/**
+ * Print what happened (or, with `plan`, what would happen) to the hook scripts. One set of lines for every
+ * command that touches them. Returns the three lists it printed.
+ *
+ * @param {{ stale?: Array<{path:string, since:string}>, kept: string[], replaced?: string[], overwritten?: string[] }} scripts
+ * @param {{ plan?: boolean, force?: boolean, forceCommand: string }} ctx
+ */
+function printHookScriptReport(scripts, { plan = false, force = false, forceCommand }) {
+  // A plan reports what is measured; a real run reports only what the installer says it WROTE
+  // (`replaced`), never what it measured — so a refresh that did nothing cannot print "replaced".
+  const sinceOf = new Map((scripts.stale ?? []).map((x) => [x.path, x.since]));
+  const stale = plan ? (scripts.stale ?? []).map((x) => x.path) : (scripts.replaced ?? []);
+  if (stale.length) {
+    const named = fmtHookList(stale.map((p) => `${p} (unmodified copy from UDS ${sinceOf.get(p)})`));
+    if (plan) console.log(chalk.cyan(`  + would replace ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
+    else console.log(chalk.green(`  ✓ replaced ${stale.length} out-of-date hook script(s) in scripts/hooks/: ${named}`));
+  }
+  const overwritten = plan ? (force ? scripts.kept : []) : (scripts.overwritten ?? []);
+  if (overwritten.length) {
+    if (plan) console.log(chalk.cyan(`  + --force would overwrite ${overwritten.length} edited hook script(s): ${fmtHookList(overwritten)}`));
+    else console.log(chalk.yellow(`  ! --force: overwrote ${overwritten.length} edited hook script(s) with the shipped version: ${fmtHookList(overwritten)}`));
+  }
+  const kept = plan && force ? [] : scripts.kept;
+  if (kept.length) {
+    console.log(chalk.yellow(`  ! ${kept.length} hook script(s) in scripts/hooks/ differ from this UDS version and ${plan ? 'would be' : 'were'} kept: ${fmtHookList(kept)}`));
+    console.log(chalk.gray('    They match no copy UDS ever shipped, so they look edited (or are not UDS\'s). An edited script does not receive fixes made to the shipped one.'));
+    console.log(chalk.gray(`    To overwrite them with the shipped versions (a backup is taken first): ${forceCommand}`));
+  }
+  return { stale, overwritten, kept };
+}
+
+/** `--plan`: say which hook scripts `uds update --apply` (and plain `uds update`) would replace. Writes nothing. */
+function reportHookScriptsForPlan(projectPath) {
+  const scripts = diffHookScriptsQuietly(projectPath);
+  if (!scripts.stale.length && !scripts.kept.length) return;
+  printHookScriptReport(scripts, { plan: true, forceCommand: 'uds update --with-hooks --force' });
+  console.log();
+}
+
+/**
+ * Rewrite hook scripts with a rollback point (decision 212甲).
+ *
+ * The scripts about to be overwritten - the unmodified old copies and, when `overwrite`, the edited ones - are
+ * copied into a backup first, in the same `.uds-backups/` folder and format as every other step, so
+ * `uds update --rollback` puts them back. `write` then does the writing; if it throws, the backup is applied
+ * on the spot and nothing is left half-replaced.
+ *
+ * @param {string} projectPath
+ * @param {{ overwrite?: boolean, watchNew?: boolean }} opts
+ *   overwrite: the edited scripts are overwritten too (`--with-hooks --force`)
+ *   watchNew:  also watch the scripts that do not exist yet, so a rollback removes what the step created
+ * @param {() => any} write
+ * @returns {{ ok: boolean, value?: any, backupId: string|null, cleanup?: object|null }}
+ *   `ok: false`: nothing was changed (no backup could be taken) or the write failed and was undone; the
+ *   explanation is already printed and the exit code set.
+ */
+function withHookScriptBackup(projectPath, { overwrite = false, watchNew = false } = {}, write) {
+  const diff = diffHookScripts(projectPath);
+  const targets = [...diff.stale.map((x) => hookRel(x.path)), ...(overwrite ? diff.kept.map(hookRel) : [])];
+  if (targets.length === 0) return { ok: true, value: write(), backupId: null };
+
+  const backup = createStepBackup(projectPath, {
+    label: 'hooks',
+    mustBackUp: targets,
+    paths: watchNew ? diff.addedPaths.map(hookRel) : []
+  });
+  const missing = targets.filter((t) => !backup.backedUp.includes(t));
+  if (backup.errors.length > 0 || missing.length > 0) {
+    console.log(chalk.red('Could not take a backup before replacing hook scripts; nothing was changed.'));
+    for (const err of backup.errors) console.log(chalk.red(`  ${err}`));
+    for (const m of missing) console.log(chalk.red(`  Not backed up: ${m}`));
+    console.log();
+    process.exitCode = 1;
+    return { ok: false, backupId: backup.backupId };
+  }
+  const cleanup = cleanupBackupsQuietly(projectPath);
+
+  try {
+    return { ok: true, value: write(), backupId: backup.backupId, cleanup };
+  } catch (err) {
+    // The write failed part-way. Finalize first so the backup knows what the step created, then put everything back.
+    finalizeBackup(projectPath, backup.backupId);
+    const undo = rollbackLast(projectPath, backup.backupId);
+    console.log(chalk.red(`  ✗ Replacing hook scripts failed: ${err.message}`));
+    if (undo.success) {
+      console.log(chalk.yellow(`    The hook scripts were restored from the backup (${backup.backupId}); none was left half-replaced.`));
+    } else {
+      console.log(chalk.red(`    Restoring them from the backup ALSO failed: ${undo.errors.join('; ')}`));
+      console.log(chalk.red(`    Copy the files back by hand from ${backup.backupId}/scripts/hooks/.`));
+    }
+    console.log();
+    process.exitCode = 1;
+    return { ok: false, backupId: backup.backupId };
+  }
+}
+
+/**
+ * The hook-script step of `uds update --apply`, `--force` and plain `uds update`: replace the unmodified old
+ * copies (backup first), keep the edited ones and say so. Never installs a hook config or a script that is not
+ * there yet - that stays `--with-hooks`.
+ *
+ * Never throws: a hook-script problem is reported and sets the exit code, it does not abort the rest of the update.
+ *
+ * @returns {{ replaced: string[], failed: boolean }}
+ */
+function runHookScriptStep(projectPath) {
+  try {
+    const before = diffHookScripts(projectPath);
+    if (before.stale.length === 0 && before.kept.length === 0) return { replaced: [], failed: false };
+
+    const guarded = withHookScriptBackup(projectPath, {}, () => replaceStaleHookScripts(projectPath));
+    if (!guarded.ok) return { replaced: [], failed: true };
+    const { scripts, artifacts } = guarded.value;
+    // Record what was written in the manifest first, then finalize: the backup notes the manifest it left behind.
+    persistRecorder(projectPath, artifacts);
+    if (guarded.backupId) finalizeBackup(projectPath, guarded.backupId);
+    const printed = printHookScriptReport(scripts, { forceCommand: 'uds update --with-hooks --force' });
+    if (guarded.backupId) {
+      printBackupLocation(guarded.backupId);
+      printBackupCleanup(guarded.cleanup);
+    }
+    console.log();
+    return { replaced: printed.stale, failed: false };
+  } catch (err) {
+    console.log(chalk.yellow(`  ! Could not check the hook scripts in scripts/hooks/: ${err.message}`));
+    console.log();
+    return { replaced: [], failed: false };
+  }
+}
+
 /**
  * Say where the backup is, how to undo, and what to exclude (XSPEC-456 R7). All backups share one folder,
  * `.uds-backups/`, so a tool that does not read .gitignore (an indexer, IDE search, grep) can be told to
@@ -3840,6 +4016,9 @@ async function handlePlan(projectPath, options, manifest, addStandards = []) {
  * @param {{ force: boolean }} mode
  */
 async function handleReconcile(projectPath, options, { force, addStandards = [] }) {
+  // Decision 212甲: the hook scripts in scripts/hooks/ are part of what --apply brings up to date (a run narrowed
+  // to --skills/--commands is not: see hookStepApplies).
+  const replacesHooks = hookStepApplies(options);
   console.log(chalk.cyan(
     force
       ? 'Running declarative state reconciliation (force mode)...'
@@ -3870,7 +4049,12 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
       droppedNames = before - ((current.skills?.names?.length || 0) + (current.commands?.names?.length || 0)); // wire:up-to-date-prunes-names
     }
     if (current && ((pruneForeignSkillHashes(current).length + pruneForeignCommandHashes(current).length) > 0 || aligned || droppedNames > 0)) writeManifest(current, projectPath);
-    console.log(chalk.green('Everything is up to date. No changes needed.'));
+    // The reconciler has nothing to do, but a project whose version record is current can still be running a
+    // hook script from an older UDS (6.14.1 `--apply` recorded the new version and left the old script).
+    const hookStep = replacesHooks ? runHookScriptStep(projectPath) : { replaced: [] };
+    console.log(chalk.green(hookStep.replaced.length > 0
+      ? 'Standards, skills and integrations are up to date; only hook scripts needed changes.'
+      : 'Everything is up to date. No changes needed.'));
     if (droppedNames > 0) console.log(chalk.gray(`  ${t().commands.update.droppedForeignNames.replace('{count}', droppedNames)}`));
     // XSPEC-458 R2: "up to date" is about the files UDS manages; say what UDS ships that is not managed here.
     printAvailableStandardsSection(planResult.manifest, { phase: 'apply' });
@@ -3880,6 +4064,14 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
 
   console.log(formatPlan(planResult.plan));
   console.log();
+  // Not in the reconciler's plan, but part of what the confirmation below agrees to.
+  if (replacesHooks) {
+    const hookStale = diffHookScriptsQuietly(projectPath).stale;
+    if (hookStale.length) {
+      console.log(chalk.cyan(`  + ${hookStale.length} hook script(s) in scripts/hooks/ will be replaced (unmodified copies of an older UDS; copied to .uds-backups/ first): ${fmtHookList(hookStale.map((x) => x.path))}`));
+      console.log();
+    }
+  }
 
   // Confirm unless --yes
   {
@@ -3923,6 +4115,12 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     for (const err of result.errors) {
       console.log(chalk.gray(`  ${err}`));
     }
+  }
+
+  // Hook scripts are independent of the plan above: replaced (backup first) whether or not every action succeeded.
+  if (replacesHooks) {
+    console.log();
+    runHookScriptStep(projectPath);
   }
 
   if (!result.success) {

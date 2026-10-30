@@ -581,9 +581,9 @@ export function hookStatus(projectPath, tool) {
  * instead of a non-blocking exit 1) never arrived by any `uds update` form. "Differs" alone cannot
  * separate an old UDS copy from an adopter's edit; only a match against what UDS shipped can.
  */
-function scriptDiff(projectPath) {
+export function diffHookScripts(projectPath) {
   const src = hooksSourceDir();
-  const out = { added: 0, identical: 0, stale: [], kept: [] };
+  const out = { added: 0, addedPaths: [], identical: 0, stale: [], kept: [] };
   if (!src) return out;
   const table = loadFingerprints();
   const walk = (dir, rel = '') => {
@@ -591,7 +591,7 @@ function scriptDiff(projectPath) {
       const r = rel ? `${rel}/${e.name}` : e.name;
       if (e.isDirectory()) { walk(join(dir, e.name), r); continue; }
       const dest = join(projectPath, 'scripts', 'hooks', r);
-      if (!existsSync(dest)) { out.added++; continue; }
+      if (!existsSync(dest)) { out.added++; out.addedPaths.push(r); continue; }
       const have = readFileSync(dest);
       if (have.equals(readFileSync(join(dir, e.name)))) { out.identical++; continue; }
       const old = shippedBefore(r, have, table);
@@ -619,6 +619,11 @@ function refreshScripts(projectPath, scripts, { recorder, force = false } = {}) 
   const write = (rel) => {
     const dest = join(projectPath, 'scripts', 'hooks', rel);
     copyFileSync(join(src, rel), dest);
+    // Read it back: "copied" is a claim, the bytes on disk are the fact. A caller that holds a backup
+    // turns this throw into a restore, so a write that did not take can never be reported as replaced.
+    if (!readFileSync(dest).equals(readFileSync(join(src, rel)))) {
+      throw new Error(`scripts/hooks/${rel} does not match the shipped version after it was written`);
+    }
     recordFile(recorder, projectPath, relative(projectPath, dest), RECORD_KINDS.HOOK_SCRIPT);
   };
   scripts.replaced = scripts.stale.map((s) => s.path);
@@ -641,10 +646,32 @@ function refreshScripts(projectPath, scripts, { recorder, force = false } = {}) 
 export function staleHookScripts(projectPath) {
   // Advisory only: a notice about scripts must never be the reason `uds update` itself fails.
   try {
-    return scriptDiff(projectPath).stale;
+    return diffHookScripts(projectPath).stale;
   } catch {
     return [];
   }
+}
+
+/**
+ * Replace the hook scripts in the project that are unmodified copies of an EARLIER UDS, and nothing else.
+ *
+ * This is what the `uds update` forms that do not install hooks (`--apply`, plain `uds update`) use: no hook
+ * config is read or written, no script is added, an edited script is left alone (it comes back in
+ * `scripts.kept`). `plan: true` reads and reports, and writes nothing.
+ *
+ * It does not take a backup and does not catch a failed write: the caller owns the rollback point
+ * (see `withHookScriptBackup` in commands/update.js), because the backup has to be finalized after the
+ * manifest records are written, which only the caller knows.
+ *
+ * @param {string} projectPath
+ * @param {{ plan?: boolean, recorder?: object }} [opts]
+ * @returns {{ scripts: { stale: Array<{path:string, since:string}>, kept: string[], replaced?: string[], overwritten?: string[] }, artifacts: object }}
+ * @throws when a script cannot be written or does not read back equal to the shipped one
+ */
+export function replaceStaleHookScripts(projectPath, { plan = false, recorder = newRecorder() } = {}) {
+  const scripts = diffHookScripts(projectPath);
+  if (!plan) refreshScripts(projectPath, scripts, { recorder, force: false });
+  return { scripts, artifacts: recorder };
 }
 
 const INSTALLERS = {
@@ -678,7 +705,7 @@ const INSTALLERS = {
  */
 export function installMissingHooks(projectPath, tools, { plan = false, overwriteScripts = false, recorder = newRecorder() } = {}) {
   // Measured BEFORE anything is copied: afterwards every script would read "identical".
-  const scripts = scriptDiff(projectPath);
+  const scripts = diffHookScripts(projectPath);
   const results = [];
   for (const tool of tools) {
     const st = hookStatus(projectPath, tool);
