@@ -18,9 +18,9 @@ argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 
 # 知識圖
 
-> **語言**: [English](../../../../skills/knowledge-graph/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/knowledge-graph/SKILL.md) | 繁體中文
 
-依據[知識圖記憶標準](../../../../core/knowledge-graph-memory.md)的關係 schema，回答橫跨規格、決策與程式碼的結構性問題——*「XSPEC-205 的完整影響鏈是什麼？」*。有無圖引擎皆可運作。
+依據[知識圖記憶標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/knowledge-graph-memory.md)的關係 schema，回答橫跨規格、決策與程式碼的結構性問題——*「XSPEC-205 的完整影響鏈是什麼？」*。有無圖引擎皆可運作。
 
 > **Implements**: XSPEC-237 Phase 5 — knowledge-graph skill（EngramGraph opt-in）
 
@@ -49,7 +49,7 @@ argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 
 ## 關係 schema
 
-見[知識圖記憶標準](../../../../core/knowledge-graph-memory.md)。front-matter 欄位：`related`、`impacts`、`impacted_by`、`supersedes`、`implements`。邊推導：Decision `impacts` Spec → IMPACTS；Decision `supersedes` Decision → SUPERSEDES。
+見[知識圖記憶標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/knowledge-graph-memory.md)。front-matter 欄位：`related`、`impacts`、`impacted_by`、`supersedes`、`implements`。邊推導：Decision `impacts` Spec → IMPACTS；Decision `supersedes` Decision → SUPERSEDES。
 
 ## 下一步引導
 
@@ -59,6 +59,6 @@ argument-hint: "[artifact id, e.g. XSPEC-205 | 產物 id]"
 
 ## 參考
 
-- 標準：[core/knowledge-graph-memory.md](../../../../core/knowledge-graph-memory.md)
+- 標準：[core/knowledge-graph-memory.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/knowledge-graph-memory.md)
 - 引擎（opt-in）：[EngramGraph](https://github.com/AsiaOstrich/EngramGraph) — `engramgraph`
 - 詳細指南：[guide.md](guide.md)

@@ -18,7 +18,7 @@ argument-hint: "[verify | consumer | provider | 策略選擇]"
 
 # 合約測試助手
 
-> **語言**: [English](../../../../skills/contract-test-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/contract-test-assistant/SKILL.md) | 繁體中文
 
 引導 API 和微服務的合約測試策略選擇、設定和驗證。
 
@@ -93,7 +93,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 
 ### 遷移合約測試（替換實作時）
 
-當 API endpoint 從一個技術棧遷至另一個（PHP → .NET、Express → Spring 等），對 **legacy 參考 fixture** 的 contract test 可捕捉「缺漏欄位」「rename」「層級漂移」等新 DTO 單元測試無法覆蓋的缺陷。詳見 [migration-assistant § API Migration Contract Tests](../../../../skills/migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 取得 fixture 捕獲協議與稽核檢查清單。
+當 API endpoint 從一個技術棧遷至另一個（PHP → .NET、Express → Spring 等），對 **legacy 參考 fixture** 的 contract test 可捕捉「缺漏欄位」「rename」「層級漂移」等新 DTO 單元測試無法覆蓋的缺陷。詳見 [migration-assistant § API Migration Contract Tests](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/migration-assistant/SKILL.md#api-migration-contract-tests--api-遷移合約測試) 取得 fixture 捕獲協議與稽核檢查清單。
 
 ## 下一步引導
 
@@ -107,7 +107,7 @@ ASSESS ──► CHOOSE ──► DEFINE ──► IMPLEMENT ──► VERIFY
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md) — 合約測試的策略與實作。要設定 Pact／OpenAPI，或把合約測試接進 CI 時讀它。
-- 詳細指南：[contract-testing.md](../../options/testing/contract-testing.md)
+- 詳細指南：[contract-testing.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/options/testing/contract-testing.md)
 - 相關：[api-design-assistant](../api-design-assistant/SKILL.md)
 
 ## AI 代理行為

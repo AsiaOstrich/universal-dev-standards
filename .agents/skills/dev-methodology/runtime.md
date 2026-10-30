@@ -9,7 +9,7 @@ status: current
 
 # Methodology Runtime 指南
 
-> **語言**: [English](../../../../skills/dev-methodology/runtime.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/runtime.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能 / Experimental Feature**
@@ -276,17 +276,17 @@ prompt: promptZh || prompt
 ## 6. Prerequisite 檢查 / Prerequisite Checking
 
 在執行任何 slash 命令之前，請遵循定義於
-[`prerequisite-check.md`](../../../../skills/dev-methodology/prerequisite-check.md) 的 prerequisite 檢查協議。
+[`prerequisite-check.md`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/prerequisite-check.md) 的 prerequisite 檢查協議。
 
 **Priority**: 此檢查會在 phase 追蹤與 methodology 偵測之前執行。
 
 **與 Phase 追蹤的整合**：
 - 若使用者處於啟用中的 methodology session，使用該 methodology 的 phase
   序列作為主要的 prerequisite 來源
-- 若無啟用中的 methodology，使用 [`workflow-prerequisites.yaml`](../../../../methodologies/workflow-prerequisites.yaml) 作為 fallback
+- 若無啟用中的 methodology，使用 [`workflow-prerequisites.yaml`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/methodologies/workflow-prerequisites.yaml) 作為 fallback
 - 若多個 workflow 都包含該命令，只需滿足其中一個即可
 
-**Reference**: 完整的演算法、evidence 偵測規則及使用者提示模板，請參閱 [`prerequisite-check.md`](../../../../skills/dev-methodology/prerequisite-check.md)。
+**Reference**: 完整的演算法、evidence 偵測規則及使用者提示模板，請參閱 [`prerequisite-check.md`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/prerequisite-check.md)。
 
 ---
 

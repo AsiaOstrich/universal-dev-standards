@@ -18,7 +18,7 @@ status: stable
 
 # 旅程測試助手
 
-> **語言**: [English](../../../../skills/journey-test-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/journey-test-assistant/SKILL.md) | 繁體中文
 
 從專案描述生成連貫的使用者旅程測試計畫（TESTPLAN-NNN.md）與對應的 E2E 骨架，讓每個新專案從第一天起就擁有完整測試旅程。
 
@@ -209,6 +209,6 @@ describe.skipIf(!BASE_URL)("Platform Admin Journey — T-001 → T-010", () => {
 
 ## 參考
 
-- 標準：[user-journey-testing.ai.yaml](../../../../.standards/user-journey-testing.ai.yaml)
+- 標準：[user-journey-testing.ai.yaml](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/user-journey-testing.ai.yaml)
 - 相關 XSPEC：XSPEC-128（UDS 標準定義）
 - 相關 Skill：`/e2e`（AC 層測試）、`/atdd`（驗收條件定義）

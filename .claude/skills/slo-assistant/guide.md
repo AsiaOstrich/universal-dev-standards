@@ -14,7 +14,7 @@ description: |
 
 # SLO Assistant
 
-> **語言**：[English](../../../../skills/slo-assistant/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/slo-assistant/guide.md) | 繁體中文
 
 **版本**：1.0.0
 **最後更新**：2026-04-01
@@ -158,16 +158,16 @@ templates:
 ## 詳細準則
 
 完整標準請參閱：
-- [SLO Standards](../../core/slo-standards.md)
+- [SLO Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/slo-standards.md)
 
 ---
 
 ## 相關標準
 
-- [SLO Standards](../../core/slo-standards.md) - 核心標準
-- [Observability Standards](../../core/observability-standards.md) - 三大支柱框架
-- [Alerting Standards](../../core/alerting-standards.md) - 以 SLO 為基礎的告警
-- [Performance Standards](../../core/performance-standards.md) - 效能目標
+- [SLO Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/slo-standards.md) - 核心標準
+- [Observability Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/observability-standards.md) - 三大支柱框架
+- [Alerting Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/alerting-standards.md) - 以 SLO 為基礎的告警
+- [Performance Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/performance-standards.md) - 效能目標
 - [Observability Assistant](../observability-assistant/SKILL.md) - 監控設定
 - [Runbook Assistant](../runbook-assistant/SKILL.md) - 告警回應程序
 

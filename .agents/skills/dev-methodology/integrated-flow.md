@@ -476,11 +476,11 @@ After generating derived tests, append:
 
 ## Related Standards
 
-- [Spec-Driven Development](../../core/spec-driven-development.md)
-- [Behavior-Driven Development](../../core/behavior-driven-development.md)
-- [Test-Driven Development](../../core/test-driven-development.md)
-- [Acceptance Test-Driven Development](../../core/acceptance-test-driven-development.md)
-- [Forward Derivation Standards](../../core/forward-derivation-standards.md)
+- [Spec-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/spec-driven-development.md)
+- [Behavior-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/behavior-driven-development.md)
+- [Test-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md)
+- [Acceptance Test-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-test-driven-development.md)
+- [Forward Derivation Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/forward-derivation-standards.md)
 
 ---
 

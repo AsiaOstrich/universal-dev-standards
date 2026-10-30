@@ -14,7 +14,7 @@ description: |
 
 # 合約測試助手指南
 
-> **語言**: [English](../../../../skills/contract-test-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/contract-test-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-03-26
@@ -92,5 +92,5 @@ paths:
 
 ## 參考
 
-- 詳細標準：[contract-testing.md](../../../../options/testing/contract-testing.md)
+- 詳細標準：[contract-testing.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/options/testing/contract-testing.md)
 - 技能定義：[SKILL.md](./SKILL.md)

@@ -24,6 +24,7 @@ import {
 import { computeDirectoryHashes, computeFileHash, normalizeLineEndings } from './hasher.js';
 import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
+import { rewriteOutsideLinks } from './skill-link-rewriter.js';
 import { t } from '../i18n/messages.js';
 
 // Get the CLI package root directory
@@ -406,22 +407,27 @@ export function resolveSkillFiles(skillName, locale = 'en') {
   // Taking the union — locale file where it exists, English where it does not —
   // is also what makes the content comparison usable: without it those skills
   // would report as changed on every upgrade forever. (XSPEC-382 R7)
-  const names = new Map(); // fileName -> absolute source path
-  const collect = (dir) => {
+  const names = new Map(); // fileName -> { path: absolute source path, repoPath: where that file sits in the UDS repo }
+  const collect = (dir, repoDir) => {
     if (!existsSync(dir)) return;
     for (const fileName of readdirSync(dir)) {
       const sourcePath = join(dir, fileName);
       // Subdirectories are skipped — matching what the installer has always done.
       if (statSync(sourcePath).isDirectory()) continue;
-      if (!names.has(fileName)) names.set(fileName, sourcePath);
+      if (!names.has(fileName)) names.set(fileName, { path: sourcePath, repoPath: `${repoDir}/${fileName}` });
     }
   };
-  collect(sourceDir);            // locale first, so it wins
-  if (sourceDir !== enSourceDir) collect(enSourceDir);
+  // The repo location is what the relative links inside each file were written against (see rewriteOutsideLinks).
+  const enRepoDir = `skills/${skillName}`;
+  const localeRepoDir = sourceDir !== enSourceDir
+    ? `locales/${basename(dirname(dirname(sourceDir)))}/skills/${skillName}`
+    : null;
+  collect(sourceDir, localeRepoDir || enRepoDir);   // locale first, so it wins
+  if (sourceDir !== enSourceDir) collect(enSourceDir, enRepoDir);
 
   const files = [];
-  for (const [name, sourcePath] of names) {
-    files.push({ name, content: readFileSync(sourcePath, 'utf-8') });
+  for (const [name, source] of names) {
+    files.push({ name, content: readFileSync(source.path, 'utf-8'), repoPath: source.repoPath });
   }
 
   if (needsFrontmatterMerge) {
@@ -432,9 +438,83 @@ export function resolveSkillFiles(skillName, locale = 'en') {
     }
   }
 
+  // Links that point out of the skill folder at places this install does not create (the UDS repo's `core/`,
+  // `locales/`, another language's copy of the skill ...) become GitHub addresses; links that still land on a file
+  // this install writes stay as they are. Done here, on the final content, so the installer writes it, the planner
+  // hashes it and `uds check` compares against it from the one answer. (dev-platform #61)
+  const siblingFiles = new Map(); // skill -> Set of file names its install writes
+  const isInstalledSkillFile = (skill, fileName) => {
+    if (!siblingFiles.has(skill)) {
+      siblingFiles.set(skill, skill === skillName
+        ? new Set(files.map((f) => f.name))
+        : new Set(listSkillFileNames(skill, locale)));
+    }
+    return siblingFiles.get(skill).has(fileName);
+  };
+  const linkRewrites = [];
+  for (const file of files) {
+    if (!file.name.endsWith('.md')) continue;
+    const report = rewriteOutsideLinks(file.content, { // wire:skill-links-rewritten
+      skillName, sourcePath: file.repoPath, isInstalledSkillFile, repoPathExists: udsRepoPathExists
+    });
+    file.content = report.text;
+    linkRewrites.push({
+      file: file.name, rewritten: report.rewritten, kept: report.kept,
+      unresolved: report.unresolved, leftAlone: report.leftAlone
+    });
+  }
+
   // Sorted so a hash over this list depends on content, not on directory order.
   files.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-  return { files, fallbackToEn, error: null };
+  return { files: files.map(({ name, content }) => ({ name, content })), fallbackToEn, error: null, linkRewrites };
+}
+
+/**
+ * Whether `repoPath` (relative to the UDS repo root, posix) exists in the copy of UDS this CLI reads skills from.
+ * `skills/` and `locales/<locale>/skills/` are always visible (the installer reads them); other paths are looked up
+ * in the npm package's bundled folder or, in a checkout, in the repo. A path found nowhere is `undefined` when it
+ * lies outside what the package carries (`docs/`, `.standards/`) and `false` when it is inside it (`core/`, `ai/`,
+ * `templates/`, `extensions/`, `skills/`, `locales/`), where absence means the link was already dead.
+ *
+ * @param {string} repoPath
+ * @returns {boolean|undefined}
+ */
+function udsRepoPathExists(repoPath) {
+  const parts = repoPath.split('/');
+  if (parts[0] === 'skills') return existsSync(join(SKILLS_LOCAL_DIR, ...parts.slice(1)));
+  if (parts[0] === 'locales' && parts[2] === 'skills') {
+    const packDir = findLocalePackSkillsDir(parts[1]);
+    return packDir ? existsSync(join(packDir, ...parts.slice(3))) : false;
+  }
+  if (existsSync(join(BUNDLED_DIR, ...parts)) || existsSync(join(CLI_ROOT, '..', ...parts))) return true;
+  return ['core', 'ai', 'locales', 'templates', 'extensions'].includes(parts[0]) ? false : undefined;
+}
+
+/**
+ * The file names an install of `skillName` writes into its folder (locale file where there is one, English
+ * otherwise; top-level files only). Empty when UDS does not ship that skill. Answers "will this sibling link
+ * still land on a file?" for `resolveSkillFiles`, from the same source selection the install itself uses.
+ *
+ * @param {string} skillName
+ * @param {string} locale
+ * @returns {string[]}
+ */
+function listSkillFileNames(skillName, locale) {
+  const enDir = join(SKILLS_LOCAL_DIR, skillName);
+  if (!existsSync(join(enDir, 'SKILL.md'))) return []; // not a skill UDS installs (a folder like _shared, workflows)
+  const names = new Set();
+  const addFrom = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const fileName of readdirSync(dir)) {
+      if (!statSync(join(dir, fileName)).isDirectory()) names.add(fileName);
+    }
+  };
+  if (isLocalizedLocale(locale)) {
+    const packDir = findLocalePackSkillsDir(locale);
+    if (packDir) addFrom(join(packDir, skillName));
+  }
+  addFrom(enDir);
+  return [...names];
 }
 
 /**

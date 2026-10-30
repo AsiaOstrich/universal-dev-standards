@@ -18,7 +18,7 @@ argument-hint: "[file or module | 檔案或模組]"
 
 # 測試覆蓋率助手
 
-> **語言**: [English](../../../../skills/test-coverage-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/test-coverage-assistant/SKILL.md) | 繁體中文
 
 多維度分析測試覆蓋率並提供可執行的建議。
 
@@ -81,8 +81,8 @@ argument-hint: "[file or module | 檔案或模組]"
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[test-completeness-dimensions.md](../../../../core/test-completeness-dimensions.md)
+- 核心規範：[test-completeness-dimensions.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-completeness-dimensions.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/coverage`](../../../../skills/commands/coverage.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/coverage`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/coverage.md#ai-agent-behavior--ai-代理行為)

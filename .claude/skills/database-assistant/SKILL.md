@@ -18,7 +18,7 @@ argument-hint: "[schema or migration to review | 要審查的 schema 或遷移]"
 
 # 資料庫助手
 
-> **語言**: [English](../../../../skills/database-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/database-assistant/SKILL.md) | 繁體中文
 
 引導資料庫設計、遷移規劃和查詢最佳化。
 
@@ -102,7 +102,7 @@ PLAN ──► WRITE ──► TEST ──► DEPLOY ──► VERIFY
 
 ## 參考
 
-- 核心規範：[database-standards.md](../../../../core/database-standards.md)
+- 核心規範：[database-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/database-standards.md)
 
 ## 版本歷史
 

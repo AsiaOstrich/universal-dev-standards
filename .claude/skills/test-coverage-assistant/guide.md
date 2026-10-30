@@ -14,7 +14,7 @@ status: current
 
 # 測試覆蓋助手
 
-> **語言**: [English](../../../../skills/test-coverage-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/test-coverage-assistant/guide.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-25
@@ -129,8 +129,8 @@ status: current
 ## 詳細指南
 
 完整標準請參考：
-- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
-- [測試標準](../../../../core/testing-standards.md)
+- [測試完整性維度](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-completeness-dimensions.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md)
 
 ### AI 優化格式（節省 Token）
 
@@ -276,8 +276,8 @@ public async Task DisableUser_UpdatesStateCorrectly()
 
 ## 相關標準
 
-- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
-- [測試標準](../../../../core/testing-standards.md)
+- [測試完整性維度](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-completeness-dimensions.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md)
 - [測試指南](../testing-guide/SKILL.md)
 
 ---

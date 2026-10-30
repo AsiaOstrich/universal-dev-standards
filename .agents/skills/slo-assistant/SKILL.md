@@ -18,7 +18,7 @@ argument-hint: "[create|review|budget] [service name | 服務名稱]"
 
 # SLO 助手
 
-> **語言**: [English](../../../../skills/slo-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/slo-assistant/SKILL.md) | 繁體中文
 
 引導 SLI 選取、SLO 設定方法論和 Error Budget 管理。
 
@@ -51,6 +51,6 @@ argument-hint: "[create|review|budget] [service name | 服務名稱]"
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md) — SLI／SLO／錯誤預算的定義與管理。要定義 SLO、挑選 SLI、計算錯誤預算或設定可靠度目標時讀它。
-- 核心規範：[slo-standards.md](../../../../core/slo-standards.md)
-- 相關：[observability-standards.md](../../../../core/observability-standards.md)
-- 相關：[alerting-standards.md](../../../../core/alerting-standards.md)
+- 核心規範：[slo-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/slo-standards.md)
+- 相關：[observability-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/observability-standards.md)
+- 相關：[alerting-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/alerting-standards.md)

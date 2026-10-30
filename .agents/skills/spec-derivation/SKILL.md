@@ -18,7 +18,7 @@ prerequisites: ["spec-approved"]
 
 # 正向推演
 
-> **語言**: [English](../../../../skills/spec-derivation/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/spec-derivation/SKILL.md) | 繁體中文
 
 從已批准的 SDD 規格生成衍生工件（BDD 場景、TDD 骨架、ATDD 表格）。
 
@@ -80,8 +80,8 @@ prerequisites: ["spec-approved"]
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心標準：[forward-derivation-standards.md](../../../../core/forward-derivation-standards.md)
+- 核心標準：[forward-derivation-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/forward-derivation-standards.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/derive`](../../../../skills/commands/derive.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/derive`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/derive.md#ai-agent-behavior--ai-代理行為)

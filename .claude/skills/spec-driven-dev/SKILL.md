@@ -26,7 +26,7 @@ argument-hint: "[spec name or feature | 規格名稱或功能]"
 
 在撰寫程式碼前，建立、審查和管理規格文件。
 
-> **語言**: [English](../../../../skills/spec-driven-dev/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/spec-driven-dev/SKILL.md) | 繁體中文
 
 ## When to Use `/sdd` vs `uds spec` | 何時使用
 
@@ -215,11 +215,11 @@ The system SHALL [behavior description].
 ## Reference | 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心標準：[spec-driven-development.md](../../core/spec-driven-development.md)
+- 核心標準：[spec-driven-development.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md)
 
 
 ## AI Agent Behavior | AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/sdd`](../../../../skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/sdd`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)
 >
-> For complete AI agent behavior definition, see the corresponding command file: [`/sdd`](../../../../skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)
+> For complete AI agent behavior definition, see the corresponding command file: [`/sdd`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/sdd.md#ai-agent-behavior--ai-代理行為)

@@ -9,7 +9,7 @@ status: current
 
 # TDD 語言範例
 
-> **語言**: [English](../../../../skills/tdd-assistant/language-examples.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/tdd-assistant/language-examples.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-07
@@ -1282,4 +1282,4 @@ end
 
 - [SKILL.md](./SKILL.md) - TDD 助手概覽
 - [TDD Workflow](./tdd-workflow.md) - 詳細工作流程指南
-- [TDD Core Standard](../../core/test-driven-development.md) - 完整 TDD 標準
+- [TDD Core Standard](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/test-driven-development.md) - 完整 TDD 標準

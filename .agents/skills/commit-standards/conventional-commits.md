@@ -9,7 +9,7 @@ status: current
 
 # Conventional Commits 指南
 
-> **語言**: [English](../../../../skills/commit-standards/conventional-commits.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commit-standards/conventional-commits.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -244,9 +244,9 @@ fix: change line 45 from getUserById to getUserByEmail
 
 ## 相關標準
 
-- [Commit Message Guide](../../../../core/commit-message-guide.md)
+- [Commit Message Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 - [Language Options](./language-options.md)
-- [Git Workflow](../../../../core/git-workflow.md)
+- [Git Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/git-workflow.md)
 
 ---
 

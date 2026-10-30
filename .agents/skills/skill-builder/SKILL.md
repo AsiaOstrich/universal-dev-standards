@@ -17,7 +17,7 @@ argument-hint: "[process description | 流程描述]"
 
 # 流程轉 Skill 助手
 
-> **語言**: [English](../../../../skills/skill-builder/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/skill-builder/SKILL.md) | 繁體中文
 
 引導你從「我一直手動做這件事」走到「擁有一個正確建立的 Skill」，並在過程中保持適量的流程治理。
 
@@ -146,6 +146,6 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ## 參考
 
-- Skill Brief 模板：[templates/SKILL-BRIEF-TEMPLATE.md](../../../../templates/SKILL-BRIEF-TEMPLATE.md)
-- 候選追蹤：[templates/SKILL-CANDIDATES.md](../../../../templates/SKILL-CANDIDATES.md)（請複製到專案）
-- ADR 標準：[core/adr-standards.md](../../../../core/adr-standards.md)
+- Skill Brief 模板：[templates/SKILL-BRIEF-TEMPLATE.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/templates/SKILL-BRIEF-TEMPLATE.md)
+- 候選追蹤：[templates/SKILL-CANDIDATES.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/templates/SKILL-CANDIDATES.md)（請複製到專案）
+- ADR 標準：[core/adr-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/adr-standards.md)

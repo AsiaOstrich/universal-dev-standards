@@ -16,7 +16,7 @@ description: |
 
 # AI 協作標準
 
-> **語言**: [English](../../../../skills/ai-collaboration-standards/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ai-collaboration-standards/SKILL.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-25
@@ -205,9 +205,9 @@ This project uses **English** certainty tags.
 
 ## 相關標準
 
-- [防幻覺標準](../../core/anti-hallucination.md)
-- [程式碼審查檢查清單](../../core/code-review-checklist.md)
-- [測試標準](../../core/testing-standards.md)
+- [防幻覺標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md)
 
 ---
 

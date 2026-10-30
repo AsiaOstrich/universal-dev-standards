@@ -18,7 +18,7 @@ argument-hint: "[create | list | supersede ADR-NNN | 決策主題]"
 
 # 架構決策記錄助手
 
-> **語言**: [English](../../../../skills/adr-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/adr-assistant/SKILL.md) | 繁體中文
 
 建立、管理和追蹤架構決策記錄。捕捉重大技術決策的背景、選項和理由。
 
@@ -179,5 +179,5 @@ docs/adr/
 
 ## 參考
 
-- 核心規範：[adr-standards.md](../../../../core/adr-standards.md)
+- 核心規範：[adr-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/adr-standards.md)
 - 詳細指南：[guide.md](./guide.md)

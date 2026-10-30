@@ -9,7 +9,7 @@ status: current
 
 # 架構決策記錄助手指南
 
-> **語言**: [English](../../../../skills/adr-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/adr-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-03-26
@@ -266,5 +266,5 @@ A：任何參與決策的人。實務上通常由技術負責人或架構師起�
 
 ## 參考
 
-- 核心規範：[adr-standards.md](../../../../core/adr-standards.md)
+- 核心規範：[adr-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/adr-standards.md)
 - 技能定義：[SKILL.md](./SKILL.md)

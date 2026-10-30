@@ -18,7 +18,7 @@ argument-hint: "[migration target or framework | 遷移目標或框架]"
 
 # 遷移助手
 
-> **語言**: [English](../../../../skills/migration-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/migration-assistant/SKILL.md) | 繁體中文
 
 引導系統性程式碼遷移、框架升級與技術現代化。
 
@@ -180,7 +180,7 @@ AI: Migration Assessment: Vue 2 → Vue 3
 
 ## 參考
 
-- 核心規範：[refactoring-standards.md](../../../../core/refactoring-standards.md)
+- 核心規範：[refactoring-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/refactoring-standards.md)
 - 相關：[contract-test-assistant](../contract-test-assistant/SKILL.md) — 遷移後持續合約驗證的策略
 
 ## 版本歷史
@@ -192,7 +192,7 @@ AI: Migration Assessment: Vue 2 → Vue 3
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/migrate`](../../../../skills/commands/migrate.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/migrate`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/migrate.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

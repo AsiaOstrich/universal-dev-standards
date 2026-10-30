@@ -18,7 +18,7 @@ argument-hint: "[problem or feature idea | 問題或功能構想]"
 
 # 腦力激盪助手
 
-> **語言**: [English](../../../../skills/brainstorm-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/brainstorm-assistant/SKILL.md) | 繁體中文
 
 在撰寫規格前進行結構化發想。以 2024–2026 年 AI 輔助發想研究為基礎，透過引導式腦力激盪，將模糊構想轉化為可執行的功能提案。
 
@@ -29,9 +29,9 @@ argument-hint: "[problem or feature idea | 問題或功能構想]"
 
 **v4 的核心改動：** v3 提供了強健的*機制*，卻沒有可判定 pass/fail 的品質閘。v4 在其上疊加一道**時序化品質契約**——**腦力激盪品質標準（BQS v1）**——且不移除任何 v3 行為。BQS 是**四層 × 時間軸**結構：第 0 層宣告 explore/exploit 意圖；第 1 層（過程、leading、發散期全程可見）跑維度 **D1–D4**；第 2 層（產物、leading、收斂後僅施於推薦集，即 Agg. Score ≥ 3.5、不限筆數的想法）跑 **D5–D8** 加 Seeds 欄與爭議區；第 3 層是不受治理的 **Judgment Override**。第一原理：**決策用 leading 訊號、校準用 lagging 訊號——兩者是時間前後，而非對錯取捨。** 硬序列閘禁止 D5–D8 在發散期被揭示或評分。詳見下方「BQS v1 — 品質契約」。
 
-**v4.2 的核心改動（XSPEC-388）：** D4 原本只釘住判官坐在哪裡，一個字都沒說它得想得動。一個獨立 context 跑字面遵循型模型會逐字滿足舊條文，然後照 D5–D8 逐條打勾放行——與一場真的有人反對過的評審在報告上無從分辨。v4.2 給 D4 加上**第二個軸**：評審還必須宣告其**模型層級**要求（見下方術語說明）。CONVERGE 的提示改為**目標＋約束**形狀——D5–D8 是判斷必須滿足的判準，不是按順序執行的步驟；既有固定句型與逐準則分數指南保留為參考格式。發散側引用 [core/model-selection.md](../../../../core/model-selection.md)（Standard 或更高）而不另立規則。不移除任何 v3 機制。
+**v4.2 的核心改動（XSPEC-388）：** D4 原本只釘住判官坐在哪裡，一個字都沒說它得想得動。一個獨立 context 跑字面遵循型模型會逐字滿足舊條文，然後照 D5–D8 逐條打勾放行——與一場真的有人反對過的評審在報告上無從分辨。v4.2 給 D4 加上**第二個軸**：評審還必須宣告其**模型層級**要求（見下方術語說明）。CONVERGE 的提示改為**目標＋約束**形狀——D5–D8 是判斷必須滿足的判準，不是按順序執行的步驟；既有固定句型與逐準則分數指南保留為參考格式。發散側引用 [core/model-selection.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md)（Standard 或更高）而不另立規則。不移除任何 v3 機制。
 
-> **術語——「模型層級」，不用「tier」：** 在本 skill 內，`tier` 已被佔用兩次——BQS 分級表（套用哪些維度）與 Enhanced Tier。[core/model-selection.md](../../../../core/model-selection.md) 定義的模型能力軸（該標準稱 *model tier*）在本 skill 一律寫作**模型層級（model level）**。模型層級是該標準的**廠商中立標籤**；本 skill 絕不指名具體廠商模型（見 D4）。
+> **術語——「模型層級」，不用「tier」：** 在本 skill 內，`tier` 已被佔用兩次——BQS 分級表（套用哪些維度）與 Enhanced Tier。[core/model-selection.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md) 定義的模型能力軸（該標準稱 *model tier*）在本 skill 一律寫作**模型層級（model level）**。模型層級是該標準的**廠商中立標籤**；本 skill 絕不指名具體廠商模型（見 D4）。
 
 ## 使用前先選模式
 
@@ -75,7 +75,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 | **D1 框架純度** | 問題內嵌特定方案或「像 X 給 Y」→fail；須 5-Whys 到根因 |
 | **D2 發散覆蓋** | 存活想法跨 <3 獨立 persona/透鏡→fail（受第 0 層權重調節）；連一輪零新增才算飽和 |
 | **D3 跨會話多樣性** | 種子是競品類比→fail；Top 全來自單一 lens→fail |
-| **D4 評估去偏** | 須 ≥3 評審 + 硬角色 Devil's Advocate + Steelman；**pass 須同時滿足兩軸**：(1) 獨立 context，**且** (2) 以 [model-selection](../../../../core/model-selection.md) 的廠商中立標籤宣告**模型層級**要求——指名具體廠商模型即違規。缺任一軸→標 `[degraded]` 不得標 pass |
+| **D4 評估去偏** | 須 ≥3 評審 + 硬角色 Devil's Advocate + Steelman；**pass 須同時滿足兩軸**：(1) 獨立 context，**且** (2) 以 [model-selection](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md) 的廠商中立標籤宣告**模型層級**要求——指名具體廠商模型即違規。缺任一軸→標 `[degraded]` 不得標 pass |
 
 > **硬序列閘：** D5–D8 禁止在發散期揭示或評分；CONVERGE 的 critic 不得在**最後一個 persona** 產完前被呼叫。
 
@@ -156,7 +156,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 
 > **v3 核心機制：** **persona 集成**——每個 persona 以**思維鏈**在**隔離**狀態下推理——再乘上**多樣性透鏡**。Meincke、Mollick、Terwiesch（2024）發現「思維鏈 + persona」的想法多樣性高於所有受測提示策略，接近人類團體。光衝數量是弱代理；結構性逼出不同視角才是真正槓桿。
 
-> **模型層級（發散側）：** 發散提示只給目標與約束——正是 core/model-selection.md 的 [MS-004](../../../../core/model-selection.md#rules)／[Criterion 2](../../../../core/model-selection.md#criterion-2--specification-definiteness規格明確度) 的觸發條件：發散以 **Standard 或更高**層級執行。不是「最高層級」——那會同時超出 MS-004 所說的與我們的證據。lagging 登記：此選擇由校準回路既有的 **Diversity（D2/D3 滯後觀測）** 欄驗證，不另開第二套登記。
+> **模型層級（發散側）：** 發散提示只給目標與約束——正是 core/model-selection.md 的 [MS-004](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md#rules)／[Criterion 2](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md#criterion-2--specification-definiteness規格明確度) 的觸發條件：發散以 **Standard 或更高**層級執行。不是「最高層級」——那會同時超出 MS-004 所說的與我們的證據。lagging 登記：此選擇由校準回路既有的 **Diversity（D2/D3 滯後觀測）** 欄驗證，不另開第二套登記。
 
 #### Step 2a — persona 集成
 
@@ -204,7 +204,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 
 > **v3 核心機制：** **多評審面板**取代單一加權評分者。單一 LLM 是弱且有偏的評估者（Li 等，2025：LLM 強於生成／精煉、弱於評估——人類保留最終裁決權）。三個獨立評審透鏡各自評分後聚合。
 
-> **評審提示形狀——目標＋約束（v4.2）：** 對面板、Devil's Advocate、Steelman 派工時——尤其派入獨立 context（`--enhanced`）——提示**必須**以**目標＋其判斷必須滿足的約束**表達，不得寫成按順序執行的步驟清單。D5–D8 與下方的具體性要求是**判準**（「你的判斷必須滿足這些」），不是**步驟**（「照這個順序做這些事」）。既有固定句型、逐準則 1–5 指南與評審權重公式**保留為參考格式**，皆非必經步驟。理由：core/model-selection.md 的 [MS-009](../../../../core/model-selection.md#rules)。
+> **評審提示形狀——目標＋約束（v4.2）：** 對面板、Devil's Advocate、Steelman 派工時——尤其派入獨立 context（`--enhanced`）——提示**必須**以**目標＋其判斷必須滿足的約束**表達，不得寫成按順序執行的步驟清單。D5–D8 與下方的具體性要求是**判準**（「你的判斷必須滿足這些」），不是**步驟**（「照這個順序做這些事」）。既有固定句型、逐準則 1–5 指南與評審權重公式**保留為參考格式**，皆非必經步驟。理由：core/model-selection.md 的 [MS-009](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md#rules)。
 
 #### Step 3a: 多評審面板
 
@@ -236,7 +236,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 
 **旗標：** `--no-rebuttal` 跳過此步驟；報告段落標注「Rebuttal: skipped」。
 
-> **BQS D4 — 判官≠產生者，兩軸：** D4 唯有**兩軸同時成立**才可 pass。**(1) 座位——獨立性**：評審/Devil's Advocate 在獨立 context 執行（`--enhanced` 隔離 agent 宿主）。**(2) 心智——宣告模型層級**：評審宣告其**模型層級**要求，以 [core/model-selection.md](../../../../core/model-selection.md) 的廠商中立標籤表達；選層依據為該標準的判準（引用，不複述）。指名具體廠商模型即違規——層級標籤是唯一合法的表達方式。缺任一軸→面板標 `[degraded]`、**不得標 pass**：獨立 context 跑字面遵循型模型會逐字滿足座位軸，成為一枚完全合規的橡皮圖章——認出「不同名字下的同一件事」是打勾做不到的判斷工作。baseline 單 context 下，面板是同 context 自評，標 `[degraded]`、不得 pass——誠實但非獨立。不得把 baseline 跑當成 D4 pass 靜默通過。
+> **BQS D4 — 判官≠產生者，兩軸：** D4 唯有**兩軸同時成立**才可 pass。**(1) 座位——獨立性**：評審/Devil's Advocate 在獨立 context 執行（`--enhanced` 隔離 agent 宿主）。**(2) 心智——宣告模型層級**：評審宣告其**模型層級**要求，以 [core/model-selection.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md) 的廠商中立標籤表達；選層依據為該標準的判準（引用，不複述）。指名具體廠商模型即違規——層級標籤是唯一合法的表達方式。缺任一軸→面板標 `[degraded]`、**不得標 pass**：獨立 context 跑字面遵循型模型會逐字滿足座位軸，成為一枚完全合規的橡皮圖章——認出「不同名字下的同一件事」是打勾做不到的判斷工作。baseline 單 context 下，面板是同 context 自評，標 `[degraded]`、不得 pass——誠實但非獨立。不得把 baseline 跑當成 D4 pass 靜默通過。
 
 #### Step 3c: BQS 第 2 層——對推薦集的產物閘
 
@@ -246,7 +246,7 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 - **D6 淨值：** 推薦集中每個想法須答「解誰問題／我們真有嗎／不做的代價」；至少一個淘汰為「不值得做」；掛 **lagging 登記欄**（事後哪個訊號驗證）。
 - **D7 可證偽（二態）：** 標 `[現可陳述證偽]` **或** `[需先做 X 才能定義證偽]`。後者**轉 next-step 餵 D8——不算 fail**。
 - **D8 可行動：** 每個存活想法需 next-step 裁決（含明確「暫不做」）；無 → fail。
-  - 裁決為「暫不做」者，以及 **Seeds（來自被淘汰的想法）** 中每個被擱置的想法，皆為 [deferred-item-exit](../../../../core/deferred-item-exit.md) 所指的延後項目。
+  - 裁決為「暫不做」者，以及 **Seeds（來自被淘汰的想法）** 中每個被擱置的想法，皆為 [deferred-item-exit](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deferred-item-exit.md) 所指的延後項目。
 
 > **Meta 停止規則（BQS 結構規則 1）：** 當套用的維度全綠 **且** 再跑一輪後 **推薦集成員不變**（看集合成員、非內部排序）→停。**硬上限 2 輪。**
 
@@ -378,8 +378,8 @@ BQS 是**四層 × 時間軸**契約。它是 v3 的**疊加**——所有 v3 �
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 模型層級依據：[core/model-selection.md](../../../../core/model-selection.md)——D4 心智軸與發散側層級皆以該標準的判準為準。**引用、不複述**——摘要會隨來源被更正而腐壞，指標不會。
+- 模型層級依據：[core/model-selection.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/model-selection.md)——D4 心智軸與發散側層級皆以該標準的判準為準。**引用、不複述**——摘要會隨來源被更正而腐壞，指標不會。
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/brainstorm`](../../../../skills/commands/brainstorm.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/brainstorm`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/brainstorm.md#ai-agent-behavior--ai-代理行為)

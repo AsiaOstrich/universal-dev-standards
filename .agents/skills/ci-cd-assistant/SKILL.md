@@ -18,7 +18,7 @@ argument-hint: "[pipeline config or stage | Pipeline 配置或階段]"
 
 # CI/CD 管線助手
 
-> **語言**: [English](../../../../skills/ci-cd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ci-cd-assistant/SKILL.md) | 繁體中文
 
 引導 CI/CD 管線設計，遵循業界最佳實踐與 DORA 指標。
 
@@ -104,7 +104,7 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 
 ### 諮詢 vs 閘控作業
 
-明確宣告每個作業是 **advisory**（回報但不擋合併）或 **gating**（擋合併）。混淆會在雜訊上卡關、或漏掉該擋的。（安全閘門是 Block/Warn/Log 特例——見 [`pipeline-security-gates`](../../../../core/pipeline-security-gates.md)。）
+明確宣告每個作業是 **advisory**（回報但不擋合併）或 **gating**（擋合併）。混淆會在雜訊上卡關、或漏掉該擋的。（安全閘門是 Block/Warn/Log 特例——見 [`pipeline-security-gates`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/pipeline-security-gates.md)。）
 
 | 需求 | GitHub Actions | GitLab CI | Jenkins |
 |------|----------------|-----------|---------|
@@ -138,8 +138,8 @@ BUILD ──► TEST ──► ANALYZE ──► DEPLOY ──► VERIFY
 
 ## 參考
 
-- 核心規範：[pipeline-integration-standards.md](../../../../core/pipeline-integration-standards.md)
-- 核心規範：[deployment-standards.md](../../../../core/deployment-standards.md)
+- 核心規範：[pipeline-integration-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/pipeline-integration-standards.md)
+- 核心規範：[deployment-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md)
 
 ## 版本歷史
 

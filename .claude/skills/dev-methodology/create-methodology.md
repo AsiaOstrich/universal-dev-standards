@@ -9,7 +9,7 @@ status: current
 
 # 建立自訂 Methodology 指南
 
-> **語言**: [English](../../../../skills/dev-methodology/create-methodology.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/create-methodology.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能**

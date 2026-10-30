@@ -17,7 +17,7 @@ argument-hint: "[project type | 專案類型: node/python/docker/go]"
 
 # 無 CI/CD 部署助手
 
-> **語言**: [English](../../../../skills/deploy-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/deploy-assistant/SKILL.md) | 繁體中文
 
 引導無 CI/CD 平台環境下的可靠部署，採用三層架構：防錯、驗證、快速回復。
 
@@ -172,10 +172,10 @@ status:
 
 ## 參考
 
-- 核心標準：[no-cicd-deployment.md](../../../../core/no-cicd-deployment.md)
-- 核心標準：[deployment-standards.md](../../../../core/deployment-standards.md)
-- 核心標準：[deployment-standards.md § Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) — **強制**遵循 extract-verify-then-delete 順序
-- 核心標準：[packaging-standards.md § Archive Format Integrity](../../../../core/packaging-standards.md#archive-format-integrity) — 消費 archive 前先驗證格式
+- 核心標準：[no-cicd-deployment.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/no-cicd-deployment.md)
+- 核心標準：[deployment-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md)
+- 核心標準：[deployment-standards.md § Defensive Deployment Ordering](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md#defensive-deployment-ordering) — **強制**遵循 extract-verify-then-delete 順序
+- 核心標準：[packaging-standards.md § Archive Format Integrity](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/packaging-standards.md#archive-format-integrity) — 消費 archive 前先驗證格式
 - 相關：[ci-cd-assistant](../ci-cd-assistant/SKILL.md) — 適用於有 CI/CD 的環境
 
 ## 版本歷史

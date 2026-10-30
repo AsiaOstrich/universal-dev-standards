@@ -9,7 +9,7 @@ status: current
 
 # 專案現況評估工作流程指南
 
-> **語言**: [English](../../../../skills/project-discovery/workflow.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/project-discovery/workflow.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-02-09
@@ -127,8 +127,8 @@ dotnet format --verify-no-changes  # .NET
 
 ### 引用規範
 
-- [測試標準](../../core/testing-standards.md) — 覆蓋率目標、測試金字塔
-- [反向工程標準](../../core/reverse-engineering-standards.md) — 程式碼掃描方法論
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) — 覆蓋率目標、測試金字塔
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md) — 程式碼掃描方法論
 
 ---
 
@@ -175,7 +175,7 @@ dotnet format --verify-no-changes  # .NET
 
 #### 0.2.4 評估 AI 友善度
 
-對照 [AI 友善架構](../../core/ai-friendly-architecture.md) 檢查：
+對照 [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md) 檢查：
 - 模組邊界清晰嗎？
 - 專案結構可發現嗎？
 - 命名慣例一致嗎？
@@ -215,8 +215,8 @@ dotnet format --verify-no-changes  # .NET
 
 ### 引用規範
 
-- [AI 友善架構](../../core/ai-friendly-architecture.md)
-- [反向工程標準](../../core/reverse-engineering-standards.md)
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md)
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md)
 
 ---
 
@@ -280,8 +280,8 @@ dotnet format --verify-no-changes  # .NET
 
 ### 引用規範
 
-- [文件結構](../../core/documentation-structure.md)
-- [變更日誌標準](../../core/changelog-standards.md)
+- [文件結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md)
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md)
 
 ---
 
@@ -349,8 +349,8 @@ dotnet format --verify-no-changes  # .NET
 
 ### 引用規範
 
-- [反幻覺指南](../../core/anti-hallucination.md)
-- [程式碼審查清單](../../core/code-review-checklist.md)
+- [反幻覺指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)
+- [程式碼審查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
 
 ---
 
@@ -433,8 +433,8 @@ pip-extra-reqs --requirements-file=requirements.txt .
 
 ### 引用規範
 
-- [安全標準](../../../../core/security-standards.md)
-- [簽入標準](../../core/checkin-standards.md)
+- [安全標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/security-standards.md)
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md)
 
 ---
 
@@ -504,7 +504,7 @@ pip-extra-reqs --requirements-file=requirements.txt .
 
 ### 引用規範
 
-- [需求工程](../../../../core/requirement-engineering.md)
+- [需求工程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/requirement-engineering.md)
 
 ---
 

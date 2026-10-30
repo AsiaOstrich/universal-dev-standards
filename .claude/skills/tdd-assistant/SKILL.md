@@ -18,7 +18,7 @@ argument-hint: "[feature or file | 功能或檔案]"
 
 # TDD 助手
 
-> **語言**: [English](../../../../skills/tdd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/tdd-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — TDD 流程協調（RED→GREEN→REFACTOR 循環、測試執行 gates）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 TDD 原則、FIRST 規則、AAA 格式、語言範例、流程指南供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
@@ -84,8 +84,8 @@ argument-hint: "[feature or file | 功能或檔案]"
 - [TDD 語言範例](./language-examples.md) — 需要某個特定語言的實際範例時讀它。
 - [TDD 工作流程指南](./tdd-workflow.md) — 要完整跑一輪紅-綠-重構時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[test-driven-development.md](../../../../core/test-driven-development.md)
+- 核心規範：[test-driven-development.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/tdd`](../../../../skills/commands/tdd.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/tdd`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/tdd.md#ai-agent-behavior--ai-代理行為)

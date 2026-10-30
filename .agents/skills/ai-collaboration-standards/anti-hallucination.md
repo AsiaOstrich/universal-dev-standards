@@ -9,7 +9,7 @@ status: current
 
 # 防止幻覺指南
 
-> **語言**: [English](../../../../skills/ai-collaboration-standards/anti-hallucination.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ai-collaboration-standards/anti-hallucination.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-25
@@ -222,7 +222,7 @@ AI 助理絕對不能:
 
 ## 相關標準
 
-- [防止幻覺標準](../../core/anti-hallucination.md)
+- [防止幻覺標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)
 - [確定性標籤參考](./certainty-labels.md)
 
 ---

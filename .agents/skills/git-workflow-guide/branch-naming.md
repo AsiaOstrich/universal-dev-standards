@@ -9,7 +9,7 @@ status: current
 
 # 分支命名參考
 
-> **語言**: [English](../../../../skills/git-workflow-guide/branch-naming.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/git-workflow-guide/branch-naming.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -202,7 +202,7 @@ git branch --show-current
 ## 相關標準
 
 - [Git 工作流程策略](./git-workflow.md)
-- [Git 工作流程](../../../../core/git-workflow.md)
+- [Git 工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/git-workflow.md)
 
 ---
 

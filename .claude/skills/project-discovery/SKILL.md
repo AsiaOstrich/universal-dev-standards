@@ -18,7 +18,7 @@ argument-hint: "[feature area | 功能範圍]"
 
 # 專案現況評估
 
-> **語言**: [English](../../../../skills/project-discovery/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/project-discovery/SKILL.md) | 繁體中文
 
 在既有程式碼庫新增功能前的 Phase 0 評估。評估專案健康度、架構與風險。
 
@@ -132,4 +132,4 @@ docs/risks/
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/discover`](../../../../skills/commands/discover.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/discover`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/discover.md#ai-agent-behavior--ai-代理行為)

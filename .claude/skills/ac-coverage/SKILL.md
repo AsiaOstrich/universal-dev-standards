@@ -19,13 +19,13 @@ argument-hint: "[spec file path | 規格檔案路徑]"
 
 # AC 覆蓋率助手
 
-> **語言**: [English](../../../../skills/ac-coverage/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ac-coverage/SKILL.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-06-19
 **適用範圍**: Claude Code Skills
 
-> **核心標準**: 本技能實作 [驗收條件追溯標準](../../../../core/acceptance-criteria-traceability.md)。權威的方法論請參閱核心標準。
+> **核心標準**: 本技能實作 [驗收條件追溯標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-criteria-traceability.md)。權威的方法論請參閱核心標準。
 
 分析驗收條件（AC）與測試之間的追蹤關係，並產生覆蓋率報告。
 
@@ -195,11 +195,11 @@ function authenticate(user: string, pass: string) { ... }
 
 ## 參考
 
-- 核心標準：[acceptance-criteria-traceability.md](../../../../core/acceptance-criteria-traceability.md)
-- SPEC：[SPEC-AC-COVERAGE.md](../../../../docs/specs/skills/SPEC-AC-COVERAGE.md)
+- 核心標準：[acceptance-criteria-traceability.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-criteria-traceability.md)
+- SPEC：[SPEC-AC-COVERAGE.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/docs/specs/skills/SPEC-AC-COVERAGE.md)
 - 相關：[test-coverage-assistant](../test-coverage-assistant/SKILL.md)（程式碼層級覆蓋率）
 - 相關：[checkin-assistant](../checkin-assistant/SKILL.md)（品質關卡）
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/ac-coverage`](../../../../skills/commands/ac-coverage.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/ac-coverage`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/ac-coverage.md#ai-agent-behavior--ai-代理行為)

@@ -14,7 +14,7 @@ description: |
 
 # 程式碼審查助理
 
-> **語言**: [English](../../../../skills/code-review-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/code-review-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -22,7 +22,7 @@ description: |
 
 ---
 
-> **核心標準**：此技能實作 [Code Review Checklist](../../core/code-review-checklist.md)。完整的方法論文件請參閱核心標準。
+> **核心標準**：此技能實作 [Code Review Checklist](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)。完整的方法論文件請參閱核心標準。
 
 ## 目的
 
@@ -207,9 +207,9 @@ BLOCKING, IMPORTANT, SUGGESTION, QUESTION, NOTE
 
 ## 相關標準
 
-- [Code Review Checklist](../../core/code-review-checklist.md) - 核心程式碼審查標準
-- [Checkin Standards](../../core/checkin-standards.md) - 提交前品質關卡
-- [Testing Standards](../../core/testing-standards.md) - 測試要求
+- [Code Review Checklist](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md) - 核心程式碼審查標準
+- [Checkin Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) - 提交前品質關卡
+- [Testing Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) - 測試要求
 
 ---
 

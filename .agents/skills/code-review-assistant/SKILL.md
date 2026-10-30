@@ -24,7 +24,7 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 
 # 程式碼審查助手
 
-> **語言**: [English](../../../../skills/code-review-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/code-review-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — 程式碼審查流程協調（4 步驟序列、outcome gating）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 8 大審查類別定義、BLOCKING/IMPORTANT/SUGGESTION/QUESTION/NOTE 前綴語意供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
@@ -80,9 +80,9 @@ argument-hint: "[file path or branch | 檔案路徑或分支名稱]"
 
 - [Pre-Commit Checklist（提交前檢查清單）](./checkin-checklist.md) — 提交之前當作最後一道檢查時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
+- 核心規範：[code-review-checklist.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/code-review-checklist.md)
 
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](../../../../skills/commands/code-review.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/code-review`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/code-review.md#ai-agent-behavior--ai-代理行為)

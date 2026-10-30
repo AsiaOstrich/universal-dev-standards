@@ -9,7 +9,7 @@ status: current
 
 # Git 工作流程策略
 
-> **語言**: [English](../../../../skills/git-workflow-guide/git-workflow.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/git-workflow-guide/git-workflow.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -301,9 +301,9 @@ git merge --ff-only feature/user-auth
 
 ## 相關標準
 
-- [Git Workflow](../../../../core/git-workflow.md)
+- [Git Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/git-workflow.md)
 - [分支命名參考](./branch-naming.md)
-- [Commit 訊息指南](../../../../core/commit-message-guide.md)
+- [Commit 訊息指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 
 ---
 

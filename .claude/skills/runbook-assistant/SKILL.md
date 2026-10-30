@@ -18,7 +18,7 @@ argument-hint: "[create|drill|coverage] [alert name or type | 告警名稱或類
 
 # Runbook 助手
 
-> **語言**: [English](../../../../skills/runbook-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/runbook-assistant/SKILL.md) | 繁體中文
 
 引導 Runbook 撰寫、維護、演練和覆蓋率報告。
 
@@ -50,13 +50,13 @@ argument-hint: "[create|drill|coverage] [alert name or type | 告警名稱或類
 
 ## 部署 Runbook — 強制規則
 
-任何包含 destructive-update（stop → swap → start）的部署 runbook **必須**遵循 [Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) 順序：解壓到 staging → verify → 通過後才動 live install。跳過 verify 步驟已造成真實生產事故。
+任何包含 destructive-update（stop → swap → start）的部署 runbook **必須**遵循 [Defensive Deployment Ordering](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md#defensive-deployment-ordering) 順序：解壓到 staging → verify → 通過後才動 live install。跳過 verify 步驟已造成真實生產事故。
 
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md) — 運維手冊的撰寫、組織與驗證。要寫手冊、審查運維程序、規劃演練或評估涵蓋範圍時讀它。
-- 核心規範：[runbook-standards.md](../../../../core/runbook-standards.md)
-- 相關：[alerting-standards.md](../../../../core/alerting-standards.md)
-- 相關：[postmortem-standards.md](../../../../core/postmortem-standards.md)
-- 相關：[deployment-standards.md § Defensive Deployment Ordering](../../../../core/deployment-standards.md#defensive-deployment-ordering) — destructive 部署的強制順序
-- 相關：[packaging-standards.md § Archive Format Integrity](../../../../core/packaging-standards.md#archive-format-integrity) — 與防禦性順序配對的上游規範
+- 核心規範：[runbook-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/runbook-standards.md)
+- 相關：[alerting-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/alerting-standards.md)
+- 相關：[postmortem-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/postmortem-standards.md)
+- 相關：[deployment-standards.md § Defensive Deployment Ordering](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md#defensive-deployment-ordering) — destructive 部署的強制順序
+- 相關：[packaging-standards.md § Archive Format Integrity](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/packaging-standards.md#archive-format-integrity) — 與防禦性順序配對的上游規範

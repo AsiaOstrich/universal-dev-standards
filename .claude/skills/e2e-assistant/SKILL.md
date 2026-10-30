@@ -18,7 +18,7 @@ argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 
 # E2E 助手
 
-> **語言**: [English](../../../../skills/e2e-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/e2e-assistant/SKILL.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能 / Experimental Feature**
@@ -98,10 +98,10 @@ argument-hint: "[feature file or --analyze | .feature 檔案或 --analyze]"
 
 ## 參考
 
-- 規格：[SPEC-E2E-001](../../../../docs/specs/skills/SPEC-E2E-001-e2e-skill.md)
-- 核心規範：[testing-standards.md](../../../../core/testing-standards.md)
+- 規格：[SPEC-E2E-001](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/docs/specs/skills/SPEC-E2E-001-e2e-skill.md)
+- 核心規範：[testing-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md)
 - 工具程式：`cli/src/utils/e2e-analyzer.js`、`cli/src/utils/e2e-detector.js`
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/e2e`](../../../../skills/commands/e2e.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/e2e`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/e2e.md#ai-agent-behavior--ai-代理行為)

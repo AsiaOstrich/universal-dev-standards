@@ -12,7 +12,7 @@ status: current
 **版本**: 1.0.0
 **最後更新**: 2026-01-19
 
-> **語言**: [English](../../../../skills/reverse-engineer/workflow.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/reverse-engineer/workflow.md) | 繁體中文
 
 本指南提供將程式碼反向工程成 SDD 規格的詳細工作流程。
 
@@ -269,7 +269,7 @@ describe('UserService', () => {
 
 ### 4.1 使用範本
 
-套用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)：
+套用 [reverse-spec-template.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/templates/reverse-spec-template.md)：
 
 ```markdown
 # [SPEC-XXX] 功能名稱（反向工程）

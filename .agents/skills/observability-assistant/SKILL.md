@@ -18,13 +18,13 @@ argument-hint: "[service name or observability topic | 服務名稱或可觀測�
 
 # Observability Assistant | 可觀測性助手
 
-> **語言**: [English](../../../../skills/observability-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/observability-assistant/SKILL.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-06-19
 **適用對象**: Claude Code Skills
 
-> **核心規範**：本技能實作 [Observability Standards](../../../../core/observability-standards.md)。有關權威方法論（完整 Metrics/Traces 細節、取樣、OTel 整合），請參閱核心規範。
+> **核心規範**：本技能實作 [Observability Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/observability-standards.md)。有關權威方法論（完整 Metrics/Traces 細節、取樣、OTel 整合），請參閱核心規範。
 
 引導三支柱可觀測性實作：Logs、Metrics、Traces。
 
@@ -118,6 +118,6 @@ argument-hint: "[service name or observability topic | 服務名稱或可觀測�
 ## Reference | 參考
 
 - 詳細指南：[guide.md](./guide.md) — 日誌、指標、追蹤三大支柱的完整說明。要建立監控、挑選指標型別、導入追蹤或評估成熟度時讀它。
-- 核心規範：[observability-standards.md](../../../../core/observability-standards.md)
-- 核心規範：[alerting-standards.md](../../../../core/alerting-standards.md)
-- 核心規範：[slo-standards.md](../../../../core/slo-standards.md)
+- 核心規範：[observability-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/observability-standards.md)
+- 核心規範：[alerting-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/alerting-standards.md)
+- 核心規範：[slo-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/slo-standards.md)

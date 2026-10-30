@@ -9,7 +9,7 @@ status: current
 
 # 變更日誌格式指南
 
-> **語言**: [English](../../../../skills/release-standards/changelog-format.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/release-standards/changelog-format.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -228,7 +228,7 @@ conventional-changelog -p angular -i CHANGELOG.md -s
 
 ## 相關標準
 
-- [變更日誌標準](../../../../core/changelog-standards.md)
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/changelog-standards.md)
 - [語意化版本指南](./semantic-versioning.md)
 
 ---

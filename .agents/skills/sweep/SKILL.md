@@ -17,7 +17,7 @@ argument-hint: "[--fix] [--report] [--path <dir>] [--exclude <pattern>]"
 
 # 掃碼助手
 
-> **語言**: [English](../../../../skills/sweep/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/sweep/SKILL.md) | 繁體中文
 
 掃描程式庫的除錯殘留、程式碼品質問題與技術債標記。
 可選擇性自動修正安全模式（console.log、debugger 等語句）。
@@ -132,7 +132,7 @@ sweep:
 
 ## 相關標準
 
-- [Checkin Standards](../../../../.standards/checkin-standards.ai.yaml) — Pre-commit 品質閘門
+- [Checkin Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/checkin-standards.ai.yaml) — Pre-commit 品質閘門
 - [Code Review](../code-review-assistant/SKILL.md) — 程式碼審查助手
 - [Testing Guide](../testing-guide/SKILL.md) — 測試標準
 

@@ -9,7 +9,7 @@ status: current
 
 # Pre-Commit Checklist（提交前檢查清單）
 
-> **語言**: [English](../../../../skills/code-review-assistant/checkin-checklist.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/code-review-assistant/checkin-checklist.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -237,9 +237,9 @@ git commit -m "feat(module-c): add export feature"
 
 ## 相關標準
 
-- [Checkin Standards](../../../../core/checkin-standards.md)
+- [Checkin Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/checkin-standards.md)
 - [Code Review Checklist](./review-checklist.md)
-- [Commit Message Guide](../../../../core/commit-message-guide.md)
+- [Commit Message Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 
 ---
 

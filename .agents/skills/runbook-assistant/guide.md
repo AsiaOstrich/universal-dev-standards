@@ -14,7 +14,7 @@ description: |
 
 # Runbook 助手
 
-> **語言**：[English](../../../../skills/runbook-assistant/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/runbook-assistant/guide.md) | 繁體中文
 
 **版本**：1.0.0
 **最後更新**：2026-04-01
@@ -186,16 +186,16 @@ annotations:
 ## 詳細準則
 
 完整標準請參閱：
-- [Runbook Standards](../../core/runbook-standards.md)
+- [Runbook Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/runbook-standards.md)
 
 ---
 
 ## 相關標準
 
-- [Runbook Standards](../../core/runbook-standards.md) - 核心標準
-- [Alerting Standards](../../core/alerting-standards.md) - 告警設計與 runbook 連結
-- [Postmortem Standards](../../core/postmortem-standards.md) - 事後檢討
-- [Observability Standards](../../core/observability-standards.md) - 監控與儀表板
+- [Runbook Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/runbook-standards.md) - 核心標準
+- [Alerting Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/alerting-standards.md) - 告警設計與 runbook 連結
+- [Postmortem Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/postmortem-standards.md) - 事後檢討
+- [Observability Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/observability-standards.md) - 監控與儀表板
 - [Observability Assistant](../observability-assistant/SKILL.md) - 監控設定
 - [SLO Assistant](../slo-assistant/SKILL.md) - 基於 SLO 的告警
 

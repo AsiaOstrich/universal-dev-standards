@@ -9,7 +9,7 @@ status: current
 
 # Testing Theory Knowledge Base
 
-> **語言**: [English](../../../../skills/testing-guide/testing-theory.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/testing-guide/testing-theory.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-29
@@ -20,7 +20,7 @@ status: current
 
 ## Purpose
 
-本文件提供軟體測試的理論基礎、教學內容與詳細範例。它作為一份完整的知識庫，用以支援 [Testing Standards](../../core/testing-standards.md) 中所定義的可執行規則。
+本文件提供軟體測試的理論基礎、教學內容與詳細範例。它作為一份完整的知識庫，用以支援 [Testing Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) 中所定義的可執行規則。
 
 **參考標準**:
 - [ISTQB CTFL v4.0](https://istqb.org/certifications/certified-tester-foundation-level-ctfl-v4-0/)
@@ -2277,11 +2277,11 @@ services:
 
 ## Related Standards
 
-- [Testing Standards](../../core/testing-standards.md) - 給 AI agent 的可執行規則
+- [Testing Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) - 給 AI agent 的可執行規則
 - [Testing Pyramid](./testing-pyramid.md) - 詳細的金字塔比例
-- [Test-Driven Development](../../core/test-driven-development.md) - TDD/BDD/ATDD 方法論
-- [Test Completeness Dimensions](../../core/test-completeness-dimensions.md) - 8 維度測試覆蓋
-- [Code Review Checklist](../../core/code-review-checklist.md)
+- [Test-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/test-driven-development.md) - TDD/BDD/ATDD 方法論
+- [Test Completeness Dimensions](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/test-completeness-dimensions.md) - 8 維度測試覆蓋
+- [Code Review Checklist](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
 
 ---
 

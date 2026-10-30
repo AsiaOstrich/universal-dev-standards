@@ -17,7 +17,7 @@ allowed-tools: Read, Write, Grep, Bash(git log:*)
 
 # 變更日誌助手
 
-> **語言**: [English](../../../../skills/changelog-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/changelog-guide/SKILL.md) | 繁體中文
 
 根據 Keep a Changelog 格式產生和維護 CHANGELOG.md 條目。
 
@@ -81,4 +81,4 @@ allowed-tools: Read, Write, Grep, Bash(git log:*)
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[changelog-standards.md](../../../../core/changelog-standards.md)
+- 核心規範：[changelog-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/changelog-standards.md)

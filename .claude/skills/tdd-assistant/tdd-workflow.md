@@ -9,7 +9,7 @@ status: current
 
 # TDD 工作流程指南
 
-> **語言**: [English](../../../../skills/tdd-assistant/tdd-workflow.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/tdd-assistant/tdd-workflow.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-07
@@ -665,4 +665,4 @@ jobs:
 
 - [SKILL.md](./SKILL.md) - TDD 助手概覽
 - [語言範例](./language-examples.md) - 語言特定 TDD
-- [TDD 核心標準](../../../../core/test-driven-development.md) - 完整 TDD 標準
+- [TDD 核心標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md) - 完整 TDD 標準

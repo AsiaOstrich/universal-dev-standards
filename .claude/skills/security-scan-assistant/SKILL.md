@@ -18,7 +18,7 @@ argument-hint: "[scan type or target | 掃描類型或目標]"
 
 # 安全掃描助手
 
-> **語言**: [English](../../../../skills/security-scan-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/security-scan-assistant/SKILL.md) | 繁體中文
 
 自動化相依套件、機密資訊和授權合規的安全掃描。
 
@@ -83,7 +83,7 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 
 ## 參考
 
-- 核心規範：[security-standards.md](../../../../core/security-standards.md)
+- 核心規範：[security-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/security-standards.md)
 
 ## 版本歷史
 
@@ -93,7 +93,7 @@ SCAN ──► TRIAGE ──► PRIORITIZE ──► FIX ──► VERIFY
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/scan`](../../../../skills/commands/scan.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/scan`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/scan.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

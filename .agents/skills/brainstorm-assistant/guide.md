@@ -14,7 +14,7 @@ status: current
 
 # 腦力激盪助手指南
 
-> **語言**: [English](../../../../skills/brainstorm-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/brainstorm-assistant/guide.md) | 繁體中文
 
 **版本**: 4.2.0
 **最後更新**: 2026-08-21
@@ -582,10 +582,10 @@ BQS v1 是**疊加的品質契約**，不是打掉重練。v3 的一切都保留
 
 | 標準 | 關係 |
 |------|------|
-| [Requirement Engineering](../../core/requirement-engineering.md) | 腦力激盪輸出餵入需求撰寫 |
-| [Spec-Driven Development](../../core/spec-driven-development.md) | 腦力激盪輸出餵入 SDD 提案 |
-| [Anti-Hallucination](../../core/anti-hallucination.md) | 評審的可行性宣稱必須以證據為基礎，不可空口斷言 |
-| [Model Selection](../../core/model-selection.md) | D4 心智軸（宣告模型層級）與發散側層級（Standard 或更高）皆以此標準的判準為準——引用、絕不複述 |
+| [Requirement Engineering](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/requirement-engineering.md) | 腦力激盪輸出餵入需求撰寫 |
+| [Spec-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md) | 腦力激盪輸出餵入 SDD 提案 |
+| [Anti-Hallucination](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) | 評審的可行性宣稱必須以證據為基礎，不可空口斷言 |
+| [Model Selection](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/model-selection.md) | D4 心智軸（宣告模型層級）與發散側層級（Standard 或更高）皆以此標準的判準為準——引用、絕不複述 |
 
 ---
 

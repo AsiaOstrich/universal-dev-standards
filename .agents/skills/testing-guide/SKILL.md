@@ -17,7 +17,7 @@ scope: universal
 
 # 測試指南
 
-> **語言**: [English](../../../../skills/testing-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/testing-guide/SKILL.md) | 繁體中文
 
 **版本**: 1.2.0
 **最後更新**: 2026-01-29
@@ -101,10 +101,10 @@ UDS 提供 6 個與測試相關的 Skill。請使用以下決策樹找到合適�
 ## 詳細指南
 
 完整標準請參考：
-- [測試標準](../../core/testing-standards.md) - 可執行的規則
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) - 可執行的規則
 - [測試理論](./testing-theory.md) - 教學知識庫
 - [測試金字塔](./testing-pyramid.md) - 詳細的金字塔比例
-- [測試骨架範本](../../../../skills/testing-guide/test-skeleton-templates.md) - UT/IT/ST/Perf/Contract 的多語言骨架
+- [測試骨架範本](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/testing-guide/test-skeleton-templates.md) - UT/IT/ST/Perf/Contract 的多語言骨架
 
 ### AI 優化格式（Token 高效）
 
@@ -121,7 +121,7 @@ UDS 提供 6 個與測試相關的 Skill。請使用以下決策樹找到合適�
   - 安全測試：`ai/options/testing/security-testing.ai.yaml`
   - 效能測試：`ai/options/testing/performance-testing.ai.yaml`
   - 合約測試：`ai/options/testing/contract-testing.ai.yaml`
-- 骨架範本（所有層級、多語言）：[test-skeleton-templates.md](../../../../skills/testing-guide/test-skeleton-templates.md)
+- 骨架範本（所有層級、多語言）：[test-skeleton-templates.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/testing-guide/test-skeleton-templates.md)
 
 ## 命名慣例
 
@@ -346,9 +346,9 @@ test_data_strategies:
 
 ## 相關標準
 
-- [測試標準](../../core/testing-standards.md) - 可執行的規則
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) - 可執行的規則
 - [測試理論](./testing-theory.md) - 教學知識庫
-- [程式碼審查檢查清單](../../core/code-review-checklist.md)
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
 
 ---
 

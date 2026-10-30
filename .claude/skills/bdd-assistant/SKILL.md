@@ -24,7 +24,7 @@ argument-hint: "[feature or spec | 功能或規格]"
 
 # BDD 助手
 
-> **語言**: [English](../../../../skills/bdd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/bdd-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — BDD 生命週期協調（4 階段循環、Gherkin scaffolding、RED/GREEN 執行）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 Gherkin 格式定義、Three Amigos 結構、BDD 循環圖供參考。
 > 生命週期協調已移至 adoption layer（XSPEC-095）；本文件**僅供參考**。需要強制執行的流程請改用你的 adoption layer 工具鏈。
@@ -99,8 +99,8 @@ Feature: User Login
 - [BDD 工作流程指南](./bdd-workflow.md) — 要把探索、制定、自動化當一個循環跑時讀它。
 - [Gherkin 快速參考指南](./gherkin-guide.md) — 要寫 Given／When／Then 而需要確切語法時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[behavior-driven-development.md](../../../../core/behavior-driven-development.md)
+- 核心規範：[behavior-driven-development.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/behavior-driven-development.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/bdd`](../../../../skills/commands/bdd.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/bdd`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/bdd.md#ai-agent-behavior--ai-代理行為)

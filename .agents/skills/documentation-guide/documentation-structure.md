@@ -9,7 +9,7 @@ status: current
 
 # 文件結構參考
 
-> **語言**: [English](../../../../skills/documentation-guide/documentation-structure.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/documentation-guide/documentation-structure.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -337,8 +337,8 @@ npm install
 
 ## 相關標準
 
-- [Documentation Structure](../../../../core/documentation-structure.md)
-- [Documentation Writing Standards](../../../../core/documentation-writing-standards.md)
+- [Documentation Structure](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/documentation-structure.md)
+- [Documentation Writing Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/documentation-writing-standards.md)
 - [README Template](./readme-template.md)
 
 ---

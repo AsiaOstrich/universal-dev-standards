@@ -16,7 +16,7 @@ scope: universal
 
 # 專案結構指南
 
-> **Language**: [English](../../../../skills/project-structure-guide/SKILL.md) | 繁體中文
+> **Language**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/project-structure-guide/SKILL.md) | 繁體中文
 
 **版本**：1.1.0
 **最後更新**：2026-03-04
@@ -175,7 +175,7 @@ project/
 ## 相關標準
 
 - [各語言的專案結構](./language-patterns.md) — 逐語言的實際目錄配置（Node.js/TypeScript、Python、Go 等）。要為某個特定語言擺放專案結構時讀它。
-- [核心：專案結構](../../core/project-structure.md)
-- [核心：文件結構](../../core/documentation-structure.md)
-- [指南：檔案歸檔決策指南](../../core/guides/file-placement-guide.md)
-- [AI：專案結構選項](../../../../ai/options/project-structure/)
+- [核心：專案結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/project-structure.md)
+- [核心：文件結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md)
+- [指南：檔案歸檔決策指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/guides/file-placement-guide.md)
+- [AI：專案結構選項](https://github.com/AsiaOstrich/universal-dev-standards/tree/main/ai/options/project-structure/)

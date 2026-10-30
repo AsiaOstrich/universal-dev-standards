@@ -18,7 +18,7 @@ argument-hint: "[sprint | release | actions | --technique starfish]"
 
 # 回顧助手
 
-> **語言**: [English](../../../../skills/retrospective-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/retrospective-assistant/SKILL.md) | 繁體中文
 
 引導結構化的團隊回顧，識別改善機會並追蹤行動項目。支援 Sprint 和 Release 回顧類型，提供多種引導技法。
 
@@ -137,5 +137,5 @@ docs/retrospectives/
 
 ## 參考
 
-- 核心規範：[retrospective-standards.md](../../core/retrospective-standards.md)
+- 核心規範：[retrospective-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/retrospective-standards.md)
 - 詳細指南：[guide.md](./guide.md)

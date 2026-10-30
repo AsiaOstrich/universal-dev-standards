@@ -117,11 +117,11 @@ After `/release` completes, the AI assistant should suggest:
 - [Release Workflow Guide](./release-workflow.md) — 實際執行發布、進行逐步操作時請閱讀此文件。
 - [Semantic Versioning Guide](./semantic-versioning.md) — 決定變更屬於 major、minor 或 patch 時請閱讀此文件。
 - Detailed guide: [guide.md](./guide.md)
-- Core standard: [versioning.md](../../core/versioning.md)
+- Core standard: [versioning.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/versioning.md)
 
 
 ## AI Agent Behavior | AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/release`](../commands/release.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/release`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/skills/commands/release.md#ai-agent-behavior--ai-代理行為)
 >
-> For complete AI agent behavior definition, see the corresponding command file: [`/release`](../commands/release.md#ai-agent-behavior--ai-代理行為)
+> For complete AI agent behavior definition, see the corresponding command file: [`/release`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/skills/commands/release.md#ai-agent-behavior--ai-代理行為)

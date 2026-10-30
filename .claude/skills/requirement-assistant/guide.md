@@ -14,12 +14,12 @@ description: |
 
 # 需求助手
 
-> **語言**: [English](../../../../skills/requirement-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/requirement-assistant/guide.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-28
 **適用範圍**: Claude Code Skills
-**核心標準**: [需求工程標準](../../core/requirement-engineering.md)
+**核心標準**: [需求工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/requirement-engineering.md)
 
 ---
 
@@ -210,13 +210,13 @@ description: |
 ## 相關標準
 
 **核心標準（理論與深度參考）**：
-- [需求工程標準](../../core/requirement-engineering.md) - 完整的理論基礎，包含 IEEE 830、SWEBOK v4.0、ISO 25010
+- [需求工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/requirement-engineering.md) - 完整的理論基礎，包含 IEEE 830、SWEBOK v4.0、ISO 25010
 
 **相關標準**：
-- [規格驅動開發](../../core/spec-driven-development.md) - 規格工作流程
-- [行為驅動開發](../../core/behavior-driven-development.md) - Given-When-Then 場景
-- [驗收測試驅動開發](../../core/acceptance-test-driven-development.md) - ATDD 工作坊
-- [簽入標準](../../core/checkin-standards.md) - 程式碼簽入要求
+- [規格驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md) - 規格工作流程
+- [行為驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/behavior-driven-development.md) - Given-When-Then 場景
+- [驗收測試驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/acceptance-test-driven-development.md) - ATDD 工作坊
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) - 程式碼簽入要求
 
 ---
 

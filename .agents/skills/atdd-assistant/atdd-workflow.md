@@ -575,6 +575,6 @@ Feature: 訂單確認電子郵件
 ## 相關資源
 
 - [驗收標準撰寫指南](./acceptance-criteria-guide.md)
-- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
+- [ATDD 核心標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-test-driven-development.md)
 - [BDD 工作流程](../bdd-assistant/bdd-workflow.md)
 - [TDD 工作流程](../tdd-assistant/tdd-workflow.md)

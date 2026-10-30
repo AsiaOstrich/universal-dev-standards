@@ -18,7 +18,7 @@ argument-hint: "[config file | 設定檔]"
 
 # 文件產生器
 
-> **語言**: [English](../../../../skills/docs-generator/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/docs-generator/SKILL.md) | 繁體中文
 
 從專案原始檔案產生使用文件（速查表、參考手冊、使用指南）。
 

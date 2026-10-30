@@ -16,7 +16,7 @@ description: |
 
 # AI 友善架構指南
 
-> **語言**: [English](../../../../skills/ai-friendly-architecture/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ai-friendly-architecture/SKILL.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-25
@@ -24,7 +24,7 @@ description: |
 
 ---
 
-> **核心標準**: 本技能實作 [AI 友善架構](../../core/ai-friendly-architecture.md)。完整方法論文件請參閱核心標準。
+> **核心標準**: 本技能實作 [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md)。完整方法論文件請參閱核心標準。
 
 ## AI 技能層級
 
@@ -103,7 +103,7 @@ project/
 ## 詳細指南
 
 完整標準請參閱：
-- [AI 友善架構標準](../../core/ai-friendly-architecture.md)
+- [AI 友善架構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md)
 
 ### AI 優化格式（Token 效率）
 
@@ -223,10 +223,10 @@ documentation:
 
 ## 相關標準
 
-- [AI 友善架構](../../core/ai-friendly-architecture.md) - 核心架構標準
-- [專案結構](../../core/project-structure.md) - 目錄組織
-- [文件結構](../../core/documentation-structure.md) - 文件分層
-- [反幻覺](../../core/anti-hallucination.md) - AI 準確性標準
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md) - 核心架構標準
+- [專案結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/project-structure.md) - 目錄組織
+- [文件結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md) - 文件分層
+- [反幻覺](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) - AI 準確性標準
 
 ---
 

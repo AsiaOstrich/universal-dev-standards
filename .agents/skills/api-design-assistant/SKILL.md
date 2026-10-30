@@ -18,7 +18,7 @@ argument-hint: "[API endpoint or module | API 端點或模組]"
 
 # API 設計助手
 
-> **語言**: [English](../../../../skills/api-design-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/api-design-assistant/SKILL.md) | 繁體中文
 
 引導 API 設計，遵循 REST、GraphQL 和 gRPC 最佳實踐。
 
@@ -105,7 +105,7 @@ DEFINE ──► DESIGN ──► VALIDATE ──► DOCUMENT
 
 ## 參考
 
-- 核心規範：[api-design-standards.md](../../../../core/api-design-standards.md)
+- 核心規範：[api-design-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/api-design-standards.md)
 
 ## 版本歷史
 

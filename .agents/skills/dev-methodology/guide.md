@@ -20,7 +20,7 @@ description: |
 
 # Methodology System Skill
 
-> **語言**：[English](../../../../skills/dev-methodology/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/guide.md) | 繁體中文
 
 **版本**：2.0.0
 **最後更新**：2026-01-25
@@ -241,7 +241,7 @@ Suggested commit:
 
 ## 檔案
 
-- [integrated-flow.md](../../../../skills/dev-methodology/integrated-flow.md) - 兩套系統的完整工作流程指南
+- [integrated-flow.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/integrated-flow.md) - 兩套系統的完整工作流程指南
 - [runtime.md](./runtime.md) - AI 行為與執行期（runtime）指南
 - [create-methodology.md](./create-methodology.md) - 自訂方法論建立精靈
 

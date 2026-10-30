@@ -16,7 +16,7 @@ status: current
 
 # 錯誤碼指南
 
-> **語言**: [English](../../../../skills/error-code-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/error-code-guide/SKILL.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-30
@@ -24,7 +24,7 @@ status: current
 
 ---
 
-> **核心規範**：此技能實作 [錯誤碼標準](../../core/error-code-standards.md)。完整的方法論文件請參閱核心規範。
+> **核心規範**：此技能實作 [錯誤碼標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/error-code-standards.md)。完整的方法論文件請參閱核心規範。
 
 ## 目的
 
@@ -91,7 +91,7 @@ API_NET_408     → API 網路逾時
 ## 詳細指南
 
 完整標準請參考：
-- [錯誤碼標準](../../core/error-code-standards.md)
+- [錯誤碼標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/error-code-standards.md)
 
 ### AI 優化格式（節省 Token）
 
@@ -265,8 +265,8 @@ export const ErrorCodes = {
 
 ## 相關標準
 
-- [錯誤碼標準](../../core/error-code-standards.md)
-- [日誌標準](../../core/logging-standards.md)
+- [錯誤碼標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/error-code-standards.md)
+- [日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md)
 
 ---
 

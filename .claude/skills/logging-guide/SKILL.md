@@ -16,7 +16,7 @@ scope: universal
 
 # 日誌指南
 
-> **語言**: [English](../../../../skills/logging-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/logging-guide/SKILL.md) | 繁體中文
 
 **版本**: 1.4.0
 **最後更新**: 2026-06-19
@@ -82,7 +82,7 @@ scope: universal
 
 > 背景服務若在 60 秒內未寫入任何 INFO/WARN/ERROR，**必須**發出一則 `heartbeat`；若連續 ≥ 2 倍間隔（≥ 120 秒）都沒有出現，沉默偵測器**必須**告警。
 
-完整目錄（每個事件的 `when`／`must_log`／`must_NOT_log`／`rationale` 及合規範例），請參閱核心[日誌標準](../../core/logging-standards.md#強制事件-mandatory-events)的**強制事件**章節。
+完整目錄（每個事件的 `when`／`must_log`／`must_NOT_log`／`rationale` 及合規範例），請參閱核心[日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md#強制事件-mandatory-events)的**強制事件**章節。
 
 ## 結構化日誌
 
@@ -133,7 +133,7 @@ scope: universal
 ## 詳細指南
 
 完整標準請參考：
-- [日誌標準](../../core/logging-standards.md)
+- [日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md)
 
 ### AI 優化格式（節省 Token）
 
@@ -246,7 +246,7 @@ logger.error('處理訂單失敗', {
 
 當日誌檔案在預期的每日結束時達到 **`fileSizeLimitBytes` 的 ≥ 90%**，**調查噪音根因**（嘈雜的重試迴圈 / 不受限制的 debug 日誌 / stack trace 洪流），不要只提高上限。
 
-> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](../../core/logging-standards.md#日誌檔案輪替政策)。
+> 含各語言設定範例（.NET Serilog / Python / Java log4j2 / Node Winston）及真實事故失敗模式參考的完整規格：請參閱核心標準的[日誌檔案輪替政策](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md#日誌檔案輪替政策)。
 
 ## 檢查清單
 
@@ -312,8 +312,8 @@ logger.error('處理訂單失敗', {
 
 ## 相關標準
 
-- [日誌標準](../../core/logging-standards.md)
-- [錯誤碼標準](../../core/error-code-standards.md)
+- [日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md)
+- [錯誤碼標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/error-code-standards.md)
 
 ---
 

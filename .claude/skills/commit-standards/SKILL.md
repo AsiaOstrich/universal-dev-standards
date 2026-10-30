@@ -18,7 +18,7 @@ argument-hint: "[description of changes | 變更描述]"
 
 # Commit Message 助手
 
-> **語言**: [English](../../../../skills/commit-standards/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commit-standards/SKILL.md) | 繁體中文
 
 根據 staged 的變更，產生符合 Conventional Commits 格式的 commit message。
 
@@ -132,8 +132,8 @@ feat(auth): 新增 OAuth2 Google 登入支援
 - [Conventional Commits 指南](./conventional-commits.md) — 需要確切的 type、scope 與格式規則時讀它。
 - [Commit Message 語言選項](./language-options.md) — 要決定 commit message 用哪一種語言時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[commit-message-guide.md](../../../../core/commit-message-guide.md)
+- 核心規範：[commit-message-guide.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/commit`](../../../../skills/commands/commit.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/commit`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/commit.md#ai-agent-behavior--ai-代理行為)

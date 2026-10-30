@@ -15,13 +15,13 @@ description: |
 
 # 正向推演指南（Forward Derivation Guide）
 
-> **語言**：[English](../../../../skills/spec-derivation/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/spec-derivation/guide.md) | 繁體中文
 
 **版本**：2.0.0
 **最後更新**：2026-01-25
 **適用範圍**：Claude Code Skills
 
-> **核心標準**：此 skill 實作 [Forward Derivation Standards](../../core/forward-derivation-standards.md)。如需任何 AI 工具皆可存取的完整方法論文件，請參閱該核心標準。
+> **核心標準**：此 skill 實作 [Forward Derivation Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/forward-derivation-standards.md)。如需任何 AI 工具皆可存取的完整方法論文件，請參閱該核心標準。
 
 ---
 
@@ -101,7 +101,7 @@ Scenario: User login with valid credentials
 
 ### 3. 推演標籤（Derivation Tags，來自統一標籤系統）
 
-此 skill 使用 **推演標籤（Derivation Tags）** 從規格生成新內容。完整的標籤參考請見 [Anti-Hallucination Standards](../../../../core/anti-hallucination.md#certainty-classification-tags)。
+此 skill 使用 **推演標籤（Derivation Tags）** 從規格生成新內容。完整的標籤參考請見 [Anti-Hallucination Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/anti-hallucination.md#certainty-classification-tags)。
 
 | 標籤 | 使用時機 | 範例 |
 |-----|----------|---------|
@@ -449,12 +449,12 @@ Optional: /derive-atdd → acceptance.md for manual testing
 
 ## 相關標準
 
-- [Forward Derivation Standards](../../core/forward-derivation-standards.md) - **核心方法論標準（主要參考）**
-- [Reverse Engineering Standards](../../core/reverse-engineering-standards.md) - 對稱對應
-- [Spec-Driven Development](../../core/spec-driven-development.md) - 輸入規格格式
-- [Behavior-Driven Development](../../core/behavior-driven-development.md) - BDD 輸出格式
-- [Test-Driven Development](../../core/test-driven-development.md) - TDD 輸出用途
-- [Anti-Hallucination Guidelines](../../core/anti-hallucination.md) - 生成合規性
+- [Forward Derivation Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/forward-derivation-standards.md) - **核心方法論標準（主要參考）**
+- [Reverse Engineering Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md) - 對稱對應
+- [Spec-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md) - 輸入規格格式
+- [Behavior-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/behavior-driven-development.md) - BDD 輸出格式
+- [Test-Driven Development](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/test-driven-development.md) - TDD 輸出用途
+- [Anti-Hallucination Guidelines](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) - 生成合規性
 
 ---
 

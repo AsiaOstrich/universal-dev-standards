@@ -17,7 +17,7 @@ argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 
 # 推送助手
 
-> **語言**: [English](../../../../skills/push/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/push/SKILL.md) | 繁體中文
 
 **版本**：2.0.0
 **建立日期**：2026-04-23
@@ -29,7 +29,7 @@ argument-hint: "[--force] [--target <branch>] [--skip-gates] [--no-pr]"
 
 ## 核心標準
 
-本 Skill 實作 [`.standards/push-standards.ai.yaml`](../../../../.standards/push-standards.ai.yaml)。
+本 Skill 實作 [`.standards/push-standards.ai.yaml`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/push-standards.ai.yaml)。
 
 ---
 
@@ -202,8 +202,8 @@ push:
 
 | Option 檔案 | 模式 | 說明 |
 |-------------|------|------|
-| [`options/push/team-mode.md`](../../../../options/push/team-mode.md) | `team` | 完整協作護欄（預設） |
-| [`options/push/single-owner-mode.md`](../../../../options/push/single-owner-mode.md) | `single-owner` | 個人 repo 低摩擦模式 |
+| [`options/push/team-mode.md`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/options/push/team-mode.md) | `team` | 完整協作護欄（預設） |
+| [`options/push/single-owner-mode.md`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/options/push/single-owner-mode.md) | `single-owner` | 個人 repo 低摩擦模式 |
 
 ---
 
@@ -220,9 +220,9 @@ push:
 
 ## 相關標準
 
-- [Push Standards](../../../../.standards/push-standards.ai.yaml) — 核心推送安全規則
-- [Git Workflow](../../../../.standards/git-workflow.ai.yaml) — 分支策略
-- [Commit Message](../../../../.standards/commit-message.ai.yaml) — Commit 慣例
+- [Push Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/push-standards.ai.yaml) — 核心推送安全規則
+- [Git Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/git-workflow.ai.yaml) — 分支策略
+- [Commit Message](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/.standards/commit-message.ai.yaml) — Commit 慣例
 - [PR Automation](../pr-automation-assistant/SKILL.md) — Pull Request 自動化
 
 ---

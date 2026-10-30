@@ -14,13 +14,13 @@ status: current
 
 # 系統考古指南 — 跨三維度的反向工程
 
-> **語言**: [English](../../../../skills/reverse-engineer/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/reverse-engineer/guide.md) | 繁體中文
 
 **版本**: 2.0.0
 **最後更新**: 2026-02-12
 **適用範圍**: Claude Code Skills
 
-> **核心規範**：此技能實作[反向工程標準](../../core/reverse-engineering-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
+> **核心規範**：此技能實作[反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md)。任何 AI 工具皆可參考核心規範取得完整方法論文件。
 
 ---
 
@@ -81,11 +81,11 @@ status: current
 
 ### 1. 反幻覺合規
 
-**關鍵**：此技能必須嚴格遵循[反幻覺標準](../../core/anti-hallucination.md)。
+**關鍵**：此技能必須嚴格遵循[反幻覺標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)。
 
 #### 確定性標籤（來自統一標籤系統）
 
-此技能使用**確定性標籤**來分析既有程式碼。完整標籤參考請見[反幻覺標準](../../core/anti-hallucination.md#certainty-classification-tags)。
+此技能使用**確定性標籤**來分析既有程式碼。完整標籤參考請見[反幻覺標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md#certainty-classification-tags)。
 
 | 標籤 | 使用時機 | 範例 |
 |------|----------|------|
@@ -184,7 +184,7 @@ describe('認證', () => {
 **輸入**：所有分析結果
 **輸出**：初稿規格文件
 
-**範本**：使用 [reverse-spec-template.md](../../templates/reverse-spec-template.md)
+**範本**：使用 [reverse-spec-template.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/templates/reverse-spec-template.md)
 
 ### 階段 5：人類審查
 
@@ -502,10 +502,10 @@ describe('購物車', () => {
 
 ## 相關標準
 
-- [反向工程標準](../../core/reverse-engineering-standards.md) - **核心方法論標準（主要參考）**
-- [規格驅動開發](../../core/spec-driven-development.md) - 輸出格式與審查流程
-- [反幻覺指南](../../core/anti-hallucination.md) - 以證據為基礎的分析要求
-- [程式碼審查檢查清單](../../core/code-review-checklist.md) - 審查指南
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md) - **核心方法論標準（主要參考）**
+- [規格驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md) - 輸出格式與審查流程
+- [反幻覺指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) - 以證據為基礎的分析要求
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md) - 審查指南
 
 ---
 

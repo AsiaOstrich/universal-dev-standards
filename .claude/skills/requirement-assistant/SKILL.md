@@ -18,7 +18,7 @@ argument-hint: "[feature description | 功能描述]"
 
 # 需求助手
 
-> **語言**: [English](../../../../skills/requirement-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/requirement-assistant/SKILL.md) | 繁體中文
 
 撰寫結構良好的使用者故事和需求文件，遵循 INVEST 準則。
 
@@ -84,8 +84,8 @@ So that [benefit].
 - [需求完整性檢查清單](./requirement-checklist.md) — 要在需求被接受之前檢查它完不完整時讀它。
 - [需求撰寫指南](./requirement-writing.md) — 要從零開始寫一份需求時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[requirement-engineering.md](../../../../core/requirement-engineering.md)
+- 核心規範：[requirement-engineering.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/requirement-engineering.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/requirement`](../../../../skills/commands/requirement.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/requirement`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/requirement.md#ai-agent-behavior--ai-代理行為)

@@ -9,7 +9,7 @@ status: current
 
 # 程式碼審查檢查清單
 
-> **語言**: [English](../../../../skills/code-review-assistant/review-checklist.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/code-review-assistant/review-checklist.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -226,8 +226,8 @@ status: current
 
 ## 相關標準
 
-- [Code Review Checklist](../../../../core/code-review-checklist.md)
-- [Checkin Standards](../../../../core/checkin-standards.md)
+- [Code Review Checklist](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/code-review-checklist.md)
+- [Checkin Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/checkin-standards.md)
 - [Pre-Commit Checklist](./checkin-checklist.md)
 
 ---

@@ -16,7 +16,7 @@ argument-hint: "[spec-file.md | openspec-dir/ | \"requirement text\" | (interact
 
 # /plan — 從 Spec 自動生成 plan.json
 
-> **語言**: [English](../../../../skills/plan/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/plan/SKILL.md) | 繁體中文
 
 ## 用法
 

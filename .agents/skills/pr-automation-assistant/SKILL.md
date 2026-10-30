@@ -18,7 +18,7 @@ argument-hint: "[branch name or PR number | 分支名稱或 PR 編號]"
 
 # PR 自動化助手
 
-> **語言**: [English](../../../../skills/pr-automation-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/pr-automation-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — PR 生命週期協調（5 步驟 CREATE→REVIEW→APPROVE→MERGE→CLEANUP、>400 行 size gate、CI gate、squash/merge 策略、gh CLI 整合）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 PR 描述模板、合併策略決策矩陣、auto-review 觸發規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
@@ -100,8 +100,8 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 ## 參考
 
-- 核心規範：[code-review-checklist.md](../../../../core/code-review-checklist.md)
-- 核心規範：[git-workflow.md](../../../../core/git-workflow.md)
+- 核心規範：[code-review-checklist.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/code-review-checklist.md)
+- 核心規範：[git-workflow.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/git-workflow.md)
 
 ## 版本歷史
 
@@ -111,7 +111,7 @@ CREATE ──► REVIEW ──► APPROVE ──► MERGE ──► CLEANUP
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/pr`](../../../../skills/commands/pr.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/pr`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/pr.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

@@ -14,7 +14,7 @@ status: current
 
 # 變更日誌指南
 
-> **語言**: [English](../../../../skills/changelog-guide/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/changelog-guide/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-30
@@ -22,7 +22,7 @@ status: current
 
 ---
 
-> **核心規範**：此技能實作 [變更日誌標準](../../../../core/changelog-standards.md)。完整的方法論文件請參閱核心規範。
+> **核心規範**：此技能實作 [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/changelog-standards.md)。完整的方法論文件請參閱核心規範。
 
 ## 目的
 
@@ -109,7 +109,7 @@ status: current
 ## 詳細指南
 
 完整標準請參考：
-- [變更日誌標準](../../../../core/changelog-standards.md)
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/changelog-standards.md)
 
 ### AI 優化格式（節省 Token）
 
@@ -218,9 +218,9 @@ AI 助手可使用 YAML 格式檔案以減少 Token 使用量：
 
 ## 相關標準
 
-- [變更日誌標準](../../../../core/changelog-standards.md)
-- [版本控制標準](../../../../core/versioning.md)
-- [提交訊息指南](../../../../core/commit-message-guide.md)
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/changelog-standards.md)
+- [版本控制標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/versioning.md)
+- [提交訊息指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 - [發布標準技能](../release-standards/SKILL.md)
 
 ---

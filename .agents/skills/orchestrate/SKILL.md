@@ -16,7 +16,7 @@ argument-hint: "<plan.json> [--dry-run]"
 
 # /orchestrate — 任務計畫編排 Skill
 
-> **語言**: [English](../../../../skills/orchestrate/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/orchestrate/SKILL.md) | 繁體中文
 
 ## 用法
 

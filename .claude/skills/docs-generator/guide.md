@@ -13,7 +13,7 @@ status: current
 
 # 文件產生器技能
 
-> **語言**: [English](../../../../skills/docs-generator/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/docs-generator/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-26
@@ -244,9 +244,9 @@ echo "Checking usage documentation sync..."
 
 ## 相關規範
 
-- [文件撰寫規範](../../../../core/documentation-writing-standards.md)
-- [文件結構規範](../../../../core/documentation-structure.md)
-- [AI 友善架構](../../../../core/ai-friendly-architecture.md)
+- [文件撰寫規範](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/documentation-writing-standards.md)
+- [文件結構規範](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/documentation-structure.md)
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/ai-friendly-architecture.md)
 
 ## 版本歷史
 

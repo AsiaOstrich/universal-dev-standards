@@ -16,7 +16,7 @@ description: |
 
 # 文件指南
 
-> **語言**: [English](../../../../skills/documentation-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/documentation-guide/SKILL.md) | 繁體中文
 
 **版本**: 2.1.0
 **最後更新**: 2026-03-17
@@ -442,8 +442,8 @@ MIT
 ## 詳細指南
 
 完整標準請參閱：
-- [文件撰寫標準](../../core/documentation-writing-standards.md)
-- [文件結構標準](../../core/documentation-structure.md)
+- [文件撰寫標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-writing-standards.md)
+- [文件結構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md)
 - [README 範本](./readme-template.md)
 
 ---
@@ -461,9 +461,9 @@ MIT
 
 ## 相關標準
 
-- [文件撰寫標準](../../core/documentation-writing-standards.md) - 內容需求
-- [文件結構標準](../../core/documentation-structure.md) - 檔案組織
-- [變更日誌標準](../../core/changelog-standards.md) - CHANGELOG 格式
+- [文件撰寫標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-writing-standards.md) - 內容需求
+- [文件結構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md) - 檔案組織
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md) - CHANGELOG 格式
 - [變更日誌指南技能](../changelog-guide/SKILL.md) - CHANGELOG 技能
 
 ---

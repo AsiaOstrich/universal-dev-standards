@@ -14,7 +14,7 @@ status: current
 
 # 專案現況評估指南
 
-> **語言**: [English](../../../../skills/project-discovery/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/project-discovery/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-02-09
@@ -101,8 +101,8 @@ status: current
 **品質閘門**：若測試通過率 < 70%，標記為高風險後再繼續。
 
 **引用規範**：
-- [測試標準](../../core/testing-standards.md)
-- [反向工程標準](../../core/reverse-engineering-standards.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md)
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md)
 
 ### 步驟 0.2：架構理解
 
@@ -134,8 +134,8 @@ routes → controllers → services → repositories → database
 **品質閘門**：若無清晰模組邊界，建議在功能開發前進行架構重構。
 
 **引用規範**：
-- [AI 友善架構](../../core/ai-friendly-architecture.md)
-- [反向工程標準](../../core/reverse-engineering-standards.md)
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md)
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md)
 
 ### 步驟 0.3：文件盤點
 
@@ -163,8 +163,8 @@ routes → controllers → services → repositories → database
 **品質閘門**：若 README 遺失或嚴重過期，建議先更新文件。
 
 **引用規範**：
-- [文件結構](../../core/documentation-structure.md)
-- [變更日誌標準](../../core/changelog-standards.md)
+- [文件結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md)
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md)
 
 ### 步驟 0.4：程式碼審查快照
 
@@ -195,8 +195,8 @@ routes → controllers → services → repositories → database
 **品質閘門**：任何 ❌ 安全性發現必須在功能開發前立即處理。
 
 **引用規範**：
-- [反幻覺指南](../../core/anti-hallucination.md)
-- [程式碼審查清單](../../core/code-review-checklist.md)
+- [反幻覺指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)
+- [程式碼審查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
 
 ### 步驟 0.5：依賴與安全檢查
 
@@ -224,8 +224,8 @@ routes → controllers → services → repositories → database
 **品質閘門**：任何嚴重漏洞必須在新增功能前修補。
 
 **引用規範**：
-- [安全標準](../../../../core/security-standards.md)
-- [簽入標準](../../core/checkin-standards.md)
+- [安全標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/security-standards.md)
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md)
 
 ### 步驟 0.6：影響範圍分析
 
@@ -257,7 +257,7 @@ routes → controllers → services → repositories → database
 **品質閘門**：若爆炸半徑超過模組總數的 30%，建議採用漸進式方法。
 
 **引用規範**：
-- [需求工程](../../../../core/requirement-engineering.md)
+- [需求工程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/requirement-engineering.md)
 
 ## 現況評估報告範本
 
@@ -345,16 +345,16 @@ routes → controllers → services → repositories → database
 
 ## 相關規範
 
-- [反向工程標準](../../core/reverse-engineering-standards.md) — 深度程式碼分析方法論
-- [測試標準](../../core/testing-standards.md) — 測試覆蓋率基準
-- [安全標準](../../../../core/security-standards.md) — 漏洞評估
-- [AI 友善架構](../../core/ai-friendly-architecture.md) — 架構評估標準
-- [文件結構](../../core/documentation-structure.md) — 文件完整性
-- [變更日誌標準](../../core/changelog-standards.md) — 變更追蹤
-- [反幻覺指南](../../core/anti-hallucination.md) — 證據導向分析
-- [程式碼審查清單](../../core/code-review-checklist.md) — 審查方法論
-- [簽入標準](../../core/checkin-standards.md) — 品質閘門
-- [需求工程](../../../../core/requirement-engineering.md) — 影響分析
+- [反向工程標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/reverse-engineering-standards.md) — 深度程式碼分析方法論
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md) — 測試覆蓋率基準
+- [安全標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/security-standards.md) — 漏洞評估
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md) — 架構評估標準
+- [文件結構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-structure.md) — 文件完整性
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md) — 變更追蹤
+- [反幻覺指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) — 證據導向分析
+- [程式碼審查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md) — 審查方法論
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) — 品質閘門
+- [需求工程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/requirement-engineering.md) — 影響分析
 
 ---
 

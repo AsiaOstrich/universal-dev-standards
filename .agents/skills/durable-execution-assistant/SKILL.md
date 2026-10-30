@@ -18,7 +18,7 @@ argument-hint: "[workflow name or failure context | 工作流名稱或失敗情�
 
 # 持久執行助手
 
-> **語言**: [English](../../../../skills/durable-execution-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/durable-execution-assistant/SKILL.md) | 繁體中文
 
 引導容錯工作流程設計，包含自動恢復、檢查點與重試策略。
 
@@ -108,7 +108,7 @@ AI：正在分析 deploy-pipeline 的持久性...
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/durable`](../../../../skills/commands/durable.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/durable`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/durable.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

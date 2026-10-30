@@ -14,7 +14,7 @@ description: |
 
 # 理解階梯：評估案例
 
-> **語言**: [English](../../../../skills/comprehension-ladder/eval-cases.md) | 繁體中文 | [简体中文](../../../zh-CN/skills/comprehension-ladder/eval-cases.md)
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/comprehension-ladder/eval-cases.md) | 繁體中文 | [简体中文](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-CN/skills/comprehension-ladder/eval-cases.md)
 
 **狀態：尚未實跑。** 本檔只有案例與跑法。沒有呼叫過任何模型，也沒有任何讀者作過答。實跑完成之前，不要說本技能讓文字比較好懂。
 

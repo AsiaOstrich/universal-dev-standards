@@ -14,7 +14,7 @@ description: |
 
 # 發布標準
 
-> **語言**: [English](../../../../skills/release-standards/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/release-standards/SKILL.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-02
@@ -22,7 +22,7 @@ description: |
 
 ---
 
-> **核心標準**：本技能實作 [版本控制](../../core/versioning.md)。完整的方法論文件請參閱核心標準。
+> **核心標準**：本技能實作 [版本控制](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/versioning.md)。完整的方法論文件請參閱核心標準。
 
 ## 目的
 
@@ -177,9 +177,9 @@ This project follows **Keep a Changelog** format.
 
 ## 相關標準
 
-- [版本控制](../../core/versioning.md) - 核心語意化版本標準
-- [變更日誌標準](../../core/changelog-standards.md) - Keep a Changelog 格式
-- [Git 工作流程](../../core/git-workflow.md) - Git 標籤與發布分支
+- [版本控制](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/versioning.md) - 核心語意化版本標準
+- [變更日誌標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md) - Keep a Changelog 格式
+- [Git 工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/git-workflow.md) - Git 標籤與發布分支
 
 ---
 

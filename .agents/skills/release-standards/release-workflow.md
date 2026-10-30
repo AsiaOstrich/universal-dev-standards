@@ -9,7 +9,7 @@ status: current
 
 # 發布流程指南
 
-> **Language**: [English](../../../../skills/release-standards/release-workflow.md) | 繁體中文
+> **Language**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/release-standards/release-workflow.md) | 繁體中文
 
 **版本**: 2.2.0
 **最後更新**: 2026-01-26

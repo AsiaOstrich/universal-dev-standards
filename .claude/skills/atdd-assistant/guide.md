@@ -14,7 +14,7 @@ description: |
 
 # ATDD 助手
 
-> **語言**: [English](../../../../skills/atdd-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/atdd-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-19
@@ -318,14 +318,14 @@ TDD 層級（實作）
 ## 詳細指南
 
 完整標準請參閱：
-- [ATDD 核心標準](../../../../core/acceptance-test-driven-development.md)
+- [ATDD 核心標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-test-driven-development.md)
 - [ATDD 工作流程指南](./atdd-workflow.md)
 - [驗收標準撰寫指南](./acceptance-criteria-guide.md)
 
 相關標準：
-- [BDD 標準](../../../../core/behavior-driven-development.md)
-- [TDD 標準](../../../../core/test-driven-development.md)
-- [測試標準](../../../../core/testing-standards.md)
+- [BDD 標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/behavior-driven-development.md)
+- [TDD 標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md)
 
 ---
 
@@ -359,11 +359,11 @@ TDD 層級（實作）
 
 ## 相關標準
 
-- [驗收測試驅動開發](../../../../core/acceptance-test-driven-development.md) - 核心 ATDD 標準
-- [行為驅動開發](../../../../core/behavior-driven-development.md) - BDD 標準
-- [測試驅動開發](../../../../core/test-driven-development.md) - TDD 標準
-- [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 工作流程
-- [測試標準](../../../../core/testing-standards.md) - 測試框架
+- [驗收測試驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-test-driven-development.md) - 核心 ATDD 標準
+- [行為驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/behavior-driven-development.md) - BDD 標準
+- [測試驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md) - TDD 標準
+- [規格驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/spec-driven-development.md) - SDD 工作流程
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md) - 測試框架
 - [BDD 助手](../bdd-assistant/SKILL.md) - BDD 技能
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 技能
 

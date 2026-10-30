@@ -403,5 +403,5 @@ Then('我應該看到錯誤 {string}', async function (message) {
 ## 相關資源
 
 - [Gherkin 快速參考](./gherkin-guide.md)
-- [BDD 核心標準](../../../../core/behavior-driven-development.md)
+- [BDD 核心標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/behavior-driven-development.md)
 - [TDD 工作流程](../tdd-assistant/tdd-workflow.md)

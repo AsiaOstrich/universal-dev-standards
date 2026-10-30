@@ -17,7 +17,7 @@ argument-hint: "[action] [argument]"
 
 # 方法論系統
 
-> **語言**: [English](../../../../skills/dev-methodology/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/SKILL.md) | 繁體中文
 
 > [!WARNING]
 > **實驗性功能**
@@ -104,11 +104,11 @@ argument-hint: "[action] [argument]"
 ## 參考
 
 - [建立自訂 Methodology 指南](./create-methodology.md) — 要自建方法論而不是用現成的那幾套時讀它。
-- [整合開發流程指南](../../../../skills/dev-methodology/integrated-flow.md) — 要把多套方法論組合成單一流程時讀它。
-- [工作流前置步驟檢查](../../../../skills/dev-methodology/prerequisite-check.md) — 某個工作流步驟需要先檢查前置條件時讀它。
+- [整合開發流程指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/integrated-flow.md) — 要把多套方法論組合成單一流程時讀它。
+- [工作流前置步驟檢查](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-methodology/prerequisite-check.md) — 某個工作流步驟需要先檢查前置條件時讀它。
 - [Methodology Runtime 指南](./runtime.md) — 需要知道方法論在執行當下如何運作時讀它。
 - 詳細指南：[guide.md](./guide.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/methodology`](../../../../skills/commands/methodology.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/methodology`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/methodology.md#ai-agent-behavior--ai-代理行為)

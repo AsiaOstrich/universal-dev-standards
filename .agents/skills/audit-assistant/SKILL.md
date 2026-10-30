@@ -18,7 +18,7 @@ argument-hint: "[--health | --patterns | --friction | --report]"
 
 # 審計助手
 
-> **語言**: [English](../../../../skills/audit-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/audit-assistant/SKILL.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-03-04
@@ -117,8 +117,8 @@ uds audit --report --dry-run
 
 ## 相關規範
 
-- [checkin-standards](../../../../core/checkin-standards.md) — 程式碼提交規範
-- [testing-standards](../../../../core/testing-standards.md) — 測試規範
+- [checkin-standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/checkin-standards.md) — 程式碼提交規範
+- [testing-standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md) — 測試規範
 
 ## 版本歷史
 
@@ -128,4 +128,4 @@ uds audit --report --dry-run
 
 ## 授權
 
-CC BY 4.0 — 詳見 [LICENSE](../../../../LICENSE)。
+CC BY 4.0 — 詳見 [LICENSE](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/LICENSE)。

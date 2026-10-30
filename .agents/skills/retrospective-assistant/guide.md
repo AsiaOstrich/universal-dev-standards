@@ -14,7 +14,7 @@ description: |
 
 # 回顧助手指南
 
-> **語言**: [English](../../../../skills/retrospective-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/retrospective-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-03-26
@@ -229,5 +229,5 @@ A：個人回顧仍然有價值。使用相同的範本，但作為個人反思�
 
 ## 參考
 
-- 核心規範：[retrospective-standards.md](../../../../core/retrospective-standards.md)
+- 核心規範：[retrospective-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/retrospective-standards.md)
 - 技能定義：[SKILL.md](./SKILL.md)

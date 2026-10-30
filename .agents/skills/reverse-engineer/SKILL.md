@@ -18,7 +18,7 @@ argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 
 # 反向工程助手
 
-> **語言**: [English](../../../../skills/reverse-engineer/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/reverse-engineer/SKILL.md) | 繁體中文
 
 系統考古框架：從三個維度反向工程既有系統——**邏輯**、**資料**、**執行環境**。
 
@@ -133,8 +133,8 @@ argument-hint: "[spec|data|runtime|bdd|tdd] <input>"
 - [TDD 分析工作流程指南](./tdd-analysis.md) — 要對照場景分析測試涵蓋率、找出缺口時讀它。
 - 逐步流程：[workflow.md](./workflow.md) — 逆向工程的各階段與順序（程式碼掃描、資料模型、設定、測試分析、涵蓋率）。真的要跑一次逆向時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[reverse-engineering-standards.md](../../../../core/reverse-engineering-standards.md)
+- 核心規範：[reverse-engineering-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/reverse-engineering-standards.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/reverse`](../../../../skills/commands/reverse.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/reverse`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/reverse.md#ai-agent-behavior--ai-代理行為)

@@ -14,7 +14,7 @@ status: current
 
 # 規格驅動開發指南
 
-> **語言**: [English](../../../../skills/spec-driven-dev/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/spec-driven-dev/guide.md) | 繁體中文
 
 **版本**: 1.2.0
 **最後更新**: 2026-03-23
@@ -230,7 +230,7 @@ Discuss 階段確保在撰寫規格前解決所有歧義。
 ## 詳細指南
 
 完整標準請參閱：
-- [規格驅動開發標準](../../../../core/spec-driven-development.md)
+- [規格驅動開發標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/spec-driven-development.md)
 
 ### AI 優化格式（Token 效率）
 
@@ -398,9 +398,9 @@ Refs: SPEC-001
 
 ## 相關標準
 
-- [規格驅動開發標準](../../../../core/spec-driven-development.md)
-- [Commit 訊息指南](../../../../core/commit-message-guide.md)
-- [程式碼審查清單](../../../../core/code-review-checklist.md)
+- [規格驅動開發標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/spec-driven-development.md)
+- [Commit 訊息指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
+- [程式碼審查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/code-review-checklist.md)
 
 ---
 

@@ -9,7 +9,7 @@ status: current
 
 # 測試金字塔指南
 
-> **語言**: [English](../../../../skills/testing-guide/testing-pyramid.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/testing-guide/testing-pyramid.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2025-12-29
@@ -428,8 +428,8 @@ const inactiveUser = new UserBuilder().inactive().build();
 
 ## 相關標準
 
-- [測試標準](../../core/testing-standards.md)
-- [程式碼審查檢查清單](../../core/code-review-checklist.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/testing-standards.md)
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md)
 
 ---
 

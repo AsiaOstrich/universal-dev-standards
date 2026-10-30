@@ -12,7 +12,7 @@ status: current
 **版本**: 1.0.0
 **最後更新**: 2026-01-19
 
-> **語言**: [English](../../../../skills/reverse-engineer/bdd-extraction.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/reverse-engineer/bdd-extraction.md) | 繁體中文
 
 本指南提供從 SDD 規格中提取 BDD（行為驅動開發）場景的詳細工作流程。
 

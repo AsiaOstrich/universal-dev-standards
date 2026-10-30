@@ -25,7 +25,7 @@ argument-hint: "[feature or spec | 功能或規格]"
 
 # ATDD 助手
 
-> **語言**: [English](../../../../skills/atdd-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/atdd-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — 5 階段 ATDD 生命週期協調（WORKSHOP→DISTILLATION→DEVELOPMENT→DEMO→DONE、INVEST 驗證、AC→Gherkin 轉換、RED/GREEN 執行、PO sign-off gates）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留 INVEST 準則、ATDD 循環圖、Gherkin AC 格式、Three Amigos 結構供參考。
 > 生命週期協調已移至 adoption layer（XSPEC-095）；本文件**僅供參考**。需要強制執行的流程請改用你的 adoption layer 工具鏈。
@@ -104,8 +104,8 @@ So that [benefit].
 - [驗收標準撰寫指南](./acceptance-criteria-guide.md) — 要撰寫或審查驗收標準時讀它。
 - [ATDD 工作流程指南](./atdd-workflow.md) — 要完整跑一輪 ATDD 循環時讀它。
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[acceptance-test-driven-development.md](../../../../core/acceptance-test-driven-development.md)
+- 核心規範：[acceptance-test-driven-development.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/acceptance-test-driven-development.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/atdd`](../../../../skills/commands/atdd.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/atdd`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/atdd.md#ai-agent-behavior--ai-代理行為)

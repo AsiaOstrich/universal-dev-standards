@@ -9,7 +9,7 @@ status: current
 
 # 確定性標籤參考
 
-> **語言**: [English](../../../../skills/ai-collaboration-standards/certainty-labels.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ai-collaboration-standards/certainty-labels.md) | 繁體中文
 
 **版本**: 1.1.0
 **最後更新**: 2026-01-25
@@ -138,7 +138,7 @@ status: current
 ## 相關標準
 
 - [防幻覺指南](./anti-hallucination.md)
-- [防幻覺標準](../../core/anti-hallucination.md)
+- [防幻覺標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md)
 
 ---
 

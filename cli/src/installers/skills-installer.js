@@ -33,6 +33,7 @@ import {
   getCommandsDirForAgent
 } from '../config/ai-agent-paths.js';
 import { getRepositoryInfo } from '../utils/registry.js';
+import { hasLocalSkillsSource } from '../utils/skills-source.js';
 
 /**
  * Print a single WARN block summarizing skills that fell back to the English
@@ -189,6 +190,50 @@ export async function installSkills(skillsConfig, projectPath, messages, results
  */
 async function installSkillsLegacy(skillsConfig, projectPath, messages, results) {
   const skillSpinner = createSpinner(messages.installingSkills).start();
+
+  // With the skill texts on this machine (an npm install or a checkout: always, in practice), the legacy targets
+  // are installed by the same installer as every other path, into the folder this branch has always used
+  // (`.claude/skills/`, project or user level). A second way of writing skill files here would be a second copy
+  // of the rules for what an installed skill may contain (dev-platform #61: links that point outside the install).
+  // The remote download below stays for a machine that has no skill texts at all; it writes the files as the
+  // download returns them.
+  if (hasLocalSkillsSource()) {
+    let installedCount = 0;
+    let failedCount = 0;
+    for (const target of skillsConfig.updateTargets) {
+      const level = target === 'project' ? 'project' : 'user';
+      const installResult = await installSkillsToMultipleAgents(
+        [{ agent: 'claude-code', level }],
+        null,
+        level === 'project' ? projectPath : null,
+        skillsConfig.locale || 'en'
+      );
+      for (const agentResult of installResult.installations) {
+        for (const skillName of agentResult.installed) {
+          installedCount++;
+          if (!results.skills.includes(skillName)) results.skills.push(skillName);
+        }
+        for (const err of agentResult.errors) {
+          failedCount++;
+          results.errors.push(`Skill ${err.skill} (${target}): ${err.error}`);
+        }
+      }
+      if (installResult.allFileHashes) Object.assign(results.skillHashes, installResult.allFileHashes);
+    }
+    const where = skillsConfig.updateTargets.map(t =>
+      t === 'project' ? getProjectSkillsDir(projectPath) : getSkillsDir()
+    ).join(', ');
+    if (failedCount === 0) {
+      skillSpinner.succeed(messages.installedSkills
+        .replace('{count}', installedCount)
+        .replace('{locations}', where));
+    } else {
+      skillSpinner.warn(messages.installedSkillsWithErrors
+        .replace('{count}', installedCount)
+        .replace('{errors}', failedCount));
+    }
+    return;
+  }
 
   const skillFiles = getSkillFiles();
   let successCount = 0;

@@ -14,7 +14,7 @@ description: |
 
 # Observability Assistant
 
-> **語言**：[English](../../../../skills/observability-assistant/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/observability-assistant/guide.md) | 繁體中文
 
 **版本**：1.0.0
 **最後更新**：2026-04-01
@@ -157,17 +157,17 @@ pre_production_checklist:
 ## 詳細指引
 
 完整標準請參閱：
-- [Observability Standards](../../core/observability-standards.md)
-- [Logging Standards](../../core/logging-standards.md)
+- [Observability Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/observability-standards.md)
+- [Logging Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/logging-standards.md)
 
 ---
 
 ## 相關標準
 
-- [Observability Standards](../../core/observability-standards.md) - 核心標準
-- [SLO Standards](../../core/slo-standards.md) - SLI/SLO/Error Budget
-- [Alerting Standards](../../core/alerting-standards.md) - 告警設計
-- [Performance Standards](../../core/performance-standards.md) - 效能目標
+- [Observability Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/observability-standards.md) - 核心標準
+- [SLO Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/slo-standards.md) - SLI/SLO/Error Budget
+- [Alerting Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/alerting-standards.md) - 告警設計
+- [Performance Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/performance-standards.md) - 效能目標
 - [SLO Assistant](../slo-assistant/SKILL.md) - SLO 工作流程
 - [Runbook Assistant](../runbook-assistant/SKILL.md) - 維運程序
 

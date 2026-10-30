@@ -14,7 +14,7 @@ description: |
 
 # 重構助手
 
-> **語言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/refactoring-assistant/SKILL.md) | 繁體中文
 
 **版本**: 2.0.0
 **最後更新**: 2026-01-21
@@ -279,16 +279,16 @@ selection_guide:
 ## 詳細指南
 
 完整標準請參閱：
-- [重構標準](../../core/refactoring-standards.md)
+- [重構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/refactoring-standards.md)
 
 ---
 
 ## 相關標準
 
-- [重構標準](../../core/refactoring-standards.md) - 核心標準
-- [測試驅動開發](../../core/test-driven-development.md) - TDD 重構階段
-- [程式碼審查檢查清單](../../core/code-review-checklist.md) - 重構 PR 審查
-- [簽入標準](../../core/checkin-standards.md) - 提交前要求
+- [重構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/refactoring-standards.md) - 核心標準
+- [測試驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/test-driven-development.md) - TDD 重構階段
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md) - 重構 PR 審查
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) - 提交前要求
 - [TDD 助手](../tdd-assistant/SKILL.md) - TDD 工作流程
 
 ---

@@ -9,7 +9,7 @@ status: current
 
 # 輸出語言選項
 
-> **語言**: [English](../../../../skills/commit-standards/language-options.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commit-standards/language-options.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -155,7 +155,7 @@ Closes #123
 
 ## 相關標準
 
-- [Commit Message Guide](../../../../core/commit-message-guide.md)
+- [Commit Message Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/commit-message-guide.md)
 - [Conventional Commits Guide](./conventional-commits.md)
 
 ---

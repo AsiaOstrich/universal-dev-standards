@@ -18,7 +18,7 @@ argument-hint: "[file or module | 檔案或模組]"
 
 # 重構助手
 
-> **語言**: [English](../../../../skills/refactoring-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/refactoring-assistant/SKILL.md) | 繁體中文
 
 引導重構決策、推薦策略，並提供逐步執行工作流程。
 
@@ -94,8 +94,8 @@ AI: Let me help you decide whether to refactor or rewrite.
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[refactoring-standards.md](../../../../core/refactoring-standards.md)
+- 核心規範：[refactoring-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/refactoring-standards.md)
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/refactor`](../../../../skills/commands/refactor.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/refactor`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/refactor.md#ai-agent-behavior--ai-代理行為)

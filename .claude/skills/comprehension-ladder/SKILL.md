@@ -18,7 +18,7 @@ argument-hint: "[text or file | 原文或檔案] [rungs: 1 | 2 | 3]"
 
 # 理解階梯
 
-> **語言**: [English](../../../../skills/comprehension-ladder/SKILL.md) | 繁體中文 | [简体中文](../../../zh-CN/skills/comprehension-ladder/SKILL.md)
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/comprehension-ladder/SKILL.md) | 繁體中文 | [简体中文](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-CN/skills/comprehension-ladder/SKILL.md)
 
 **版本**: 1.0.0 | **最後更新**: 2026-10-05 | **適用**: Claude Code Skills
 
@@ -28,7 +28,7 @@ argument-hint: "[text or file | 原文或檔案] [rungs: 1 | 2 | 3]"
 
 現在慢的不是拿到答案，而是看懂答案並判斷它。本技能幫忙這一步。它拿一份原文，最多做出三種形式，每一種叫一「階」。
 
-本技能的文字依 [ai-response-navigation](../../core/ai-response-navigation.md) 第 12 條（受控語言）寫成。它自己也遵守自己的防護。
+本技能的文字依 [ai-response-navigation](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-response-navigation.md) 第 12 條（受控語言）寫成。它自己也遵守自己的防護。
 
 ## 階梯
 
@@ -54,7 +54,7 @@ argument-hint: "[text or file | 原文或檔案] [rungs: 1 | 2 | 3]"
 | G2 | `keep-hedges`：保留每一個不確定語氣。不得把不確定的說法改成確定 | **必須（Required）** |
 | G3 | `trace-and-gaps`：每一項都附「對應原文哪一段」與「沒涵蓋什麼」 | **必須（Required）** |
 
-G2 與 [ai-response-navigation](../../core/ai-response-navigation.md) 的 12.1 條是同一條規則。這裡把它用在本技能的三階。
+G2 與 [ai-response-navigation](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-response-navigation.md) 的 12.1 條是同一條規則。這裡把它用在本技能的三階。
 
 ### G1 `no-new-facts`（必須）
 
@@ -170,7 +170,7 @@ O<編號> | 種類 | 文字 | hedge: <原文的不確定用詞，或 none>
 
 #### 第 1 階：受控文字
 
-照 [ai-response-navigation](../../core/ai-response-navigation.md) 的 12.2 條：
+照 [ai-response-navigation](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-response-navigation.md) 的 12.2 條：
 
 - 一句一件事。英文約 15 到 25 個詞，中文約 25 到 40 個字。
 - 一物一名。不要為了文采換名稱。
@@ -268,7 +268,7 @@ flowchart TD
 
 ## 什麼時候不要用
 
-- 原文不到約 150 字。用 [ai-response-navigation](../../core/ai-response-navigation.md) 的 12.2 條改寫，並保留不確定語氣。不要做各階。
+- 原文不到約 150 字。用 [ai-response-navigation](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-response-navigation.md) 的 12.2 條改寫，並保留不確定語氣。不要做各階。
 - 讀者是專家，需要密度高的原形。
 - 任務是找出新的事實。本技能不做這件事。
 
@@ -278,7 +278,7 @@ flowchart TD
 
 ## 相關
 
-- [ai-response-navigation](../../core/ai-response-navigation.md)：第 12 條，受控語言。12.1 條是防護 G2 的基礎。
+- [ai-response-navigation](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-response-navigation.md)：第 12 條，受控語言。12.1 條是防護 G2 的基礎。
 - [documentation-guide](../documentation-guide/SKILL.md)：Mermaid 圖在專案文件中該放哪裡。
 - [brainstorm-assistant](../brainstorm-assistant/SKILL.md)：相反方向，還沒有原文時用。
 

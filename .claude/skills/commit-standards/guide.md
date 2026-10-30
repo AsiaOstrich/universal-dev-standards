@@ -13,7 +13,7 @@ description: |
 
 # 提交訊息標準
 
-> **語言**: [English](../../../../skills/commit-standards/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commit-standards/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -21,7 +21,7 @@ description: |
 
 ---
 
-> **核心標準**: 此技能實作 [Commit Message Guide](../../core/commit-message-guide.md)。如需完整的開發方法論文件，請參閱核心標準。
+> **核心標準**: 此技能實作 [Commit Message Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/commit-message-guide.md)。如需完整的開發方法論文件，請參閱核心標準。
 
 ## 目的
 
@@ -289,9 +289,9 @@ feat, fix, refactor, docs, style, test, perf, build, ci, chore, revert, security
 
 ## 相關標準
 
-- [Commit Message Guide](../../core/commit-message-guide.md)
-- [Git Workflow](../../core/git-workflow.md)
-- [Changelog Standards](../../core/changelog-standards.md)
+- [Commit Message Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/commit-message-guide.md)
+- [Git Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/git-workflow.md)
+- [Changelog Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/changelog-standards.md)
 
 ---
 

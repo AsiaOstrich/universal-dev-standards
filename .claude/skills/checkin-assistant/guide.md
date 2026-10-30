@@ -14,7 +14,7 @@ description: |
 
 # 簽入助手
 
-> **語言**：[English](../../../../skills/checkin-assistant/guide.md) | 繁體中文
+> **語言**：[English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/checkin-assistant/guide.md) | 繁體中文
 
 **版本**：1.0.0
 **最後更新**：2026-01-12
@@ -379,15 +379,15 @@ npm run lint
 ## 詳細指南
 
 完整標準請參見：
-- [簽入標準](../../core/checkin-standards.md)
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md)
 
 ---
 
 ## 相關標準
 
-- [簽入標準](../../core/checkin-standards.md) - 核心標準
-- [提交訊息指南](../../core/commit-message-guide.md) - 訊息格式
-- [程式碼審查檢查清單](../../core/code-review-checklist.md) - PR 審查
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) - 核心標準
+- [提交訊息指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/commit-message-guide.md) - 訊息格式
+- [程式碼審查檢查清單](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/code-review-checklist.md) - PR 審查
 - [程式碼審查助手](../code-review-assistant/SKILL.md) - 審查技能
 - [提交標準技能](../commit-standards/SKILL.md) - 提交訊息技能
 

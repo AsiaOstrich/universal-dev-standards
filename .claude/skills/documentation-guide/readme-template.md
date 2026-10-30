@@ -9,7 +9,7 @@ status: current
 
 # README 範本與最佳實踐
 
-> **語言**: [English](../../../../skills/documentation-guide/readme-template.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/documentation-guide/readme-template.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -394,7 +394,7 @@ See [documentation](docs/old-path.md) for more info.  ← 連結不存在
 ## 相關標準
 
 - [Documentation Structure Reference](./documentation-structure.md)
-- [Documentation Writing Standards](../../core/documentation-writing-standards.md)
+- [Documentation Writing Standards](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-writing-standards.md)
 
 ---
 

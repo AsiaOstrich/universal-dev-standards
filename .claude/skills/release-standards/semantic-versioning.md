@@ -9,7 +9,7 @@ status: current
 
 # 語意化版本指南
 
-> **語言**: [English](../../../../skills/release-standards/semantic-versioning.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/release-standards/semantic-versioning.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -231,7 +231,7 @@ version-1.0.0   ❌ 避免（太冗長）
 
 ## 相關標準
 
-- [版本控制標準](../../../../core/versioning.md)
+- [版本控制標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/versioning.md)
 - [變更日誌格式指南](./changelog-format.md)
 
 ---

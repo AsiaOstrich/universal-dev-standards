@@ -23,7 +23,7 @@ allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm 
 
 # 簽入助手
 
-> **語言**: [English](../../../../skills/checkin-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/checkin-assistant/SKILL.md) | 繁體中文
 
 > ⚠️ **狀態：參考用（非可執行流程）** — 簽入流程協調（關卡執行序列、abort 邏輯）已於 2026-04-28 移至 **adoption layer（XSPEC-095）**。此處保留品質關卡定義、檢查清單項、never-commit 規則供參考；需要強制執行的流程請改用你的 adoption layer 工具鏈。
 
@@ -79,9 +79,9 @@ allowed-tools: Read, Grep, Glob, Bash(git diff:*), Bash(git status:*), Bash(npm 
 ## 參考
 
 - 詳細指南：[guide.md](./guide.md)
-- 核心規範：[checkin-standards.md](../../../../core/checkin-standards.md)
+- 核心規範：[checkin-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/checkin-standards.md)
 
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/checkin`](../../../../skills/commands/checkin.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/checkin`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/checkin.md#ai-agent-behavior--ai-代理行為)

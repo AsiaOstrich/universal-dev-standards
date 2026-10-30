@@ -18,7 +18,7 @@ argument-hint: "[incident description or severity | 事故描述或嚴重程度]
 
 # 事故回應助手
 
-> **語言**: [English](../../../../skills/incident-response-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/incident-response-assistant/SKILL.md) | 繁體中文
 
 引導結構化的事故回應流程，從偵測到事後檢討。
 
@@ -157,8 +157,8 @@ docs/incidents/
 
 ## 參考
 
-- 核心規範：[deployment-standards.md](../../../../core/deployment-standards.md)
-- 核心規範：[logging.md](../../../../core/logging-standards.md)
+- 核心規範：[deployment-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/deployment-standards.md)
+- 核心規範：[logging.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/logging-standards.md)
 
 ## 版本歷史
 
@@ -169,7 +169,7 @@ docs/incidents/
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/incident`](../../../../skills/commands/incident.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/incident`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/incident.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

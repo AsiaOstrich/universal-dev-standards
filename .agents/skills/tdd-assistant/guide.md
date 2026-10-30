@@ -14,7 +14,7 @@ description: |
 
 # TDD 助手
 
-> **語言**: [English](../../../../skills/tdd-assistant/guide.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/tdd-assistant/guide.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2026-01-07
@@ -294,13 +294,13 @@ describe('使用者驗證 (SPEC-001)', () => {
 ## 詳細指南
 
 完整標準請參閱：
-- [TDD 核心標準](../../../../core/test-driven-development.md)
+- [TDD 核心標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md)
 - [TDD 工作流程指南](./tdd-workflow.md)
 - [語言範例](./language-examples.md)
 
 相關測試標準：
-- [測試標準](../../../../core/testing-standards.md)
-- [測試完整性維度](../../../../core/test-completeness-dimensions.md)
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md)
+- [測試完整性維度](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-completeness-dimensions.md)
 
 ---
 
@@ -364,11 +364,11 @@ antipatterns:
 
 ## 相關標準
 
-- [測試驅動開發](../../../../core/test-driven-development.md) - TDD 核心標準
-- [重構標準](../../../../core/refactoring-standards.md) - 大規模重構
-- [測試標準](../../../../core/testing-standards.md) - 測試框架
-- [測試完整性維度](../../../../core/test-completeness-dimensions.md) - 7 維度
-- [規格驅動開發](../../../../core/spec-driven-development.md) - SDD 整合
+- [測試驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-driven-development.md) - TDD 核心標準
+- [重構標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/refactoring-standards.md) - 大規模重構
+- [測試標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/testing-standards.md) - 測試框架
+- [測試完整性維度](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/test-completeness-dimensions.md) - 7 維度
+- [規格驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/spec-driven-development.md) - SDD 整合
 - [測試指南技能](../testing-guide/SKILL.md) - 測試指南
 - [測試覆蓋率助手](../test-coverage-assistant/SKILL.md) - 覆蓋率協助
 - [重構助手](../refactoring-assistant/SKILL.md) - 大規模重構

@@ -16,7 +16,7 @@ description: |
 
 # AI 指令檔案標準指南
 
-> **語言**: [English](../../../../skills/ai-instruction-standards/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ai-instruction-standards/SKILL.md) | 繁體中文
 
 **版本**: 2.0.0
 **最後更新**: 2026-04-28
@@ -24,7 +24,7 @@ description: |
 
 ---
 
-> **核心標準**: 本技能實作 [AI 指令檔案標準](../../core/ai-instruction-standards.md)。完整方法論文件請參閱核心標準。
+> **核心標準**: 本技能實作 [AI 指令檔案標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-instruction-standards.md)。完整方法論文件請參閱核心標準。
 
 ## AI 技能層級
 
@@ -308,10 +308,10 @@ project/
 
 ## 相關標準
 
-- [AI 指令檔案標準](../../core/ai-instruction-standards.md) - 核心標準
-- [文件撰寫標準](../../core/documentation-writing-standards.md) - 撰寫指南
-- [反幻覺規範](../../core/anti-hallucination.md) - AI 準確性規則
-- [AI 友善架構](../../core/ai-friendly-architecture.md) - 上下文優化
+- [AI 指令檔案標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-instruction-standards.md) - 核心標準
+- [文件撰寫標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/documentation-writing-standards.md) - 撰寫指南
+- [反幻覺規範](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/anti-hallucination.md) - AI 準確性規則
+- [AI 友善架構](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/ai-friendly-architecture.md) - 上下文優化
 
 ---
 

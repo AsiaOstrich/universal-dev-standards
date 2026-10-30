@@ -18,7 +18,7 @@ argument-hint: "[module or file to audit | 要審計的模組或檔案]"
 
 # 安全審計助手
 
-> **語言**: [English](../../../../skills/security-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/security-assistant/SKILL.md) | 繁體中文
 
 引導系統化的安全審查，遵循 OWASP Top 10 和業界最佳實踐。
 
@@ -84,7 +84,7 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 
 ## 參考
 
-- 核心規範：[security-standards.md](../../../../core/security-standards.md)
+- 核心規範：[security-standards.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/security-standards.md)
 
 ## 版本歷史
 
@@ -94,7 +94,7 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/security`](../../../../skills/commands/security.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/security`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/security.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

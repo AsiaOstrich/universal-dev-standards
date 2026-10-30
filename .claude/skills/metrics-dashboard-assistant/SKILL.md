@@ -18,7 +18,7 @@ argument-hint: "[metric type or module | 指標類型或模組]"
 
 # 開發指標助手
 
-> **語言**: [English](../../../../skills/metrics-dashboard-assistant/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/metrics-dashboard-assistant/SKILL.md) | 繁體中文
 
 追蹤開發指標、程式碼品質指示器，以及專案隨時間的健康狀態。
 
@@ -157,7 +157,7 @@ AI: 技術債摘要：
 
 ## AI 代理行為
 
-> 完整的 AI 行為定義請參閱對應的命令文件：[`/metrics`](../../../../skills/commands/metrics.md#ai-agent-behavior--ai-代理行為)
+> 完整的 AI 行為定義請參閱對應的命令文件：[`/metrics`](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/metrics.md#ai-agent-behavior--ai-代理行為)
 
 ## 授權
 

@@ -16,7 +16,7 @@ description: |
 
 # Git 工作流程指南
 
-> **語言**: [English](../../../../skills/git-workflow-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/git-workflow-guide/SKILL.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -24,7 +24,7 @@ description: |
 
 ---
 
-> **核心規範**：本技能實作 [Git 工作流程](../../core/git-workflow.md)。完整的方法論文件請參閱核心規範。
+> **核心規範**：本技能實作 [Git 工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/git-workflow.md)。完整的方法論文件請參閱核心規範。
 
 ## 目的
 
@@ -226,9 +226,9 @@ git push origin feature/my-feature
 
 ## 相關標準
 
-- [Git 工作流程](../../core/git-workflow.md) - 核心 Git 工作流程標準
-- [提交訊息指南](../../core/commit-message-guide.md) - 提交訊息慣例
-- [簽入標準](../../core/checkin-standards.md) - 提交前品質關卡
+- [Git 工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/git-workflow.md) - 核心 Git 工作流程標準
+- [提交訊息指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/commit-message-guide.md) - 提交訊息慣例
+- [簽入標準](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/checkin-standards.md) - 提交前品質關卡
 
 ---
 

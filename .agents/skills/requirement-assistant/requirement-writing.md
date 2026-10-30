@@ -9,7 +9,7 @@ status: current
 
 # 需求撰寫指南
 
-> **語言**: [English](../../../../skills/requirement-assistant/requirement-writing.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/requirement-assistant/requirement-writing.md) | 繁體中文
 
 **版本**: 1.0.0
 **最後更新**: 2025-12-24
@@ -381,7 +381,7 @@ Epic：電子商務平台
 ## 相關標準
 
 - [需求完整性檢查清單](./requirement-checklist.md)
-- [規格驅動開發](../../core/spec-driven-development.md)
+- [規格驅動開發](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/spec-driven-development.md)
 
 ---
 

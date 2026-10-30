@@ -243,6 +243,7 @@ import {
   parseFrontmatter,
   rebuildWithFrontmatter,
 } from '../cli/src/utils/skill-frontmatter.js';
+import { rewriteOutsideLinks } from '../cli/src/utils/skill-link-rewriter.js';
 import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -523,13 +524,24 @@ function resolveSkill(repoRoot, skillId, locale) {
   const useLocale = localized && isDir(localeDir);
   const fallbackToEn = localized && !useLocale;
 
-  const names = new Map();
-  if (useLocale) for (const f of topLevelFiles(localeDir)) names.set(f, join(localeDir, f));
-  for (const f of topLevelFiles(enDir)) if (!names.has(f)) names.set(f, join(enDir, f));
+  const names = new Map(); // file name -> where it is read from, and where that sits in the repo
+  if (useLocale) {
+    for (const f of topLevelFiles(localeDir)) {
+      names.set(f, { path: join(localeDir, f), repoPath: `locales/${locale}/skills/${skillId}/${f}` });
+    }
+  }
+  for (const f of topLevelFiles(enDir)) {
+    if (!names.has(f)) names.set(f, { path: join(enDir, f), repoPath: `skills/${skillId}/${f}` });
+  }
 
   if (names.size === 0) throw new Underivable(`skill ${skillId} resolves to no files at all`);
 
-  const files = [...names].map(([name, path]) => ({ name, content: readFileSync(path, 'utf8') }));
+  const files = [...names].map(([name, source]) => ({
+    name,
+    content: readFileSync(source.path, 'utf8'),
+    // The relative links inside the file were written against this place in the repo.
+    repoPath: source.repoPath,
+  }));
 
   if (useLocale) {
     const skill = files.find((f) => f.name === 'SKILL.md');
@@ -539,8 +551,28 @@ function resolveSkill(repoRoot, skillId, locale) {
     }
   }
 
+  // The installer turns links that would open nothing once installed into GitHub addresses
+  // (`resolveSkillFiles`, dev-platform #61); the copy must be what installing produces, so it takes the same
+  // transformation from the same module. Only the two questions it asks are answered here, from this tree.
+  const isInstalledSkillFile = (other, fileName) =>
+    other === skillId
+      ? names.has(fileName)
+      : existsSync(join(repoRoot, 'skills', other, 'SKILL.md')) &&
+        (topLevelFiles(join(repoRoot, 'skills', other)).includes(fileName) ||
+          (localized && topLevelFiles(join(repoRoot, 'locales', locale, 'skills', other)).includes(fileName)));
+  const repoPathExists = (repoPath) => existsSync(join(repoRoot, repoPath));
+  for (const f of files) {
+    if (!f.name.endsWith('.md')) continue;
+    f.content = rewriteOutsideLinks(f.content, {
+      skillName: skillId,
+      sourcePath: f.repoPath,
+      isInstalledSkillFile,
+      repoPathExists,
+    }).text;
+  }
+
   files.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-  return { files, fallbackToEn };
+  return { files: files.map(({ name, content }) => ({ name, content })), fallbackToEn };
 }
 
 /** The locale THIS repo adopted for a target. Not derivable from anywhere else. */

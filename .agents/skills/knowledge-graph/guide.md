@@ -70,5 +70,5 @@ grep -nE "(impacts|impacted_by|supersedes|related):|\[\[(XSPEC|DEC|ADR)-" path/t
 
 ## 參考
 
-- [core/knowledge-graph-memory.md](../../core/knowledge-graph-memory.md)
+- [core/knowledge-graph-memory.md](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/core/knowledge-graph-memory.md)
 - [EngramGraph](https://github.com/AsiaOstrich/EngramGraph)
