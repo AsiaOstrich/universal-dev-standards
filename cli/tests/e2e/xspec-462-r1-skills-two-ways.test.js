@@ -19,7 +19,7 @@ import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { createHarness, REAL_CLI_DIR } from '../utils/staged-cli-harness.js';
-import { pluginHome } from '../utils/xspec-462.js';
+import { pluginHome, shippedSkillCount } from '../utils/xspec-462.js';
 
 const h = createHarness('xspec462-r1');
 afterAll(() => h.cleanup());
@@ -33,7 +33,8 @@ it('uds skills for a project with the skills installed prints the two ways to in
 
   // Control: the installation itself is still listed, so a short output is not a different command.
   expect(run.stdout).toContain('Project Level');
-  expect(run.stdout).toMatch(/Total unique skills: 56 \/ 56/);
+  const shipped = shippedSkillCount();
+  expect(run.stdout).toContain(`Total unique skills: ${shipped} / ${shipped}`);
 
   expect(run.stdout, 'no word for deprecated anywhere').not.toMatch(DEPRECATED_WORDS);
   expect(run.stdout, 'no push to migrate to the plugin').not.toMatch(/Migrate to Plugin Marketplace|Recommendation/);

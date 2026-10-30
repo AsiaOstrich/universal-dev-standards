@@ -11,13 +11,13 @@
 
 1. [CLI Commands](#cli-commands) (24)
 2. [Slash Commands](#slash-commands) (51)
-3. [Skills](#skills) (56)
+3. [Skills](#skills) (57)
 4. [Agents](#agents) (5)
 5. [Workflows](#workflows) (5)
 6. [Core Standards](#core-standards) (153)
 7. [Scripts](#scripts) (68)
 
-**Total Features: 362**
+**Total Features: 363**
 
 ---
 
@@ -388,6 +388,7 @@
 | `metrics-dashboard-assistant` | [UDS] Track development metrics, code quality indicators, and technical debt over time. |
 | `migration-assistant` | [UDS] Guide systematic code migration, framework upgrades, and technology modernization. |
 | `observability-assistant` | Guide observability setup, metrics design, and alerting configuration. |
+| `open-work-assistant` | [UDS] Optional help for work that stays open across sessions: a cheap capture point, a release condition for every wait, a next step that names something real. |
 | `orchestrate` | Orchestrate multi-task execution plans using Claude's native Agent tool (DAG-based, no external engine). |
 | `plan` | Generate plan.json from Spec documents, OpenSpec changes, or free-text requirements. |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge strategies. |

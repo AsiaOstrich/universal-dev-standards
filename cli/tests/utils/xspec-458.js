@@ -2,8 +2,10 @@
  * Shared pieces for the XSPEC-458 end-to-end tests ("available upstream, not installed").
  *
  * - `makeUpgradeProject(h)`: a throwaway project set up the way UDS 6.11.0 set one up. The manifest is the
- *   real one in tests/fixtures/upgrade-from-6.11.0 (see its README); the standard files the manifest names
- *   are copied from this repo's sources, so the project looks like an installed one whose version is behind.
+ *   real one in tests/fixtures/upgrade-from-6.11.0 (see its README) MINUS one standard, STAND_IN_ID (below); the
+ *   standard files the manifest names are copied from this repo's sources, so the project looks like an installed
+ *   one whose version is behind. `upgradeProjectManifest()` is that manifest, the one the expected lists are
+ *   worked out from.
  * - `expectedAvailableIds(manifest)`: what the answer SHOULD be, worked out from standards-registry.json by
  *   its own code, never by calling the CLI's `getAvailableStandards` (a test that asks the code under test
  *   for its expected value can only ever agree with it).
@@ -20,6 +22,25 @@ export const FIXTURE_DIR = resolve(REAL_CLI_DIR, 'tests/fixtures/upgrade-from-6.
 export const FIXTURE_MANIFEST = join(FIXTURE_DIR, 'manifest.json');
 
 export const readFixtureManifest = () => JSON.parse(readFileSync(FIXTURE_MANIFEST, 'utf-8'));
+
+/**
+ * The one standard the upgrade project is missing. The fixture IS what a real 6.11.0 wrote, and the only standard
+ * UDS 6.11.0 lacked that the registry offered was `open-work-tracking`. That one stopped being a standard (it became the
+ * optional skill `open-work`, dev-platform XSPEC-427), so the fixture on its own no longer lacks anything the registry
+ * offers. The tests that need "an old project that never heard of a standard UDS ships" therefore take one reference
+ * standard the fixture HAS out of the project they build. Which one does not matter, as long as it is a `reference`
+ * standard with an `.ai.yaml` that the registry still ships.
+ */
+export const STAND_IN_ID = 'self-review-protocol';
+export const STAND_IN_FILE = `${STAND_IN_ID}.ai.yaml`;
+
+/** The fixture manifest as the upgrade project has it: STAND_IN_ID taken out of `standards` and `fileHashes`. */
+export function upgradeProjectManifest() {
+  const m = readFixtureManifest();
+  m.standards = m.standards.filter((e) => !e.includes(STAND_IN_ID));
+  delete m.fileHashes[`.standards/${STAND_IN_FILE}`];
+  return m;
+}
 const registry = () => JSON.parse(readFileSync(join(REAL_CLI_DIR, 'standards-registry.json'), 'utf-8')).standards;
 
 /**
@@ -30,9 +51,9 @@ export function makeUpgradeProject(h, name = 'upgrade') {
   const dir = h.makeDir(name);
   mkdirSync(join(dir, '.claude'), { recursive: true });
   mkdirSync(join(dir, '.standards', 'options'), { recursive: true });
-  cpSync(FIXTURE_MANIFEST, join(dir, '.standards', 'manifest.json'));
+  writeFileSync(join(dir, '.standards', 'manifest.json'), JSON.stringify(upgradeProjectManifest(), null, 2));
 
-  for (const entry of readFixtureManifest().standards) {
+  for (const entry of upgradeProjectManifest().standards) {
     const source = join(REAL_REPO, entry);
     if (!existsSync(source)) continue; // a standard that no longer ships: the plan will say so
     const target = entry.includes('/options/')
@@ -134,14 +155,14 @@ export function planCounts(stdout) {
 }
 
 /**
- * Make a project that `uds init` just set up look like one that never got `open-work-tracking`: nothing else
+ * Make a project that `uds init` just set up look like one that never got STAND_IN_ID: nothing else
  * differs from a clean install, so the one available standard is the only thing any command has to say.
  */
-export function removeOpenWorkTracking(dir) {
+export function removeStandIn(dir) {
   const mPath = join(dir, '.standards', 'manifest.json');
   const m = JSON.parse(readFileSync(mPath, 'utf-8'));
-  m.standards = m.standards.filter((s) => !s.includes('open-work-tracking'));
-  delete m.fileHashes['.standards/open-work-tracking.ai.yaml'];
+  m.standards = m.standards.filter((s) => !s.includes(STAND_IN_ID)); // an entry is a path or a bare id
+  delete m.fileHashes[`.standards/${STAND_IN_FILE}`];
   writeFileSync(mPath, JSON.stringify(m, null, 2));
-  rmSync(join(dir, '.standards', 'open-work-tracking.ai.yaml'));
+  rmSync(join(dir, '.standards', STAND_IN_FILE));
 }

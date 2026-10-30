@@ -18,7 +18,7 @@ import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { createHarness } from '../utils/staged-cli-harness.js';
-import { makeUpgradeProject, removeOpenWorkTracking, OFF_OVERRIDES } from '../utils/xspec-458.js';
+import { makeUpgradeProject, removeStandIn, STAND_IN_ID, OFF_OVERRIDES } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec458-r5');
 const off = createHarness('xspec458-r5-off', { overrides: OFF_OVERRIDES });
@@ -57,7 +57,7 @@ it('uds check prints 1 upstream standard(s) not installed and points at uds upda
 it('uds check --ci still ends compliant with exit code 0 for a project whose only difference from a clean install is one available standard (XSPEC-458 R5)', async () => {
   // The 6.11.0 project above already has other findings, so on its own it could not show a verdict that got worse.
   const dir = await h.newProject();
-  removeOpenWorkTracking(dir);
+  removeStandIn(dir);
   const run = await h.runCli(['check', '--ci', '--offline'], dir);
   expect(run.stdout, 'control: the line is there').toMatch(/1 upstream standard\(s\) not installed/);
   expect(run.stdout).toContain('Project is compliant with standards');
@@ -71,7 +71,7 @@ it('uds check says Upstream standards not installed: none for a project that has
   expect(run.stdout).toContain('Upstream standards not installed: none');
 });
 
-it('uds audit --friction lists one LOW finding 1 available standard(s) not installed naming open-work-tracking, while uds audit --score is the same as on a CLI without the finding (XSPEC-458 R5)', async () => {
+it('uds audit --friction lists one LOW finding 1 available standard(s) not installed naming the standard the project lacks, while uds audit --score is the same as on a CLI without the finding (XSPEC-458 R5)', async () => {
   const dir = makeUpgradeProject(h);
   const twinDir = makeUpgradeProject(off);
   addCheckScripts(dir);
@@ -80,7 +80,7 @@ it('uds audit --friction lists one LOW finding 1 available standard(s) not insta
   const friction = await h.runCli(['audit', '--friction', '--offline'], dir);
   expect(friction.code, friction.stdout + friction.stderr).toBe(0);
   expect(friction.stdout).toMatch(/\[LOW\] 1 available standard\(s\) not installed/);
-  expect(friction.stdout).toContain('open-work-tracking');
+  expect(friction.stdout).toContain(STAND_IN_ID);
   expect(friction.stdout).toContain('uds update --apply --add-standard <id>');
   const twinFriction = await off.runCli(['audit', '--friction', '--offline'], twinDir);
   expect(twinFriction.stdout, 'control: without the feature there is no such finding').not.toMatch(/available standard\(s\) not installed/);
@@ -108,7 +108,7 @@ it('uds audit --friction lists one LOW finding 1 available standard(s) not insta
 it('uds audit --report does not offer the available standards finding as feedback for UDS maintainers, and says why instead of no issues (XSPEC-458 R5)', async () => {
   // A project with nothing else wrong: the available-standards finding is the only one the audit has.
   const dir = await h.newProject();
-  removeOpenWorkTracking(dir);
+  removeStandIn(dir);
   const run = await h.runCli(['audit', '--friction', '--report', '--dry-run', '--yes', '--offline'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);
   expect(run.stdout, 'control: the audit itself still lists the finding').toMatch(/\[LOW\] 1 available standard\(s\) not installed/);

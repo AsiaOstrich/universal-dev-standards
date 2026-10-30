@@ -2,12 +2,23 @@
 source: ../../../core/open-work-tracking.md
 source_version: 1.4.0
 translation_version: 1.4.0
-last_synced: 2026-10-07
-source_hash: 5b59fe93ed56
+last_synced: 2026-10-30
+source_hash: 5babb5536216
 status: current
 ---
 
 # 開放工作追蹤標準
+
+<!-- UDS:REFERENCE-ONLY -->
+> **僅供參考——UDS 不再安裝這條標準。** 它的機器可讀檔 `.ai.yaml` 與 registry 條目已移除。
+> 這條標準只在一個專案上校準過，而那個專案自己的使用沒有證實它，
+> 所以它不再是每個採用者都要遵守的東西。本文件保留，供已經依它建置的採用者參考，
+> **不由 `uds init` 或 `uds update` 出貨**。其中值得保留的部分改成
+> **選用技能** [`/open-work`](../../../skills/open-work-assistant/SKILL.md)：想用才用，沒有任何東西要求你用。
+> 參考檢查仍以 `uds open-work` 提供。已經裝在你 `.standards/` 的副本，由
+> `uds update --apply` 移除（計畫會把它列在 Delete 底下，並先做備份）。本告示所對照的清單是
+> [`scripts/reference-only-standards.json`](../../../scripts/reference-only-standards.json)；
+> 變更記在 [CHANGELOG](../../../CHANGELOG.md)（Unreleased）。
 
 > **Language**: [English](../../../core/open-work-tracking.md) | 繁體中文
 

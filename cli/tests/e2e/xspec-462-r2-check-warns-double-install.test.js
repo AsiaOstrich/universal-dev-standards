@@ -19,7 +19,7 @@ import { it, expect, afterAll } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { createHarness } from '../utils/staged-cli-harness.js';
-import { pluginHome, OFF_OVERRIDES } from '../utils/xspec-462.js';
+import { pluginHome, shippedSkillCount, OFF_OVERRIDES } from '../utils/xspec-462.js';
 
 const h = createHarness('xspec462-r2');
 const off = createHarness('xspec462-r2-off', { overrides: OFF_OVERRIDES });
@@ -53,7 +53,7 @@ async function projectWithoutSkills(harness = h) {
   return dir;
 }
 
-it('uds check warns that the 56 project skills and the plugin are both installed, and its verdict line, exit code and every other line equal a CLI without the warning, with and without --ci (XSPEC-462 R2)', async () => {
+it('uds check warns that the project skills (all the skills UDS ships) and the plugin are both installed, and its verdict line, exit code and every other line equal a CLI without the warning, with and without --ci (XSPEC-462 R2)', async () => {
   const dir = await h.newProject();
   const twinDir = await off.newProject();
   const { env } = pluginHome(h);
@@ -63,7 +63,7 @@ it('uds check warns that the 56 project skills and the plugin are both installed
     const twin = await off.runCli(['check', '--offline', ...flags], twinDir, { env });
     const label = `uds check ${flags.join(' ')}`;
 
-    expect(real.stdout, label).toContain('UDS skills are installed twice: 56 in this project (.claude/skills/) and the plugin universal-dev-standards@asia-ostrich.');
+    expect(real.stdout, label).toContain(`UDS skills are installed twice: ${shippedSkillCount()} in this project (.claude/skills/) and the plugin universal-dev-standards@asia-ostrich.`);
     expect(real.stdout, label).toContain('/commit and /universal-dev-standards:commit');
     expect(real.stdout, label).toContain('name and description is put into context on every turn');
     expect(real.stdout, label).toContain('Keep the project copy: in Claude Code run /plugin uninstall universal-dev-standards@asia-ostrich');
@@ -89,13 +89,13 @@ it('uds check says the double install warning in Traditional and Simplified Chin
   expect(tw.code, tw.stdout + tw.stderr).toBe(0);
   expect(cn.code, cn.stdout + cn.stderr).toBe(0);
 
-  expect(tw.stdout).toContain('UDS 技能裝了兩次：本專案（.claude/skills/）有 56 個，外掛 universal-dev-standards@asia-ostrich 也已安裝。');
+  expect(tw.stdout).toContain(`UDS 技能裝了兩次：本專案（.claude/skills/）有 ${shippedSkillCount()} 個，外掛 universal-dev-standards@asia-ostrich 也已安裝。`);
   expect(tw.stdout).toContain('每個技能的名稱與描述每回合都會放進脈絡，重複裝等於重複占用。');
   expect(tw.stdout).toContain('二擇一：');
   expect(tw.stdout).toContain('留專案這份：在 Claude Code 執行 /plugin uninstall universal-dev-standards@asia-ostrich');
   expect(tw.stdout).not.toContain('UDS skills are installed twice');
 
-  expect(cn.stdout).toContain('UDS 技能装了两次：本项目（.claude/skills/）有 56 个，插件 universal-dev-standards@asia-ostrich 也已安装。');
+  expect(cn.stdout).toContain(`UDS 技能装了两次：本项目（.claude/skills/）有 ${shippedSkillCount()} 个，插件 universal-dev-standards@asia-ostrich 也已安装。`);
   expect(cn.stdout).toContain('每个技能的名称与描述每回合都会放进上下文，重复装等于重复占用。');
   expect(cn.stdout).toContain('二选一：');
   expect(cn.stdout).not.toContain('UDS skills are installed twice');
@@ -103,7 +103,8 @@ it('uds check says the double install warning in Traditional and Simplified Chin
 
 it('uds check counts the UDS skills that are on disk in the project, not the ones UDS ships, and ignores skills of other makers (XSPEC-462 R2)', async () => {
   const dir = await h.newProject();
-  for (const name of ['commit-standards', 'testing-guide', 'tdd-assistant', 'sweep', 'plan', 'push']) {
+  const removed = ['commit-standards', 'testing-guide', 'tdd-assistant', 'sweep', 'plan', 'push'];
+  for (const name of removed) {
     rmSync(join(dir, '.claude', 'skills', name), { recursive: true, force: true });
   }
   mkdirSync(join(dir, '.claude', 'skills', 'my-own-skill'), { recursive: true });
@@ -113,7 +114,7 @@ it('uds check counts the UDS skills that are on disk in the project, not the one
   const run = await h.runCli(['check', '--offline'], dir, { env });
   // Six folders are gone, so the check itself finds missing skill files and ends non-zero; the count is what is under test.
   expect(run.stdout, 'control: the check noticed the missing skills').toMatch(/missing|changed/i);
-  expect(run.stdout).toContain('UDS skills are installed twice: 50 in this project');
+  expect(run.stdout).toContain(`UDS skills are installed twice: ${shippedSkillCount() - removed.length} in this project`);
 });
 
 it('uds check says nothing about double installs when only the plugin or only the project skills are installed, and ends the same as a CLI without the warning (XSPEC-462 R2)', async () => {

@@ -29,6 +29,7 @@ import { CURRENT_SCHEMA_VERSION } from '../../src/core/manifest.js';
 import { out, readManifest, writeManifest } from '../utils/xspec-482.js';
 import {
   BOTH_FIXTURE_VERSIONS,
+  RETIRED_STANDARD_FILES,
   filesTheOldInstallWrote,
   makeBothUpgradeProject,
   listedStandardFiles,
@@ -64,17 +65,20 @@ function standardsSnapshot(dir) {
 // ── R1: the plan reads the format the manifest records ────────────────────────────────────────────────
 
 for (const version of BOTH_FIXTURE_VERSIONS) {
-  it(`update --plan on a --format both project made by ${version} lists no deletion and writes nothing (XSPEC-483 R1)`, async () => {
+  it(`update --plan on a --format both project made by ${version} lists no deletion except standards UDS has stopped shipping, and writes nothing (XSPEC-483 R1)`, async () => {
     const dir = makeBothUpgradeProject(h, version);
     const expected = filesTheOldInstallWrote(version);
+    const retired = RETIRED_STANDARD_FILES.filter((p) => expected.includes(p)).sort();
     expect(expected.filter(isAi).length, 'fixture: the old install wrote AI copies').toBeGreaterThan(50);
     expect(expected.filter(isHuman).length, 'fixture: and human copies').toBeGreaterThan(50);
     const before = standardsSnapshot(dir);
 
     const plan = await h.runCli(['update', '--plan', OFFLINE], dir);
     expect(plan.code, out(plan)).toBe(0);
-    expect(planSectionPaths(out(plan), 'Delete'), `no file is planned for deletion\n${out(plan)}`).toEqual([]);
-    expect(out(plan)).toContain('Delete: 0');
+    // The only deletions are the files of a standard UDS no longer ships (XSPEC-427). Nothing else of the old install is planned for deletion,
+    // and none for the reason the defect gave ("this project no longer selects it"): the other AI copies are all kept.
+    expect(planSectionPaths(out(plan), 'Delete').sort(), `only the retired standard's files are planned for deletion\n${out(plan)}`).toEqual(retired);
+    expect(out(plan)).toContain(`Delete: ${retired.length}`);
     expect(out(plan)).not.toMatch(/no longer selects it/);
 
     expect(standardsSnapshot(dir), 'a plan writes nothing').toEqual(before);
@@ -162,11 +166,13 @@ for (const version of BOTH_FIXTURE_VERSIONS) {
   it(`a --format both project made by ${version} keeps every .md and .ai.yaml through update --apply, and --rollback restores the files it had (XSPEC-483 R3)`, async () => {
     const dir = makeBothUpgradeProject(h, version);
     const expected = filesTheOldInstallWrote(version).sort();
+    const retired = RETIRED_STANDARD_FILES.filter((p) => expected.includes(p)).sort();
+    const kept = expected.filter((p) => !retired.includes(p));
 
     // Drift the apply has real work to do on, and a rollback has something to put back: one AI copy and one human copy
     // are missing, one more of each is an older text.
-    const ai = expected.filter((p) => isAi(p) && !p.includes('/options/'));
-    const human = expected.filter((p) => isHuman(p) && !p.includes('/options/'));
+    const ai = kept.filter((p) => isAi(p) && !p.includes('/options/'));
+    const human = kept.filter((p) => isHuman(p) && !p.includes('/options/'));
     rmSync(join(dir, ai[0]));
     rmSync(join(dir, human[0]));
     writeFileSync(join(dir, ai[1]), '# an older text\n');
@@ -175,13 +181,13 @@ for (const version of BOTH_FIXTURE_VERSIONS) {
 
     const plan = await h.runCli(['update', '--plan', OFFLINE], dir);
     expect(plan.code, out(plan)).toBe(0);
-    expect(planSectionPaths(out(plan), 'Delete'), out(plan)).toEqual([]);
+    expect(planSectionPaths(out(plan), 'Delete').sort(), out(plan)).toEqual(retired);
     expect(planSectionPaths(out(plan), 'Create'), 'the two missing copies are planned for creation').toEqual(expect.arrayContaining([ai[0], human[0]]));
     expect(planSectionPaths(out(plan), 'Update'), 'the two older texts are planned for update').toEqual(expect.arrayContaining([ai[1], human[1]]));
 
     const apply = await h.runCli(['update', '--apply', '--yes', OFFLINE], dir);
     expect(apply.code, out(apply)).toBe(0);
-    expect(listedStandardFiles(dir), 'exactly the files the old install wrote are there, none lost and none added').toEqual(expected);
+    expect(listedStandardFiles(dir), 'exactly the files the old install wrote are there, none lost and none added, except the files of a standard UDS no longer ships').toEqual(kept);
     expect(read(dir, ai[1]), 'the older text was replaced').not.toBe('# an older text\n');
     expect(readManifest(dir).format).toBe('both');
 

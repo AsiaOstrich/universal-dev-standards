@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-10-30 | UDS v6.14.1 | 56 skills
+> Last regenerated: 2026-10-30 | UDS v6.14.1 | 57 skills
 
 Use skills by typing their command in Claude Code (e.g., `/sdd`, `/tdd`, `/commit`).
 Skills not in Tier 1 are always callable via `/<name>` even if not listed in the context menu.
@@ -68,7 +68,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `sweep` | `/sweep` | Scan codebase for debug artifacts and code quality issues; optionally auto-fix safe patterns. |
 | `test-coverage-assistant` | `/coverage` | Analyze code-level test coverage across the eight-dimension framework and recommend which gaps to close. |
 
-### Tier 3 — Specialist (12 skills · event-driven · name-only by default)
+### Tier 3 — Specialist (13 skills · event-driven · name-only by default)
 
 > Tier 3 skills save context budget by showing only the skill name in listings.
 > They remain fully callable via `/<name>`.
@@ -82,6 +82,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `metrics-dashboard-assistant` | `/metrics` | Track development metrics, code quality indicators, and technical debt over time. |
 | `migration-assistant` | `/migrate` | Guide systematic code migration, framework upgrades, and technology modernization. |
 | `observability-assistant` | `/observability` | Guide observability setup, metrics design, and alerting configuration. |
+| `open-work-assistant` | `/open-work` | Optional help for work that stays open across sessions: a cheap capture point, a release condition for every wait, a next step that names something real. |
 | `retrospective-assistant` | `/retrospective` | Guide structured team retrospectives for Sprint and Release cycles. |
 | `runbook-assistant` | `/runbook` | Guide runbook creation, maintenance, and drill exercises. |
 | `security-scan-assistant` | `/scan` | Guide automated security scanning, dependency auditing, and secret detection. |
@@ -141,6 +142,7 @@ See [skill-budget-tuning.md](../skill-budget-tuning.md) for customization.
 | `audit-assistant` | `/audit` | T2 | Diagnose UDS installation health and submit structured feedback upstream. |
 | `dev-methodology` | `/methodology` | T2 | Select and track the active development methodology (SDD, BDD, TDD) for a project. |
 | `dev-workflow-guide` | `/dev-workflow` | T1 | Map the current software development phase to the right UDS commands and skills. |
+| `open-work-assistant` | `/open-work` | T3 | Optional help for work that stays open across sessions: a cheap capture point, a release condition for every wait, a next step that names something real. |
 | `retrospective-assistant` | `/retrospective` | T3 | Guide structured team retrospectives for Sprint and Release cycles. |
 
 ### Documentation

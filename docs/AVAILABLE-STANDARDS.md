@@ -48,9 +48,9 @@ be *listed* the way `reference`/`skill` are is an open decision (XSPEC-458 OQ1),
 ```sh
 uds update --plan            # the plan, then "Available upstream, not installed (N)" grouped by category
 uds update --apply           # applies the plan; at the end prints how many are available and how to install one
-uds update --apply --add-standard open-work-tracking     # install one, and record it in the manifest
+uds update --apply --add-standard turn-completion-integrity     # install one, and record it in the manifest
 uds update --apply --add-standard a --add-standard b     # several
-uds update --plan --add-standard open-work-tracking      # preview that
+uds update --plan --add-standard turn-completion-integrity      # preview that
 uds check                    # one line: "N upstream standard(s) not installed"
 uds audit --friction         # one low-severity finding (not part of --report, not part of --score)
 ```

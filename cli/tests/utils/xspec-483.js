@@ -10,6 +10,15 @@ import { REAL_CLI_DIR, REAL_REPO } from './staged-cli-harness.js';
 /** Versions of UDS whose real `--format both` manifest is stored in tests/fixtures/upgrade-from-both/ (see its README). */
 export const BOTH_FIXTURE_VERSIONS = ['6.11.0', '6.14.0-beta.14'];
 
+/**
+ * The two files an old install holds for a standard UDS has stopped shipping: `open-work-tracking` became the optional skill
+ * `open-work` (dev-platform XSPEC-427), so the registry no longer ships either copy and `uds update --apply` removes them, as
+ * it does for any file UDS no longer ships. Every other file of these manifests is still shipped and must survive.
+ * The AI copy is no longer in this repository; the copy a real UDS wrote is kept in tests/fixtures/open-work-tracking/retired-install/.
+ */
+export const RETIRED_STANDARD_FILES = ['.standards/open-work-tracking.ai.yaml', '.standards/open-work-tracking.md'];
+const RETIRED_AI_COPY = resolve(REAL_CLI_DIR, 'tests/fixtures/open-work-tracking/retired-install/open-work-tracking.ai.yaml');
+
 const fixtureManifestPath = (version) => resolve(REAL_CLI_DIR, 'tests/fixtures/upgrade-from-both', version, 'manifest.json');
 export const readBothFixtureManifest = (version) => JSON.parse(readFileSync(fixtureManifestPath(version), 'utf-8'));
 
@@ -42,7 +51,7 @@ export function makeBothUpgradeProject(h, version) {
   mkdirSync(join(dir, '.standards', 'options'), { recursive: true });
   cpSync(fixtureManifestPath(version), join(dir, '.standards', 'manifest.json'));
   for (const entry of readBothFixtureManifest(version).standards) {
-    const source = join(REAL_REPO, entry);
+    const source = entry === 'ai/standards/open-work-tracking.ai.yaml' ? RETIRED_AI_COPY : join(REAL_REPO, entry);
     if (!existsSync(source)) throw new Error(`fixture: ${entry} is named by the ${version} manifest but is not in this repository`);
     cpSync(source, join(dir, installedPathOf(entry)));
   }

@@ -35,7 +35,8 @@ Edit `~/.claude/settings.json`:
     "migration-assistant": "name-only",
     "security-scan-assistant": "name-only",
     "brainstorm-assistant": "name-only",
-    "skill-builder": "name-only"
+    "skill-builder": "name-only",
+    "open-work-assistant": "name-only"
   }
 }
 ```

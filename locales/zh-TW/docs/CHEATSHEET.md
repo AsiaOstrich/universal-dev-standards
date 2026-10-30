@@ -129,6 +129,7 @@
 | `metrics-dashboard-assistant` | [UDS] 長期追蹤開發指標、程式碼品質指標與技術債。 |
 | `migration-assistant` | [UDS] 引導系統性的程式碼遷移、框架升級與技術現代化。 |
 | `observability-assistant` | 引導可觀測性建置、指標設計與告警設定。 |
+| `open-work-assistant` | [UDS] 選用的小幫手，幫忙追蹤跨工作階段仍未完成的工作：便宜的收件點、每個等待都有解除條件、下一步點名真實的東西。 |
 | `orchestrate` | 以 Claude 原生 Agent tool 編排多任務執行計畫（以 DAG 為基礎，不需外部引擎）。 |
 | `plan` | 從 Spec 文件、OpenSpec 變更或自由文字需求生成 plan.json。 |
 | `pr-automation-assistant` | 引導 pull request 建立、審查自動化與合併策略。 |

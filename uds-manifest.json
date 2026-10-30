@@ -4,7 +4,7 @@
   "last_updated": "2026-10-30",
   "stats": {
     "core_standards": 153,
-    "skills": 56,
+    "skills": 57,
     "slash_commands": 51,
     "cli_commands": 24
   },
@@ -1100,6 +1100,11 @@
       "id": "comprehension-ladder",
       "command": "/comprehend",
       "category": "documentation"
+    },
+    {
+      "id": "open-work-assistant",
+      "command": "/open-work",
+      "category": "governance"
     }
   ],
   "agent_support": {

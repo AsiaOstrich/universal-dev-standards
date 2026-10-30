@@ -11,13 +11,13 @@
 
 1. [CLI 指令](#cli-commands) (24)
 2. [斜线命令](#slash-commands) (51)
-3. [技能](#skills) (56)
+3. [技能](#skills) (57)
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (153)
 7. [脚本](#scripts) (68)
 
-**Total Features: 362**
+**Total Features: 363**
 
 ---
 
@@ -388,6 +388,7 @@
 | `metrics-dashboard-assistant` | [UDS] 长期追踪开发指标、代码质量指标与技术债。 |
 | `migration-assistant` | [UDS] 引导系统性的代码迁移、框架升级与技术现代化。 |
 | `observability-assistant` | 引导可观测性建设、指标设计与告警配置。 |
+| `open-work-assistant` | [UDS] 选用的小助手，帮助追踪跨会话仍未完成的工作：便宜的收件点、每个等待都有解除条件、下一步点名真实的东西。 |
 | `orchestrate` | 以 Claude 原生 Agent tool 编排多任务执行计划（以 DAG 为基础，不需外部引擎）。 |
 | `plan` | 从 Spec 文档、OpenSpec 变更或自由文本需求生成 plan.json。 |
 | `pr-automation-assistant` | 引导 pull request 创建、审查自动化与合并策略。 |

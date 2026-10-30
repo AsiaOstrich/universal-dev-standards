@@ -2,8 +2,8 @@
 source: ../../../core/developer-memory.md
 source_version: 1.2.1
 translation_version: 1.2.1
-last_synced: 2026-10-11
-source_hash: 4f480ae3038e
+last_synced: 2026-10-30
+source_hash: e0ef1ff960bb
 status: current
 ---
 
@@ -654,7 +654,7 @@ fi
 下面兩種資訊不在本標準的範圍內，寫進這裡是錯的：
 
 - **個人、跨專案、可識別的資訊**（誰負責什麼、怎麼連到某個環境）。去識別化（見上方的 schema）會把這些剝掉，所以它們不能是一筆記憶條目。它們屬於使用者自己的 AI 工具的記憶——那種記憶綁定該使用者與該機器，不被分享。
-- **專案之間的協調**（哪件工作在等哪件工作）。那是開放工作，不是記憶：見 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
+- **專案之間的協調**（哪件工作在等哪件工作）。那是開放工作，不是記憶：實作指引是選用技能 [`/open-work`](../../../skills/open-work-assistant/SKILL.md)，規則在參考文件 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
 
 ---
 

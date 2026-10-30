@@ -1,0 +1,1280 @@
+{
+  "version": "3.4.0",
+  "upstream": {
+    "repo": "AsiaOstrich/universal-dev-standards",
+    "version": "6.14.1",
+    "installed": "2026-10-30"
+  },
+  "format": "ai",
+  "contentMode": "minimal",
+  "contentLayout": "flat",
+  "standards": [
+    "acceptance-criteria-traceability",
+    "acceptance-test-driven-development",
+    "accessibility-standards",
+    "adr-standards",
+    "agent-dispatch",
+    "ai-agreement",
+    "ai-command-behavior",
+    "ai-friendly-architecture",
+    "ai-instruction-standards",
+    "ai-response-navigation",
+    "anti-hallucination",
+    "api-design-standards",
+    "behavior-driven-development",
+    "behavior-snapshot",
+    "changelog",
+    "checkin-standards",
+    "class-level-fix",
+    "code-review",
+    "commit-message",
+    "context-aware-loading",
+    "database-standards",
+    "deferred-item-exit",
+    "deployment-standards",
+    "developer-memory",
+    "documentation-lifecycle",
+    "documentation-structure",
+    "documentation-writing",
+    "error-code-standards",
+    "feature-discovery-standards",
+    "feature-manifest-standard",
+    "flow-based-testing",
+    "forward-derivation",
+    "full-coverage-testing",
+    "git-workflow",
+    "git-worktree",
+    "knowledge-graph-memory",
+    "logging-standards",
+    "mock-boundary",
+    "model-selection",
+    "mutation-testing",
+    "open-work-tracking",
+    "packaging-standards",
+    "performance-standards",
+    "project-context-memory",
+    "project-structure",
+    "push-standards",
+    "refactoring-standards",
+    "requirement-checklist",
+    "requirement-document-template",
+    "requirement-engineering",
+    "requirement-template",
+    "retrospective-standards",
+    "reverse-engineering",
+    "security-standards",
+    "security-testing",
+    "self-review-protocol",
+    "spec-driven-development",
+    "structured-task-definition",
+    "systematic-debugging",
+    "test-completeness-dimensions",
+    "test-driven-development",
+    "test-governance",
+    "testing",
+    "user-journey-testing",
+    "verification-evidence",
+    "versioning",
+    "virtual-organization",
+    "ai/options/commit-message/english.ai.yaml",
+    "ai/options/git-workflow/github-flow.ai.yaml",
+    "ai/options/git-workflow/squash-merge.ai.yaml",
+    "ai/options/testing/unit-testing.ai.yaml",
+    "ai/options/testing/integration-testing.ai.yaml",
+    "ai/options/testing/system-testing.ai.yaml",
+    "ai/options/testing/e2e-testing.ai.yaml"
+  ],
+  "extensions": [],
+  "integrations": [
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "integrationConfigs": {
+    "CLAUDE.md": {
+      "tool": "claude-code",
+      "categories": [
+        "anti-hallucination",
+        "commit-standards",
+        "code-review"
+      ],
+      "language": "en",
+      "installedStandards": [
+        "ai/standards/anti-hallucination.ai.yaml",
+        "ai/standards/ai-friendly-architecture.ai.yaml",
+        "ai/standards/commit-message.ai.yaml",
+        "ai/options/commit-message/english.ai.yaml",
+        "ai/standards/checkin-standards.ai.yaml",
+        "ai/standards/deployment-standards.ai.yaml",
+        "ai/standards/packaging-standards.ai.yaml",
+        "ai/standards/api-design-standards.ai.yaml",
+        "ai/standards/database-standards.ai.yaml",
+        "ai/standards/spec-driven-development.ai.yaml",
+        "ai/standards/code-review.ai.yaml",
+        "ai/standards/git-workflow.ai.yaml",
+        "ai/options/git-workflow/github-flow.ai.yaml",
+        "ai/options/git-workflow/squash-merge.ai.yaml",
+        "ai/standards/versioning.ai.yaml",
+        "ai/standards/changelog.ai.yaml",
+        "ai/standards/test-governance.ai.yaml",
+        "ai/standards/structured-task-definition.ai.yaml",
+        "ai/standards/testing.ai.yaml",
+        "ai/options/testing/unit-testing.ai.yaml",
+        "ai/options/testing/integration-testing.ai.yaml",
+        "ai/options/testing/system-testing.ai.yaml",
+        "ai/options/testing/e2e-testing.ai.yaml",
+        "ai/standards/full-coverage-testing.ai.yaml",
+        "ai/standards/documentation-structure.ai.yaml",
+        "ai/standards/documentation-lifecycle.ai.yaml",
+        "ai/standards/documentation-writing-standards.ai.yaml",
+        "ai/standards/self-review-protocol.ai.yaml",
+        "ai/standards/ai-instruction-standards.ai.yaml",
+        "ai/standards/project-structure.ai.yaml",
+        "ai/standards/error-codes.ai.yaml",
+        "ai/standards/logging.ai.yaml",
+        "ai/standards/test-completeness-dimensions.ai.yaml",
+        "ai/standards/flow-based-testing.ai.yaml",
+        "ai/standards/mock-boundary.ai.yaml",
+        "ai/standards/security-testing.ai.yaml",
+        "ai/standards/mutation-testing.ai.yaml",
+        "ai/standards/test-driven-development.ai.yaml",
+        "ai/standards/behavior-driven-development.ai.yaml",
+        "ai/standards/acceptance-test-driven-development.ai.yaml",
+        "ai/standards/reverse-engineering-standards.ai.yaml",
+        "ai/standards/forward-derivation-standards.ai.yaml",
+        "ai/standards/ai-agreement-standards.ai.yaml",
+        "ai/standards/ai-command-behavior.ai.yaml",
+        "ai/standards/ai-response-navigation.ai.yaml",
+        "ai/standards/virtual-organization-standards.ai.yaml",
+        "ai/standards/refactoring-standards.ai.yaml",
+        "ai/standards/requirement-engineering.ai.yaml",
+        "ai/standards/security-standards.ai.yaml",
+        "ai/standards/performance-standards.ai.yaml",
+        "ai/standards/accessibility-standards.ai.yaml",
+        "ai/standards/developer-memory.ai.yaml",
+        "ai/standards/project-context-memory.ai.yaml",
+        "ai/standards/knowledge-graph-memory.ai.yaml",
+        "ai/standards/context-aware-loading.ai.yaml",
+        "templates/requirement-checklist.md",
+        "templates/requirement-template.md",
+        "templates/requirement-document-template.md",
+        "ai/standards/acceptance-criteria-traceability.ai.yaml",
+        "ai/standards/feature-manifest-standard.ai.yaml",
+        "ai/standards/behavior-snapshot.ai.yaml",
+        "ai/standards/user-journey-testing.ai.yaml",
+        "ai/standards/feature-discovery-standards.ai.yaml",
+        "ai/standards/systematic-debugging.ai.yaml",
+        "ai/standards/model-selection.ai.yaml",
+        "ai/standards/agent-dispatch.ai.yaml",
+        "ai/standards/git-worktree.ai.yaml",
+        "ai/standards/class-level-fix.ai.yaml",
+        "ai/standards/deferred-item-exit.ai.yaml",
+        "ai/standards/open-work-tracking.ai.yaml",
+        "ai/standards/verification-evidence.ai.yaml",
+        "ai/standards/adr-standards.ai.yaml",
+        "ai/standards/retrospective-standards.ai.yaml",
+        "ai/standards/push-standards.ai.yaml"
+      ],
+      "contentMode": "minimal",
+      "level": 3,
+      "outputLanguage": "english"
+    }
+  },
+  "options": {
+    "display_language": "en",
+    "workflow": "github-flow",
+    "merge_strategy": "squash",
+    "output_language": "english",
+    "test_levels": [
+      "unit-testing",
+      "integration-testing",
+      "system-testing",
+      "e2e-testing"
+    ],
+    "release_mode": "ci-cd"
+  },
+  "generateAgentsMd": true,
+  "aiTools": [
+    "claude-code"
+  ],
+  "skills": {
+    "installed": true,
+    "location": "project",
+    "locale": "en",
+    "names": [
+      "ac-coverage",
+      "adr-assistant",
+      "ai-collaboration-standards",
+      "ai-friendly-architecture",
+      "ai-instruction-standards",
+      "api-design-assistant",
+      "atdd-assistant",
+      "audit-assistant",
+      "bdd-assistant",
+      "brainstorm-assistant",
+      "changelog-guide",
+      "checkin-assistant",
+      "ci-cd-assistant",
+      "code-review-assistant",
+      "commit-standards",
+      "comprehension-ladder",
+      "contract-test-assistant",
+      "database-assistant",
+      "deploy-assistant",
+      "dev-methodology",
+      "dev-workflow-guide",
+      "docs-generator",
+      "documentation-guide",
+      "durable-execution-assistant",
+      "e2e-assistant",
+      "error-code-guide",
+      "git-workflow-guide",
+      "incident-response-assistant",
+      "journey-test-assistant",
+      "knowledge-graph",
+      "logging-guide",
+      "metrics-dashboard-assistant",
+      "migration-assistant",
+      "observability-assistant",
+      "orchestrate",
+      "plan",
+      "pr-automation-assistant",
+      "project-discovery",
+      "project-structure-guide",
+      "push",
+      "refactoring-assistant",
+      "release-standards",
+      "requirement-assistant",
+      "retrospective-assistant",
+      "reverse-engineer",
+      "runbook-assistant",
+      "security-assistant",
+      "security-scan-assistant",
+      "skill-builder",
+      "slo-assistant",
+      "spec-derivation",
+      "spec-driven-dev",
+      "sweep",
+      "tdd-assistant",
+      "test-coverage-assistant",
+      "testing-guide"
+    ],
+    "version": "6.14.1",
+    "installations": [
+      {
+        "agent": "claude-code",
+        "level": "project"
+      }
+    ]
+  },
+  "commands": {
+    "installed": false,
+    "names": [],
+    "version": null,
+    "installations": []
+  },
+  "methodology": null,
+  "fileHashes": {
+    ".standards/anti-hallucination.ai.yaml": {
+      "hash": "sha256:c529d8c21f0157eab6af951e371e965073d46a26b5cc99e2a29b6747f376e54b",
+      "size": 9513,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/ai-friendly-architecture.ai.yaml": {
+      "hash": "sha256:62e62e0138c2f087080d659bab78368e664d83d47ca79f8b0fe8fa70ebe53841",
+      "size": 5931,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/commit-message.ai.yaml": {
+      "hash": "sha256:edb4c516f0e37d68999f6ac9c408d4312730c45508e9d4fd40e2b46a9e24c942",
+      "size": 5298,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/english.ai.yaml": {
+      "hash": "sha256:2c1f53cf847a8b874efa95e678a61744e25491cc491108e40ad2898dd9074ce8",
+      "size": 2204,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/checkin-standards.ai.yaml": {
+      "hash": "sha256:4f2319c14fa58eb80011c5be404a62332f0c0b7b7519d5d3d0bc8983939451fa",
+      "size": 7763,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/deployment-standards.ai.yaml": {
+      "hash": "sha256:23634a0097fc190413a1e9ddfb34c071f4f29d003ec34c294c6f977ebdd24e63",
+      "size": 14227,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/packaging-standards.ai.yaml": {
+      "hash": "sha256:d3436a4bfbc826e96ad77cb701b9866a7d4b16cdc521b8b1ba5cb7ec8ac54326",
+      "size": 6784,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/api-design-standards.ai.yaml": {
+      "hash": "sha256:5479101c54412b7ec6a1f7154b8bbc07923162e1eb1187d315fd602a15eb94a3",
+      "size": 8603,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/database-standards.ai.yaml": {
+      "hash": "sha256:4b693b07c45a15042789e895a1542a3a75a389d5832126c18221323b1af47ef2",
+      "size": 9152,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/spec-driven-development.ai.yaml": {
+      "hash": "sha256:fb449c673fdfc821b07592c4b3fad794be6253b77cc01df9c755f0f37c3aebf1",
+      "size": 9216,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/code-review.ai.yaml": {
+      "hash": "sha256:3bed6833dd18b156854ac24d1cfab5eb93b7d350750be4a0958b0c8e47399001",
+      "size": 6263,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/git-workflow.ai.yaml": {
+      "hash": "sha256:a8587127cf1e4be81a165642edb79770cec1f83a02adc2fd4f16441a47bd7b2f",
+      "size": 2878,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/github-flow.ai.yaml": {
+      "hash": "sha256:2f50bfa98b8ca76d6153de32a00a15a52c4160a67cadcad9bc106ebc72134f30",
+      "size": 2286,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/squash-merge.ai.yaml": {
+      "hash": "sha256:61861d34c9148fe1eac2927d9354bbdc9622daa3658eeafb20889d0c970cac84",
+      "size": 1361,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/versioning.ai.yaml": {
+      "hash": "sha256:db9ef5751417cbf0bb044b6718988c6684f30ec681ac61f699cdb0ca56d446c0",
+      "size": 6288,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/changelog.ai.yaml": {
+      "hash": "sha256:5e0165d3b916452694d208b43e5b87bea0e85b128959a3f057e04caa19d9fe9d",
+      "size": 3311,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/test-governance.ai.yaml": {
+      "hash": "sha256:1ff7d5f27dc67a5e42f4700f7b169951e2ac0a440f3c9b66413ef0976ef5afb8",
+      "size": 9238,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/structured-task-definition.ai.yaml": {
+      "hash": "sha256:d0b34c199b45528307e03a96563815060f00180b07eb766b89f9ec5ec11ed247",
+      "size": 4091,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/testing.ai.yaml": {
+      "hash": "sha256:ad9c852df008203fe715b2ef320d7321830e3e6826d5bbd25b667c5e32e2ae46",
+      "size": 8842,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/unit-testing.ai.yaml": {
+      "hash": "sha256:32b2b32cf2eaceb66beb282de332babac08b7dc9636292e76521b174a2920203",
+      "size": 2183,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/integration-testing.ai.yaml": {
+      "hash": "sha256:c9138ce93557fccc06dd4ae8ff053f362bf3ae90b5f517f0ec3c58931849bb22",
+      "size": 2721,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/system-testing.ai.yaml": {
+      "hash": "sha256:7936b27ad5137ac9c9ea643c8a8ccea1f414c7bd81c7c16f32117ed9e5df35c7",
+      "size": 2364,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/options/e2e-testing.ai.yaml": {
+      "hash": "sha256:7b62a78eb569f9a094d3331a985c18fa53e1e478efcc6b2626fdb9c21e14ba10",
+      "size": 3104,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/full-coverage-testing.ai.yaml": {
+      "hash": "sha256:dc966ec1835b5cfdfc0f43301332ca9f5c256e08eeb7761c5bdeae72faae1816",
+      "size": 19223,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/documentation-structure.ai.yaml": {
+      "hash": "sha256:b698b62ecc67a62b246ffc65a2ed5d39571042a252a41c095f001e607c1086b4",
+      "size": 5608,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/documentation-lifecycle.ai.yaml": {
+      "hash": "sha256:43e7044723c99d92523380e53d2bde18aa43f48f7412db035bab64674a561e94",
+      "size": 5689,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/documentation-writing-standards.ai.yaml": {
+      "hash": "sha256:8854cf5d5924cc0d351cccfad045796c143e8a1720f23339608a479a6ab84648",
+      "size": 8076,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/self-review-protocol.ai.yaml": {
+      "hash": "sha256:1cf7d494cd8afc574b7252f4d33cce2bb7f620eb28010ba2dbb6e338fabeea10",
+      "size": 6593,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/ai-instruction-standards.ai.yaml": {
+      "hash": "sha256:13994c5dab1c4a3669d3e0ad303ffcfc40c095b9ca6ae89e73289e3d6681e363",
+      "size": 18824,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/project-structure.ai.yaml": {
+      "hash": "sha256:8454cc82c289edfbfad502d5ffef6a917d143040ac196f9b38ad6c166b75e009",
+      "size": 3620,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/error-codes.ai.yaml": {
+      "hash": "sha256:5265ab6cff3e101e187f3a177d21a1513e344a006fa0a1ee768ecf79191d6275",
+      "size": 4733,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/logging.ai.yaml": {
+      "hash": "sha256:a810255de2ae168555aab65bb53ab92f0f93689ccf5c10bc13be5dc08077a1ee",
+      "size": 10059,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/test-completeness-dimensions.ai.yaml": {
+      "hash": "sha256:7b513c2030a9421ed7d4902fcac4ea6adb61f62907d5dc5d6aa67fe0cc07dfbc",
+      "size": 12519,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/flow-based-testing.ai.yaml": {
+      "hash": "sha256:ddab1fd4958798d1e7d8b8a410348c1f740004fdcd6a6424f7b56e7124f1782e",
+      "size": 12481,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/mock-boundary.ai.yaml": {
+      "hash": "sha256:e635c2ccc3c802f55e8011d358f39013e8db5ed803064635482a9372ea903b0d",
+      "size": 29881,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/security-testing.ai.yaml": {
+      "hash": "sha256:c08bf6bd96fe152042b2529353b26e559517653837fb4bfaf35cc3e0a9012baf",
+      "size": 8108,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/mutation-testing.ai.yaml": {
+      "hash": "sha256:657622af43bd6ec679ec320cb8d6b55fe9d11f7343a1386e44ee99c7ecbf2b6e",
+      "size": 14701,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/test-driven-development.ai.yaml": {
+      "hash": "sha256:f09a8980cfbe669cd1dbfe684150af46f412c97ddbcad03db2bb2ed6686b655f",
+      "size": 9558,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/behavior-driven-development.ai.yaml": {
+      "hash": "sha256:a094a6ee31110ef4ae5030c94a7aeb701d9433fe1c1b1d1d26e9962550489711",
+      "size": 9654,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/acceptance-test-driven-development.ai.yaml": {
+      "hash": "sha256:dfdcd28c987fcd9edaaec96f6859522e2216638fb951b19b10b0633e696e2b12",
+      "size": 10106,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/reverse-engineering-standards.ai.yaml": {
+      "hash": "sha256:9ee4b24999c9ac0697806c9542759573f04be1376479b85823f2f9d69ddae2f2",
+      "size": 18906,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/forward-derivation-standards.ai.yaml": {
+      "hash": "sha256:e58eb9f02ed9e4eddf96e3e2a28c56fe2167701e18911662471b85799649ccf5",
+      "size": 9330,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/ai-agreement-standards.ai.yaml": {
+      "hash": "sha256:6e5ed7f22f7267098ae1ff7dd236c7aa4bcc41a59d6bd4e58f150ac9fc25a048",
+      "size": 620,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/ai-command-behavior.ai.yaml": {
+      "hash": "sha256:7535e209d8deb08ebd6b1131c530b029feab80ddeed1130c2da172ff5a5f9f79",
+      "size": 1872,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/ai-response-navigation.ai.yaml": {
+      "hash": "sha256:4c390d9ffe7be05d6bd669c7e2a8a334b7ca2cb9ac823a4afa4b8a3fce2c592f",
+      "size": 11354,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/virtual-organization-standards.ai.yaml": {
+      "hash": "sha256:2f634b60db4ffe62a77b374d07bd788785cada6333ce2b6332409734fe073214",
+      "size": 642,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/refactoring-standards.ai.yaml": {
+      "hash": "sha256:b389c420e0b2faef8a6f6258e907023789124463d21007feff04166cccf1b1ec",
+      "size": 20023,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/requirement-engineering.ai.yaml": {
+      "hash": "sha256:8fc5f0144f980bd5a649590d76aeb450aac1d1163a9d407e583eff5b7d259392",
+      "size": 9093,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/security-standards.ai.yaml": {
+      "hash": "sha256:6000bb96136ee85f2003adb084a5bceb4e6ab6f3d00590abdf656e5e260dfc66",
+      "size": 5517,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/performance-standards.ai.yaml": {
+      "hash": "sha256:878cd7894ab01e42dee04ea3d6118d008497f07a1f8a6e07bdabd5235a788987",
+      "size": 7555,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/accessibility-standards.ai.yaml": {
+      "hash": "sha256:f973a8ca57c9264dcdbf5da976c78378061a822418d658b21ce1a1aae377bf76",
+      "size": 4310,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/developer-memory.ai.yaml": {
+      "hash": "sha256:695c40c84792cf45499e2edb6e4d45410466985bc2675890c4d6731507cb3cc5",
+      "size": 11336,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/project-context-memory.ai.yaml": {
+      "hash": "sha256:0408ea479eaaa1bdbf371f659b1f24a6d40492a904bd044002b455d4d5703cdf",
+      "size": 5028,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/knowledge-graph-memory.ai.yaml": {
+      "hash": "sha256:325e80786748002db694c927239550c8983fde4597efd4de1a3deac2004fc3ce",
+      "size": 3710,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/context-aware-loading.ai.yaml": {
+      "hash": "sha256:8830e5baa50d43041e21dcae65bc31b15191297a01f15a89c5501a7ad934f559",
+      "size": 5977,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/requirement-checklist.md": {
+      "hash": "sha256:ff7f0c6418c210cd878bfc9313f58f2f19ff895e5c26f87e14105bd9c2b7635d",
+      "size": 11161,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/requirement-template.md": {
+      "hash": "sha256:f5d7a9183c0e2aa944c5ef3e6b2c289dafab289c3bdbfab45c3ad6d74605f00c",
+      "size": 18987,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/requirement-document-template.md": {
+      "hash": "sha256:6a027a586095ee6a682dda49684c8560a26b3779f4dae21dd974acc571f45dbe",
+      "size": 12761,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/acceptance-criteria-traceability.ai.yaml": {
+      "hash": "sha256:a69e9083423ecf0d63f25364ed88665c40a6f76322aac6579acb55e6b1eb32bf",
+      "size": 11846,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/feature-manifest-standard.ai.yaml": {
+      "hash": "sha256:5ef21f24a37dc59dc6e482d884a87a62f6765594767bbaaf5ab2569e03a7a6f1",
+      "size": 7275,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/behavior-snapshot.ai.yaml": {
+      "hash": "sha256:3daf292aad419db1bf51d4921175a36556a395759dab6135a09a7fd3e04db60f",
+      "size": 17038,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/user-journey-testing.ai.yaml": {
+      "hash": "sha256:bfd8802f78630264dae17e22ba5378f74d0c809a2fd6d6df50a1069a0b1f4080",
+      "size": 4377,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/feature-discovery-standards.ai.yaml": {
+      "hash": "sha256:48eda173f5853671a2e28d5e70c657cac8449213fc073af9786a80f6faaea49d",
+      "size": 24149,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/systematic-debugging.ai.yaml": {
+      "hash": "sha256:2584b82b62c4d8f18c8fa19eb109b146dcf095eeca9862e210305e9a6a47a98b",
+      "size": 2712,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/model-selection.ai.yaml": {
+      "hash": "sha256:89c6079c66913001a80bc66f20ce5082ea975fe4d4466a33c0a19f02a2cabc03",
+      "size": 25799,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/agent-dispatch.ai.yaml": {
+      "hash": "sha256:2f01c9bba7f8fa8fc1373dbab58d0db27657f2a4c2b85ccb28e51f170ae9bafc",
+      "size": 8387,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/git-worktree.ai.yaml": {
+      "hash": "sha256:49303af5a966962d5ae88e5b939010b95e77d066b7fba2ca7397ceaf1a59151b",
+      "size": 2549,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/class-level-fix.ai.yaml": {
+      "hash": "sha256:7141106cb6cea58022e1a0c0bc87f2d85951973715150b71dbb153daf78d0adb",
+      "size": 9582,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/deferred-item-exit.ai.yaml": {
+      "hash": "sha256:f41d9b858e6d85e4937506ccf105954f0e32a1166d3f668e19bf0cc22fd667e0",
+      "size": 14030,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/open-work-tracking.ai.yaml": {
+      "hash": "sha256:6034a65da341e48ee16c6659e6a774e517657734606e847de0a20247c98f26c1",
+      "size": 45669,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/verification-evidence.ai.yaml": {
+      "hash": "sha256:cbe8f8c618baaabf1f7e4b78251812dfea2ff1a9a840e6eb630e1a9c538882d0",
+      "size": 13596,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/adr-standards.ai.yaml": {
+      "hash": "sha256:de6af0ad19c891e05e9b83d63a72926f2a06f834a12dc4e4e5df700e3b4eaef5",
+      "size": 4173,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/retrospective-standards.ai.yaml": {
+      "hash": "sha256:c7509262aa3b2688c063d43929ce83d433ae5dd88c084eb253f129405aed5ac3",
+      "size": 2047,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    },
+    ".standards/push-standards.ai.yaml": {
+      "hash": "sha256:8434f0a68d41f373c6639013af33848f12a292319bd3c6dc14c259ab4e994f4f",
+      "size": 4366,
+      "installedAt": "2026-10-30T15:02:22.406Z"
+    }
+  },
+  "skillHashes": {
+    "claude-code/project/ac-coverage/SKILL.md": {
+      "hash": "sha256:6d96b68c73df6861a07cc30806e6fbb72fd3b9a56fb8ddc50f571e6bbbe53dff",
+      "size": 8075,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/adr-assistant/SKILL.md": {
+      "hash": "sha256:c42b4d16838a08248066f1a1ab36424ecba0396ed602562d4e1a2eaa3ac7b18f",
+      "size": 7098,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/adr-assistant/guide.md": {
+      "hash": "sha256:8c49c01f4aaf442387a9a559f8120ec971d2e9edd93cac8fcedf8ea306d8626b",
+      "size": 8334,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/ai-collaboration-standards/SKILL.md": {
+      "hash": "sha256:f5242f504bab5e36b2bf0b6c483d634557137871cc6c91fd24860b701200bf95",
+      "size": 7579,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/ai-collaboration-standards/anti-hallucination.md": {
+      "hash": "sha256:7ff332534a446bf7bbe8fc17903a4574c3c7acd4c72bd644ef299542bbddd570",
+      "size": 8085,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/ai-collaboration-standards/certainty-labels.md": {
+      "hash": "sha256:14238ccd1d6680503660c121222da9af33d8e091a23c26a238e15aee809f17c3",
+      "size": 4844,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/ai-friendly-architecture/SKILL.md": {
+      "hash": "sha256:6c56bc8dc86257122994d5102ca5f361a16614eb5fd0d3315b53e6d4ab8badb0",
+      "size": 8643,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/ai-instruction-standards/SKILL.md": {
+      "hash": "sha256:27e011c435dbecfaa93d5b378d3fe265dedea1c738ee0f3283e1b60de7afeb21",
+      "size": 11331,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/api-design-assistant/SKILL.md": {
+      "hash": "sha256:fc79a98cb60d0be1f20759ff9c8f30cdc028a56402ad3c6461c81c12e6e99c9a",
+      "size": 4315,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/atdd-assistant/SKILL.md": {
+      "hash": "sha256:798beca5d1c42304283a750114f5d363728505a155d37894448768d240de40c8",
+      "size": 5617,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/atdd-assistant/acceptance-criteria-guide.md": {
+      "hash": "sha256:25be5ad5f254b6b14feec8637a0d53fd10c3cf6369c0abfba52230884f0734b4",
+      "size": 10966,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/atdd-assistant/atdd-workflow.md": {
+      "hash": "sha256:a749f18a458c2976b392173c58b4e2b95e81c00a9b41c524f10c01ee98ff5f2e",
+      "size": 24488,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/atdd-assistant/guide.md": {
+      "hash": "sha256:23bf2c888477549f57b4c79174314978a60f32871b29989f2a1ca57e358307eb",
+      "size": 12459,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/audit-assistant/SKILL.md": {
+      "hash": "sha256:8c6e2bd8dee08dbc6287de2f05e27879647d6624326df6530696d20184b8460b",
+      "size": 6441,
+      "installedAt": "2026-10-30T15:02:22.443Z"
+    },
+    "claude-code/project/bdd-assistant/SKILL.md": {
+      "hash": "sha256:a9ca39d57a45c6c36cc7241f492cf22626ed8b0f5e42a53370b692c6938fa724",
+      "size": 5088,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/bdd-assistant/bdd-workflow.md": {
+      "hash": "sha256:745769b7a35a1686d9d36250e3cceda41dec2aff1473cca9d0db05a49bf62fc3",
+      "size": 12125,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/bdd-assistant/gherkin-guide.md": {
+      "hash": "sha256:7ea1fb55933f2c9dbe0e8a4f465c15619a82f1a4bc38c99be965cd1f1def87dd",
+      "size": 9032,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/bdd-assistant/guide.md": {
+      "hash": "sha256:15b8aec06c8a635f191036b7f3461cbea1c04edc73b7af58bf273b8c311c763b",
+      "size": 11060,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/brainstorm-assistant/SKILL.md": {
+      "hash": "sha256:643e2252f2cc0850eb7de22832bd46ab522b942744943ece52c88c2bcdd5ba81",
+      "size": 51700,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/brainstorm-assistant/guide.md": {
+      "hash": "sha256:82e1387727b8f99d9d40d9ebef2ad444afd53b528538a5f50440b9a6f3b65d93",
+      "size": 39714,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/changelog-guide/SKILL.md": {
+      "hash": "sha256:98380b154a6b7be5c8ed22fc5f9c18522c6d3a5d227dd0340a42416aff512ed8",
+      "size": 4551,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/changelog-guide/guide.md": {
+      "hash": "sha256:74723cefa2019f2df846652e00f92b8f7b9d825dfb9df787f7a2e4e6e0f8fb42",
+      "size": 6777,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/checkin-assistant/SKILL.md": {
+      "hash": "sha256:3a58d81525f0813dd8d860e7ea631087e814fe183b5fa3d8c7d17ed9352f8ec3",
+      "size": 5589,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/checkin-assistant/guide.md": {
+      "hash": "sha256:acc280d617d75e76589be894eac0fd81cea56c4214afb9c0c9e13c60598163c1",
+      "size": 12834,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/ci-cd-assistant/SKILL.md": {
+      "hash": "sha256:6ed486d0f4e5535292992d9d5fc854337f47f0cf292aed3106f22bbba9ee2bd6",
+      "size": 9631,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/code-review-assistant/SKILL.md": {
+      "hash": "sha256:0acbc27f0d557d2d6c8f58bb56d904c6b4d43cf72c5125281e817bfc41222dd5",
+      "size": 5636,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/code-review-assistant/checkin-checklist.md": {
+      "hash": "sha256:b29bfcbca7e3d0a1f96bedcebcfe6cdc88c20773a8649e2730d2aa873d4404e0",
+      "size": 5472,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/code-review-assistant/guide.md": {
+      "hash": "sha256:170f7b94ca788413baa96264a959e66b1cb6c0907e67c81b94cf72d5e4868dde",
+      "size": 6710,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/code-review-assistant/review-checklist.md": {
+      "hash": "sha256:48dbcf4900ea6c28a09873b1fe449fcfd45457494b67c584f224977c4fe929c5",
+      "size": 5772,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/commit-standards/SKILL.md": {
+      "hash": "sha256:8926688d936b78c4448050f1fa00f873ab54bfefa4bb9750c7501059a864c4cd",
+      "size": 6763,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/commit-standards/conventional-commits.md": {
+      "hash": "sha256:3ead959c39ee5bbb9ba67408a11d4dded1a6f3383e1ae30d7e2ae3d6ae30f5e7",
+      "size": 5601,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/commit-standards/guide.md": {
+      "hash": "sha256:24d13b6ecd28d943f79c503c3a34a46bf91facf96e678b4899635d455be808a2",
+      "size": 9334,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/commit-standards/language-options.md": {
+      "hash": "sha256:3590335201b10e1796e03a80ee4cdb6b38d8efdfaff2f17c73cd082f7aa7e36b",
+      "size": 4763,
+      "installedAt": "2026-10-30T15:02:22.444Z"
+    },
+    "claude-code/project/comprehension-ladder/SKILL.md": {
+      "hash": "sha256:bc7d0c6d3a597d7105dc14cce90fccae2553997f37f503f085fe6032218145e1",
+      "size": 13224,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/comprehension-ladder/eval-cases.md": {
+      "hash": "sha256:c657ee7685e30554570484873b9be719424dd4292662d01534cff651709d1e86",
+      "size": 14052,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/contract-test-assistant/SKILL.md": {
+      "hash": "sha256:e9aed49a3896ba370c53a9c215764f89599269151e1ded0bb47a547df429e3dc",
+      "size": 6262,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/contract-test-assistant/guide.md": {
+      "hash": "sha256:c44c6e3e5b7535436d2784ac8c5f984a6bd329c5362d4978cddca53c30db3690",
+      "size": 2291,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/database-assistant/SKILL.md": {
+      "hash": "sha256:54352df8c45898c42889fa5295d75c9e01039fe2e5b1de71399a1ec9400b5cb6",
+      "size": 4940,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/deploy-assistant/SKILL.md": {
+      "hash": "sha256:86151fa487b8d56ccab672c0db0466a8c7c1b0da9118e3736d68e4d719d3c232",
+      "size": 6954,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/SKILL.md": {
+      "hash": "sha256:65641d2438895f586b2fe1effdba590d4e92333409eb8b06046708cbfa6117fc",
+      "size": 5728,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/create-methodology.md": {
+      "hash": "sha256:6a142be52b895fb25e16bb8bb2673676ac9d23e17a025c10e3adfc4ddefad7c2",
+      "size": 13952,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/guide.md": {
+      "hash": "sha256:1289d0cad11bcbcc9e7fc1290a002194de34444bcbd98d7fbdc0edc5b19f2757",
+      "size": 8911,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/integrated-flow.md": {
+      "hash": "sha256:657d94433169a2a273d333357c6a25cc60ec2e6120cb68f9ba383a8dff28949e",
+      "size": 22325,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/prerequisite-check.md": {
+      "hash": "sha256:7f2bb1afbc4a4bf01b72c72bcf8a69c0ae8c3d7d2bbda2b5380b546742fe5e47",
+      "size": 5234,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-methodology/runtime.md": {
+      "hash": "sha256:5fbed51ba6d2f87733ad37ec4a2528193243cdffe15506949b0366a14be68123",
+      "size": 9013,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-workflow-guide/SKILL.md": {
+      "hash": "sha256:1d295e849e884a1c90f4fdfa430f33dd09e9609d49ce1ddf39c48d272aca41ae",
+      "size": 10889,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/dev-workflow-guide/workflow-phases.md": {
+      "hash": "sha256:8ee91958edd2a780cf5dad504fcd229a623a4d838b5a2e7ddcc87ac950650ac1",
+      "size": 11982,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/docs-generator/SKILL.md": {
+      "hash": "sha256:f49fe60732404a04ee4c9e81c600ed6c32338af4a468b285aa5e574cab35f892",
+      "size": 5205,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/docs-generator/guide.md": {
+      "hash": "sha256:e0d98fc4d8a753401b9ebcf1353658dd85f1aa3dbbaf8ed8b238991875e47727",
+      "size": 8027,
+      "installedAt": "2026-10-30T15:02:22.445Z"
+    },
+    "claude-code/project/documentation-guide/SKILL.md": {
+      "hash": "sha256:d0a132fc2696f9adee8d51a1323b133c6329d2155d135a4b543de96f3fdfb7df",
+      "size": 15918,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/documentation-guide/documentation-structure.md": {
+      "hash": "sha256:1ba39ec0cdeda59bbef35311b6d39da67a5e2fbbb64e55c42e814b91e2ef0deb",
+      "size": 7290,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/documentation-guide/readme-template.md": {
+      "hash": "sha256:26a2c566530e6e1bf0f522f49257aaa0d6545677a49a0047e5fd2da6ecc7a4a5",
+      "size": 7496,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/durable-execution-assistant/SKILL.md": {
+      "hash": "sha256:3ee67a1e1aa5ff17f34ba050e68d35e19d870300a6736d06b024a3ea07a7f430",
+      "size": 5286,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/e2e-assistant/SKILL.md": {
+      "hash": "sha256:2ce69f941b94d61f4c0548e7fcd761df66cf3bc3f3845c13c81540c3e52f3e5b",
+      "size": 5017,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/error-code-guide/SKILL.md": {
+      "hash": "sha256:0d1f6a65529ba174c823c3b35799237616c32ca26e948d338d86ce3e8767d698",
+      "size": 7564,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/git-workflow-guide/SKILL.md": {
+      "hash": "sha256:03902109da27dc64941970bbb5a3b8ef529f4edcecd41c0174d32f723090f111",
+      "size": 6973,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/git-workflow-guide/branch-naming.md": {
+      "hash": "sha256:67935c7e387435a5f5d574ed042fb7ec68cc9f13351553c8d74a728ef17e3356",
+      "size": 4645,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/git-workflow-guide/git-workflow.md": {
+      "hash": "sha256:c96f6269ba99d56b965fd6697195efe3d670e91b8fde046dc91c9c2fdbaa8c8f",
+      "size": 7639,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/incident-response-assistant/SKILL.md": {
+      "hash": "sha256:153f1c8557c736672a85bebd9f5fb7b44f38e5b36923dbda8b19ab7f073c7dfb",
+      "size": 7376,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/journey-test-assistant/SKILL.md": {
+      "hash": "sha256:85ddd9c5db32d9a3095a0aefd61184336d2296e75d366b7d3c25d0068fb573d6",
+      "size": 7819,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/knowledge-graph/SKILL.md": {
+      "hash": "sha256:9f78618b6305a1045197c2815c7951ea35b8a7ec503ecc740b2c26988e41ff0d",
+      "size": 4085,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/knowledge-graph/guide.md": {
+      "hash": "sha256:67fb7ee903739911a7ec94fcb401efd856cc20febd1dead84de8b433d080cbcc",
+      "size": 2709,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/logging-guide/SKILL.md": {
+      "hash": "sha256:ea703656e1e75e19b03d568f5cad00e6ff8129ce5ca589a4f85835d1fdf1d821",
+      "size": 12400,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/metrics-dashboard-assistant/SKILL.md": {
+      "hash": "sha256:75e98addb57866a4fdf59cea6bd3c7643a1ab073b46e593e5bdb539da2d3bae7",
+      "size": 7280,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/migration-assistant/SKILL.md": {
+      "hash": "sha256:86fc7793a9fb78305102a56b81b3a5ec39f020f80383cbd2e17b79ada312ab93",
+      "size": 35834,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/observability-assistant/SKILL.md": {
+      "hash": "sha256:ccd4f899730badb18ea2e86556079a317517fbb285c51c6c9065b10bd01f5bde",
+      "size": 7054,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/observability-assistant/guide.md": {
+      "hash": "sha256:52a53a55ac1fe47a192b50d15f64d0380ea9173a0a4fa9618bfa637d5dacc1aa",
+      "size": 7178,
+      "installedAt": "2026-10-30T15:02:22.446Z"
+    },
+    "claude-code/project/orchestrate/SKILL.md": {
+      "hash": "sha256:79f06d5f6b2c1190083c1c6a2c6dae6037296b0e1f30bfc8fcfd1a6aa0a0da55",
+      "size": 4785,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/plan/SKILL.md": {
+      "hash": "sha256:14359e142649f0c25ffaeb2ae3212d4d7a5fbd4d28079f96fa1fc8568d11ca10",
+      "size": 7458,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/pr-automation-assistant/SKILL.md": {
+      "hash": "sha256:82e1aa4170d316241bdbb31ebd30acf8909cb963c27d9b04a74eb83e7d9220ef",
+      "size": 5567,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/project-discovery/SKILL.md": {
+      "hash": "sha256:3e9c93af2fc244805140fac3ca7fc308ed3d2692d3ac59da360460c41210002f",
+      "size": 7523,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/project-discovery/guide.md": {
+      "hash": "sha256:aed83782754b81a3d1878eeebf450c20a702186b045478c34aff6895eb7b3de6",
+      "size": 15083,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/project-discovery/workflow.md": {
+      "hash": "sha256:6af692aca4c177f429e02dd9ae442637aa88b0f1f96d91ab0e7c4023a4490b4b",
+      "size": 16559,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/project-structure-guide/SKILL.md": {
+      "hash": "sha256:01f0dff1dc0616c1738054077f2e9a94432d8df0b6e5ad3c3cab95e0ac25d1da",
+      "size": 6060,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/project-structure-guide/language-patterns.md": {
+      "hash": "sha256:22da8afaf9b9201d2040744f9848256d8b17638ed02f545413bd40d7ff21b9ea",
+      "size": 4123,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/push/SKILL.md": {
+      "hash": "sha256:dac5e81c31b0384157a03847b01c889b09513323b9c2c0a760e3888f5b261247",
+      "size": 9159,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/refactoring-assistant/SKILL.md": {
+      "hash": "sha256:c14cee25d6a03279f0e3892f81a27aefb35eed54182cba28823f12e4fe921c5a",
+      "size": 4639,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/refactoring-assistant/guide.md": {
+      "hash": "sha256:70bbe1c3693474d178f5997ab9220cd4110edb4bc325cd80eeb9d7e48dda3c83",
+      "size": 12188,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/release-standards/SKILL.md": {
+      "hash": "sha256:f2147c403373fc5c48bfb373dc4b9c94ee034ad927a99b7bb23d559cfb1daeb4",
+      "size": 7843,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/release-standards/changelog-format.md": {
+      "hash": "sha256:17ab65a2233a1da352e6bb19724594f9d2a2b27acaf6e6940531eba40cd8c347",
+      "size": 5477,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/release-standards/guide.md": {
+      "hash": "sha256:3514ff3728d1b1767de903e4b5b1cf6488d5c8cc878d688d6b875972aabf46a4",
+      "size": 5137,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/release-standards/release-workflow.md": {
+      "hash": "sha256:87d0adf646a79f3e79005a50cc47aad03ad4bab4af6a938eca6bf34b22ca460c",
+      "size": 9015,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/release-standards/semantic-versioning.md": {
+      "hash": "sha256:64f780a7340ddc36518db0e039c338e3d41e64a71c7f42729593937e6ab48798",
+      "size": 4971,
+      "installedAt": "2026-10-30T15:02:22.447Z"
+    },
+    "claude-code/project/requirement-assistant/SKILL.md": {
+      "hash": "sha256:414699b68d92e8bf95d6a905f61b73e305898796088882fe056ce65be8b46f54",
+      "size": 3974,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/requirement-assistant/guide.md": {
+      "hash": "sha256:46c71c12b7322176b49bfa991c64e07dd95aec1a60b4c69cb126de37e85566be",
+      "size": 6367,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/requirement-assistant/requirement-checklist.md": {
+      "hash": "sha256:44d226f85ac21e2594750986499158cdd19333b681761a1cf5eb33c5d896b14f",
+      "size": 7129,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/requirement-assistant/requirement-writing.md": {
+      "hash": "sha256:f0de4df8c54b4b114dd4d1a1c089e7fbdacfc54951d329878eaaaf35de5f2a2b",
+      "size": 7931,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/retrospective-assistant/SKILL.md": {
+      "hash": "sha256:4cef9a698a1e744ae38112953fe0ae7a7348ffb1c4f1c0dccb589d9067e67384",
+      "size": 6009,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/retrospective-assistant/guide.md": {
+      "hash": "sha256:3b0f6acab7f81c6229aa7b6fcfd67e50a9ec156d182a808db378574a80f9759e",
+      "size": 7173,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/reverse-engineer/SKILL.md": {
+      "hash": "sha256:c493f644ac242cb4a78aa09adecb6c106c8cb9bb747b99f7d02f85eb02d78d31",
+      "size": 9420,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/reverse-engineer/bdd-extraction.md": {
+      "hash": "sha256:27d364c9ddb9f0d5bef0fef139133c55ceeb765de44d90681d8ca54d181da24b",
+      "size": 16688,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/reverse-engineer/guide.md": {
+      "hash": "sha256:5b8ed4f2c95d40699283b3df58559f64b689ce0582d9f3f21a9f9195e2a89225",
+      "size": 21018,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/reverse-engineer/tdd-analysis.md": {
+      "hash": "sha256:5b664ce84d2897d3797fea11aca8aec11bceb0dd3a3111f12b2a55f3401d8574",
+      "size": 17970,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/reverse-engineer/workflow.md": {
+      "hash": "sha256:b0bd59056b1e6e29f8d5b6a13198e303b3284f03537b4f28118cce0c28c993bc",
+      "size": 14268,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/runbook-assistant/SKILL.md": {
+      "hash": "sha256:7b69ccc555ba8d254f36597a1cf3e6055d8926477800debc09046e2b15799297",
+      "size": 3892,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/runbook-assistant/guide.md": {
+      "hash": "sha256:99897003c2e18e1f3ba54f945406bc8ea81c74eeeea98782add86d7dbb53c25f",
+      "size": 8852,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/security-assistant/SKILL.md": {
+      "hash": "sha256:ca07d4846325818fc49cbce5cc06843344f17ead81ec8ec182424fda84c0f1f9",
+      "size": 4937,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/security-scan-assistant/SKILL.md": {
+      "hash": "sha256:06a8ad237ff0f8bf0c8d3081de6a8f448d5870d97e1169ab48b0bd822121749a",
+      "size": 4385,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/skill-builder/SKILL.md": {
+      "hash": "sha256:8f1b4964bc8072494cbf748480cc4e7108ffd18db3acc4868bdf6731d088f56e",
+      "size": 5493,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/slo-assistant/SKILL.md": {
+      "hash": "sha256:71cf8d75f1fc508ff895c341c629cdbdb1114a8d7fd00fd9d10e559d4275adea",
+      "size": 2534,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/slo-assistant/guide.md": {
+      "hash": "sha256:735a2d3508f489d6509562a99948442851a45ac1db4155cfe33e7b3ffa838da7",
+      "size": 7664,
+      "installedAt": "2026-10-30T15:02:22.448Z"
+    },
+    "claude-code/project/spec-derivation/SKILL.md": {
+      "hash": "sha256:788e2be6b449dd3458c17efeb94b65461101f1fba152d1e9fde0d0ec9deec91f",
+      "size": 5717,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/spec-derivation/guide.md": {
+      "hash": "sha256:1f014a87a5245b100813e647e40ab55a75aea28b09a82e57258db9fdc0d3ff3b",
+      "size": 17622,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/spec-driven-dev/SKILL.md": {
+      "hash": "sha256:de654f959780db1d9b130e369893afd6b7f815215e53543a2ba124d658fb257b",
+      "size": 11302,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/spec-driven-dev/guide.md": {
+      "hash": "sha256:ce7ec2bbbe7cc54ea1ff6875207a3ef79df34e1d22e4136eec7c37fa0a02fa70",
+      "size": 13496,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/sweep/SKILL.md": {
+      "hash": "sha256:0fe8b65e6fbceb468218ced78f04ae63202d0e539b278f18309d01c1c6c2f1ad",
+      "size": 4727,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/tdd-assistant/SKILL.md": {
+      "hash": "sha256:f7856290d8d815d9f25ac030eaec5fc3101753955c1b03f5a0a67b337b1fbddb",
+      "size": 5289,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/tdd-assistant/guide.md": {
+      "hash": "sha256:2629b1bb146de3b830e236f90692c6f36e9c06e493404b2059bb1092b6e59871",
+      "size": 12659,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/tdd-assistant/language-examples.md": {
+      "hash": "sha256:2900cac10ad6c01bd553f08fe8465188f9d90cf1adbfe07672c6317427945cef",
+      "size": 27795,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/tdd-assistant/tdd-workflow.md": {
+      "hash": "sha256:7c59d86d8d49858fbf07fabc30f3a34cd0c799e1631ed266620a183028f22a84",
+      "size": 26689,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/test-coverage-assistant/SKILL.md": {
+      "hash": "sha256:2db7b56b6a90aab6ae420049db33a989f3fa6d12c8f290b3180fbed1848db74c",
+      "size": 4308,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/test-coverage-assistant/guide.md": {
+      "hash": "sha256:eebb3b131df1992e694357ae40ae60bec9d873dcc36d29fe83d6680fa93abe0c",
+      "size": 9180,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/testing-guide/SKILL.md": {
+      "hash": "sha256:07022ae00d28b2963b89aa4a299950adb98df84de7dcd0c592adb0081b523a09",
+      "size": 12115,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/testing-guide/test-skeleton-templates.md": {
+      "hash": "sha256:18faf94f9df3756ca2873fa1f4c092e269e869c537690cd06a427930a85158a3",
+      "size": 10045,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/testing-guide/testing-pyramid.md": {
+      "hash": "sha256:8aff2c4b94b5e50bb0fa435905bb3d6ded6b3ef6eaa1947ef9f822475b45e73f",
+      "size": 13048,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    },
+    "claude-code/project/testing-guide/testing-theory.md": {
+      "hash": "sha256:8447ff34bc5b6f3630539ad4623c0d854efbfd24cd74e1377107789b6a7f10c2",
+      "size": 114316,
+      "installedAt": "2026-10-30T15:02:22.449Z"
+    }
+  },
+  "commandHashes": {},
+  "integrationBlockHashes": {
+    "CLAUDE.md": {
+      "blockHash": "sha256:0d1df1145c5bd26224b8a74a3233dc84d41c3803fe994dce2cc0816f45bafce2",
+      "blockSize": 3809,
+      "fullHash": "sha256:f55aa09809766b0cdf23524955e6922c7633f46498f609a90c7a701efbe2653f",
+      "fullSize": 6852
+    },
+    "AGENTS.md": {
+      "blockHash": "sha256:0a78a785af513b63c38dfdbf1d16a98144f1ccf511806522b02bfef4b572769e",
+      "blockSize": 5299,
+      "fullHash": "sha256:1fbbd57ee21b52f1fce513f201e39bb907825153f34254ee32afc64fa2ec2607",
+      "fullSize": 6473
+    }
+  },
+  "installedArtifacts": {
+    "files": {
+      "CLAUDE.md": {
+        "kind": "integration-file",
+        "hash": "sha256:90a375be6e9f771878ac6403a4d2a4c6a0155a1d34f34ee8c8bf685526bdf8d1",
+        "size": 2985,
+        "installedAt": "2026-10-30T15:02:22.451Z"
+      },
+      "AGENTS.md": {
+        "kind": "integration-file",
+        "hash": "sha256:6528c8eeb73dbcbe59aadc6f70760b42505e836d4eb825b6bbf4d50fa8f039bb",
+        "size": 1116,
+        "installedAt": "2026-10-30T15:02:22.451Z"
+      },
+      "scripts/check-anti-fake-tests.mjs": {
+        "kind": "gate-script",
+        "hash": "sha256:5826a3995349353d59147adf60b96eb9e3a07a50c6f9754e94973086647d8a5b",
+        "size": 69780,
+        "installedAt": "2026-10-30T15:02:22.451Z"
+      },
+      "scripts/check-stubs.mjs": {
+        "kind": "gate-script",
+        "hash": "sha256:13833c7c9a212e4240b871ac12e1519ffa9341fa6670c629e72969d43aa3ecf0",
+        "size": 30830,
+        "installedAt": "2026-10-30T15:02:22.451Z"
+      }
+    },
+    "createdDirs": [
+      "scripts"
+    ]
+  },
+  "provenance": {
+    "schema": 1,
+    "files": {}
+  }
+}

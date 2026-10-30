@@ -49,6 +49,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 | `refactoring-assistant` | `/refactor` | [UDS] Refactoring guidance |
 | `project-discovery` | `/discover` | [UDS] Assess project health and risks |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] Structured AI-assisted ideation |
+| `open-work-assistant` | `/open-work` | [UDS] Optional: keep work from getting lost between sessions (a cheap capture point, a release condition for each wait, next steps that name something) |
 | `comprehension-ladder` | `/comprehend` | [UDS] Re-form a hard-to-follow AI output as controlled text, a Mermaid diagram, or an offline HTML explainer, without changing the facts |
 | `changelog-guide` | `/changelog` | [UDS] Generate changelog entries |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] Map development phases to UDS commands |
@@ -90,7 +91,7 @@ These skills provide standard guidance and workflows. They can be accessed via s
 ### Tier 3 — Specialist (monthly or event-driven)
 **Listing default**: `"name-only"` in reference overrides — saves tokens; **still callable via `/<name>`**.
 
-`incident-response-assistant`, `observability-assistant`, `slo-assistant`, `runbook-assistant`, `retrospective-assistant`, `durable-execution-assistant`, `metrics-dashboard-assistant`, `migration-assistant`, `security-scan-assistant`, `brainstorm-assistant`, `skill-builder`
+`incident-response-assistant`, `observability-assistant`, `slo-assistant`, `runbook-assistant`, `retrospective-assistant`, `durable-execution-assistant`, `metrics-dashboard-assistant`, `migration-assistant`, `security-scan-assistant`, `brainstorm-assistant`, `skill-builder`, `open-work-assistant`
 
 > Tier rationale & criteria: [`flows/skill-tiering-rationale.md`](../flows/skill-tiering-rationale.md). Adopters may freely override the reference (promote a Tier 3 skill to `"on"` if they use it daily, or demote any to `"name-only"`).
 

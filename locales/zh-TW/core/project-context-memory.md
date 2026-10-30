@@ -2,8 +2,8 @@
 source: ../../../core/project-context-memory.md
 source_version: 1.2.1
 translation_version: 1.2.1
-last_synced: 2026-10-11
-source_hash: a852f1970d37
+last_synced: 2026-10-30
+source_hash: 2d7135188919
 status: current
 ---
 
@@ -243,7 +243,7 @@ Beta v5.1.0-beta.1 published on 2026-03-14.
 ## 邊界：本標準不放什麼
 
 - **個人、跨專案、可識別的資訊**（誰負責什麼、怎麼連到某個環境）不是專案情境：這裡的條目放在 repo 裡，會被每個 clone 它的人看到。把它們放在使用者自己的 AI 工具記憶，不要放進 `.project-context/`。
-- **專案之間的協調**（哪件工作在等哪件工作）是開放工作，不是情境：見 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
+- **專案之間的協調**（哪件工作在等哪件工作）是開放工作，不是情境：實作指引是選用技能 [`/open-work`](../../../skills/open-work-assistant/SKILL.md)，規則在參考文件 [Open Work Tracking](open-work-tracking.md)（OWT-027–OWT-029）。
 
 ---
 

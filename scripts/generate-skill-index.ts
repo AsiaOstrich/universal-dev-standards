@@ -32,6 +32,7 @@ const TIER3_SKILLS = new Set([
   'runbook-assistant', 'retrospective-assistant', 'durable-execution-assistant',
   'metrics-dashboard-assistant', 'migration-assistant', 'security-scan-assistant',
   'brainstorm-assistant', 'skill-builder', 'ai-collaboration-standards',
+  'open-work-assistant', // optional: used only when work is getting lost between sessions
 ]);
 
 // Category override for manifest "uncategorized" entries (inferred from skill purpose)

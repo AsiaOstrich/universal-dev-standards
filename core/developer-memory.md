@@ -646,7 +646,7 @@ A tool without a session-start hook still satisfies this standard through either
 Two kinds of information are outside this standard, and writing them here is a mistake:
 
 - **Personal, cross-project, identifiable facts** (who owns what, how to reach a particular environment). De-identification (see the schema above) would strip exactly these, so they cannot live in a memory entry. They belong in the memory of the user's own AI tool, which is bound to that user and that machine and is not shared.
-- **Coordination between projects** (which piece of work is waiting on which other). That is open work, not memory: see [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
+- **Coordination between projects** (which piece of work is waiting on which other). That is open work, not memory: the optional skill [`/open-work`](../skills/open-work-assistant/SKILL.md) is the working guidance, and the rules are in the reference document [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
 
 ---
 

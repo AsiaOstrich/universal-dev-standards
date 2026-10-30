@@ -235,7 +235,7 @@ We use **Split-File Storage** (one Markdown file per topic) rather than a single
 ## Boundary: What This Standard Does Not Hold
 
 - **Personal, cross-project, identifiable facts** (who owns what, how to reach a particular environment) are not project context: entries here live in the repository and are shared with everyone who clones it. Keep them in the user's own AI tool memory, not in `.project-context/`.
-- **Coordination between projects** (which piece of work is waiting on which other) is open work, not context: see [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
+- **Coordination between projects** (which piece of work is waiting on which other) is open work, not context: the optional skill [`/open-work`](../skills/open-work-assistant/SKILL.md) is the working guidance, and the rules are in the reference document [Open Work Tracking](open-work-tracking.md) (OWT-027–OWT-029).
 
 ---
 

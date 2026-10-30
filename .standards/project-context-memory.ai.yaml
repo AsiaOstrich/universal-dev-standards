@@ -24,7 +24,7 @@ standard:
         belongs_in: "使用者自己的 AI 工具記憶"
         why: "專案情境在 repo 裡，會被每個 clone 它的人看到；這類資訊不是專案情境"
       - what: "跨專案的工作協調（誰在等誰）"
-        belongs_in: "open-work-tracking（OWT-027～OWT-029）"
+        belongs_in: "選用技能 /open-work（參考文件 core/open-work-tracking.md，OWT-027～OWT-029）"
         why: "那是開放工作，不是情境"
 
   schema:

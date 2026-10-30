@@ -129,6 +129,7 @@
 | `metrics-dashboard-assistant` | [UDS] Track development metrics, code quality indicators, an |
 | `migration-assistant` | [UDS] Guide systematic code migration, framework upgrades, a |
 | `observability-assistant` | Guide observability setup, metrics design, and alerting conf |
+| `open-work-assistant` | [UDS] Optional help for work that stays open across sessions |
 | `orchestrate` | Orchestrate multi-task execution plans using Claude's native |
 | `plan` | Generate plan.json from Spec documents, OpenSpec changes, or |
 | `pr-automation-assistant` | Guide pull request creation, review automation, and merge st |

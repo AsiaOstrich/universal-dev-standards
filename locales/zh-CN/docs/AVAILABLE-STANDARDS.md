@@ -2,8 +2,8 @@
 source: ../../../docs/AVAILABLE-STANDARDS.md
 source_version: 1.0.0
 translation_version: 1.0.0
-last_synced: 2026-10-07
-source_hash: a189829f9324
+last_synced: 2026-10-30
+source_hash: 2fb441aba7b2
 status: current
 ---
 
@@ -54,9 +54,9 @@ status: current
 ```sh
 uds update --plan            # 先打印计划，再打印“上游有、项目没装（N 个）”，按类别分组
 uds update --apply           # 应用计划；结尾打印有几个可用、怎么装
-uds update --apply --add-standard open-work-tracking     # 装一个，并记入 manifest
+uds update --apply --add-standard turn-completion-integrity     # 装一个，并记入 manifest
 uds update --apply --add-standard a --add-standard b     # 装多个
-uds update --plan --add-standard open-work-tracking      # 先预览
+uds update --plan --add-standard turn-completion-integrity      # 先预览
 uds check                    # 一行：“上游有 N 个标准未安装”
 uds audit --friction         # 一项低严重度发现（不进 --report、不影响 --score）
 ```

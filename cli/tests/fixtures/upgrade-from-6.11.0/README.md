@@ -40,6 +40,12 @@ Contents worth knowing: 73 entries in `standards` (path format, `ai/standards/<i
 paths), `deferred-item-exit` present, **`open-work-tracking` absent** (it was added to the registry after
 6.11.0 shipped). That absence is exactly the situation the XSPEC-458 scenarios describe.
 
+> **Update (dev-platform XSPEC-427, decision 209甲):** `open-work-tracking` is no longer a standard (it became the
+> optional skill `open-work`; its registry entry and `.ai.yaml` were removed). The manifest is still the file 6.11.0
+> wrote and is still unedited, but it now lacks **nothing** the current registry offers. The tests that need "an old
+> project that never heard of a standard UDS ships" build it from this manifest minus one reference standard
+> (`STAND_IN_ID` in `tests/utils/xspec-458.js`) — an edited copy, made at test time, never this file.
+
 ## Using it
 
 Copy it into a throwaway project's `.standards/` — never point a test at this file itself. Reading a

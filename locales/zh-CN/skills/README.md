@@ -60,6 +60,7 @@ skills/
 | `refactoring-assistant` | `/refactor` | [UDS] 重构指引 |
 | `project-discovery` | `/discover` | [UDS] 评估项目健康度与风险 |
 | `brainstorm-assistant` | `/brainstorm` | [UDS] 结构化 AI 辅助构思 |
+| `open-work-assistant` | `/open-work` | [UDS] 选用：避免工作在会话之间漏掉（便宜的收件点、每个等待都有解除条件、点名东西的下一步） |
 | `comprehension-ladder` | `/comprehend` | [UDS] 把难懂的 AI 输出换成受控文字、Mermaid 图或离线 HTML 解说页，不改变事实 |
 | `changelog-guide` | `/changelog` | [UDS] 生成 changelog 条目 |
 | `dev-workflow-guide` | `/dev-workflow` | [UDS] 将开发阶段对应到 UDS 命令 |
@@ -101,7 +102,7 @@ skills/
 ### Tier 3 — Specialist（每月或事件驱动）
 **列出默认**：在参考覆写中为 `"name-only"`——节省 token；**仍可通过 `/<name>` 调用**。
 
-`incident-response-assistant`、`observability-assistant`、`slo-assistant`、`runbook-assistant`、`retrospective-assistant`、`durable-execution-assistant`、`metrics-dashboard-assistant`、`migration-assistant`、`security-scan-assistant`、`brainstorm-assistant`、`skill-builder`
+`incident-response-assistant`、`observability-assistant`、`slo-assistant`、`runbook-assistant`、`retrospective-assistant`、`durable-execution-assistant`、`metrics-dashboard-assistant`、`migration-assistant`、`security-scan-assistant`、`brainstorm-assistant`、`skill-builder`、`open-work-assistant`
 
 > Tier 的理由与准则：[`flows/skill-tiering-rationale.md`](../../../flows/skill-tiering-rationale.md)。采用者可自由覆写参考配置（若每日使用某个 Tier 3 skill 可升为 `"on"`，或将任一 skill 降为 `"name-only"`）。
 

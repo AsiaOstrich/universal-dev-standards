@@ -3,7 +3,8 @@
  *
  * The report said every command was right about what it was asked, so a test per command could not find the
  * gap: a project upgraded from 6.11.0 never heard about a standard UDS ships. This test puts the two ends side
- * by side. One end is a manifest a REAL UDS 6.11.0 wrote (tests/fixtures/upgrade-from-6.11.0/, with its
+ * by side. One end is a manifest a REAL UDS 6.11.0 wrote (minus STAND_IN_ID, see tests/utils/xspec-458.js: the one standard that real manifest
+ * lacked, `open-work-tracking`, stopped being a standard in XSPEC-427) (tests/fixtures/upgrade-from-6.11.0/, with its
  * provenance), the other is the CURRENT CLI; every standard the current registry can still offer that the old
  * manifest lacks must appear in what `uds update --plan --offline` lists.
  *
@@ -21,13 +22,13 @@ import { join } from 'path';
 import { createHash } from 'crypto';
 import { createHarness } from '../utils/staged-cli-harness.js';
 import {
-  makeUpgradeProject, readFixtureManifest, expectedAvailableIds, idsInAvailableSection, FIXTURE_MANIFEST, FIXTURE_DIR
+  makeUpgradeProject, readFixtureManifest, upgradeProjectManifest, STAND_IN_ID, expectedAvailableIds, idsInAvailableSection, FIXTURE_MANIFEST, FIXTURE_DIR
 } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec458-r4-diff');
 afterAll(() => h.cleanup());
 
-it('the upgrade fixture is the manifest UDS 6.11.0 wrote: stamped 6.11.0 throughout, unedited since it was recorded in the fixture README, and missing a standard the registry has (XSPEC-458 R4)', () => {
+it('the upgrade fixture is the manifest UDS 6.11.0 wrote: stamped 6.11.0 throughout, unedited since it was recorded in the fixture README, and the project built from it lacks a standard the registry has (XSPEC-458 R4)', () => {
   const manifest = readFixtureManifest();
   expect(manifest.upstream.version).toBe('6.11.0');
   expect(manifest.skills.version, 'the skills it installed are 6.11.0 too').toBe('6.11.0');
@@ -39,13 +40,15 @@ it('the upgrade fixture is the manifest UDS 6.11.0 wrote: stamped 6.11.0 through
   expect(readme).toContain('universal-dev-standards@6.11.0');
   expect(readme).toMatch(/sha512-[A-Za-z0-9+/=]{20,}/);
 
-  // The reason it is useful: it lacks a standard today's registry offers.
-  expect(expectedAvailableIds(manifest)).toContain('open-work-tracking');
+  // The raw fixture lacks nothing today's registry offers (the one standard it lacked, open-work-tracking, is not a standard any more, XSPEC-427),
+  // so the project the tests build takes STAND_IN_ID out of it. That is what makes it useful: it lacks a standard today's registry offers.
+  expect(expectedAvailableIds(manifest), 'control: the raw fixture has every standard the registry offers').toEqual([]);
+  expect(expectedAvailableIds(upgradeProjectManifest())).toEqual([STAND_IN_ID]);
 });
 
 it('every standard the current registry offers that the 6.11.0 manifest lacks appears in the Available upstream, not installed list of uds update --plan --offline (XSPEC-458 R4)', async () => {
   const dir = makeUpgradeProject(h);
-  const expected = expectedAvailableIds(readFixtureManifest());
+  const expected = expectedAvailableIds(upgradeProjectManifest());
   expect(expected.length, 'control: there is something to find').toBeGreaterThan(0);
 
   const run = await h.runCli(['update', '--plan', '--offline'], dir);

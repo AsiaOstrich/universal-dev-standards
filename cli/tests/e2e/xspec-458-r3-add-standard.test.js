@@ -7,7 +7,8 @@
  * `uds check` verdict and the state after one `--rollback`.
  *
  * Every test spawns the real CLI in a throwaway project built from the manifest a real UDS 6.11.0 wrote
- * (tests/fixtures/upgrade-from-6.11.0).
+ * (tests/fixtures/upgrade-from-6.11.0) minus STAND_IN_ID (tests/utils/xspec-458.js): `open-work-tracking`, the standard these tests
+ * used, stopped being a standard in dev-platform XSPEC-427.
  *
  * Wires that make these red when cut (each is one line of CLI source):
  *   cli/src/commands/update.js   const request = resolveAddStandardRequest(manifest, addStandardIds);   (the ids are judged, then handed on)
@@ -18,7 +19,7 @@ import { existsSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'fs
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { createHarness, REAL_REPO } from '../utils/staged-cli-harness.js';
-import { makeUpgradeProject, idsInAvailableSection, planCounts } from '../utils/xspec-458.js';
+import { makeUpgradeProject, idsInAvailableSection, planCounts, STAND_IN_ID, STAND_IN_FILE } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec458-r3');
 afterAll(() => h.cleanup());
@@ -31,33 +32,33 @@ const backups = (dir) => (existsSync(join(dir, '.uds-backups'))
   : 0);
 const listed = (m, id) => m.standards.some((s) => s === id || s.endsWith(`/${id}.ai.yaml`));
 
-it('uds update --add-standard open-work-tracking: --plan adds one create and writes nothing; --apply installs the file and records it in the manifest; --plan is then clean, --apply keeps it, check passes; one --rollback removes it (XSPEC-458 R3)', async () => {
+it('uds update --add-standard <a standard the project lacks>: --plan adds one create and writes nothing; --apply installs the file and records it in the manifest; --plan is then clean, --apply keeps it, check passes; one --rollback removes it (XSPEC-458 R3)', async () => {
   const dir = makeUpgradeProject(h);
-  const file = join(dir, '.standards', 'open-work-tracking.ai.yaml');
+  const file = join(dir, '.standards', STAND_IN_FILE);
   const manifestBefore = readFileSync(MANIFEST(dir));
 
   // 1. The plan with the flag has exactly one more create than the plan without it, and writes nothing.
   const without = await h.runCli(['update', '--plan', '--offline'], dir);
-  const withFlag = await h.runCli(['update', '--plan', '--offline', '--add-standard', 'open-work-tracking'], dir);
+  const withFlag = await h.runCli(['update', '--plan', '--offline', '--add-standard', STAND_IN_ID], dir);
   expect(withFlag.code, withFlag.stdout + withFlag.stderr).toBe(0);
   const a = planCounts(without.stdout);
   const b = planCounts(withFlag.stdout);
   expect(b).toEqual({ ...a, Create: a.Create + 1 });
-  expect(withFlag.stdout).toContain('+ .standards/open-work-tracking.ai.yaml');
-  expect(withFlag.stdout, 'the hint names the same flag, so "apply exactly these changes" is true').toContain('uds update --apply --add-standard open-work-tracking');
-  expect(idsInAvailableSection(withFlag.stdout), 'what was chosen is no longer "available"').not.toContain('open-work-tracking');
+  expect(withFlag.stdout).toContain(`+ .standards/${STAND_IN_FILE}`);
+  expect(withFlag.stdout, 'the hint names the same flag, so "apply exactly these changes" is true').toContain(`uds update --apply --add-standard ${STAND_IN_ID}`);
+  expect(idsInAvailableSection(withFlag.stdout), 'what was chosen is no longer "available"').not.toContain(STAND_IN_ID);
   expect(existsSync(file)).toBe(false);
   expect(readFileSync(MANIFEST(dir)).equals(manifestBefore), '--plan left the manifest byte for byte').toBe(true);
 
   // 2. --apply installs it and records it.
-  const apply = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'open-work-tracking'], dir);
+  const apply = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', STAND_IN_ID], dir);
   expect(apply.code, apply.stdout + apply.stderr).toBe(0);
   expect(apply.stdout).toContain('Reconciliation complete');
   expect(existsSync(file), 'the file is there').toBe(true);
-  expect(readFileSync(file).equals(readFileSync(join(REAL_REPO, 'ai', 'standards', 'open-work-tracking.ai.yaml'))), 'and is what UDS ships').toBe(true);
+  expect(readFileSync(file).equals(readFileSync(join(REAL_REPO, 'ai', 'standards', STAND_IN_FILE))), 'and is what UDS ships').toBe(true);
   const manifest = readManifest(dir);
-  expect(listed(manifest, 'open-work-tracking'), 'manifest.standards lists it').toBe(true);
-  expect(manifest.fileHashes['.standards/open-work-tracking.ai.yaml']?.hash, 'with the hash of the file on disk').toBe(sha(readFileSync(file)));
+  expect(listed(manifest, STAND_IN_ID), 'manifest.standards lists it').toBe(true);
+  expect(manifest.fileHashes[`.standards/${STAND_IN_FILE}`]?.hash, 'with the hash of the file on disk').toBe(sha(readFileSync(file)));
   expect(backups(dir), 'one backup was taken').toBe(1);
 
   // 3. Idempotent: a second plan has nothing to do, a second apply does not delete it, check agrees.
@@ -79,47 +80,47 @@ it('uds update --add-standard open-work-tracking: --plan adds one create and wri
   expect(existsSync(file), 'rollback removed the file').toBe(false);
   expect(readFileSync(MANIFEST(dir)).equals(manifestBefore), 'the manifest is back byte for byte as it was before --add-standard').toBe(true);
   const back = readManifest(dir);
-  expect(listed(back, 'open-work-tracking'), 'and the manifest no longer lists it').toBe(false);
+  expect(listed(back, STAND_IN_ID), 'and the manifest no longer lists it').toBe(false);
   const after = await h.runCli(['update', '--plan', '--offline'], dir);
-  expect(idsInAvailableSection(after.stdout), 'so it is available again').toContain('open-work-tracking');
+  expect(idsInAvailableSection(after.stdout), 'so it is available again').toContain(STAND_IN_ID);
 });
 
 it('uds update --apply --add-standard with a standard that is not in the manifest does not get deleted as surplus: the file survives the next --apply (XSPEC-458 R3)', async () => {
   // The failure this guards: install the file but forget the manifest. The next --apply would delete it.
   const dir = makeUpgradeProject(h);
-  const file = join(dir, '.standards', 'open-work-tracking.ai.yaml');
-  const first = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'open-work-tracking'], dir);
+  const file = join(dir, '.standards', STAND_IN_FILE);
+  const first = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', STAND_IN_ID], dir);
   expect(first.code, first.stdout + first.stderr).toBe(0);
   expect(existsSync(file)).toBe(true);
   // Make the plan large on purpose (age a file) so the second apply really runs the executor with deletes in view.
   const aged = join(dir, '.standards', 'checkin-standards.ai.yaml');
   writeFileSync(aged, '# older edition (XSPEC-458 R3 test)\n' + readFileSync(aged, 'utf-8'));
   const plan = await h.runCli(['update', '--plan', '--offline'], dir);
-  expect(plan.stdout, 'the plan never proposes to delete what was chosen').not.toMatch(/- .*open-work-tracking/);
+  expect(plan.stdout, 'the plan never proposes to delete what was chosen').not.toMatch(new RegExp(`- .*${STAND_IN_ID}`));
   const second = await h.runCli(['update', '--apply', '--yes', '--offline'], dir);
   expect(second.code, second.stdout + second.stderr).toBe(0);
   expect(existsSync(file), 'still there after a plain --apply').toBe(true);
-  expect(listed(readManifest(dir), 'open-work-tracking')).toBe(true);
+  expect(listed(readManifest(dir), STAND_IN_ID)).toBe(true);
 });
 
 it('uds update --add-standard refuses what it cannot install: an unknown id exits 1 and lists the closest ids, a language/locale entry is refused, and neither writes anything (XSPEC-458 R3)', async () => {
   const dir = makeUpgradeProject(h);
   const manifestBefore = readFileSync(MANIFEST(dir));
 
-  const unknown = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'open-work-trackng'], dir);
+  const unknown = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', `${STAND_IN_ID.slice(0, -1)}`], dir);
   expect(unknown.code, 'a typo is an error, never ignored').toBe(1);
-  expect(unknown.stdout).toContain('Unknown standard id "open-work-trackng"');
-  expect(unknown.stdout, 'it names the id that was meant').toContain('open-work-tracking');
+  expect(unknown.stdout).toContain(`Unknown standard id "${STAND_IN_ID.slice(0, -1)}"`);
+  expect(unknown.stdout, 'it names the id that was meant').toContain(STAND_IN_ID);
 
-  const unknownWithGood = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'open-work-tracking', '--add-standard', 'no-such-standard'], dir);
+  const unknownWithGood = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', STAND_IN_ID, '--add-standard', 'no-such-standard'], dir);
   expect(unknownWithGood.code, 'one bad id stops the whole run').toBe(1);
-  expect(existsSync(join(dir, '.standards', 'open-work-tracking.ai.yaml')), 'and the good one was not installed behind its back').toBe(false);
+  expect(existsSync(join(dir, '.standards', STAND_IN_FILE)), 'and the good one was not installed behind its back').toBe(false);
 
   const locale = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'zh-tw-locale'], dir);
   expect(locale.code).toBe(1);
   expect(locale.stdout).toMatch(/"zh-tw-locale" is a extension entry|"zh-tw-locale" is a .*extension.*entry/);
 
-  const noMode = await h.runCli(['update', '--offline', '--add-standard', 'open-work-tracking'], dir);
+  const noMode = await h.runCli(['update', '--offline', '--add-standard', STAND_IN_ID], dir);
   expect(noMode.code, '--add-standard without --plan/--apply would be taken and not used').toBe(1);
   expect(noMode.stdout).toContain('--add-standard needs --plan or --apply');
 
@@ -140,7 +141,7 @@ it('uds update --add-standard with an id that is already installed says so, chan
 
 it('uds update --apply --add-standard repeated, including a core standard that uds init never installs: both are installed and recorded, and one --rollback removes both (XSPEC-458 R3)', async () => {
   const dir = makeUpgradeProject(h);
-  const ids = ['open-work-tracking', 'turn-completion-integrity']; // reference + core
+  const ids = [STAND_IN_ID, 'turn-completion-integrity']; // reference + core
   const files = ids.map((id) => join(dir, '.standards', `${id}.ai.yaml`));
   const args = ['update', '--apply', '--yes', '--offline', ...ids.flatMap((id) => ['--add-standard', id])];
 

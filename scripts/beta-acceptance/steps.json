@@ -76,6 +76,10 @@
     {
       "changelog": "The Claude Code plugin will install the SKILL.md skills in 7.0",
       "reason": "An announcement of a 7.0 change; nothing in this release behaves differently, so there is no effect for a step to read back."
+    },
+    {
+      "changelog": "The XSPEC-458 tests no longer need a standard that UDS 6.11.0 lacked",
+      "reason": "Changes to the repository's own tests only (cli/tests/): which standard they stand in for, and how they count skills. Nothing of it is in the npm package, and no command a user runs behaves differently."
     }
   ],
   "steps": [
@@ -115,13 +119,18 @@
       "platform": "all",
       "id": "available-init",
       "workspace": "available",
-      "title": "uds init sets up a project (the project the next steps use)",
-      "titleZh": "uds init 建立專案（後續步驟使用）",
+      "title": "uds init sets up a project (the project the next steps use): the open-work skill is installed and the open-work-tracking standard is not",
+      "titleZh": "uds init 建立專案（後續步驟使用）：裝了 open-work 技能，沒裝 open-work-tracking 標準",
       "smoke": true,
-      "changelog": [],
+      "changelog": [
+        "open-work-tracking is no longer a standard"
+      ],
       "prepare": [
         {
           "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
         }
       ],
       "uds": [
@@ -142,99 +151,21 @@
           {
             "path": ".standards/manifest.json",
             "contains": [
+              "self-review-protocol"
+            ],
+            "notContains": [
               "open-work-tracking"
             ]
-          }
-        ]
-      }
-    },
-    {
-      "platform": "all",
-      "id": "std-open-work-states",
-      "workspace": "available",
-      "title": "The installed open-work-tracking standard defines the two waiting states and the hand-written-fact rules (OWT-020 to OWT-026)",
-      "titleZh": "安裝後的 open-work-tracking 標準含兩個等待狀態與手寫事實規則（OWT-020～OWT-026）",
-      "changelog": [
-        "open-work-tracking 1.2.0"
-      ],
-      "inspect": true,
-      "expect": {
-        "files": [
+          },
           {
             "path": ".standards/open-work-tracking.ai.yaml",
-            "contains": [
-              "id: OWT-020",
-              "id: OWT-026",
-              "not-yet-asked",
-              "asked-awaiting",
-              "observed-by"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "platform": "all",
-      "id": "std-open-work-cross-project",
-      "workspace": "available",
-      "title": "The installed open-work-tracking standard lets a wait name an object in another project (OWT-027 to OWT-029)",
-      "titleZh": "安裝後的 open-work-tracking 標準允許等待項目點名另一個專案的物件（OWT-027～OWT-029）",
-      "changelog": [
-        "open-work-tracking 1.3.0"
-      ],
-      "inspect": true,
-      "expect": {
-        "files": [
+            "exists": false
+          },
           {
-            "path": ".standards/open-work-tracking.ai.yaml",
+            "path": ".claude/skills/open-work-assistant/SKILL.md",
             "contains": [
-              "id: OWT-027",
-              "id: OWT-028",
-              "id: OWT-029"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "platform": "all",
-      "id": "std-open-work-waiting-on-reply",
-      "workspace": "available",
-      "title": "The installed open-work-tracking standard is 1.4.0 and names waiting-on-reply",
-      "titleZh": "安裝後的 open-work-tracking 標準是 1.4.0，並提到 waiting-on-reply",
-      "changelog": [
-        "open-work-tracking 1.4.0"
-      ],
-      "inspect": true,
-      "expect": {
-        "files": [
-          {
-            "path": ".standards/open-work-tracking.ai.yaml",
-            "contains": [
-              "version: \"1.4.0\"",
-              "waiting-on-reply"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "platform": "all",
-      "id": "std-open-work-summary",
-      "workspace": "available",
-      "title": "The installed open-work-tracking standard explains who produces the OWT-007 summary",
-      "titleZh": "安裝後的 open-work-tracking 標準說明 OWT-007 摘要由誰產生",
-      "changelog": [
-        "open-work-tracking explains that the OWT-007 summary"
-      ],
-      "inspect": true,
-      "expect": {
-        "files": [
-          {
-            "path": ".standards/open-work-tracking.ai.yaml",
-            "contains": [
-              "expensive_way",
-              "honest_note"
+              "name: open-work",
+              "## Workflow"
             ]
           }
         ]
@@ -256,7 +187,7 @@
             "path": ".standards/developer-memory.ai.yaml",
             "contains": [
               "boundary:",
-              "belongs_in: \"open-work-tracking",
+              "belongs_in: \"選用技能 /open-work",
               "version: \"1.2.1\""
             ]
           },
@@ -264,7 +195,7 @@
             "path": ".standards/project-context-memory.ai.yaml",
             "contains": [
               "boundary:",
-              "belongs_in: \"open-work-tracking",
+              "belongs_in: \"選用技能 /open-work",
               "version: \"1.2.1\""
             ]
           }
@@ -341,7 +272,7 @@
       ],
       "prepare": [
         {
-          "forgetStandard": "open-work-tracking"
+          "forgetStandard": "self-review-protocol"
         }
       ],
       "uds": [
@@ -371,7 +302,7 @@
       "expect": {
         "contains": [
           "[LOW] 1 available standard(s) not installed",
-          "open-work-tracking"
+          "self-review-protocol"
         ]
       }
     },
@@ -414,7 +345,7 @@
       "expect": {
         "contains": [
           "Available upstream, not installed (1)",
-          "open-work-tracking",
+          "self-review-protocol",
           "uds update --apply --add-standard <id>"
         ]
       }
@@ -458,7 +389,7 @@
         "--yes",
         "--offline",
         "--add-standard",
-        "open-work-tracking"
+        "self-review-protocol"
       ],
       "expect": {
         "contains": [
@@ -466,15 +397,15 @@
         ],
         "files": [
           {
-            "path": ".standards/open-work-tracking.ai.yaml",
+            "path": ".standards/self-review-protocol.ai.yaml",
             "contains": [
-              "id: OWT-020"
+              "id: self-review-protocol"
             ]
           },
           {
             "path": ".standards/manifest.json",
             "contains": [
-              "open-work-tracking.ai.yaml"
+              "self-review-protocol.ai.yaml"
             ]
           }
         ]
@@ -521,7 +452,7 @@
         ],
         "files": [
           {
-            "path": ".standards/open-work-tracking.ai.yaml",
+            "path": ".standards/self-review-protocol.ai.yaml",
             "exists": false
           }
         ]
@@ -604,7 +535,7 @@
       ],
       "prepare": [
         {
-          "forgetStandard": "open-work-tracking"
+          "forgetStandard": "self-review-protocol"
         },
         {
           "setManifest": {
@@ -7568,7 +7499,7 @@
       "smoke": true,
       "prepare": [
         {
-          "forgetStandard": "open-work-tracking"
+          "forgetStandard": "self-review-protocol"
         }
       ],
       "uds": [
@@ -7590,7 +7521,7 @@
               "UDS:STANDARDS:START"
             ],
             "notContains": [
-              "open-work-tracking"
+              "self-review-protocol"
             ]
           }
         ]
@@ -11861,6 +11792,173 @@
             ],
             "notContains": [
               "local change: kept in the backup"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "retired-standard-init",
+      "workspace": "retired-standard",
+      "title": "A project that still holds the open-work-tracking standard (an older UDS installed it): set it up",
+      "titleZh": "仍持有 open-work-tracking 標準的專案（舊版 UDS 裝的）：先建立",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "self-review-protocol"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "retired-standard-apply-removes-it",
+      "workspace": "retired-standard",
+      "title": "uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md",
+      "titleZh": "uds update --apply 移除 open-work-tracking 檔案、裝上 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字",
+      "changelog": [
+        "open-work-tracking is no longer a standard",
+        "uds update --apply no longer leaves the name of a standard"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".standards/open-work-tracking.ai.yaml",
+          "content": "# Open Work Tracking Standard - AI Optimized (as an older UDS wrote it)\nstandard:\n  id: open-work-tracking\n"
+        },
+        {
+          "manifestPush": {
+            "standards": [
+              "open-work-tracking"
+            ]
+          }
+        },
+        {
+          "removeFile": ".claude/skills/open-work-assistant"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "UDS no longer ships this file",
+          "Reconciliation complete"
+        ],
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "self-review-protocol"
+            ],
+            "notContains": [
+              "open-work-tracking"
+            ]
+          },
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ],
+            "notContains": [
+              "open-work-tracking",
+              "could not be matched to an installed file"
+            ]
+          },
+          {
+            "path": ".claude/skills/open-work-assistant/SKILL.md",
+            "contains": [
+              "name: open-work"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "retired-standard-check-clean",
+      "workspace": "retired-standard",
+      "title": "uds check then has nothing to warn about: no entry that matches no installed standard",
+      "titleZh": "之後 uds check 沒有任何警告：沒有對不到已裝標準的條目",
+      "changelog": [
+        "uds update --apply no longer leaves the name of a standard"
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Project is compliant with standards"
+        ],
+        "notContains": [
+          "Manifest entries that match no installed standard"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "retired-standard-rollback-restores-it",
+      "workspace": "retired-standard",
+      "title": "uds update --rollback brings the open-work-tracking file and its manifest entry back",
+      "titleZh": "uds update --rollback 把 open-work-tracking 檔案與 manifest 條目放回去",
+      "changelog": [
+        "open-work-tracking is no longer a standard"
+      ],
+      "uds": [
+        "update",
+        "--rollback",
+        "--yes"
+      ],
+      "expect": {
+        "contains": [
+          "Rollback successful"
+        ],
+        "files": [
+          {
+            "path": ".standards/open-work-tracking.ai.yaml",
+            "contains": [
+              "id: open-work-tracking"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "open-work-tracking"
             ]
           }
         ]

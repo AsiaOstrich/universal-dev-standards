@@ -5,6 +5,8 @@
  * `uds update` path had its own list of "new standards" (the `checkNewStandards` function); the reconciler path
  * (`--plan` / `--apply`) had none. R1 puts one definition in `src/utils/available-standards.js` and makes every
  * command ask it.
+ * (`open-work-tracking` has since stopped being a standard, dev-platform XSPEC-427, so the tests build the old project
+ * WITHOUT `STAND_IN_ID` from tests/utils/xspec-458.js and use that standard where this text names it.)
  *
  * Every test spawns the real CLI in a throwaway project built from the manifest a real UDS 6.11.0 wrote
  * (tests/fixtures/upgrade-from-6.11.0) and reads what the CLI printed. The expected list is worked out in the
@@ -20,7 +22,7 @@ import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join, basename } from 'path';
 import { createHarness, REAL_REPO, REAL_CLI_DIR } from '../utils/staged-cli-harness.js';
 import {
-  makeUpgradeProject, readFixtureManifest, expectedAvailableIds, expectedOtherCategoryCount, idsInAvailableSection
+  makeUpgradeProject, upgradeProjectManifest, STAND_IN_ID, expectedAvailableIds, expectedOtherCategoryCount, idsInAvailableSection
 } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec458-r1');
@@ -47,9 +49,9 @@ function idsOnOlderPath(stdout) {
 
 it('uds update lists the same available standards on the older path and in --plan, equal to the registry-derived list, and manifest level/profile/contentMode change nothing (XSPEC-458 R1)', async () => {
   const dir = makeUpgradeProject(h);
-  const manifest = readFixtureManifest();
+  const manifest = upgradeProjectManifest();
   const expected = expectedAvailableIds(manifest);
-  expect(expected, 'control: the 6.11.0 project lacks open-work-tracking').toContain('open-work-tracking');
+  expect(expected, `control: the 6.11.0 project lacks ${STAND_IN_ID}`).toContain(STAND_IN_ID);
   expect(expected, 'control: and has deferred-item-exit').not.toContain('deferred-item-exit');
 
   // The older path prints its list and then refuses to write without --yes (nothing is attached to answer).

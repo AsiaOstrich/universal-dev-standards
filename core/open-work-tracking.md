@@ -1,5 +1,18 @@
 # Open Work Tracking Standard
 
+<!-- UDS:REFERENCE-ONLY -->
+> **Reference only — UDS no longer installs this standard.** Its machine-readable
+> `.ai.yaml` and its registry entry were removed. It was calibrated on one project,
+> and that project's own use did not confirm it, so it is no longer something every
+> adopter follows. The document is kept for adopters who already built on it, and is
+> **not distributed by `uds init` or `uds update`**. What was worth keeping is now the
+> **optional skill** [`/open-work`](../skills/open-work-assistant/SKILL.md): use it when
+> you want it, nothing requires it. The reference checks remain available as
+> `uds open-work`. A copy already installed in your `.standards/` is removed by
+> `uds update --apply` (the plan lists it under Delete, and a backup is taken first). The list this notice is checked against is
+> [`scripts/reference-only-standards.json`](../scripts/reference-only-standards.json);
+> the change is recorded in the [CHANGELOG](../CHANGELOG.md) (Unreleased).
+
 > **Language**: English | [繁體中文](../locales/zh-TW/core/open-work-tracking.md)
 
 **Version**: 1.4.0

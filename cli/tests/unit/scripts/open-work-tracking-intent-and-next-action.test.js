@@ -25,7 +25,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { spawnSync, execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -539,55 +539,55 @@ describe('OWT-015: the checks have been observed red', () => {
 
 // ── the standard itself, in each place it lives ─────────────────────────────
 
-describe('open-work-tracking 1.4.0 reads the same everywhere', () => {
+// Since the downgrade to the optional skill `open-work` (dev-platform XSPEC-427) the standard lives in two places only, the English
+// reference document and its zh-TW translation; the .ai.yaml, the registry entry and the self-adoption copy are gone (read back below).
+describe('open-work-tracking 1.4.0 reads the same in the reference document and its translation', () => {
   const read = (rel) => readFileSync(join(REPO_ROOT, rel), 'utf8');
   const core = read('core/open-work-tracking.md');
   const zh = read('locales/zh-TW/core/open-work-tracking.md');
-  const ai = read('ai/standards/open-work-tracking.ai.yaml');
 
-  it.each(['OWT-017', 'OWT-018', 'OWT-019', 'OWT-020', 'OWT-021', 'OWT-022', 'OWT-023', 'OWT-024', 'OWT-025', 'OWT-026'])('%s is a numbered requirement in the standard, its zh-TW translation and the .ai.yaml', (id) => {
-    expect(core).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
-    expect(zh).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
-    expect(ai).toMatch(new RegExp(`- id: ${id}\\n`));
+  it('has no .ai.yaml, registry entry or self-adoption copy any more', () => {
+    expect(existsSync(join(REPO_ROOT, 'ai/standards/open-work-tracking.ai.yaml'))).toBe(false);
+    expect(existsSync(join(REPO_ROOT, '.standards/open-work-tracking.ai.yaml'))).toBe(false);
+    expect(JSON.parse(read('cli/standards-registry.json')).standards.find((s) => s.id === 'open-work-tracking')).toBeUndefined();
   });
 
-  it('carries version 1.4.0 in all three, and the self-adoption copy is byte-identical', () => {
+  it.each(['OWT-017', 'OWT-018', 'OWT-019', 'OWT-020', 'OWT-021', 'OWT-022', 'OWT-023', 'OWT-024', 'OWT-025', 'OWT-026'])('%s is a numbered requirement in the standard and its zh-TW translation', (id) => {
+    expect(core).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
+    expect(zh).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|`));
+  });
+
+  it('carries version 1.4.0 in both', () => {
     expect(core).toMatch(/\*\*Version\*\*: 1\.4\.0/);
     expect(zh).toMatch(/source_version: 1\.4\.0/);
     expect(zh).toMatch(/translation_version: 1\.4\.0/);
-    expect(ai).toMatch(/version: "1\.4\.0"/);
-    expect(read('.standards/open-work-tracking.ai.yaml')).toBe(ai);
   });
 
   it('gives each new requirement a severity with a stated reason', () => {
-    expect(ai).toMatch(/id: OWT-017\n\s+rule: .*\n\s+severity: warning\n\s+severity_rationale:/);
-    expect(ai).toMatch(/id: OWT-018\n\s+rule: .*\n\s+severity: error\n\s+severity_rationale:/);
-    expect(ai).toMatch(/id: OWT-019\n\s+rule: .*\n\s+severity: warning\n\s+severity_rationale:/);
+    expect(core).toMatch(/\*\*OWT-017\*\* \|.*\| warning \|/);
+    expect(core).toMatch(/\*\*OWT-018\*\* \|.*\| error \|/);
+    expect(core).toMatch(/\*\*OWT-019\*\* \|.*\| warning \|/);
     expect(core).toMatch(/Why these severities/);
   });
 
   it('gives each 1.2.0 requirement the severity warning, says the vocabulary is uncalibrated, and says the commands exit 1 on a warning', () => {
     for (const id of ['OWT-020', 'OWT-021', 'OWT-022', 'OWT-023', 'OWT-024', 'OWT-025', 'OWT-026']) {
-      expect(ai, id).toMatch(new RegExp(`id: ${id}\\n\\s+rule: .*\\n\\s+severity: warning\\n\\s+severity_rationale:`));
       expect(core, id).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|.*\\| warning \\|`));
       expect(zh, id).toMatch(new RegExp(`\\*\\*${id}\\*\\* \\|.*\\| warning \\|`));
     }
     expect(core).toMatch(/Why these severities \(1\.2\.0\)/);
     expect(core).toMatch(/exit 1 on any violation, `warning` included/);
-    expect(ai).toMatch(/added_in_1_2_0:[\s\S]*uncalibrated_per_owt_016/);
   });
 
   it('1.2.0 rewrites the hand-written-state row instead of dropping it: the exception is named with its three conditions', () => {
     expect(core).toMatch(/hand-written state file as the source of truth for any state a reliable source already determines/);
     expect(core).toMatch(/Since 1\.2\.0 there is one narrow exception \(OWT-023–OWT-026\)/);
     expect(zh).toMatch(/自 1\.2\.0 起有一個窄例外（OWT-023–OWT-026）/);
-    expect(ai).toMatch(/自 1\.2\.0 起有一個窄例外/);
   });
 
   it('says in plain words that a check cannot decide whether an observation is true', () => {
     expect(core).toMatch(/cannot decide that `observed-by` names the person who actually looked, or that the value is true/);
     expect(zh).toMatch(/判定不了 `observed-by` 填的是不是真的去看過的人/);
-    expect(ai).toMatch(/not_decidable_by_a_check:.*observed-by/);
   });
 
   it('records what it does not adopt, and the provenance of the prompt it borrowed shapes from', () => {
@@ -595,22 +595,18 @@ describe('open-work-tracking 1.4.0 reads the same everywhere', () => {
     expect(core).toMatch(/fixed start-of-work ritual/i);
     expect(core).toMatch(/author and provenance are unknown/);
     expect(zh).toMatch(/作者與出處不明/);
-    expect(ai).toMatch(/作者與出處不明/);
   });
 
   it('marks the reference check as evidence, not a gate, and its vocabulary as uncalibrated (OWT-016)', () => {
     expect(core).toMatch(/reference decision procedure/);
     expect(core).toMatch(/not wired into any UDS release gate/);
     expect(core).toMatch(/uncalibrated, an initial judgment/);
-    expect(ai).toMatch(/automated_gate: false/);
-    expect(ai).toMatch(/uncalibrated_per_owt_016/);
   });
 
-  it('names no vendor model id in the standard body or the .ai.yaml', () => {
+  it('names no vendor model id in the standard body', () => {
     const vendor = /claude-(?:opus|sonnet|haiku)-\d|gpt-\d|gemini-\d|\bo[1-9]-(?:mini|preview)\b/i;
     expect(core).not.toMatch(vendor);
     expect(zh).not.toMatch(vendor);
-    expect(ai).not.toMatch(vendor);
   });
 
   it('the zh-TW source_hash is the current hash of the English source (translation is not stale)', () => {
