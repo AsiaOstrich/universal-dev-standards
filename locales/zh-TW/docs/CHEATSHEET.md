@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-10-13
+> Quick reference for all UDS features | Last updated: 2026-10-30
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -356,6 +356,7 @@
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ- |
 | `check-home-untouched.mjs` | check-home-untouched — did this run write anywhere |
+| `check-hook-entry-tests.mjs` | / |
 | `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 to |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
@@ -386,6 +387,7 @@
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
 | `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate  |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGE |
+| `generate-hook-fingerprints.mjs` | Generate the table of hook script contents UDS has |
 | `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |

@@ -30,6 +30,10 @@
 //
 // Node built-ins only (CI jobs that run root scripts install no packages).
 
+/**
+ * Generate the table of hook script contents UDS has shipped (for telling an old UDS copy from an edit).
+ */
+
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir, devNull } from 'node:os';

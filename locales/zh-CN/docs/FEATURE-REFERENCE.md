@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-10-13
+> Auto-generated | Last updated: 2026-10-30
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (153)
-7. [脚本](#scripts) (66)
+7. [脚本](#scripts) (68)
 
-**Total Features: 360**
+**Total Features: 362**
 
 ---
 
@@ -520,7 +520,7 @@
 | `license-compliance` | 2.1.0 | **Status**: Active | **Updated**: 2026-05-16 |  |
 | `llm-output-validation` | - |  |
 | `logging-standards` | 1.4.0 |  |
-| `mock-boundary` | 1.1.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
+| `mock-boundary` | 1.3.0 | This document defines rules for what can and cannot be mocked in tests. Its goal |
 | `model-provenance` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `model-selection` | 2.1.0 | Define how to choose **which model** and **how deeply it should think** — two in |
 | `multi-environment-e2e-testing` | 1.0.0 | **Status**: Active | **Updated**: 2026-05-13 |  |
@@ -585,7 +585,7 @@
 | `timeout-standards` | - |  |
 | `token-budget` | - |  |
 | `translation-lifecycle-standards` | 1.0.1 | Translation lifecycle standards: MISSING vs OUTDATED distinction, semver-aware s |
-| `turn-completion-integrity` | 1.5.0 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
+| `turn-completion-integrity` | 1.5.1 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
@@ -623,6 +623,7 @@
 | `check-error-exit.mjs` | 🔴 沒填就是沒設定，而沒設定會 exit 2， |
 | `check-external-references.mjs` | External Reference Checker (SPEC-SELFDIAG-001 REQ-5, AC-7) |
 | `check-home-untouched.mjs` | check-home-untouched — did this run write anywhere UDS writes under HOME? |
+| `check-hook-entry-tests.mjs` | / |
 | `check-open-work-tracking.mjs` | Open-work-tracking reference checks for OWT-017 to OWT-028 — repo entry point. |
 | `check-orphan-specs.ps1` | Check Orphan Specs |
 | `check-orphan-specs.sh` | Orphan Spec Detection Script |
@@ -653,6 +654,7 @@
 | `fix-manifest-paths.sh` | Manifest Path Fixer |
 | `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate — XSPEC-385 |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGELOG.md's own |
+| `generate-hook-fingerprints.mjs` | Generate the table of hook script contents UDS has shipped (for telling an old UDS copy from an edit). |
 | `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |
