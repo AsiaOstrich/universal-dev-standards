@@ -30,6 +30,7 @@ import {
 import { createHash } from 'crypto';
 import { tmpdir } from 'os';
 import { join, resolve, relative, dirname, isAbsolute } from 'path';
+import { pathToFileURL } from 'url';
 import { isolatedEnv } from '../../../../scripts/lib/isolated-home.mjs';
 
 const REAL_CLI_DIR = resolve(import.meta.dirname, '../../..');
@@ -417,7 +418,7 @@ describe('the legacy branch of installSkills() (updateTargets without installati
     const project = newProject('project-legacy');
     const root = join(sandbox, 'staged-new');
     const r = await runScript(root, `
-      import { installSkills } from ${JSON.stringify(join(root, 'cli', 'src', 'installers', 'skills-installer.js'))};
+      import { installSkills } from ${JSON.stringify(pathToFileURL(join(root, 'cli', 'src', 'installers', 'skills-installer.js')).href)};
       const results = { skills: [], errors: [], skillHashes: {}, commands: [], commandHashes: {} };
       const messages = {
         installingSkills: 'installing', installedSkills: 'installed {count} to {locations}',
@@ -441,7 +442,7 @@ describe('the self-adoption copies in the UDS repo are what the installer produc
   it.each([['.claude/skills'], ['.agents/skills']])('%s equals resolveSkillFiles(zh-TW) file by file', async (dir) => {
     const root = join(sandbox, 'staged-new');
     const r = await runScript(root, `
-      import { resolveSkillFiles, getAvailableSkillNames } from ${JSON.stringify(join(root, 'cli', 'src', 'utils', 'skills-installer.js'))};
+      import { resolveSkillFiles, getAvailableSkillNames } from ${JSON.stringify(pathToFileURL(join(root, 'cli', 'src', 'utils', 'skills-installer.js')).href)};
       const out = {};
       for (const name of getAvailableSkillNames()) {
         for (const f of resolveSkillFiles(name, 'zh-TW').files) out[name + '/' + f.name] = f.content;
