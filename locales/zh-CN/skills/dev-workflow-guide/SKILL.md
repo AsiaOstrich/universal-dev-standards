@@ -3,7 +3,7 @@ source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
 last_synced: 2026-08-17
-source_hash: f90f1fe1f6f2
+source_hash: 66f5ad727df3
 status: current
 description: |
   [UDS] 把目前的软件开发阶段对应到正确的 UDS 命令与 Skill。
@@ -14,7 +14,7 @@ description: |
 
 # 开发工作流程指南
 
-> **语言**: [English](../../../../skills/dev-workflow-guide/SKILL.md) | 简体中文
+> **语言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-workflow-guide/SKILL.md) | 简体中文
 
 将你目前的软件开发阶段对应到正确的 UDS 命令与技能。即时了解在开发的每个阶段应该使用哪些工具。
 
@@ -165,7 +165,7 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 2. **阶段参数**：显示该阶段的详细指引，包含所有相关命令与示例
 3. **场景参数**：显示该场景的推荐逐步工作流程
 
-此技能会从 [workflow-phases.md](../../../../skills/dev-workflow-guide/workflow-phases.md) 读取详细的阶段信息。
+此技能会从 [workflow-phases.md](./workflow-phases.md) 读取详细的阶段信息。
 
 ## 下一步引导
 
@@ -182,10 +182,10 @@ V. Release ──► VI. Documentation ──► VII. Standards ──► VIII. 
 
 ## 参考
 
-- [详细阶段指南](../../../../skills/dev-workflow-guide/workflow-phases.md) - 完整的逐阶段参考
-- [日常工作流程指南](../../../../adoption/DAILY-WORKFLOW-GUIDE.md) - 综合日常工作流程指南
-- [功能开发工作流程](../../../../skills/workflows/feature-dev.workflow.yaml) - 自动化功能开发工作流程
-- [集成流程工作流程](../../../../skills/workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
+- [详细阶段指南](./workflow-phases.md) - 完整的逐阶段参考
+- [日常工作流程指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/DAILY-WORKFLOW-GUIDE.md) - 综合日常工作流程指南
+- [功能开发工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/feature-dev.workflow.yaml) - 自动化功能开发工作流程
+- [集成流程工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
 
 ---
 

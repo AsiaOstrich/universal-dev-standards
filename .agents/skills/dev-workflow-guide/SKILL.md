@@ -4,7 +4,7 @@ source: ../../../../skills/dev-workflow-guide/SKILL.md
 source_version: 1.0.0
 translation_version: 1.1.0
 last_synced: 2026-08-17
-source_hash: f90f1fe1f6f2
+source_hash: 66f5ad727df3
 status: current
 description: |
   [UDS] 把目前的軟體開發階段對應到正確的 UDS 指令與 Skill。
@@ -18,7 +18,7 @@ argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 
 # 開發工作流程指南
 
-> **語言**: [English](../../../../skills/dev-workflow-guide/SKILL.md) | 繁體中文
+> **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/dev-workflow-guide/SKILL.md) | 繁體中文
 
 將你目前的軟體開發階段對應到正確的 UDS 指令與技能。即時了解在開發的每個階段應該使用哪些工具。
 
@@ -169,7 +169,7 @@ API 設計與實作的推薦流程：
 2. **階段參數**：顯示該階段的詳細指引，包含所有相關指令與範例
 3. **場景參數**：顯示該場景的推薦逐步工作流程
 
-此技能會從 [workflow-phases.md](../../../../skills/dev-workflow-guide/workflow-phases.md) 讀取詳細的階段資訊。
+此技能會從 [workflow-phases.md](./workflow-phases.md) 讀取詳細的階段資訊。
 
 ## 下一步引導
 
@@ -186,10 +186,10 @@ API 設計與實作的推薦流程：
 
 ## 參考
 
-- [詳細階段指引](../../../../skills/dev-workflow-guide/workflow-phases.md) - 完整的逐階段參考
-- [每日工作流程指南](../../adoption/DAILY-WORKFLOW-GUIDE.md) - 完整的每日工作流程指南
-- [功能開發工作流程](../../../../skills/workflows/feature-dev.workflow.yaml) - 自動化功能開發工作流程
-- [整合流程工作流程](../../../../skills/workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
+- [詳細階段指引](./workflow-phases.md) - 完整的逐階段參考
+- [每日工作流程指南](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/DAILY-WORKFLOW-GUIDE.md) - 完整的每日工作流程指南
+- [功能開發工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/feature-dev.workflow.yaml) - 自動化功能開發工作流程
+- [整合流程工作流程](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/integrated-flow.workflow.yaml) - 完整的 ATDD/SDD/BDD/TDD 工作流程
 
 ---
 

@@ -12,7 +12,7 @@ argument-hint: "[phase name | scenario | 階段名稱 | 場景]"
 
 # Development Workflow Guide | 開發工作流程指南
 
-> **Language**: English | [繁體中文](../../locales/zh-TW/skills/dev-workflow-guide/SKILL.md)
+> **Language**: English | [繁體中文](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/skills/dev-workflow-guide/SKILL.md)
 
 Map your current software development phase to the right UDS commands and skills. Get instant guidance on which tools to use at each stage of development.
 
@@ -201,9 +201,9 @@ After `/dev-workflow` completes, the AI assistant should suggest based on user's
 ## References | 參考
 
 - [Detailed Phase Guide](./workflow-phases.md) - Complete phase-by-phase reference
-- [Daily Workflow Guide](../../adoption/DAILY-WORKFLOW-GUIDE.md) - Comprehensive daily workflow guide
-- [Feature Development Workflow](../workflows/feature-dev.workflow.yaml) - Automated feature dev workflow
-- [Integrated Flow Workflow](../workflows/integrated-flow.workflow.yaml) - Full ATDD/SDD/BDD/TDD workflow
+- [Daily Workflow Guide](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/adoption/DAILY-WORKFLOW-GUIDE.md) - Comprehensive daily workflow guide
+- [Feature Development Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/feature-dev.workflow.yaml) - Automated feature dev workflow
+- [Integrated Flow Workflow](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/workflows/integrated-flow.workflow.yaml) - Full ATDD/SDD/BDD/TDD workflow
 
 ---
 
