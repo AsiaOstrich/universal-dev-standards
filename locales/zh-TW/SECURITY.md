@@ -3,7 +3,7 @@ source: ../../SECURITY.md
 source_version: 1.0.0
 translation_version: 1.0.0
 last_synced: 2026-10-15
-source_hash: 352db63aa759
+source_hash: c59c8f74b4aa
 status: current
 ---
 
@@ -14,8 +14,7 @@ status: current
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | 版本 | 支援狀態 |
 |------|--------|
-| 6.14.1-beta.2 | ✅ 預發布版本 |
-| 6.14.0 | ✅ 最新正式版 |
+| 6.14.1 | ✅ 最新正式版 |
 | < 6.0.0 | ❌ 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->
 

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.14.1] - 2026-10-30
+
+> **Stable Release**: everything in 6.14.1-beta.1 and beta.2 below, with no change since beta.2. beta.2 was accepted on Windows, macOS and Linux (post-publish acceptance, 0 failed). **Security fix:** the dangerous-command hook now blocks; a project that already has the hook gets the fixed script from `uds update --with-hooks` (beta.2).
+
 ## [6.14.1-beta.2] - 2026-10-30
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). **One fix on top of 6.14.1-beta.1:** `uds update --with-hooks` now replaces a hook script that an older UDS installed and nobody edited, also when the hook is already set up. A project that has the dangerous-command hook therefore gets the version that blocks; beta.1 left the old copy, which never blocks, and told you to copy the file by hand. Contains everything in 6.14.1-beta.1 below.

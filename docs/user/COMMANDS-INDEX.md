@@ -2,7 +2,7 @@
 
 > **Auto-generated** — do not edit manually.
 > Run `npm run docs:generate-index` to update.
-> Last regenerated: 2026-10-29 | UDS v6.14.1-beta.2 | 51 commands
+> Last regenerated: 2026-10-30 | UDS v6.14.1 | 51 commands
 
 Type any command in Claude Code to run it. Commands not visible in the menu are
 still callable — Claude Code loads them on demand. Each row is generated from a

@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.14.1-beta.2
-translation_version: 6.14.1-beta.2
-last_synced: 2026-10-29
-source_hash: 5dcc2a09effc
+source_version: 6.14.1
+translation_version: 6.14.1
+last_synced: 2026-10-30
+source_hash: 27f3513bc034
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.14.1] - 2026-10-30
+
+> **正式版發布**：包含下方 6.14.1-beta.1 與 beta.2 的所有內容，beta.2 之後沒有任何變更。beta.2 已在 Windows、macOS、Linux 完成發布後驗收（0 項失敗）。**安全修正：**危險指令 hook 現在會真的擋下；已經裝過 hook 的專案執行 `uds update --with-hooks` 即可換上修好的腳本（beta.2）。
 
 ## [6.14.1-beta.2] - 2026-10-30
 
