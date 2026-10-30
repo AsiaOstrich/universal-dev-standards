@@ -385,7 +385,8 @@ export function dropRetiredStandardEntries(manifest, deletedPath) {
     if (typeof entry !== 'string') return false;
     const normalized = entry.replace(/\\/g, '/');
     const isThatPath = normalized.split('/').pop() === fileName;
-    const isThatId = !normalized.includes('/') && !normalized.includes('.') && `${normalized}.ai.yaml` === fileName;
+    // the bare id the file is named after: x.ai.yaml (format ai) and x.md (format human) are both "x"
+    const isThatId = !normalized.includes('/') && !normalized.includes('.') && normalized === fileName.replace(/\.ai\.yaml$|\.md$/, '');
     return isThatPath || isThatId;
   };
   const dropped = manifest.standards.filter(names);

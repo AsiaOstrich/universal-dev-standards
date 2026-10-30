@@ -34,6 +34,12 @@ describe('dropRetiredStandardEntries', () => {
     expect(manifest.integrationConfigs['CLAUDE.md'].installedStandards).toEqual(['ai/standards/other.ai.yaml']);
   });
 
+  it('reads the id of a human-format project too: deleting x.md drops the id x (a --format human adopter must not keep the ghost)', () => {
+    const manifest = { standards: ['a-standard-uds-retired', 'core/a-standard-uds-retired.md', 'keep'] };
+    expect(dropRetiredStandardEntries(manifest, '.standards/a-standard-uds-retired.md')).toEqual(['a-standard-uds-retired', 'core/a-standard-uds-retired.md']);
+    expect(manifest.standards).toEqual(['keep']);
+  });
+
   it('reads a Windows path the same way', () => {
     const manifest = { standards: ['a-standard-uds-retired', 'keep'] };
     expect(dropRetiredStandardEntries(manifest, `.standards\\${RETIRED}`)).toEqual(['a-standard-uds-retired']);
