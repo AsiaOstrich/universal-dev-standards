@@ -256,7 +256,7 @@ describe('the link checker can fail (control)', () => {
 
   it('the installs before this change really had the problem: most links of a no-rewrite install open nothing', () => {
     expect(upgrade.init.code, upgrade.init.out).toBe(0);
-    // 520 dead links measured when this was written; far above the 19 designed exceptions.
+    // About 450 dead links per locale were measured when this was written; far above the one designed exception.
     expect(upgrade.beforeScan.unopenable.length).toBeGreaterThan(300);
     expect(upgrade.beforeScan.githubAddresses).toBeLessThan(40);
   });
@@ -274,7 +274,7 @@ describe('uds init: every relative link in every installed skill lands on a file
     const scan = scanInstalled(skillsDir, project);
     // The checker saw the links that stayed relative (siblings, own files) ...
     expect(scan.relativeChecked).toBeGreaterThan(120);
-    // ... and the links that were rewritten (en measured 405, zh-TW 600+) ...
+    // ... and the links that were rewritten (measured: en 459, zh-TW 449, zh-CN 472) ...
     expect(scan.githubAddresses).toBeGreaterThan(350);
     // ... and the only ones that do not open are the designed exceptions, exactly.
     expect(scan.unopenable).toEqual(KNOWN_UNOPENABLE);
