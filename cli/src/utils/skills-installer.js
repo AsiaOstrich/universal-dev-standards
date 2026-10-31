@@ -768,10 +768,17 @@ export async function installCommandsForAgent(agent, level = 'project', commandN
  */
 export function resolveCommandContent(cmdName, agent, locale = 'en') {
   let sourcePath = join(COMMANDS_LOCAL_DIR, `${cmdName}.md`);
+  // Where the source file sits in the UDS repo: the relative links inside it were written against that place.
+  let repoPath = `skills/commands/${cmdName}.md`;
 
   if (isLocalizedLocale(locale)) {
-    const localizedPath = join(getLocalizedCommandsSourceDir(locale), `${cmdName}.md`);
-    if (existsSync(localizedPath)) sourcePath = localizedPath;
+    const localizedDir = getLocalizedCommandsSourceDir(locale);
+    const localizedPath = join(localizedDir, `${cmdName}.md`);
+    if (existsSync(localizedPath)) {
+      sourcePath = localizedPath;
+      // .../locales/<locale>/skills/commands -> <locale>
+      repoPath = `locales/${basename(dirname(dirname(localizedDir)))}/skills/commands/${cmdName}.md`;
+    }
     // else: fall back to English source
   }
 
@@ -780,13 +787,45 @@ export function resolveCommandContent(cmdName, agent, locale = 'en') {
   }
 
   try {
+    // Links that point out of the install become GitHub addresses BEFORE the per-agent conversion, so the Gemini
+    // TOML wraps the finished text and every agent gets the same links. Done here, in the one function the
+    // installer writes from, the planner hashes and `uds check` compares against. (dev-platform #62)
+    const rewritten = rewriteCommandLinks(readFileSync(sourcePath, 'utf-8'), agent, repoPath); // wire:command-links-rewritten
     return {
-      content: transformCommandForAgent(readFileSync(sourcePath, 'utf-8'), cmdName, agent),
+      content: transformCommandForAgent(rewritten, cmdName, agent),
       error: null
     };
   } catch (error) {
     return { content: null, error: error.message };
   }
+}
+
+/**
+ * The commands this install puts in a commands folder, by file name as installed. Commands are installed flat
+ * (`<commands folder>/<name><ext>`), every available command for every agent (the English list; a locale without a
+ * translation of one falls back to English for that file). Gemini CLI's files are `.toml`, so no `.md` name is among them.
+ *
+ * @param {string} agent
+ * @returns {Set<string>}
+ */
+function installedCommandFileNames(agent) {
+  const ext = getCommandFileExtension(agent);
+  return new Set(getAvailableCommandNames().map((name) => `${name}${ext}`));
+}
+
+/**
+ * `rewriteOutsideLinks` for one command file. A command sits in `<agent commands folder>/`, next to the other
+ * commands and nothing else (no `core/`, no skill folders; the skills folder is a different, optional install).
+ * A link to another command's `.md` file stays relative when this agent's files are `.md`; everything else that
+ * leaves the file becomes the GitHub address of what the author meant.
+ */
+function rewriteCommandLinks(text, agent, repoPath) {
+  const installedNames = installedCommandFileNames(agent);
+  return rewriteOutsideLinks(text, {
+    sourcePath: repoPath,
+    isInstalledLink: (installedPath) => installedNames.has(installedPath), // flat folder: a bare file name only
+    repoPathExists: udsRepoPathExists
+  }).text;
 }
 
 /**

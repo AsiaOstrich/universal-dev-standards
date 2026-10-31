@@ -183,3 +183,58 @@ describe('rewriteOutsideLinks: what counts as a link', () => {
     expect(rewriteOutsideLinks(once, ctx()).text).toBe(once);
   });
 });
+
+// Slash commands (dev-platform #62): installed flat in one folder, no skill folder. The caller answers "does the
+// install put a file there?" with `isInstalledLink` instead of the skill pair.
+describe('rewriteOutsideLinks with isInstalledLink (flat command folder)', () => {
+  const COMMANDS = new Set(['alpha.md', 'beta.md']);
+  const commandCtx = (overrides = {}) => ({
+    sourcePath: 'skills/commands/alpha.md',
+    isInstalledLink: (installedPath) => COMMANDS.has(installedPath),
+    repoPathExists: (p) => (REPO.has(p) ? true : (p.startsWith('docs/') ? undefined : false)),
+    ...overrides
+  });
+
+  it('keeps a link to another installed command, with or without ./ and with an anchor', () => {
+    const text = '[a](./beta.md) [b](beta.md#top) [c](./alpha.md)';
+    const r = rewriteOutsideLinks(text, commandCtx());
+    expect(r.text).toBe(text);
+    expect(r.kept).toEqual(['./beta.md', 'beta.md#top', './alpha.md']);
+  });
+
+  it('turns a link out of the commands folder into the GitHub address of the file it meant', () => {
+    const r = rewriteOutsideLinks('[t](../../core/testing-standards.md#x) [d](../../core/guides/)', commandCtx());
+    expect(r.text).toBe(`[t](${BLOB}core/testing-standards.md#x) [d](${TREE}core/guides/)`);
+  });
+
+  it('turns a link to a file the install does not write (README of the commands folder) into a GitHub address', () => {
+    const r = rewriteOutsideLinks('[r](./README.md)', commandCtx({
+      repoPathExists: (p) => p === 'skills/commands/README.md'
+    }));
+    expect(r.text).toBe(`[r](${BLOB}skills/commands/README.md)`);
+  });
+
+  it('with a localized source, resolves against the locale folder', () => {
+    const r = rewriteOutsideLinks('[t](../../../../core/testing-standards.md)', commandCtx({
+      sourcePath: 'locales/zh-TW/skills/commands/alpha.md',
+      repoPathExists: (p) => p === 'core/testing-standards.md'
+    }));
+    expect(r.text).toBe(`[t](${BLOB}core/testing-standards.md)`);
+  });
+
+  it('keeps nothing when the install writes no .md command (Gemini TOML): the sibling link becomes a GitHub address', () => {
+    const r = rewriteOutsideLinks('[b](./beta.md)', commandCtx({
+      isInstalledLink: () => false,
+      repoPathExists: (p) => p === 'skills/commands/beta.md'
+    }));
+    expect(r.text).toBe(`[b](${BLOB}skills/commands/beta.md)`);
+    expect(r.kept).toEqual([]);
+  });
+
+  it('does not keep a link that reaches into another folder even if the name matches an installed command', () => {
+    const r = rewriteOutsideLinks('[x](../beta.md)', commandCtx({ repoPathExists: () => false }));
+    expect(r.kept).toEqual([]);
+    expect(r.text).toBe('[x](../beta.md)'); // names nothing in UDS: left as written, reported as leftAlone
+    expect(r.leftAlone).toEqual(['../beta.md']);
+  });
+});

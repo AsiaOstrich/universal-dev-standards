@@ -1,6 +1,8 @@
 /**
  * Rewrite the relative links of a skill file that point at places which do not exist once the skill is installed
- * (dev-platform #61, decision 214A; #47 fixed one skill by hand).
+ * (dev-platform #61, decision 214A; #47 fixed one skill by hand). Slash command files go through the same function
+ * (dev-platform #62): the only thing that differs is the question "does the install put a file there?", which a
+ * caller answers with `ctx.isInstalledLink` instead of the skill-folder pair (`skillName` + `isInstalledSkillFile`).
  *
  * A skill source file links to its neighbours the way the UDS source repo is laid out: `../../core/x.md`,
  * `../../../../skills/y/SKILL.md`, `../../locales/zh-TW/...`. Installed, the skill sits in
@@ -85,12 +87,16 @@ function buildScanner() {
 /**
  * @param {string} text - markdown content of one file of the skill
  * @param {Object} ctx
- * @param {string} ctx.skillName - the skill the file belongs to (its installed folder name)
+ * @param {string} [ctx.skillName] - the skill the file belongs to (its installed folder name). Required unless
+ *   `isInstalledLink` is given.
  * @param {string} ctx.sourcePath - repo path (posix, relative to the repo root) of the file the content came from,
  *   e.g. `skills/commit-standards/SKILL.md` or `locales/zh-TW/skills/commit-standards/SKILL.md`. Relative links in
  *   the file were written against this location.
- * @param {(skill: string, fileName: string) => boolean} ctx.isInstalledSkillFile - whether the install puts
+ * @param {(skill: string, fileName: string) => boolean} [ctx.isInstalledSkillFile] - whether the install puts
  *   `<skills folder>/<skill>/<fileName>` on disk
+ * @param {(installedPath: string) => boolean} [ctx.isInstalledLink] - replaces the two options above: given the link
+ *   path (anchor removed, normalized, relative to the folder the installed file sits in), whether the install puts a
+ *   file there. Slash commands use it: they are installed flat, `<commands folder>/<name>.md`, with no skill folder.
  * @param {(repoPath: string) => (boolean|undefined)} [ctx.repoPathExists] - whether a repo path exists in the UDS
  *   source this install reads from; `undefined` when that cannot be told (the path is not part of the package)
  * @returns {RewriteReport}
@@ -110,13 +116,21 @@ export function rewriteOutsideLinks(text, ctx) {
     const anchor = hashAt === -1 ? '' : target.slice(hashAt);
     if (isNotRelativeTarget(target) || pathPart === '') return null;
 
-    // 1. Does the link still work from the installed folder? Resolved against the skills folder, where the skill is
-    //    `<skillName>/`. It works only when it lands on `<skill>/<file>` that this install writes.
-    const installed = posix.normalize(posix.join(ctx.skillName, pathPart));
-    const parts = installed.split('/');
-    if (!installed.startsWith('..') && parts.length === 2 && parts[1] !== '' && ctx.isInstalledSkillFile(parts[0], parts[1])) { // wire:skill-link-keep-if-installed
-      kept.push(rawTarget);
-      return null;
+    // 1. Does the link still work from the installed folder? For a skill it is resolved against the skills folder,
+    //    where the skill is `<skillName>/`, and works only when it lands on `<skill>/<file>` that this install writes.
+    //    A caller whose files are not in a skill folder (slash commands) answers the question itself.
+    if (ctx.isInstalledLink) {
+      if (ctx.isInstalledLink(posix.normalize(pathPart))) { // wire:command-link-keep-if-installed
+        kept.push(rawTarget);
+        return null;
+      }
+    } else {
+      const installed = posix.normalize(posix.join(ctx.skillName, pathPart));
+      const parts = installed.split('/');
+      if (!installed.startsWith('..') && parts.length === 2 && parts[1] !== '' && ctx.isInstalledSkillFile(parts[0], parts[1])) { // wire:skill-link-keep-if-installed
+        kept.push(rawTarget);
+        return null;
+      }
     }
 
     // 2. It does not. The author wrote it against the source layout; turn that location into a GitHub address.
