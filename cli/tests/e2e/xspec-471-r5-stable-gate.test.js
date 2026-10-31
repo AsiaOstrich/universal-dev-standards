@@ -24,7 +24,7 @@
  *   scripts/bump-version.mjs   const gate = evaluateStableGate({ root: ROOT_DIR, target: NEW_VERSION.replace(/-.*$/, '') });
  */
 
-import { it, expect, afterAll } from 'vitest';
+import { it, expect, afterAll, vi } from 'vitest';
 import { spawnSync } from 'child_process';
 import { chmodSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -80,6 +80,13 @@ const run = (root, version) => outcome(bump(root, version));
  * one-start test stayed under it. 120 s, as for the cut test at the end of this file.
  */
 const SEVERAL_RUNS = 120000;
+
+/**
+ * Every test here runs the bump in a full tree, so one run alone can pass 30s on windows-latest (2026-10-31:
+ * "everything that is wrong", a single run). Raising tests one at a time has now happened three times, so the file
+ * default is the same limit.
+ */
+vi.setConfig({ testTimeout: SEVERAL_RUNS });
 
 /** A refusal must not have touched the repository. */
 const untouched = (root) => readJson(join(root, 'cli', 'package.json')).version === readJson(join(REPO, 'cli', 'package.json')).version;
