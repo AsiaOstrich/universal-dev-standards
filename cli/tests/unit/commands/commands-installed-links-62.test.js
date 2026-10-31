@@ -60,15 +60,9 @@ function writeMarkers(project) {
  * The relative links that still do not open anything after install, exactly (as `<agent>:<file>: link`). The list is
  * exact: a link that starts failing is not in it (the test goes red), and an entry that stops being needed makes
  * the test go red too, so it cannot rot into an excuse.
- *  - zh-CN `sdd-retro`: the source file says `../../docs/specs/...` where zh-TW says `../../../../docs/specs/...`
- *    (the zh-CN folder is two levels deeper). The link is dead in the source, resolves to a path that does not exist
- *    in the repo either, and a GitHub address for it would only be a new dead link. A defect of the source file, which
- *    this change does not edit.
  */
-function knownUnopenable(locale) {
-  if (locale !== 'zh-cn') return [];
-  return AGENTS.map(({ agent, ext }) =>
-    `${agent}:sdd-retro${ext}: ../../docs/specs/cli/shared/SPEC-011-retroactive-spec-tracking.md`).sort();
+function knownUnopenable() {
+  return [];
 }
 
 const BLOCK_NETWORK = `

@@ -94,4 +94,4 @@ Create lightweight specification documents for past changes that were committed 
 
 - SDD workflow: [sdd command](sdd.md)
 - Commit standards: [commit command](commit.md)
-- Spec: [SPEC-011](../../docs/specs/cli/shared/SPEC-011-retroactive-spec-tracking.md)
+- Spec: [SPEC-011](../../../../docs/specs/cli/shared/SPEC-011-retroactive-spec-tracking.md)
