@@ -11448,6 +11448,111 @@
     },
     {
       "platform": "all",
+      "id": "commands-installed-links-rewritten",
+      "workspace": "skills-hash-prune",
+      "title": "An installed slash command points at repository documents by their GitHub address and at the other commands relatively",
+      "titleZh": "安裝後的斜線指令以 GitHub 位址指向 repo 文件，以相對連結指向同資料夾的其他指令",
+      "changelog": [
+        "Installed slash commands no longer carry links that open nothing"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".cursor/commands/ac-coverage.md",
+            "contains": [
+              "](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/ai-command-behavior.md)",
+              "](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/ac-coverage/SKILL.md)",
+              "](./coverage.md",
+              "](./checkin.md"
+            ],
+            "notContains": [
+              "](../../core/",
+              "](../ac-coverage/"
+            ]
+          },
+          {
+            "path": ".cursor/commands/guide.md",
+            "contains": [
+              "](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-TW/skills/commands/guide.md)"
+            ],
+            "notContains": [
+              "](../../locales/"
+            ]
+          },
+          {
+            "path": ".cursor/commands/sdd-retro.md",
+            "contains": [
+              "](sdd.md",
+              "](commit.md"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "commands-gemini-links-init",
+      "workspace": "commands-gemini-links",
+      "smoke": true,
+      "changelog": [],
+      "title": "uds init in a project with GEMINI.md installs the Gemini CLI commands the next step reads back",
+      "titleZh": "uds init 在有 GEMINI.md 的專案裡安裝 Gemini CLI 指令，供下一步讀回",
+      "prepare": [
+        {
+          "writeFile": "GEMINI.md",
+          "content": "# my own Gemini instructions\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "none",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".gemini/commands/check.toml"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "commands-gemini-links-rewritten",
+      "workspace": "commands-gemini-links",
+      "title": "An installed Gemini CLI command (TOML) has GitHub addresses for repository documents and for the other commands, and keeps its TOML shape",
+      "titleZh": "安裝後的 Gemini CLI 指令（TOML）以 GitHub 位址指向 repo 文件與其他指令，且保有 TOML 結構",
+      "changelog": [
+        "Installed slash commands no longer carry links that open nothing"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": ".gemini/commands/check.toml",
+            "contains": [
+              "# check command - converted from UDS",
+              "prompt = \"\"\"",
+              "](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/core/ai-command-behavior.md)",
+              "](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/commands/init.md"
+            ],
+            "notContains": [
+              "](../../core/",
+              "](./init.md"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "ghost-standard-init",
       "workspace": "check-ghost-standard",
       "title": "uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve",

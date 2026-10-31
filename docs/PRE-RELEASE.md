@@ -79,8 +79,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.1
 It installs the published 6.14.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 359 steps (351 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 359 步（351 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 362 steps (354 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 362 步（354 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1117,46 +1117,55 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 359 steps (351
 345. `skills-installed-links-rewritten` (**new 新**) — An installed skill points at repository documents by their GitHub address and at its sibling skills relatively.
    安裝後的 skill 以 GitHub 位址指向 repo 文件，以相對連結指向同批安裝的兄弟 skill。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/skills/ac-coverage/SKILL.md`, `.cursor/skills/project-structure-guide/SKILL.md`, `.cursor/skills/checkin-assistant/guide.md`, `.cursor/skills/documentation-guide/readme-template.md`
-346. `ghost-standard-init` — uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve.
+346. `commands-installed-links-rewritten` (**new 新**) — An installed slash command points at repository documents by their GitHub address and at the other commands relatively.
+   安裝後的斜線指令以 GitHub 位址指向 repo 文件，以相對連結指向同資料夾的其他指令。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/commands/ac-coverage.md`, `.cursor/commands/guide.md`, `.cursor/commands/sdd-retro.md`
+347. `commands-gemini-links-init` — uds init in a project with GEMINI.md installs the Gemini CLI commands the next step reads back.
+   uds init 在有 GEMINI.md 的專案裡安裝 Gemini CLI 指令，供下一步讀回。
+   `uds init -y --skills-location none --format ai` → exit 0; output has "Standards initialized successfully"
+348. `commands-gemini-links-rewritten` (**new 新**) — An installed Gemini CLI command (TOML) has GitHub addresses for repository documents and for the other commands, and keeps its TOML shape.
+   安裝後的 Gemini CLI 指令（TOML）以 GitHub 位址指向 repo 文件與其他指令，且保有 TOML 結構。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `.gemini/commands/check.toml`
+349. `ghost-standard-init` — uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve.
    uds init --agents-md 在 Cursor 專案寫出 AGENTS.md，且 manifest 的標準都對得上。
    `uds init -y --skills-location project --format ai --agents-md` → exit 0; output has "Standards initialized successfully"
-347. `ghost-standard-control-ticks-synced` (**new 新**) — Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line.
+350. `ghost-standard-control-ticks-synced` (**new 新**) — Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line.
    對照：manifest 條目都對得上時，uds check 為 AGENTS.md 同步行打勾。
    `uds check --offline` → exit 0; output has "AGENTS.md Standards Sync", "✓ AGENTS.md standards synced"
-348. `ghost-standard-named-not-ticked` (**new 新**) — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
+351. `ghost-standard-named-not-ticked` (**new 新**) — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
    manifest 有一個對不上任何已安裝標準的條目時，uds check 以警告記號點名它，不再為 AGENTS.md 打勾。
    `uds check --offline` → exit 0; output has "⚠ AGENTS.md standards synced", "Manifest entries that match no installed standard (1)" (+1)
-349. `hook-scripts-update-init` — uds init --with-hooks installs the hook scripts the update steps then replace, roll back and keep.
+352. `hook-scripts-update-init` — uds init --with-hooks installs the hook scripts the update steps then replace, roll back and keep.
    uds init --with-hooks 安裝 hook 腳本，供後面的更新步驟替換、還原與保留。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
-350. `hook-scripts-update-apply-replaces` (**new 新**) — uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks.
+353. `hook-scripts-update-apply-replaces` (**new 新**) — uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks.
    uds update --apply --yes 替換沒人改過的 6.14.0 危險命令腳本、說出備份位置，專案裡的腳本從此會擋。
    `uds update --apply --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs", "Backup: .uds-backups/"
-351. `hook-scripts-update-backup-holds-original` (**new 新**) — The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /.
+354. `hook-scripts-update-backup-holds-original` (**new 新**) — The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /.
    該步驟建立的備份逐位元組保存原本的腳本，而換上的腳本對 rm -rf / 以 2 結束。
    `{node} -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const root='.uds-backups';const ids=fs.existsSync(root)?fs.readdirSync(root).filter(n=>fs.existsSync(path.join(root,n,'backup-manifest.json'))):[];const hooks=ids.filter(n=>JSON.parse(fs.readFileSync(path.join(root,n,'backup-manifest.json'),'utf8')).label==='hooks');const f=hooks.length?path.join(root,hooks[0],'scripts','hooks','check-dangerous-cmd.mjs'):null;const old=f&&fs.existsSync(f)?fs.readFileSync(f,'utf8'):'';const r=cp.spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:'rm -rf /'}}),encoding:'utf8'});process.stdout.write('HOOK-BACKUPS='+hooks.length+'\\nBACKUP-HAS-ORIGINAL='+old.includes('Exit code: 0 = safe, 1 = dangerous')+'\\nBLOCK-EXIT='+r.status+'\\n');"` → exit 0; output has "HOOK-BACKUPS=1", "BACKUP-HAS-ORIGINAL=true" (+1)
-352. `hook-scripts-update-rollback-restores` (**new 新**) — uds update --rollback puts the original script back.
+355. `hook-scripts-update-rollback-restores` (**new 新**) — uds update --rollback puts the original script back.
    uds update --rollback 把原本的腳本放回去。
    `uds update --rollback` → exit 0; output has "Rollback successful"
-353. `hook-scripts-update-keeps-edited` (**new 新**) — uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it.
+356. `hook-scripts-update-keeps-edited` (**new 新**) — uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it.
    uds update --apply --yes 保留採用者改過的腳本、點名它，並且不動它。
    `uds update --apply --yes --offline` → exit 0; output has "were kept: check-dangerous-cmd.mjs"
-354. `hook-scripts-update-plain-replaces` (**new 新**) — Plain uds update (no flags) replaces the unmodified old script too.
+357. `hook-scripts-update-plain-replaces` (**new 新**) — Plain uds update (no flags) replaces the unmodified old script too.
    不加任何旗標的 uds update 也會替換沒人改過的舊腳本。
    `uds update --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs"
-355. `hook-scripts-update-force-backs-up-edit` (**new 新**) — uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where.
+358. `hook-scripts-update-force-backs-up-edit` (**new 新**) — uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where.
    uds update --with-hooks --force 在覆蓋改過的腳本之前先把它複製進 .uds-backups/，並印出位置。
    `uds update --with-hooks --force --ai-tool claude-code --yes --offline` → exit 0; output has "overwrote 1 edited hook script", "Backup: .uds-backups/"
-356. `retired-standard-init` — A project that still holds the open-work-tracking standard (an older UDS installed it): set it up.
+359. `retired-standard-init` — A project that still holds the open-work-tracking standard (an older UDS installed it): set it up.
    仍持有 open-work-tracking 標準的專案（舊版 UDS 裝的）：先建立。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-357. `retired-standard-apply-removes-it` (**new 新**) — uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
+360. `retired-standard-apply-removes-it` (**new 新**) — uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
    uds update --apply 移除 open-work-tracking 檔案、裝上 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字。
    `uds update --apply --yes --offline` → exit 0; output has "UDS no longer ships this file", "Reconciliation complete"
-358. `retired-standard-check-clean` (**new 新**) — uds check then has nothing to warn about: no entry that matches no installed standard.
+361. `retired-standard-check-clean` (**new 新**) — uds check then has nothing to warn about: no entry that matches no installed standard.
    之後 uds check 沒有任何警告：沒有對不到已裝標準的條目。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
-359. `retired-standard-rollback-restores-it` (**new 新**) — uds update --rollback brings the open-work-tracking file and its manifest entry back.
+362. `retired-standard-rollback-restores-it` (**new 新**) — uds update --rollback brings the open-work-tracking file and its manifest entry back.
    uds update --rollback 把 open-work-tracking 檔案與 manifest 條目放回去。
    `uds update --rollback --yes` → exit 0; output has "Rollback successful"
 <!-- BETA-ACCEPTANCE-TEST:END -->
