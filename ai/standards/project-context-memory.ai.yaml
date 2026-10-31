@@ -14,7 +14,7 @@ standard:
 
   meta:
     version: "1.2.1"
-    updated: "2026-10-07"
+    updated: "2026-10-30"
     source: core/project-context-memory.md
     description: System for capturing, retrieving, and enforcing project-specific context, architectural decisions, and domain knowledge
 
