@@ -80,6 +80,10 @@
     {
       "changelog": "The XSPEC-458 tests no longer need a standard that UDS 6.11.0 lacked",
       "reason": "Changes to the repository's own tests only (cli/tests/): which standard they stand in for, and how they count skills. Nothing of it is in the npm package, and no command a user runs behaves differently."
+    },
+    {
+      "changelog": "Interactive tests answer a prompt by what it asks, and a question that never appears fails the test",
+      "reason": "Tests only (cli/tests/utils/cli-runner.js, a fixture and three test files); nothing of it is in the npm package and no command, message or file the user sees changes. The test helper is exercised from the product entry by cli/tests/e2e/init-flow.test.js (real `uds init`, answered by prompt text) and cli/tests/e2e/e2e-helpers-cross-platform.test.js (the same two questions in both orders), which cut the prompt-matching line to see them go red."
     }
   ],
   "steps": [
@@ -2007,6 +2011,67 @@
             ],
             "notContains": [
               "try 11"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "mkdir": ".standards"
+        },
+        {
+          "writeFile": ".standards/error-codes.ai.yaml",
+          "content": "kept: true\n"
+        },
+        {
+          "writeFile": "read-only-target.cjs",
+          "content": "const fs = require('fs'), path = require('path');\n// Makes the destination of ONE standard really read-only (a mode of 0444; on Windows the read-only attribute),\n// so the copy is refused for a permission reason, not because a program holds the file.\nconst file = path.join(process.cwd(), '.standards', 'error-codes.ai.yaml');\nfs.chmodSync(file, 0o444);\n// Put the file back to writable when the run ends, so the throwaway folder can be removed anywhere.\nprocess.on('exit', () => { try { fs.chmodSync(file, 0o666); } catch { /* already gone */ } });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/read-only-target.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "permission-denied-is-not-called-a-lock",
+      "title": "uds init onto a file that is really read-only says permission denied and what to check; it does not call the file locked or send you to the antivirus",
+      "titleZh": "uds init 遇到真的唯讀的檔案時，訊息說權限不足並列出要檢查什麼；不說檔案被鎖住，也不叫人去看防毒",
+      "changelog": [
+        "uds init no longer tells you to look at your antivirus when the real problem is a permission error"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "rolled back",
+          "error-codes.ai.yaml",
+          "looks like a permission problem rather than a temporary file lock",
+          "(1) the file is not marked read-only",
+          "Check:"
+        ],
+        "notContains": [
+          "locked by another program",
+          "antivirus"
+        ],
+        "files": [
+          {
+            "path": ".standards/error-codes.ai.yaml",
+            "contains": [
+              "kept: true"
             ]
           },
           {
