@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import {
   runNonInteractive,
-  runInteractive,
   runPrompted,
   createTempDir,
   cleanupTempDir,
@@ -660,60 +659,36 @@ describe('E2E: uds init', () => {
     it('should allow selecting multiple AI tools', async () => {
       await setupTestDir(testDir, {});
 
-      // Select Claude Code AND Cursor (first two options)
-      const inputs = [
-        // Display Language: English (first option)
-        '\r',
-        // AI Tools: toggle first (Claude Code), down, toggle (Cursor)
-        { type: 'checkbox', selections: [
-          { toggle: true },
-          { down: true },
-          { toggle: true }   // Cursor
-        ] },
-        // AGENTS.md prompt: Yes
-        'Y',
-        // Skills Location: first option (Plugin Marketplace)
-        '\r',
-        // Commands Installation: accept defaults
-        '\r',
-        // Standards Scope: first option
-        '\r',
-        // Format: Compact
-        '\r',
-        // Standard Options
-        '\r', '\r', '\r', '\r',
-        // Integration Config (for Cursor) - accept defaults
-        '\r', '\r', '\r', '\r',
-        // Locale: No
-        'n',
-        // Content Mode: Standard
-        '\r',
-        // Final Confirm: Yes
-        'Y'
-      ];
-
-      const result = await runInteractive(inputs, {}, testDir, 90000);
+      // Answered by what each prompt asks, not by position (XSPEC-516 R1): every prompt takes its default (Enter)
+      // except the AI-tools checklist, where the first two tools (Claude Code, Cursor) are ticked: Space, Down, Space,
+      // Enter. The old position-based script (a fixed list of 20 answers sent as stdout chunks arrived) sent them to
+      // whatever prompt happened to be next whenever a question was added, and its assertions were all conditional.
+      const TICK_FIRST_TWO = ' \x1B[B \r';
+      const result = await runPrompted([
+        { when: /Which AI tools/i, keys: TICK_FIRST_TWO }
+      ], testDir, { timeout: 100000 });
 
       recordScenarioResult('Interactive Multiple AI Tools', {
         steps: [
-          { step: 1, name: 'Exit code 0 or captured steps', matched: result.exitCode === 0 || result.stepOutputs.length > 3 },
-          { step: 2, name: 'Has outputs', matched: result.stdout.length > 0 }
+          { step: 1, name: 'Exit code 0', matched: result.exitCode === 0 },
+          { step: 2, name: 'Success message', matched: result.stdout.includes('Standards initialized successfully') }
         ],
         output: result.stdout,
         files: result.files
       });
 
-      // Verify at least some steps were captured
-      expect(result.stepOutputs.length).toBeGreaterThan(0);
-
-      // If completed successfully, check manifest for multiple tools
-      if (result.exitCode === 0 && await fileExists(join(testDir, '.standards/manifest.json'))) {
-        const manifestContent = await readFile(join(testDir, '.standards/manifest.json'), 'utf8');
-        const manifest = JSON.parse(manifestContent);
-        // Should contain both claude-code and cursor
-        expect(manifest.aiTools).toContain('claude-code');
-        expect(manifest.aiTools).toContain('cursor');
-      }
+      expect(result.timedOut, `the prompts did not finish. answered: ${JSON.stringify(result.answers.map((a) => a.prompt))}`).toBe(false);
+      // The tool checklist was really answered by its rule (the first and only one), and it was the question asked.
+      expect(result.unusedRules).toEqual([]);
+      expect(result.answers.filter((a) => a.rule === 0)).toHaveLength(1);
+      expect(result.answers.find((a) => a.rule === 0).prompt).toMatch(/Which AI tools/i);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Standards initialized successfully');
+      // The effect, read back: the manifest records both tools, and each tool's file was written.
+      const manifest = JSON.parse(await readFile(join(testDir, '.standards/manifest.json'), 'utf8'));
+      expect(manifest.aiTools).toContain('claude-code');
+      expect(manifest.aiTools).toContain('cursor');
+      expect(result.files.map((f) => f.path), 'Cursor\'s rules file was generated').toContain('.cursorrules');
     }, 120000);
 
     it('should allow cancelling installation', async () => {

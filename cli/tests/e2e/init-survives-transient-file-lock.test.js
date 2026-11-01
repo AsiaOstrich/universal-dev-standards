@@ -22,11 +22,18 @@
  *   - `isTransientFsError` retrying EPERM on every platform: the "not retried off Windows" test goes red;
  *   - taking the attempt limit out of `retryTransientFs`: the "bounded" test goes red (it would never end).
  *
+ * XSPEC-516 R2 (a real permission error is not called a lock): the last test makes the destination file really
+ * read-only (no injection: EACCES on POSIX, EPERM through the retries on Windows) and reads back the message.
+ * The wire: cli/src/utils/transient-fs.js  `throw permissionDeniedError(` (both call sites). Mutations done by hand,
+ * each seen red: replacing the two `permissionDeniedError(...)` throws with `lockedFileError(...)` (every EPERM /
+ * EACCES called a lock again - the old behaviour); making `probeWritePermission` return `{ denied: false }`
+ * (Windows path only, see the unit test).
+ *
  * Every `it` is self-contained: it makes its own project and its own run, so it also passes when selected alone.
  */
 
 import { it, expect, afterAll } from 'vitest';
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, chmodSync } from 'fs';
 import { join } from 'path';
 import { createHarness, REAL_REPO, stripAnsi } from '../utils/staged-cli-harness.js';
 import { manifestListsStandard } from '../utils/xspec-482.js';
@@ -144,5 +151,36 @@ it.skipIf(process.platform === 'win32')('uds init does not retry EPERM off Windo
   expect(tries).toBe(1);
   expect(text).toContain('EPERM');
   expect(text).not.toMatch(/locked by another program/);
+  expect(existsSync(join(project, '.standards', 'manifest.json'))).toBe(false);
+}, 180000);
+
+// chmod does not stop root; a Windows account has no uid, and the read-only attribute is honoured there.
+const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+
+it.skipIf(isRoot)('uds init onto a file that is really read-only says permission denied and what to check, not "locked" or "antivirus" (XSPEC-516 R2)', async () => {
+  const dir = harness.makeDir('readonly');
+  const project = join(dir, 'project');
+  mkdirSync(join(project, '.claude'), { recursive: true });
+  mkdirSync(join(project, '.standards'), { recursive: true });
+  const target = join(project, '.standards', LOCKED_FILE);
+  writeFileSync(target, 'kept: true\n');
+  chmodSync(target, 0o444);
+
+  const run = await harness.runCli(['init', '--yes', '--skills-location', 'project'], project);
+  const text = stripAnsi(run.stdout + '\n' + run.stderr);
+
+  expect(run.code, text).not.toBe(0);
+  expect(text).toMatch(/rolled back/i);
+  // What the user is told: which file, that it is a permission problem, what to check - and the original code.
+  expect(text).toContain(LOCKED_FILE);
+  expect(text).toContain('permission denied');
+  expect(text).toMatch(/read-only/);
+  expect(text).toMatch(/Check:/);
+  expect(text).toMatch(/\b(EACCES|EPERM)\b/);
+  // What it must not say: that another program holds the file, or that the antivirus is to blame.
+  expect(text).not.toMatch(/locked by another program/);
+  expect(text).not.toMatch(/antivirus/i);
+  // Read back: the user's file was not overwritten.
+  expect(readFileSync(target, 'utf-8')).toBe('kept: true\n');
   expect(existsSync(join(project, '.standards', 'manifest.json'))).toBe(false);
 }, 180000);

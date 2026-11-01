@@ -18,10 +18,16 @@
  * `maxDelayMs`, and a hard ceiling `maxTotalMs` on the time spent. When it is used up, the error says in
  * plain words which file was locked, the likely causes and what to do - not just the bare error code.
  *
+ * EPERM / EACCES are not always a lock (XSPEC-516 R2): Windows reports a read-only file or a denied ACL with the
+ * same codes. When they keep failing, the file system is asked (probeWritePermission) and a real permission
+ * problem gets its own message ("permission denied", what to check) - it must not tell the user to switch off
+ * their antivirus. Off Windows they are permission errors from the first try and get the same message.
+ *
  * @module utils/transient-fs
  */
 
-import { copyFileSync } from 'fs';
+import { copyFileSync, accessSync, openSync, closeSync, existsSync, constants } from 'fs';
+import { dirname } from 'path';
 
 /** The retry budget. Worst case about 2.3 s of waiting per file (50+100+...+450 ms). */
 export const RETRY_POLICY = Object.freeze({
@@ -33,6 +39,7 @@ export const RETRY_POLICY = Object.freeze({
 
 const ALWAYS_TRANSIENT = new Set(['EBUSY']);
 const WINDOWS_TRANSIENT = new Set(['EPERM', 'EACCES']);
+const PERMISSION_CODES = new Set(['EPERM', 'EACCES']);
 
 /**
  * Is this error one that is worth retrying on this platform?
@@ -75,6 +82,63 @@ function lockedFileError(err, { path, action }, attempts, elapsedMs) {
 }
 
 /**
+ * The error shown for a real permission problem (XSPEC-516 R2): says "permission denied", names what was found
+ * when it is known, and lists what to check. It never mentions antivirus or a lock: telling someone whose
+ * account may not write to a folder to switch off their antivirus sends them the wrong way.
+ */
+function permissionDeniedError(err, { path, action }, attempts, elapsedMs, reason) {
+  const tried = attempts > 1
+    ? `UDS tried ${attempts} times over ${(elapsedMs / 1000).toFixed(1)} s and the error did not change. `
+    : '';
+  const found = reason ? `UDS checked: ${reason}. ` : '';
+  const message =
+    `Could not ${action} "${path}": permission denied (${err.code}). ` +
+    'This is a permission problem, not a temporary file lock, so trying again will not help. ' +
+    tried + found +
+    'Check: (1) the file is not marked read-only; (2) your account may read the source and write the file ' +
+    'and its folder (owner and permissions; on Windows, the Security tab of the folder); ' +
+    '(3) the folder is not on a read-only drive or in a protected location. ' +
+    'Fix the permission, then run the command again. ' +
+    `(Original error: ${err.message})`;
+  const wrapped = new Error(message);
+  wrapped.code = err.code;
+  wrapped.path = path;
+  wrapped.cause = err;
+  wrapped.permissionDenied = true;
+  return wrapped;
+}
+
+/**
+ * After EPERM / EACCES kept failing on Windows: is this a real permission problem, or a lock that looked like one?
+ * Windows reports both as EPERM / EACCES, so the error code cannot tell them apart; what can is asking the
+ * file system directly. Evidence of a permission problem: the source cannot be read, the destination exists
+ * and cannot be opened for writing (read-only attribute, or an ACL that denies it), or it does not exist and
+ * its folder is not writable. A destination that opens for writing now was locked a moment ago, not forbidden.
+ * @param {{path: string, source?: string}} info
+ * @returns {{denied: boolean, reason?: string}}
+ */
+export function probeWritePermission({ path, source }) {
+  if (source) {
+    try { accessSync(source, constants.R_OK); } catch { return { denied: true, reason: `the source "${source}" cannot be read` }; }
+  }
+  if (existsSync(path)) {
+    try { accessSync(path, constants.W_OK); } catch { return { denied: true, reason: `"${path}" is read-only or not writable by this account` }; }
+    let fd;
+    try {
+      fd = openSync(path, 'r+');
+    } catch (e) {
+      if (e && PERMISSION_CODES.has(e.code)) return { denied: true, reason: `"${path}" cannot be opened for writing (${e.code})` };
+      return { denied: false }; // EBUSY or anything else: a lock, not a permission
+    } finally {
+      if (fd !== undefined) closeSync(fd);
+    }
+    return { denied: false };
+  }
+  try { accessSync(dirname(path), constants.W_OK); } catch { return { denied: true, reason: `the folder "${dirname(path)}" is not writable by this account` }; }
+  return { denied: false };
+}
+
+/**
  * Run `operation` and retry it while it fails with a transient file-system error.
  *
  * @template T
@@ -82,24 +146,34 @@ function lockedFileError(err, { path, action }, attempts, elapsedMs) {
  * @param {Object} info
  * @param {string} info.path - The file that is being worked on (named in the final error).
  * @param {string} info.action - Short verb phrase for the final error, e.g. "copy to".
+ * @param {string} [info.source] - The file that is read, when there is one (checked when permission is suspected).
  * @param {Object} [hooks] - Injection points for tests.
  * @param {string} [hooks.platform]
  * @param {(ms:number)=>void} [hooks.sleep]
  * @param {()=>number} [hooks.now]
  * @param {typeof RETRY_POLICY} [hooks.policy]
+ * @param {(info:object)=>{denied:boolean, reason?:string}} [hooks.probe] - Permission check used after EPERM / EACCES gave up.
  * @returns {T}
  */
 export function retryTransientFs(operation, info, hooks = {}) {
-  const { platform = process.platform, sleep = sleepSync, now = Date.now, policy = RETRY_POLICY } = hooks;
+  const { platform = process.platform, sleep = sleepSync, now = Date.now, policy = RETRY_POLICY, probe = probeWritePermission } = hooks;
   const start = now();
   for (let attempt = 1; ; attempt++) {
     try {
       return operation();
     } catch (err) {
-      if (!isTransientFsError(err, platform)) throw err;
+      if (!isTransientFsError(err, platform)) {
+        // Off Windows EPERM / EACCES are real permission errors (see the header): say so in plain words.
+        if (err && PERMISSION_CODES.has(err.code)) throw permissionDeniedError(err, info, 1, 0);
+        throw err;
+      }
       const elapsed = now() - start;
       const delay = Math.min(policy.stepMs * attempt, policy.maxDelayMs);
       if (attempt >= policy.maxAttempts || elapsed + delay > policy.maxTotalMs) {
+        if (PERMISSION_CODES.has(err.code)) {
+          const verdict = probe(info);
+          if (verdict.denied) throw permissionDeniedError(err, info, attempt, elapsed, verdict.reason);
+        }
         throw lockedFileError(err, info, attempt, elapsed);
       }
       sleep(delay);
@@ -109,5 +183,5 @@ export function retryTransientFs(operation, info, hooks = {}) {
 
 /** `fs.copyFileSync` that survives a short-lived file lock. Errors name the destination. */
 export function copyFileSyncRetrying(source, target, hooks) {
-  return retryTransientFs(() => copyFileSync(source, target), { path: String(target), action: `copy "${source}" to` }, hooks);
+  return retryTransientFs(() => copyFileSync(source, target), { path: String(target), source: String(source), action: `copy "${source}" to` }, hooks);
 }

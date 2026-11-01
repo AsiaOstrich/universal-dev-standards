@@ -6,7 +6,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { isTransientFsError, retryTransientFs, RETRY_POLICY } from '../../../src/utils/transient-fs.js';
+import { mkdtempSync, writeFileSync, chmodSync, rmSync, existsSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { isTransientFsError, retryTransientFs, probeWritePermission, RETRY_POLICY } from '../../../src/utils/transient-fs.js';
 
 const fsError = (code, message = `${code}: something`) => Object.assign(new Error(message), { code });
 
@@ -99,12 +102,21 @@ describe('retryTransientFs', () => {
     expect(clock.waits).toEqual([]);
   });
 
-  it('does not retry EPERM off Windows: one try, the original error', () => {
+  it('does not retry EPERM off Windows: one try, then a permission-denied message that keeps the original error (XSPEC-516 R2)', () => {
     const clock = fakeClock();
     const original = fsError('EPERM', 'EPERM: operation not permitted');
     const { calls, operation } = flaky(original, 'always');
-    expect(() => retryTransientFs(operation, info, { platform: 'darwin', ...clock })).toThrow(original);
+    let thrown;
+    try { retryTransientFs(operation, info, { platform: 'darwin', ...clock }); } catch (e) { thrown = e; }
     expect(calls.n).toBe(1);
+    expect(clock.waits).toEqual([]);
+    expect(thrown.message).toContain('permission denied');
+    expect(thrown.message).toContain('target/file.yaml');
+    expect(thrown.message).toContain('EPERM: operation not permitted');
+    expect(thrown.code).toBe('EPERM');
+    expect(thrown.cause).toBe(original);
+    expect(thrown.permissionDenied).toBe(true);
+    expect(thrown.message).not.toMatch(/antivirus|locked by another program/i);
   });
 
   it('retries EPERM and EACCES on Windows', () => {
@@ -133,5 +145,88 @@ describe('retryTransientFs', () => {
     expect(thrown.code).toBe('EBUSY');
     expect(thrown.cause).toBe(original);
     expect(thrown.transientRetryExhausted).toBe(true);
+  });
+});
+
+describe('EPERM / EACCES that keep failing on Windows: lock or permission? (XSPEC-516 R2)', () => {
+  const info = { path: 'project/.standards/error-codes.ai.yaml', source: 'repo/ai/standards/error-codes.ai.yaml', action: 'copy to' };
+
+  it('a real permission problem gets a permission message: what to check, no antivirus advice, no "locked"', () => {
+    for (const code of ['EPERM', 'EACCES']) {
+      const clock = fakeClock();
+      const { calls, operation } = flaky(fsError(code, `${code}: operation not permitted, copyfile 'a' -> 'b'`), 'always');
+      const probe = () => ({ denied: true, reason: '"project/.standards/error-codes.ai.yaml" is read-only or not writable by this account' });
+      let thrown;
+      try { retryTransientFs(operation, info, { platform: 'win32', ...clock, probe }); } catch (e) { thrown = e; }
+      expect(calls.n, code).toBe(10); // it did retry first: Windows cannot tell from the code alone
+      expect(thrown.message, code).toContain('permission denied');
+      expect(thrown.message, code).toContain('read-only');
+      expect(thrown.message, code).toMatch(/Check:/);
+      expect(thrown.message, code).toContain('UDS tried 10 times');
+      expect(thrown.message, code).toContain(`${code}: operation not permitted, copyfile 'a' -> 'b'`);
+      expect(thrown.message, code).not.toMatch(/antivirus|locked by another program|OneDrive/i);
+      expect(thrown.code).toBe(code);
+      expect(thrown.permissionDenied).toBe(true);
+      expect(thrown.transientRetryExhausted).toBeUndefined();
+    }
+  });
+
+  it('when the file system finds nothing wrong with permissions, the message is still the lock message', () => {
+    const clock = fakeClock();
+    const { operation } = flaky(fsError('EPERM'), 'always');
+    let thrown;
+    try { retryTransientFs(operation, info, { platform: 'win32', ...clock, probe: () => ({ denied: false }) }); } catch (e) { thrown = e; }
+    expect(thrown.message).toContain('locked by another program');
+    expect(thrown.message).toMatch(/antivirus/i);
+    expect(thrown.transientRetryExhausted).toBe(true);
+    expect(thrown.permissionDenied).toBeUndefined();
+  });
+
+  it('EBUSY is a lock whatever the probe says (it is never asked)', () => {
+    const clock = fakeClock();
+    const { operation } = flaky(fsError('EBUSY'), 'always');
+    let asked = false;
+    let thrown;
+    try { retryTransientFs(operation, info, { platform: 'win32', ...clock, probe: () => { asked = true; return { denied: true }; } }); } catch (e) { thrown = e; }
+    expect(asked).toBe(false);
+    expect(thrown.message).toContain('locked by another program');
+  });
+});
+
+describe('probeWritePermission against the real file system', () => {
+  const root = () => mkdtempSync(join(tmpdir(), 'uds-probe-'));
+  // chmod does not stop root, and a read-only attribute is the only thing Windows honours: skip as root.
+  const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+
+  it.skipIf(asRoot)('a read-only destination is denied and the reason names it', () => {
+    const dir = root();
+    try {
+      const target = join(dir, 'ro.yaml');
+      writeFileSync(target, 'x');
+      chmodSync(target, 0o444);
+      const verdict = probeWritePermission({ path: target });
+      expect(verdict.denied).toBe(true);
+      expect(verdict.reason).toContain(target);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a writable destination is not denied (a lock is not a permission problem)', () => {
+    const dir = root();
+    try {
+      const target = join(dir, 'rw.yaml');
+      writeFileSync(target, 'x');
+      expect(probeWritePermission({ path: target })).toEqual({ denied: false });
+      expect(existsSync(target)).toBe(true);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a missing destination in a writable folder is not denied; an unreadable source is', () => {
+    const dir = root();
+    try {
+      expect(probeWritePermission({ path: join(dir, 'new.yaml') }).denied).toBe(false);
+      const verdict = probeWritePermission({ path: join(dir, 'new.yaml'), source: join(dir, 'no-such-source') });
+      expect(verdict.denied).toBe(true);
+      expect(verdict.reason).toContain('cannot be read');
+    } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

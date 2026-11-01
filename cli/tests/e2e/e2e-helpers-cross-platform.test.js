@@ -20,11 +20,18 @@
  *   cli/tests/utils/cli-runner.js     return sep === '/' ? p : p.split(sep).join('/');
  *   cli/tests/utils/staged-cli-harness.js  if (isDirectory) return symlink(target, link, 'junction');
  *   cli/tests/utils/cli-runner.js     const ruleIndex = rules.findIndex((r) => r.when.test(prompt));
+ *   cli/tests/utils/cli-runner.js     if (unusedRules.length > 0 && !timedOut && !allowUnused) {
+ *
+ * XSPEC-516 R1: the helper answers by what each prompt asks, so changing the ORDER of the questions changes nothing
+ * (checked on a fixture program that asks the same two questions both ways round), and a rule whose question never
+ * appears fails the test instead of leaving the default answer in place. The real `uds init` is answered the same way
+ * in tests/e2e/init-flow.test.js ("multiple AI tools", "cancelling installation").
  */
 
 import { it, expect, afterAll } from 'vitest';
 import { win32, join } from 'path';
 import { mkdtempSync, symlinkSync, existsSync, rmSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { tmpdir } from 'os';
 import { toPosix, currentPrompt, runPrompted, createTempDir, cleanupTempDir } from '../utils/cli-runner.js';
 import { createPackagedWorld } from '../utils/packaged-cli.js';
@@ -126,5 +133,51 @@ it('the staged harness links a repo directory as a junction and copies a repo fi
     expect(calls, 'POSIX keeps the plain symlink').toEqual([[dirTarget, join(out, 'core2')], [fileTarget, join(out, 'pkg2')]]);
   } finally {
     rmSync(out, { recursive: true, force: true });
+  }
+});
+
+// ── XSPEC-516 R1: answered by the prompt's text, whatever order the questions come in ───────────────────────
+
+const ORDER_CLI = fileURLToPath(new URL('../fixtures/prompt-order-cli.mjs', import.meta.url));
+// A is answered "no" (its default is yes) and B "yes" (its default is no): a key that reaches the wrong question,
+// or none at all, shows in answers.json.
+const RULES_BY_TEXT = [
+  { when: /Install the extras/, keys: 'n\r' },
+  { when: /Delete everything/, keys: 'y\r' }
+];
+
+for (const order of ['A,B', 'B,A']) {
+  it(`the same answers reach the same questions when they are asked in the order ${order} (XSPEC-516 R1)`, async () => {
+    const dir = await createTempDir();
+    try {
+      const r = await runPrompted(RULES_BY_TEXT, dir, { entry: ORDER_CLI, command: ['ask'], args: [order], timeout: 20000, idleMs: 150 });
+      expect(r.timedOut, `answered: ${JSON.stringify(r.answers)}`).toBe(false);
+      expect(r.exitCode).toBe(0);
+      // Read back what the program recorded: each question got ITS answer, not the next one in line.
+      expect(JSON.parse(readFileSync(join(dir, 'answers.json'), 'utf-8'))).toEqual({ A: false, B: true });
+      expect(r.answers.map((a) => a.prompt)).toEqual(order.split(',').map((k) => (k === 'A' ? '? Install the extras? (Y/n)' : '? Delete everything? (y/N)')));
+      expect(r.unusedRules).toEqual([]);
+    } finally {
+      await cleanupTempDir(dir);
+    }
+  });
+}
+
+it('a question nobody has a rule for takes the default, and a rule whose question never appears fails the run (XSPEC-516 R1)', async () => {
+  const dir = await createTempDir();
+  try {
+    // Only B has a rule: A is asked, matches nothing, and takes its default (yes). Nothing is sent to A that was meant for B.
+    const r = await runPrompted([RULES_BY_TEXT[1]], dir, { entry: ORDER_CLI, command: ['ask'], args: ['A,B'], timeout: 20000, idleMs: 150 });
+    expect(JSON.parse(readFileSync(join(dir, 'answers.json'), 'utf-8'))).toEqual({ A: true, B: true });
+    expect(r.answers.map((a) => a.rule)).toEqual([-1, 0]);
+
+    // A rule for a question the program never asks: the run rejects, naming the rule, instead of passing on defaults.
+    await expect(runPrompted([{ when: /Never asked/, keys: 'y\r' }], dir, { entry: ORDER_CLI, command: ['ask'], args: ['A,B'], timeout: 20000, idleMs: 150 }))
+      .rejects.toThrow(/no prompt matched rule\(s\) #0 \/Never asked\//);
+    // ... unless the caller says the prompt is optional.
+    const optional = await runPrompted([{ when: /Never asked/, keys: 'y\r' }], dir, { entry: ORDER_CLI, command: ['ask'], args: ['A,B'], timeout: 20000, idleMs: 150, allowUnused: true });
+    expect(optional.unusedRules).toEqual([0]);
+  } finally {
+    await cleanupTempDir(dir);
   }
 });
