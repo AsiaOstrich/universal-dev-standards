@@ -23,10 +23,19 @@
 //   node scripts/check-anti-fake-tests.mjs            scan every test file under the project
 //   node scripts/check-anti-fake-tests.mjs --staged   scan only the test files staged for commit
 //   node scripts/check-anti-fake-tests.mjs --json     machine-readable result
+//   node scripts/check-anti-fake-tests.mjs --max-files N   stop the walk after N files (default 200000) — and say so
 //
 // Exit codes:  0 nothing found  |  1 findings (run on its own, this is a hard failure —
 //   wire it into CI to enforce)  |  2 could not judge (the scanner's own self-test failed,
-//   or git was unreadable in --staged mode). 2 is never a pass.
+//   git was unreadable in --staged mode, or the search was INCOMPLETE — the walk hit its file
+//   limit, a directory could not be opened, or a test file could not be read — and it found
+//   nothing in the part it did see). 2 is never a pass.
+//
+// Exempting ONE test: put a comment `ANTI_FAKE_EXEMPT: <why this test needs no assertion>` on its
+// own line, or in the comment lines directly above it. The reason must be at least 8 letters, digits
+// or Chinese characters and not a placeholder such as TODO, or the marker does nothing. It reaches
+// only the one test it is attached to. Exempted tests are listed in every run (and in --json as
+// `exempted`), never hidden.
 //
 // Which files are tests, and which extensions are code, comes from `.standards/test-policy.json`
 // (optional; see the UDS docs). Test files in a language this script has no rule for are
@@ -367,22 +376,48 @@ export function lineIndex(text) {
   };
 }
 
-/** Every project-relative file under `root`, skipping the policy's ignored directories and symlinks. */
-export function walkFiles(root, policy) {
+/** The most files one walk will list; the next file after that makes the walk "truncated". */
+export const WALK_LIMIT = 200000;
+
+/**
+ * Every project-relative file under `root`, skipping the policy's ignored directories and symlinks.
+ * At most `limit` files are listed (a hard limit, not a hint). The list is NOT the whole project when
+ *   - `truncated` is true: there was at least one more file after the `limit`th, or
+ *   - `unreadable` is not empty: a directory could not be opened, so what is in it is unknown.
+ * A caller must say so (XSPEC-518 R2): a short list is not a clean project. Directories are read in
+ * name order, so which part is left unread does not depend on the file system.
+ * @returns {{ files: string[], truncated: boolean, unreadable: string[] }}
+ */
+export function walkFilesChecked(root, policy, limit = WALK_LIMIT) {
   const skip = new Set(policy.ignoreDirs);
   const out = [];
+  const unreadable = [];
   const stack = [''];
-  while (stack.length > 0 && out.length < 200000) {
+  let truncated = false;
+  while (stack.length > 0 && !truncated) {
     const rel = stack.pop();
     let entries;
-    try { entries = readdirSync(join(root, rel), { withFileTypes: true }); } catch { continue; }
+    try {
+      entries = readdirSync(join(root, rel), { withFileTypes: true }).sort((x, y) => (x.name < y.name ? -1 : x.name > y.name ? 1 : 0));
+    } catch (e) {
+      unreadable.push(`${rel || '.'} (${e.code || e.message})`);
+      continue;
+    }
     for (const e of entries) {
       const r = rel ? `${rel}/${e.name}` : e.name;
       if (e.isSymbolicLink()) continue;
-      if (e.isDirectory()) { if (!skip.has(e.name)) stack.push(r); } else if (e.isFile()) out.push(r);
+      if (e.isDirectory()) { if (!skip.has(e.name)) stack.push(r); } else if (e.isFile()) {
+        if (out.length >= limit) { truncated = true; break; }
+        out.push(r);
+      }
     }
   }
-  return out.sort();
+  return { files: out.sort(), truncated, unreadable };
+}
+
+/** The file list alone (see walkFilesChecked for whether it is the whole project). */
+export function walkFiles(root, policy, limit = WALK_LIMIT) {
+  return walkFilesChecked(root, policy, limit).files;
 }
 
 /** Files staged for the next commit (added, copied, modified, renamed), or `{ error }`. */
@@ -397,7 +432,7 @@ export function stagedFiles(root) {
   }
 }
 
-/** File text, or `{ skipped }` when it is binary or larger than 2 MB (said, never silently dropped). */
+/** File text, or `{ skipped }` when it is binary or larger than 2 MB (said, never silently dropped); `failed: true` when the read itself failed. */
 export function readText(abs) {
   try {
     if (lstatSync(abs).size > 2 * 1024 * 1024) return { skipped: 'larger than 2 MB' };
@@ -405,7 +440,7 @@ export function readText(abs) {
     if (buf.subarray(0, 8000).includes(0)) return { skipped: 'binary', quiet: true };
     return { text: buf.toString('utf8').replace(/^\uFEFF/, '') };
   } catch (e) {
-    return { skipped: `unreadable (${e.code || e.message})` };
+    return { skipped: `unreadable (${e.code || e.message})`, failed: true };
   }
 }
 
@@ -1055,6 +1090,65 @@ export const INDEPENDENCE_DETECTORS = Object.freeze({
   find: (family, ncBody, nsBody, testName) => (family === 'js' ? findNonIndependentExpectations(ncBody, nsBody, testName) : [])
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// One test, exempted with a reason (XSPEC-518 R3)
+//
+// A comment `ANTI_FAKE_EXEMPT: <reason>` exempts the ONE test it is attached to from no-assertion /
+// tautology. "Attached" means: the comment is on the test's own line, or it is in the block of
+// comment lines (annotation / decorator lines may sit between) that ends on the line right above the
+// test. A blank line or any code between the comment and the test breaks the attachment, so a marker
+// inside the previous test, or one test further up, reaches nothing. If two tests start on one line the
+// marker is ambiguous and exempts neither.
+//
+// The reason is the point. It is the text after the colon, on the marker's own line, and it must be
+// usable: at least MIN_REASON_CHARS letters, digits or Chinese characters once placeholder words
+// (TODO, TBD, FIXME, XXX, WIP, N/A, 待補 ...) are taken out. A marker whose reason is empty, a
+// placeholder or too short does nothing, and the finding says so. An exempted test is still LISTED
+// (`exempted` in --json, a line in the report) so an exemption is never invisible. The marker is only
+// honored inside a comment — the same words in a string are text, not a decision.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const EXEMPT_MARKER = /ANTI_FAKE_EXEMPT\b[ \t]*:?[ \t]*([^\n]*)/g;
+export const MIN_REASON_CHARS = 8;
+const PLACEHOLDER_REASON = /\b(?:todo|tbd|fixme|xxx|wip|n\/a|na)\b|待補|待辦|待定|暫時|以後再說/giu;
+const NO_USABLE_REASON = `an ANTI_FAKE_EXEMPT comment is there but gives no usable reason (at least ${MIN_REASON_CHARS} letters, digits or Chinese characters that are not a placeholder such as TODO), so it is not honored`;
+
+/** Is this text a reason? */
+export function isUsableReason(reason) {
+  const kept = String(reason).replace(PLACEHOLDER_REASON, ' ').match(/[\p{L}\p{N}]/gu) || [];
+  return kept.length >= MIN_REASON_CHARS;
+}
+
+/**
+ * The exemption attached to the test that starts on line `caseLine` (1-based), or null.
+ * @returns {{ reason: string }|{ reason: null }|null}  `reason: null` = a marker is attached but its reason is not usable
+ */
+function exemptionFor(textLines, ncLines, caseLine, casesOnLine) {
+  if (casesOnLine.get(caseLine) !== 1) return null;
+  const commentLines = [caseLine]; // the own line is searched for a trailing comment
+  for (let n = caseLine - 1; n >= 1; n--) {
+    const t = textLines[n - 1].trim();
+    const code = ncLines[n - 1].trim();
+    if (t !== '' && code === '') { commentLines.push(n); continue; } // a comment-only line
+    if (/^(?:@|#\[|\[)/.test(code)) continue; // an annotation / decorator between the comment and the test
+    break; // blank, or code: the block above ends here
+  }
+  let found = null;
+  for (const n of commentLines) {
+    const line = textLines[n - 1];
+    const nc = ncLines[n - 1];
+    EXEMPT_MARKER.lastIndex = 0;
+    let m;
+    while ((m = EXEMPT_MARKER.exec(line)) !== null) {
+      if (nc[m.index] !== ' ' || line[m.index] === ' ') continue; // not inside a comment
+      const reason = m[1].replace(/\*\/\s*$/, '').trim();
+      if (isUsableReason(reason)) return { reason };
+      found = { reason: null };
+    }
+  }
+  return found;
+}
+
 const FORM_DETAIL = {
   'same-call': 'the expected value is the same call as the code under test (same function, same arguments)',
   recomputed: 'the expected value is recomputed from the same input as the code under test (reduce/map/filter with a callback that uses only its own parameters), so it is not an independent oracle'
@@ -1063,16 +1157,22 @@ const FORM_DETAIL = {
 /**
  * Analyze one test file's text.
  * @returns {{ family: string|null, cases: number, skipped: number, unparsed: number,
- *             findings: { rule: string, line: number|null, name: string, detail: string }[] }}
+ *             findings: { rule: string, line: number|null, name: string, detail: string }[],
+ *             exempted: { rule: string, line: number, name: string, reason: string }[] }}
  */
 export function analyzeTestText(text, ext, extraAssertion = [], detectors = INDEPENDENCE_DETECTORS) {
   const family = FAMILY_BY_EXT[ext] || null;
   const rules = family && FAMILY_RULES[family];
-  if (!rules) return { family: null, cases: 0, skipped: 0, unparsed: 0, findings: [] };
+  if (!rules) return { family: null, cases: 0, skipped: 0, unparsed: 0, findings: [], exempted: [] };
   const { noComments, noStrings } = maskSource(text, family);
   const { cases, unparsed } = rules.find(text, noStrings, noComments, ext);
   const lineOf = lineIndex(text);
   const findings = [];
+  const exempted = [];
+  const textLines = text.split('\n');
+  const ncLines = noComments.split('\n');
+  const casesOnLine = new Map();
+  for (const c of cases) casesOnLine.set(lineOf(c.idx), (casesOnLine.get(lineOf(c.idx)) || 0) + 1);
   let skipped = 0;
   for (const c of cases) {
     if (c.skipped) { skipped++; continue; }
@@ -1086,17 +1186,23 @@ export function analyzeTestText(text, ext, extraAssertion = [], detectors = INDE
     taut += detectors.count(family, ncBody, nsBody, c.name);
     const real = Math.max(0, tokens - taut) + c.credit;
     if (real > 0) continue;
+    const exemption = exemptionFor(textLines, ncLines, lineOf(c.idx), casesOnLine);
+    if (exemption && exemption.reason) {
+      exempted.push({ rule: taut === 0 ? 'no-assertion' : 'tautology', line: lineOf(c.idx), name: c.name, reason: exemption.reason });
+      continue;
+    }
+    const noReason = exemption ? ` (${NO_USABLE_REASON})` : '';
     if (taut === 0) {
-      findings.push({ rule: 'no-assertion', line: lineOf(c.idx), name: c.name, detail: 'the body contains nothing that can fail an assertion' });
+      findings.push({ rule: 'no-assertion', line: lineOf(c.idx), name: c.name, detail: `the body contains nothing that can fail an assertion${noReason}` });
       continue;
     }
     const hits = detectors.find(family, ncBody, nsBody, c.name);
     const forms = [...new Set(hits.map((h) => h.form))];
-    const finding = { rule: 'tautology', line: lineOf(c.idx), name: c.name, detail: 'its only assertion(s) can never fail' };
+    const finding = { rule: 'tautology', line: lineOf(c.idx), name: c.name, detail: `its only assertion(s) can never fail${noReason}` };
     if (forms.length > 0) {
       const parts = forms.map((f) => FORM_DETAIL[f]);
       if (regexTaut > 0) parts.unshift('an assertion that can never fail');
-      finding.detail = `its only assertion(s) are not independent of the code under test: ${parts.join('; ')} (see verification-oracle)`;
+      finding.detail = `its only assertion(s) are not independent of the code under test: ${parts.join('; ')} (see verification-oracle)${noReason}`;
       finding.forms = forms;
       finding.assertions = hits.map((h) => ({ line: lineOf(c.bodyStart + h.offset), form: h.form }));
     }
@@ -1105,7 +1211,7 @@ export function analyzeTestText(text, ext, extraAssertion = [], detectors = INDE
   if (cases.length > 0 && skipped === cases.length) {
     findings.push({ rule: 'all-skipped', line: null, name: '(file)', detail: `every test in this file is skipped or todo (${skipped})` });
   }
-  return { family, cases: cases.length, skipped, unparsed, findings };
+  return { family, cases: cases.length, skipped, unparsed, findings, exempted };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1160,6 +1266,15 @@ const SELF_TEST = [
   { ext: 'js', rules: ['tautology'], text: "it('destructured reduce', () => { expect(calculateTotal(items)).toBe(items.reduce((s, { price }) => s + price, 0)); });\n" },
   { ext: 'js', rules: ['tautology'], text: "it('function expression', () => { expect(calculateTotal(items)).toBe(items.reduce(function (s, i) { return s + i.price; }, 0)); });\n" },
   { ext: 'js', rules: ['tautology'], text: "it('block arrow', () => { expect(calculateTotal(items)).toBe(items.reduce((s, i) => { return s + i.qty * i.price; }, 0)); });\n" },
+  // XSPEC-518 R3: one test exempted with a reason; the same marker without a reason, or inside a string, exempts nothing.
+  { ext: 'js', rules: [], text: "// ANTI_FAKE_EXEMPT: the hook only has to not throw on this platform\nit('hook runs', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion'], text: "// ANTI_FAKE_EXEMPT:\nit('hook runs', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion'], text: "const note = 'ANTI_FAKE_EXEMPT: not a comment';\nit('hook runs', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion'], text: "// ANTI_FAKE_EXEMPT: covers only the next test\nit('a', () => { runHook(); });\nit('b', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion'], text: "// ANTI_FAKE_EXEMPT: x\nit('hook runs', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion'], text: "// ANTI_FAKE_EXEMPT: TODO\nit('hook runs', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion', 'no-assertion'], text: "it('a', () => {\n  runHook(); // ANTI_FAKE_EXEMPT: smoke test of the first hook\n});\nit('b', () => { runHook(); });\n" },
+  { ext: 'js', rules: ['no-assertion', 'no-assertion'], text: "it('a', () => { runHook(); }); it('b', () => { runHook(); }); // ANTI_FAKE_EXEMPT: smoke tests of the hook\n" },
   { ext: 'py', rules: ['no-assertion'], text: "def test_nothing():\n    x = 1\n    pass\n" },
   { ext: 'py', rules: ['tautology'], text: "def test_true():\n    assert True\n" },
   { ext: 'py', rules: [], text: "def test_ok():\n    assert add(1, 2) == 3\n\n\ndef test_raises():\n    with pytest.raises(ValueError):\n        f()\n" },
@@ -1214,21 +1329,27 @@ function readAssertionPatterns(root) {
 // Directories under a test tree that hold data, not tests.
 const FIXTURE_DIRS = new Set(['fixtures', 'fixture', '__fixtures__', '__snapshots__', 'snapshots', 'testdata', '__mocks__']);
 
-export function scan(root, { staged = false } = {}) {
+export function scan(root, { staged = false, maxFiles = WALK_LIMIT } = {}) {
   const { policy, problems } = loadPolicy(root);
   const extra = readAssertionPatterns(root);
   problems.push(...extra.problems);
   let files;
+  let truncated = false;
+  let unreadableDirs = [];
   if (staged) {
     const s = stagedFiles(root);
     if (s.error) return { error: `cannot read the staged files: ${s.error}`, problems };
     files = s.files;
   } else {
-    files = walkFiles(root, policy);
+    const w = walkFilesChecked(root, policy, maxFiles);
+    files = w.files;
+    truncated = w.truncated;
+    unreadableDirs = w.unreadable;
   }
   const result = {
-    mode: staged ? 'staged' : 'all', problems, testFiles: 0, cases: 0, skippedCases: 0, unparsed: 0,
-    findings: [], unsupported: [], unreadable: []
+    mode: staged ? 'staged' : 'all', problems, incomplete: false, truncated, walkLimit: staged ? null : maxFiles, unreadableDirs,
+    testFiles: 0, cases: 0, skippedCases: 0, unparsed: 0,
+    findings: [], exempted: [], unsupported: [], unreadable: [], readFailures: 0
   };
   for (const rel of files) {
     if (classifyPath(rel, policy).kind !== 'test') continue;
@@ -1242,14 +1363,22 @@ export function scan(root, { staged = false } = {}) {
       continue;
     }
     const r = readText(join(root, rel));
-    if (r.skipped) { if (!r.quiet) result.unreadable.push(`${rel} (${r.skipped})`); continue; }
+    if (r.skipped) {
+      if (!r.quiet) result.unreadable.push(`${rel} (${r.skipped})`);
+      if (r.failed) result.readFailures++;
+      continue;
+    }
     const a = analyzeTestText(r.text, ext, extra.patterns);
     result.testFiles++;
     result.cases += a.cases;
     result.skippedCases += a.skipped;
     result.unparsed += a.unparsed;
     for (const f of a.findings) result.findings.push({ file: rel, ...f });
+    for (const x of a.exempted) result.exempted.push({ file: rel, ...x });
   }
+  // Not the whole project, or a file that could not be read: what was not seen is not clean (a test file
+  // skipped for being over 2 MB is listed under "NOT scanned", like an unsupported language, and is not counted here).
+  result.incomplete = result.truncated || result.unreadableDirs.length > 0 || result.readFailures > 0;
   return result;
 }
 
@@ -1260,6 +1389,10 @@ function report(r) {
   for (const f of r.findings) {
     out.push(`  ✗ ${f.file}${f.line ? `:${f.line}` : ''}  ${f.rule}  "${f.name}" — ${f.detail}`);
   }
+  if (r.exempted.length > 0) {
+    out.push(`  · ${r.exempted.length} test(s) exempted by an ANTI_FAKE_EXEMPT comment with a reason (not judged):`);
+    for (const x of r.exempted) out.push(`      ${x.file}:${x.line}  "${x.name}" — ${x.reason}`);
+  }
   if (r.unsupported.length > 0) {
     const exts = [...new Set(r.unsupported.map((p) => `.${extOfPath(p) || '(none)'}`))].join(', ');
     out.push(`  · NOT scanned — no rule for this language (${exts}): ${r.unsupported.slice(0, 5).join(', ')}${r.unsupported.length > 5 ? `, +${r.unsupported.length - 5} more` : ''}`);
@@ -1268,8 +1401,28 @@ function report(r) {
   for (const u of r.unreadable) out.push(`  · NOT scanned — ${u}`);
   if (r.unparsed > 0) out.push(`  · ${r.unparsed} test call(s) could not be parsed (unbalanced brackets) and were not judged`);
   if (r.testFiles === 0 && r.unsupported.length === 0 && r.mode === 'all') out.push('  · no test files found — nothing was measured');
-  out.push(r.findings.length > 0 ? `RESULT: ${r.findings.length} finding(s)` : 'RESULT: no fake tests found among the files scanned');
+  if (r.truncated) {
+    out.push(`  ! INCOMPLETE — the walk stopped after ${r.walkLimit} files and more were left unread. The files above are NOT the whole project; fake tests in the unread part would not be found.`);
+  }
+  if (r.unreadableDirs.length > 0) {
+    out.push(`  ! INCOMPLETE — ${r.unreadableDirs.length} director${r.unreadableDirs.length === 1 ? 'y' : 'ies'} could not be opened, so what is inside was not scanned: ${r.unreadableDirs.slice(0, 5).join(', ')}${r.unreadableDirs.length > 5 ? `, +${r.unreadableDirs.length - 5} more` : ''}`);
+  }
+  if (r.readFailures > 0) {
+    out.push(`  ! INCOMPLETE — ${r.readFailures} test file(s) could not be read (listed above under "NOT scanned"); fake tests in them would not be found.`);
+  }
+  if (r.findings.length > 0) out.push(`RESULT: ${r.findings.length} finding(s)${r.incomplete ? ' — and the search was INCOMPLETE' : ''}`);
+  else if (r.incomplete) out.push('RESULT: INCOMPLETE — the search did not cover everything it should have, so this is NOT a pass');
+  else out.push('RESULT: no fake tests found among the files scanned');
   return out.join('\n');
+}
+
+/** `--max-files N` lowers the walk limit (to try the incomplete-search path, or to cap a huge tree). */
+function maxFilesFrom(argv) {
+  const i = argv.findIndex((a) => a === '--max-files' || a.startsWith('--max-files='));
+  if (i === -1) return {};
+  const raw = argv[i].includes('=') ? argv[i].split('=')[1] : argv[i + 1];
+  if (!/^[1-9]\d*$/.test(String(raw))) return { error: `--max-files needs a positive whole number, got ${JSON.stringify(raw)}` };
+  return { value: Number(raw) };
 }
 
 export function main(argv, root = process.cwd()) {
@@ -1279,13 +1432,20 @@ export function main(argv, root = process.cwd()) {
     for (const b of bad) console.error(`  ${b}`);
     return 2;
   }
-  const r = scan(root, { staged: argv.includes('--staged') });
+  const limit = maxFilesFrom(argv);
+  if (limit.error) {
+    console.error(`check-anti-fake-tests: ${limit.error}`);
+    return 2;
+  }
+  const r = scan(root, { staged: argv.includes('--staged'), ...(limit.value === undefined ? {} : { maxFiles: limit.value }) });
   if (r.error) {
     console.error(`check-anti-fake-tests: ${r.error}`);
     return 2;
   }
   console.log(argv.includes('--json') ? JSON.stringify(r, null, 2) : report(r));
-  return r.findings.length > 0 ? 1 : 0;
+  // A search that did not cover the project is "could not judge" (2), never a pass; findings still win (1).
+  if (r.findings.length > 0) return 1;
+  return r.incomplete ? 2 : 0;
 }
 
 if (isMain(import.meta.url)) process.exitCode = main(process.argv.slice(2));

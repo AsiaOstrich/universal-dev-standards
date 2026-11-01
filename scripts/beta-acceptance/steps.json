@@ -2151,6 +2151,79 @@
     },
     {
       "platform": "all",
+      "id": "tautology-incomplete",
+      "workspace": "tautology",
+      "title": "A scan that stops at its file limit says INCOMPLETE and exits 2, not a pass",
+      "titleZh": "掃描在檔案數上限停下時，寫明「查詢不完整」並以 2 結束，不是通過",
+      "changelog": [
+        "`check-anti-fake-tests` and `check-stubs` now say \"INCOMPLETE\" and exit 2"
+      ],
+      "prepare": [
+        {
+          "writeFile": "limit-demo.txt",
+          "content": "a file at the project root, so the first directory read already fills the limit\n"
+        },
+        {
+          "writeFile": "limit-demo/p1/a.test.js",
+          "content": "it('adds', () => { expect(add(1, 2)).toBe(3); });\n"
+        },
+        {
+          "writeFile": "limit-demo/p2/b.test.js",
+          "content": "it('adds', () => { expect(add(1, 2)).toBe(3); });\n"
+        },
+        {
+          "writeFile": "limit-demo/p3/c.test.js",
+          "content": "it('adds', () => { expect(add(1, 2)).toBe(3); });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "scripts/check-anti-fake-tests.mjs",
+        "--max-files",
+        "1"
+      ],
+      "expect": {
+        "exit": 2,
+        "contains": [
+          "INCOMPLETE",
+          "NOT a pass"
+        ],
+        "notContains": [
+          "no fake tests found"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "tautology-exempt",
+      "workspace": "tautology",
+      "title": "A test exempted with a written reason is listed and not reported; the same marker without a usable reason is still a finding",
+      "titleZh": "附理由豁免的測試會被列出但不算發現；同樣的註記沒有可用理由則仍算發現",
+      "changelog": [
+        "`check-anti-fake-tests` can exempt one test with a written reason"
+      ],
+      "prepare": [
+        {
+          "writeFile": "exempt-demo/tests/smoke.test.js",
+          "content": "// ANTI_FAKE_EXEMPT: the hook only has to not throw on this platform\nit('hook runs', () => { runHook(); });\n\n// ANTI_FAKE_EXEMPT:\nit('no reason given', () => { runHook(); });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "scripts/check-anti-fake-tests.mjs",
+        "--json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "\"exempted\"",
+          "the hook only has to not throw on this platform",
+          "gives no usable reason"
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "std-merge-danger",
       "workspace": "tautology",
       "title": "The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule",
