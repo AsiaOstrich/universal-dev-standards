@@ -27,7 +27,9 @@
 //   node scripts/check-stubs.mjs --json     machine-readable result
 //
 // Exit codes:  0 nothing found  |  1 findings  |  2 could not judge (the scanner's own
-//   self-test failed, or git was unreadable in --staged mode). 2 is never a pass.
+//   self-test failed, git was unreadable in --staged mode, or the search was INCOMPLETE — the
+//   walk hit its file limit (`--max-files N`, default 200000), a directory could not be opened,
+//   or a file could not be read — and it found nothing in the part it did see). 2 is never a pass.
 //
 // Marker rule: a placeholder is DECLARED when the text `STUB` or `COVERAGE_EXEMPT` is on
 // the same line or in the three lines above it. A declared placeholder is reported once, as
@@ -369,22 +371,48 @@ export function lineIndex(text) {
   };
 }
 
-/** Every project-relative file under `root`, skipping the policy's ignored directories and symlinks. */
-export function walkFiles(root, policy) {
+/** The most files one walk will list; the next file after that makes the walk "truncated". */
+export const WALK_LIMIT = 200000;
+
+/**
+ * Every project-relative file under `root`, skipping the policy's ignored directories and symlinks.
+ * At most `limit` files are listed (a hard limit, not a hint). The list is NOT the whole project when
+ *   - `truncated` is true: there was at least one more file after the `limit`th, or
+ *   - `unreadable` is not empty: a directory could not be opened, so what is in it is unknown.
+ * A caller must say so (XSPEC-518 R2): a short list is not a clean project. Directories are read in
+ * name order, so which part is left unread does not depend on the file system.
+ * @returns {{ files: string[], truncated: boolean, unreadable: string[] }}
+ */
+export function walkFilesChecked(root, policy, limit = WALK_LIMIT) {
   const skip = new Set(policy.ignoreDirs);
   const out = [];
+  const unreadable = [];
   const stack = [''];
-  while (stack.length > 0 && out.length < 200000) {
+  let truncated = false;
+  while (stack.length > 0 && !truncated) {
     const rel = stack.pop();
     let entries;
-    try { entries = readdirSync(join(root, rel), { withFileTypes: true }); } catch { continue; }
+    try {
+      entries = readdirSync(join(root, rel), { withFileTypes: true }).sort((x, y) => (x.name < y.name ? -1 : x.name > y.name ? 1 : 0));
+    } catch (e) {
+      unreadable.push(`${rel || '.'} (${e.code || e.message})`);
+      continue;
+    }
     for (const e of entries) {
       const r = rel ? `${rel}/${e.name}` : e.name;
       if (e.isSymbolicLink()) continue;
-      if (e.isDirectory()) { if (!skip.has(e.name)) stack.push(r); } else if (e.isFile()) out.push(r);
+      if (e.isDirectory()) { if (!skip.has(e.name)) stack.push(r); } else if (e.isFile()) {
+        if (out.length >= limit) { truncated = true; break; }
+        out.push(r);
+      }
     }
   }
-  return out.sort();
+  return { files: out.sort(), truncated, unreadable };
+}
+
+/** The file list alone (see walkFilesChecked for whether it is the whole project). */
+export function walkFiles(root, policy, limit = WALK_LIMIT) {
+  return walkFilesChecked(root, policy, limit).files;
 }
 
 /** Files staged for the next commit (added, copied, modified, renamed), or `{ error }`. */
@@ -399,7 +427,7 @@ export function stagedFiles(root) {
   }
 }
 
-/** File text, or `{ skipped }` when it is binary or larger than 2 MB (said, never silently dropped). */
+/** File text, or `{ skipped }` when it is binary or larger than 2 MB (said, never silently dropped); `failed: true` when the read itself failed. */
 export function readText(abs) {
   try {
     if (lstatSync(abs).size > 2 * 1024 * 1024) return { skipped: 'larger than 2 MB' };
@@ -407,7 +435,7 @@ export function readText(abs) {
     if (buf.subarray(0, 8000).includes(0)) return { skipped: 'binary', quiet: true };
     return { text: buf.toString('utf8').replace(/^\uFEFF/, '') };
   } catch (e) {
-    return { skipped: `unreadable (${e.code || e.message})` };
+    return { skipped: `unreadable (${e.code || e.message})`, failed: true };
   }
 }
 
@@ -585,30 +613,44 @@ export function selfTest() {
 const SELF = (() => { try { return realpathSync(fileURLToPath(import.meta.url)); } catch { return null; } })();
 const isSelf = (abs) => { try { return SELF !== null && realpathSync(abs) === SELF; } catch { return false; } };
 
-export function scan(root, { staged = false } = {}) {
+export function scan(root, { staged = false, maxFiles = WALK_LIMIT } = {}) {
   const { policy, problems } = loadPolicy(root);
   let files;
+  let truncated = false;
+  let unreadableDirs = [];
   if (staged) {
     const s = stagedFiles(root);
     if (s.error) return { error: `cannot read the staged files: ${s.error}`, problems };
     files = s.files;
   } else {
-    files = walkFiles(root, policy);
+    const w = walkFilesChecked(root, policy, maxFiles);
+    files = w.files;
+    truncated = w.truncated;
+    unreadableDirs = w.unreadable;
   }
-  const result = { mode: staged ? 'staged' : 'all', problems, files: 0, findings: [], noEmptyRule: new Set(), unreadable: [] };
+  const result = {
+    mode: staged ? 'staged' : 'all', problems, incomplete: false, truncated, walkLimit: staged ? null : maxFiles, unreadableDirs,
+    files: 0, findings: [], noEmptyRule: new Set(), unreadable: [], readFailures: 0
+  };
   for (const rel of files) {
     const kind = classifyPath(rel, policy).kind;
     if (kind !== 'source' && kind !== 'unclassified') continue;
     if (isSelf(join(root, rel))) continue;
     const ext = extOfPath(rel);
     const r = readText(join(root, rel));
-    if (r.skipped) { if (!r.quiet) result.unreadable.push(`${rel} (${r.skipped})`); continue; }
+    if (r.skipped) {
+      if (!r.quiet) result.unreadable.push(`${rel} (${r.skipped})`);
+      if (r.failed) result.readFailures++;
+      continue;
+    }
     const a = analyzeStubText(r.text, ext);
     result.files++;
     if (!a.emptyRule) result.noEmptyRule.add(ext ? `.${ext}` : '(no extension)');
     for (const f of a.findings) result.findings.push({ file: rel, ...f });
   }
   result.noEmptyRule = [...result.noEmptyRule].sort();
+  // Not the whole project, or a file that could not be read: what was not seen is not clean.
+  result.incomplete = result.truncated || result.unreadableDirs.length > 0 || result.readFailures > 0;
   return result;
 }
 
@@ -621,8 +663,28 @@ function report(r) {
     out.push(`  · empty-function scan has no rule for: ${r.noEmptyRule.join(' ')} (markers and "not implemented" bodies were still searched)`);
   }
   for (const u of r.unreadable) out.push(`  · NOT scanned — ${u}`);
-  out.push(r.findings.length > 0 ? `RESULT: ${r.findings.length} finding(s)` : 'RESULT: no stubs found among the files scanned');
+  if (r.truncated) {
+    out.push(`  ! INCOMPLETE — the walk stopped after ${r.walkLimit} files and more were left unread. The files above are NOT the whole project; stubs in the unread part would not be found.`);
+  }
+  if (r.unreadableDirs.length > 0) {
+    out.push(`  ! INCOMPLETE — ${r.unreadableDirs.length} director${r.unreadableDirs.length === 1 ? 'y' : 'ies'} could not be opened, so what is inside was not scanned: ${r.unreadableDirs.slice(0, 5).join(', ')}${r.unreadableDirs.length > 5 ? `, +${r.unreadableDirs.length - 5} more` : ''}`);
+  }
+  if (r.readFailures > 0) {
+    out.push(`  ! INCOMPLETE — ${r.readFailures} source file(s) could not be read (listed above under "NOT scanned"); stubs in them would not be found.`);
+  }
+  if (r.findings.length > 0) out.push(`RESULT: ${r.findings.length} finding(s)${r.incomplete ? ' — and the search was INCOMPLETE' : ''}`);
+  else if (r.incomplete) out.push('RESULT: INCOMPLETE — the search did not cover everything it should have, so this is NOT a pass');
+  else out.push('RESULT: no stubs found among the files scanned');
   return out.join('\n');
+}
+
+/** `--max-files N` lowers the walk limit (to try the incomplete-search path, or to cap a huge tree). */
+function maxFilesFrom(argv) {
+  const i = argv.findIndex((a) => a === '--max-files' || a.startsWith('--max-files='));
+  if (i === -1) return {};
+  const raw = argv[i].includes('=') ? argv[i].split('=')[1] : argv[i + 1];
+  if (!/^[1-9]\d*$/.test(String(raw))) return { error: `--max-files needs a positive whole number, got ${JSON.stringify(raw)}` };
+  return { value: Number(raw) };
 }
 
 export function main(argv, root = process.cwd()) {
@@ -632,13 +694,20 @@ export function main(argv, root = process.cwd()) {
     for (const b of bad) console.error(`  ${b}`);
     return 2;
   }
-  const r = scan(root, { staged: argv.includes('--staged') });
+  const limit = maxFilesFrom(argv);
+  if (limit.error) {
+    console.error(`check-stubs: ${limit.error}`);
+    return 2;
+  }
+  const r = scan(root, { staged: argv.includes('--staged'), ...(limit.value === undefined ? {} : { maxFiles: limit.value }) });
   if (r.error) {
     console.error(`check-stubs: ${r.error}`);
     return 2;
   }
   console.log(argv.includes('--json') ? JSON.stringify(r, null, 2) : report(r));
-  return r.findings.length > 0 ? 1 : 0;
+  // A search that did not cover the project is "could not judge" (2), never a pass; findings still win (1).
+  if (r.findings.length > 0) return 1;
+  return r.incomplete ? 2 : 0;
 }
 
 if (isMain(import.meta.url)) process.exitCode = main(process.argv.slice(2));
