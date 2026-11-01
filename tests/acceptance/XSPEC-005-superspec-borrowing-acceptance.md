@@ -590,3 +590,29 @@ until someone runs it.**
 
 **Sign-off**: Claude Opus 5 (dispatch-uds agent) — all 18 rows
 **Date**: 2026-08-20
+
+---
+
+## 2026-11-01 — the generated test skeletons are deleted (XSPEC-518)
+
+Three files generated on 2026-04-07 with this spec each held one placeholder
+test per acceptance criterion, ended on `expect(true).toBe(true)`, and passed
+for 66 tests that tested nothing. `check-anti-fake-tests` named all 66, and the
+dispositions above already say why none of them could be filled in: the CLI
+surface they point at was never built or has been deleted. They are removed:
+
+- `cli/tests/unit/superspec-borrowing/XSPEC-005-superspec-borrowing.test.js`
+- `cli/tests/integration/XSPEC-005-superspec-borrowing.it.test.js`
+- `cli/tests/e2e/XSPEC-005-superspec-borrowing.e2e.test.js`
+
+What does exist is tested by real tests, which this file's rows point at:
+
+| AT | Real test |
+|----|-----------|
+| AT-001, AT-002 (size rules) | `cli/tests/unit/utils/validate-spec-size.test.js` (`uds check --spec-size` itself: Won't Do) |
+| AT-004, AT-006 (`addDependency`, `removeDependency`) | `cli/tests/unit/vibe/spec-dependency.test.js` (`uds spec deps`: Won't Do) |
+| AT-007 to AT-010 (dual mode, backward compatibility) | `cli/tests/unit/vibe/spec-dual-mode.test.js` (`--boost`, `--approach`: Won't Do) |
+| AT-011 to AT-013 (`uds lint`) | `cli/tests/unit/utils/spec-linter.test.js`, `cli/tests/commands/lint.test.js` |
+| AT-014, AT-015 (scoring) | `cli/tests/unit/utils/compute-spec-score.test.js` |
+| AT-018 (YAML parses) | `scripts/check-ai-yaml-parses.mjs` (pre-commit, publish workflow, pre-release check) |
+| AT-003, AT-005, AT-016, AT-017 | none: the feature does not exist (Won't Do above) |
