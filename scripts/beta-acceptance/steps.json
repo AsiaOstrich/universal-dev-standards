@@ -84,6 +84,10 @@
     {
       "changelog": "Interactive tests answer a prompt by what it asks, and a question that never appears fails the test",
       "reason": "Tests only (cli/tests/utils/cli-runner.js, a fixture and three test files); nothing of it is in the npm package and no command, message or file the user sees changes. The test helper is exercised from the product entry by cli/tests/e2e/init-flow.test.js (real `uds init`, answered by prompt text) and cli/tests/e2e/e2e-helpers-cross-platform.test.js (the same two questions in both orders), which cut the prompt-matching line to see them go red."
+    },
+    {
+      "changelog": "The complete-tier slash-command test now fails when a command is missing",
+      "reason": "Tests only (cli/tests/unit/scripts/integration-commands-sync.test.js); nothing of it is in the npm package and no command, message or file the user sees changes. The test reads integrations/REGISTRY.json, skills/commands/COMMAND-INDEX.json and the complete-tier instruction files from the repository; removing one /check mention from integrations/opencode/AGENTS.md turns it red."
     }
   ],
   "steps": [
