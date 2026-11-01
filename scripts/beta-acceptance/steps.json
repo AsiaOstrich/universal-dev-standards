@@ -92,6 +92,10 @@
     {
       "changelog": "The 66 generated placeholder tests of XSPEC-005 are deleted",
       "reason": "Tests only: three test files under cli/tests/ and two documents under tests/ are removed or annotated; nothing of it is in the npm package and no command, message or file the user sees changes. That the repository now holds no fake test is shown by `npm run ci:local` (node templates/gates/check-anti-fake-tests.mjs: 0 findings, not incomplete), run from the product entry by cli/tests/unit/templates/ci-local-wiring.test.js."
+    },
+    {
+      "changelog": "`npm run ci:local` runs the repository's fake-test gate",
+      "reason": "Maintainer tooling in the repository (root package.json and .github/workflows/ci.yml); nothing of it is in the npm package, and uds init, uds check and the shipped scanners behave as before. Tested from the entry by cli/tests/unit/templates/ci-local-wiring.test.js, which reads the CI step and the package.json script, runs the CI step's own command in a project with a fake test (red) and without it (green), and cuts three wires (the ci:local script, the check:anti-fake-tests script, the ci.yml run line)."
     }
   ],
   "steps": [
