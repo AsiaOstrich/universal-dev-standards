@@ -97,11 +97,19 @@ describe('init transactionality (T11)', () => {
       errors: ['core/test.md: EPERM: operation not permitted'], fileHashes: {}
     });
 
-    await expect(initCommand({ yes: true })).rejects.toThrow('process.exit called');
+    // A failed install ends through process.exitCode, not process.exit(1): process.exit() throws away output that
+    // is still waiting to be written to a pipe on macOS, and the error list is the part the user needs most.
+    const before = process.exitCode;
+    try {
+      await initCommand({ yes: true });
+      expect(process.exitCode).toBe(1);
+    } finally {
+      process.exitCode = before; // do not leave the test runner itself exiting with 1
+    }
 
     // The completion marker must NOT be written for a partial install.
     expect(writeFinalManifest).not.toHaveBeenCalled();
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(exitSpy).not.toHaveBeenCalled();
     const output = consoleLogs.join('\n');
     expect(output).toMatch(/rolled back|rollback|failed/i);
   });

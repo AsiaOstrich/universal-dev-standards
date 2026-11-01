@@ -281,7 +281,11 @@ export async function initCommand(options) {
           .replace('{error}', err.rollbackError?.message || 'unknown')
       ));
     }
-    process.exit(1);
+    // Not process.exit(1): when stdout is a pipe (CI, an AI assistant, the test harness) Node on macOS writes what
+    // does not fit into the pipe asynchronously, and process.exit() throws the rest away. The error list above is
+    // one long line per file, so a deep temp path pushed it past the 64 KB pipe and the end of the list - the
+    // locale pack, the line that says what failed last - never arrived. Setting exitCode lets the output drain.
+    process.exitCode = 1;
     return;
   }
 
