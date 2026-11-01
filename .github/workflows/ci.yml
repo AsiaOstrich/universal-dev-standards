@@ -1082,3 +1082,28 @@ jobs:
 
       - name: Check reference-only disclosure
         run: npm run check:reference-only
+
+  # ── Fake-test gate (XSPEC-518 R4) ────────────────────────────────────
+  # UDS ships check-anti-fake-tests to every adopter and, until XSPEC-518, never ran it on its own tests:
+  # 67 findings sat in the tree (66 generated placeholder tests that passed with `expect(true).toBe(true)`,
+  # one that only logged), and the scanner stopped at 200,000 files without saying so. It ran in no CI job
+  # and no package.json script. This job runs it over the whole repository and fails on any finding, and on
+  # a search that did not see everything (exit 2, INCOMPLETE). It needs no dependencies: pure Node.
+  #
+  # The step runs `npm run ci:local`, the same command a person runs before pushing, so what turns this job
+  # red is what turns the local run red. A check added to `ci:local` in package.json is run here too.
+  # cli/tests/unit/templates/ci-local-wiring.test.js reads this step and the script and runs them.
+  anti-fake-tests:
+    name: Fake-test gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Fail on any test that cannot fail
+        run: npm run ci:local
