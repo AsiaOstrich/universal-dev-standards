@@ -88,6 +88,10 @@
     {
       "changelog": "The complete-tier slash-command test now fails when a command is missing",
       "reason": "Tests only (cli/tests/unit/scripts/integration-commands-sync.test.js); nothing of it is in the npm package and no command, message or file the user sees changes. The test reads integrations/REGISTRY.json, skills/commands/COMMAND-INDEX.json and the complete-tier instruction files from the repository; removing one /check mention from integrations/opencode/AGENTS.md turns it red."
+    },
+    {
+      "changelog": "The 66 generated placeholder tests of XSPEC-005 are deleted",
+      "reason": "Tests only: three test files under cli/tests/ and two documents under tests/ are removed or annotated; nothing of it is in the npm package and no command, message or file the user sees changes. That the repository now holds no fake test is shown by `npm run ci:local` (node templates/gates/check-anti-fake-tests.mjs: 0 findings, not incomplete), run from the product entry by cli/tests/unit/templates/ci-local-wiring.test.js."
     }
   ],
   "steps": [

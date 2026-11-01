@@ -1,6 +1,9 @@
 # [Source: specs/superspec-borrowing-phase1-2-spec.md]
 # [Generated] BDD scenarios for SuperSpec Borrowing Phase 1-2
 # [Derived] Refined with concrete examples and business language
+# [Status 2026-11-01] Several scenarios below describe features that were never built (see
+# tests/acceptance/XSPEC-005-superspec-borrowing-acceptance.md for each one's disposition and for the
+# real tests behind the ones that exist). The generated test skeletons for it were deleted (XSPEC-518).
 
 @XSPEC-005
 Feature: SuperSpec Borrowing — UDS Phase 1-2
