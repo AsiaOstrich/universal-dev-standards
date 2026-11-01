@@ -181,128 +181,6 @@ export async function runNonInteractive(options = {}, workDir, timeout = 30000, 
 }
 
 /**
- * Run CLI with simulated interactive inputs
- * Uses stdin to send responses to prompts
- * @param {Array<string|Object>} inputs - Array of inputs to send
- * @param {Object} cliOptions - Additional CLI options (not --yes)
- * @param {string} workDir - Working directory
- * @param {number} timeout - Timeout in ms
- * @returns {Promise<Object>} Result with output and files
- */
-export async function runInteractive(inputs, cliOptions = {}, workDir, timeout = 60000) {
-  const args = ['init'];
-
-  // Add CLI options (but not --yes)
-  for (const [key, value] of Object.entries(cliOptions)) {
-    if (key === 'yes') continue; // Skip --yes in interactive mode
-    if (value === true) {
-      args.push(`--${key}`);
-    } else if (value !== false && value !== undefined) {
-      args.push(`--${key}=${value}`);
-    }
-  }
-
-  return new Promise((resolve) => {
-    const proc = spawn('node', [CLI_PATH, ...args], {
-      cwd: workDir,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR }
-    });
-
-    let stdout = '';
-    let stderr = '';
-    let inputIndex = 0;
-    const stepOutputs = [];
-    let currentStep = '';
-
-    proc.stdout.on('data', (data) => {
-      const chunk = data.toString();
-      stdout += chunk;
-      currentStep += chunk;
-
-      // Check if we need to send next input
-      // Inquirer prompts typically end with ?: or certain patterns
-      const cleanChunk = stripAnsi(chunk);
-      if (shouldSendInput(cleanChunk, inputIndex, inputs)) {
-        // Record step output
-        stepOutputs.push({
-          step: inputIndex,
-          output: stripAnsi(currentStep),
-          input: inputs[inputIndex]
-        });
-        currentStep = '';
-
-        // Send input
-        const input = inputs[inputIndex];
-        if (typeof input === 'object') {
-          // For checkbox/multi-select, send space to select then enter
-          if (input.type === 'checkbox') {
-            for (const selection of input.selections || []) {
-              if (selection.toggle) {
-                proc.stdin.write(' '); // Space to toggle current item
-              }
-              if (selection.down) {
-                proc.stdin.write('\x1B[B'); // Arrow down to next item
-              }
-              if (selection.up) {
-                proc.stdin.write('\x1B[A'); // Arrow up to previous item
-              }
-            }
-            proc.stdin.write('\r'); // Enter to confirm
-          } else {
-            proc.stdin.write(input.value + '\r');
-          }
-        } else {
-          proc.stdin.write(input + '\r');
-        }
-        inputIndex++;
-      }
-    });
-
-    proc.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    const timer = setTimeout(() => {
-      proc.kill('SIGTERM');
-      resolve({
-        stdout: stripAnsi(stdout),
-        stderr: stripAnsi(stderr),
-        stepOutputs,
-        exitCode: -1,
-        timedOut: true,
-        files: []
-      });
-    }, timeout);
-
-    proc.on('close', async (code) => {
-      clearTimeout(timer);
-
-      // Record final step output
-      if (currentStep) {
-        stepOutputs.push({
-          step: inputIndex,
-          output: stripAnsi(currentStep),
-          input: null
-        });
-      }
-
-      // Collect generated files
-      const files = await collectGeneratedFiles(workDir);
-
-      resolve({
-        stdout: stripAnsi(stdout),
-        stderr: stripAnsi(stderr),
-        stepOutputs,
-        exitCode: code,
-        timedOut: false,
-        files
-      });
-    });
-  });
-}
-
-/**
  * The prompt that is waiting for an answer, as text (its question line and its choices), or null.
  * Looks at the LAST marker only: an inquirer prompt line starts with `?`; once answered it is rewritten as
  * `✔` (`√` where the terminal has no unicode: inquirer's Windows fallback). "Last marker is `?`" = waiting; "last marker is `✔`" = the previous answer is being echoed and the next
@@ -327,14 +205,20 @@ export function currentPrompt(screen) {
  * prompt that has not been answered (see currentPrompt). The first rule whose `when` matches that prompt
  * wins; no match → `defaultKeys` (Enter = take the default). Keys go out as one write.
  *
+ * XSPEC-516 R1: a rule's keys go ONLY to a prompt that matches it, and a rule whose prompt never appeared is a
+ * failure, not a silent no-op: the promise rejects naming the rule (`allowUnused: true` opts out, for a prompt
+ * that is genuinely optional). Without that, a reworded or removed question left its rule unused and the test
+ * went on passing on defaults alone.
+ *
  * @param {Array<{when: RegExp, keys: string}>} rules
  * @param {string} workDir
- * @param {{timeout?: number, idleMs?: number, defaultKeys?: string, maxAnswers?: number, args?: string[]}} [opts]
- * @returns {Promise<{stdout: string, stderr: string, exitCode: number|null, timedOut: boolean, answers: Array<{prompt: string, keys: string, rule: number}>, files: Array}>}
+ * @param {{timeout?: number, idleMs?: number, defaultKeys?: string, maxAnswers?: number, args?: string[], entry?: string, command?: string[], allowUnused?: boolean}} [opts]
+ *   `entry` / `command`: the program to drive and the command it is given; default is `uds init`.
+ * @returns {Promise<{stdout: string, stderr: string, exitCode: number|null, timedOut: boolean, answers: Array<{prompt: string, keys: string, rule: number}>, unusedRules: number[], files: Array}>}
  */
-export async function runPrompted(rules, workDir, { timeout = 90000, idleMs = 400, defaultKeys = '\r', maxAnswers = 60, args = [] } = {}) {
-  return new Promise((resolve) => {
-    const proc = spawn('node', [CLI_PATH, 'init', ...args], {
+export async function runPrompted(rules, workDir, { timeout = 90000, idleMs = 400, defaultKeys = '\r', maxAnswers = 60, args = [], entry = CLI_PATH, command = ['init'], allowUnused = false } = {}) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('node', [entry, ...command, ...args], {
       cwd: workDir,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, FORCE_COLOR: '0', HOME: TEST_HOME_DIR }
@@ -381,36 +265,20 @@ export async function runPrompted(rules, workDir, { timeout = 90000, idleMs = 40
       closed = true;
       clearTimeout(timer);
       clearTimeout(idle);
+      const unusedRules = rules.map((_, i) => i).filter((i) => !answers.some((a) => a.rule === i));
+      if (unusedRules.length > 0 && !timedOut && !allowUnused) {
+        reject(new Error(
+          `runPrompted: no prompt matched rule(s) ${unusedRules.map((i) => `#${i} ${rules[i].when}`).join(', ')}; ` +
+          `answered: ${JSON.stringify(answers.map((a) => a.prompt))}`
+        ));
+        return;
+      }
       resolve({
-        stdout, stderr: stripAnsi(stderr), exitCode: timedOut ? -1 : code, timedOut, answers,
+        stdout, stderr: stripAnsi(stderr), exitCode: timedOut ? -1 : code, timedOut, answers, unusedRules,
         files: timedOut ? [] : await collectGeneratedFiles(workDir)
       });
     });
   });
-}
-
-/**
- * Determine if we should send the next input based on output
- * @param {string} output - Current output chunk
- * @param {number} inputIndex - Current input index
- * @param {Array} inputs - All inputs
- * @returns {boolean}
- */
-function shouldSendInput(output, inputIndex, inputs) {
-  if (inputIndex >= inputs.length) return false;
-
-  // Common prompt indicators
-  const promptIndicators = [
-    /\?\s*$/,          // Ends with ?
-    /:\s*$/,           // Ends with :
-    /\(Y\/n\)/i,       // Yes/No prompt
-    /\(y\/N\)/i,       // No/Yes prompt
-    /❯/,               // Inquirer selection arrow
-    /\[\s*\]/,         // Empty checkbox
-    /\(\s*\)/          // Empty radio
-  ];
-
-  return promptIndicators.some(pattern => pattern.test(output));
 }
 
 /**
@@ -646,7 +514,6 @@ export async function runCommand(command, options = {}, workDir, timeout = 30000
 
 export default {
   runNonInteractive,
-  runInteractive,
   runCommand,
   createTempDir,
   cleanupTempDir,
