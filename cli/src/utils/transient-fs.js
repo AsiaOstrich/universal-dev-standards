@@ -26,8 +26,8 @@
  * @module utils/transient-fs
  */
 
-import { copyFileSync, accessSync, openSync, closeSync, existsSync, constants } from 'fs';
-import { dirname } from 'path';
+import { copyFileSync, openSync, closeSync, unlinkSync, existsSync } from 'fs';
+import { dirname, join } from 'path';
 
 /** The retry budget. Worst case about 2.3 s of waiting per file (50+100+...+450 ms). */
 export const RETRY_POLICY = Object.freeze({
@@ -40,6 +40,8 @@ export const RETRY_POLICY = Object.freeze({
 const ALWAYS_TRANSIENT = new Set(['EBUSY']);
 const WINDOWS_TRANSIENT = new Set(['EPERM', 'EACCES']);
 const PERMISSION_CODES = new Set(['EPERM', 'EACCES']);
+// What a refused write looks like when it is a permission and not a lock (EROFS: a read-only file system).
+const DENIED_CODES = new Set(['EPERM', 'EACCES', 'EROFS']);
 
 /**
  * Is this error one that is worth retrying on this platform?
@@ -93,7 +95,7 @@ function permissionDeniedError(err, { path, action }, attempts, elapsedMs, reaso
   const found = reason ? `UDS checked: ${reason}. ` : '';
   const message =
     `Could not ${action} "${path}": permission denied (${err.code}). ` +
-    'This is a permission problem, not a temporary file lock, so trying again will not help. ' +
+    'This looks like a permission problem rather than a temporary file lock. ' +
     tried + found +
     'Check: (1) the file is not marked read-only; (2) your account may read the source and write the file ' +
     'and its folder (owner and permissions; on Windows, the Security tab of the folder); ' +
@@ -110,32 +112,49 @@ function permissionDeniedError(err, { path, action }, attempts, elapsedMs, reaso
 
 /**
  * After EPERM / EACCES kept failing on Windows: is this a real permission problem, or a lock that looked like one?
- * Windows reports both as EPERM / EACCES, so the error code cannot tell them apart; what can is asking the
- * file system directly. Evidence of a permission problem: the source cannot be read, the destination exists
- * and cannot be opened for writing (read-only attribute, or an ACL that denies it), or it does not exist and
- * its folder is not writable. A destination that opens for writing now was locked a moment ago, not forbidden.
+ * Windows reports both as EPERM / EACCES, so the error code cannot tell them apart; what can is TRYING the write.
+ * (`fs.access` cannot: on Windows libuv answers W_OK from the read-only attribute alone, never from the ACL, and
+ * always says yes for a folder - src/win/fs.c `fs__access`.) Evidence of a permission problem: the source cannot be
+ * opened for reading, the destination exists and cannot be opened for writing (read-only attribute, or an ACL that
+ * denies it), or it does not exist and a scratch file cannot be created next to it. A destination that opens for
+ * writing now was locked a moment ago, not forbidden. The scratch file is removed on every path, including a failure.
  * @param {{path: string, source?: string}} info
+ * @param {{openSync?: Function, closeSync?: Function, unlinkSync?: Function, existsSync?: Function}} [ops] - for tests
  * @returns {{denied: boolean, reason?: string}}
  */
-export function probeWritePermission({ path, source }) {
-  if (source) {
-    try { accessSync(source, constants.R_OK); } catch { return { denied: true, reason: `the source "${source}" cannot be read` }; }
-  }
-  if (existsSync(path)) {
-    try { accessSync(path, constants.W_OK); } catch { return { denied: true, reason: `"${path}" is read-only or not writable by this account` }; }
+export function probeWritePermission({ path, source }, ops = {}) {
+  const { openSync: open = openSync, closeSync: close = closeSync, unlinkSync: unlink = unlinkSync, existsSync: exists = existsSync } = ops;
+  // Open `file` with `flags`, close it again; returns the error code if it could not be opened, else null.
+  const tryOpen = (file, flags) => {
     let fd;
     try {
-      fd = openSync(path, 'r+');
+      fd = open(file, flags);
     } catch (e) {
-      if (e && PERMISSION_CODES.has(e.code)) return { denied: true, reason: `"${path}" cannot be opened for writing (${e.code})` };
-      return { denied: false }; // EBUSY or anything else: a lock, not a permission
-    } finally {
-      if (fd !== undefined) closeSync(fd);
+      return (e && e.code) || 'UNKNOWN';
     }
-    return { denied: false };
+    try { close(fd); } catch { /* the probe only asks whether it could be opened */ }
+    return null;
+  };
+  if (source) {
+    const code = tryOpen(source, 'r');
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `the source "${source}" cannot be opened for reading (${code})` };
   }
-  try { accessSync(dirname(path), constants.W_OK); } catch { return { denied: true, reason: `the folder "${dirname(path)}" is not writable by this account` }; }
-  return { denied: false };
+  if (exists(path)) {
+    const code = tryOpen(path, 'r+');
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `"${path}" cannot be opened for writing (${code}): it is read-only or this account may not write it` };
+    return { denied: false }; // opened, or EBUSY / anything else: a lock, not a permission
+  }
+  const folder = dirname(path);
+  const scratch = join(folder, `.uds-permission-probe-${process.pid}-${Date.now().toString(36)}`);
+  let created = false;
+  try {
+    const code = tryOpen(scratch, 'wx');
+    created = code === null;
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `a file cannot be created in the folder "${folder}" (${code})` };
+    return { denied: false };
+  } finally {
+    if (created) { try { unlink(scratch); } catch { /* nothing more can be done; the name starts with .uds-permission-probe */ } }
+  }
 }
 
 /**

@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { mkdtempSync, writeFileSync, chmodSync, rmSync, existsSync } from 'fs';
+import { mkdtempSync, writeFileSync, chmodSync, rmSync, existsSync, readdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { isTransientFsError, retryTransientFs, probeWritePermission, RETRY_POLICY } from '../../../src/utils/transient-fs.js';
@@ -117,6 +117,7 @@ describe('retryTransientFs', () => {
     expect(thrown.cause).toBe(original);
     expect(thrown.permissionDenied).toBe(true);
     expect(thrown.message).not.toMatch(/antivirus|locked by another program/i);
+    expect(thrown.message, 'it does not claim that trying again is useless').not.toMatch(/will not help/i);
   });
 
   it('retries EPERM and EACCES on Windows', () => {
@@ -164,7 +165,8 @@ describe('EPERM / EACCES that keep failing on Windows: lock or permission? (XSPE
       expect(thrown.message, code).toMatch(/Check:/);
       expect(thrown.message, code).toContain('UDS tried 10 times');
       expect(thrown.message, code).toContain(`${code}: operation not permitted, copyfile 'a' -> 'b'`);
-      expect(thrown.message, code).not.toMatch(/antivirus|locked by another program|OneDrive/i);
+      expect(thrown.message, code).not.toMatch(/antivirus|locked by another program|OneDrive|will not help/i);
+      expect(thrown.message, code).toContain('looks like a permission problem rather than a temporary file lock');
       expect(thrown.code).toBe(code);
       expect(thrown.permissionDenied).toBe(true);
       expect(thrown.transientRetryExhausted).toBeUndefined();
@@ -193,10 +195,11 @@ describe('EPERM / EACCES that keep failing on Windows: lock or permission? (XSPE
   });
 });
 
-describe('probeWritePermission against the real file system', () => {
+describe('probeWritePermission: it tries the write, it does not ask fs.access', () => {
   const root = () => mkdtempSync(join(tmpdir(), 'uds-probe-'));
   // chmod does not stop root, and a read-only attribute is the only thing Windows honours: skip as root.
   const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+  const denied = (code) => Object.assign(new Error(`${code}: denied`), { code });
 
   it.skipIf(asRoot)('a read-only destination is denied and the reason names it', () => {
     const dir = root();
@@ -216,17 +219,76 @@ describe('probeWritePermission against the real file system', () => {
       const target = join(dir, 'rw.yaml');
       writeFileSync(target, 'x');
       expect(probeWritePermission({ path: target })).toEqual({ denied: false });
-      expect(existsSync(target)).toBe(true);
+      expect(readdirSync(dir)).toEqual(['rw.yaml']);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
-  it('a missing destination in a writable folder is not denied; an unreadable source is', () => {
+  it('a missing destination in a writable folder is not denied, and no scratch file is left behind', () => {
     const dir = root();
     try {
-      expect(probeWritePermission({ path: join(dir, 'new.yaml') }).denied).toBe(false);
-      const verdict = probeWritePermission({ path: join(dir, 'new.yaml'), source: join(dir, 'no-such-source') });
+      expect(probeWritePermission({ path: join(dir, 'new.yaml') })).toEqual({ denied: false });
+      expect(readdirSync(dir), 'the scratch file was removed').toEqual([]);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(asRoot || process.platform === 'win32')('a folder that cannot be written to denies a missing destination (really tried, nothing left behind)', () => {
+    const dir = root();
+    try {
+      chmodSync(dir, 0o555);
+      const verdict = probeWritePermission({ path: join(dir, 'new.yaml') });
       expect(verdict.denied).toBe(true);
-      expect(verdict.reason).toContain('cannot be read');
+      expect(verdict.reason).toContain('cannot be created in the folder');
+      chmodSync(dir, 0o755);
+      expect(readdirSync(dir)).toEqual([]);
+    } finally { chmodSync(dir, 0o755); rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a folder whose ACL refuses the new file is denied even though a W_OK check would say yes (Windows reports it as EPERM)', () => {
+    const dir = root();
+    try {
+      // The real fs.access says the folder is writable (it is, to this account); the create is what is refused.
+      const ops = { openSync: (file, flags) => { if (flags === 'wx') throw denied('EPERM'); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      const verdict = probeWritePermission({ path: join(dir, 'new.yaml') }, ops);
+      expect(verdict.denied).toBe(true);
+      expect(verdict.reason).toContain('EPERM');
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('an unreadable source is denied, by opening it', () => {
+    const dir = root();
+    try {
+      const ops = { openSync: (file, flags) => { if (flags === 'r') throw denied('EACCES'); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      const verdict = probeWritePermission({ path: join(dir, 'new.yaml'), source: join(dir, 'src.yaml') }, ops);
+      expect(verdict.denied).toBe(true);
+      expect(verdict.reason).toContain('cannot be opened for reading');
+      // A source that is merely busy or missing is not a permission verdict.
+      const busy = { ...ops, openSync: (file, flags) => { if (flags === 'r') throw denied('EBUSY'); return 99; } };
+      expect(probeWritePermission({ path: join(dir, 'new.yaml'), source: join(dir, 'src.yaml') }, busy).denied).toBe(false);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('the scratch file is removed even when closing it fails', () => {
+    const dir = root();
+    try {
+      const unlinked = [];
+      const ops = {
+        openSync: () => 77,
+        closeSync: () => { throw new Error('close failed'); },
+        unlinkSync: (file) => unlinked.push(file)
+      };
+      expect(probeWritePermission({ path: join(dir, 'new.yaml') }, ops)).toEqual({ denied: false });
+      expect(unlinked).toHaveLength(1);
+      expect(unlinked[0]).toContain('.uds-permission-probe-');
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a failed create leaves nothing to remove (unlink is not called for a file that was never made)', () => {
+    const dir = root();
+    try {
+      const unlinked = [];
+      const ops = { openSync: () => { throw denied('EACCES'); }, closeSync: () => {}, unlinkSync: (f) => unlinked.push(f) };
+      expect(probeWritePermission({ path: join(dir, 'new.yaml') }, ops).denied).toBe(true);
+      expect(unlinked).toEqual([]);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

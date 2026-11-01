@@ -173,9 +173,12 @@ it.skipIf(isRoot)('uds init onto a file that is really read-only says permission
   expect(text).toMatch(/rolled back/i);
   // What the user is told: which file, that it is a permission problem, what to check - and the original code.
   expect(text).toContain(LOCKED_FILE);
-  expect(text).toContain('permission denied');
-  expect(text).toMatch(/read-only/);
+  // Words only UDS's message has: Node's own text for this error is "EACCES: permission denied, copyfile ...".
+  expect(text).toMatch(/Could not copy .* to ".*error-codes\.ai\.yaml": permission denied \((EACCES|EPERM)\)/);
+  expect(text).toContain('looks like a permission problem rather than a temporary file lock');
+  expect(text).toMatch(/\(1\) the file is not marked read-only/);
   expect(text).toMatch(/Check:/);
+  expect(text).not.toMatch(/will not help/i);
   expect(text).toMatch(/\b(EACCES|EPERM)\b/);
   // What it must not say: that another program holds the file, or that the antivirus is to blame.
   expect(text).not.toMatch(/locked by another program/);
