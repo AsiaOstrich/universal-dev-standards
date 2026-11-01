@@ -14,12 +14,18 @@
  *   cli/src/commands/update.js   const request = resolveAddStandardRequest(manifest, addStandardIds);   (the ids are judged, then handed on)
  */
 
-import { it, expect, afterAll } from 'vitest';
+import { it, expect, afterAll, vi } from 'vitest';
 import { existsSync, readFileSync, writeFileSync, rmSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
 import { createHarness, REAL_REPO } from '../utils/staged-cli-harness.js';
 import { makeUpgradeProject, idsInAvailableSection, planCounts, STAND_IN_ID, STAND_IN_FILE } from '../utils/xspec-458.js';
+
+/**
+ * Each test here starts the CLI several times in a staged tree, so one test alone can pass 30 s on
+ * windows-latest (2026-11-01: this file timed out once and passed twice on the same tree).
+ */
+vi.setConfig({ testTimeout: 120_000 });
 
 const h = createHarness('xspec458-r3');
 afterAll(() => h.cleanup());
