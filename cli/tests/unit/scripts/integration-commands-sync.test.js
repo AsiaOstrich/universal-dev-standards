@@ -124,6 +124,8 @@ describe('SPEC-INTSYNC-001: Integration Commands Sync', () => {
         .filter(([, agent]) => agent.tier === 'complete');
 
       // Act
+      const gaps = {};
+      let checked = 0;
       for (const [agentId, agent] of completeAgents) {
         // An agent whose adopter file is generated has no template to check; the
         // registry says why in `instructionFileNote`. join() throws on undefined,
@@ -132,18 +134,19 @@ describe('SPEC-INTSYNC-001: Integration Commands Sync', () => {
         const instrFile = join(ROOT_DIR, agent.instructionFile);
         if (!existsSync(instrFile)) continue;
         const content = readFileSync(instrFile, 'utf-8');
+        checked++;
         const missing = allCommands.filter(cmd => {
-          const pattern = new RegExp(`/${cmd}(?![a-z-])`, 'g');
+          const pattern = new RegExp(`/${cmd}(?![a-z-])`);
           return !pattern.test(content);
         });
-
-        // Assert — report what's missing (informational for now)
-        // This documents the current gap; the sync script will enforce
-        if (missing.length > 0) {
-          console.log(`[INFO] ${agentId} missing ${missing.length}/${allCommands.length} commands: ${missing.slice(0, 5).join(', ')}...`);
-        }
+        if (missing.length > 0) gaps[agentId] = missing;
       }
-      expect(true).toBe(true);
+
+      // Assert — this used to only log the gap ("informational for now") and then assert
+      // true; the gap is closed (0 missing at the time of writing), so a command that
+      // goes unmentioned in a complete-tier instruction file now fails here.
+      expect(checked, 'no complete-tier agent had an instruction file to check — nothing was compared').toBeGreaterThan(0);
+      expect(gaps, 'complete-tier instruction files that do not mention these slash commands').toEqual({});
     });
   });
 
