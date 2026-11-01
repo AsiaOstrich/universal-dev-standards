@@ -2094,6 +2094,249 @@
       }
     },
     {
+      "platform": "macos",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "read-only-project.cjs",
+          "content": "const fs = require('fs');\n// Makes the project folder read-only (a mode of 0555), so the folder `.standards/` cannot be made in it:\n// a permission problem, not a lock. Put back to writable when the run ends so the throwaway folder can be removed.\nfs.chmodSync(process.cwd(), 0o555);\nconst folder = process.cwd();\nprocess.on('exit', () => { try { fs.chmodSync(folder, 0o755); } catch { /* already gone */ } });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/read-only-project.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "init-folder-permission-denied-macos",
+      "title": "uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus",
+      "titleZh": "uds init 在寫不進去的資料夾裡，說明「無法建立的那個資料夾」是權限不足並列出要檢查什麼；不說被鎖住，也不叫人去看防毒",
+      "changelog": [
+        "uds init and uds update --apply now say \"permission denied\" for a folder they cannot create"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Could not create the folder",
+          "permission denied (EACCES)",
+          "looks like a permission problem rather than a temporary file lock",
+          "(1) the folder, or the folder above it, is not marked read-only",
+          "(Original error: EACCES: permission denied, mkdir"
+        ],
+        "notContains": [
+          "locked by another program",
+          "antivirus"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "linux",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "read-only-project.cjs",
+          "content": "const fs = require('fs');\n// Makes the project folder read-only (a mode of 0555), so the folder `.standards/` cannot be made in it:\n// a permission problem, not a lock. Put back to writable when the run ends so the throwaway folder can be removed.\nfs.chmodSync(process.cwd(), 0o555);\nconst folder = process.cwd();\nprocess.on('exit', () => { try { fs.chmodSync(folder, 0o755); } catch { /* already gone */ } });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/read-only-project.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "init-folder-permission-denied-linux",
+      "title": "uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus",
+      "titleZh": "uds init 在寫不進去的資料夾裡，說明「無法建立的那個資料夾」是權限不足並列出要檢查什麼；不說被鎖住，也不叫人去看防毒",
+      "changelog": [
+        "uds init and uds update --apply now say \"permission denied\" for a folder they cannot create"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Could not create the folder",
+          "permission denied (EACCES)",
+          "looks like a permission problem rather than a temporary file lock",
+          "(1) the folder, or the folder above it, is not marked read-only",
+          "(Original error: EACCES: permission denied, mkdir"
+        ],
+        "notContains": [
+          "locked by another program",
+          "antivirus"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "perm77-init",
+      "workspace": "perm77",
+      "title": "uds init sets up a Claude Code project for the uds update lock step",
+      "titleZh": "uds init 建立 Claude Code 專案，供 uds update 檔案鎖步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "update-retries-a-locked-standard",
+      "workspace": "perm77",
+      "title": "uds update --apply puts a missing standard back after two EBUSY errors on it (the plain copy now retries, like uds init)",
+      "titleZh": "uds update --apply 補回缺少的標準時，遇到連兩次 EBUSY 仍能完成（原本的直接複製現在會重試，與 uds init 相同）",
+      "changelog": [
+        "uds init and uds update --apply now say \"permission denied\" for a folder they cannot create"
+      ],
+      "prepare": [
+        {
+          "removeFile": ".standards/anti-hallucination.ai.yaml"
+        },
+        {
+          "writeFile": "lock-copy.cjs",
+          "content": "const fs = require('fs'), path = require('path');\n// Makes the copy of ONE standard fail the way a file held by antivirus fails: EBUSY, a set number of times.\nconst real = fs.copyFileSync;\nconst failTimes = process.env.UDS_FAKE_LOCK_FAIL_TIMES === 'always' ? Infinity : Number(process.env.UDS_FAKE_LOCK_FAIL_TIMES);\nfs.copyFileSync = function (src, dest, ...rest) {\n  if (path.basename(String(dest)) === process.env.UDS_FAKE_LOCK_FILE) {\n    const log = process.env.UDS_FAKE_LOCK_LOG;\n    const tries = (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\\n').filter(Boolean).length : 0) + 1;\n    fs.appendFileSync(log, 'try ' + tries + '\\n');\n    if (tries <= failTimes) {\n      const err = new Error('EBUSY: resource busy or locked, copyfile');\n      err.code = 'EBUSY'; err.syscall = 'copyfile';\n      throw err;\n    }\n  }\n  return real.call(this, src, dest, ...rest);\n};\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/lock-copy.cjs",
+        "{bin}",
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "env": {
+        "UDS_FAKE_LOCK_FILE": "anti-hallucination.ai.yaml",
+        "UDS_FAKE_LOCK_FAIL_TIMES": "2",
+        "UDS_FAKE_LOCK_LOG": "{workPosix}/lock.log"
+      },
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Reconciliation complete"
+        ],
+        "notContains": [
+          "completed with errors"
+        ],
+        "files": [
+          {
+            "path": ".standards/anti-hallucination.ai.yaml",
+            "contains": [
+              "id: anti-hallucination"
+            ]
+          },
+          {
+            "path": "lock.log",
+            "contains": [
+              "try 3"
+            ],
+            "notContains": [
+              "try 4"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "lock-message-in-zh-tw",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "lock-copy.cjs",
+          "content": "const fs = require('fs'), path = require('path');\n// Makes the copy of ONE standard fail the way a file held by antivirus fails: EBUSY, a set number of times.\nconst real = fs.copyFileSync;\nconst failTimes = process.env.UDS_FAKE_LOCK_FAIL_TIMES === 'always' ? Infinity : Number(process.env.UDS_FAKE_LOCK_FAIL_TIMES);\nfs.copyFileSync = function (src, dest, ...rest) {\n  if (path.basename(String(dest)) === process.env.UDS_FAKE_LOCK_FILE) {\n    const log = process.env.UDS_FAKE_LOCK_LOG;\n    const tries = (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\\n').filter(Boolean).length : 0) + 1;\n    fs.appendFileSync(log, 'try ' + tries + '\\n');\n    if (tries <= failTimes) {\n      const err = new Error('EBUSY: resource busy or locked, copyfile');\n      err.code = 'EBUSY'; err.syscall = 'copyfile';\n      throw err;\n    }\n  }\n  return real.call(this, src, dest, ...rest);\n};\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/lock-copy.cjs",
+        "{bin}",
+        "--ui-lang",
+        "zh-tw",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "title": "uds --ui-lang zh-tw init says a file that stays locked in Traditional Chinese (which file, the likely cause, what to do)",
+      "titleZh": "uds --ui-lang zh-tw init 遇到檔案一直被鎖住時，用繁體中文說明是哪個檔、可能原因與該怎麼辦",
+      "changelog": [
+        "uds init and uds update --apply now say \"permission denied\" for a folder they cannot create"
+      ],
+      "env": {
+        "UDS_FAKE_LOCK_FILE": "error-codes.ai.yaml",
+        "UDS_FAKE_LOCK_FAIL_TIMES": "always",
+        "UDS_FAKE_LOCK_LOG": "{workPosix}/lock.log"
+      },
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "error-codes.ai.yaml",
+          "檔案被其他程式鎖住（EBUSY）",
+          "防毒軟體",
+          "再執行一次指令"
+        ],
+        "notContains": [
+          "locked by another program"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
       "platform": "all",
       "id": "tautology-init",
       "workspace": "tautology",

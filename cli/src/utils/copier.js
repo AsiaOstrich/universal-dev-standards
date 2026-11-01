@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, copyFileSync, readFileSync } from 'fs';
-import { copyFileSyncRetrying } from './transient-fs.js';
+import { copyFileSyncRetrying, mkdirSyncRetrying } from './transient-fs.js';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { downloadStandard, downloadIntegration } from './github.js';
@@ -66,7 +66,7 @@ export async function copyExtension(sourcePath, targetDir, projectPath) {
     const targetFolder = join(projectPath, targetDir);
     const targetFile = join(targetFolder, basename(sourcePath));
     if (!existsSync(targetFolder)) {
-      mkdirSync(targetFolder, { recursive: true });
+      mkdirSyncRetrying(targetFolder);
     }
     copyFileSyncRetrying(packagedSource, targetFile);
     return success(targetFile, { source: 'local', sourcePath, targetFile });
@@ -119,7 +119,7 @@ export async function copyStandard(sourcePath, targetDir, projectPath) {
 
     // Ensure target directory exists
     if (!existsSync(targetFolder)) {
-      mkdirSync(targetFolder, { recursive: true });
+      mkdirSyncRetrying(targetFolder);
     }
 
     // Try local copy first (bundled or repo)

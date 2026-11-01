@@ -22,6 +22,30 @@ export const messages = {
       disableHint: 'Set UDS_NO_UPDATE_CHECK=1 to disable'
     },
 
+    // Board #77 (XSPEC-516 follow-up): the two ways a file or folder step can fail for a reason that is not a bug -
+    // a short-lived lock, or a real permission problem. Used by src/utils/transient-fs.js; {placeholders} are filled there.
+    fsErrors: {
+      couldNot: {
+        copy: 'Could not copy "{source}" to "{path}"',
+        createFolder: 'Could not create the folder "{path}"',
+        generic: 'Could not {action} "{path}"'
+      },
+      what: { file: 'file', folder: 'folder' },
+      locked: '{lead}: the {what} is locked by another program ({code}). UDS tried {attempts} times over {seconds} s and the lock did not clear. ' +
+        'Likely causes: antivirus real-time scanning, the Windows search indexer, a cloud-sync client (OneDrive, Dropbox) or an editor that has the file open. ' +
+        'Close whatever is using the file or add the project folder to the antivirus exclusions, then run the command again. (Original error: {original})',
+      permissionDenied: '{lead}: permission denied ({code}). This looks like a permission problem rather than a temporary file lock. {tried}{found}' +
+        'Check: {check} Fix the permission, then run the command again. (Original error: {original})',
+      permissionTried: 'UDS tried {attempts} times over {seconds} s and the error did not change. ',
+      permissionFound: 'UDS checked: {reason}. ',
+      checkFile: '(1) the file is not marked read-only; (2) your account may read the source and write the file and its folder (owner and permissions; on Windows, the Security tab of the folder); (3) the folder is not on a read-only drive or in a protected location.',
+      checkFolder: '(1) the folder, or the folder above it, is not marked read-only; (2) your account may create folders in the parent folder (owner and permissions; on Windows, the Security tab of the parent folder); (3) the parent folder is not on a read-only drive or in a protected location.',
+      reasons: {
+        sourceUnreadable: 'the source "{source}" cannot be opened for reading ({code})',
+        targetUnwritable: '"{path}" cannot be opened for writing ({code}): it is read-only or this account may not write it',
+        folderUnwritable: 'a file cannot be created in the folder "{folder}" ({code})'
+      }
+    },
     // XSPEC-458: standards UDS ships that this project does not have
     availableStandards: {
       title: 'Available upstream, not installed ({count})',
@@ -1431,6 +1455,30 @@ export const messages = {
       disableHint: '設定 UDS_NO_UPDATE_CHECK=1 可關閉'
     },
 
+    // 看板 #77（XSPEC-516 後續）：檔案或資料夾步驟失敗、但原因不是程式錯誤的兩種情況：短暫的檔案鎖，或真的權限不足。
+    // 由 src/utils/transient-fs.js 使用；{placeholders} 在那裡填入。
+    fsErrors: {
+      couldNot: {
+        copy: '無法複製「{source}」到「{path}」',
+        createFolder: '無法建立資料夾「{path}」',
+        generic: '無法{action}「{path}」'
+      },
+      what: { file: '檔案', folder: '資料夾' },
+      locked: '{lead}：{what}被其他程式鎖住（{code}）。UDS 試了 {attempts} 次、共 {seconds} 秒，鎖都沒有解開。' +
+        '可能的原因：防毒軟體即時掃描、Windows 搜尋索引、雲端同步軟體（OneDrive、Dropbox），或正開著這個檔案的編輯器。' +
+        '請關掉正在使用它的程式，或把專案資料夾加入防毒軟體的排除清單，然後再執行一次指令。（原始錯誤：{original}）',
+      permissionDenied: '{lead}：權限不足（{code}）。這看起來是權限問題，不是暫時的檔案鎖定。{tried}{found}' +
+        '請檢查：{check}修好權限後，再執行一次指令。（原始錯誤：{original}）',
+      permissionTried: 'UDS 試了 {attempts} 次、共 {seconds} 秒，錯誤都沒有變。',
+      permissionFound: 'UDS 實際檢查的結果：{reason}。',
+      checkFile: '（1）檔案沒有被設成唯讀；（2）你的帳號可以讀取來源，也可以寫入該檔案與它所在的資料夾（擁有者與權限；Windows 請看資料夾內容的「安全性」索引標籤）；（3）該資料夾不在唯讀磁碟或受保護的位置。',
+      checkFolder: '（1）該資料夾或它的上一層沒有被設成唯讀；（2）你的帳號可以在上一層資料夾裡建立資料夾（擁有者與權限；Windows 請看上一層資料夾內容的「安全性」索引標籤）；（3）上一層不在唯讀磁碟或受保護的位置。',
+      reasons: {
+        sourceUnreadable: '來源「{source}」無法開啟讀取（{code}）',
+        targetUnwritable: '「{path}」無法開啟寫入（{code}）：它是唯讀，或這個帳號沒有寫入權限',
+        folderUnwritable: '無法在資料夾「{folder}」裡建立檔案（{code}）'
+      }
+    },
     // XSPEC-458：UDS 有出貨、這個專案沒有的標準
     availableStandards: {
       title: '上游有、專案沒裝（{count} 個）',
@@ -2833,6 +2881,30 @@ export const messages = {
       disableHint: '设置 UDS_NO_UPDATE_CHECK=1 可关闭'
     },
 
+    // 看板 #77（XSPEC-516 后续）：文件或文件夹步骤失败、但原因不是程序错误的两种情况：短暂的文件锁，或真的权限不足。
+    // 由 src/utils/transient-fs.js 使用；{placeholders} 在那里填入。
+    fsErrors: {
+      couldNot: {
+        copy: '无法复制“{source}”到“{path}”',
+        createFolder: '无法创建文件夹“{path}”',
+        generic: '无法{action}“{path}”'
+      },
+      what: { file: '文件', folder: '文件夹' },
+      locked: '{lead}：{what}被其他程序锁定（{code}）。UDS 试了 {attempts} 次、共 {seconds} 秒，锁一直没有解开。' +
+        '可能的原因：杀毒软件实时扫描、Windows 搜索索引、云同步软件（OneDrive、Dropbox），或正开着这个文件的编辑器。' +
+        '请关掉正在使用它的程序，或把项目文件夹加入杀毒软件的排除列表，然后再运行一次命令。（原始错误：{original}）',
+      permissionDenied: '{lead}：权限不足（{code}）。这看起来是权限问题，不是暂时的文件锁定。{tried}{found}' +
+        '请检查：{check}修好权限后，再运行一次命令。（原始错误：{original}）',
+      permissionTried: 'UDS 试了 {attempts} 次、共 {seconds} 秒，错误一直没有变。',
+      permissionFound: 'UDS 实际检查的结果：{reason}。',
+      checkFile: '（1）文件没有被设成只读；（2）你的账号可以读取来源，也可以写入该文件与它所在的文件夹（所有者与权限；Windows 请看文件夹属性里的“安全”选项卡）；（3）该文件夹不在只读磁盘或受保护的位置。',
+      checkFolder: '（1）该文件夹或它的上一层没有被设成只读；（2）你的账号可以在上一层文件夹里创建文件夹（所有者与权限；Windows 请看上一层文件夹属性里的“安全”选项卡）；（3）上一层不在只读磁盘或受保护的位置。',
+      reasons: {
+        sourceUnreadable: '来源“{source}”无法打开读取（{code}）',
+        targetUnwritable: '“{path}”无法打开写入（{code}）：它是只读，或这个账号没有写入权限',
+        folderUnwritable: '无法在文件夹“{folder}”里创建文件（{code}）'
+      }
+    },
     // XSPEC-458：UDS 有发布、这个项目没有的标准
     availableStandards: {
       title: '上游有、项目没装（{count} 个）',

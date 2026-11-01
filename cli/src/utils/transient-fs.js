@@ -23,11 +23,17 @@
  * problem gets its own message ("permission denied", what to check) - it must not tell the user to switch off
  * their antivirus. Off Windows they are permission errors from the first try and get the same message.
  *
+ * Creating a folder goes through the same two checks (XSPEC-516 follow-up, board #77): `mkdirSyncRetrying` retries
+ * a locked folder and says "permission denied" for a real permission problem, so a folder that cannot be created
+ * reads the same as a file that cannot be copied. The words come from the CLI's message table (src/i18n/messages.js,
+ * `fsErrors`), so they follow `--ui-lang` and the manifest's display language like every other CLI message.
+ *
  * @module utils/transient-fs
  */
 
-import { copyFileSync, openSync, closeSync, unlinkSync, existsSync } from 'fs';
+import { copyFileSync, mkdirSync, openSync, closeSync, unlinkSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
+import { t } from '../i18n/messages.js';
 
 /** The retry budget. Worst case about 2.3 s of waiting per file (50+100+...+450 ms). */
 export const RETRY_POLICY = Object.freeze({
@@ -62,22 +68,35 @@ export function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
+/** Fill `{name}` placeholders in one pass, so a value that itself contains `{x}` (an error text) is never filled twice. */
+function fill(template, values) {
+  return template.replace(/\{(\w+)\}/g, (whole, key) => (Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : whole));
+}
+
+/** "Could not copy "a" to "b"" / "Could not create the folder "x"": the first words of both errors, in the CLI's language. */
+function lead(info) {
+  const words = t().fsErrors;
+  const template = (info.step && words.couldNot[info.step]) || words.couldNot.generic;
+  return fill(template, { action: info.action, path: info.path, source: info.source ?? '' });
+}
+
 /**
  * The error shown when the retry budget is used up: which file, the likely cause, what to do.
  * Keeps the original code and message, so nothing is lost for someone searching the raw text.
  */
-function lockedFileError(err, { path, action }, attempts, elapsedMs) {
-  const seconds = (elapsedMs / 1000).toFixed(1);
-  const message =
-    `Could not ${action} "${path}": the file is locked by another program (${err.code}). ` +
-    `UDS tried ${attempts} times over ${seconds} s and the lock did not clear. ` +
-    'Likely causes: antivirus real-time scanning, the Windows search indexer, a cloud-sync client ' +
-    '(OneDrive, Dropbox) or an editor that has the file open. ' +
-    'Close whatever is using the file or add the project folder to the antivirus exclusions, then run the command again. ' +
-    `(Original error: ${err.message})`;
+function lockedFileError(err, info, attempts, elapsedMs) {
+  const words = t().fsErrors;
+  const message = fill(words.locked, {
+    lead: lead(info),
+    what: info.kind === 'folder' ? words.what.folder : words.what.file,
+    code: err.code,
+    attempts,
+    seconds: (elapsedMs / 1000).toFixed(1),
+    original: err.message
+  });
   const wrapped = new Error(message);
   wrapped.code = err.code;
-  wrapped.path = path;
+  wrapped.path = info.path;
   wrapped.cause = err;
   wrapped.transientRetryExhausted = true;
   return wrapped;
@@ -87,24 +106,28 @@ function lockedFileError(err, { path, action }, attempts, elapsedMs) {
  * The error shown for a real permission problem (XSPEC-516 R2): says "permission denied", names what was found
  * when it is known, and lists what to check. It never mentions antivirus or a lock: telling someone whose
  * account may not write to a folder to switch off their antivirus sends them the wrong way.
+ * `verdict` is what probeWritePermission found: `reasonKey` + `values` are put in the CLI's language, `reason` is the
+ * English fallback for a probe that only gives text.
  */
-function permissionDeniedError(err, { path, action }, attempts, elapsedMs, reason) {
+function permissionDeniedError(err, info, attempts, elapsedMs, verdict) {
+  const words = t().fsErrors;
   const tried = attempts > 1
-    ? `UDS tried ${attempts} times over ${(elapsedMs / 1000).toFixed(1)} s and the error did not change. `
+    ? fill(words.permissionTried, { attempts, seconds: (elapsedMs / 1000).toFixed(1) })
     : '';
-  const found = reason ? `UDS checked: ${reason}. ` : '';
-  const message =
-    `Could not ${action} "${path}": permission denied (${err.code}). ` +
-    'This looks like a permission problem rather than a temporary file lock. ' +
-    tried + found +
-    'Check: (1) the file is not marked read-only; (2) your account may read the source and write the file ' +
-    'and its folder (owner and permissions; on Windows, the Security tab of the folder); ' +
-    '(3) the folder is not on a read-only drive or in a protected location. ' +
-    'Fix the permission, then run the command again. ' +
-    `(Original error: ${err.message})`;
+  const reasonTemplate = verdict && verdict.reasonKey ? words.reasons[verdict.reasonKey] : undefined;
+  const reason = reasonTemplate ? fill(reasonTemplate, verdict.values || {}) : verdict && verdict.reason;
+  const found = reason ? fill(words.permissionFound, { reason }) : '';
+  const message = fill(words.permissionDenied, {
+    lead: lead(info),
+    code: err.code,
+    tried,
+    found,
+    check: info.kind === 'folder' ? words.checkFolder : words.checkFile,
+    original: err.message
+  });
   const wrapped = new Error(message);
   wrapped.code = err.code;
-  wrapped.path = path;
+  wrapped.path = info.path;
   wrapped.cause = err;
   wrapped.permissionDenied = true;
   return wrapped;
@@ -118,11 +141,11 @@ function permissionDeniedError(err, { path, action }, attempts, elapsedMs, reaso
  * opened for reading, the destination exists and cannot be opened for writing (read-only attribute, or an ACL that
  * denies it), or it does not exist and a scratch file cannot be created next to it. A destination that opens for
  * writing now was locked a moment ago, not forbidden. The scratch file is removed on every path, including a failure.
- * @param {{path: string, source?: string}} info
+ * @param {{path: string, source?: string, kind?: 'file'|'folder'}} info
  * @param {{openSync?: Function, closeSync?: Function, unlinkSync?: Function, existsSync?: Function}} [ops] - for tests
- * @returns {{denied: boolean, reason?: string}}
+ * @returns {{denied: boolean, reason?: string, reasonKey?: string, values?: object}} - `reason` is English text; `reasonKey` + `values` let the caller say it in the CLI's language
  */
-export function probeWritePermission({ path, source }, ops = {}) {
+export function probeWritePermission({ path, source, kind }, ops = {}) {
   const { openSync: open = openSync, closeSync: close = closeSync, unlinkSync: unlink = unlinkSync, existsSync: exists = existsSync } = ops;
   // Open `file` with `flags`, close it again; returns the error code if it could not be opened, else null.
   const tryOpen = (file, flags) => {
@@ -137,20 +160,23 @@ export function probeWritePermission({ path, source }, ops = {}) {
   };
   if (source) {
     const code = tryOpen(source, 'r');
-    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `the source "${source}" cannot be opened for reading (${code})` };
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `the source "${source}" cannot be opened for reading (${code})`, reasonKey: 'sourceUnreadable', values: { source, code } };
   }
-  if (exists(path)) {
+  // A folder to create (kind 'folder') is asked as "can a file be made where it would go": the nearest folder that
+  // already exists is the one that decides, and opening a folder itself for writing means nothing (EISDIR / EPERM).
+  if (kind !== 'folder' && exists(path)) {
     const code = tryOpen(path, 'r+');
-    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `"${path}" cannot be opened for writing (${code}): it is read-only or this account may not write it` };
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `"${path}" cannot be opened for writing (${code}): it is read-only or this account may not write it`, reasonKey: 'targetUnwritable', values: { path, code } };
     return { denied: false }; // opened, or EBUSY / anything else: a lock, not a permission
   }
-  const folder = dirname(path);
+  let folder = kind === 'folder' ? path : dirname(path);
+  while (!exists(folder) && dirname(folder) !== folder) folder = dirname(folder); // the nearest existing folder up the path
   const scratch = join(folder, `.uds-permission-probe-${process.pid}-${Date.now().toString(36)}`);
   let created = false;
   try {
     const code = tryOpen(scratch, 'wx');
     created = code === null;
-    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `a file cannot be created in the folder "${folder}" (${code})` };
+    if (code && DENIED_CODES.has(code)) return { denied: true, reason: `a file cannot be created in the folder "${folder}" (${code})`, reasonKey: 'folderUnwritable', values: { folder, code } };
     return { denied: false };
   } finally {
     if (created) { try { unlink(scratch); } catch { /* nothing more can be done; the name starts with .uds-permission-probe */ } }
@@ -166,6 +192,8 @@ export function probeWritePermission({ path, source }, ops = {}) {
  * @param {string} info.path - The file that is being worked on (named in the final error).
  * @param {string} info.action - Short verb phrase for the final error, e.g. "copy to".
  * @param {string} [info.source] - The file that is read, when there is one (checked when permission is suspected).
+ * @param {'copy'|'createFolder'} [info.step] - Names the first words of the error in the CLI's language; without it `action` is used (English).
+ * @param {'file'|'folder'} [info.kind] - What `path` is; a folder gets folder wording and a folder-shaped permission check.
  * @param {Object} [hooks] - Injection points for tests.
  * @param {string} [hooks.platform]
  * @param {(ms:number)=>void} [hooks.sleep]
@@ -191,7 +219,7 @@ export function retryTransientFs(operation, info, hooks = {}) {
       if (attempt >= policy.maxAttempts || elapsed + delay > policy.maxTotalMs) {
         if (PERMISSION_CODES.has(err.code)) {
           const verdict = probe(info);
-          if (verdict.denied) throw permissionDeniedError(err, info, attempt, elapsed, verdict.reason);
+          if (verdict.denied) throw permissionDeniedError(err, info, attempt, elapsed, verdict);
         }
         throw lockedFileError(err, info, attempt, elapsed);
       }
@@ -202,5 +230,14 @@ export function retryTransientFs(operation, info, hooks = {}) {
 
 /** `fs.copyFileSync` that survives a short-lived file lock. Errors name the destination. */
 export function copyFileSyncRetrying(source, target, hooks) {
-  return retryTransientFs(() => copyFileSync(source, target), { path: String(target), source: String(source), action: `copy "${source}" to` }, hooks);
+  return retryTransientFs(() => copyFileSync(source, target), { path: String(target), source: String(source), action: `copy "${source}" to`, step: 'copy' }, hooks);
+}
+
+/**
+ * `fs.mkdirSync(path, { recursive: true })` that survives a short-lived lock and, for a real permission problem,
+ * says "permission denied" and what to check instead of Node's bare `EACCES: permission denied, mkdir '...'`.
+ * (Board #77: the copy had this and the folder made just before it did not, so the same cause read two ways.)
+ */
+export function mkdirSyncRetrying(path, hooks) {
+  return retryTransientFs(() => mkdirSync(path, { recursive: true }), { path: String(path), action: 'create the folder', step: 'createFolder', kind: 'folder' }, hooks);
 }
