@@ -9,7 +9,8 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, writeFileSync, chmodSync, rmSync, existsSync, readdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { isTransientFsError, retryTransientFs, probeWritePermission, RETRY_POLICY } from '../../../src/utils/transient-fs.js';
+import { isTransientFsError, retryTransientFs, probeWritePermission, mkdirSyncRetrying, RETRY_POLICY } from '../../../src/utils/transient-fs.js';
+import { setLanguage } from '../../../src/i18n/messages.js';
 
 const fsError = (code, message = `${code}: something`) => Object.assign(new Error(message), { code });
 
@@ -290,5 +291,128 @@ describe('probeWritePermission: it tries the write, it does not ask fs.access', 
       expect(probeWritePermission({ path: join(dir, 'new.yaml') }, ops).denied).toBe(true);
       expect(unlinked).toEqual([]);
     } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe('creating a folder: same lock and permission rules as a copy (board #77)', () => {
+  const folderInfo = { path: 'project/.standards', action: 'create the folder', step: 'createFolder', kind: 'folder' };
+
+  it('a folder that cannot be created off Windows says permission denied for a folder, at once, with the original error', () => {
+    const clock = fakeClock();
+    const original = fsError('EACCES', "EACCES: permission denied, mkdir 'project/.standards'");
+    const { calls, operation } = flaky(original, 'always');
+    let thrown;
+    try { retryTransientFs(operation, folderInfo, { platform: 'linux', ...clock }); } catch (e) { thrown = e; }
+    expect(calls.n, 'a real permission error is not retried off Windows').toBe(1);
+    expect(thrown.message).toContain('Could not create the folder "project/.standards": permission denied (EACCES)');
+    expect(thrown.message, 'the checklist is about a folder and its parent, not a file').toContain('(1) the folder, or the folder above it, is not marked read-only');
+    expect(thrown.message).not.toMatch(/antivirus|locked by another program|the file is not marked/i);
+    expect(thrown.message).toContain("(Original error: EACCES: permission denied, mkdir 'project/.standards')");
+    expect(thrown.permissionDenied).toBe(true);
+  });
+
+  it('a locked folder is retried, and when the lock stays the message says "folder", not "file"', () => {
+    const clock = fakeClock();
+    const { calls, operation } = flaky(fsError('EBUSY'), 'always');
+    let thrown;
+    try { retryTransientFs(operation, folderInfo, { platform: 'darwin', ...clock }); } catch (e) { thrown = e; }
+    expect(calls.n).toBe(10);
+    expect(thrown.message).toContain('Could not create the folder "project/.standards": the folder is locked by another program (EBUSY)');
+    expect(thrown.message).toMatch(/antivirus/i);
+  });
+
+  it('mkdirSyncRetrying creates nested folders, and is quiet for a folder that already exists', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-mkdir-'));
+    try {
+      const nested = join(dir, 'a', 'b');
+      mkdirSyncRetrying(nested);
+      expect(existsSync(nested)).toBe(true);
+      expect(() => mkdirSyncRetrying(nested)).not.toThrow();
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it.skipIf(typeof process.getuid === 'function' && process.getuid() === 0 || process.platform === 'win32')('mkdirSyncRetrying under a read-only parent throws the folder permission message (really tried)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-mkdir-'));
+    try {
+      chmodSync(dir, 0o555);
+      let thrown;
+      try { mkdirSyncRetrying(join(dir, 'x', 'y')); } catch (e) { thrown = e; }
+      expect(thrown.message).toContain('permission denied');
+      expect(thrown.message).toContain('Could not create the folder');
+      expect(thrown.message).not.toMatch(/antivirus|locked/i);
+      chmodSync(dir, 0o755);
+      expect(readdirSync(dir), 'nothing created').toEqual([]);
+    } finally { chmodSync(dir, 0o755); rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('on Windows the probe for a missing folder asks the nearest folder that exists, and a refusal there is a permission problem', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
+    try {
+      const asked = [];
+      const ops = { openSync: (file, flags) => { asked.push(file); if (flags === 'wx') throw Object.assign(new Error('EPERM'), { code: 'EPERM' }); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      const verdict = probeWritePermission({ path: join(dir, 'not', 'yet', 'there'), kind: 'folder' }, ops);
+      expect(verdict.denied).toBe(true);
+      expect(verdict.reasonKey).toBe('folderUnwritable');
+      expect(verdict.values.folder, 'the scratch file goes in the nearest existing folder').toBe(dir);
+      expect(asked).toHaveLength(1);
+      expect(asked[0].startsWith(dir)).toBe(true);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a folder that exists is never opened for writing by the probe (opening a folder says nothing about permission)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
+    try {
+      const flagsSeen = [];
+      const ops = { openSync: (file, flags) => { flagsSeen.push(flags); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      expect(probeWritePermission({ path: dir, kind: 'folder' }, ops)).toEqual({ denied: false });
+      expect(flagsSeen).toEqual(['wx']);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe('the two messages follow the CLI language (board #77)', () => {
+  const info = { path: 'project/.standards/x.yaml', source: 'repo/x.yaml', action: 'copy to', step: 'copy' };
+  // win32: EPERM / EACCES are retried first and then the file system is asked, which is the path that has the reason.
+  const run = (code, platform = 'win32') => {
+    const clock = fakeClock();
+    const { operation } = flaky(fsError(code, `${code}: original text`), 'always');
+    try { retryTransientFs(operation, info, { platform, ...clock, probe: () => ({ denied: true, reasonKey: 'targetUnwritable', values: { path: info.path, code } }) }); } catch (e) { return e.message; }
+    return '';
+  };
+  const restore = () => setLanguage('en');
+
+  it('zh-tw: a lock and a permission problem are each said in Traditional Chinese, with the original error kept', () => {
+    try {
+      setLanguage('zh-tw');
+      const locked = run('EBUSY');
+      expect(locked).toContain('無法複製「repo/x.yaml」到「project/.standards/x.yaml」：檔案被其他程式鎖住（EBUSY）');
+      expect(locked).toContain('防毒軟體');
+      expect(locked).toContain('（原始錯誤：EBUSY: original text）');
+      expect(locked).not.toMatch(/locked by another program/);
+      const denied = run('EACCES');
+      expect(denied).toContain('無法複製「repo/x.yaml」到「project/.standards/x.yaml」：權限不足（EACCES）');
+      expect(denied).toContain('UDS 實際檢查的結果：「project/.standards/x.yaml」無法開啟寫入（EACCES）');
+      expect(denied).toContain('（1）檔案沒有被設成唯讀');
+      expect(denied).not.toMatch(/防毒|permission denied/);
+    } finally { restore(); }
+  });
+
+  it('zh-cn: the same two messages in Simplified Chinese', () => {
+    try {
+      setLanguage('zh-cn');
+      expect(run('EBUSY')).toContain('无法复制“repo/x.yaml”到“project/.standards/x.yaml”：文件被其他程序锁定（EBUSY）');
+      const denied = run('EPERM');
+      expect(denied).toContain('权限不足（EPERM）');
+      expect(denied).toContain('（1）文件没有被设成只读');
+      expect(denied).not.toMatch(/杀毒|permission denied/);
+    } finally { restore(); }
+  });
+
+  it('a message whose text contains a placeholder-looking word is not filled a second time', () => {
+    const clock = fakeClock();
+    const { operation } = flaky(fsError('EBUSY', 'EBUSY: weird {path} {code}'), 'always');
+    let thrown;
+    try { retryTransientFs(operation, info, { platform: 'linux', ...clock }); } catch (e) { thrown = e; }
+    expect(thrown.message).toContain('(Original error: EBUSY: weird {path} {code})');
   });
 });

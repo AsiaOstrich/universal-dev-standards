@@ -11,11 +11,12 @@
  * Each action is executed independently — single failures don't block the rest.
  */
 
-import { existsSync, unlinkSync, mkdirSync, rmSync, copyFileSync, statSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, unlinkSync, rmSync, statSync, readFileSync, writeFileSync } from 'fs';
 import { UDS_MARKERS } from '../core/constants.js';
 import { tryLocateMarkerBlock } from '../utils/marker-locator.js';
 import { join, dirname } from 'path';
 import { copyStandard } from '../utils/copier.js';
+import { copyFileSyncRetrying, mkdirSyncRetrying } from '../utils/transient-fs.js';
 import {
   writeIntegrationFile,
   buildToolIntegrationConfig,
@@ -310,8 +311,10 @@ async function executeCreateOrUpdate(projectPath, action, manifest) {
 
     // Direct copy from resolved source
     const targetPath = join(projectPath, action.path);
-    mkdirSync(dirname(targetPath), { recursive: true });
-    copyFileSync(sourcePath, targetPath);
+    // Same retry and the same "permission denied" wording as the copy `uds init` does (board #77): a bare
+    // mkdirSync / copyFileSync here printed Node's own "EACCES: permission denied, copyfile" text and gave up on the first lock.
+    mkdirSyncRetrying(dirname(targetPath));
+    copyFileSyncRetrying(sourcePath, targetPath);
 
     // Update hash in manifest
     const hashInfo = computeFileHash(targetPath);
