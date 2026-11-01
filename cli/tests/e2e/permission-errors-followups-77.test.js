@@ -11,10 +11,18 @@
  * disk. Faults that cannot be made with chmod (a lock; a permission error as root or on Windows) come from a preload
  * that wraps `fs` below the product, so the product's own retry and message code is what is measured.
  *
+ *   4. `uds update --apply` takes a backup first (backup-manager.js, `cpSync` and `mkdirSync`). It gave up on the first
+ *      EBUSY and printed Node's bare text in "Failed to backup ...".
+ *   5. `uds check --restore-missing` restores an integration file with `copyIntegration` (copier.js), which used a
+ *      plain copy and a plain `mkdirSync` that threw out of the function.
+ *
  * Wires that make these red when cut (one line of CLI source each; each cut was applied and seen red, see the report):
  *   cli/src/utils/copier.js                  mkdirSyncRetrying(targetFolder);   (two lines: copyExtension, copyStandard)
  *   cli/src/reconciler/plan-executor.js      mkdirSyncRetrying(dirname(targetPath));
  *   cli/src/reconciler/plan-executor.js      copyFileSyncRetrying(sourcePath, targetPath);
+ *   cli/src/reconciler/backup-manager.js    cpSyncRetrying(src, dst, ...);  mkdirSyncRetrying(...)  (the backup)
+ *   cli/src/reconciler/backup-locations.js   mkdirSyncRetrying(dir);        (the shared backups folder)
+ *   cli/src/utils/copier.js                  copyFileSyncRetrying(source, target);  mkdirSyncRetrying(targetDir);  (copyIntegration)
  *   cli/src/utils/transient-fs.js            const words = t().fsErrors;    (the language of the two messages)
  *
  * What is NOT covered here: the Windows-only rules (EPERM / EACCES retried, then the file system asked). They are pinned
@@ -24,7 +32,7 @@
  */
 
 import { it, expect, afterAll } from 'vitest';
-import { rmSync, existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync } from 'fs';
+import { rmSync, existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHarness, REAL_REPO, stripAnsi } from '../utils/staged-cli-harness.js';
 import { readManifest, writeManifest, out } from '../utils/xspec-482.js';
@@ -45,18 +53,18 @@ const APPLY = ['update', '--apply', '--yes', '--offline'];
 
 /**
  * Preload (CommonJS): chosen `fs` calls fail like a locked or forbidden path, on any system.
- * `UDS_TEST_FS_FAULTS` is a JSON list of `{ fn, contains?, endsWith?, unless?, code, failTimes, log }` (`unless`: a path with this text is left alone, e.g. the backup's own `.standards` copy):
+ * `UDS_TEST_FS_FAULTS` is a JSON list of `{ fn, contains?, endsWith?, requires?, unless?, code, failTimes, log }` (`unless`: a path with this text is left alone, e.g. the backup's own `.standards` copy; `requires`: only a path with this text is hit):
  * a call of `fs[fn]` whose path (separators as "/") matches throws an error with `code` for the first `failTimes`
  * calls (or always), and every matching call is appended to `log`, so the test can count the tries.
  */
 const FAULT_PRELOAD = `
 const fs = require('fs');
-for (const fn of ['copyFileSync', 'mkdirSync']) {
+for (const fn of ['copyFileSync', 'cpSync', 'mkdirSync']) {
   const real = fs[fn];
   fs[fn] = function (...args) {
-    const dest = String(fn === 'copyFileSync' ? args[1] : args[0]).replace(/\\\\/g, '/');
+    const dest = String(fn === 'mkdirSync' ? args[0] : args[1]).replace(/\\\\/g, '/');
     for (const spec of JSON.parse(process.env.UDS_TEST_FS_FAULTS || '[]')) {
-      const hit = spec.fn === fn && !(spec.unless && dest.includes(spec.unless)) && (spec.contains ? dest.includes(spec.contains) : dest.endsWith(spec.endsWith));
+      const hit = spec.fn === fn && !(spec.unless && dest.includes(spec.unless)) && (!spec.requires || dest.includes(spec.requires)) && (spec.contains ? dest.includes(spec.contains) : dest.endsWith(spec.endsWith));
       if (!hit) continue;
       const tries = fs.existsSync(spec.log) ? fs.readFileSync(spec.log, 'utf-8').split('\\n').filter(Boolean).length : 0;
       fs.appendFileSync(spec.log, 'try ' + (tries + 1) + '\\n');
@@ -273,4 +281,130 @@ it('control: uds update --apply with no fault puts the standard back and prints 
   expect(run.code, text).toBe(0);
   expect(text).not.toMatch(/permission denied|locked by another program/);
   expect(existsSync(join(dir, STANDARD))).toBe(true);
+}, 180000);
+
+// ── the backup `uds update --apply` takes first ──────────────────────────────────────────────────
+
+const BACKED_UP_MANIFEST = '.standards/manifest.json'; // always in the backup; its copy lands at .uds-backups/<id>/.standards/manifest.json
+const backupsDir = (dir) => join(dir, '.uds-backups');
+const backedUpManifests = (dir) => {
+  if (!existsSync(backupsDir(dir))) return [];
+  return readdirSync(backupsDir(dir)).map((id) => join(backupsDir(dir), id, BACKED_UP_MANIFEST)).filter((p) => existsSync(p));
+};
+
+it('uds update --apply survives two EBUSY errors while it backs up the manifest, and the backup holds the manifest (board #77 review)', async () => {
+  const dir = await projectMissingAStandard();
+  const f = faults(h.makeDir('fault'), [{ fn: 'cpSync', contains: `/.uds-backups/`, code: 'EBUSY', failTimes: 2 }]);
+
+  const run = await h.runCli(APPLY, dir, f);
+  const text = out(run);
+
+  expect(run.code, text).toBe(0);
+  expect(text).not.toContain('Failed to backup');
+  expect(f.countTries(), 'the backup copy that was locked was tried exactly three times').toBeGreaterThanOrEqual(3);
+  expect(backedUpManifests(dir).length, 'a backup with the manifest in it was written').toBeGreaterThan(0);
+  expect(existsSync(join(dir, STANDARD))).toBe(true);
+}, 180000);
+
+it('uds update --apply survives two EBUSY errors while it makes the folder for the manifest inside the backup', async () => {
+  const dir = await projectMissingAStandard();
+  const f = faults(h.makeDir('fault'), [{ fn: 'mkdirSync', requires: '/.uds-backups/', endsWith: '/.standards', code: 'EBUSY', failTimes: 2 }]);
+
+  const run = await h.runCli(APPLY, dir, f);
+  const text = out(run);
+
+  expect(run.code, text).toBe(0);
+  expect(text).not.toContain('Failed to backup');
+  expect(f.countTries(), 'the folder inside the backup was asked for three times (two locked, one made)').toBeGreaterThanOrEqual(3);
+  expect(backedUpManifests(dir).length).toBeGreaterThan(0);
+}, 180000);
+
+it('uds update --apply whose backup copy stays locked stops after a bounded number of tries and says which file, the likely cause and what to do, not Node\'s bare text', async () => {
+  const dir = await projectMissingAStandard();
+  const f = faults(h.makeDir('fault'), [{ fn: 'cpSync', contains: `/.uds-backups/`, code: 'EBUSY' }]);
+
+  const run = await h.runCli(APPLY, dir, f);
+  const text = out(run);
+
+  expect(run.code, text).toBe(1);
+  expect(f.countTries()).toBeGreaterThanOrEqual(2);
+  expect(f.countTries()).toBeLessThanOrEqual(10 * 20); // ten tries per backed-up file; there are a few files
+  expect(text).toMatch(/Failed to backup \.standards\/manifest\.json: Could not copy ".*manifest\.json" to ".*\.uds-backups.*manifest\.json": the file is locked by another program \(EBUSY\)/);
+  expect(text).toMatch(/UDS tried \d+ times/);
+  expect(text).toMatch(/antivirus/i);
+}, 180000);
+
+it.skipIf(onWindows)('uds update --apply whose backup copy is refused with EACCES says "permission denied" and what to check', async () => {
+  const dir = await projectMissingAStandard();
+  const f = faults(h.makeDir('fault'), [{ fn: 'cpSync', contains: `/.uds-backups/`, code: 'EACCES' }]);
+
+  const run = await h.runCli(APPLY, dir, f);
+  const text = out(run);
+
+  expect(run.code, text).toBe(1);
+  expect(text).toMatch(/Failed to backup \.standards\/manifest\.json: Could not copy ".*manifest\.json" to ".*manifest\.json": permission denied \(EACCES\)/);
+  expect(text).toContain('(1) the file is not marked read-only');
+  expect(text).not.toMatch(/antivirus|locked by another program/i);
+}, 180000);
+
+it.skipIf(onWindows)('uds update --apply whose backup folder cannot be made says "permission denied" for the folder (the backup\'s own mkdir)', async () => {
+  const dir = await projectMissingAStandard();
+  const f = faults(h.makeDir('fault'), [{ fn: 'mkdirSync', endsWith: '/.uds-backups', code: 'EACCES' }]);
+
+  const run = await h.runCli(APPLY, dir, f);
+  const text = out(run);
+
+  expect(f.countTries(), 'the backup asked for its shared folder').toBeGreaterThan(0);
+  expect(text).toMatch(/Could not create the folder ".*[\\/]\.uds-backups": permission denied \(EACCES\)/);
+  expect(text).not.toMatch(/mkdir '.*uds-backups'\s*$/m); // Node's own text may only appear at the end, inside "(Original error: ...)"
+}, 180000);
+
+// ── copyIntegration: `uds check --restore-missing` for an integration file of a manifest with no generator record ──
+
+/** A project whose manifest lists `target` as a tracked integration file that is not on disk, with no `integrationConfigs` entry for it. */
+async function projectMissingAnIntegration(target) {
+  const dir = await h.newProject();
+  const manifest = readManifest(dir);
+  manifest.integrations = [...manifest.integrations, target];
+  manifest.fileHashes[target] = { hash: 'sha256:0', size: 1, installedAt: new Date().toISOString() };
+  writeManifest(dir, manifest);
+  expect(existsSync(join(dir, target)), 'fixture: the file is not there').toBe(false);
+  return dir;
+}
+
+it('uds check --restore-missing puts an integration file back after two EBUSY errors on it (copyIntegration retries)', async () => {
+  const dir = await projectMissingAnIntegration('.cursorrules');
+  const f = faults(h.makeDir('fault'), [{ fn: 'copyFileSync', endsWith: '/.cursorrules', code: 'EBUSY', failTimes: 2 }]);
+
+  const run = await h.runCli(['check', '--restore-missing'], dir, f);
+  const text = out(run);
+
+  expect(f.countTries(), text).toBe(3);
+  expect(text).toContain('✓ .cursorrules: Restored');
+  expect(readFileSync(join(dir, '.cursorrules'), 'utf-8')).toBe(readFileSync(join(REAL_REPO, 'integrations', 'cursor', '.cursorrules'), 'utf-8'));
+}, 180000);
+
+it.skipIf(onWindows)('uds check --restore-missing for an integration file it cannot write says "permission denied" and what to check', async () => {
+  const dir = await projectMissingAnIntegration('.cursorrules');
+  const f = faults(h.makeDir('fault'), [{ fn: 'copyFileSync', endsWith: '/.cursorrules', code: 'EACCES' }]);
+
+  const run = await h.runCli(['check', '--restore-missing'], dir, f);
+  const text = out(run);
+
+  expect(text).toMatch(/✗ \.cursorrules: Could not copy ".*\.cursorrules" to ".*\.cursorrules": permission denied \(EACCES\)/);
+  expect(text).toContain('(1) the file is not marked read-only');
+  expect(existsSync(join(dir, '.cursorrules'))).toBe(false);
+}, 180000);
+
+it.skipIf(onWindows)('uds check --restore-missing whose integration folder cannot be made reports it as a failed file with the folder message, and does not crash', async () => {
+  const dir = await projectMissingAnIntegration('.github/copilot-instructions.md');
+  const f = faults(h.makeDir('fault'), [{ fn: 'mkdirSync', endsWith: '/.github', code: 'EACCES' }]);
+
+  const run = await h.runCli(['check', '--restore-missing'], dir, f);
+  const text = out(run);
+
+  expect(f.countTries(), text).toBeGreaterThan(0);
+  expect(text).toMatch(/✗ \.github\/copilot-instructions\.md: Could not create the folder ".*[\\/]\.github": permission denied \(EACCES\)/);
+  expect(text).not.toMatch(/at .*copier\.js/); // no stack trace: the failure is a result, not a throw
+  expect(existsSync(join(dir, '.github'))).toBe(false);
 }, 180000);

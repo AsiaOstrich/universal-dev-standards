@@ -345,27 +345,64 @@ describe('creating a folder: same lock and permission rules as a copy (board #77
     } finally { chmodSync(dir, 0o755); rmSync(dir, { recursive: true, force: true }); }
   });
 
-  it('on Windows the probe for a missing folder asks the nearest folder that exists, and a refusal there is a permission problem', () => {
+  it('on Windows the probe for a missing folder asks the nearest folder that exists, with a FOLDER, and a refusal there is a permission problem', () => {
     const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
     try {
       const asked = [];
-      const ops = { openSync: (file, flags) => { asked.push(file); if (flags === 'wx') throw Object.assign(new Error('EPERM'), { code: 'EPERM' }); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      const ops = {
+        mkdirSync: (path) => { asked.push(path); throw Object.assign(new Error('EPERM'), { code: 'EPERM' }); },
+        rmdirSync: () => {}
+      };
       const verdict = probeWritePermission({ path: join(dir, 'not', 'yet', 'there'), kind: 'folder' }, ops);
       expect(verdict.denied).toBe(true);
-      expect(verdict.reasonKey).toBe('folderUnwritable');
-      expect(verdict.values.folder, 'the scratch file goes in the nearest existing folder').toBe(dir);
+      expect(verdict.reasonKey).toBe('folderCannotBeMade');
+      expect(verdict.values.folder, 'the scratch folder goes in the nearest existing folder').toBe(dir);
       expect(asked).toHaveLength(1);
       expect(asked[0].startsWith(dir)).toBe(true);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a folder whose ACL allows new files but refuses new folders is denied, not called a lock (Windows keeps the two rights apart)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
+    try {
+      // Creating a file works (add-file right), creating a folder is refused (add-subdirectory right).
+      const ops = {
+        openSync: () => 99, closeSync: () => {}, unlinkSync: () => {},
+        mkdirSync: () => { throw Object.assign(new Error('EPERM'), { code: 'EPERM' }); }, rmdirSync: () => {}
+      };
+      const asFolder = probeWritePermission({ path: join(dir, 'new-folder'), kind: 'folder' }, ops);
+      expect(asFolder.denied, 'asked with a folder: refused').toBe(true);
+      // The old question (can a file be made there?) answers "fine" for the same folder - which is the wrong answer for a folder.
+      expect(probeWritePermission({ path: join(dir, 'new.yaml') }, ops), 'asked with a file: fine').toEqual({ denied: false });
+      // And through the whole retry: a folder that cannot be made on Windows reads as permission denied after the retries.
+      const clock = fakeClock();
+      const { operation } = flaky(fsError('EPERM', 'EPERM: operation not permitted, mkdir'), 'always');
+      let thrown;
+      try {
+        retryTransientFs(operation, { path: join(dir, 'new-folder'), action: 'create the folder', step: 'createFolder', kind: 'folder' }, { platform: 'win32', ...clock, probe: (info) => probeWritePermission(info, ops) });
+      } catch (e) { thrown = e; }
+      expect(thrown.permissionDenied).toBe(true);
+      expect(thrown.message).toContain('permission denied (EPERM)');
+      expect(thrown.message).toContain('UDS checked: a folder cannot be created inside');
+      expect(thrown.message).not.toMatch(/antivirus|locked by another program/i);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('a folder that can be made is not denied, and the scratch folder is removed', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
+    try {
+      expect(probeWritePermission({ path: join(dir, 'a', 'b'), kind: 'folder' })).toEqual({ denied: false });
+      expect(readdirSync(dir), 'the scratch folder was removed and nothing else was made').toEqual([]);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
   it('a folder that exists is never opened for writing by the probe (opening a folder says nothing about permission)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'uds-probe-'));
     try {
-      const flagsSeen = [];
-      const ops = { openSync: (file, flags) => { flagsSeen.push(flags); return 99; }, closeSync: () => {}, unlinkSync: () => {} };
+      let opened = 0;
+      const ops = { openSync: () => { opened += 1; return 99; }, closeSync: () => {}, mkdirSync: () => {}, rmdirSync: () => {} };
       expect(probeWritePermission({ path: dir, kind: 'folder' }, ops)).toEqual({ denied: false });
-      expect(flagsSeen).toEqual(['wx']);
+      expect(opened).toBe(0);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });
