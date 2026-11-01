@@ -35,8 +35,6 @@
 
 import {
   existsSync,
-  mkdirSync,
-  cpSync,
   lstatSync,
   readlinkSync,
   readFileSync,
@@ -46,6 +44,7 @@ import {
   rmdirSync
 } from 'fs';
 import { createHash } from 'crypto';
+import { cpSyncRetrying, mkdirSyncRetrying } from '../utils/transient-fs.js';
 import { join, dirname, isAbsolute, sep } from 'path';
 import { newBackupId, ensureBackupsDir, sharedBackupIds, addLegacyBackupIds, isSharedBackupId } from './backup-locations.js';
 
@@ -85,7 +84,9 @@ function copyLeaf(src, dst) {
   } catch {
     // dst does not exist
   }
-  cpSync(src, dst, { force: true, verbatimSymlinks: true });
+  // Retried on a short lock and worded as "permission denied" for a permission problem (board #77); a plain cpSync
+  // gave up on the first EBUSY and printed Node's bare text in "Failed to backup ...".
+  cpSyncRetrying(src, dst, { force: true, verbatimSymlinks: true });
 }
 
 /** Every file under `rel` (project-relative, posix). A file lists itself; a missing path lists nothing. */
@@ -154,7 +155,7 @@ function snapshot(projectPath, spec) {
   // The shared folder first (with its .gitignore), then this backup inside it.
   ensureBackupsDir(projectPath, errors);
   try {
-    mkdirSync(backupDir, { recursive: true });
+    mkdirSyncRetrying(backupDir);
   } catch (err) {
     return { backupId, backupDir, backedUp, errors: [`Failed to create backup directory: ${err.message}`] };
   }
@@ -194,12 +195,12 @@ function snapshot(projectPath, spec) {
 
     const targetPath = join(backupDir, relativePath);
     try {
-      mkdirSync(dirname(targetPath), { recursive: true });
+      mkdirSyncRetrying(dirname(targetPath));
       if (lstatSync(sourcePath).isDirectory()) {
         for (const d of listDirs(projectPath, relativePath)) preexistingDirs.add(d);
-        mkdirSync(targetPath, { recursive: true });
+        mkdirSyncRetrying(targetPath);
         for (const f of listFiles(projectPath, relativePath)) {
-          mkdirSync(dirname(join(backupDir, f)), { recursive: true });
+          mkdirSyncRetrying(dirname(join(backupDir, f)));
           copyLeaf(join(projectPath, f), join(backupDir, f));
         }
       } else {
@@ -400,14 +401,14 @@ function restoreOne(projectPath, backupId) {
     }
     try {
       if (lstatSync(sourcePath).isDirectory()) {
-        mkdirSync(join(projectPath, relativePath), { recursive: true });
+        mkdirSyncRetrying(join(projectPath, relativePath));
         for (const f of listFiles(backupDir, relativePath)) {
-          mkdirSync(dirname(join(projectPath, f)), { recursive: true });
+          mkdirSyncRetrying(dirname(join(projectPath, f)));
           copyLeaf(join(backupDir, f), join(projectPath, f));
           restored.push(f);
         }
       } else {
-        mkdirSync(dirname(join(projectPath, relativePath)), { recursive: true });
+        mkdirSyncRetrying(dirname(join(projectPath, relativePath)));
         copyLeaf(sourcePath, join(projectPath, relativePath));
         restored.push(relativePath);
       }

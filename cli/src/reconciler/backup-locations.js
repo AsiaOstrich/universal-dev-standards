@@ -10,8 +10,9 @@
  * @module reconciler/backup-locations
  */
 
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { mkdirSyncRetrying } from '../utils/transient-fs.js';
 
 /** The one folder new backups go into. */
 export const BACKUPS_DIR = '.uds-backups';
@@ -49,7 +50,7 @@ export function newBackupId() {
 export function ensureBackupsDir(projectPath, errors) {
   const dir = join(projectPath, BACKUPS_DIR);
   try {
-    mkdirSync(dir, { recursive: true });
+    mkdirSyncRetrying(dir);
     const ignoreFile = join(dir, '.gitignore');
     if (!existsSync(ignoreFile)) writeFileSync(ignoreFile, '*\n', 'utf8');
   } catch (err) {

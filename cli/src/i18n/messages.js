@@ -43,7 +43,8 @@ export const messages = {
       reasons: {
         sourceUnreadable: 'the source "{source}" cannot be opened for reading ({code})',
         targetUnwritable: '"{path}" cannot be opened for writing ({code}): it is read-only or this account may not write it',
-        folderUnwritable: 'a file cannot be created in the folder "{folder}" ({code})'
+        folderUnwritable: 'a file cannot be created in the folder "{folder}" ({code})',
+        folderCannotBeMade: 'a folder cannot be created inside "{folder}" ({code})'
       }
     },
     // XSPEC-458: standards UDS ships that this project does not have
@@ -1476,7 +1477,8 @@ export const messages = {
       reasons: {
         sourceUnreadable: '來源「{source}」無法開啟讀取（{code}）',
         targetUnwritable: '「{path}」無法開啟寫入（{code}）：它是唯讀，或這個帳號沒有寫入權限',
-        folderUnwritable: '無法在資料夾「{folder}」裡建立檔案（{code}）'
+        folderUnwritable: '無法在資料夾「{folder}」裡建立檔案（{code}）',
+        folderCannotBeMade: '無法在資料夾「{folder}」裡建立資料夾（{code}）'
       }
     },
     // XSPEC-458：UDS 有出貨、這個專案沒有的標準
@@ -2902,7 +2904,8 @@ export const messages = {
       reasons: {
         sourceUnreadable: '来源“{source}”无法打开读取（{code}）',
         targetUnwritable: '“{path}”无法打开写入（{code}）：它是只读，或这个账号没有写入权限',
-        folderUnwritable: '无法在文件夹“{folder}”里创建文件（{code}）'
+        folderUnwritable: '无法在文件夹“{folder}”里创建文件（{code}）',
+        folderCannotBeMade: '无法在文件夹“{folder}”里创建文件夹（{code}）'
       }
     },
     // XSPEC-458：UDS 有发布、这个项目没有的标准

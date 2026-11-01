@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, copyFileSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { copyFileSyncRetrying, mkdirSyncRetrying } from './transient-fs.js';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
@@ -174,17 +174,22 @@ export async function copyStandard(sourcePath, targetDir, projectPath) {
 export async function copyIntegration(sourcePath, targetPath, projectPath) {
   const target = join(projectPath, targetPath);
   
-  // Ensure target directory exists
+  // Ensure target directory exists. A folder that cannot be made is reported like a file that cannot be
+  // copied ({ success: false, error }); it used to throw out of this function with Node's bare text.
   const targetDir = dirname(target);
-  if (!existsSync(targetDir)) {
-    mkdirSync(targetDir, { recursive: true });
+  try {
+    if (!existsSync(targetDir)) {
+      mkdirSyncRetrying(targetDir);
+    }
+  } catch (error) {
+    return { success: false, error: error.message, path: null };
   }
 
   // Try local copy first (bundled or repo)
   const source = getSourcePath(sourcePath);
   if (source) {
     try {
-      copyFileSync(source, target);
+      copyFileSyncRetrying(source, target);
       return {
         success: true,
         error: null,

@@ -31,7 +31,7 @@
  * @module utils/transient-fs
  */
 
-import { copyFileSync, mkdirSync, openSync, closeSync, unlinkSync, existsSync } from 'fs';
+import { copyFileSync, cpSync, mkdirSync, rmdirSync, openSync, closeSync, unlinkSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { t } from '../i18n/messages.js';
 
@@ -142,11 +142,11 @@ function permissionDeniedError(err, info, attempts, elapsedMs, verdict) {
  * denies it), or it does not exist and a scratch file cannot be created next to it. A destination that opens for
  * writing now was locked a moment ago, not forbidden. The scratch file is removed on every path, including a failure.
  * @param {{path: string, source?: string, kind?: 'file'|'folder'}} info
- * @param {{openSync?: Function, closeSync?: Function, unlinkSync?: Function, existsSync?: Function}} [ops] - for tests
+ * @param {{openSync?: Function, closeSync?: Function, unlinkSync?: Function, existsSync?: Function, mkdirSync?: Function, rmdirSync?: Function}} [ops] - for tests
  * @returns {{denied: boolean, reason?: string, reasonKey?: string, values?: object}} - `reason` is English text; `reasonKey` + `values` let the caller say it in the CLI's language
  */
 export function probeWritePermission({ path, source, kind }, ops = {}) {
-  const { openSync: open = openSync, closeSync: close = closeSync, unlinkSync: unlink = unlinkSync, existsSync: exists = existsSync } = ops;
+  const { openSync: open = openSync, closeSync: close = closeSync, unlinkSync: unlink = unlinkSync, existsSync: exists = existsSync, mkdirSync: makeDir = mkdirSync, rmdirSync: removeDir = rmdirSync } = ops;
   // Open `file` with `flags`, close it again; returns the error code if it could not be opened, else null.
   const tryOpen = (file, flags) => {
     let fd;
@@ -172,6 +172,22 @@ export function probeWritePermission({ path, source, kind }, ops = {}) {
   let folder = kind === 'folder' ? path : dirname(path);
   while (!exists(folder) && dirname(folder) !== folder) folder = dirname(folder); // the nearest existing folder up the path
   const scratch = join(folder, `.uds-permission-probe-${process.pid}-${Date.now().toString(36)}`);
+  if (kind === 'folder') {
+    // A folder to create is asked with a FOLDER: on Windows an ACL can allow new files and refuse new folders
+    // (add-file and add-subdirectory are separate rights), and a scratch file would then say "no problem".
+    let made = false;
+    try {
+      makeDir(scratch);
+      made = true;
+    } catch (e) {
+      const code = (e && e.code) || 'UNKNOWN';
+      if (DENIED_CODES.has(code)) return { denied: true, reason: `a folder cannot be created inside "${folder}" (${code})`, reasonKey: 'folderCannotBeMade', values: { folder, code } };
+      return { denied: false };
+    } finally {
+      if (made) { try { removeDir(scratch); } catch { /* nothing more can be done; the name starts with .uds-permission-probe */ } }
+    }
+    return { denied: false };
+  }
   let created = false;
   try {
     const code = tryOpen(scratch, 'wx');
@@ -231,6 +247,14 @@ export function retryTransientFs(operation, info, hooks = {}) {
 /** `fs.copyFileSync` that survives a short-lived file lock. Errors name the destination. */
 export function copyFileSyncRetrying(source, target, hooks) {
   return retryTransientFs(() => copyFileSync(source, target), { path: String(target), source: String(source), action: `copy "${source}" to`, step: 'copy' }, hooks);
+}
+
+/**
+ * `fs.cpSync(source, target, options)` that survives a short-lived lock and says "permission denied" for a real
+ * permission problem. For the backup, which copies a file or a symlink with `cpSync`, not `copyFileSync`.
+ */
+export function cpSyncRetrying(source, target, options, hooks) {
+  return retryTransientFs(() => cpSync(source, target, options), { path: String(target), source: String(source), action: `copy "${source}" to`, step: 'copy' }, hooks);
 }
 
 /**
