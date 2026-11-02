@@ -13,6 +13,7 @@
  *   cli/src/commands/update.js   await flushAndExit(...)                      // wire:update-flushes-before-exit
  *   cli/src/commands/audit.js    return flushAndExit(exitCode)                // wire:audit-effects-flushes-before-exit
  *   cli/src/commands/init.js     formatGroupedErrors(installErrors, msg)      // wire:init-groups-errors-by-cause
+ *   cli/src/utils/flush-and-exit.js  stream.once('error', resolve)            // wire:flush-survives-a-closed-reader (EPIPE): only the last test below goes red
  *
  * Not verified: Windows. Every test that reads through a shell pipe or uses chmod is skipped there; no Windows machine ran this file.
  *
@@ -21,9 +22,11 @@
 
 import { it, expect, afterAll } from 'vitest';
 import { existsSync, mkdirSync, chmodSync, readdirSync, rmSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { pathToFileURL } from 'url';
 import { createHarness } from '../utils/staged-cli-harness.js';
 import { runWithSlowReader } from '../utils/slow-reader-run.js';
+import { runWithEarlyClosingReader } from '../utils/early-closing-reader-run.js';
 import { readManifest, writeManifest, out } from '../utils/xspec-482.js';
 
 const h = createHarness('exit-flush-81');
@@ -107,16 +110,22 @@ it('uds update that cannot write the standards it restores still prints every fa
   }
 }, 180000);
 
-it('uds audit --effects with 300 hollow implementations prints the whole report to a reader that is slow, down to its last line, and exits 1 (board #81)', async (ctx) => {
-  ctx.skip(onWindows, 'needs a POSIX shell pipe (sh); not run on Windows');
-  const project = h.makeDir('effects');
+/** A project with `count` hollow implementations, so `uds audit --effects` prints one finding each and exits 1. */
+function hollowProject(label, count) {
+  const project = h.makeDir(label);
   mkdirSync(join(project, 'providers'));
   mkdirSync(join(project, '.uds'));
-  const COUNT = 300;
-  for (let i = 1; i <= COUNT; i++) {
+  for (let i = 1; i <= count; i++) {
     writeFileSync(join(project, 'providers', `hollow-${i}.provider.ts`), `export function provision${i}(name: string) { return { ok: true, accessUrl: name }; }\n`);
   }
   writeFileSync(join(project, '.uds', 'effect-boundary.json'), JSON.stringify({ root: '.', families: [{ name: 'providers', include: ['providers/**/*.ts'] }] }));
+  return project;
+}
+
+it('uds audit --effects with 300 hollow implementations prints the whole report to a reader that is slow, down to its last line, and exits 1 (board #81)', async (ctx) => {
+  ctx.skip(onWindows, 'needs a POSIX shell pipe (sh); not run on Windows');
+  const COUNT = 300;
+  const project = hollowProject('effects', COUNT);
 
   const run = await runWithSlowReader(h, project, ['audit', '--effects']);
 
@@ -127,3 +136,50 @@ it('uds audit --effects with 300 hollow implementations prints the whole report 
   expect(run.stdout).toContain(`${COUNT} effect implementation(s) reach nothing outside this process`);
   expect(run.stdout).toMatch(/or add a baseline row\s+with an expiry date and a reason\.\s+EXIT=1\s*$/);
 }, 180000);
+
+it('uds audit --effects --format json with 300 hollow implementations gives a reader that is slow one document that JSON.parse reads back whole, with the gate code in it (board #81)', async (ctx) => {
+  ctx.skip(onWindows, 'needs a POSIX shell pipe (sh); not run on Windows');
+  const COUNT = 300;
+  const project = hollowProject('effects-json', COUNT);
+
+  const run = await runWithSlowReader(h, project, ['audit', '--effects', '--format', 'json']);
+
+  expect(run.code, run.stdout.slice(-400)).toBe(1);
+  expect(Buffer.byteLength(run.stdout), 'fixture: the output really is larger than one pipe').toBeGreaterThan(65536);
+  // The shell appends "EXIT=<n>" after the CLI ended; what is before it must be exactly the JSON document, closing brace included.
+  const document = run.stdout.replace(/\s*EXIT=\d+\s*$/, '');
+  const parsed = JSON.parse(document); // a document cut at one pipe's worth does not parse
+  expect(parsed.exitCode).toBe(1);
+  expect(parsed.report.filter((line) => /^ {2}✗ \[providers\] providers\/hollow-\d+\.provider\.ts$/.test(line))).toHaveLength(COUNT);
+}, 180000);
+
+it('uds audit --effects whose reader closes the pipe after one line still ends with the gate code 1 and prints no stack trace (EPIPE, board #81)', async (ctx) => {
+  ctx.skip(onWindows, 'needs a POSIX shell with `head` (sh); not run on Windows');
+  const project = hollowProject('effects-epipe', 300);
+
+  const run = await runWithEarlyClosingReader(h, project, [h.cliPath(), '--ui-lang', 'en', 'audit', '--effects']);
+
+  expect(run.code, `stderr: ${run.stderr.slice(-600)}`).toBe(1);
+  expect(run.firstLine.trim(), 'fixture: the reader got its one line').not.toBe('');
+  // Entry-level guard, not the guard of the `stream.once('error', ...)` line: console.log's own write callback absorbs a closed
+  // pipe, so cutting that line does not turn this test red (measured). The last test of this file is the one that does.
+  // An unhandled EPIPE prints "Error: write EPIPE" and a stack ("    at ...") on stderr.
+  expect(run.stderr).not.toMatch(/EPIPE/);
+  expect(run.stderr).not.toMatch(/^\s+at /m);
+}, 180000);
+
+it('flushAndExit called after a plain process.stdout.write whose reader closes the pipe still ends with the code it was given and prints no stack trace (EPIPE, board #81)', async (ctx) => {
+  ctx.skip(onWindows, 'needs a POSIX shell with `head` (sh); not run on Windows');
+  // The CLI commands print with console.log, whose own write callback already absorbs a closed pipe, so the audit test above
+  // cannot tell whether flushAndExit handles it itself. A direct stream write has no such help: this is the module's own duty.
+  const flushModule = pathToFileURL(join(dirname(dirname(h.cliPath())), 'src', 'utils', 'flush-and-exit.js')).href;
+  const dir = h.makeDir('flush-direct');
+  const script = join(dir, 'write-then-flush.mjs');
+  writeFileSync(script, `import { flushAndExit } from ${JSON.stringify(flushModule)};\nprocess.stdout.write('x'.repeat(300000) + '\\n');\nawait flushAndExit(3);\n`);
+
+  const run = await runWithEarlyClosingReader(h, dir, [script], 'true'); // closes the pipe without reading a byte
+
+  expect(run.code, `stderr: ${run.stderr.slice(-600)}`).toBe(3);
+  expect(run.stderr).not.toMatch(/EPIPE/);
+  expect(run.stderr).not.toMatch(/^\s+at /m);
+}, 60000);

@@ -99,7 +99,7 @@
     },
     {
       "changelog": "uds update and uds audit --effects no longer lose the end of a long report when their output goes into a pipe",
-      "reason": "The loss only happens when the reader of a pipe is slower than the CLI and the output is larger than one pipe (64 KB); the acceptance runner reads the child through its own socket pair, which did not lose output when this was measured, so a step here would pass with or without the fix. It is tested from the commands' entry in cli/tests/e2e/exit-flush-and-grouped-errors-81.test.js, which reads uds update and uds audit --effects through a real shell pipe with a late reader, compares the lines it gets with the files the test removed or wrote, and goes red when either wait is cut. Windows is not covered."
+      "reason": "The loss only happens when the reader of a pipe is slower than the CLI and the output is larger than one pipe (64 KB); the acceptance runner reads the child through its own socket pair, which did not lose output when this was measured, so a step here would pass with or without the fix. It is tested from the commands' entry in cli/tests/e2e/exit-flush-and-grouped-errors-81.test.js, which reads uds update and uds audit --effects (also with --format json, read back with JSON.parse) through a real shell pipe with a late reader, compares the lines it gets with the files the test removed or wrote, and goes red when either wait is cut; two further tests close the pipe early (EPIPE) and check the exit code and a stderr without a stack, and one of them goes red when the error listener of flushAndExit is cut. Windows is not covered."
     }
   ],
   "steps": [
