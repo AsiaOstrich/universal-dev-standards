@@ -96,6 +96,10 @@
     {
       "changelog": "`npm run ci:local` runs the repository's fake-test gate",
       "reason": "Maintainer tooling in the repository (root package.json and .github/workflows/ci.yml); nothing of it is in the npm package, and uds init, uds check and the shipped scanners behave as before. Tested from the entry by cli/tests/unit/templates/ci-local-wiring.test.js, which reads the CI step and the package.json script, runs the CI step's own command in a project with a fake test (red) and without it (green), and cuts three wires (the ci:local script, the check:anti-fake-tests script, the ci.yml run line)."
+    },
+    {
+      "changelog": "uds update and uds audit --effects no longer lose the end of a long report when their output goes into a pipe",
+      "reason": "The loss only happens when the reader of a pipe is slower than the CLI and the output is larger than one pipe (64 KB); the acceptance runner reads the child through its own socket pair, which did not lose output when this was measured, so a step here would pass with or without the fix. It is tested from the commands' entry in cli/tests/e2e/exit-flush-and-grouped-errors-81.test.js, which reads uds update and uds audit --effects through a real shell pipe with a late reader, compares the lines it gets with the files the test removed or wrote, and goes red when either wait is cut. Windows is not covered."
     }
   ],
   "steps": [
@@ -12458,6 +12462,102 @@
             "contains": [
               "open-work-tracking"
             ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "macos",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "read-only-project.cjs",
+          "content": "const fs = require('fs');\n// Makes the project folder read-only (a mode of 0555), so the folder `.standards/` cannot be made in it:\n// a permission problem, not a lock. Put back to writable when the run ends so the throwaway folder can be removed.\nfs.chmodSync(process.cwd(), 0o555);\nconst folder = process.cwd();\nprocess.on('exit', () => { try { fs.chmodSync(folder, 0o755); } catch { /* already gone */ } });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/read-only-project.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "init-shared-cause-printed-once-macos",
+      "title": "uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file",
+      "titleZh": "uds init 在寫不進去的資料夾裡，同一個資料夾錯誤只印一次，並附上受影響的檔案數與前三個檔名，不再每個檔案各印一行",
+      "changelog": [
+        "uds init now prints a cause that many files share once"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Could not create the folder",
+          "permission denied (EACCES)",
+          "files affected, the first 3: ai/standards/"
+        ],
+        "matches": [
+          "-> [0-9]{2,} files affected, the first 3:"
+        ],
+        "notContains": [
+          ".ai.yaml: Could not create the folder"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "linux",
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "read-only-project.cjs",
+          "content": "const fs = require('fs');\n// Makes the project folder read-only (a mode of 0555), so the folder `.standards/` cannot be made in it:\n// a permission problem, not a lock. Put back to writable when the run ends so the throwaway folder can be removed.\nfs.chmodSync(process.cwd(), 0o555);\nconst folder = process.cwd();\nprocess.on('exit', () => { try { fs.chmodSync(folder, 0o755); } catch { /* already gone */ } });\n"
+        }
+      ],
+      "run": [
+        "{node}",
+        "--require",
+        "{work}/read-only-project.cjs",
+        "{bin}",
+        "init",
+        "--yes",
+        "--skills-location",
+        "project"
+      ],
+      "id": "init-shared-cause-printed-once-linux",
+      "title": "uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file",
+      "titleZh": "uds init 在寫不進去的資料夾裡，同一個資料夾錯誤只印一次，並附上受影響的檔案數與前三個檔名，不再每個檔案各印一行",
+      "changelog": [
+        "uds init now prints a cause that many files share once"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Could not create the folder",
+          "permission denied (EACCES)",
+          "files affected, the first 3: ai/standards/"
+        ],
+        "matches": [
+          "-> [0-9]{2,} files affected, the first 3:"
+        ],
+        "notContains": [
+          ".ai.yaml: Could not create the folder"
+        ],
+        "files": [
+          {
+            "path": ".standards/manifest.json",
+            "exists": false
           }
         ]
       }

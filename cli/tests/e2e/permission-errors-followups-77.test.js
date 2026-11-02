@@ -35,8 +35,7 @@ import { it, expect, afterAll } from 'vitest';
 import { rmSync, existsSync, readFileSync, writeFileSync, mkdirSync, chmodSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHarness, REAL_REPO, stripAnsi } from '../utils/staged-cli-harness.js';
-import { spawn } from 'child_process';
-import { isolatedEnv } from '../../../scripts/lib/isolated-home.mjs';
+import { runWithSlowReader } from '../utils/slow-reader-run.js';
 import { readManifest, writeManifest, out } from '../utils/xspec-482.js';
 
 const h = createHarness('permission-followups-77');
@@ -132,64 +131,51 @@ it.skipIf(cannotChmod)('uds init in a folder it cannot write into says "permissi
   }
 }, 180000);
 
-it.skipIf(cannotChmod)('uds init --locale zh-cn in a folder it cannot write into also says it for the locale pack (the extension copy has its own folder step)', async () => {
-  const { project } = lockedProject('init-ro-locale');
+it.skipIf(cannotChmod)('uds init --locale zh-cn in a folder it cannot write into also fails the locale pack for the same permission problem (the extension copy has its own folder step)', async () => {
+  // Since board #81 the files that share one cause are printed as one cause plus "N files affected", so the locale pack no
+  // longer has a line of its own. What it must not become is a file that fails without being counted: the same run with the
+  // locale pack has exactly one more failed file than the run without it.
+  const countAffected = (text) => Number(/-> (\d+) files affected/.exec(text)?.[1]);
+  const plain = lockedProject('init-ro-no-locale');
+  const withLocale = lockedProject('init-ro-locale');
   try {
-    const run = await h.runCli(['init', '--yes', '--locale', 'zh-cn', '--skills-location', 'project'], project);
-    const text = out(run);
+    const runPlain = await h.runCli(['init', '--yes', '--skills-location', 'project'], plain.project);
+    const runLocale = await h.runCli(['init', '--yes', '--locale', 'zh-cn', '--skills-location', 'project'], withLocale.project);
+    const textPlain = out(runPlain);
+    const textLocale = out(runLocale);
 
-    expect(run.code, text).not.toBe(0);
-    // The line of the locale pack itself, not of some standard.
-    expect(text).toMatch(/extensions[\\/]locales[\\/]zh-cn\.md: Could not create the folder ".*[\\/]\.standards": permission denied \(EACCES\)/);
-    expect(existsSync(join(project, '.standards'))).toBe(false);
+    expect(runPlain.code, textPlain).not.toBe(0);
+    expect(runLocale.code, textLocale).not.toBe(0);
+    expect(textLocale).toMatch(/Could not create the folder ".*[\\/]\.standards": permission denied \(EACCES\)/);
+    expect(countAffected(textPlain), textPlain).toBeGreaterThan(0);
+    expect(countAffected(textLocale), 'the locale pack is one more failed file').toBe(countAffected(textPlain) + 1);
+    expect(existsSync(join(withLocale.project, '.standards'))).toBe(false);
   } finally {
-    chmodSync(project, 0o755);
+    chmodSync(plain.project, 0o755);
+    chmodSync(withLocale.project, 0o755);
   }
 }, 180000);
 
-/**
- * Run `uds init` with its output going into a real (anonymous) pipe whose reader starts late, the way a busy CI machine
- * reads it. A child_process `stdio: 'pipe'` is a socket pair with a different buffer, which did NOT lose output in
- * this test; the shell pipe below did (measured: it stops at exactly 65,536 bytes when the CLI exits with process.exit).
- * The exit code is echoed after the CLI ended, on the same pipe: `EXIT=<n>`. POSIX shell only.
- */
-function runInitWithSlowReader(cwd, extraArgs, readerDelayMs) {
-  return new Promise((done) => {
-    const dir = h.makeDir('slow-reader');
-    const reader = join(dir, 'slow-reader.cjs');
-    writeFileSync(reader, `setTimeout(() => process.stdin.pipe(process.stdout), ${readerDelayMs});\n`);
-    const env = { ...isolatedEnv(h.makeDir('slow-home'), process.env), FORCE_COLOR: '0', NO_COLOR: '1', UDS_NO_UPDATE_CHECK: '1', READER_JS: reader, READER_NODE: process.execPath };
-    const args = [h.cliPath(), '--ui-lang', 'en', 'init', '--yes', ...extraArgs, '--skills-location', 'project'];
-    const proc = spawn('sh', ['-c', '{ "$0" "$@"; echo "EXIT=$?" >&2; } 2>&1 | "$READER_NODE" "$READER_JS"', process.execPath, ...args], { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
-    const chunks = [];
-    proc.stdout.on('data', (d) => chunks.push(d));
-    proc.stderr.resume();
-    const timer = setTimeout(() => proc.kill('SIGTERM'), 120000);
-    proc.on('close', () => {
-      clearTimeout(timer);
-      const stdout = Buffer.concat(chunks).toString('utf-8');
-      const exit = /EXIT=(\d+)\s*$/.exec(stdout);
-      done({ code: exit ? Number(exit[1]) : null, stdout });
-    });
-  });
-}
-
-it.skipIf(cannotChmod || onWindows)('uds init in a folder it cannot write into still prints the WHOLE error list, locale pack line included, to a reader that is slow and a path that is long (board #77, CI run 41331713139)', async () => {
-  // A deep temp path, as on a CI runner, makes each of the ~70 error lines long: the list passes 64 KB, the size of a pipe.
+it.skipIf(cannotChmod || onWindows)('uds init whose .standards folder exists but cannot be written into still prints the WHOLE error list, locale pack line included, to a reader that is slow and a path that is long (board #77, CI run 41331713139)', async () => {
+  // A deep temp path, as on a CI runner, makes each error line long. Here every failed file has its own cause (the message names
+  // the file), so the lines are not merged (board #81) and the list passes 64 KB, the size of a pipe: this is the output that
+  // `process.exit(1)` used to cut. (When the folder itself cannot be made, the cause is the same for every file and is printed
+  // once: that output is small and is checked in exit-flush-and-grouped-errors-81.test.js.)
   const base = h.makeDir('init-ro-long');
   const project = join(base, ...Array.from({ length: 6 }, () => 'a-long-directory-name-as-on-a-ci-runner'), 'project');
   mkdirSync(join(project, '.claude'), { recursive: true });
-  chmodSync(project, 0o555);
+  mkdirSync(join(project, '.standards'));
+  chmodSync(join(project, '.standards'), 0o555);
   try {
-    const run = await runInitWithSlowReader(project, ['--locale', 'zh-cn'], 1500);
+    const run = await runWithSlowReader(h, project, ['init', '--yes', '--locale', 'zh-cn', '--skills-location', 'project'], 1500);
 
     expect(run.code, run.stdout.slice(-400)).toBe(1);
     expect(Buffer.byteLength(run.stdout), 'fixture: the output really is larger than one pipe').toBeGreaterThan(65536);
-    // The last line of the list, which is the one a cut-off pipe loses, and the line of the locale pack.
-    expect(run.stdout).toMatch(/extensions[\\/]locales[\\/]zh-cn\.md: Could not create the folder ".*[\\/]\.standards": permission denied \(EACCES\)/);
-    expect(run.stdout).toMatch(/claude-code: EACCES: permission denied, open '.*CLAUDE\.md'/);
+    // The line of the locale pack, which is the last of the list and the one a cut-off pipe loses; the exit marker follows it.
+    expect(run.stdout).toMatch(/extensions[\\/]locales[\\/]zh-cn\.md: Could not copy ".*" to ".*[\\/]\.standards[\\/]zh-cn\.md": permission denied \(EACCES\)/);
+    expect(run.stdout).toMatch(/\.standards[\\/]zh-cn\.md'\)\s*EXIT=1\s*$/);
   } finally {
-    chmodSync(project, 0o755);
+    chmodSync(join(project, '.standards'), 0o755);
   }
 }, 180000);
 
