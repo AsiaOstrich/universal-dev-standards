@@ -12561,6 +12561,275 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-refs-init",
+      "workspace": "check-ci-refs",
+      "title": "uds init sets up a project whose CLAUDE.md points at the standards it installed (the project the next two steps use)",
+      "titleZh": "uds init 建立專案，CLAUDE.md 指向它裝的標準（後兩個步驟使用的專案）",
+      "smoke": true,
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              ".standards/self-review-protocol.ai.yaml"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-refs-clean",
+      "workspace": "check-ci-refs",
+      "title": "uds check --ci exits 0 while every file CLAUDE.md points at is on disk",
+      "titleZh": "CLAUDE.md 指到的檔案都在時，uds check --ci 結束碼為 0",
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Project is compliant with standards"
+        ],
+        "notContains": [
+          "references files that do not exist",
+          "mentions paths that do not exist"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-refs-broken",
+      "workspace": "check-ci-refs",
+      "title": "uds check --ci exits 1 when CLAUDE.md points at a standard file that is not on disk, and names the path",
+      "titleZh": "CLAUDE.md 指向磁碟上不存在的標準檔時，uds check --ci 結束碼為 1，並指出該路徑",
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "prepare": [
+        {
+          "forgetStandard": "self-review-protocol"
+        }
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          ".standards/self-review-protocol.ai.yaml",
+          "do not exist"
+        ],
+        "notContains": [
+          "Project is compliant with standards"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-commands-init",
+      "workspace": "check-ci-commands",
+      "title": "uds init installs the slash commands for the OpenCode agent (an AGENTS.md makes it appear) and records a hash for each (the project the next two steps use)",
+      "titleZh": "uds init 為 OpenCode 安裝斜線指令並為每個記下雜湊（後兩個步驟使用的專案）",
+      "smoke": true,
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        },
+        {
+          "writeFile": "AGENTS.md",
+          "content": "# project notes\n"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".opencode/command/commit.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "opencode/commit.md"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-commands-clean",
+      "workspace": "check-ci-commands",
+      "title": "uds check --ci exits 0 while every installed command file is covered by a hash",
+      "titleZh": "每個已安裝的指令檔都有雜湊時，uds check --ci 結束碼為 0",
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Project is compliant with standards"
+        ],
+        "notContains": [
+          "covered by no hash"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "check-ci-commands-untracked",
+      "workspace": "check-ci-commands",
+      "title": "uds check --ci exits 1 when an installed command file is covered by no hash, and names the file",
+      "titleZh": "有已安裝的指令檔沒有任何雜湊時，uds check --ci 結束碼為 1，並指出該檔",
+      "changelog": [
+        "Behavior change - uds check --ci now fails on two findings it used to only print"
+      ],
+      "prepare": [
+        {
+          "writeFile": ".opencode/command/uds-acceptance-extra.md",
+          "content": "# An installed command nothing hashes\n"
+        },
+        {
+          "writeFile": ".opencode/command/.manifest.json",
+          "content": "{\n  \"version\": \"6.14.1\",\n  \"commands\": [\"commit\", \"uds-acceptance-extra\"]\n}\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "covered by no hash",
+          "opencode/uds-acceptance-extra.md"
+        ],
+        "notContains": [
+          "Project is compliant with standards"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "init-format-both-lists-options-under-options",
+      "workspace": "format-both-options",
+      "title": "uds init --format both lists every option copy under .standards/options/ in CLAUDE.md, and uds check --ci then exits 0",
+      "titleZh": "uds init --format both 在 CLAUDE.md 把每個選項副本列在 .standards/options/ 之下，之後 uds check --ci 結束碼為 0",
+      "changelog": [
+        "uds init --format both no longer writes .standards/english.md"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "both"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "`.standards/options/english.md`",
+              "`.standards/options/english.ai.yaml`"
+            ],
+            "notContains": [
+              "`.standards/english.md`",
+              "`.standards/unit-testing.md`"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "format-both-check-ci-exits-0",
+      "workspace": "format-both-options",
+      "title": "uds check --ci exits 0 on a --format both project: every path CLAUDE.md lists is on disk",
+      "titleZh": "--format both 專案的 uds check --ci 結束碼為 0：CLAUDE.md 列的每個路徑都在磁碟上",
+      "changelog": [
+        "uds init --format both no longer writes .standards/english.md"
+      ],
+      "uds": [
+        "check",
+        "--ci",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "Project is compliant with standards"
+        ],
+        "notContains": [
+          "do not exist"
+        ]
+      }
     }
   ]
 }

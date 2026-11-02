@@ -17,6 +17,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { basename, join, resolve } from 'path';
 import { REAL_CLI_DIR, REAL_REPO } from './staged-cli-harness.js';
+import { refreshIntegrationBlockHashes } from '../../src/utils/hasher.js';
 
 export const FIXTURE_DIR = resolve(REAL_CLI_DIR, 'tests/fixtures/upgrade-from-6.11.0');
 export const FIXTURE_MANIFEST = join(FIXTURE_DIR, 'manifest.json');
@@ -157,12 +158,24 @@ export function planCounts(stdout) {
 /**
  * Make a project that `uds init` just set up look like one that never got STAND_IN_ID: nothing else
  * differs from a clean install, so the one available standard is the only thing any command has to say.
+ *
+ * "Never got it" includes the integration files: `uds init` wrote a line naming the standard into CLAUDE.md and
+ * AGENTS.md, and a project that never installed it has no such line. Leaving the line behind made a project that
+ * `uds check --ci` rightly fails since decision 293 (a path in an integration file that is not on disk). The
+ * recorded block hashes are refreshed too, so the integrity check still sees the files as UDS wrote them.
  */
 export function removeStandIn(dir) {
   const mPath = join(dir, '.standards', 'manifest.json');
   const m = JSON.parse(readFileSync(mPath, 'utf-8'));
   m.standards = m.standards.filter((s) => !s.includes(STAND_IN_ID)); // an entry is a path or a bare id
   delete m.fileHashes[`.standards/${STAND_IN_FILE}`];
-  writeFileSync(mPath, JSON.stringify(m, null, 2));
   rmSync(join(dir, '.standards', STAND_IN_FILE));
+  for (const file of m.integrations || []) {
+    const path = join(dir, file);
+    if (!existsSync(path)) continue;
+    const kept = readFileSync(path, 'utf-8').split('\n').filter((line) => !line.includes(`.standards/${STAND_IN_FILE}`));
+    writeFileSync(path, kept.join('\n'));
+  }
+  refreshIntegrationBlockHashes(m, dir);
+  writeFileSync(mPath, JSON.stringify(m, null, 2));
 }

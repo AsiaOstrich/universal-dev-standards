@@ -79,8 +79,8 @@ node scripts/beta-acceptance/run.mjs --version 6.14.1
 It installs the published 6.14.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.14.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 372 steps (364 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 372 步（364 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 380 步（372 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1198,6 +1198,30 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 372 steps (364
 372. `init-shared-cause-printed-once-linux` (linux only; **new 新**) — uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file.
    uds init 在寫不進去的資料夾裡，同一個資料夾錯誤只印一次，並附上受影響的檔案數與前三個檔名，不再每個檔案各印一行。
    `{node} --require {work}/read-only-project.cjs {bin} init --yes --skills-location project` → exit 1; output has "Could not create the folder", "permission denied (EACCES)" (+2)
+373. `check-ci-refs-init` (**new 新**) — uds init sets up a project whose CLAUDE.md points at the standards it installed (the project the next two steps use).
+   uds init 建立專案，CLAUDE.md 指向它裝的標準（後兩個步驟使用的專案）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+374. `check-ci-refs-clean` (**new 新**) — uds check --ci exits 0 while every file CLAUDE.md points at is on disk.
+   CLAUDE.md 指到的檔案都在時，uds check --ci 結束碼為 0。
+   `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
+375. `check-ci-refs-broken` (**new 新**) — uds check --ci exits 1 when CLAUDE.md points at a standard file that is not on disk, and names the path.
+   CLAUDE.md 指向磁碟上不存在的標準檔時，uds check --ci 結束碼為 1，並指出該路徑。
+   `uds check --ci --offline` → exit 1; output has ".standards/self-review-protocol.ai.yaml", "do not exist"
+376. `check-ci-commands-init` (**new 新**) — uds init installs the slash commands for the OpenCode agent (an AGENTS.md makes it appear) and records a hash for each (the project the next two steps use).
+   uds init 為 OpenCode 安裝斜線指令並為每個記下雜湊（後兩個步驟使用的專案）。
+   `uds init -y --skills-location project` → exit 0; output has "Standards initialized successfully"
+377. `check-ci-commands-clean` (**new 新**) — uds check --ci exits 0 while every installed command file is covered by a hash.
+   每個已安裝的指令檔都有雜湊時，uds check --ci 結束碼為 0。
+   `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
+378. `check-ci-commands-untracked` (**new 新**) — uds check --ci exits 1 when an installed command file is covered by no hash, and names the file.
+   有已安裝的指令檔沒有任何雜湊時，uds check --ci 結束碼為 1，並指出該檔。
+   `uds check --ci --offline` → exit 1; output has "covered by no hash", "opencode/uds-acceptance-extra.md"
+379. `init-format-both-lists-options-under-options` (**new 新**) — uds init --format both lists every option copy under .standards/options/ in CLAUDE.md, and uds check --ci then exits 0.
+   uds init --format both 在 CLAUDE.md 把每個選項副本列在 .standards/options/ 之下，之後 uds check --ci 結束碼為 0。
+   `uds init -y --skills-location project --format both` → exit 0; output has "Standards initialized successfully"
+380. `format-both-check-ci-exits-0` (**new 新**) — uds check --ci exits 0 on a --format both project: every path CLAUDE.md lists is on disk.
+   --format both 專案的 uds check --ci 結束碼為 0：CLAUDE.md 列的每個路徑都在磁碟上。
+   `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
