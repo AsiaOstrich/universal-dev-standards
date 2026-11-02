@@ -24,6 +24,7 @@ import {
   DEFAULT_BASELINE_PATH
 } from '../utils/effect-boundary.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
+import { flushAndExit } from '../utils/flush-and-exit.js';
 import { runHealthCheck } from '../utils/health-checker.js';
 import { runHealthScore, saveScoreSnapshot, loadTrend } from '../utils/health-scorer.js';
 import { analyzePatterns } from '../utils/pattern-analyzer.js';
@@ -219,7 +220,9 @@ function handleEffectsMode(projectPath, options) {
   } else {
     for (const line of lines) console.log(line);
   }
-  process.exit(exitCode);
+  // Board #81: the report grows with the findings and the exit code is the gate's answer; process.exit() alone can cut
+  // the report (or a --format json document) at one pipe's worth of output on macOS. Wait for it to be taken first.
+  return flushAndExit(exitCode); // wire:audit-effects-flushes-before-exit
 }
 
 /**

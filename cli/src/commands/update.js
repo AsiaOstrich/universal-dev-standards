@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { createSpinner } from '../utils/spinner.js';
+import { flushAndExit } from '../utils/flush-and-exit.js';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
@@ -1723,7 +1724,9 @@ export async function updateCommand(options) {
 
   // Exit explicitly to prevent hanging.
   // T11: a partial update exits non-zero so CI / scripts can detect the failure.
-  process.exit(updateIncomplete || hookStepFailed ? 1 : 0);
+  // Board #81: the list of failed files above grows with the project (144 KB measured); process.exit() alone cut it
+  // at one pipe's worth (65,536 bytes) on macOS, so wait for the output to be taken before ending.
+  await flushAndExit(updateIncomplete || hookStepFailed ? 1 : 0); // wire:update-flushes-before-exit
 }
 
 /**

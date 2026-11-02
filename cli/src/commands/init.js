@@ -38,6 +38,7 @@ import { newRecorder, mkdirTracked, recordFile, persistRecorder, RECORD_KINDS } 
 import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock, buildNativePreCommitHook } from '../utils/git-hooks.js';
 import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
 import { installGateScripts } from '../utils/gate-scripts.js';
+import { formatGroupedErrors } from '../utils/group-errors.js';
 
 /**
  * The values `--output-lang` accepts: the ids of the commit-message option files this UDS ships (the registry lists
@@ -272,8 +273,10 @@ export async function initCommand(options) {
       (msg.installFailed || 'Installation failed and was rolled back: {error}')
         .replace('{error}', err.message)
     ));
-    for (const e of installErrors) {
-      console.log(chalk.gray(`    ${e}`));
+    // Board #81: one cause for many files (the folder `.standards/` cannot be made) is printed once, with how many files it
+    // hit; it used to be one 700-byte line per file, 50 and more times.
+    for (const line of formatGroupedErrors(installErrors, msg)) { // wire:init-groups-errors-by-cause
+      console.log(chalk.gray(line));
     }
     if (err.rolledBack === false) {
       console.log(chalk.yellow(

@@ -1095,6 +1095,8 @@ export const messages = {
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace (managed by Claude Code)',
         skillsFromPluginTitle: 'Skills: provided by the Claude Code plugin (no skill file was written to this project).',
+        installErrorsAffectedAll: '-> {count} files affected: {names}',
+        installErrorsAffectedFirst: '-> {count} files affected, the first {shown}: {names}',
         skillsSkippedTitle: 'Skills: none will be installed into this project.',
         skillsFromPluginLines: [
           'Install the plugin in Claude Code: /plugin marketplace add AsiaOstrich/universal-dev-standards, then /plugin install universal-dev-standards@asia-ostrich',
@@ -2527,6 +2529,8 @@ export const messages = {
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
         skillsFromPluginTitle: '技能：由 Claude Code 外掛提供（這個專案沒有寫入任何技能檔）。',
+        installErrorsAffectedAll: '→ 影響 {count} 個檔案：{names}',
+        installErrorsAffectedFirst: '→ 影響 {count} 個檔案，前 {shown} 個：{names}',
         skillsSkippedTitle: '技能：不會把任何技能裝進這個專案。',
         skillsFromPluginLines: [
           '在 Claude Code 安裝外掛：/plugin marketplace add AsiaOstrich/universal-dev-standards，再執行 /plugin install universal-dev-standards@asia-ostrich',
@@ -3618,6 +3622,8 @@ export const messages = {
         skillsLabel: 'Skills',
         skillsMarketplace: 'Plugin Marketplace（由 Claude Code 管理）',
         skillsFromPluginTitle: '技能：由 Claude Code 插件提供（这个项目没有写入任何技能文件）。',
+        installErrorsAffectedAll: '→ 影响 {count} 个文件：{names}',
+        installErrorsAffectedFirst: '→ 影响 {count} 个文件，前 {shown} 个：{names}',
         skillsSkippedTitle: '技能：不会把任何技能装进这个项目。',
         skillsFromPluginLines: [
           '在 Claude Code 安装插件：/plugin marketplace add AsiaOstrich/universal-dev-standards，再执行 /plugin install universal-dev-standards@asia-ostrich',
