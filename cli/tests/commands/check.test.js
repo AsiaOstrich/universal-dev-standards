@@ -784,5 +784,126 @@ describe('Check Command', () => {
       });
     });
 
+    // Decision 293 (2026-11-02): two findings added on 2026-09-16 were reported but never failed `--ci`
+    // (risk uds-check-reports-but-never-fails). A report nothing acts on is how the six 6.9.0 defects stayed hidden.
+    describe('Decision 293: broken references and untracked commands fail `uds check --ci`', () => {
+      afterEach(() => {
+        process.exitCode = undefined;
+      });
+
+      const writeIntegration = async (body) => {
+        const { computeIntegrationBlockHash } = await import('../../src/utils/hasher.js');
+        const claudePath = join(TEST_DIR, 'CLAUDE.md');
+        writeFileSync(claudePath, ['<!-- UDS:STANDARDS:START -->', body, '<!-- UDS:STANDARDS:END -->'].join('\n'));
+        return computeIntegrationBlockHash(claudePath);
+      };
+      const writeManifest = (overrides) => {
+        mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+        writeFileSync(join(TEST_DIR, '.standards', 'manifest.json'), JSON.stringify(createValidManifest(overrides)));
+      };
+
+      const presentStandard = async () => {
+        const { computeFileHash } = await import('../../src/utils/hasher.js');
+        mkdirSync(join(TEST_DIR, '.standards'), { recursive: true });
+        const f = join(TEST_DIR, '.standards', 'present.ai.yaml');
+        writeFileSync(f, 'id: present\n');
+        return { '.standards/present.ai.yaml': computeFileHash(f) };
+      };
+
+      it('GIVEN the integration file references a .standards file that does not exist WHEN `uds check --ci` THEN exit code is 1', async () => {
+        process.exitCode = 0;
+        const fileHashes = await presentStandard();
+        const hashInfo = await writeIntegration('Reference: .standards/present.ai.yaml .standards/gone.ai.yaml');
+        writeManifest({
+          standards: ['present.ai.yaml'],
+          fileHashes,
+          integrations: ['CLAUDE.md'],
+          aiTools: ['claude-code'],
+          integrationBlockHashes: { 'CLAUDE.md': hashInfo }
+        });
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(1);
+        const output = consoleLogs.join('\n');
+        expect(output).toContain('.standards/gone.ai.yaml');
+        expect(output).not.toContain('Project is compliant with standards');
+      });
+
+      it('GIVEN every referenced .standards file exists WHEN `uds check --ci` THEN exit code is 0', async () => {
+        process.exitCode = 0;
+        const fileHashes = await presentStandard();
+        const hashInfo = await writeIntegration('Reference: .standards/present.ai.yaml');
+        writeManifest({
+          standards: ['present.ai.yaml'],
+          fileHashes,
+          integrations: ['CLAUDE.md'],
+          aiTools: ['claude-code'],
+          integrationBlockHashes: { 'CLAUDE.md': hashInfo }
+        });
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(0);
+        expect(consoleLogs.join('\n')).toContain('Project is compliant with standards');
+      });
+
+      it('GIVEN an installed command file that no hash covers WHEN `uds check --ci` THEN exit code is 1', async () => {
+        process.exitCode = 0;
+        const { computeFileHash } = await import('../../src/utils/hasher.js');
+        const dir = join(TEST_DIR, '.opencode', 'command');
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, 'ac-coverage.md'), '# tracked\n');
+        writeFileSync(join(dir, 'api-design.md'), '# untracked\n');
+        writeManifest({
+          commands: { installed: true, names: ['ac-coverage'], installations: [{ agent: 'opencode', level: 'project' }] },
+          commandHashes: { 'opencode/ac-coverage.md': computeFileHash(join(dir, 'ac-coverage.md')) }
+        });
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(1);
+        const output = consoleLogs.join('\n');
+        expect(output).toContain('opencode/api-design.md');
+        expect(output).not.toContain('Project is compliant with standards');
+      });
+
+      it('GIVEN every installed command file is covered by a hash WHEN `uds check --ci` THEN exit code is 0', async () => {
+        process.exitCode = 0;
+        const { computeFileHash } = await import('../../src/utils/hasher.js');
+        const dir = join(TEST_DIR, '.opencode', 'command');
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, 'ac-coverage.md'), '# tracked\n');
+        writeManifest({
+          commands: { installed: true, names: ['ac-coverage'], installations: [{ agent: 'opencode', level: 'project' }] },
+          commandHashes: { 'opencode/ac-coverage.md': computeFileHash(join(dir, 'ac-coverage.md')) }
+        });
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(0);
+      });
+
+      it('GIVEN the commands folder manifest still names a command whose file and hash are both gone WHEN `uds check --ci` THEN it is not reported as an uncovered file and exit code is 0', async () => {
+        // An aged project: an older UDS never installed `api-design`, but the folder's own .manifest.json names it.
+        // Absent is not "installed and uncovered"; reporting it would fail CI for a file nobody can fix.
+        process.exitCode = 0;
+        const { computeFileHash } = await import('../../src/utils/hasher.js');
+        const dir = join(TEST_DIR, '.opencode', 'command');
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, 'ac-coverage.md'), '# tracked\n');
+        writeFileSync(join(dir, '.manifest.json'), JSON.stringify({ version: '6.0.0', commands: ['ac-coverage', 'api-design'] }));
+        writeManifest({
+          commands: { installed: true, names: ['ac-coverage'], installations: [{ agent: 'opencode', level: 'project' }] },
+          commandHashes: { 'opencode/ac-coverage.md': computeFileHash(join(dir, 'ac-coverage.md')) }
+        });
+
+        await checkCommand({ noInteractive: true, ci: true });
+
+        expect(process.exitCode).toBe(0);
+        expect(consoleLogs.join('\n')).not.toContain('opencode/api-design.md');
+      });
+    });
+
   });
 });

@@ -494,6 +494,9 @@ export async function checkCommand(options = {}) {
     { foreign: ignoredCommandRecords, elsewhere: projectCommands.ignored.length }
   );
   const commandIssues = commandIssuesOf(commandsIntegrity);
+  // Decision 293 (2026-11-02): installed command files that no hash covers used to be reported only.
+  // A report nothing acts on is how the six 6.9.0 defects stayed hidden, so `--ci` now fails on them too.
+  const commandUntracked = commandsIntegrity?.untracked || [];
 
   // XSPEC adopter-report Q3: neither of the two checks above (content-hash
   // integrity) says anything about an installed Skills/Commands version
@@ -573,7 +576,8 @@ export async function checkCommand(options = {}) {
   }
 
   // Reference sync check
-  checkReferenceSync(manifest, projectPath, msg);
+  // Decision 293 (2026-11-02): references to files that do not exist used to be reported only; they now count.
+  const referenceStatus = checkReferenceSync(manifest, projectPath, msg);
 
   // Integration files check
   checkIntegrationFiles(manifest, projectPath, msg);
@@ -631,6 +635,8 @@ export async function checkCommand(options = {}) {
                   fileStatus.modified.length === 0 &&
                   skillIssues.length === 0 &&
                   commandIssues.length === 0 &&
+                  commandUntracked.length === 0 &&
+                  referenceStatus.broken === 0 &&
                   !testChange.blocked &&
                   !testGates.blocked &&
                   integrationBlockStatus.modified.length === 0 &&
@@ -1901,9 +1907,13 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
  * Check reference sync status between manifest standards and integration files
  */
 function checkReferenceSync(manifest, projectPath, msg) {
+  // Returns { broken }: how many paths an integration file points at that do not exist
+  // (dangling .standards/ references plus broken path mentions). Decision 293 makes them fail `--ci`;
+  // orphaned references (a file that exists but the manifest does not list) stay a warning.
+  const none = { broken: 0 };
   // Skip if no integrations
   if (!manifest.integrations || manifest.integrations.length === 0) {
-    return;
+    return none;
   }
 
   // Pre-scan: collect results for files that have references
@@ -1931,11 +1941,12 @@ function checkReferenceSync(manifest, projectPath, msg) {
   }
 
   // Skip entire section if no files have references
-  if (results.length === 0) return;
+  if (results.length === 0) return none;
 
   console.log(chalk.cyan(msg.refSyncStatus));
 
   let hasIssues = false;
+  let broken = 0;
 
   for (const { integrationPath, references, brokenMentions } of results) {
     // Paths mentioned anywhere in the file that resolve to nothing. Reported
@@ -1944,6 +1955,7 @@ function checkReferenceSync(manifest, projectPath, msg) {
     // any regeneration, and followed by an AI tool that then finds nothing.
     if (brokenMentions?.length > 0) {
       hasIssues = true;
+      broken += brokenMentions.length;
       console.log(chalk.red(`  ✗ ${integrationPath}:`));
       console.log(chalk.red(`    ${msg.brokenMentions || 'mentions paths that do not exist in this project:'}`));
       for (const path of brokenMentions) {
@@ -1965,6 +1977,7 @@ function checkReferenceSync(manifest, projectPath, msg) {
     // the manifest-level findings because it needs no interpretation.
     if (danglingRefs.length > 0) {
       hasIssues = true;
+      broken += danglingRefs.length;
       console.log(chalk.red(`  ✗ ${integrationPath}:`));
       console.log(chalk.red(`    ${msg.danglingRefs || 'references files that do not exist:'}`));
       for (const ref of danglingRefs) {
@@ -2009,6 +2022,7 @@ function checkReferenceSync(manifest, projectPath, msg) {
   }
 
   console.log();
+  return { broken };
 }
 
 /**
@@ -2271,7 +2285,13 @@ export function checkCommandsIntegrity(manifest, projectPath, msg, ignored = {})
     const ext = agentName === 'gemini-cli' ? '.toml' : '.md';
     for (const name of info.commands || []) {
       const key = `${agentName}/${name}${ext}`;
-      if (!trackedKeys.has(key)) status.untracked.push(key);
+      if (trackedKeys.has(key)) continue;
+      // `info.commands` comes from the folder's own `.manifest.json` when there is one, and that list can still
+      // name a command whose file is gone. A file that is not there is not "an installed file nothing covers";
+      // since decision 293 this list decides the exit code, so it must not name what is absent.
+      const dir = getCommandsDirForAgent(agentName, 'project', projectPath);
+      if (dir && !existsSync(join(dir, `${name}${ext}`))) continue;
+      status.untracked.push(key);
     }
   }
   if (status.untracked.length > 0) {

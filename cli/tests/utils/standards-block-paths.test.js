@@ -56,6 +56,22 @@ describe('the standards block prints filenames, not registry IDs', () => {
     expect(pathsIn(block)).toEqual(['.standards/options/unit-testing.ai.yaml']);
   });
 
+  it('keeps human-format option entries under options/ too (a --format both project lists them as options/<name>.md, with no directory in front of "options")', () => {
+    // Decision 293: `uds check --ci` now fails on a path in CLAUDE.md that is not on disk, which made this visible:
+    // `uds init --format both` wrote `.standards/english.md` (no such file) for the option the manifest holds as
+    // `options/commit-message/english.md`. The detector only knew the `ai/options/...` spelling.
+    const block = generateMinimalStandardsReference(
+      ['ai/options/commit-message/english.ai.yaml', 'options/commit-message/english.md'],
+      'markdown',
+      'en',
+      'both',
+    );
+    expect(pathsIn(block).sort()).toEqual([
+      '.standards/options/english.ai.yaml',
+      '.standards/options/english.md',
+    ]);
+  });
+
   it('says so instead of printing an entry it cannot resolve', () => {
     // Silence would be worse than the dead path only in one direction: a
     // shorter list and a complete one read identically. So the entry is

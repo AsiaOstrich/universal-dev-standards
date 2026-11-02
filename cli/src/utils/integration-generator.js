@@ -2509,6 +2509,17 @@ function byLanguage(language, en, zhTw, zhCn) {
 }
 
 /**
+ * Is this manifest `standards` entry an option file? Options are paths, and a path reaches here in two spellings:
+ * `ai/options/<group>/<name>.ai.yaml` and `options/<group>/<name>.md`. Testing for `/options/` alone caught the first
+ * and missed the second, so a human-format option was listed as `.standards/<name>.md`, a file that does not exist.
+ * @param {string} entry
+ * @returns {boolean}
+ */
+function isOptionEntry(entry) {
+  return /(^|[\\/])options[\\/]/.test(String(entry));
+}
+
+/**
  * Generate minimal standards reference for minimal content mode
  * @param {string[]} installedStandards - List of installed standard file paths
  * @param {string} format - Output format: 'markdown' or 'plaintext'
@@ -2538,7 +2549,7 @@ export function generateMinimalStandardsReference(
   // real adopter's AGENTS.md, directly under a line telling the agent it must
   // read them.
   for (const standardPath of installedStandards) {
-    const isOption = standardPath.includes('/options/') || standardPath.includes('\\options\\');
+    const isOption = isOptionEntry(standardPath);
     const filename = resolveStandardFilename(standardPath, standardsFormat);
 
     // An entry we cannot resolve is not written out as if it were a path. A
@@ -3430,9 +3441,7 @@ export function generateStandardsIndex(installedStandards, format, language = 'z
   const resolvable = installedStandards.filter((e) => resolveStandardFilename(e, standardsFormat));
   const unresolved = installedStandards.filter((e) => !resolveStandardFilename(e, standardsFormat));
   const total = resolvable.length;
-  const optionCount = resolvable.filter(
-    (p) => p.includes('/options/') || p.includes('\\options\\')
-  ).length;
+  const optionCount = resolvable.filter(isOptionEntry).length;
   const coreCount = total - optionCount;
 
   const heading = '## Installed Standards Index';
@@ -3979,7 +3988,7 @@ export function generateAgentsMdSummary(config = {}) {
     for (const entry of installedStandards) {
       const filename = resolveStandardFilename(entry, format);
       if (!filename?.endsWith(suffix)) continue;
-      const isOption = entry.includes('/options/') || entry.includes('\\options\\');
+      const isOption = isOptionEntry(entry);
       const dir = isOption ? '.standards/options' : '.standards';
       blockLines.push(`- \`${dir}/${filename}\` — ${filename.replace(suffix, '')}`);
     }
