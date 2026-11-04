@@ -9,35 +9,31 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.14.1-beta.2`
+## Current beta | 目前的測試版：`6.15.0-beta.1`
 
-> **New in 6.14.1-beta.2** — one fix on top of beta.1: `uds update --with-hooks` now replaces a hook script that an older UDS installed and nobody edited, also when the hook is already set up, so a project that has the dangerous-command hook gets the version that blocks (in beta.1 it kept the old copy, which never blocks, and you had to copy the file by hand). A script you edited is kept and listed; `--force` overwrites it. `--apply` and plain `uds update` still do not replace hook scripts; they print a line that says so when one is out of date. Everything below from beta.1 still applies.
-> **6.14.1-beta.2 新增** — 在 beta.1 之上的一項修正：`uds update --with-hooks` 現在會替換舊版 UDS 安裝、且沒有人改過的 hook 腳本，即使 hook 已經設定好，所以已有危險指令 hook 的專案會拿到會攔截的版本（beta.1 會留下從不攔截的舊副本，得手動複製檔案）。你改過的腳本會被保留並列出；`--force` 才會覆蓋。`--apply` 與一般的 `uds update` 仍不替換 hook 腳本；腳本過期時它們會印一行說明。以下 beta.1 的內容仍然適用。
+> **New in 6.15.0-beta.1** — **read this first: `uds check --ci` now exits 1 on two findings it used to only print** — an integration file (`CLAUDE.md`, `AGENTS.md`, ...) that points at a `.standards/...` or `core/...` path that is not on disk, and an installed slash command that its folder's `.manifest.json` lists but no hash covers — so an adopter's CI can turn red after upgrading (migration: `uds update --integrations-only` for references, `uds update --commands` for commands). Also: `uds update` and `uds update --apply` now replace unmodified old hook scripts, with a backup first (so the 6.14.1 dangerous-command fix reaches whoever types plain `uds update`); `uds init` prints a cause shared by many files once instead of per file, and `uds update` and `uds audit --effects` no longer lose the end of a long report in a pipe; `open-work-tracking` is no longer a standard and becomes the optional skill `open-work`; installed skills and slash commands now carry GitHub addresses instead of links that open nothing; `check-anti-fake-tests` and `check-stubs` say INCOMPLETE and exit 2 when they did not see the whole project; permission errors on `init`/`update` say "permission denied" instead of pointing at antivirus.
+> **6.15.0-beta.1 新增** — **請先讀：`uds check --ci` 現在對兩種原本只印出來的發現以 1 結束**——整合檔（`CLAUDE.md`、`AGENTS.md` 等）指向不在磁碟上的 `.standards/...` 或 `core/...` 路徑，以及已安裝的斜線指令被其資料夾的 `.manifest.json` 列出、卻沒有任何雜湊涵蓋——所以採用者升級後 CI 可能變紅（遷移：引用問題執行 `uds update --integrations-only`，指令問題執行 `uds update --commands`）。另有：`uds update` 與 `uds update --apply` 現在會替換沒人改過的舊 hook 腳本，並先備份（所以 6.14.1 的危險指令修正會送到只打 `uds update` 的人手上）；`uds init` 把許多檔案共有的原因只印一次，不再每個檔案一次，`uds update` 與 `uds audit --effects` 的輸出進入管線時不再丟失長報告的結尾；`open-work-tracking` 不再是標準，改成選用技能 `open-work`；已安裝的技能與斜線指令現在帶 GitHub 網址，不再帶打不開的連結；`check-anti-fake-tests` 與 `check-stubs` 在沒看完整個專案時說 INCOMPLETE 並以 2 結束；`init`／`update` 的權限錯誤說「permission denied」，不再指向防毒軟體。
 
-> **Carried from 6.14.1-beta.1** — a security fix on top of stable 6.14.0. The dangerous-command hook (`scripts/hooks/check-dangerous-cmd.mjs`) exited 1 where Claude Code blocks only on exit 2, so it never stopped a command (replaying 11,617 real shell calls, the rule fired 26 times and the host blocked 0); it now exits 2 and judges only `tool_input.command`. Also: the commit-message hook checks `git commit -am` and every other way git takes a message; `uds update --skills --commands` runs both scopes; the structured-logging hook now reaches the model; `mock-boundary` 1.3.0 requires a test that runs a blocking hook the way the host does.
-> **沿用自 6.14.1-beta.1** — 建立在正式版 6.14.0 之上的安全修正。危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）原本以 exit 1 結束，而 Claude Code 只認 exit 2，所以從來沒擋下任何指令（重播 11,617 筆真實 shell 呼叫，規則命中 26 次，宿主擋下 0 次）；現在改以 exit 2，且只判斷 `tool_input.command`。另有：提交訊息 hook 會檢查 `git commit -am` 與 git 接收訊息的其他寫法；`uds update --skills --commands` 兩邊都執行；結構化日誌 hook 的訊息現在會傳到模型；`mock-boundary` 1.3.0 要求為攔截型 hook 寫一支以宿主方式執行它的測試。
+**Behavior changes in 6.15.0-beta.1 — read this first.**
+- `uds check --ci` exits **1** for an integration file that references a path not on disk and for an installed command that its folder manifest lists, whose file is on disk, but that `commandHashes` does not cover. It used to print both and exit 0. Clear them with `uds update --integrations-only` (paths outside the UDS block must be corrected by hand) and `uds update --commands`.
+- `uds update --apply`, `--force` and plain `uds update` now write inside `scripts/hooks/`: an unmodified old hook script is replaced (copied to `.uds-backups/` first, `uds update --rollback` restores it); an edited one is kept and named. There is no flag to opt out.
+- `check-anti-fake-tests` and `check-stubs` exit **2** with `INCOMPLETE` when the scan stopped at the file limit, could not open a directory or could not read a file and found nothing in the rest; a CI that runs them on a very large tree or a locked directory will start failing.
+- A failed `uds init` prints a cause shared by many files once, followed by `-> N files affected, the first 3: <names>`; the `<file>: <cause>` lines of a merged group are gone.
+- `uds check` prints `⚠ AGENTS.md standards synced (N)` instead of `✓` when the manifest holds an entry no installed standard matches; `manifest.skillHashes` shrinks after `uds update --skills`.
+- `uds update --apply` lists `.standards/open-work-tracking.ai.yaml` under Delete (backup first; `uds update --rollback` restores it) and installs the skill `open-work`.
+- Every installed skill and slash-command file that had a link out of the install differs from your copy once: `uds update --skills` and `uds update --commands` rewrite them.
 
-**Behavior changes in 6.14.1-beta.2 — read this first.**
-- `uds update --with-hooks` now replaces a hook script that is an unmodified copy of an older UDS release (compared by content, line endings ignored), also when the hook config is already present. The output names each file and the release it came from. `uds update --with-hooks --plan` lists them and writes nothing.
-- A hook script you edited is **kept** and listed, with a note that it will not receive later fixes. `uds update --with-hooks --force` overwrites it with the shipped version, **with no backup of your edit**, also when the hook is already installed (before, `--force` did so only while installing a missing hook).
-- `uds update --apply`, a bare `uds update --force` and plain `uds update` do **not** manage hook scripts. They print one line, naming `uds update --with-hooks`, when a script is an out-of-date unmodified copy.
+**6.15.0-beta.1 的行為改變，請先讀。**
+- 整合檔引用不在磁碟上的路徑，以及已安裝指令被其資料夾 manifest 列出、檔案在磁碟上、卻沒有 `commandHashes` 涵蓋時，`uds check --ci` 以 **1** 結束；以前兩者都只印出來並以 0 結束。清除方式：`uds update --integrations-only`（UDS 區塊之外的路徑必須手動修正）與 `uds update --commands`。
+- `uds update --apply`、`--force` 與單獨的 `uds update` 現在會寫入 `scripts/hooks/` 之內：沒改過的舊 hook 腳本會被替換（先複製到 `.uds-backups/`，`uds update --rollback` 可以還原）；改過的會保留並點名。沒有選擇退出的旗標。
+- 掃描停在檔案數上限、打不開目錄，或讀不了檔案、且在其餘部分沒找到任何東西時，`check-anti-fake-tests` 與 `check-stubs` 以 **2** 結束並印出 `INCOMPLETE`；在非常大的目錄樹或被鎖住的目錄上執行它們的 CI 會開始失敗。
+- 失敗的 `uds init` 把許多檔案共有的原因只印一次，接著一行 `-> N files affected, the first 3: <names>`；合併組的 `<file>: <cause>` 行不見了。
+- manifest 裡有沒有任何已安裝標準對得上的條目時，`uds check` 印 `⚠ AGENTS.md standards synced (N)` 而不是 `✓`；`uds update --skills` 之後 `manifest.skillHashes` 會變小。
+- `uds update --apply` 把 `.standards/open-work-tracking.ai.yaml` 列在「刪除」之下（先備份；`uds update --rollback` 可以還原），並安裝技能 `open-work`。
+- 每個帶有指向安裝目錄之外連結的已安裝技能與斜線指令檔，都會和你現有的副本不同一次：`uds update --skills` 與 `uds update --commands` 會改寫它們。
 
-**Behavior changes in 6.14.1-beta.1 — still apply.**
-- The dangerous-command hook now blocks (exit 2). `rm -rf /home` and other paths below the root are **no longer** blocked; `rm` is blocked only when it is recursive and its target is exactly `/`, `/*`, `~`, `~/` or `$HOME`.
-- The commit-message hook now blocks `git commit -am "wip"`, `--message`, the second commit of a chain and a commit after `VAR=value` when the message is not a Conventional Commit; messages that contain `;` or `&&`, and the `-m "$(cat <<'EOF' ... EOF)"` form, are no longer blocked by mistake.
-- In beta.1 a project that already had the dangerous-command hook **kept its old script** (`uds update --with-hooks`, `--with-hooks --force` and `--apply` did not replace `scripts/hooks/check-dangerous-cmd.mjs`). Fixed in 6.14.1-beta.2 (first list above): run `uds update --with-hooks`.
-- `uds update --skills --commands` now ends with the worse of the two exit codes.
-
-**6.14.1-beta.2 的行為改變，請先讀。**
-- `uds update --with-hooks` 現在會替換「與舊版 UDS 出貨內容逐位元相同」的 hook 腳本（依內容比對，忽略換行字元），即使 hook 設定已存在。輸出會列出每個檔案與它來自哪一版。`uds update --with-hooks --plan` 只列出、不寫檔。
-- 你改過的 hook 腳本會被**保留**並列出，並說明它拿不到之後的修正。`uds update --with-hooks --force` 會用出貨版覆蓋它，**你的修改沒有備份**，hook 已經安裝時也一樣（以前 `--force` 只在補裝缺少的 hook 時才會覆蓋）。
-- `uds update --apply`、單獨的 `--force` 與一般的 `uds update` **不**管理 hook 腳本。腳本是過期且未改過的副本時，它們會印一行說明並指出 `uds update --with-hooks`。
-
-**6.14.1-beta.1 的行為改變，仍然適用。**
-- 危險指令 hook 現在會攔截（exit 2）。`rm -rf /home` 與根目錄之下的其他路徑**不再**被攔截；`rm` 只在遞迴且目標正好是 `/`、`/*`、`~`、`~/` 或 `$HOME` 時才攔截。
-- 提交訊息 hook 現在會在訊息不是 Conventional Commit 時擋下 `git commit -am "wip"`、`--message`、串接命令的第二個提交與 `VAR=value` 之後的提交；訊息裡含 `;` 或 `&&`，以及 `-m "$(cat <<'EOF' ... EOF)"` 寫法，不再被誤擋。
-- beta.1 中，已經安裝危險指令 hook 的專案**會保留舊腳本**（`uds update --with-hooks`、`--with-hooks --force` 與 `--apply` 都不替換 `scripts/hooks/check-dangerous-cmd.mjs`）。6.14.1-beta.2 已修正（見上方第一組）：請執行 `uds update --with-hooks`。
-- `uds update --skills --commands` 現在以兩者較差的結束碼結束。
+> **Carried from 6.14.1** — the stable release that includes the security fix of 6.14.1-beta.1 and beta.2: the dangerous-command hook (`scripts/hooks/check-dangerous-cmd.mjs`) now exits 2 and blocks, and `uds update --with-hooks` replaces an unmodified old copy of a hook script. From this beta, plain `uds update` and `uds update --apply` do the same.
+> **沿用自 6.14.1** — 包含 6.14.1-beta.1 與 beta.2 安全修正的正式版：危險指令 hook（`scripts/hooks/check-dangerous-cmd.mjs`）現在以 exit 2 結束、真的會攔截，`uds update --with-hooks` 會替換沒人改過的舊 hook 腳本副本。從這個測試版起，單獨的 `uds update` 與 `uds update --apply` 也會這樣做。
 
 > **New in 6.14.0-beta.9** — three small fixes found in the beta.8 macOS manual acceptance: `uds spec delete` says a spec is not there before asking whether to delete it (and exits 1); the spec `uds spec split` writes keeps the blank line before `**Confirmed**`; the error-exit gate hints of `uds check` and `uds update` follow the UI language instead of always printing Chinese. Everything below from beta.8 still applies.
 > **6.14.0-beta.9 新增** — beta.8 macOS 人工驗收發現的三個小修正：`uds spec delete` 先說規格不存在再問要不要刪（並以 1 結束）；`uds spec split` 寫出的規格在 `**Confirmed**` 前保留空行；`uds check` 與 `uds update` 的 error-exit 閘門提示改隨介面語言，不再一律印中文。以下 beta.8 的內容仍然適用。
@@ -73,11 +69,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.14.1
+node scripts/beta-acceptance/run.mjs --version 6.15.0-beta.1
 ```
 
-It installs the published 6.14.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.14.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.15.0-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.15.0-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 380 步（372 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -88,7 +84,7 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372
 2. `smoke-shim` — The `uds` command that npm put on the path (uds.cmd on Windows) starts.
    npm 放進 PATH 的 `uds` 指令（Windows 上是 uds.cmd）能啟動。
    `uds --version` → exit 0; output has "/^\d+\.\d+\.\d+/"
-3. `available-init` (**new 新**) — uds init sets up a project (the project the next steps use): the open-work skill is installed and the open-work-tracking standard is not.
+3. `available-init` — uds init sets up a project (the project the next steps use): the open-work skill is installed and the open-work-tracking standard is not.
    uds init 建立專案（後續步驟使用）：裝了 open-work 技能，沒裝 open-work-tracking 標準。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
 4. `std-memory-boundary` — The installed developer-memory and project-context-memory standards carry the boundary section.
@@ -274,22 +270,22 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372
 64. `transient-lock-gives-up-in-plain-words` — uds init stops after a bounded number of tries (at most ten) when a file stays locked, rolls back, and names the file, the likely cause (antivirus) and what to do.
    檔案一直被鎖住時，uds init 在有上限的重試（最多十次）後停止、回滾，並白話說出是哪個檔、可能原因（防毒軟體）與該怎麼辦。
    `{node} --require {work}/lock-copy.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+4)
-65. `permission-denied-is-not-called-a-lock` (**new 新**) — uds init onto a file that is really read-only says permission denied and what to check; it does not call the file locked or send you to the antivirus.
+65. `permission-denied-is-not-called-a-lock` — uds init onto a file that is really read-only says permission denied and what to check; it does not call the file locked or send you to the antivirus.
    uds init 遇到真的唯讀的檔案時，訊息說權限不足並列出要檢查什麼；不說檔案被鎖住，也不叫人去看防毒。
    `{node} --require {work}/read-only-target.cjs {bin} init --yes --skills-location project` → exit 1; output has "rolled back", "error-codes.ai.yaml" (+3)
-66. `init-folder-permission-denied-macos` (macos only; **new 新**) — uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus.
+66. `init-folder-permission-denied-macos` (macos only) — uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus.
    uds init 在寫不進去的資料夾裡，說明「無法建立的那個資料夾」是權限不足並列出要檢查什麼；不說被鎖住，也不叫人去看防毒。
    `{node} --require {work}/read-only-project.cjs {bin} init --yes --skills-location project` → exit 1; output has "Could not create the folder", "permission denied (EACCES)" (+3)
-67. `init-folder-permission-denied-linux` (linux only; **new 新**) — uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus.
+67. `init-folder-permission-denied-linux` (linux only) — uds init in a folder it cannot write into says permission denied for the folder it could not create and what to check; it does not call it locked or send you to the antivirus.
    uds init 在寫不進去的資料夾裡，說明「無法建立的那個資料夾」是權限不足並列出要檢查什麼；不說被鎖住，也不叫人去看防毒。
    `{node} --require {work}/read-only-project.cjs {bin} init --yes --skills-location project` → exit 1; output has "Could not create the folder", "permission denied (EACCES)" (+3)
 68. `perm77-init` — uds init sets up a Claude Code project for the uds update lock step.
    uds init 建立 Claude Code 專案，供 uds update 檔案鎖步驟使用。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-69. `update-retries-a-locked-standard` (**new 新**) — uds update --apply puts a missing standard back after two EBUSY errors on it (the plain copy now retries, like uds init).
+69. `update-retries-a-locked-standard` — uds update --apply puts a missing standard back after two EBUSY errors on it (the plain copy now retries, like uds init).
    uds update --apply 補回缺少的標準時，遇到連兩次 EBUSY 仍能完成（原本的直接複製現在會重試，與 uds init 相同）。
    `{node} --require {work}/lock-copy.cjs {bin} update --apply --yes --offline` → exit 0; output has "Reconciliation complete"
-70. `lock-message-in-zh-tw` (**new 新**) — uds --ui-lang zh-tw init says a file that stays locked in Traditional Chinese (which file, the likely cause, what to do).
+70. `lock-message-in-zh-tw` — uds --ui-lang zh-tw init says a file that stays locked in Traditional Chinese (which file, the likely cause, what to do).
    uds --ui-lang zh-tw init 遇到檔案一直被鎖住時，用繁體中文說明是哪個檔、可能原因與該怎麼辦。
    `{node} --require {work}/lock-copy.cjs {bin} --ui-lang zh-tw init --yes --skills-location project` → exit 1; output has "error-codes.ai.yaml", "檔案被其他程式鎖住（EBUSY）" (+2)
 71. `tautology-init` — uds init sets up a project with the fake-test scanner in scripts/.
@@ -298,10 +294,10 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372
 72. `tautology-scan` — The scanner names a test whose expected value is the same call or is re-added from the same input, and leaves a hand-computed example alone.
    掃描腳本點名「預期值是同一個呼叫」或「從同一個輸入重算」的測試，手算例則不動。
    `{node} scripts/check-anti-fake-tests.mjs` → exit 1; output has "tautology "totals: one call written on both sides"", "tautology "totals: the expected value re-adds the items"" (+1)
-73. `tautology-incomplete` (**new 新**) — A scan that stops at its file limit says INCOMPLETE and exits 2, not a pass.
+73. `tautology-incomplete` — A scan that stops at its file limit says INCOMPLETE and exits 2, not a pass.
    掃描在檔案數上限停下時，寫明「查詢不完整」並以 2 結束，不是通過。
    `{node} scripts/check-anti-fake-tests.mjs --max-files 1` → exit 2; output has "INCOMPLETE", "NOT a pass"
-74. `tautology-exempt` (**new 新**) — A test exempted with a written reason is listed and not reported; the same marker without a usable reason is still a finding.
+74. `tautology-exempt` — A test exempted with a written reason is listed and not reported; the same marker without a usable reason is still a finding.
    附理由豁免的測試會被列出但不算發現；同樣的註記沒有可用理由則仍算發現。
    `{node} scripts/check-anti-fake-tests.mjs --json` → exit 1; output has ""exempted"", "the hook only has to not throw on this platform" (+1)
 75. `std-merge-danger` — The installed code-review standard asks for the merge danger (door and blast radius) and names the one-way door rule.
@@ -1129,97 +1125,97 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 380 steps (372
 349. `skills-prune-init` — uds init in a Cursor project installs the skills the prune and link steps read back.
    uds init 在 Cursor 專案裡安裝技能，供修剪與連結步驟讀回。
    `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
-350. `skills-prune-update-drops-record` (**new 新**) — uds update --apply --yes --skills deletes a skill file the package no longer ships and drops its skillHashes record.
+350. `skills-prune-update-drops-record` — uds update --apply --yes --skills deletes a skill file the package no longer ships and drops its skillHashes record.
    uds update --apply --yes --skills 刪掉套件不再出貨的 skill 檔，並移除它在 skillHashes 的紀錄。
    `uds update --apply --yes --skills --offline` → exit 0; output has "Updating Skills for all AI Agents"
-351. `skills-prune-check-reports-no-missing` (**new 新**) — uds check after that update reports no missing skill file and does not name the deleted one.
+351. `skills-prune-check-reports-no-missing` — uds check after that update reports no missing skill file and does not name the deleted one.
    該次更新之後 uds check 不報任何遺失的 skill 檔，也不提被刪掉的那一個。
    `uds check --offline` → exit 0; output has "Skills File Integrity", "0 modified, 0 missing"
-352. `dev-workflow-guide-links-resolve` (**new 新**) — The installed dev-workflow-guide skill links its sibling file relatively and the repository documents by their GitHub address.
+352. `dev-workflow-guide-links-resolve` — The installed dev-workflow-guide skill links its sibling file relatively and the repository documents by their GitHub address.
    安裝後的 dev-workflow-guide 以相對連結指向同資料夾檔案，其餘 repo 文件用 GitHub 位址。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/skills/dev-workflow-guide/SKILL.md`, `.cursor/skills/dev-workflow-guide/workflow-phases.md`
-353. `skills-installed-links-rewritten` (**new 新**) — An installed skill points at repository documents by their GitHub address and at its sibling skills relatively.
+353. `skills-installed-links-rewritten` — An installed skill points at repository documents by their GitHub address and at its sibling skills relatively.
    安裝後的 skill 以 GitHub 位址指向 repo 文件，以相對連結指向同批安裝的兄弟 skill。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/skills/ac-coverage/SKILL.md`, `.cursor/skills/project-structure-guide/SKILL.md`, `.cursor/skills/checkin-assistant/guide.md`, `.cursor/skills/documentation-guide/readme-template.md`
-354. `commands-installed-links-rewritten` (**new 新**) — An installed slash command points at repository documents by their GitHub address and at the other commands relatively.
+354. `commands-installed-links-rewritten` — An installed slash command points at repository documents by their GitHub address and at the other commands relatively.
    安裝後的斜線指令以 GitHub 位址指向 repo 文件，以相對連結指向同資料夾的其他指令。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.cursor/commands/ac-coverage.md`, `.cursor/commands/guide.md`, `.cursor/commands/sdd-retro.md`
 355. `commands-gemini-links-init` — uds init in a project with GEMINI.md installs the Gemini CLI commands the next step reads back.
    uds init 在有 GEMINI.md 的專案裡安裝 Gemini CLI 指令，供下一步讀回。
    `uds init -y --skills-location none --format ai` → exit 0; output has "Standards initialized successfully"
-356. `commands-gemini-links-rewritten` (**new 新**) — An installed Gemini CLI command (TOML) has GitHub addresses for repository documents and for the other commands, and keeps its TOML shape.
+356. `commands-gemini-links-rewritten` — An installed Gemini CLI command (TOML) has GitHub addresses for repository documents and for the other commands, and keeps its TOML shape.
    安裝後的 Gemini CLI 指令（TOML）以 GitHub 位址指向 repo 文件與其他指令，且保有 TOML 結構。
    `(read the files; no command | 讀檔，不執行指令)` → reads `.gemini/commands/check.toml`
 357. `ghost-standard-init` — uds init --agents-md in a Cursor project writes AGENTS.md and a manifest whose standards all resolve.
    uds init --agents-md 在 Cursor 專案寫出 AGENTS.md，且 manifest 的標準都對得上。
    `uds init -y --skills-location project --format ai --agents-md` → exit 0; output has "Standards initialized successfully"
-358. `ghost-standard-control-ticks-synced` (**new 新**) — Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line.
+358. `ghost-standard-control-ticks-synced` — Control: with every manifest entry resolvable, uds check ticks the AGENTS.md sync line.
    對照：manifest 條目都對得上時，uds check 為 AGENTS.md 同步行打勾。
    `uds check --offline` → exit 0; output has "AGENTS.md Standards Sync", "✓ AGENTS.md standards synced"
-359. `ghost-standard-named-not-ticked` (**new 新**) — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
+359. `ghost-standard-named-not-ticked` — With a manifest entry no installed standard matches, uds check names it under a warning mark instead of ticking AGENTS.md synced.
    manifest 有一個對不上任何已安裝標準的條目時，uds check 以警告記號點名它，不再為 AGENTS.md 打勾。
    `uds check --offline` → exit 0; output has "⚠ AGENTS.md standards synced", "Manifest entries that match no installed standard (1)" (+1)
 360. `hook-scripts-update-init` — uds init --with-hooks installs the hook scripts the update steps then replace, roll back and keep.
    uds init --with-hooks 安裝 hook 腳本，供後面的更新步驟替換、還原與保留。
    `uds init -y --skills-location project --mode skills --format ai --with-hooks` → exit 0; output has "Standards initialized successfully"
-361. `hook-scripts-update-apply-replaces` (**new 新**) — uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks.
+361. `hook-scripts-update-apply-replaces` — uds update --apply --yes replaces the unmodified 6.14.0 dangerous-command script, says where the backup is, and the project's script now blocks.
    uds update --apply --yes 替換沒人改過的 6.14.0 危險命令腳本、說出備份位置，專案裡的腳本從此會擋。
    `uds update --apply --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs", "Backup: .uds-backups/"
-362. `hook-scripts-update-backup-holds-original` (**new 新**) — The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /.
+362. `hook-scripts-update-backup-holds-original` — The backup that step took holds the original script byte for byte, and the replaced script exits 2 on rm -rf /.
    該步驟建立的備份逐位元組保存原本的腳本，而換上的腳本對 rm -rf / 以 2 結束。
    `{node} -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const root='.uds-backups';const ids=fs.existsSync(root)?fs.readdirSync(root).filter(n=>fs.existsSync(path.join(root,n,'backup-manifest.json'))):[];const hooks=ids.filter(n=>JSON.parse(fs.readFileSync(path.join(root,n,'backup-manifest.json'),'utf8')).label==='hooks');const f=hooks.length?path.join(root,hooks[0],'scripts','hooks','check-dangerous-cmd.mjs'):null;const old=f&&fs.existsSync(f)?fs.readFileSync(f,'utf8'):'';const r=cp.spawnSync(process.execPath,['scripts/hooks/check-dangerous-cmd.mjs'],{input:JSON.stringify({hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command:'rm -rf /'}}),encoding:'utf8'});process.stdout.write('HOOK-BACKUPS='+hooks.length+'\\nBACKUP-HAS-ORIGINAL='+old.includes('Exit code: 0 = safe, 1 = dangerous')+'\\nBLOCK-EXIT='+r.status+'\\n');"` → exit 0; output has "HOOK-BACKUPS=1", "BACKUP-HAS-ORIGINAL=true" (+1)
-363. `hook-scripts-update-rollback-restores` (**new 新**) — uds update --rollback puts the original script back.
+363. `hook-scripts-update-rollback-restores` — uds update --rollback puts the original script back.
    uds update --rollback 把原本的腳本放回去。
    `uds update --rollback` → exit 0; output has "Rollback successful"
-364. `hook-scripts-update-keeps-edited` (**new 新**) — uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it.
+364. `hook-scripts-update-keeps-edited` — uds update --apply --yes keeps a script the adopter edited, names it, and does not touch it.
    uds update --apply --yes 保留採用者改過的腳本、點名它，並且不動它。
    `uds update --apply --yes --offline` → exit 0; output has "were kept: check-dangerous-cmd.mjs"
-365. `hook-scripts-update-plain-replaces` (**new 新**) — Plain uds update (no flags) replaces the unmodified old script too.
+365. `hook-scripts-update-plain-replaces` — Plain uds update (no flags) replaces the unmodified old script too.
    不加任何旗標的 uds update 也會替換沒人改過的舊腳本。
    `uds update --yes --offline` → exit 0; output has "replaced 1 out-of-date hook script(s) in scripts/hooks/: check-dangerous-cmd.mjs"
-366. `hook-scripts-update-force-backs-up-edit` (**new 新**) — uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where.
+366. `hook-scripts-update-force-backs-up-edit` — uds update --with-hooks --force copies the edited script to .uds-backups/ before it overwrites it, and prints where.
    uds update --with-hooks --force 在覆蓋改過的腳本之前先把它複製進 .uds-backups/，並印出位置。
    `uds update --with-hooks --force --ai-tool claude-code --yes --offline` → exit 0; output has "overwrote 1 edited hook script", "Backup: .uds-backups/"
 367. `retired-standard-init` — A project that still holds the open-work-tracking standard (an older UDS installed it): set it up.
    仍持有 open-work-tracking 標準的專案（舊版 UDS 裝的）：先建立。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-368. `retired-standard-apply-removes-it` (**new 新**) — uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
+368. `retired-standard-apply-removes-it` — uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
    uds update --apply 移除 open-work-tracking 檔案、裝上 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字。
    `uds update --apply --yes --offline` → exit 0; output has "UDS no longer ships this file", "Reconciliation complete"
-369. `retired-standard-check-clean` (**new 新**) — uds check then has nothing to warn about: no entry that matches no installed standard.
+369. `retired-standard-check-clean` — uds check then has nothing to warn about: no entry that matches no installed standard.
    之後 uds check 沒有任何警告：沒有對不到已裝標準的條目。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
-370. `retired-standard-rollback-restores-it` (**new 新**) — uds update --rollback brings the open-work-tracking file and its manifest entry back.
+370. `retired-standard-rollback-restores-it` — uds update --rollback brings the open-work-tracking file and its manifest entry back.
    uds update --rollback 把 open-work-tracking 檔案與 manifest 條目放回去。
    `uds update --rollback --yes` → exit 0; output has "Rollback successful"
-371. `init-shared-cause-printed-once-macos` (macos only; **new 新**) — uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file.
+371. `init-shared-cause-printed-once-macos` (macos only) — uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file.
    uds init 在寫不進去的資料夾裡，同一個資料夾錯誤只印一次，並附上受影響的檔案數與前三個檔名，不再每個檔案各印一行。
    `{node} --require {work}/read-only-project.cjs {bin} init --yes --skills-location project` → exit 1; output has "Could not create the folder", "permission denied (EACCES)" (+2)
-372. `init-shared-cause-printed-once-linux` (linux only; **new 新**) — uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file.
+372. `init-shared-cause-printed-once-linux` (linux only) — uds init in a folder it cannot write into prints the folder error once with the number of files it hit and the first three names, not once per file.
    uds init 在寫不進去的資料夾裡，同一個資料夾錯誤只印一次，並附上受影響的檔案數與前三個檔名，不再每個檔案各印一行。
    `{node} --require {work}/read-only-project.cjs {bin} init --yes --skills-location project` → exit 1; output has "Could not create the folder", "permission denied (EACCES)" (+2)
-373. `check-ci-refs-init` (**new 新**) — uds init sets up a project whose CLAUDE.md points at the standards it installed (the project the next two steps use).
+373. `check-ci-refs-init` — uds init sets up a project whose CLAUDE.md points at the standards it installed (the project the next two steps use).
    uds init 建立專案，CLAUDE.md 指向它裝的標準（後兩個步驟使用的專案）。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-374. `check-ci-refs-clean` (**new 新**) — uds check --ci exits 0 while every file CLAUDE.md points at is on disk.
+374. `check-ci-refs-clean` — uds check --ci exits 0 while every file CLAUDE.md points at is on disk.
    CLAUDE.md 指到的檔案都在時，uds check --ci 結束碼為 0。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
-375. `check-ci-refs-broken` (**new 新**) — uds check --ci exits 1 when CLAUDE.md points at a standard file that is not on disk, and names the path.
+375. `check-ci-refs-broken` — uds check --ci exits 1 when CLAUDE.md points at a standard file that is not on disk, and names the path.
    CLAUDE.md 指向磁碟上不存在的標準檔時，uds check --ci 結束碼為 1，並指出該路徑。
    `uds check --ci --offline` → exit 1; output has ".standards/self-review-protocol.ai.yaml", "do not exist"
-376. `check-ci-commands-init` (**new 新**) — uds init installs the slash commands for the OpenCode agent (an AGENTS.md makes it appear) and records a hash for each (the project the next two steps use).
+376. `check-ci-commands-init` — uds init installs the slash commands for the OpenCode agent (an AGENTS.md makes it appear) and records a hash for each (the project the next two steps use).
    uds init 為 OpenCode 安裝斜線指令並為每個記下雜湊（後兩個步驟使用的專案）。
    `uds init -y --skills-location project` → exit 0; output has "Standards initialized successfully"
-377. `check-ci-commands-clean` (**new 新**) — uds check --ci exits 0 while every installed command file is covered by a hash.
+377. `check-ci-commands-clean` — uds check --ci exits 0 while every installed command file is covered by a hash.
    每個已安裝的指令檔都有雜湊時，uds check --ci 結束碼為 0。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
-378. `check-ci-commands-untracked` (**new 新**) — uds check --ci exits 1 when an installed command file is covered by no hash, and names the file.
+378. `check-ci-commands-untracked` — uds check --ci exits 1 when an installed command file is covered by no hash, and names the file.
    有已安裝的指令檔沒有任何雜湊時，uds check --ci 結束碼為 1，並指出該檔。
    `uds check --ci --offline` → exit 1; output has "covered by no hash", "opencode/uds-acceptance-extra.md"
-379. `init-format-both-lists-options-under-options` (**new 新**) — uds init --format both lists every option copy under .standards/options/ in CLAUDE.md, and uds check --ci then exits 0.
+379. `init-format-both-lists-options-under-options` — uds init --format both lists every option copy under .standards/options/ in CLAUDE.md, and uds check --ci then exits 0.
    uds init --format both 在 CLAUDE.md 把每個選項副本列在 .standards/options/ 之下，之後 uds check --ci 結束碼為 0。
    `uds init -y --skills-location project --format both` → exit 0; output has "Standards initialized successfully"
-380. `format-both-check-ci-exits-0` (**new 新**) — uds check --ci exits 0 on a --format both project: every path CLAUDE.md lists is on disk.
+380. `format-both-check-ci-exits-0` — uds check --ci exits 0 on a --format both project: every path CLAUDE.md lists is on disk.
    --format both 專案的 uds check --ci 結束碼為 0：CLAUDE.md 列的每個路徑都在磁碟上。
    `uds check --ci --offline` → exit 0; output has "Project is compliant with standards"
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1229,14 +1225,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.14.1/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.14.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.15.0-beta.1/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.15.0-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.14.1 沒有 6.14.1 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.14.1 沒有 6.14.1 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.14.1 沒有 6.14.1 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
