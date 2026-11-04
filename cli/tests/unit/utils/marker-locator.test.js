@@ -2,7 +2,7 @@
 // These were written and run RED (failing to import a not-yet-existing
 // module) before marker-locator.js was created.
 import { describe, it, expect } from 'vitest';
-import { locateMarkerBlock, tryLocateMarkerBlock, AmbiguousMarkerError } from '../../../src/utils/marker-locator.js';
+import { locateMarkerBlock, tryLocateMarkerBlock, AmbiguousMarkerError, UnclosedMarkerError } from '../../../src/utils/marker-locator.js';
 
 const MD_MARKERS = {
   start: '<!-- UDS:STANDARDS:START -->',
@@ -21,6 +21,30 @@ describe('locateMarkerBlock', () => {
 
   it('returns null when there are no markers at all', () => {
     expect(locateMarkerBlock('nothing here', MD_MARKERS)).toBeNull();
+  });
+
+  // Issue #297: half a marker pair is a damaged block, not a missing one.
+  it('throws UnclosedMarkerError (an AmbiguousMarkerError) for START with no END, naming the line', () => {
+    const content = 'a\nb\n<!-- UDS:STANDARDS:START -->\nBODY';
+    expect(() => locateMarkerBlock(content, MD_MARKERS)).toThrow(UnclosedMarkerError);
+    expect(() => locateMarkerBlock(content, MD_MARKERS)).toThrow(AmbiguousMarkerError);
+    expect(() => locateMarkerBlock(content, MD_MARKERS)).toThrow(/on line 3 has no matching/);
+  });
+
+  it('throws UnclosedMarkerError for END with no START', () => {
+    const content = 'BODY\n<!-- UDS:STANDARDS:END -->';
+    expect(() => locateMarkerBlock(content, MD_MARKERS)).toThrow(/on line 2 has no matching .* before it/);
+  });
+
+  it('throws UnclosedMarkerError when END comes before START', () => {
+    const content = '<!-- UDS:STANDARDS:END -->\nBODY\n<!-- UDS:STANDARDS:START -->';
+    expect(() => locateMarkerBlock(content, MD_MARKERS)).toThrow(/on line 1 comes before/);
+  });
+
+  it('tryLocateMarkerBlock reports an unclosed block through the return value', () => {
+    const result = tryLocateMarkerBlock('<!-- UDS:STANDARDS:START -->\nBODY', MD_MARKERS);
+    expect(result.ok).toBe(false);
+    expect(result.error).toBeInstanceOf(UnclosedMarkerError);
   });
 
   it('ignores the marker text when it appears mid-line as prose (Q5 core bug)', () => {

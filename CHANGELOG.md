@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds update` no longer appends a second UDS block to a file whose block lost its END line; it refuses and names the unclosed line (issue #297).** When an integration file such as `AGENTS.md` had `<!-- UDS:STANDARDS:START -->` but no `<!-- UDS:STANDARDS:END -->` (a truncated copy, or the line deleted by hand), the plan said "missing UDS markers" and `--apply` appended a complete new block; the same run then failed on the duplicate START, and every later run failed the same way until the two blocks were merged by hand. Half a marker pair, or an END before its START, is now treated like a duplicate marker: the plan says `UDS markers damaged, will not be written`, `--apply` leaves the file byte-for-byte as it was, exits 1, and prints which line is not closed. A file with neither marker still gets its block appended.
+
 ## [6.15.0-beta.1] - 2026-11-04
 
 > **Pre-release** — install with `npm install -g universal-dev-standards@beta`. What to test and how to go back to stable: [docs/PRE-RELEASE.md](docs/PRE-RELEASE.md). **Read this first: `uds check --ci` now exits 1 on two findings it only printed before** (an integration file that points at a path that does not exist, and an installed slash command that no hash covers), so an adopter's CI can turn red after upgrading; the first entry below says who is affected and how to clear it. Also in this beta: `uds update` and `uds update --apply` now replace unmodified old hook scripts (with a backup), `uds init` and `uds update` no longer lose or repeat error output, `open-work-tracking` becomes the optional skill `open-work`, installed skills and slash commands no longer carry links that open nothing, and `check-anti-fake-tests` and `check-stubs` say "INCOMPLETE" when they did not see the whole project.

@@ -12830,6 +12830,89 @@
           "do not exist"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "issue297-init",
+      "workspace": "issue297-unclosed",
+      "title": "uds init sets up a Claude Code project for the unclosed-marker steps",
+      "titleZh": "uds init 建立 Claude Code 專案，供未收尾標記的步驟使用",
+      "changelog": [],
+      "smoke": true,
+      "prepare": [
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "UDS:STANDARDS:START"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "issue297-unclosed-refused",
+      "workspace": "issue297-unclosed",
+      "title": "uds update --apply refuses a CLAUDE.md whose UDS block has START but no END: exit 1, no second block, the unclosed line is named",
+      "titleZh": "CLAUDE.md 的 UDS 區塊只有 START 沒有 END 時，uds update --apply 拒絕寫入：結束碼 1、沒有多出第二個區塊、指出沒收尾的那一行",
+      "changelog": [
+        "uds update no longer appends a second UDS block to a file whose block lost its END line"
+      ],
+      "prepare": [
+        {
+          "writeFile": "CLAUDE.md",
+          "content": "# My project notes\nKEEP-ME-OUTSIDE-BLOCK\n\n<!-- UDS:STANDARDS:START -->\nTRUNCATED-BLOCK-SENTINEL\n"
+        }
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "UDS markers damaged, will not be written",
+          "on line 4 has no matching",
+          "Refusing to write"
+        ],
+        "notContains": [
+          "missing UDS markers",
+          "standalone occurrences"
+        ],
+        "files": [
+          {
+            "path": "CLAUDE.md",
+            "contains": [
+              "KEEP-ME-OUTSIDE-BLOCK",
+              "TRUNCATED-BLOCK-SENTINEL"
+            ],
+            "notContains": [
+              "UDS:STANDARDS:END"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

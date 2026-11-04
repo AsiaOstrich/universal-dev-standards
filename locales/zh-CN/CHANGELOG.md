@@ -18,6 +18,10 @@ status: current
 
 ## [Unreleased]
 
+### Fixed
+
+- **`uds update` 不再在区块丢失 END 行的文件后面再加一个 UDS 区块，而是拒绝写入并指出没有收尾的那一行（issue #297）。** 集成文件（例如 `AGENTS.md`）有 `<!-- UDS:STANDARDS:START -->` 却没有 `<!-- UDS:STANDARDS:END -->`（复制时被截断，或那一行被手动删除）时，计划显示“missing UDS markers”，`--apply` 会在文件末尾再加一整个区块；同一次运行接着因 START 重复而失败，之后每次运行都一样失败，直到有人手动合并两个区块。现在只有一半的标记、或 END 在 START 之前，都与重复标记同样处理：计划显示 `UDS markers damaged, will not be written`，`--apply` 让文件逐字节保持原样、退出码为 1，并打印哪一行没有收尾。两个标记都没有的文件仍会照常在后面加上区块。
+
 ## [6.15.0-beta.1] - 2026-11-04
 
 > **测试版**——以 `npm install -g universal-dev-standards@beta` 安装。要测什么、如何退回正式版：[docs/PRE-RELEASE.md](../../docs/PRE-RELEASE.md)。**请先读：`uds check --ci` 现在对两种原本只印出来的发现以 1 结束**（集成文件指向不存在的路径，以及已安装、却没有任何哈希涵盖的斜线命令），所以采用者升级后 CI 可能变红；下方第一项说明谁受影响、怎么清掉。这个测试版另有：`uds update` 与 `uds update --apply` 现在会替换没人改过的旧 hook 脚本（先备份）、`uds init` 与 `uds update` 不再丢失或重复印出错误输出、`open-work-tracking` 改成选用技能 `open-work`、已安装的技能与斜线命令不再带着打不开的链接，以及 `check-anti-fake-tests` 与 `check-stubs` 在没看完整个项目时会明说「INCOMPLETE」。

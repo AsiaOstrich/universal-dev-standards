@@ -258,7 +258,25 @@ function diffIntegrations(desiredMap, actualMap, actions, warnings, summary, for
       summary.create++;
     } else if (actualEntry.metadata?.hasMarkers) {
       // File exists with UDS markers → migrate_block (update just the block)
-      if (force) {
+      if (actualEntry.metadata?.markerError) {
+        // Issue #297: the markers are present but damaged (unclosed, reversed
+        // or duplicated). Plan the block update so the plan names the file,
+        // but say why it will not be written — the write path refuses on the
+        // same AmbiguousMarkerError before touching the file.
+        actions.push({
+          type: 'migrate_block',
+          category: 'integration',
+          path: desiredEntry.relativePath,
+          reason: `UDS markers damaged, will not be written: ${actualEntry.metadata.markerError}`,
+          details: {
+            toolName: desiredEntry.metadata.toolName,
+            format: desiredEntry.metadata.format,
+            markerError: actualEntry.metadata.markerError,
+            metadata: desiredEntry.metadata
+          }
+        });
+        summary.migrate_block++;
+      } else if (force) {
         actions.push({
           type: 'migrate_block',
           category: 'integration',

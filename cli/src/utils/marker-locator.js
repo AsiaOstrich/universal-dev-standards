@@ -85,15 +85,56 @@ export class AmbiguousMarkerError extends Error {
 }
 
 /**
+ * Thrown when a file has a START marker with no END after it (or an END with
+ * no START before it). Issue #297: `locateMarkerBlock` used to return `null`
+ * here — "this file has no UDS block" — so `uds update` appended a complete
+ * second block and every later run failed on the duplicate START. A
+ * half-present pair is a damaged block, not a missing one.
+ *
+ * It extends AmbiguousMarkerError on purpose: every caller that already
+ * refuses to write on an ambiguous pair (update's plan and apply paths,
+ * `uds check`, the state scanner) refuses here too, before writing anything.
+ */
+export class UnclosedMarkerError extends AmbiguousMarkerError {
+  /**
+   * @param {{start: string, end: string}} markers
+   * @param {{line: number}[]} starts
+   * @param {{line: number}[]} ends
+   */
+  constructor(markers, starts, ends) {
+    const present = starts.length > 0 ? starts : ends;
+    super(starts.length > 0 ? markers.start : markers.end, present.map((m) => m.line));
+    if (starts.length > 0 && ends.length > 0) {
+      this.message =
+        `Marker "${markers.end}" on line ${ends[0].line} comes before "${markers.start}" ` +
+        `on line ${starts[0].line} — the UDS block is damaged. Refusing to write; ` +
+        'put the END line after the START line (or delete both) and run again.';
+    } else if (starts.length > 0) {
+      this.message =
+        `Marker "${markers.start}" on line ${starts[0].line} has no matching "${markers.end}" — ` +
+        'the UDS block is not closed. Refusing to write; add the END line where the block ' +
+        'should stop (or delete the START line) and run again.';
+    } else {
+      this.message =
+        `Marker "${markers.end}" on line ${ends[0].line} has no matching "${markers.start}" before it — ` +
+        'the UDS block is damaged. Refusing to write; add the START line or delete the END line and run again.';
+    }
+    this.name = 'UnclosedMarkerError';
+  }
+}
+
+/**
  * Locate the single UDS marker block in `content`.
  *
  * @param {string} content
  * @param {{start: string, end: string}} markers
  * @returns {{startIdx: number, endIdx: number, startLine: number, endLine: number} | null}
- *   `null` means "this file has no UDS block" — the same meaning the old
- *   `startIdx === -1` check carried. This is not an error.
+ *   `null` means "this file has no UDS block" — neither marker is present.
+ *   This is not an error.
  * @throws {AmbiguousMarkerError} when more than one valid START or END line
  *   exists — the file has two or more marker pairs, or a corrupted one.
+ * @throws {UnclosedMarkerError} (a subclass) when only one of the two markers
+ *   is present, or END comes before START (issue #297).
  */
 export function locateMarkerBlock(content, markers) {
   const starts = findMarkerLines(content, markers.start);
@@ -105,14 +146,17 @@ export function locateMarkerBlock(content, markers) {
   if (ends.length > 1) {
     throw new AmbiguousMarkerError(markers.end, ends.map((e) => e.line));
   }
-  if (starts.length === 0 || ends.length === 0) {
+  if (starts.length === 0 && ends.length === 0) {
     return null;
+  }
+  if (starts.length === 0 || ends.length === 0) {
+    throw new UnclosedMarkerError(markers, starts, ends);
   }
 
   const startIdx = starts[0].offset;
   const endIdx = ends[0].offset;
   if (endIdx <= startIdx) {
-    return null;
+    throw new UnclosedMarkerError(markers, starts, ends);
   }
 
   return { startIdx, endIdx, startLine: starts[0].line, endLine: ends[0].line };

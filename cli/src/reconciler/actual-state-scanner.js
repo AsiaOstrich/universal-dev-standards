@@ -238,11 +238,16 @@ function scanIntegrations(state, projectPath) {
     // dedicated block-integrity pass is what surfaces the ambiguity to the
     // user explicitly, with line numbers; this scan just records "unknown".
     let blockHash;
+    let markerError = null;
     try {
       blockHash = computeIntegrationBlockHash(filePath);
     } catch (error) {
       if (error instanceof AmbiguousMarkerError) {
         blockHash = null;
+        // Issue #297: remember *why* there is no block hash. Without this the
+        // diff engine read "no hash" as "no markers" and planned an append,
+        // which turned one damaged block into two.
+        markerError = error.message;
       } else {
         throw error;
       }
@@ -258,7 +263,8 @@ function scanIntegrations(state, projectPath) {
       metadata: {
         toolName,
         format: toolConfig.format,
-        hasMarkers: !!blockHash,
+        hasMarkers: !!blockHash || markerError !== null,
+        markerError,
         fullHash: fileHash?.hash || null,
         fullSize: fileHash?.size || null,
         blockHash: blockHash || null
