@@ -14,8 +14,7 @@ status: current
 <!-- UDS_SUPPORTED_VERSIONS_START -->
 | 版本 | 支援狀態 |
 |------|--------|
-| 6.15.0-beta.2 | ✅ 預發布版本 |
-| 6.14.1 | ✅ 最新正式版 |
+| 6.15.0 | ✅ 最新正式版 |
 | < 6.0.0 | ❌ 已終止支援 |
 <!-- UDS_SUPPORTED_VERSIONS_END -->
 

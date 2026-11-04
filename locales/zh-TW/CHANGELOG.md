@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.15.0-beta.2
-translation_version: 6.15.0-beta.2
+source_version: 6.15.0
+translation_version: 6.15.0
 last_synced: 2026-11-04
-source_hash: 6241fbc376cf
+source_hash: f021bb23e372
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.15.0] - 2026-11-04
+
+> **正式版發布**：包含下方 6.15.0-beta.1 與 beta.2 的所有內容，beta.2 之後沒有任何變更。beta.2 已在 Windows、macOS、Linux 完成發布後驗收（0 項失敗），並在一台採用者的 Windows 機器上實測。**請先讀：**`uds check --ci` 現在對兩種原本只印出來的發現以 1 結束（整合檔指向不存在的路徑，以及沒有任何雜湊涵蓋的已安裝斜線指令），所以採用者升級後 CI 可能變紅；詳見 6.15.0-beta.1。beta.2 多一個修正：區塊遺失 END 行時，`uds update` 拒絕寫入，不再另加第二個區塊。
 
 ## [6.15.0-beta.2] - 2026-11-04
 

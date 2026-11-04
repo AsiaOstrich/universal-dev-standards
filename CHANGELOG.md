@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.15.0] - 2026-11-04
+
+> **Stable Release**: everything in 6.15.0-beta.1 and beta.2 below, with no change since beta.2. beta.2 was accepted on Windows, macOS and Linux (post-publish acceptance, 0 failed) and on a Windows adopter machine. **Read this first:** `uds check --ci` now exits 1 on two findings it used to only print (an integration file that points at a path that does not exist, and an installed slash command no hash covers), so an adopter's CI can turn red after upgrading; see 6.15.0-beta.1. beta.2 adds one fix: `uds update` refuses a UDS block that lost its END line instead of appending a second block.
+
 ## [6.15.0-beta.2] - 2026-11-04
 
 *Pre-release, install with `npm install -g universal-dev-standards@beta`. One fix on top of 6.15.0-beta.1, found by an adopter testing beta.1 on Windows: `uds update` refuses a UDS block that lost its END line instead of appending a second block.*
