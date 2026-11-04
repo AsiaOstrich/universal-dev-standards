@@ -27,36 +27,44 @@ const shippedSkills = () => readdirSync(join(REAL_REPO, 'skills'), { withFileTyp
   .map((e) => e.name)
   .sort();
 
+// Issue #298: UDS ships these but installs them only when a project asks, so a fresh project holds the shipped skills without them.
+// Written out here, not read from the CLI.
+const OPTIONAL_SKILLS = ['open-work-assistant'];
+const installedByDefault = () => shippedSkills().filter((s) => !OPTIONAL_SKILLS.includes(s));
+
 /** The names listed under "Skills (N):" in `uds skills` output. */
 const listedSkills = (stdout) => [...stdout.matchAll(/^\s+[✓○] (\S+)$/gm)].map((m) => m[1]).sort();
 
 it('uds skills lists every installed skill out of the skills UDS ships, and its file count equals the one uds check prints (XSPEC-456 R3)', async () => {
   const dir = await h.newProject();
   const shipped = shippedSkills();
-  expect(shipped.length, 'fixture: UDS ships more skills than the old 30-name list').toBeGreaterThan(30);
+  const installed = installedByDefault();
+  expect(installed.length, 'fixture: UDS ships more skills than the old 30-name list').toBeGreaterThan(30);
+  expect(shipped.length - installed.length, 'fixture: the optional skill is shipped').toBe(1);
 
-  // Control: all of them really are on disk.
+  // Control: every shipped skill but the optional one is on disk.
   const onDisk = readdirSync(join(dir, '.claude', 'skills'), { withFileTypes: true })
     .filter((e) => e.isDirectory() && existsSync(join(dir, '.claude', 'skills', e.name, 'SKILL.md')))
     .map((e) => e.name).sort();
-  expect(onDisk).toEqual(shipped);
+  expect(onDisk).toEqual(installed);
 
   const skills = await h.runCli(['skills'], dir);
   expect(skills.code, skills.stdout + skills.stderr).toBe(0);
-  expect(skills.stdout).toMatch(new RegExp(`Skills \\(${shipped.length}\\):`));
-  expect(skills.stdout).toMatch(new RegExp(`Total unique skills: ${shipped.length} / ${shipped.length}\\b`));
-  expect(listedSkills(skills.stdout), 'every installed skill is named').toEqual(shipped);
+  expect(skills.stdout).toMatch(new RegExp(`Skills \\(${installed.length}\\):`));
+  expect(skills.stdout).toMatch(new RegExp(`Total unique skills: ${installed.length} / ${shipped.length}\\b`));
+  expect(skills.stdout, 'the optional skill is not counted as missing without saying so').toContain('Optional, installed only when you ask: open-work');
+  expect(listedSkills(skills.stdout), 'every installed skill is named').toEqual(installed);
 
   // The same installation, seen by `uds check`: it counts files, and `uds skills` now says how many.
   const check = await h.runCli(['check', '--offline'], dir);
   expect(check.code, check.stdout + check.stderr).toBe(0);
   const files = Number(check.stdout.match(/All skill files intact \((\d+) files\)/)?.[1]);
-  expect(files, check.stdout).toBeGreaterThan(shipped.length);
+  expect(files, check.stdout).toBeGreaterThan(installed.length);
   expect(skills.stdout).toContain(`\`uds check\` tracks ${files} skill files`);
 
   // And the manifest agrees on the number of skills.
   const manifest = JSON.parse(readFileSync(join(dir, '.standards', 'manifest.json'), 'utf-8'));
-  expect(new Set(manifest.skills.names).size).toBe(shipped.length);
+  expect(new Set(manifest.skills.names).size).toBe(installed.length);
 });
 
 it('uds skills counts a removed skill as missing from the shipped total instead of hiding the gap behind a short list (XSPEC-456 R3)', async () => {
@@ -65,7 +73,7 @@ it('uds skills counts a removed skill as missing from the shipped total instead 
   // Remove one skill that the old stale list did NOT contain, so only a correct denominator can show the gap.
   const victim = 'sweep';
   rmSync(join(dir, '.claude', 'skills', victim), { recursive: true, force: true });
-  const kept = shipped.filter((s) => s !== victim);
+  const kept = installedByDefault().filter((s) => s !== victim);
 
   const skills = await h.runCli(['skills'], dir);
   expect(skills.code, skills.stdout + skills.stderr).toBe(0);

@@ -30,6 +30,9 @@ const GHOST_DIRS = ['_shared', 'agents', 'ai', 'tools', 'workflows'];
 const RETIRED_SKILL = 'methodology-system'; // a name an older UDS shipped and this one does not
 const RETIRED_COMMAND = 'retired-command-456';
 
+// Issue #298: shipped, but installed only when a project asks. Written out here, not read from the CLI.
+const OPTIONAL_SKILLS = ['open-work-assistant'];
+
 const shippedSkills = () => new Set(readdirSync(join(REAL_REPO, 'skills'), { withFileTypes: true })
   .filter((e) => e.isDirectory() && existsSync(join(REAL_REPO, 'skills', e.name, 'SKILL.md')))
   .map((e) => e.name));
@@ -75,8 +78,9 @@ function problems(dir) {
 it('uds update --apply --skills leaves skills.names with only the skills that are on disk and shipped by UDS, none of the five ghost folders (XSPEC-456 R4)', async () => {
   const dir = await h.newProject();
   const shipped = shippedSkills();
+  const installed = [...shipped].filter((s) => !OPTIONAL_SKILLS.includes(s)); // what a fresh project holds
   const before = addGhosts(dir, { olderVersion: true });
-  expect(before, 'fixture: the manifest names more skills than UDS ships').toBe(shipped.size + GHOST_DIRS.length + 1);
+  expect(before, 'fixture: the manifest names more skills than UDS ships').toBe(installed.length + GHOST_DIRS.length + 1);
   expect(problems(dir).length, 'fixture: the ghosts are visible before the update').toBeGreaterThan(0);
 
   const up = await h.runCli(['update', '--apply', '--yes', '--skills', '--offline'], dir);
@@ -86,7 +90,7 @@ it('uds update --apply --skills leaves skills.names with only the skills that ar
   for (const d of GHOST_DIRS) expect(existsSync(join(dir, '.claude', 'skills', d)), `${d} folder`).toBe(false);
   // ... and now the names went with them.
   const m = readManifest(dir);
-  expect([...m.skills.names].sort()).toEqual([...shipped].sort());
+  expect([...m.skills.names].sort()).toEqual([...installed].sort());
   expect(problems(dir)).toEqual([]);
   expect(up.stdout, 'it says it dropped names').toMatch(/Dropped \d+ skill\/command name\(s\)/);
 

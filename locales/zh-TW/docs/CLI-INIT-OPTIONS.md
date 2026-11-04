@@ -2,8 +2,8 @@
 source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
-last_synced: 2026-10-30
-source_hash: bdccdf225333
+last_synced: 2026-11-04
+source_hash: 598fcbb2167d
 status: current
 ---
 
@@ -919,6 +919,28 @@ uds update --with-hooks --ai-tool antigravity    # 直接指定工具，不做�
   `--sync-refs` 或 `--claude-target` 的執行不會動它們，並會明說。
 - **它不做什麼。** 不更新標準、技能或整合檔（那是一般的 `uds update`），也不會把工具加進 manifest。
   它不能與 `--skills`、`--commands` 等其他 update 模式合用，合用時會明說。
+
+### 選用技能，以及加裝或移除單一技能（`uds update --add-skill` / `--remove-skill`）
+
+UDS 出貨 `skills/` 底下所有技能，但自稱選用的技能只會裝進有要求它的專案。目前只有 `open-work`（資料夾
+`open-work-assistant`）。`uds init` 與 `uds update` 不會裝它；已經有它的專案（6.15.0-beta.1 曾把它裝進所有
+專案）會保留並照常更新。`uds update --plan`、`--apply`、`--skills` 結尾會有一段「Optional skills」，說明
+這個專案裡哪些技能是選用，以及各自的指令。
+
+```bash
+uds update --add-skill open-work            # 裝進專案所有的 AI 工具資料夾，並記住
+uds update --remove-skill commit            # 從這些資料夾刪除一個技能（任何技能都可）；之後的更新不會裝回
+uds update --add-skill commit               # 把移除的技能放回去
+uds update --remove-skill tdd --plan        # 只說明會做什麼，不寫任何東西
+```
+
+- 名稱可以是技能名（`open-work`）或資料夾名（`open-work-assistant`）。UDS 沒有出貨的名稱會以 1 結束並列出
+  可用名稱；同一個指令裡有一個壞名稱，其他的也不會執行。
+- 選擇記在 `.standards/manifest.json` 的 `skills` 底下：`extra`（專案要求的選用技能）與 `excluded`（專案
+  移除的技能）。沒有這兩個鍵的 manifest 代表「沒有做任何選擇」。
+- 使用者層級的技能資料夾（`~/.claude/skills`）由這台機器上所有專案共用，所以移除時不動它，並印出路徑。
+- 兩個旗標都會先備份（`uds update --rollback` 可還原）。單獨使用是一整個指令；與 `--apply`、`--force`、
+  `--skills`、`--commands`、`--standards-only` 並用時，它們先執行，其餘接著執行。
 
 ### Claude Code 整合目標檔（`--claude-target`）
 

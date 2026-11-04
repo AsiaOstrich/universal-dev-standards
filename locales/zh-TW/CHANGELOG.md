@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.15.0
 translation_version: 6.15.0
 last_synced: 2026-11-04
-source_hash: f021bb23e372
+source_hash: d082a33177d9
 status: current
 ---
 
@@ -17,6 +17,14 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 修正
+
+- **選用技能現在真的是選用：`uds update` 不再把 `open-work` 裝進沒有要它的專案（issue #298）。** `open-work` 技能（資料夾 `skills/open-work-assistant/`）自己寫著它是選用的、「UDS 裡沒有任何東西要求它」，但 `uds update --apply`（連同 `--skills`、`--commands`）把它裝進每個專案的每個 AI 工具資料夾（`.claude/skills`、`.opencode/skill`、`.agents/skills` 等）。已經有自己同類技能的人，就會看到兩個說法幾乎一樣的技能。原因是：專案該拿到哪些技能，被定義成「這版 UDS 出貨的全部」，而且寫了兩份（reconciler 的規劃與安裝器），沒有任何方式讓某個技能被排除。現在有一份選用技能清單（`cli/src/utils/skill-selection.js` 的 `OPTIONAL_SKILLS`，目前只有 `open-work-assistant`），和一個決定某個工具資料夾該拿哪些技能的函式；reconciler 的規劃，以及 `init`、`update`、`config` 裡每個 `skillNames = null` 的安裝，都問同一個函式，所以規劃不會承諾一組、寫入卻寫另一組。專案拿到的是：UDS 出貨的，減去選用技能，減去它移除的技能，加上它要求的選用技能，加上**已經在該工具資料夾裡的選用技能**。最後一項是給 6.15.0-beta.1 的專案：它們已經有 `open-work`，會被保留並像其他技能一樣更新，`uds update --plan` 不會把它列在 Delete，只有專案自己移除它才會消失。`uds update --plan`、`--apply`、`--skills` 現在結尾多一段「Optional skills」，說明哪些技能是選用、這個專案裝了沒有，以及加裝或移除各自的指令；`uds skills` 說明沒裝的選用技能不算缺少。**既有專案會看到的改變：**已有 `open-work` 的 6.15.0-beta.1 專案什麼都不會少。從 6.14.x 或更舊版本更新的專案不再拿到 `open-work`（6.15.0-beta.1 之前本來也沒有）。要它：`uds update --add-skill open-work`。
+
+### 新增
+
+- **`uds update --add-skill <name>` 與 `uds update --remove-skill <name>` 加裝或移除單一技能，而且選擇會被記住（issue #298）。** 兩者都可重複。名稱可以是技能名（`open-work`）或資料夾名（`open-work-assistant`）；UDS 沒有出貨的名稱會以 1 結束、列出可用的名稱、什麼都不寫（同一個指令裡有一個壞名稱，其他的也不會執行）。`--add-skill` 立即把技能裝進專案所有的 AI 工具資料夾，若是選用技能，另記在 `manifest.skills.extra`。`--remove-skill` 從每個專案層級的工具資料夾刪除該技能的資料夾，移除它的雜湊紀錄與 `skills.names` 裡的項目，並記在 `manifest.skills.excluded`；任何技能都能移除，不只選用技能，之後的 `uds update`（一般、`--apply`、`--skills`）都不會再裝回——手動刪掉的技能資料夾從來沒有這個保證（下一次更新就寫回來）。對已移除的技能執行 `--add-skill`，會把它從 `excluded` 拿掉。使用者層級的資料夾（`~/.claude/skills`）由這台機器上的所有專案共用，所以移除時不動它，並印出它的路徑。兩者都會先做備份（`uds update --rollback` 可還原），`--plan` 說明會做什麼而不寫任何東西，加裝一個技能也不會改變該資料夾裡其他技能所記錄的版本。單獨使用時，每個旗標就是一整個指令；與 `--apply`、`--force`、`--skills`、`--commands`、`--standards-only` 並用時，它先做自己的部分，其餘再接著執行。不能與 `--rollback`、`--claude-target`、`--with-hooks`、`--sync-refs`、`--integrations-only` 並用。**Manifest 與舊版 manifest：**這兩個鍵是 `skills` 底下的資料夾名清單；在此之前寫的 manifest 兩者都沒有，讀作「專案沒有做任何選擇」，所以不需要遷移，空清單也不會被寫出。這個選擇不放在 `skills.names`：它是 UDS 安裝過的名稱聯集，不是選擇。
 
 ## [6.15.0] - 2026-11-04
 

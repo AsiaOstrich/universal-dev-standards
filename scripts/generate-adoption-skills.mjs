@@ -245,6 +245,7 @@ import {
 } from '../cli/src/utils/skill-frontmatter.js';
 import { rewriteOutsideLinks, createRepoPathProbe } from '../cli/src/utils/skill-link-rewriter.js';
 import { AI_AGENT_PATHS } from '../cli/src/config/ai-agent-paths.js';
+import { isOptionalSkill } from '../cli/src/utils/optional-skills.js';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -610,7 +611,11 @@ function localeOf(repoRoot, target) {
  */
 export function deriveTarget(repoRoot, target) {
   const locale = localeOf(repoRoot, target);
-  const ids = sourceSkillIds(repoRoot);
+  // What the installer would put here (issue #298): an optional skill (`open-work`) is written only where it
+  // is already, as `uds update` keeps one that is already in a tool's folder and installs none that is not.
+  // Writing every shipped skill here would make this gate demand a copy the installer does not make, and
+  // `tests/integration/xspec-488-r3-agents-adoption-skills.test.js` compares the two.
+  const ids = sourceSkillIds(repoRoot).filter((id) => !isOptionalSkill(id) || existsSync(join(target.abs, id, 'SKILL.md')));
   const cliPkg = readJsonOrThrow(join(repoRoot, 'cli', 'package.json'), 'cli/package.json');
   if (!cliPkg.version) throw new Underivable('cli/package.json has no version');
 

@@ -5,8 +5,12 @@
  *   Defect  The standard asked every adopter to keep a capture inbox, write a release condition for each wait and so on. It had been
  *           calibrated on one project, and that project's own use did not confirm it. It is now a skill an adopter picks up when work
  *           is getting lost. The standard's `.ai.yaml` and registry entry are gone; `core/open-work-tracking.md` stays as a reference.
+ *           (Issue #298: the skill is OPTIONAL in fact as well as in words. `uds init` / `uds update` do not install it; a project asks for it
+ *           with `uds update --add-skill open-work`, and a project that already holds it keeps it. The skill is covered in
+ *           tests/e2e/optional-skills-298.test.js; here it is installed through that door.)
  *   What must hold, each read back from disk after running the real CLI:
- *     1. a new `uds init` installs the skill and none of the standard (no file, no manifest entry, no mention in CLAUDE.md / AGENTS.md);
+ *     1. a new `uds init` installs none of the standard (no file, no manifest entry, no mention in CLAUDE.md / AGENTS.md), and the skill
+ *        that replaced it is there for the asking (`--add-skill open-work`), with the text the repository ships;
  *     2. a project the PREVIOUS UDS set up (it holds the standard) ends `uds update --apply` with the file gone and NO trace of its name
  *        left behind: not in `manifest.standards`, not in the integration config snapshot, not in CLAUDE.md or AGENTS.md, and `uds check`
  *        has nothing to warn about. Before this change the file went and the name stayed, so `uds check` warned "Manifest entries that
@@ -20,6 +24,7 @@
  *
  * Wires that make these red when cut (each is one line of source):
  *   cli/standards-registry.json                       the "open-work-assistant" entry of `skillFiles`        (the skill is not installed)
+ *   cli/src/commands/update.js                        const result = await installSkillsToMultipleAgents(installations, toAdd, ...) // wire:add-skill-installs
  *   cli/standards-registry.json                       the "open-work-tracking" entry of `standards`, put back (the standard is installed again)
  *   cli/src/reconciler/plan-executor.js               if (action.category === 'standard') dropRetiredStandardEntries(manifest, action.path);
  */
@@ -68,7 +73,7 @@ async function projectFromPreviousUds() {
   return dir;
 }
 
-it('uds init on a new project installs the open-work skill and none of the open-work-tracking standard, and uds check has nothing to say (XSPEC-427)', async () => {
+it('uds init on a new project installs none of the open-work-tracking standard, the open-work skill comes with --add-skill, and uds check has nothing to say (XSPEC-427)', async () => {
   const dir = await h.newProject(); // the real `uds init --yes --skills-location project`
 
   // The standard is not installed: no file, no manifest entry, no hash record, no mention in the instruction files.
@@ -80,12 +85,19 @@ it('uds init on a new project installs the open-work skill and none of the open-
   for (const file of ['CLAUDE.md', 'AGENTS.md']) expect(read(dir, file), `${file} does not name it`).not.toContain('open-work-tracking');
   expect(manifest.standards.length, 'control: other standards were installed, so this is not an empty init').toBeGreaterThan(50);
 
+  // The skill is optional (issue #298): `uds init` leaves it out, and asking for it installs it.
+  expect(existsSync(join(dir, SKILL_DIR, 'SKILL.md')), 'init does not install the optional skill').toBe(false);
+  expect(keysNaming(manifest.skillHashes, 'open-work-assistant'), 'and records nothing for it').toEqual([]);
+  const add = await run(['update', '--add-skill', 'open-work', OFFLINE], dir);
+  expect(add.code, out(add)).toBe(0);
+  const withSkill = readManifest(dir);
+
   // The skill is installed, with the text the repository ships, and recorded.
   expect(existsSync(join(dir, SKILL_DIR, 'SKILL.md')), 'the skill file is on disk').toBe(true);
   const shipped = readFileSync(join(REAL_REPO, 'skills', 'open-work-assistant', 'SKILL.md'), 'utf-8');
   expect(withoutLinkTargets(read(dir, join(SKILL_DIR, 'SKILL.md')))).toBe(withoutLinkTargets(shipped));
   expect(read(dir, join(SKILL_DIR, 'SKILL.md'))).toMatch(/^name: open-work$/m);
-  expect(keysNaming(manifest.skillHashes, 'open-work-assistant').length, 'the skill file is in skillHashes').toBeGreaterThan(0);
+  expect(keysNaming(withSkill.skillHashes, 'open-work-assistant').length, 'the skill file is in skillHashes').toBeGreaterThan(0);
 
   // Nothing for `uds check` to warn about.
   const check = await run(['check', '--ci', OFFLINE], dir);
@@ -94,7 +106,7 @@ it('uds init on a new project installs the open-work skill and none of the open-
   expect(out(check)).not.toMatch(/match no installed standard|could not be matched/);
 }, 120000);
 
-it('uds update --apply on a project the previous UDS set up removes the open-work-tracking file and every trace of its name, installs the skill, and leaves uds check clean (XSPEC-427)', async () => {
+it('uds update --apply on a project the previous UDS set up removes the open-work-tracking file and every trace of its name, does not install the optional skill, and leaves uds check clean (XSPEC-427)', async () => {
   const dir = await projectFromPreviousUds();
 
   // Control: this really is the old situation, and the plan says what will happen.
@@ -105,7 +117,8 @@ it('uds update --apply on a project the previous UDS set up removes the open-wor
   const plan = await run(['update', '--plan', OFFLINE], dir);
   expect(plan.code, out(plan)).toBe(0);
   expect(out(plan)).toContain(`- .standards/open-work-tracking.ai.yaml (UDS no longer ships this file`);
-  expect(out(plan)).toContain('+ .claude/skills/open-work-assistant');
+  expect(out(plan), 'the plan does not offer the optional skill').not.toContain('+ .claude/skills/open-work-assistant');
+  expect(out(plan)).toContain('uds update --add-skill open-work'); // it says how to get it instead
   expect(existsSync(join(dir, STANDARD_FILE)), 'a plan removes nothing').toBe(true);
 
   const apply = await run(['update', '--apply', '--yes', OFFLINE], dir);
@@ -120,9 +133,9 @@ it('uds update --apply on a project the previous UDS set up removes the open-wor
   for (const file of ['CLAUDE.md', 'AGENTS.md']) expect(read(dir, file), `${file} no longer names it`).not.toContain('open-work-tracking');
   expect(read(dir, 'CLAUDE.md'), 'and CLAUDE.md carries no "could not be matched" note').not.toMatch(/could not be matched to an installed file/);
 
-  // The skill arrived.
-  expect(existsSync(join(dir, SKILL_DIR, 'SKILL.md'))).toBe(true);
-  expect(keysNaming(manifest.skillHashes, 'open-work-assistant').length).toBeGreaterThan(0);
+  // The skill did not arrive by itself; it comes when the project asks.
+  expect(existsSync(join(dir, SKILL_DIR, 'SKILL.md'))).toBe(false);
+  expect(keysNaming(manifest.skillHashes, 'open-work-assistant')).toEqual([]);
 
   // `uds check` has nothing to warn about, and a second plan has nothing to do.
   const check = await run(['check', '--offline'], dir);

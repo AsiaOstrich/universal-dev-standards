@@ -28,6 +28,17 @@ export function shippedSkillCount() {
   )).length;
 }
 
+/**
+ * Skills UDS ships but installs only in a project that asks for them (issue #298). Written out here, not read from the CLI under test,
+ * so a change to the CLI's own list of optional skills turns these tests red instead of moving the expected number with it.
+ */
+export const OPTIONAL_SKILL_FOLDERS = ['open-work-assistant'];
+
+/** How many skills a fresh project holds: what UDS ships, without the optional ones. */
+export function defaultSkillCount() {
+  return shippedSkillCount() - OPTIONAL_SKILL_FOLDERS.length;
+}
+
 export const PLUGIN_KEY = 'universal-dev-standards@asia-ostrich';
 
 /**

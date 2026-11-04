@@ -139,8 +139,8 @@
       "platform": "all",
       "id": "available-init",
       "workspace": "available",
-      "title": "uds init sets up a project (the project the next steps use): the open-work skill is installed and the open-work-tracking standard is not",
-      "titleZh": "uds init 建立專案（後續步驟使用）：裝了 open-work 技能，沒裝 open-work-tracking 標準",
+      "title": "uds init sets up a project (the project the next steps use): the open-work-tracking standard is not installed, and neither is the optional open-work skill",
+      "titleZh": "uds init 建立專案（後續步驟使用）：沒裝 open-work-tracking 標準，選用的 open-work 技能也沒裝",
       "smoke": true,
       "changelog": [
         "open-work-tracking is no longer a standard"
@@ -183,10 +183,7 @@
           },
           {
             "path": ".claude/skills/open-work-assistant/SKILL.md",
-            "contains": [
-              "name: open-work",
-              "## Workflow"
-            ]
+            "exists": false
           }
         ]
       }
@@ -1297,8 +1294,8 @@
       "platform": "all",
       "id": "beta6-skills-all",
       "workspace": "beta6",
-      "title": "uds skills lists every installed skill: the two numbers in \"N / N\" are equal",
-      "titleZh": "uds skills 列出全部已安裝技能：「N / N」兩個數字相等",
+      "title": "uds skills lists every installed skill, and says the optional skill that is not installed is optional rather than missing",
+      "titleZh": "uds skills 列出全部已安裝技能，並說明未安裝的選用技能是「選用」而不是「缺少」",
       "changelog": [
         "uds skills listed 27 of 56 installed skills"
       ],
@@ -1306,8 +1303,11 @@
         "skills"
       ],
       "expect": {
+        "contains": [
+          "Optional, installed only when you ask: open-work"
+        ],
         "matches": [
-          "Total unique skills: (\\d+) / \\1\\b"
+          "Total unique skills: (\\d+) / (\\d+)\\b"
         ]
       }
     },
@@ -12343,8 +12343,8 @@
       "platform": "all",
       "id": "retired-standard-apply-removes-it",
       "workspace": "retired-standard",
-      "title": "uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md",
-      "titleZh": "uds update --apply 移除 open-work-tracking 檔案、裝上 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字",
+      "title": "uds update --apply removes the open-work-tracking file, does not install the optional open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md",
+      "titleZh": "uds update --apply 移除 open-work-tracking 檔案、不裝選用的 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字",
       "changelog": [
         "open-work-tracking is no longer a standard",
         "uds update --apply no longer leaves the name of a standard"
@@ -12402,9 +12402,7 @@
           },
           {
             "path": ".claude/skills/open-work-assistant/SKILL.md",
-            "contains": [
-              "name: open-work"
-            ]
+            "exists": false
           }
         ]
       }
@@ -12911,6 +12909,236 @@
               "UDS:STANDARDS:END"
             ]
           }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-init",
+      "workspace": "optional-skills",
+      "title": "uds init installs the ordinary skills and leaves the optional open-work skill out (the project the next steps use)",
+      "titleZh": "uds init 安裝一般技能，不裝選用的 open-work 技能（後續步驟使用的專案）",
+      "changelog": [
+        "An optional skill is now optional: uds update no longer installs open-work"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md"
+          },
+          {
+            "path": ".claude/skills/open-work-assistant/SKILL.md",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "open-work-assistant"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-plan-names-it",
+      "workspace": "optional-skills",
+      "title": "uds update --plan does not plan the optional skill, and says it is optional and how to add it",
+      "titleZh": "uds update --plan 不規劃選用技能，並說明它是選用及如何加裝",
+      "changelog": [
+        "An optional skill is now optional: uds update no longer installs open-work"
+      ],
+      "uds": [
+        "update",
+        "--plan",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Optional skills",
+          "uds update --add-skill open-work"
+        ],
+        "notContains": [
+          "+ .claude/skills/open-work-assistant"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-add-skill",
+      "workspace": "optional-skills",
+      "title": "uds update --add-skill open-work installs the skill into the project's tool folder now and records the choice in the manifest",
+      "titleZh": "uds update --add-skill open-work 立即把技能裝進專案的工具資料夾，並把選擇記進 manifest",
+      "changelog": [
+        "uds update --add-skill <name> and uds update --remove-skill <name> add or remove one skill"
+      ],
+      "uds": [
+        "update",
+        "--add-skill",
+        "open-work",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "added open-work (open-work-assistant)",
+          "skills.extra"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/open-work-assistant/SKILL.md",
+            "contains": [
+              "name: open-work"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"extra\"",
+              "open-work-assistant"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-add-survives-apply",
+      "workspace": "optional-skills",
+      "title": "uds update --apply --yes --skills keeps the skill that was added",
+      "titleZh": "uds update --apply --yes --skills 保留已加裝的技能",
+      "changelog": [
+        "uds update --add-skill <name> and uds update --remove-skill <name> add or remove one skill"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--skills",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Remove it: uds update --remove-skill open-work"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/open-work-assistant/SKILL.md",
+            "contains": [
+              "name: open-work"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-remove-skill",
+      "workspace": "optional-skills",
+      "title": "uds update --remove-skill commit deletes that skill from the project's tool folder and records it as excluded; the other skills stay",
+      "titleZh": "uds update --remove-skill commit 把該技能從專案工具資料夾刪除並記為排除；其他技能不動",
+      "changelog": [
+        "uds update --add-skill <name> and uds update --remove-skill <name> add or remove one skill"
+      ],
+      "uds": [
+        "update",
+        "--remove-skill",
+        "commit",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "removed commit (commit-standards)",
+          "skills.excluded"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "exists": false
+          },
+          {
+            "path": ".claude/skills/testing-guide/SKILL.md"
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"excluded\"",
+              "commit-standards"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-remove-stays-removed",
+      "workspace": "optional-skills",
+      "title": "uds update --apply --yes --skills does not bring the removed skill back, and --plan does not plan it",
+      "titleZh": "uds update --apply --yes --skills 不會把已移除的技能裝回，--plan 也不規劃它",
+      "changelog": [
+        "uds update --add-skill <name> and uds update --remove-skill <name> add or remove one skill"
+      ],
+      "uds": [
+        "update",
+        "--apply",
+        "--yes",
+        "--skills",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "removed by this project"
+        ],
+        "files": [
+          {
+            "path": ".claude/skills/commit-standards/SKILL.md",
+            "exists": false
+          },
+          {
+            "path": ".claude/skills/testing-guide/SKILL.md"
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "optional-skills-unknown-name",
+      "workspace": "optional-skills",
+      "title": "uds update --add-skill with a name UDS does not ship exits 1 and lists the names that work",
+      "titleZh": "uds update --add-skill 帶 UDS 沒有的名稱時結束碼為 1，並列出可用名稱",
+      "changelog": [
+        "uds update --add-skill <name> and uds update --remove-skill <name> add or remove one skill"
+      ],
+      "uds": [
+        "update",
+        "--add-skill",
+        "no-such-skill",
+        "--offline"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Unknown skill 'no-such-skill'",
+          "open-work (open-work-assistant)",
+          "commit (commit-standards)"
         ]
       }
     }

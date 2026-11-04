@@ -3,7 +3,7 @@ import { createSpinner } from '../utils/spinner.js';
 import { flushAndExit } from '../utils/flush-and-exit.js';
 import { select, confirm as inquirerConfirm, checkbox, Separator } from '@inquirer/prompts';
 import { execSync } from 'child_process';
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'fs';
 import { join, basename, dirname, relative } from 'path';
 import { readManifest, writeManifest, copyStandard, copyExtension, isInitialized, getRepoRoot } from '../utils/copier.js';
 import { getRepositoryInfo, getAllStandards, getShippableFilenames, getStandardSource } from '../utils/registry.js';
@@ -39,6 +39,7 @@ import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
 import { config } from '../utils/config-manager.js';
 import {
+  getAvailableSkillNames,
   installSkillsToMultipleAgents,
   installCommandsToMultipleAgents,
   deduplicateInstallations,
@@ -58,6 +59,8 @@ import {
 } from '../config/ai-agent-paths.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { printSkillNameCollisionWarning } from '../utils/skill-name-collision.js';
+import { OPTIONAL_SKILLS, readSkillChoices, resolveSkillName, skillDisplayName } from '../utils/skill-selection.js';
+import { printOptionalSkillsSection, fileBasedSkillInstallations } from '../utils/optional-skills-report.js';
 import { detectAITools } from '../utils/detector.js';
 import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks, diffHookScripts, replaceStaleHookScripts } from '../installers/hooks-installer.js';
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
@@ -88,7 +91,8 @@ import {
   forgetFileProvenance,
   establishProvenance,
   isProvenanceEstablished,
-  bumpManifestVersion
+  bumpManifestVersion,
+  MARKETPLACE_NAMES_SENTINEL
 } from '../core/manifest.js';
 
 /**
@@ -472,6 +476,16 @@ export async function updateCommand(options) {
       return;
     }
     addStandards = request.ids;
+  }
+
+  // Issue #298: `--add-skill <name>` / `--remove-skill <name>` (repeatable) add or remove ONE skill, in every
+  // tool folder the project has, and record the choice so no later update undoes it. Judged here, before any mode
+  // runs, so an unknown name stops everything instead of being skipped.
+  const addSkillNames = [].concat(options.addSkill || []);
+  const removeSkillNames = [].concat(options.removeSkill || []);
+  if (addSkillNames.length > 0 || removeSkillNames.length > 0) {
+    const outcome = await applySkillChoices(projectPath, manifest, options, addSkillNames, removeSkillNames);
+    if (!outcome.carryOn) return;
   }
 
   // Handle --claude-target option (XSPEC-418 R4): switch an EXISTING
@@ -2783,6 +2797,204 @@ function reportStaleSkillsCommandsHint(projectPath, manifest) {
   console.log();
 }
 
+/**
+ * `--add-skill <name>` / `--remove-skill <name>` (issue #298): put ONE skill into, or take it out of, every
+ * tool folder this project has, and record the choice in the manifest so no later `uds update` (plain, `--apply`,
+ * `--skills`) undoes it.
+ *
+ *   manifest.skills.extra     optional skills the project asked for
+ *   manifest.skills.excluded  skills the project does not want (any skill, not only the optional ones)
+ *
+ * Alone it is a whole command: it does that and stops. Combined with `--apply` / `--force` / `--skills` /
+ * `--commands` / `--standards-only` it does that first and then lets the rest run (on the same manifest object,
+ * so the later steps carry the choice instead of overwriting it). `--plan` writes nothing and says what would happen.
+ *
+ * A user-level folder (`~/.claude/skills`) is shared by every project on the machine, so a removal leaves it
+ * alone and says where it is; the choice still stops this project's updates from writing there.
+ *
+ * @returns {Promise<{carryOn: boolean}>} carryOn: the caller may go on to the other modes/scopes
+ */
+async function applySkillChoices(projectPath, manifest, options, addNames, removeNames) {
+  const stop = (message) => {
+    console.log(chalk.red(message));
+    console.log();
+    process.exitCode = 1;
+    return { carryOn: false };
+  };
+
+  for (const [key, flag] of [['rollback', '--rollback'], ['claudeTarget', '--claude-target'], ['withHooks', '--with-hooks'],
+    ['syncRefs', '--sync-refs'], ['integrationsOnly', '--integrations-only']]) {
+    if (options[key]) return stop(`--add-skill / --remove-skill cannot be combined with ${flag}: run them as separate commands.`);
+  }
+
+  // Judge every name first; one bad name stops the run before anything is written.
+  const shipped = getAvailableSkillNames();
+  const toAdd = [];
+  const toRemove = [];
+  const unknown = [];
+  let available = [];
+  for (const [list, names] of [[toAdd, addNames], [toRemove, removeNames]]) {
+    for (const raw of names) {
+      const found = resolveSkillName(raw, shipped);
+      if (found.folder) {
+        if (!list.includes(found.folder)) list.push(found.folder);
+      } else {
+        unknown.push({ raw, reason: found.error });
+        available = found.available;
+      }
+    }
+  }
+  if (unknown.length > 0) {
+    for (const u of unknown) {
+      console.log(chalk.red(u.reason === 'ambiguous'
+        ? `'${u.raw}' names more than one skill; use the folder name.`
+        : `Unknown skill '${u.raw}'. UDS does not ship a skill with that name.`));
+    }
+    console.log(chalk.gray('  Skills you can name (skill name, with the folder name in brackets when it differs):'));
+    console.log(chalk.gray(`    ${available.join(', ')}`));
+    console.log();
+    process.exitCode = 1;
+    return { carryOn: false };
+  }
+  const both = toAdd.filter((f) => toRemove.includes(f));
+  if (both.length > 0) return stop(`'${skillDisplayName(both[0])}' is named by both --add-skill and --remove-skill; pick one.`);
+
+  const skills = manifest.skills || {};
+  const installations = fileBasedSkillInstallations(manifest);
+  if (installations.length === 0 && ((skills.installations || []).some((i) => i.level === 'marketplace') || (skills.names || []).includes(MARKETPLACE_NAMES_SENTINEL))) {
+    return stop('This project\'s skills come from the Claude Code plugin marketplace, which installs them as one set; --add-skill / --remove-skill choose per skill for skills UDS writes into folders.');
+  }
+
+  const label = (folder) => {
+    const name = skillDisplayName(folder);
+    return name === folder ? folder : `${name} (${folder})`;
+  };
+  const dirOf = ({ agent, level }) => getSkillsDirForAgent(agent, level || 'project', projectPath);
+  const isInsideProject = (dir) => {
+    const rel = relative(projectPath, dir).replace(/\\/g, '/');
+    return rel !== '' && !rel.startsWith('..') && !/^[a-zA-Z]:/.test(rel) && !rel.startsWith('/');
+  };
+  const toolName = (inst) => getAgentDisplayName(inst.agent) || inst.agent;
+
+  console.log(chalk.bold(options.plan ? 'Skill choices - plan (nothing is written)' : 'Skill choices'));
+  if (installations.length === 0) {
+    console.log(chalk.gray('  No skill folders are recorded for this project; the choice is recorded for when skills are installed.'));
+  }
+
+  // ── plan: say what would happen, write nothing ─────────────────────
+  if (options.plan) {
+    for (const folder of toAdd) {
+      const where = installations.map((i) => `${toolName(i)} (${dirOf(i) ?? 'no folder'})`).join(', ');
+      console.log(chalk.cyan(`  + would add ${label(folder)}${where ? ` to ${where}` : ''}`));
+    }
+    for (const folder of toRemove) {
+      const present = installations.filter((i) => { const d = dirOf(i); return d && existsSync(join(d, folder)); });
+      console.log(chalk.yellow(`  - would remove ${label(folder)}${present.length ? ` from ${present.map((i) => `${toolName(i)} (${dirOf(i)})`).join(', ')}` : ' (not on disk in any tool folder)'}, and record it so no update installs it`));
+    }
+    console.log();
+    console.log(chalk.gray(`  Apply with: uds update${toAdd.map((f) => ` --add-skill ${skillDisplayName(f)}`).join('')}${toRemove.map((f) => ` --remove-skill ${skillDisplayName(f)}`).join('')}`));
+    console.log();
+    return { carryOn: false };
+  }
+
+  // ── apply ──────────────────────────────────────────────────────────
+  const backup = installations.length > 0 ? takeStepBackup(projectPath, 'skills', installations, 'skills') : { ok: true, none: true };
+  if (!backup.ok) {
+    process.exitCode = 1;
+    return { carryOn: false };
+  }
+
+  const { extra, excluded } = readSkillChoices(manifest);
+  manifest.skills = manifest.skills || {};
+  let failed = false;
+
+  for (const folder of toRemove) {
+    excluded.add(folder);
+    extra.delete(folder);
+    const removedFrom = [];
+    const keptShared = [];
+    for (const inst of installations) {
+      const dir = dirOf(inst);
+      if (!dir || !existsSync(join(dir, folder))) continue;
+      if (!isInsideProject(dir)) {
+        keptShared.push(join(dir, folder));
+        continue;
+      }
+      try {
+        rmSync(join(dir, folder), { recursive: true, force: true });
+        removedFrom.push(`${toolName(inst)} (${dir})`);
+        for (const key of Object.keys(manifest.skillHashes || {})) {
+          if (key.startsWith(`${inst.agent}/${inst.level || 'project'}/${folder}/`)) delete manifest.skillHashes[key];
+        }
+      } catch (err) {
+        failed = true;
+        console.log(chalk.red(`  x could not remove ${join(dir, folder)}: ${err.message}`));
+      }
+    }
+    if (Array.isArray(manifest.skills.names)) manifest.skills.names = manifest.skills.names.filter((n) => n !== folder);
+    console.log(chalk.green(`  - removed ${label(folder)}${removedFrom.length ? ` from ${removedFrom.join(', ')}` : ' (it was not on disk in any tool folder)'}`));
+    for (const shared of keptShared) {
+      console.log(chalk.yellow(`    kept ${shared}: a user-level folder is shared by every project on this machine. Delete it yourself if you want it gone everywhere.`));
+    }
+    console.log(chalk.gray(`    recorded in the manifest (skills.excluded); no later update installs it. Undo: uds update --add-skill ${skillDisplayName(folder)}`));
+  }
+
+  if (toAdd.length > 0) {
+    for (const folder of toAdd) {
+      excluded.delete(folder);
+      if (OPTIONAL_SKILLS[folder]) extra.add(folder);
+    }
+    if (installations.length > 0) {
+      // The tool folder's `.manifest.json` says which UDS version the folder was written by. Writing one skill
+      // must not make the others look current, so what it said before is put back afterwards.
+      const bookkeeping = installations.filter((inst) => dirOf(inst)).map((inst) => join(dirOf(inst), '.manifest.json'));
+      const before = bookkeeping.map((f) => (f && existsSync(f) ? readFileSync(f, 'utf-8') : null));
+      const locale = resolveLocale(manifest, projectPath, options);
+      const result = await installSkillsToMultipleAgents(installations, toAdd, projectPath, locale); // wire:add-skill-installs
+      bookkeeping.forEach((f, i) => { if (before[i] !== null) writeFileSync(f, before[i]); });
+      replaceSkillHashesForInstalled(manifest, result);
+      manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
+      if (!result.success) failed = true;
+      for (const folder of toAdd) {
+        const tools = result.installations.filter((r) => (r.installed || []).includes(folder)).map((r) => `${getAgentDisplayName(r.agent) || r.agent} (${r.targetDir})`);
+        console.log(tools.length > 0
+          ? chalk.green(`  + added ${label(folder)} to ${tools.join(', ')}`)
+          : chalk.red(`  x could not add ${label(folder)}`));
+      }
+      for (const inst of result.installations) {
+        for (const err of inst.errors || []) console.log(chalk.red(`    ${inst.agent}: ${err.skill}: ${err.error}`));
+      }
+    } else {
+      for (const folder of toAdd) console.log(chalk.green(`  + ${label(folder)} will be installed when skills are installed for this project`));
+    }
+    for (const folder of toAdd) {
+      console.log(chalk.gray(`    ${OPTIONAL_SKILLS[folder] ? 'recorded in the manifest (skills.extra)' : 'no longer excluded'}; updates keep it. Undo: uds update --remove-skill ${skillDisplayName(folder)}`));
+    }
+  }
+
+  // Write the lists. An empty list is dropped, so a project that never chose anything keeps the manifest it had.
+  for (const [key, set] of [['extra', extra], ['excluded', excluded]]) {
+    if (set.size > 0) manifest.skills[key] = [...set].sort();
+    else delete manifest.skills[key];
+  }
+
+  // Re-read before writing, as `updateSkillsOnly` does, and carry over only the fields this step owns.
+  const fresh = readManifest(projectPath) || manifest;
+  fresh.skills = manifest.skills;
+  fresh.skillHashes = manifest.skillHashes;
+  writeManifest(fresh, projectPath);
+  if (!backup.none) finishStepBackup(projectPath, backup);
+  console.log();
+  printOptionalSkillsSection(manifest, projectPath);
+
+  if (failed) {
+    process.exitCode = 1;
+    return { carryOn: false };
+  }
+  const carryOn = Boolean(options.apply || options.force || options.skills || options.commands || options.standardsOnly);
+  return { carryOn };
+}
+
 async function planSkills(projectPath, manifest, options) {
   const repoInfo = getRepositoryInfo();
   const latestVersion = repoInfo.skills.version;
@@ -2828,6 +3040,7 @@ async function planSkills(projectPath, manifest, options) {
   console.log(chalk.gray(`  Locale that would be used: ${resolveLocale(manifest, projectPath, options)}`));
   console.log(chalk.gray('  Run `uds update --apply --yes --skills` to apply.'));
   console.log();
+  printOptionalSkillsSection(manifest, projectPath);
 }
 
 /**
@@ -3117,6 +3330,7 @@ async function updateSkillsOnly(projectPath, manifest, options, { chained = fals
   // XSPEC-465 R1: a personal skill with the same name as one of the UDS skills just written wins silently.
   // Information only: it does not change what was installed or the exit code.
   printSkillNameCollisionWarning(projectPath);
+  printOptionalSkillsSection(manifest, projectPath);
   return endScope(0, chained);
 }
 
@@ -4005,6 +4219,8 @@ async function handlePlan(projectPath, options, manifest, addStandards = []) {
   // the plan is final and nothing above reads it.
   printAvailableStandardsSection(result.manifest || manifest, { phase: 'plan' });
   console.log();
+  // Issue #298: which skills the plan leaves out on purpose (optional, or removed by the project), and how to change that.
+  printOptionalSkillsSection(result.manifest || manifest, projectPath);
 }
 
 /**
@@ -4062,6 +4278,7 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     // XSPEC-458 R2: "up to date" is about the files UDS manages; say what UDS ships that is not managed here.
     printAvailableStandardsSection(planResult.manifest, { phase: 'apply' });
     console.log();
+    printOptionalSkillsSection(planResult.manifest, projectPath);
     return;
   }
 
@@ -4125,6 +4342,10 @@ async function handleReconcile(projectPath, options, { force, addStandards = [] 
     console.log();
     runHookScriptStep(projectPath);
   }
+
+  // Issue #298: this path (a plan with changes) ends here too, so it says what the plan leaves out on purpose, as the other ends do.
+  console.log();
+  printOptionalSkillsSection(readManifest(projectPath) || planResult.manifest, projectPath);
 
   if (!result.success) {
     // XSPEC-482 R10: say what a partly failed run left behind and the way to finish it.

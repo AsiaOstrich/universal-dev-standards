@@ -931,6 +931,30 @@ uds update --with-hooks --ai-tool antigravity    # name the tool(s) instead of d
   is plain `uds update`) and it does not add a tool to the manifest. It does not compose with
   `--skills`, `--commands` and the other update modes, and says so if you combine them.
 
+### Optional Skills, and Adding or Removing One Skill (`uds update --add-skill` / `--remove-skill`)
+
+UDS ships every skill under `skills/`, but a skill that calls itself optional is installed only in a
+project that asks for it. Today that is `open-work` (folder `open-work-assistant`). `uds init` and
+`uds update` leave it out; a project that already holds it (6.15.0-beta.1 installed it everywhere) keeps it
+and gets it updated. `uds update --plan`, `--apply` and `--skills` end with an "Optional skills" section that
+says which skills are optional here and the command for each.
+
+```bash
+uds update --add-skill open-work            # install it into every AI tool folder this project has, and keep it
+uds update --remove-skill commit            # delete one skill (any skill) from those folders; no update brings it back
+uds update --add-skill commit               # put a removed skill back
+uds update --remove-skill tdd --plan        # say what would happen; writes nothing
+```
+
+- The name is the skill's name (`open-work`) or its folder name (`open-work-assistant`). A name UDS does not
+  ship exits 1 and lists the names that work; one bad name stops the others in the same command.
+- The choice is kept in `.standards/manifest.json` under `skills`: `extra` (optional skills the project asked
+  for) and `excluded` (skills the project removed). A manifest without them means "no choice made".
+- A user-level skills folder (`~/.claude/skills`) is shared by every project on the machine, so a removal
+  leaves it alone and prints its path.
+- Both flags take a backup first (`uds update --rollback` undoes them). Alone they are a whole command; with
+  `--apply`, `--force`, `--skills`, `--commands` or `--standards-only` they run first and the rest follows.
+
 ### Claude Code Integration Target (`--claude-target`)
 
 By default, UDS writes its Claude Code content into `CLAUDE.md` — the file the

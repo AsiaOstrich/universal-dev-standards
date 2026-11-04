@@ -78,8 +78,8 @@ node scripts/beta-acceptance/run.mjs --version 6.15.0
 It installs the published 6.15.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.15.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 382 步（374 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 389 steps (381 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 389 步（381 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -87,8 +87,8 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374
 2. `smoke-shim` — The `uds` command that npm put on the path (uds.cmd on Windows) starts.
    npm 放進 PATH 的 `uds` 指令（Windows 上是 uds.cmd）能啟動。
    `uds --version` → exit 0; output has "/^\d+\.\d+\.\d+/"
-3. `available-init` — uds init sets up a project (the project the next steps use): the open-work skill is installed and the open-work-tracking standard is not.
-   uds init 建立專案（後續步驟使用）：裝了 open-work 技能，沒裝 open-work-tracking 標準。
+3. `available-init` — uds init sets up a project (the project the next steps use): the open-work-tracking standard is not installed, and neither is the optional open-work skill.
+   uds init 建立專案（後續步驟使用）：沒裝 open-work-tracking 標準，選用的 open-work 技能也沒裝。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
 4. `std-memory-boundary` — The installed developer-memory and project-context-memory standards carry the boundary section.
    安裝後的 developer-memory 與 project-context-memory 標準含邊界段。
@@ -207,9 +207,9 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374
 42. `beta6-simulate-fail` — uds simulate -s commit-message on a non-compliant message exits 1 and says what is wrong.
    uds simulate -s commit-message 對不合規訊息以 1 結束並說明哪裡不對。
    `uds simulate -s commit-message -i "add new dept api"` → exit 1; output has "does not comply", "<type>(<scope>): <subject>"
-43. `beta6-skills-all` — uds skills lists every installed skill: the two numbers in "N / N" are equal.
-   uds skills 列出全部已安裝技能：「N / N」兩個數字相等。
-   `uds skills` → exit 0; output has "/Total unique skills: (\d+) / \1\b/"
+43. `beta6-skills-all` — uds skills lists every installed skill, and says the optional skill that is not installed is optional rather than missing.
+   uds skills 列出全部已安裝技能，並說明未安裝的選用技能是「選用」而不是「缺少」。
+   `uds skills` → exit 0; output has "Optional, installed only when you ask: open-work", "/Total unique skills: (\d+) / (\d+)\b/"
 44. `beta6-update-drops-ghost-names-when-current` — uds update --apply drops the names UDS cannot vouch for even when the project is current and the plan is empty (XSPEC-456 R4 kept through XSPEC-482 R6).
    專案已是最新、計畫為空時，uds update --apply 仍會移除 UDS 無法擔保的名稱（XSPEC-456 R4，經 XSPEC-482 R6 後仍維持）。
    `uds update --apply --yes --offline` → exit 0; output has "Everything is up to date", "Dropped 3 skill/command name(s)"
@@ -1182,8 +1182,8 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374
 367. `retired-standard-init` — A project that still holds the open-work-tracking standard (an older UDS installed it): set it up.
    仍持有 open-work-tracking 標準的專案（舊版 UDS 裝的）：先建立。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-368. `retired-standard-apply-removes-it` — uds update --apply removes the open-work-tracking file, installs the open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
-   uds update --apply 移除 open-work-tracking 檔案、裝上 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字。
+368. `retired-standard-apply-removes-it` — uds update --apply removes the open-work-tracking file, does not install the optional open-work skill, and leaves no name of the standard in the manifest or CLAUDE.md.
+   uds update --apply 移除 open-work-tracking 檔案、不裝選用的 open-work 技能，manifest 與 CLAUDE.md 都不留標準的名字。
    `uds update --apply --yes --offline` → exit 0; output has "UDS no longer ships this file", "Reconciliation complete"
 369. `retired-standard-check-clean` — uds check then has nothing to warn about: no entry that matches no installed standard.
    之後 uds check 沒有任何警告：沒有對不到已裝標準的條目。
@@ -1227,6 +1227,27 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374
 382. `issue297-unclosed-refused` — uds update --apply refuses a CLAUDE.md whose UDS block has START but no END: exit 1, no second block, the unclosed line is named.
    CLAUDE.md 的 UDS 區塊只有 START 沒有 END 時，uds update --apply 拒絕寫入：結束碼 1、沒有多出第二個區塊、指出沒收尾的那一行。
    `uds update --apply --yes --offline` → exit 1; output has "UDS markers damaged, will not be written", "on line 4 has no matching" (+1)
+383. `optional-skills-init` (**new 新**) — uds init installs the ordinary skills and leaves the optional open-work skill out (the project the next steps use).
+   uds init 安裝一般技能，不裝選用的 open-work 技能（後續步驟使用的專案）。
+   `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
+384. `optional-skills-plan-names-it` (**new 新**) — uds update --plan does not plan the optional skill, and says it is optional and how to add it.
+   uds update --plan 不規劃選用技能，並說明它是選用及如何加裝。
+   `uds update --plan --offline` → exit 0; output has "Optional skills", "uds update --add-skill open-work"
+385. `optional-skills-add-skill` (**new 新**) — uds update --add-skill open-work installs the skill into the project's tool folder now and records the choice in the manifest.
+   uds update --add-skill open-work 立即把技能裝進專案的工具資料夾，並把選擇記進 manifest。
+   `uds update --add-skill open-work --offline` → exit 0; output has "added open-work (open-work-assistant)", "skills.extra"
+386. `optional-skills-add-survives-apply` (**new 新**) — uds update --apply --yes --skills keeps the skill that was added.
+   uds update --apply --yes --skills 保留已加裝的技能。
+   `uds update --apply --yes --skills --offline` → exit 0; output has "Remove it: uds update --remove-skill open-work"
+387. `optional-skills-remove-skill` (**new 新**) — uds update --remove-skill commit deletes that skill from the project's tool folder and records it as excluded; the other skills stay.
+   uds update --remove-skill commit 把該技能從專案工具資料夾刪除並記為排除；其他技能不動。
+   `uds update --remove-skill commit --offline` → exit 0; output has "removed commit (commit-standards)", "skills.excluded"
+388. `optional-skills-remove-stays-removed` (**new 新**) — uds update --apply --yes --skills does not bring the removed skill back, and --plan does not plan it.
+   uds update --apply --yes --skills 不會把已移除的技能裝回，--plan 也不規劃它。
+   `uds update --apply --yes --skills --offline` → exit 0; output has "removed by this project"
+389. `optional-skills-unknown-name` (**new 新**) — uds update --add-skill with a name UDS does not ship exits 1 and lists the names that work.
+   uds update --add-skill 帶 UDS 沒有的名稱時結束碼為 1，並列出可用名稱。
+   `uds update --add-skill no-such-skill --offline` → exit 1; output has "Unknown skill 'no-such-skill'", "open-work (open-work-assistant)" (+1)
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

@@ -4,6 +4,7 @@ import { join } from 'path';
 import { homedir } from 'os';
 import { getAllSkillNames } from '../utils/registry.js';
 import { getAvailableSkillNames } from '../utils/skills-installer.js';
+import { OPTIONAL_SKILLS, skillDisplayName } from '../utils/skill-selection.js';
 import { pruneForeignSkillHashes } from '../utils/skill-hash-ownership.js';
 import { getSkillsDirForAgent, getAgentDisplayName } from '../config/ai-agent-paths.js';
 import { readManifest, isInitialized } from '../utils/copier.js';
@@ -277,6 +278,14 @@ export function skillsCommand() {
 
   console.log(chalk.gray('─'.repeat(50)));
   console.log(chalk.gray(`${msg.totalUniqueSkills}: ${totalSkills} / ${knownSkills.length}`));
+
+  // Issue #298: a skill UDS ships but installs only when asked for is not "missing"; say so next to the count.
+  const optionalNotInstalled = Object.keys(OPTIONAL_SKILLS)
+    .filter((folder) => knownSkills.includes(folder) && !installations.some((i) => i.skills.includes(folder)));
+  if (optionalNotInstalled.length > 0) {
+    const names = optionalNotInstalled.map((folder) => skillDisplayName(folder)).join(', ');
+    console.log(chalk.gray(`Optional, installed only when you ask: ${names}. Add one with: uds update --add-skill <name>`));
+  }
 
   // The number `uds check` prints is a count of FILES (a skill is one or more files), so say how the two
   // relate instead of leaving two different numbers side by side. Counted the way `check` counts them.

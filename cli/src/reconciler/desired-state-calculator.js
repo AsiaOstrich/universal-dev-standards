@@ -43,6 +43,7 @@ import {
   computeCommandContentHash
 } from '../utils/skills-installer.js';
 import { MARKETPLACE_NAMES_SENTINEL } from '../core/manifest.js';
+import { selectSkillNames } from '../utils/skill-selection.js';
 
 /**
  * @typedef {Object} FileEntry
@@ -480,6 +481,10 @@ function calculateIntegrations(state, manifest) {
  * proposed for deletion. `uds update` always installs the full set (every call site
  * passes `skillNames = null`), so the shipped list *is* the desired list.
  * (XSPEC-343 R1/R2 — 40 of machine-setup's 86 proposed deletions.)
+ *
+ * "What this UDS ships" is narrowed per tool folder by `selectSkillNames` (#298): optional skills the project
+ * has not asked for are not desired, skills the project removed are not desired, and an optional skill that is
+ * already in the folder stays desired. The installer asks the same function.
  */
 function calculateSkills(state, projectPath, manifest) {
   const skills = manifest.skills;
@@ -490,8 +495,8 @@ function calculateSkills(state, projectPath, manifest) {
   // on-disk skill for deletion.
   if (skills.location === 'marketplace' || (skills.names || []).includes(MARKETPLACE_NAMES_SENTINEL)) return;
 
-  const skillNames = getAvailableSkillNames();
-  if (skillNames.length === 0) {
+  const shippedSkillNames = getAvailableSkillNames();
+  if (shippedSkillNames.length === 0) {
     // An empty shipped list means the source tree is unreadable, not that the
     // project should hold no skills. Returning here would leave `desired` empty
     // and every installed skill would diff as a deletion — the failure mode this
@@ -511,6 +516,10 @@ function calculateSkills(state, projectPath, manifest) {
     const { agent, level } = installation;
     const skillsDir = getSkillsDirForAgent(agent, level, projectPath);
     if (!skillsDir) continue;
+
+    // The skills THIS tool's folder should hold: the one function the installer also asks (#298), so the
+    // plan and the write cannot disagree about whether `open-work` or a removed skill belongs here.
+    const skillNames = selectSkillNames({ shipped: shippedSkillNames, manifest, projectPath, agent, level }); // wire:plan-uses-skill-selection
 
     for (const skillName of skillNames) {
       // Each skill is a directory containing files; we track the directory marker

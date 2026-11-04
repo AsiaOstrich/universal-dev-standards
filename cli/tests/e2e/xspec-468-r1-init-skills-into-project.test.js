@@ -27,11 +27,14 @@ import { pluginHome } from '../utils/xspec-462.js';
 const h = createHarness('xspec468-r1');
 afterAll(() => h.cleanup());
 
-/** Folder names under `<repo>/skills` that hold a SKILL.md: what UDS ships. */
-function shippedSkillNames() {
+/** Shipped, but installed only in a project that asks for it (issue #298). Written out here, not read from the CLI. */
+const OPTIONAL_SKILLS = ['open-work-assistant'];
+
+/** Folder names under `<repo>/skills` that hold a SKILL.md, without the optional ones: what a fresh project gets. */
+function defaultSkillNames() {
   const root = join(REAL_REPO, 'skills');
   return readdirSync(root, { withFileTypes: true })
-    .filter(e => e.isDirectory() && existsSync(join(root, e.name, 'SKILL.md')))
+    .filter(e => e.isDirectory() && existsSync(join(root, e.name, 'SKILL.md')) && !OPTIONAL_SKILLS.includes(e.name))
     .map(e => e.name)
     .sort();
 }
@@ -70,7 +73,7 @@ it('uds init --yes in a project where Claude Code is detected puts every shipped
   const run = await h.runCli(['init', '--yes'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);
 
-  const shipped = shippedSkillNames();
+  const shipped = defaultSkillNames();
   // Control: the repository really ships skills, so an empty folder cannot equal an empty list.
   expect(shipped.length).toBeGreaterThan(10);
   expect(installedSkillNames(dir)).toEqual(shipped);
@@ -108,14 +111,14 @@ it('uds init --yes in a folder with no AI tool marker still installs every shipp
 
   const run = await h.runCli(['init', '--yes'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);
-  expect(installedSkillNames(dir)).toEqual(shippedSkillNames());
+  expect(installedSkillNames(dir)).toEqual(defaultSkillNames());
 });
 
 it('uds init --yes --locale zh-tw in a folder with no AI tool marker installs the Traditional Chinese skill texts, not English (XSPEC-468 R1)', async () => {
   const dir = h.makeDir('no-tool-marker-zh');
   const run = await h.runCli(['init', '--yes', '--locale', 'zh-tw'], dir);
   expect(run.code, run.stdout + run.stderr).toBe(0);
-  expect(installedSkillNames(dir)).toEqual(shippedSkillNames());
+  expect(installedSkillNames(dir)).toEqual(defaultSkillNames());
 
   const text = readFileSync(join(dir, '.claude', 'skills', 'commit-standards', 'SKILL.md'), 'utf-8');
   expect(text).toContain('# Commit Message 助手');
@@ -163,8 +166,8 @@ it('uds init --yes in a project whose owner already has the UDS plugin ends with
   const { env } = pluginHome(h);
   const warned = await h.runCli(['init', '--yes'], withPlugin, { env });
   expect(warned.code, warned.stdout + warned.stderr).toBe(0);
-  expect(installedSkillNames(withPlugin)).toEqual(shippedSkillNames());
-  expect(warned.stdout).toContain(`⚠ UDS skills are installed twice: ${shippedSkillNames().length} in this project (.claude/skills/) and the plugin universal-dev-standards@asia-ostrich.`);
+  expect(installedSkillNames(withPlugin)).toEqual(defaultSkillNames());
+  expect(warned.stdout).toContain(`⚠ UDS skills are installed twice: ${defaultSkillNames().length} in this project (.claude/skills/) and the plugin universal-dev-standards@asia-ostrich.`);
   expect(warned.stdout).toContain('/universal-dev-standards:commit');
 
   // Control arm: same install, no plugin in HOME -> no such warning.
@@ -187,7 +190,7 @@ it('uds init in the interactive flow installs the skills into the project when t
     idleMs: 900
   });
   expect(run.code, run.stdout + run.stderr).toBe(0);
-  expect(installedSkillNames(dir)).toEqual(shippedSkillNames());
+  expect(installedSkillNames(dir)).toEqual(defaultSkillNames());
   // Control: the project-level choice was offered, and the plugin is described with its limits.
   expect(screenHas(run, 'Claude Code - Project Level (.claude/skills/)'), run.stdout).toBe(true);
   expect(screenHas(run, 'Claude Code only, English skill texts only, stable releases only, no files in the project'), run.stdout).toBe(true);

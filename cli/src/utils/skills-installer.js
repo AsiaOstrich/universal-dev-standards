@@ -26,6 +26,7 @@ import { isLocalizedLocale } from './locale.js';
 import { getSkillsSourceDir } from './skills-source.js';
 import { rewriteOutsideLinks, createRepoPathProbe } from './skill-link-rewriter.js';
 import { t } from '../i18n/messages.js';
+import { selectSkillNamesForInstall } from './skill-selection.js';
 
 // Get the CLI package root directory
 const __filename = fileURLToPath(import.meta.url);
@@ -193,7 +194,7 @@ export function getAvailableCommandNames() {
  * Install skills for a specific AI agent
  * @param {string} agent - Agent identifier (e.g., 'opencode', 'cursor')
  * @param {string} level - 'user' or 'project'
- * @param {string[]} skillNames - Array of skill names to install (null = all)
+ * @param {string[]} skillNames - Array of skill names to install (null = the project's default set, see skill-selection.js)
  * @param {string} projectPath - Project root path (required for project level)
  * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {Object} Installation result
@@ -229,9 +230,15 @@ export async function installSkillsForAgent(agent, level, skillNames = null, pro
     mkdirSync(targetDir, { recursive: true });
   }
 
-  // Get skills to install
+  // Get skills to install.
+  //
+  // An explicit list is installed as given: the reconciler passes the set its plan already chose, and
+  // `--add-skill` names the one skill it adds. `null` means "the project's default set" - shipped, minus the
+  // optional skills the project has not asked for, minus the ones it removed (issue #298) - and it is
+  // decided by the same function the reconciler's plan asks, so a plan cannot promise a different set than
+  // this writes. Every `installSkills*(..., null, ...)` call in init, update and config lands here.
   const availableSkills = getAvailableSkillNames();
-  const toInstall = skillNames || availableSkills;
+  const toInstall = skillNames || selectSkillNamesForInstall({ shipped: availableSkills, projectPath, agent, level }); // wire:install-uses-skill-selection
 
   const results = {
     success: true,
@@ -1183,7 +1190,7 @@ function printLocalePackMissing(locale) {
 /**
  * Install skills to multiple agents at once
  * @param {Array<{agent: string, level: string}>} installations - Array of installation targets
- * @param {string[]} skillNames - Skills to install (null = all)
+ * @param {string[]} skillNames - Skills to install (null = the project's default set, see skill-selection.js)
  * @param {string} projectPath - Project root path
  * @param {string} locale - Locale for skill content (default: 'en')
  * @returns {Object} Combined results
