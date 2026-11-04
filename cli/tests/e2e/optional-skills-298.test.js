@@ -67,7 +67,10 @@ beforeAll(() => {
   home = isolatedHome({ prefix: 'uds-test-298-home-' });
   template = join(root, 'template');
   mkdirSync(template, { recursive: true });
-  expect(spawnSync('git', ['init', '-q'], { cwd: template, env: { ...home.env, GIT_CONFIG_GLOBAL: devNull } }).status).toBe(0);
+  // No GIT_CONFIG_GLOBAL here: git for Windows refuses the null device as a config path and exits 128. The throwaway
+  // HOME already keeps the maintainer's global git config out of this repo.
+  const gitInit = spawnSync('git', ['init', '-q'], { cwd: template, encoding: 'utf8', env: { ...home.env, GIT_CONFIG_NOSYSTEM: '1' } });
+  expect(gitInit.status, `git init failed: ${gitInit.stderr}`).toBe(0);
   writeFileSync(join(template, '.cursorrules'), '# my own Cursor rules\n'); // makes Cursor the detected tool
   mkdirSync(join(template, '.claude'), { recursive: true }); // and Claude Code
   writeFileSync(join(template, 'CLAUDE.md'), '# my own Claude instructions\n');

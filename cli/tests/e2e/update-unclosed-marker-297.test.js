@@ -46,7 +46,9 @@ describe('E2E: uds update on an AGENTS.md whose UDS block lost a marker (issue #
   beforeEach(() => {
     project = mkdtempSync(join(tmpdir(), 'uds-test-297-'));
     home = isolatedHome({ prefix: 'uds-test-297-home-' });
-    spawnSync('git', ['init', '-q'], { cwd: project, env: { ...home.env, GIT_CONFIG_GLOBAL: devNull } });
+    // No GIT_CONFIG_GLOBAL: git for Windows refuses the null device as a config path; the throwaway HOME isolates it.
+    const gitInit = spawnSync('git', ['init', '-q'], { cwd: project, encoding: 'utf8', env: { ...home.env, GIT_CONFIG_NOSYSTEM: '1' } });
+    expect(gitInit.status, `git init failed: ${gitInit.stderr}`).toBe(0);
     const init = uds('init', '-y');
     expect(init.status, init.text).toBe(0);
     // Guard against a vacuous pass: init produced exactly one well-formed block to damage.
