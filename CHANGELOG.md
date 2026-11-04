@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.15.0-beta.2] - 2026-11-04
+
+*Pre-release, install with `npm install -g universal-dev-standards@beta`. One fix on top of 6.15.0-beta.1, found by an adopter testing beta.1 on Windows: `uds update` refuses a UDS block that lost its END line instead of appending a second block.*
+
 ### Fixed
 
 - **`uds update` no longer appends a second UDS block to a file whose block lost its END line; it refuses and names the unclosed line (issue #297).** When an integration file such as `AGENTS.md` had `<!-- UDS:STANDARDS:START -->` but no `<!-- UDS:STANDARDS:END -->` (a truncated copy, or the line deleted by hand), the plan said "missing UDS markers" and `--apply` appended a complete new block; the same run then failed on the duplicate START, and every later run failed the same way until the two blocks were merged by hand. Half a marker pair, or an END before its START, is now treated like a duplicate marker: the plan says `UDS markers damaged, will not be written`, `--apply` leaves the file byte-for-byte as it was, exits 1, and prints which line is not closed. A file with neither marker still gets its block appended.

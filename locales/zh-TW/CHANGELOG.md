@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.15.0-beta.1
-translation_version: 6.15.0-beta.1
+source_version: 6.15.0-beta.2
+translation_version: 6.15.0-beta.2
 last_synced: 2026-11-04
-source_hash: edd0f49d4139
+source_hash: 6241fbc376cf
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.15.0-beta.2] - 2026-11-04
+
+*預發布版，以 `npm install -g universal-dev-standards@beta` 安裝。在 6.15.0-beta.1 之上的一個修正，由採用者在 Windows 測 beta.1 時發現：區塊遺失 END 行時，`uds update` 拒絕寫入，不再另加第二個區塊。*
 
 ### Fixed
 

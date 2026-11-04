@@ -9,10 +9,13 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.15.0-beta.1`
+## Current beta | 目前的測試版：`6.15.0-beta.2`
 
-> **New in 6.15.0-beta.1** — **read this first: `uds check --ci` now exits 1 on two findings it used to only print** — an integration file (`CLAUDE.md`, `AGENTS.md`, ...) that points at a `.standards/...` or `core/...` path that is not on disk, and an installed slash command that its folder's `.manifest.json` lists but no hash covers — so an adopter's CI can turn red after upgrading (migration: `uds update --integrations-only` for references, `uds update --commands` for commands). Also: `uds update` and `uds update --apply` now replace unmodified old hook scripts, with a backup first (so the 6.14.1 dangerous-command fix reaches whoever types plain `uds update`); `uds init` prints a cause shared by many files once instead of per file, and `uds update` and `uds audit --effects` no longer lose the end of a long report in a pipe; `open-work-tracking` is no longer a standard and becomes the optional skill `open-work`; installed skills and slash commands now carry GitHub addresses instead of links that open nothing; `check-anti-fake-tests` and `check-stubs` say INCOMPLETE and exit 2 when they did not see the whole project; permission errors on `init`/`update` say "permission denied" instead of pointing at antivirus.
-> **6.15.0-beta.1 新增** — **請先讀：`uds check --ci` 現在對兩種原本只印出來的發現以 1 結束**——整合檔（`CLAUDE.md`、`AGENTS.md` 等）指向不在磁碟上的 `.standards/...` 或 `core/...` 路徑，以及已安裝的斜線指令被其資料夾的 `.manifest.json` 列出、卻沒有任何雜湊涵蓋——所以採用者升級後 CI 可能變紅（遷移：引用問題執行 `uds update --integrations-only`，指令問題執行 `uds update --commands`）。另有：`uds update` 與 `uds update --apply` 現在會替換沒人改過的舊 hook 腳本，並先備份（所以 6.14.1 的危險指令修正會送到只打 `uds update` 的人手上）；`uds init` 把許多檔案共有的原因只印一次，不再每個檔案一次，`uds update` 與 `uds audit --effects` 的輸出進入管線時不再丟失長報告的結尾；`open-work-tracking` 不再是標準，改成選用技能 `open-work`；已安裝的技能與斜線指令現在帶 GitHub 網址，不再帶打不開的連結；`check-anti-fake-tests` 與 `check-stubs` 在沒看完整個專案時說 INCOMPLETE 並以 2 結束；`init`／`update` 的權限錯誤說「permission denied」，不再指向防毒軟體。
+> **New in 6.15.0-beta.2** — one fix found by an adopter testing beta.1 on Windows: when an integration file such as `AGENTS.md` has `<!-- UDS:STANDARDS:START -->` but lost its `<!-- UDS:STANDARDS:END -->` line, `uds update` no longer appends a second block (after which every run failed on the duplicate START). The plan says `UDS markers damaged, will not be written`, `--apply` leaves the file unchanged, exits 1 and names the unclosed line; an END before START is refused the same way (issue #297). Everything below from 6.15.0-beta.1 still applies.
+> **6.15.0-beta.2 新增** — 採用者在 Windows 測 beta.1 時發現的一個修正：`AGENTS.md` 等整合檔有 `<!-- UDS:STANDARDS:START -->` 卻遺失 `<!-- UDS:STANDARDS:END -->` 那一行時，`uds update` 不再另加第二個區塊（加了之後每次執行都卡在 START 重複）。計畫顯示 `UDS markers damaged, will not be written`，`--apply` 讓檔案維持原樣、結束碼 1，並指出沒有收尾的那一行；END 在 START 之前也同樣拒絕（issue #297）。以下 6.15.0-beta.1 的內容仍然適用。
+
+> **Carried from 6.15.0-beta.1** — **read this first: `uds check --ci` now exits 1 on two findings it used to only print** — an integration file (`CLAUDE.md`, `AGENTS.md`, ...) that points at a `.standards/...` or `core/...` path that is not on disk, and an installed slash command that its folder's `.manifest.json` lists but no hash covers — so an adopter's CI can turn red after upgrading (migration: `uds update --integrations-only` for references, `uds update --commands` for commands). Also: `uds update` and `uds update --apply` now replace unmodified old hook scripts, with a backup first (so the 6.14.1 dangerous-command fix reaches whoever types plain `uds update`); `uds init` prints a cause shared by many files once instead of per file, and `uds update` and `uds audit --effects` no longer lose the end of a long report in a pipe; `open-work-tracking` is no longer a standard and becomes the optional skill `open-work`; installed skills and slash commands now carry GitHub addresses instead of links that open nothing; `check-anti-fake-tests` and `check-stubs` say INCOMPLETE and exit 2 when they did not see the whole project; permission errors on `init`/`update` say "permission denied" instead of pointing at antivirus.
+> **沿用自 6.15.0-beta.1** — **請先讀：`uds check --ci` 現在對兩種原本只印出來的發現以 1 結束**——整合檔（`CLAUDE.md`、`AGENTS.md` 等）指向不在磁碟上的 `.standards/...` 或 `core/...` 路徑，以及已安裝的斜線指令被其資料夾的 `.manifest.json` 列出、卻沒有任何雜湊涵蓋——所以採用者升級後 CI 可能變紅（遷移：引用問題執行 `uds update --integrations-only`，指令問題執行 `uds update --commands`）。另有：`uds update` 與 `uds update --apply` 現在會替換沒人改過的舊 hook 腳本，並先備份（所以 6.14.1 的危險指令修正會送到只打 `uds update` 的人手上）；`uds init` 把許多檔案共有的原因只印一次，不再每個檔案一次，`uds update` 與 `uds audit --effects` 的輸出進入管線時不再丟失長報告的結尾；`open-work-tracking` 不再是標準，改成選用技能 `open-work`；已安裝的技能與斜線指令現在帶 GitHub 網址，不再帶打不開的連結；`check-anti-fake-tests` 與 `check-stubs` 在沒看完整個專案時說 INCOMPLETE 並以 2 結束；`init`／`update` 的權限錯誤說「permission denied」，不再指向防毒軟體。
 
 **Behavior changes in 6.15.0-beta.1 — read this first.**
 - `uds check --ci` exits **1** for an integration file that references a path not on disk and for an installed command that its folder manifest lists, whose file is on disk, but that `commandHashes` does not cover. It used to print both and exit 0. Clear them with `uds update --integrations-only` (paths outside the UDS block must be corrected by hand) and `uds update --commands`.
@@ -69,11 +72,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.15.0-beta.1
+node scripts/beta-acceptance/run.mjs --version 6.15.0-beta.2
 ```
 
-It installs the published 6.15.0-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.15.0-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.15.0-beta.2 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.15.0-beta.2 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 382 步（374 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1221,7 +1224,7 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 382 steps (374
 381. `issue297-init` — uds init sets up a Claude Code project for the unclosed-marker steps.
    uds init 建立 Claude Code 專案，供未收尾標記的步驟使用。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-382. `issue297-unclosed-refused` (**new 新**) — uds update --apply refuses a CLAUDE.md whose UDS block has START but no END: exit 1, no second block, the unclosed line is named.
+382. `issue297-unclosed-refused` — uds update --apply refuses a CLAUDE.md whose UDS block has START but no END: exit 1, no second block, the unclosed line is named.
    CLAUDE.md 的 UDS 區塊只有 START 沒有 END 時，uds update --apply 拒絕寫入：結束碼 1、沒有多出第二個區塊、指出沒收尾的那一行。
    `uds update --apply --yes --offline` → exit 1; output has "UDS markers damaged, will not be written", "on line 4 has no matching" (+1)
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1231,14 +1234,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.15.0-beta.1/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.15.0-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.15.0-beta.2/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.15.0-beta.2/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.15.0-beta.1 沒有 6.15.0-beta.1 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.15.0-beta.2 沒有 6.15.0-beta.2 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.15.0-beta.2 沒有 6.15.0-beta.2 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.15.0-beta.2 沒有 6.15.0-beta.2 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制
