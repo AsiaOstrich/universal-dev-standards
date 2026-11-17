@@ -123,7 +123,7 @@ YAML against 1,271,471 bytes of Markdown. Reproduce with the commands in
 
 ## 🤖 AI Tool Support
 
-UDS ships integrations for **11 live tools. 1 of them is behaviourally verified.**
+UDS ships integrations for **11 live tools. 0 of them are behaviourally verified.**
 
 Those are two different numbers on purpose. **Status** says how complete the integration
 *we wrote* is. **Verified** says whether anyone has confirmed the tool actually reads it and
@@ -134,24 +134,28 @@ verification queue (Antigravity → Codex → Claude Code → the rest).
 
 | AI Tool | Status | Verified | Skills | Slash Commands | Configuration |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| **Claude Code** | ✅ Complete | 🔬 —<sup>◆</sup> | **55** | **51** | `CLAUDE.md` |
-| **OpenCode** | ✅ Complete | 🔬 — | **55** | **51** | `AGENTS.md` |
-| **Cursor** | ✅ Complete | 🔬 — | **Core** | **Simulated** | `.cursorrules` |
-| **Roo Code** | ✅ Complete | 🔬 — | **Core** | **Workflow** | `.roo/rules/` |
-| **Cline** | 🔶 Partial | 🔬 — | **Core** | **Workflow** | `.clinerules` |
-| **Windsurf** | 🔶 Partial | 🔬 — | **Core** | **Rulebook** | `.windsurfrules` |
-| **GitHub Copilot** | 🔶 Partial | 🔬 — | **Core** | **Prompts** | `.github/copilot-instructions.md` |
-| **OpenAI Codex** | 🔶 Partial | ✅ 2026-07-23 | **Core** | — | `AGENTS.md` |
-| **Aider** | 🔶 Partial | 🔬 — | — | — | `AGENTS.md` |
+| **Claude Code** | ✅ Complete | 🔬 ①⑤ 2026-11-17<sup>◆</sup> | **55** | **51** | `CLAUDE.md` |
+| **OpenCode** | ✅ Complete | 🔬 ①⑤ 2026-11-17 | **55** | **51** | `AGENTS.md` |
+| **Cursor** | ✅ Complete | 🔬 ①⑤ 2026-11-17 | **Core** | **Simulated** | `.cursorrules` |
+| **Roo Code** | ✅ Complete | 🔬 ①⑤ 2026-11-17 | **Core** | **Workflow** | `.roo/rules/` |
+| **Cline** | 🔶 Partial | 🔬 ①⑤ 2026-11-17 | **Core** | **Workflow** | `.clinerules` |
+| **Windsurf** | 🔶 Partial | 🔬 ①⑤ 2026-11-17 | **Core** | **Rulebook** | `.windsurfrules` |
+| **GitHub Copilot** | 🔶 Partial | 🔬 ①⑤ 2026-11-17 | **Core** | **Prompts** | `.github/copilot-instructions.md` |
+| **OpenAI Codex** | 🔶 Partial | 🔬 ①⑤ 2026-11-17 · ③ 2026-07-23 | **Core** | — | `AGENTS.md` |
+| **Aider** | 🔶 Partial | 🔬 ①⑤ 2026-11-17 | — | — | `AGENTS.md` |
 | **Continue.dev** | 🔶 Partial | 🔬 — | — | — | `.continue/config.json` |
-| **Google Antigravity** | ⚠️ Minimal | 🔬 — | —<sup>‡</sup> | — | `.antigravity/rules.md` |
+| **Google Antigravity** | ⚠️ Minimal | 🔬 ①⑤ 2026-11-17 | —<sup>‡</sup> | — | `.antigravity/rules.md` |
 | **Gemini CLI** | ⛔ Discontinued<sup>†</sup> | — | — | — | `GEMINI.md` (frozen) |
 
 > **Status Legend** (how complete the integration we wrote is):
 > ✅ Complete | 🔶 Partial | ⚠️ Minimal | ⏳ Planned | ⛔ Discontinued
 >
-> **Verified Legend** (whether a probe run confirmed the tool behaves accordingly):
-> ✅ *date* verified | 🔬 — not yet verified | ⌛ expired | ❌ failed
+> **Verified Legend** (whether runs confirmed the tool behaves accordingly): a tool counts as verified only when
+> **five cells** passed — ① install, ② the agent reads the standards, ③ it follows them in a task,
+> ④ a violation is detected, ⑤ it is still fine after `uds update`.
+> ✅ *date* all five passed | 🔬 not all five: shows the cells that did pass (①⑤ …) with their dates, or — when none did |
+> ⌛ expired | ❌ failed. The cells, their evidence and the reason each missing one is missing are on the
+> **[verification matrix](docs/reference/INTEGRATION-VERIFICATION-MATRIX.md)**.
 
 <sup>◆</sup> Claude Code is in daily production use by the maintainer, which is why the
 integration is the most complete — but **daily use is not a recorded verification**, and a
