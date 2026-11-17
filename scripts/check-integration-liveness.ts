@@ -27,6 +27,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+  deriveStatus,
+  renderMatrixPage,
+  renderVerifiedCell,
+  validateVerification,
+  verifiedCellInReadme,
+} from './lib/integration-verification-matrix.mjs';
 
 const ROOT_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -319,60 +326,27 @@ const TODAY = new Date('2026-07-23'); // fixed: this script must not change resu
 let verifiedCount = 0;
 let verifiableCount = 0;
 
+// XSPEC-357 R8: a tool is verified only when all five cells of its matrix are. The overall status is derived from
+// them (see scripts/lib/integration-verification-matrix.mjs), so the number below and the README column cannot be
+// raised by editing one field. The shelf-life rule that used to live here applies to each cell.
 for (const [agentId, agent] of Object.entries(regAgents)) {
   if (agent.tier === 'tool' || agent.deprecated) continue;
   verifiableCount += 1;
 
   const v = (agent as any).verification;
-  if (!v) {
-    // AC-1.3: absence is not optimism.
-    fail(
-      `${agentId} has no verification field`,
-      'Every non-deprecated AI assistant needs one, even if the status is "unverified".',
-    );
+  const problems = validateVerification(agentId, v, {
+    exists: (rel: string) => existsSync(join(ROOT_DIR, rel)),
+    today: TODAY,
+    shelfLifeDays: VERIFICATION_SHELF_LIFE_DAYS,
+  });
+  if (problems.length) {
+    // AC-1.3 / AC-3.3 / AC-8.6: no field, no evidence, a hand-set overall status: all the same failure, an unevidenced claim.
+    for (const problem of problems) fail(problem);
     continue;
   }
-
-  const VALID = ['verified', 'unverified', 'expired', 'failed'];
-  if (!VALID.includes(v.status)) {
-    fail(`${agentId}.verification.status is "${v.status}"`, `Must be one of: ${VALID.join(', ')}`);
-    continue;
-  }
-
-  if (v.status === 'verified') {
-    // AC-3.3 — a verification claim without evidence is what this whole axis exists to prevent.
-    const missing = ['date', 'toolVersion', 'evidence'].filter((k) => !v[k]);
-    if (missing.length) {
-      fail(
-        `${agentId} claims verified but is missing: ${missing.join(', ')}`,
-        'An unevidenced verification claim is exactly the failure this axis was added to catch.',
-      );
-      continue;
-    }
-
-    // `evidence` is a path, not a sentence. Without this the field can be any string that
-    // sounds like proof, which is the failure mode one level up from having no field at all.
-    if (!existsSync(join(ROOT_DIR, v.evidence))) {
-      fail(
-        `${agentId}.verification.evidence points at "${v.evidence}", which does not exist`,
-        'Evidence must be a committed run record — see docs/reference/INTEGRATION-VERIFICATION.md §5.',
-      );
-      continue;
-    }
-
-    const age = Math.floor((TODAY.getTime() - new Date(v.date).getTime()) / 86_400_000);
-    if (age > VERIFICATION_SHELF_LIFE_DAYS) {
-      fail(
-        `${agentId} was verified ${age} days ago (shelf life ${VERIFICATION_SHELF_LIFE_DAYS})`,
-        'Set status to "expired" and re-run the probes. Tools change; Gemini CLI stopped existing.',
-      );
-      continue;
-    }
-    verifiedCount += 1;
-    ok(`${agentId} verified ${v.date} (${age}d old, tool ${v.toolVersion})`);
-  } else {
-    ok(`${agentId}: ${v.status}`);
-  }
+  const status = deriveStatus(v.matrix);
+  if (status === 'verified') verifiedCount += 1;
+  ok(`${agentId}: ${status} (${renderVerifiedCell(v)})`);
 }
 
 // The public claim is two numbers; if they drift from the registry the whole point is lost.
@@ -413,6 +387,50 @@ for (const readmePath of READMES) {
     );
   } else {
     ok(`${readmePath}: support claim matches registry (${actualTotal} / ${verifiedCount})`);
+  }
+}
+
+// AC-8.6: the README's Verified column is a projection of the matrix, read cell by cell. ✅ appears only where all
+// five cells passed; a partial result shows 🔬 and the cells that did pass. The count above could be right while a
+// row says ✅ for the wrong tool, so each row is compared.
+for (const readmePath of READMES) {
+  const full = join(ROOT_DIR, readmePath);
+  if (!existsSync(full)) continue;
+  const text = readFileSync(full, 'utf8');
+
+  if (!/INTEGRATION-VERIFICATION-MATRIX\.md/.test(text)) {
+    fail(
+      `${readmePath}: does not link the verification matrix page`,
+      'The Verified column is a summary; the cells and their evidence are on docs/reference/INTEGRATION-VERIFICATION-MATRIX.md.',
+    );
+  }
+
+  for (const [, agent] of Object.entries(regAgents)) {
+    if (agent.tier === 'tool' || agent.deprecated) continue;
+    const shown = verifiedCellInReadme(text, agent.name);
+    if (shown === null) continue; // already reported by check 3
+    const expected = renderVerifiedCell((agent as any).verification);
+    if (shown !== expected) {
+      fail(
+        `${readmePath}: "${agent.name}" Verified column reads "${shown}", the registry matrix says "${expected}"`,
+        'Edit integrations/REGISTRY.json (the data) and re-project; never the README cell alone. ✅ needs all five cells.',
+      );
+    } else {
+      ok(`${readmePath}: "${agent.name}" Verified column matches the matrix (${expected})`);
+    }
+  }
+}
+
+// The matrix page is generated from the same data; a registry edit that forgets it goes red here.
+{
+  const pagePath = 'docs/reference/INTEGRATION-VERIFICATION-MATRIX.md';
+  const full = join(ROOT_DIR, pagePath);
+  if (!existsSync(full)) {
+    fail(`${pagePath} does not exist`, 'Run: node scripts/generate-integration-matrix.mjs');
+  } else if (readFileSync(full, 'utf8').replace(/\r\n/g, '\n') !== renderMatrixPage(registry)) {
+    fail(`${pagePath} is out of date with integrations/REGISTRY.json`, 'Run: node scripts/generate-integration-matrix.mjs');
+  } else {
+    ok(`${pagePath} matches the registry`);
   }
 }
 

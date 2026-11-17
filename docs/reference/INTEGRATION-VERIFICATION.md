@@ -496,26 +496,51 @@ verified | failed
 <paste enough of each run to let someone else re-judge it>
 ```
 
-Then update `integrations/REGISTRY.json`:
+Then record it in `integrations/REGISTRY.json`. Since XSPEC-357 R8 a tool carries a **matrix of five
+cells** (install, agent reads it, follows it in a task, violation detected, still fine after update),
+and the result of a probe run goes into the cell it belongs to. A run of P1–P5 is cell `followsInTask`:
 
 ```json
 "verification": {
-  "status": "verified",
-  "date": "2026-07-23",
-  "toolVersion": "1.2.3",
-  "udsVersion": "6.1.1",
-  "probes": ["P1", "P2", "P3", "P5"],
-  "evidence": "integrations/verification/<agent-id>/2026-07-23.md"
+  "status": "unverified",
+  "matrix": {
+    "install":           { "status": "verified", "date": "2026-11-17", "evidence": "cli/tests/e2e/xspec-357-r8-install-and-update-matrix.test.js" },
+    "agentReads":        { "status": "unverified", "reason": "Not run. ..." },
+    "followsInTask":     { "status": "verified", "date": "2026-07-23", "toolVersion": "1.2.3", "udsVersion": "6.1.1",
+                           "probes": ["P1", "P2", "P3", "P5"], "evidence": "integrations/verification/<agent-id>/2026-07-23.md" },
+    "violationDetected": { "status": "unverified", "reason": "Partly covered: ...", "partialEvidence": "cli/tests/e2e/xspec-357-r8-violation-detected.test.js" },
+    "afterUpdate":       { "status": "verified", "date": "2026-11-17", "evidence": "cli/tests/e2e/xspec-357-r8-install-and-update-matrix.test.js" }
+  }
 }
 ```
 
-`scripts/check-integration-liveness.ts` enforces that a `verified` status carries `date`,
-`toolVersion` and `evidence`, that the evidence file exists, and that the claim has not
-expired. **An unevidenced verification claim is the failure this whole axis was added to
+The tool's overall `status` is **derived**: `verified` only when all five cells are, and a stored
+value that differs from what the cells add up to fails the check. A cell that is not verified must
+carry a `reason` (not installed, probe not written, no entry in `uds init`) and may point at the
+tests that cover part of it with `partialEvidence`; the cell stays not verified. `agentReads` can
+be verified only by a P7 run: another cell's result cannot stand in for it.
+
+`scripts/check-integration-liveness.ts` enforces that a `verified` cell carries `date` and
+`evidence` (`followsInTask` also `toolVersion`), that the evidence file exists, and that the claim
+has not expired. **An unevidenced verification claim is the failure this whole axis was added to
 catch**, so the check treats it as an error rather than a warning.
 
-Finally, update the two-number claim in all three READMEs. The check compares it against the
-registry, so a stale number fails the build rather than quietly overstating coverage.
+Then re-project, in this order:
+
+1. `node scripts/generate-integration-matrix.mjs` rewrites
+   [INTEGRATION-VERIFICATION-MATRIX.md](INTEGRATION-VERIFICATION-MATRIX.md) (generated, never edited by hand).
+2. Edit the Verified column in all three READMEs to what the check prints it should read
+   (`npm run check:liveness`): ✅ and a date only when all five cells passed; otherwise 🔬 and the
+   cells that did pass.
+3. Update the two-number claim in all three READMEs.
+
+The check compares the page, every README row and the two numbers against the registry, so a stale
+one fails the build rather than quietly overstating coverage.
+
+Cells ①, ④ and ⑤ need no AI tool installed and are cheap to re-run: the
+install and update cells are `cli/tests/e2e/xspec-357-r8-install-and-update-matrix.test.js`, the
+violation cell's partial evidence is `cli/tests/e2e/xspec-357-r8-violation-detected.test.js`
+(`cd cli && npx vitest run tests/e2e/xspec-357-r8-*`).
 
 ---
 
