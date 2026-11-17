@@ -251,7 +251,7 @@ cd cli && node scripts/test-discovery.mjs commands development
 cd cli && npm run test:quick
 
 # ✅ Good: Test specific modules
-npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflows-installer.test.js
+npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflow-state.test.js
 
 # ✅ Good: Use test discovery for targeted testing
 cd cli && npm run test:discover

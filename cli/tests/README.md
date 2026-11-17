@@ -31,7 +31,6 @@ Unit Tests (1,389) - 47.4%
 ### 🔧 工具測試 (`tests/unit/utils/` + `tests/utils/`)
 | 文件 | 測試數 | 覆蓋功能 |
 |------|--------|----------|
-| `workflows-installer.test.js` | 118 | 工作流安裝器 |
 | `reference-sync.test.js` | 81 | 參考同步機制 |
 | `agent-adapter.test.js` | 89 | AI 適配器 |
 | `skills-installer.test.js` | 74 | 技能安裝器 |
@@ -92,7 +91,7 @@ cd cli && npm test -- tests/prompts/
 ```bash
 # 特定功能模組
 cd cli && npm test -- tests/unit/core/                    # 核心功能
-cd cli && npm test -- tests/unit/utils/workflows-installer.test.js  # 特定工具
+cd cli && npm test -- tests/unit/utils/workflow-state.test.js  # 特定工具
 cd cli && npm test -- tests/commands/init.test.js        # 特定命令
 ```
 

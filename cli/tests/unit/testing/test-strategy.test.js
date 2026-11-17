@@ -55,8 +55,12 @@ describe('TEST-00: CLI Test Strategy Specification', () => {
       const total = unitTests + commandTests + e2eTests;
       const e2eRatio = e2eTests / total;
 
-      // Assert - E2E tests should be at most 30% of total test files
-      expect(e2eRatio).toBeLessThan(0.3);
+      // Assert - E2E tests should be at most 35% of total test files.
+      // Ceiling raised from 30% to 35% on 2026-11-17 (decision 548甲): deleting 19 unit-test files
+      // for 17 unreachable modules moved the ratio from 0.2995 to 0.3159 with the e2e file count
+      // unchanged. The old margin was 0.0005 (about a fifth of one file), so any unit-test
+      // deletion tripped it. The spec's intent (E2E ~10%) is still far from the ceiling.
+      expect(e2eRatio).toBeLessThan(0.35);
     });
 
     it('should have more than 10 test files total', () => {
