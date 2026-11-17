@@ -3,7 +3,7 @@ source: ../../CLAUDE.md
 source_version: 1.2.0
 translation_version: 1.2.0
 last_synced: 2026-10-16
-source_hash: a1de69c3a838
+source_hash: 4b07af500a72
 status: current
 ---
 
@@ -260,7 +260,7 @@ cd cli && node scripts/test-discovery.mjs commands development
 cd cli && npm run test:quick
 
 # ✅ Good: Test specific modules
-npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflows-installer.test.js
+npm test -- tests/commands/ai-context.test.js tests/unit/utils/workflow-state.test.js
 
 # ✅ Good: Use test discovery for targeted testing
 cd cli && npm run test:discover

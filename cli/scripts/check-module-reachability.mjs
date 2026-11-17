@@ -12,9 +12,34 @@
  *   這支腳本就是在問那個問題。
  *
  * 它怎麼量：
- *   從真正的入口（package.json 的 bin 與 main）做 BFS，沿著 static import、
- *   re-export 與 dynamic import 走。**走得到的才算可達**——不是「被 import 次數 > 0」，
- *   因為一群互相 import 卻整團沒人用的模組，在那種算法下每個都是 1。
+ *   從真正的入口（package.json 的 bin 與 main，加上下面第二類入口）做 BFS，
+ *   沿著 static import、re-export 與 dynamic import 走。**走得到的才算可達**——
+ *   不是「被 import 次數 > 0」，因為一群互相 import 卻整團沒人用的模組，
+ *   在那種算法下每個都是 1。
+ *
+ * 入口有兩類（決策 552甲，2026-11-17）：
+ *   A. cli 自己的 bin 與 main —— 使用者從指令列碰得到的。
+ *   B. **repo 根目錄 scripts/ 底下的腳本，其「靜態 import」指向 cli/ 的那些邊。**
+ *      這些腳本是 repo 自己跑的活程式（pre-release-check、CI、維運腳本），
+ *      它們 import cli/src 的模組就是那個模組存在的理由。首版只認 A，
+ *      於是 context-chunker／md-parser／yaml-generator 被誤報為孤兒——
+ *      它們其實被 scripts/check-prompt-footprint.mjs（pre-release-check.sh 第 25 項）
+ *      與 scripts/convert-md-to-yaml.mjs 靜態 import。
+ *
+ *   B 類的納入規則（SCRIPT_ENTRY_RULES 與 SCRIPT_EXCLUSIONS，皆為規則不是檔名）：
+ *     納入：scripts/ 下（含子目錄）所有 .mjs／.js／.ts。
+ *     排除：fixtures／reports／node_modules 目錄（fixture 是測試資料、reports 是產出，
+ *           都不是「會被執行的程式」；它們 import 了什麼不代表產品用得到），
+ *           以及 .test／.spec 檔。
+ *     只取**靜態** import（`import … from`、`export … from`、`import 'x'`）：
+ *           靜態 import 在腳本一啟動就必然執行；動態 import 常包在「可能沒人呼叫的函式」
+ *           裡，是潛在邊不是確定邊。例：scripts/hooks/telemetry-wrapper.mjs 的
+ *           uploadTelemetry() 動態 import telemetry-uploader.js，但 uploadTelemetry 查無
+ *           呼叫者——若把動態邊也算進來，一條死掉的呼叫鏈會替它背書。
+ *           進入 cli/ 之後的走訪照舊（static + dynamic 都跟）。
+ *     已知限制：scripts/ 底下一支「沒人執行」的死腳本，也會替它 import 的模組背書。
+ *           要擋這個需要知道每支腳本由誰啟動（ci.yml、pre-release-check.sh、package.json），
+ *           成本高於收益；留在這裡當已知缺口，不假裝它不存在。
  *
  * 它刻意做的三件事：
  *   1. **走訪並排除，不列舉白名單。** 排除規則寫在 EXCLUSIONS，且每一條都印出
@@ -34,12 +59,16 @@
  *   2  掃不動（入口不存在、來源目錄不見、package.json 壞掉）——**這不是綠燈**
  */
 
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve, dirname, relative, extname } from 'node:path';
+import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve, dirname, relative, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const CLI_ROOT = resolve(HERE, '..');
+const REAL_CLI_ROOT = resolve(HERE, '..');
+// 目前量測的 cli 根目錄。自測會暫時指到合成的 fixture，所以是 let；
+// 所有路徑一律相對它，repo 根目錄 = 它的上一層。
+let CLI_ROOT = REAL_CLI_ROOT;
 
 const args = process.argv.slice(2);
 const JSON_OUT = args.includes('--json');
@@ -67,6 +96,24 @@ const EXCLUSIONS = [
   },
 ];
 
+/**
+ * B 類入口（repo 根目錄 scripts/）的納入／排除規則。見檔頭說明。
+ * 與 EXCLUSIONS 一樣各自計數——一條排除 0 個的規則，代表它過期或從來沒對過。
+ */
+const SCRIPT_EXT = /\.(m?js|ts)$/;
+const SCRIPT_EXCLUSIONS = [
+  {
+    id: 'script-fixture-or-report-dir',
+    why: 'fixtures／reports／node_modules 目錄：測試資料與產出，不是會被執行的程式',
+    match: (rel) => /(^|\/)(fixtures?|reports?|node_modules)\//.test(rel),
+  },
+  {
+    id: 'script-test-file',
+    why: '.test／.spec 檔：測試不算「使用者叫得到」，與 cli 端 test-file 規則一致',
+    match: (rel) => /\.(test|spec)\.(m?js|ts)$/.test(rel),
+  },
+];
+
 function fail(msg) {
   console.error(`[reachability] FATAL: ${msg}`);
   process.exit(2);
@@ -85,6 +132,56 @@ function walkJs(dir, out = []) {
     }
   }
   return out;
+}
+
+/**
+ * 走訪 repo 根目錄 scripts/，回傳相對 CLI_ROOT 的路徑（例如 '../scripts/x.mjs'）。
+ * 套用 SCRIPT_EXCLUSIONS（相對 scripts/ 的路徑比對）並計數。
+ */
+function walkScripts(scriptsDir, excludedBy, out = [], base = scriptsDir) {
+  for (const entry of readdirSync(scriptsDir, { withFileTypes: true })) {
+    const full = join(scriptsDir, entry.name);
+    const relToScripts = relative(base, full).split(sep).join('/');
+    if (entry.isDirectory()) {
+      const dirRule = SCRIPT_EXCLUSIONS.find((e) => e.match(`${relToScripts}/`));
+      if (dirRule) {
+        // 整個目錄被排除：只計入其中的程式檔數，才看得出規則有沒有在作用
+        excludedBy[dirRule.id] += countScriptFiles(full);
+        continue;
+      }
+      walkScripts(full, excludedBy, out, base);
+    } else if (SCRIPT_EXT.test(entry.name)) {
+      const fileRule = SCRIPT_EXCLUSIONS.find((e) => e.match(relToScripts));
+      if (fileRule) {
+        excludedBy[fileRule.id]++;
+        continue;
+      }
+      out.push(relative(CLI_ROOT, full));
+    }
+  }
+  return out;
+}
+
+function countScriptFiles(dir) {
+  let n = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) n += countScriptFiles(full);
+    else if (SCRIPT_EXT.test(entry.name)) n++;
+  }
+  return n;
+}
+
+/**
+ * 只抽**靜態** import 指定字串（見檔頭：B 類入口只取確定會執行的邊）。
+ * 與 extractImports 共用剝註解的步驟，但不取 import('…')。
+ */
+function extractStaticImports(rawSrc) {
+  const src = rawSrc.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  const specs = [];
+  for (const m of src.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)) specs.push(m[1]);
+  for (const m of src.matchAll(/\bimport\s+['"]([^'"]+)['"]/g)) specs.push(m[1]);
+  return specs;
 }
 
 /**
@@ -151,9 +248,29 @@ function analyse() {
   const universe = [...walkJs(join(CLI_ROOT, 'src')), ...walkJs(join(CLI_ROOT, 'bin'))];
   if (universe.length === 0) fail('src/ 與 bin/ 底下掃不到任何 .js —— 這不是「沒有模組」，是掃不動');
 
+  // B 類入口：repo 根目錄 scripts/ 的靜態 import 指向 cli/ 的邊（見檔頭）
+  const scriptsDir = join(dirname(CLI_ROOT), 'scripts');
+  // 掃不到 scripts/ 不是「沒有 B 類入口」，是量不了：此時 context-chunker 這類
+  // 只被根腳本用的模組會全部被誤報成孤兒，而報錯的方向看起來像閘門正常運作。
+  if (!existsSync(scriptsDir)) fail(`找不到 repo 根目錄的 scripts/：${scriptsDir} —— 少了 B 類入口，結果不可信`);
+  const scriptExcludedBy = Object.fromEntries(SCRIPT_EXCLUSIONS.map((e) => [e.id, 0]));
+  const scriptFiles = walkScripts(scriptsDir, scriptExcludedBy);
+  if (scriptFiles.length === 0) fail('scripts/ 底下掃不到任何腳本 —— 這不是「沒有入口」，是掃不動');
+  const scriptSeeds = new Map(); // cli 模組 → 哪些根腳本 import 它
+  for (const sf of scriptFiles) {
+    for (const spec of extractStaticImports(readFileSync(join(CLI_ROOT, sf), 'utf8'))) {
+      if (!spec.startsWith('.')) continue;
+      const target = resolveSpec(sf, spec);
+      // 只收落在 cli/ 之內的目標；指到其他根腳本或 cli 之外的不是本閘門的事
+      if (!target || target.startsWith('..')) continue;
+      if (!scriptSeeds.has(target)) scriptSeeds.set(target, []);
+      scriptSeeds.get(target).push(relative(dirname(CLI_ROOT), join(CLI_ROOT, sf)).split(sep).join('/'));
+    }
+  }
+
   // BFS
   const reached = new Set();
-  const queue = [...entries];
+  const queue = [...entries, ...scriptSeeds.keys()];
   let unresolvableDynamic = 0;
   const brokenSpecs = [];
   while (queue.length) {
@@ -196,6 +313,11 @@ function analyse() {
 
   return {
     entries,
+    scriptEntries: {
+      scanned: scriptFiles.length,
+      excludedBy: scriptExcludedBy,
+      seeds: Object.fromEntries([...scriptSeeds.entries()].sort()),
+    },
     total: universe.length,
     reachable: reachableCount,
     excludedBy,
@@ -244,6 +366,13 @@ function report(r) {
   }
 
   console.log(`[reachability] 入口：${r.entries.join(', ')}`);
+  const seedCount = Object.keys(r.scriptEntries.seeds).length;
+  console.log(
+    `[reachability] 根 scripts/ 入口：掃 ${r.scriptEntries.scanned} 支腳本（納入）→ 靜態 import 指向 cli/ 的模組 ${seedCount} 個`,
+  );
+  for (const e of SCRIPT_EXCLUSIONS) {
+    console.log(`               排除 [${e.id}]：${r.scriptEntries.excludedBy[e.id]} 個 —— ${e.why}`);
+  }
   console.log(`[reachability] 走訪 ${r.total} 個模組 → 可達 ${r.reachable}，規則排除 ${r.excludedTotal}，不可達 ${r.unreachable.length}`);
   for (const e of EXCLUSIONS) {
     console.log(`               排除 [${e.id}]：${r.excludedBy[e.id]} 個 —— ${e.why}`);
@@ -276,7 +405,7 @@ function report(r) {
   if (r.baselineExpired) {
     console.log(
       `\n[reachability] ✗ 基線已於 ${loadBaseline().expires} 到期。` +
-        '\n  到期不代表出事，代表「當初決定先不處理這 24 個」的判斷該重新做一次。' +
+        '\n  到期不代表出事，代表「當初決定先不處理基線內這幾個」的判斷該重新做一次。' +
         '\n  三個選項：縮小基線／延期並在基線檔改日期（延期要寫理由）／把仍成立的項目轉成 EXCLUSIONS 規則。',
     );
     return 1;
@@ -296,6 +425,31 @@ function report(r) {
       '若是刻意保留的未來程式碼，加進 EXCLUSIONS 並寫明規則與理由（不要加檔名，要加規則）。',
   );
   return 1;
+}
+
+/** 在暫存目錄合成一個迷你 repo（cli/ + 根 scripts/），回傳其路徑。 */
+function makeScriptEntryFixture() {
+  const base = mkdtempSync(join(tmpdir(), 'reachability-selftest-'));
+  const put = (rel, body) => {
+    const f = join(base, rel);
+    mkdirSync(dirname(f), { recursive: true });
+    writeFileSync(f, body);
+  };
+  put('cli/package.json', JSON.stringify({ name: 'fx', bin: { fx: 'bin/fx.js' } }));
+  put('cli/bin/fx.js', "import './../src/from-bin.js';\n");
+  put('cli/src/from-bin.js', 'export const a = 1;\n');
+  put('cli/src/only-from-script.js', 'export const b = 1;\n');
+  put('cli/src/only-from-dynamic-script.js', 'export const c = 1;\n');
+  put('cli/src/only-from-fixture.js', 'export const d = 1;\n');
+  put('cli/src/nobody.js', 'export const e = 1;\n');
+  put(
+    'scripts/tool.mjs',
+    "import { b } from '../cli/src/only-from-script.js';\n" +
+      "export async function later() { return import('../cli/src/only-from-dynamic-script.js'); }\n" +
+      'console.log(b);\n',
+  );
+  put('scripts/fixtures/f.mjs', "import { d } from '../../cli/src/only-from-fixture.js';\nconsole.log(d);\n");
+  return { base, cliRoot: join(base, 'cli') };
 }
 
 /**
@@ -321,6 +475,39 @@ function selfTest() {
   const denomOk = r.total > r.entries.length;
   console.log(`  ${denomOk ? '✓' : '✗'} 分母臂：走訪 ${r.total} 個 > 入口 ${r.entries.length} 個`);
   pass &&= denomOk;
+
+  // B 類入口（根 scripts/）的真實量測：真 repo 上必須掃得到腳本、且至少有一條邊指進 cli/
+  const sc = r.scriptEntries;
+  const scriptsOk = sc.scanned > 0 && Object.keys(sc.seeds).length > 0;
+  console.log(
+    `  ${scriptsOk ? '✓' : '✗'} 分母臂：根 scripts/ 掃到 ${sc.scanned} 支、指進 cli/ 的模組 ${Object.keys(sc.seeds).length} 個`,
+  );
+  pass &&= scriptsOk;
+
+  // B 類入口的紅綠臂：合成一個小 repo，四種模組各一個，量它們各自的可達性。
+  // 在真 repo 上驗「某模組變可達」會隨時間失效（那個模組被刪就沒得驗），合成的不會。
+  const fx = makeScriptEntryFixture();
+  const saved = CLI_ROOT;
+  let fr;
+  try {
+    CLI_ROOT = fx.cliRoot;
+    fr = analyse();
+  } finally {
+    CLI_ROOT = saved;
+    rmSync(fx.base, { recursive: true, force: true });
+  }
+  const un = new Set(fr.unreachable);
+  const arms = [
+    ['綠臂：只被根 scripts/ 靜態 import 的模組 → 可達', !un.has('src/only-from-script.js')],
+    ['綠臂：被 cli 入口 import 的模組 → 可達（對照，證明走訪本身有在動）', !un.has('src/from-bin.js')],
+    ['紅臂：誰都不 import 的模組 → 仍不可達', un.has('src/nobody.js')],
+    ['紅臂：只被根 scripts/ 的「動態」import 的模組 → 仍不可達（B 類只取靜態邊）', un.has('src/only-from-dynamic-script.js')],
+    ['紅臂：只被 scripts/fixtures/ 底下檔案 import 的模組 → 仍不可達（目錄排除規則）', un.has('src/only-from-fixture.js')],
+  ];
+  for (const [label, ok] of arms) {
+    console.log(`  ${ok ? '✓' : '✗'} ${label}`);
+    pass &&= ok;
+  }
 
   console.log(pass ? '[reachability] 自測通過' : '[reachability] 自測失敗');
   return pass ? 0 : 2;

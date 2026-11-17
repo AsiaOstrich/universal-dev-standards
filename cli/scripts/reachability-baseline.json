@@ -1,30 +1,9 @@
 {
   "recorded": "2026-08-19",
-  "expires": "2026-11-19",
-  "why": "XSPEC-383 R3 落地時已存在的不可達模組。基線的作用是讓閘門對「新增的孤兒」有效，不是讓這 24 個變成合格。",
-  "howToShrink": "接上入口／刪除／若刻意保留為未來程式碼，改為在腳本的 EXCLUSIONS 加規則（不是加檔名）。修掉一個就從本清單移除一個。",
+  "expires": "2027-02-19",
+  "why": "XSPEC-383 R3 落地時已存在的不可達模組。基線的作用是讓閘門對「新增的孤兒」有效，不是讓這個變成合格。決策 548甲（2026-11-17）已刪除其中 17 個無任何引用的模組、並把 conversion-rules 移出（已可達）。決策 552甲（2026-11-17）把「repo 根目錄 scripts/ 的靜態 import」納入入口規則，context-chunker、md-parser、yaml-generator 因此改判可達並從本清單移除。剩下 telemetry-uploader：它只被 scripts/hooks/telemetry-wrapper.mjs 的 uploadTelemetry() 動態 import（包在 try/catch 裡），而 uploadTelemetry 查無呼叫者——呼叫鏈已死，所以刻意不讓動態邊替它背書。延期到 2027-02-19 的理由：清除它必須改 scripts/hooks/telemetry-wrapper.mjs，那是出貨 hook，內容雜湊記在 cli/src/installers/hook-script-fingerprints.json，改了要重生指紋並走發版流程，不屬於 548／552 的範圍。",
+  "howToShrink": "二選一：(1) 刪除——移除 telemetry-wrapper.mjs 的 uploadTelemetry() 與 telemetry-uploader.js 及其測試，重新產生 hook-script-fingerprints.json（scripts/generate-hook-fingerprints.mjs），隨下一次發版出貨；(2) 接上——若遙測上傳要保留，就讓某個 hook 入口真的呼叫 uploadTelemetry。清除後從本清單移除；全部清完就刪掉本檔。到期前沒做完，延期要在 why 寫新理由。",
   "modules": [
-    "src/core/agent-communication-protocol.js",
-    "src/flow/condition-evaluator.js",
-    "src/flow/flow-bundler.js",
-    "src/flow/flow-commands.js",
-    "src/flow/flow-engine.js",
-    "src/flow/flow-inheritance.js",
-    "src/flow/flow-parser.js",
-    "src/flow/flow-validator.js",
-    "src/flow/gate-checker.js",
-    "src/flow/gate-loader.js",
-    "src/missions/MissionManager.js",
-    "src/utils/context-chunker.js",
-    "src/utils/conversion-rules.js",
-    "src/utils/e2e-analyzer.js",
-    "src/utils/e2e-detector.js",
-    "src/utils/hook-stats.js",
-    "src/utils/md-parser.js",
-    "src/utils/telemetry-uploader.js",
-    "src/utils/workflow-executor.js",
-    "src/utils/workflows-installer.js",
-    "src/utils/yaml-generator.js",
-    "src/vibe/auto-sweep.js"
+    "src/utils/telemetry-uploader.js"
   ]
 }
