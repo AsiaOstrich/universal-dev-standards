@@ -47,12 +47,20 @@ export class MicroSpec {
   }
 
   /**
-   * Ensure the micro-specs directory exists
+   * Ensure the micro-specs directory exists. The archive folder is NOT made here: create, list and split all
+   * come through this method, and a project that never archives a spec should not get an empty specs/archive/
+   * (XSPEC-533 R4). It is made by ensureArchiveDirectory(), when a spec is archived.
    */
   ensureDirectories() {
     if (!existsSync(this.specsDir)) {
       mkdirSync(this.specsDir, { recursive: true });
     }
+  }
+
+  /**
+   * Ensure the archive directory exists (called only when a spec is being archived)
+   */
+  ensureArchiveDirectory() {
     if (!existsSync(this.archiveDir)) {
       mkdirSync(this.archiveDir, { recursive: true });
     }
@@ -517,7 +525,7 @@ export class MicroSpec {
       return false;
     }
 
-    this.ensureDirectories();
+    this.ensureArchiveDirectory(); // wire:archive-dir-made-when-archiving
     const destPath = join(this.archiveDir, `${id}.md`);
 
     // Update status before archiving
