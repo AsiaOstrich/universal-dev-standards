@@ -37,6 +37,7 @@ import { pruneForeignCommandHashes } from '../utils/command-hash-ownership.js';
 import { pruneForeignSkillNames, pruneForeignCommandNames } from '../utils/installed-names-ownership.js';
 import { commandsUpdatedMessage } from '../utils/update-summary.js';
 import { t, setLanguage, isLanguageExplicitlySet } from '../i18n/messages.js';
+import { resolveLanguage, udsrcLanguage } from '../i18n/resolve-language.js';
 import { config } from '../utils/config-manager.js';
 import {
   getAvailableSkillNames,
@@ -348,13 +349,25 @@ function checkNewStandards(manifest) {
 /**
  * Resolve locale for skill / command installation.
  *
- * Resolution order (XSPEC-239 §Req-3 / P1-CLI-2 + P1-CLI-3):
+ * Resolution order (XSPEC-239 §Req-3 / P1-CLI-2 + P1-CLI-3, XSPEC-533 R2):
  *   1. CLI `--locale` (passed via `options.locale`)
  *   2. `.uds/install.yaml` `locale:`
  *   3. `UDS_LOCALE` env var
- *   4. manifest `options.display_language` (existing behaviour)
- *   5. `.standards/` file-based detection (existing behaviour)
- *   6. `'en'`
+ *   4. manifest `options.display_language`
+ *   5. `.standards/<lang>.md` file-based detection
+ *   6. a manifest that recorded `en` (and no localized standards on disk) stays `'en'`
+ *   7. `~/.udsrc` `ui.language` (the same value `uds init -y` and the interface read)
+ *   8. `'en'`
+ *
+ * Steps 4-6 are what the project already recorded: an update must never silently switch the language of an
+ * installed project, so they come before `~/.udsrc`. Step 7 only decides a project that recorded no language
+ * (installed by an older UDS); a full `uds update` already backfills `display_language` from `~/.udsrc` for such a
+ * project, so the skills now follow the same language instead of staying English.
+ *
+ * Not read here, on purpose: LANG / LC_ALL / LC_MESSAGES. `uds init -y` and the interface read them (after
+ * `~/.udsrc`), but the operating system's locale is a weaker signal than a file the user wrote, and an update that
+ * followed it would switch the skills of a project nobody asked to switch. `UDS_LOCALE` (step 3) is the explicit
+ * per-run choice and keeps the place XSPEC-239 gave it, above what the project recorded.
  *
  * @param {Object} manifest - Project manifest
  * @param {string} projectPath - Project root path
@@ -383,13 +396,21 @@ function resolveLocale(manifest, projectPath, options) {
   }
 
   // 4. Manifest
-  const fromManifest = displayLanguageToLocale(manifest.options?.display_language);
+  const recorded = manifest.options?.display_language;
+  const fromManifest = displayLanguageToLocale(recorded);
   if (isLocalizedLocale(fromManifest)) {
     return fromManifest;
   }
 
-  // 5. .standards/ detection → 6. 'en'
-  return detectLocaleFromStandards(projectPath) || 'en';
+  // 5. .standards/ detection
+  const fromStandards = detectLocaleFromStandards(projectPath);
+  if (fromStandards) return fromStandards;
+
+  // 6. A project that recorded English stays English: ~/.udsrc and LANG are not allowed to switch it.
+  if (recorded) return 'en';
+
+  // 7. Nothing recorded: ~/.udsrc, as `init -y` and the interface read it → 8. 'en'
+  return displayLanguageToLocale(udsrcLanguage()); // wire:update-uses-shared-language-chain
 }
 
 /**
@@ -425,8 +446,9 @@ export async function updateCommand(options) {
   // Set UI language based on display_language setting
   // Only override if user didn't explicitly set --ui-lang flag
   if (!isLanguageExplicitlySet()) {
-    const uiLang = manifest.options?.display_language || 'en';
-    setLanguage(uiLang);
+    // The project's recorded language first, then the shared chain (~/.udsrc, LANG, en): the same one bin/uds.js
+    // used to pick the screen language before this command ran. It used to fall to 'en' here and undo that.
+    setLanguage(resolveLanguage({ project: manifest.options?.display_language })); // wire:update-screen-uses-shared-chain
   }
 
   // Now get localized messages
