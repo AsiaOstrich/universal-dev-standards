@@ -9,10 +9,13 @@ It is rewritten for **each** beta — the section "Current beta" always describe
 
 ---
 
-## Current beta | 目前的測試版：`6.15.0-beta.2`
+## Current beta | 目前的測試版：`6.16.0-beta.1`
 
-> **New in 6.15.0-beta.2** — one fix found by an adopter testing beta.1 on Windows: when an integration file such as `AGENTS.md` has `<!-- UDS:STANDARDS:START -->` but lost its `<!-- UDS:STANDARDS:END -->` line, `uds update` no longer appends a second block (after which every run failed on the duplicate START). The plan says `UDS markers damaged, will not be written`, `--apply` leaves the file unchanged, exits 1 and names the unclosed line; an END before START is refused the same way (issue #297). Everything below from 6.15.0-beta.1 still applies.
-> **6.15.0-beta.2 新增** — 採用者在 Windows 測 beta.1 時發現的一個修正：`AGENTS.md` 等整合檔有 `<!-- UDS:STANDARDS:START -->` 卻遺失 `<!-- UDS:STANDARDS:END -->` 那一行時，`uds update` 不再另加第二個區塊（加了之後每次執行都卡在 START 重複）。計畫顯示 `UDS markers damaged, will not be written`，`--apply` 讓檔案維持原樣、結束碼 1，並指出沒有收尾的那一行；END 在 START 之前也同樣拒絕（issue #297）。以下 6.15.0-beta.1 的內容仍然適用。
+> **New in 6.16.0-beta.1** — **read this first if a project already has the skill `open-work`:** an optional skill is now really optional. `uds update` (also `--apply`, `--skills`, `--commands`) no longer installs `open-work` into a project that did not ask for it; a project that already holds it keeps it and it is updated like any other skill. New commands: `uds update --add-skill <name>` and `uds update --remove-skill <name>` add or remove one skill and the choice is kept (issue #298); `uds update --plan` ends with an "Optional skills" section. Also: the README "Verified" column shows a check mark only when a tool passed all five checks (install, the agent reads it, it is followed in a task, a violation is detected, still fine after an update), so Codex goes back to "not yet verified" and the README says 0 of 11 tools are behaviourally verified; 17 modules that no entry point could reach are removed (no command, option or output changes); four dependency updates (`commander`, `vite`, `eslint`, `globals`). What to try: run `uds update --plan` on a project that has `open-work`, then `uds update --remove-skill open-work` and `uds update --add-skill open-work`. Everything below from 6.15.0 still applies.
+> **6.16.0-beta.1 新增** — **專案已經有技能 `open-work` 的人請先讀：** 選用技能現在真的是選用。`uds update`（連同 `--apply`、`--skills`、`--commands`）不再把 `open-work` 裝進沒有要它的專案；已經有它的專案會保留，並和其他技能一樣被更新。新增指令：`uds update --add-skill <name>` 與 `uds update --remove-skill <name>` 加裝或移除單個技能，而且選擇會被記住（issue #298）；`uds update --plan` 結尾多一節「Optional skills」。另有：README 的「驗證」欄現在只有工具通過全部五項檢查（安裝、代理讀到規範、實際任務中遵循、違反時偵測得到、更新後仍正常）才標勾，所以 Codex 改回「尚未驗證」，README 寫的是 11 個工具中 0 個經過行為驗證；刪除 17 個任何入口都走不到的模組（指令、選項與輸出都沒有改變）；四個相依套件更新（`commander`、`vite`、`eslint`、`globals`）。可以試的：在有 `open-work` 的專案執行 `uds update --plan`，再執行 `uds update --remove-skill open-work` 與 `uds update --add-skill open-work`。以下 6.15.0 的內容仍然適用。
+
+> **Carried from 6.15.0-beta.2** — one fix found by an adopter testing beta.1 on Windows: when an integration file such as `AGENTS.md` has `<!-- UDS:STANDARDS:START -->` but lost its `<!-- UDS:STANDARDS:END -->` line, `uds update` no longer appends a second block (after which every run failed on the duplicate START). The plan says `UDS markers damaged, will not be written`, `--apply` leaves the file unchanged, exits 1 and names the unclosed line; an END before START is refused the same way (issue #297). Everything below from 6.15.0-beta.1 still applies.
+> **沿用自 6.15.0-beta.2** — 採用者在 Windows 測 beta.1 時發現的一個修正：`AGENTS.md` 等整合檔有 `<!-- UDS:STANDARDS:START -->` 卻遺失 `<!-- UDS:STANDARDS:END -->` 那一行時，`uds update` 不再另加第二個區塊（加了之後每次執行都卡在 START 重複）。計畫顯示 `UDS markers damaged, will not be written`，`--apply` 讓檔案維持原樣、結束碼 1，並指出沒有收尾的那一行；END 在 START 之前也同樣拒絕（issue #297）。以下 6.15.0-beta.1 的內容仍然適用。
 
 > **Carried from 6.15.0-beta.1** — **read this first: `uds check --ci` now exits 1 on two findings it used to only print** — an integration file (`CLAUDE.md`, `AGENTS.md`, ...) that points at a `.standards/...` or `core/...` path that is not on disk, and an installed slash command that its folder's `.manifest.json` lists but no hash covers — so an adopter's CI can turn red after upgrading (migration: `uds update --integrations-only` for references, `uds update --commands` for commands). Also: `uds update` and `uds update --apply` now replace unmodified old hook scripts, with a backup first (so the 6.14.1 dangerous-command fix reaches whoever types plain `uds update`); `uds init` prints a cause shared by many files once instead of per file, and `uds update` and `uds audit --effects` no longer lose the end of a long report in a pipe; `open-work-tracking` is no longer a standard and becomes the optional skill `open-work`; installed skills and slash commands now carry GitHub addresses instead of links that open nothing; `check-anti-fake-tests` and `check-stubs` say INCOMPLETE and exit 2 when they did not see the whole project; permission errors on `init`/`update` say "permission denied" instead of pointing at antivirus.
 > **沿用自 6.15.0-beta.1** — **請先讀：`uds check --ci` 現在對兩種原本只印出來的發現以 1 結束**——整合檔（`CLAUDE.md`、`AGENTS.md` 等）指向不在磁碟上的 `.standards/...` 或 `core/...` 路徑，以及已安裝的斜線指令被其資料夾的 `.manifest.json` 列出、卻沒有任何雜湊涵蓋——所以採用者升級後 CI 可能變紅（遷移：引用問題執行 `uds update --integrations-only`，指令問題執行 `uds update --commands`）。另有：`uds update` 與 `uds update --apply` 現在會替換沒人改過的舊 hook 腳本，並先備份（所以 6.14.1 的危險指令修正會送到只打 `uds update` 的人手上）；`uds init` 把許多檔案共有的原因只印一次，不再每個檔案一次，`uds update` 與 `uds audit --effects` 的輸出進入管線時不再丟失長報告的結尾；`open-work-tracking` 不再是標準，改成選用技能 `open-work`；已安裝的技能與斜線指令現在帶 GitHub 網址，不再帶打不開的連結；`check-anti-fake-tests` 與 `check-stubs` 在沒看完整個專案時說 INCOMPLETE 並以 2 結束；`init`／`update` 的權限錯誤說「permission denied」，不再指向防毒軟體。
@@ -72,11 +75,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.15.0
+node scripts/beta-acceptance/run.mjs --version 6.16.0-beta.1
 ```
 
-It installs the published 6.15.0 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.15.0 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.16.0-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.16.0-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 389 steps (381 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 389 步（381 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1227,25 +1230,25 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 389 steps (381
 382. `issue297-unclosed-refused` — uds update --apply refuses a CLAUDE.md whose UDS block has START but no END: exit 1, no second block, the unclosed line is named.
    CLAUDE.md 的 UDS 區塊只有 START 沒有 END 時，uds update --apply 拒絕寫入：結束碼 1、沒有多出第二個區塊、指出沒收尾的那一行。
    `uds update --apply --yes --offline` → exit 1; output has "UDS markers damaged, will not be written", "on line 4 has no matching" (+1)
-383. `optional-skills-init` (**new 新**) — uds init installs the ordinary skills and leaves the optional open-work skill out (the project the next steps use).
+383. `optional-skills-init` — uds init installs the ordinary skills and leaves the optional open-work skill out (the project the next steps use).
    uds init 安裝一般技能，不裝選用的 open-work 技能（後續步驟使用的專案）。
    `uds init -y --skills-location project --format ai` → exit 0; output has "Standards initialized successfully"
-384. `optional-skills-plan-names-it` (**new 新**) — uds update --plan does not plan the optional skill, and says it is optional and how to add it.
+384. `optional-skills-plan-names-it` — uds update --plan does not plan the optional skill, and says it is optional and how to add it.
    uds update --plan 不規劃選用技能，並說明它是選用及如何加裝。
    `uds update --plan --offline` → exit 0; output has "Optional skills", "uds update --add-skill open-work"
-385. `optional-skills-add-skill` (**new 新**) — uds update --add-skill open-work installs the skill into the project's tool folder now and records the choice in the manifest.
+385. `optional-skills-add-skill` — uds update --add-skill open-work installs the skill into the project's tool folder now and records the choice in the manifest.
    uds update --add-skill open-work 立即把技能裝進專案的工具資料夾，並把選擇記進 manifest。
    `uds update --add-skill open-work --offline` → exit 0; output has "added open-work (open-work-assistant)", "skills.extra"
-386. `optional-skills-add-survives-apply` (**new 新**) — uds update --apply --yes --skills keeps the skill that was added.
+386. `optional-skills-add-survives-apply` — uds update --apply --yes --skills keeps the skill that was added.
    uds update --apply --yes --skills 保留已加裝的技能。
    `uds update --apply --yes --skills --offline` → exit 0; output has "Remove it: uds update --remove-skill open-work"
-387. `optional-skills-remove-skill` (**new 新**) — uds update --remove-skill commit deletes that skill from the project's tool folder and records it as excluded; the other skills stay.
+387. `optional-skills-remove-skill` — uds update --remove-skill commit deletes that skill from the project's tool folder and records it as excluded; the other skills stay.
    uds update --remove-skill commit 把該技能從專案工具資料夾刪除並記為排除；其他技能不動。
    `uds update --remove-skill commit --offline` → exit 0; output has "removed commit (commit-standards)", "skills.excluded"
-388. `optional-skills-remove-stays-removed` (**new 新**) — uds update --apply --yes --skills does not bring the removed skill back, and --plan does not plan it.
+388. `optional-skills-remove-stays-removed` — uds update --apply --yes --skills does not bring the removed skill back, and --plan does not plan it.
    uds update --apply --yes --skills 不會把已移除的技能裝回，--plan 也不規劃它。
    `uds update --apply --yes --skills --offline` → exit 0; output has "removed by this project"
-389. `optional-skills-unknown-name` (**new 新**) — uds update --add-skill with a name UDS does not ship exits 1 and lists the names that work.
+389. `optional-skills-unknown-name` — uds update --add-skill with a name UDS does not ship exits 1 and lists the names that work.
    uds update --add-skill 帶 UDS 沒有的名稱時結束碼為 1，並列出可用名稱。
    `uds update --add-skill no-such-skill --offline` → exit 1; output has "Unknown skill 'no-such-skill'", "open-work (open-work-assistant)" (+1)
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1255,14 +1258,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.15.0/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.15.0/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.16.0-beta.1/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.16.0-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.15.0 沒有 6.15.0 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.15.0 沒有 6.15.0 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.15.0 沒有 6.15.0 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.16.0-beta.1 沒有 6.16.0-beta.1 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.16.0-beta.1 沒有 6.16.0-beta.1 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.16.0-beta.1 沒有 6.16.0-beta.1 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制

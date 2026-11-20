@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.15.0
-translation_version: 6.15.0
-last_synced: 2026-11-04
-source_hash: d082a33177d9
+source_version: 6.16.0-beta.1
+translation_version: 6.16.0-beta.1
+last_synced: 2026-11-20
+source_hash: 9005518a3124
 status: current
 ---
 
@@ -18,6 +18,10 @@ status: current
 
 ## [Unreleased]
 
+## [6.16.0-beta.1] - 2026-11-20
+
+*預發布版，以 `npm install -g universal-dev-standards@beta` 安裝。選用技能現在真的是選用，並可用 `uds update --add-skill` / `--remove-skill` 自行選擇；README 的「驗證」欄現在要求每個工具通過五項檢查；刪除 17 個走不到的模組。更新有 `open-work` 的專案前，請先讀「修正」的第一條。*
+
 ### 修正
 
 - **選用技能現在真的是選用：`uds update` 不再把 `open-work` 裝進沒有要它的專案（issue #298）。** `open-work` 技能（資料夾 `skills/open-work-assistant/`）自己寫著它是選用的、「UDS 裡沒有任何東西要求它」，但 `uds update --apply`（連同 `--skills`、`--commands`）把它裝進每個專案的每個 AI 工具資料夾（`.claude/skills`、`.opencode/skill`、`.agents/skills` 等）。已經有自己同類技能的人，就會看到兩個說法幾乎一樣的技能。原因是：專案該拿到哪些技能，被定義成「這版 UDS 出貨的全部」，而且寫了兩份（reconciler 的規劃與安裝器），沒有任何方式讓某個技能被排除。現在有一份選用技能清單（`cli/src/utils/skill-selection.js` 的 `OPTIONAL_SKILLS`，目前只有 `open-work-assistant`），和一個決定某個工具資料夾該拿哪些技能的函式；reconciler 的規劃，以及 `init`、`update`、`config` 裡每個 `skillNames = null` 的安裝，都問同一個函式，所以規劃不會承諾一組、寫入卻寫另一組。專案拿到的是：UDS 出貨的，減去選用技能，減去它移除的技能，加上它要求的選用技能，加上**已經在該工具資料夾裡的選用技能**。最後一項是給 6.15.0-beta.1 的專案：它們已經有 `open-work`，會被保留並像其他技能一樣更新，`uds update --plan` 不會把它列在 Delete，只有專案自己移除它才會消失。`uds update --plan`、`--apply`、`--skills` 現在結尾多一段「Optional skills」，說明哪些技能是選用、這個專案裝了沒有，以及加裝或移除各自的指令；`uds skills` 說明沒裝的選用技能不算缺少。**既有專案會看到的改變：**已有 `open-work` 的 6.15.0-beta.1 專案什麼都不會少。從 6.14.x 或更舊版本更新的專案不再拿到 `open-work`（6.15.0-beta.1 之前本來也沒有）。要它：`uds update --add-skill open-work`。
@@ -25,6 +29,22 @@ status: current
 ### 新增
 
 - **`uds update --add-skill <name>` 與 `uds update --remove-skill <name>` 加裝或移除單一技能，而且選擇會被記住（issue #298）。** 兩者都可重複。名稱可以是技能名（`open-work`）或資料夾名（`open-work-assistant`）；UDS 沒有出貨的名稱會以 1 結束、列出可用的名稱、什麼都不寫（同一個指令裡有一個壞名稱，其他的也不會執行）。`--add-skill` 立即把技能裝進專案所有的 AI 工具資料夾，若是選用技能，另記在 `manifest.skills.extra`。`--remove-skill` 從每個專案層級的工具資料夾刪除該技能的資料夾，移除它的雜湊紀錄與 `skills.names` 裡的項目，並記在 `manifest.skills.excluded`；任何技能都能移除，不只選用技能，之後的 `uds update`（一般、`--apply`、`--skills`）都不會再裝回——手動刪掉的技能資料夾從來沒有這個保證（下一次更新就寫回來）。對已移除的技能執行 `--add-skill`，會把它從 `excluded` 拿掉。使用者層級的資料夾（`~/.claude/skills`）由這台機器上的所有專案共用，所以移除時不動它，並印出它的路徑。兩者都會先做備份（`uds update --rollback` 可還原），`--plan` 說明會做什麼而不寫任何東西，加裝一個技能也不會改變該資料夾裡其他技能所記錄的版本。單獨使用時，每個旗標就是一整個指令；與 `--apply`、`--force`、`--skills`、`--commands`、`--standards-only` 並用時，它先做自己的部分，其餘再接著執行。不能與 `--rollback`、`--claude-target`、`--with-hooks`、`--sync-refs`、`--integrations-only` 並用。**Manifest 與舊版 manifest：**這兩個鍵是 `skills` 底下的資料夾名清單；在此之前寫的 manifest 兩者都沒有，讀作「專案沒有做任何選擇」，所以不需要遷移，空清單也不會被寫出。這個選擇不放在 `skills.names`：它是 UDS 安裝過的名稱聯集，不是選擇。
+
+### 變更
+
+- **README 的「驗證」欄現在只有工具通過全部五項檢查才標勾，所以 Codex 改回「尚未驗證」（XSPEC-357 R8）。** README 寫支援 11 個工具，但只有 Codex 有驗證紀錄，而且那份紀錄只涵蓋對工具要求的五件事裡的一件。現在每個工具有五格（安裝、代理讀到規範、實際任務中遵循、違反時偵測得到、更新後仍正常），每格附日期與證據路徑，沒驗的就寫原因。README 開頭由「1 個經過行為驗證」改為「0 個經過行為驗證」（三種語言都改）；Codex 那一列仍保留 2026-07-23 的任務探針結果。新的矩陣頁是 `docs/reference/INTEGRATION-VERIFICATION-MATRIX.md`，由 `integrations/REGISTRY.json` 產生。第 1、5 格（安裝與更新）有從 `uds init` 與 `uds update` 入口觸發的 e2e 測試，讀回各工具設定檔裡的 UDS 區塊：採用者自己的行要留著、區塊列出的每份標準都要在磁碟上、舊版安裝上跑 `uds update` 之後缺的標準要被補回。Continue.dev 在 `uds init` 沒有入口，它的這兩格維持「尚未驗證」。第 4 格只有部分覆蓋，記為「尚未驗證」：`uds check --ci` 對所有工具都能抓到被改過的標準與被刪掉的 UDS 區塊，但格式不合的提交訊息只有需自行開啟的 Claude Code hook 會在提交時擋下。第 2、3 格維持「尚未驗證」，各自寫明原因。`npm run check:liveness` 現在由五格推導整體狀態、逐列比對三種語言的 README，並比對產生出來的矩陣頁。**`uds` 的指令、選項與輸出都沒有改變。**
+
+### 移除
+
+- **刪除 `cli/src` 中任何入口都走不到的 17 個模組，連同只測它們的 19 個測試檔。** 它們是 `src/flow/*`（9 個檔案）、`MissionManager`、`agent-communication-protocol`、`auto-sweep`、`workflow-executor`、`workflows-installer`、`e2e-analyzer`、`e2e-detector` 與 `hook-stats`。從 `bin/uds.js`、出貨的 hook 或 script 都沒有路徑走到它們，各自只靠自己的測試活著。`uds` 的指令、選項與輸出都沒有改變；完整測試維持 5423 支通過。可達性檢查（`cli/scripts/check-module-reachability.mjs`）現在也把 repository 根目錄 `scripts/` 的靜態 import 當作入口，所以 `context-chunker`、`md-parser`、`yaml-generator` 正確判為可達。它的基線縮到只剩一個模組 `telemetry-uploader.js`，延到 2027-02-19，因為清除它要改有指紋的出貨 hook。E2E 測試檔占比的上限由 30% 調為 35%，因為刪掉單元測試檔後占比升到 31.6%。
+
+### 相依套件
+
+- `cli/` 的相依套件更新：`commander` 15.0.0 → 15.1.0、`vite` 8.3.5 → 8.3.7、`eslint` 10.13.0 → 10.14.0、`globals` 17.13.0 → 17.14.0。不需要改程式碼。
+
+### 測試
+
+- 建立 issue #297 與 #298 端對端測試的 git repository 時，不再設定 `GIT_CONFIG_GLOBAL`：它指向 null 裝置時，`git init` 在 `windows-latest` 上以 128 結束，而拋棄式 `HOME` 已經隔離了全域設定。兩支測試現在都檢查結束碼，失敗時印出 git 的錯誤訊息。
 
 ## [6.15.0] - 2026-11-04
 
