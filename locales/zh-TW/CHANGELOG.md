@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.0-beta.1
-translation_version: 6.16.0-beta.1
+source_version: 6.16.0-beta.2
+translation_version: 6.16.0-beta.2
 last_synced: 2026-11-20
-source_hash: 9005518a3124
+source_hash: 74d8ad482d4d
 status: current
 ---
 
@@ -18,13 +18,15 @@ status: current
 
 ## [Unreleased]
 
-## [6.16.0-beta.1] - 2026-11-20
+## [6.16.0-beta.2] - 2026-11-20
 
-*預發布版，以 `npm install -g universal-dev-standards@beta` 安裝。選用技能現在真的是選用，並可用 `uds update --add-skill` / `--remove-skill` 自行選擇；README 的「驗證」欄現在要求每個工具通過五項檢查；刪除 17 個走不到的模組。更新有 `open-work` 的專案前，請先讀「修正」的第一條。*
+*6.16.0-beta.1 已打 tag 但未發布：它的 CI 在 Windows 上失敗（可達性檢查有路徑分隔符的錯誤，已在此版修正）。預發布版，以 `npm install -g universal-dev-standards@beta` 安裝。選用技能現在真的是選用，並可用 `uds update --add-skill` / `--remove-skill` 自行選擇；README 的「驗證」欄現在要求每個工具通過五項檢查；刪除 17 個走不到的模組。更新有 `open-work` 的專案前，請先讀「修正」的第一條。*
 
 ### 修正
 
 - **選用技能現在真的是選用：`uds update` 不再把 `open-work` 裝進沒有要它的專案（issue #298）。** `open-work` 技能（資料夾 `skills/open-work-assistant/`）自己寫著它是選用的、「UDS 裡沒有任何東西要求它」，但 `uds update --apply`（連同 `--skills`、`--commands`）把它裝進每個專案的每個 AI 工具資料夾（`.claude/skills`、`.opencode/skill`、`.agents/skills` 等）。已經有自己同類技能的人，就會看到兩個說法幾乎一樣的技能。原因是：專案該拿到哪些技能，被定義成「這版 UDS 出貨的全部」，而且寫了兩份（reconciler 的規劃與安裝器），沒有任何方式讓某個技能被排除。現在有一份選用技能清單（`cli/src/utils/skill-selection.js` 的 `OPTIONAL_SKILLS`，目前只有 `open-work-assistant`），和一個決定某個工具資料夾該拿哪些技能的函式；reconciler 的規劃，以及 `init`、`update`、`config` 裡每個 `skillNames = null` 的安裝，都問同一個函式，所以規劃不會承諾一組、寫入卻寫另一組。專案拿到的是：UDS 出貨的，減去選用技能，減去它移除的技能，加上它要求的選用技能，加上**已經在該工具資料夾裡的選用技能**。最後一項是給 6.15.0-beta.1 的專案：它們已經有 `open-work`，會被保留並像其他技能一樣更新，`uds update --plan` 不會把它列在 Delete，只有專案自己移除它才會消失。`uds update --plan`、`--apply`、`--skills` 現在結尾多一段「Optional skills」，說明哪些技能是選用、這個專案裝了沒有，以及加裝或移除各自的指令；`uds skills` 說明沒裝的選用技能不算缺少。**既有專案會看到的改變：**已有 `open-work` 的 6.15.0-beta.1 專案什麼都不會少。從 6.14.x 或更舊版本更新的專案不再拿到 `open-work`（6.15.0-beta.1 之前本來也沒有）。要它：`uds update --add-skill open-work`。
+- **本 repository 自己的閘門檢查現在在 Windows 上也用 `/` 比對檔案路徑，`windows-latest` 因此通過（6.16.0-beta.1 就是卡在這裡）。** `check-module-reachability` 用 `path.relative()` 組出每個模組的鍵，這在 Windows 上會得到 `bin\uds.js`，再拿去和寫成 `bin/uds.js` 的入口與基線比對。兩種寫法在 Windows 上永遠對不上，於是入口本身被報成「新增的不可達模組」，`windows-latest` 的單元測試因此失敗。同樣的修正也套用到 `check-command-existence` 與 `check-shipped-stamp-consistency`（共用一個輔助函式，`cli/scripts/lib/posix-path.mjs` 的 `relativePosix`）；只有比對用的鍵改了，讀檔仍走平台原生路徑。`uds` 的指令、選項與輸出都沒有變：這些是在本 repository 的 CI 裡跑的檢查，不在套件內。
+- **空的基線清單不再到期，非空的基線清單必須帶有效的到期日。** 到期日是「先不修的清單」的時鐘，不是閘門的時鐘。現在由一條共用規則（`cli/scripts/lib/baseline-expiry.mjs`）統一判斷，套用到 `check-command-existence`、`check-module-reachability`、`check-shipped-stamp-consistency` 與 orphan-matrix 的 allowlist：清單為空就不看日期；清單非空時，日期已過或沒有有效的 `YYYY-MM-DD` 日期都算失敗（以前沒有日期會被當成「未到期」而安靜通過）。基線檔與其日期本身未改。同樣只影響本 repository 的 CI，`uds` 的指令、選項與輸出都沒有變。
 
 ### 新增
 
