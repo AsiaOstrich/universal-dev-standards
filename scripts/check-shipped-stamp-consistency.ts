@@ -54,7 +54,7 @@
  *   0 — no new (non-baselined) mismatches, no unverified baseline entries,
  *       baseline not expired.
  *   1 — a new mismatch exists, OR a baseline entry is not yet `verified`,
- *       OR the baseline has expired.
+ *       OR the baseline is non-empty and has expired or has no expiry date.
  *   2 — could not judge: comparator self-test failed, zero `.ai.yaml` files
  *       walked, or a `# Source:` line names a `core/*.md`-shaped path whose
  *       file does not actually exist on disk (a real integrity break, not
@@ -64,17 +64,28 @@
  *   tsx scripts/check-shipped-stamp-consistency.ts            # scan + report
  *   tsx scripts/check-shipped-stamp-consistency.ts --json     # machine-readable
  *   tsx scripts/check-shipped-stamp-consistency.ts --self-test # comparator only
+ *   tsx scripts/check-shipped-stamp-consistency.ts --baseline <file> # use that baseline file (tests)
+ *
+ * ── Baseline expiry (dev-platform decision 616乙) ──────────────────────────
+ * The expiry date is the clock on the LIST, not on this gate. Empty list: the
+ * date is not looked at. Non-empty list: past the date, or no valid date at
+ * all, is a failure. The rule lives in cli/scripts/lib/baseline-expiry.mjs.
  */
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { judgeBaselineExpiry } from '../cli/scripts/lib/baseline-expiry.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = dirname(dirname(__filename));
 const SCAN_DIR = join(ROOT_DIR, 'ai', 'standards');
-const BASELINE_PATH = join(ROOT_DIR, 'scripts', 'shipped-stamp-consistency-baseline.json');
+const baselineFlag = process.argv.indexOf('--baseline');
+const BASELINE_PATH =
+  baselineFlag === -1
+    ? join(ROOT_DIR, 'scripts', 'shipped-stamp-consistency-baseline.json')
+    : resolve(process.argv[baselineFlag + 1] ?? '');
 
 const RED = '\x1b[0;31m';
 const GREEN = '\x1b[0;32m';
@@ -360,7 +371,9 @@ function main(): void {
 
   const today = new Date().toISOString().slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) fail(`date tool returned something unusable: '${today}'`);
-  const baselineExpired = Boolean(baseline.expires) && baseline.expires < today;
+  const expiry = judgeBaselineExpiry({ size: baseline.entries.length, expires: baseline.expires, today });
+  const baselineExpired = expiry.state === 'expired';
+  const baselineNoExpiry = expiry.state === 'no-expiry';
 
   const baselineFixed = baseline.entries.filter((e) => !r.findings.some((f) => baselineKey(f) === baselineKey(e)));
 
@@ -381,6 +394,7 @@ function main(): void {
           verified: verifiedBaselined.length,
           unverified: unverifiedBaselined.length,
           baselineExpired,
+          baselineState: expiry.state,
           baselineExpires: baseline.expires,
           baselineFixed: baselineFixed.length,
           findings: r.findings,
@@ -389,7 +403,7 @@ function main(): void {
         2,
       ),
     );
-    const exitCode = newFindings.length > 0 || unverifiedBaselined.length > 0 || baselineExpired ? 1 : 0;
+    const exitCode = newFindings.length > 0 || unverifiedBaselined.length > 0 || expiry.failed ? 1 : 0;
     process.exit(exitCode);
   }
 
@@ -442,8 +456,19 @@ function main(): void {
 
   console.log(
     `${DIM}Baseline: ${baseline.entries.length} entr(ies), recorded ${baseline.recorded || '(none)'}, ` +
-      `expires ${baseline.expires || '(none)'}${baselineExpired ? ` — ${RED}EXPIRED${DIM}` : ''}.${NC}`,
+      `expires ${baseline.expires || '(none)'}${baselineExpired ? ` — ${RED}EXPIRED${DIM}` : ''}` +
+      `${baselineNoExpiry ? ` — ${RED}NO EXPIRY DATE${DIM}` : ''}.${NC}`,
   );
+  if (expiry.state === 'empty') console.log(`${DIM}Baseline is empty: its expiry date is not checked.${NC}`);
+
+  if (baselineNoExpiry) {
+    console.log(
+      `\n${RED}✗ Baseline has ${baseline.entries.length} entr(ies) but no valid expiry date (expires must be YYYY-MM-DD).${NC}\n` +
+        '  An exception list with no clock is a polite delete key: add an expiry date and the reason,\n' +
+        '  or fix the entries and remove them.',
+    );
+    process.exit(1);
+  }
 
   if (baselineExpired) {
     console.log(

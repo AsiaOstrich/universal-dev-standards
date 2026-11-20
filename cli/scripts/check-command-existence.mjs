@@ -47,19 +47,23 @@
  *      計數為「無法判定」並印出，不吞掉。**
  *   4. **配基線 ＋ 到期日。** 目前基線是空的——找到的殘留壞指令已在同一次
  *      commit 修掉，沒有「先不處理」的項目。基線機制仍保留，供未來若出現
- *      需要人工判斷的邊界案例時使用。
+ *      需要人工判斷的邊界案例時使用。到期規則（決策 616乙，規則本身在
+ *      lib/baseline-expiry.mjs）：到期日是「清單」的時鐘，不是這道閘門的時鐘——
+ *      清單為空就不看到期日；清單非空時，已過期或沒有到期日都算失敗。
  *   5. **`--self-test` 三臂**：綠（現況通過）／紅（塞一個
  *      `uds definitelynotacommand` 進真實檔案，證明會被抓到，測完刪除）／
- *      分母（走訪數 > 0）。
+ *      分母（走訪數 > 0）。外加三臂守到期規則：空清單＋過期日→通過；
+ *      非空＋過期→失敗；非空＋無到期日→失敗（與主路徑共用同一支 `report()`）。
  *
  * 用法：
  *   node cli/scripts/check-command-existence.mjs             # 檢查
  *   node cli/scripts/check-command-existence.mjs --json      # 機器可讀
  *   node cli/scripts/check-command-existence.mjs --self-test # 證明它能紅也能綠
+ *   node cli/scripts/check-command-existence.mjs --baseline <檔>  # 改用指定的基線檔（測試用）
  *
  * 結束碼三態——「沒有壞指令」與「掃不動」必須分得開：
  *   0  掃完，沒有（新增的）不存在指令／旗標
- *   1  掃完，找到不存在的指令／旗標，或基線已過期
+ *   1  掃完，找到不存在的指令／旗標，或基線非空而已過期／沒有到期日
  *   2  掃不動（來源目錄不見、uds 入口不存在、無法建立探針用暫存目錄）——**這不是綠燈**
  */
 
@@ -78,6 +82,7 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { isolatedHome } from '../../scripts/lib/isolated-home.mjs';
+import { judgeBaselineExpiry } from './lib/baseline-expiry.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CLI_ROOT = resolve(HERE, '..');
@@ -87,6 +92,9 @@ const UDS_BIN = join(CLI_ROOT, 'bin', 'uds.js');
 const args = process.argv.slice(2);
 const JSON_OUT = args.includes('--json');
 const SELF_TEST = args.includes('--self-test');
+const BASELINE_FLAG = args.indexOf('--baseline');
+const BASELINE_PATH =
+  BASELINE_FLAG === -1 ? join(HERE, 'command-existence-baseline.json') : resolve(args[BASELINE_FLAG + 1] ?? '');
 
 function fail(msg) {
   console.error(`[cmd-existence] FATAL: ${msg}`);
@@ -402,8 +410,7 @@ function probeFlag(path, flag) {
  * 目前是空的——本次找到的殘留壞指令都已在同一個 commit 修掉。
  * 機制保留是為了未來若出現需要人工判斷的邊界案例(而不是立刻能修)時使用。
  */
-function loadBaseline() {
-  const p = join(HERE, 'command-existence-baseline.json');
+function loadBaseline(p = BASELINE_PATH) {
   if (!existsSync(p)) return { entries: [], expires: null, missing: true };
   try {
     const b = JSON.parse(readFileSync(p, 'utf8'));
@@ -636,25 +643,29 @@ function findingKey(f) {
   return `${f.file}:${f.lineNo}:${f.target}`;
 }
 
-function report(r) {
-  const baseline = loadBaseline();
+function report(r, { baselinePath = BASELINE_PATH, today: injectedToday } = {}) {
+  const baseline = loadBaseline(baselinePath);
   const baseSet = new Set(baseline.entries.map((e) => e.key));
   const newFindings = r.findings.filter((f) => !baseSet.has(findingKey(f)));
   const baselineFixed = baseline.entries.filter(
     (e) => !r.findings.some((f) => findingKey(f) === e.key),
   );
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = injectedToday ?? new Date().toISOString().slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) fail(`日期取得異常：'${today}'`);
-  const baselineExpired = Boolean(baseline.expires && baseline.expires < today);
+  // 規則在 lib/baseline-expiry.mjs：空清單不看日期；非空時過期或沒日期都失敗。
+  const expiry = judgeBaselineExpiry({ size: baseline.entries.length, expires: baseline.expires, today });
+  const baselineExpired = expiry.state === 'expired';
+  const baselineNoExpiry = expiry.state === 'no-expiry';
+  const baselineFailed = expiry.failed;
 
   const totalWalked = r.sourceStats.reduce((a, s) => a + s.walked, 0);
   const totalScanned = r.sourceStats.reduce((a, s) => a + s.scanned, 0);
   const totalRaw = r.sourceStats.reduce((a, s) => a + s.rawMatchCount, 0);
 
   if (JSON_OUT) {
-    console.log(JSON.stringify({ ...r, newFindings, baselineFixed, baselineExpired, totalWalked, totalScanned, totalRaw }, null, 2));
-    return newFindings.length > 0 || baselineExpired ? 1 : 0;
+    console.log(JSON.stringify({ ...r, newFindings, baselineFixed, baselineExpired, baselineState: expiry.state, totalWalked, totalScanned, totalRaw }, null, 2));
+    return newFindings.length > 0 || baselineFailed ? 1 : 0;
   }
 
   console.log(`[cmd-existence] 掃描來源（${SOURCES.length} 個目錄）：`);
@@ -677,7 +688,11 @@ function report(r) {
     console.log(`[cmd-existence] ⚠ ${r.undecidableTotal} 個樣式含變數/佔位符（{lang}／<intent>／$VAR），無法判定，未探測`);
   }
 
-  console.log(`[cmd-existence] 基線 ${baseline.entries.length} 個${baselineExpired ? ' —— ⏰ 已過期' : ''}`);
+  console.log(
+    `[cmd-existence] 基線 ${baseline.entries.length} 個` +
+      `${baselineExpired ? ' —— ⏰ 已過期' : ''}${baselineNoExpiry ? ' —— ⏰ 沒有到期日' : ''}`,
+  );
+  if (expiry.state === 'empty') console.log('[cmd-existence] 基線為空，不檢查到期');
   if (baselineFixed.length > 0) {
     console.log(`[cmd-existence] ✓ 基線中有 ${baselineFixed.length} 個已修好，請從基線移除：`);
     for (const f of baselineFixed) console.log(`               - ${f.key}`);
@@ -686,6 +701,13 @@ function report(r) {
   if (baselineExpired) {
     console.log(
       `\n[cmd-existence] ✗ 基線已於 ${baseline.expires} 到期。到期不代表出事，代表「先不處理」的判斷該重做一次。`,
+    );
+    return 1;
+  }
+  if (baselineNoExpiry) {
+    console.log(
+      `\n[cmd-existence] ✗ 基線有 ${baseline.entries.length} 筆，卻沒有有效的到期日（expires 要寫 YYYY-MM-DD）。` +
+        '\n  沒有時鐘的例外清單只是一把客氣的刪除鍵：補上到期日與理由，或把這幾筆修掉。',
     );
     return 1;
   }
@@ -761,6 +783,58 @@ function selfTest() {
   }
   console.log(`  ${redOk ? '✓' : '✗'} 紅臂：塞入 \`uds definitelynotacommand\` 到真實掃描路徑下的檔案，被完整流程抓到（已刪除測試檔）`);
   pass &&= redOk;
+
+  // 到期規則四臂（決策 616乙）：用暫存的基線檔、固定日期，走**主路徑同一支** `report()`，
+  // 不是只測判斷函式。日期寫死（2000-01-01 一定已過、2999-12-31 一定未到），預期輸出不含執行當天。
+  // 兩條失敗訊息刻意不同，剪斷其中一條規則時才分得出是哪一臂紅。
+  const expiryFixtureDir = mkdtempSync(join(tmpdir(), 'uds-cmd-existence-expiry-'));
+  try {
+    const KEY = 'docs/fixture.md:1:uds definitelynotacommand';
+    const arms = [
+      {
+        label: '空清單＋已過期的日期 → 通過，並說明基線為空不檢查到期',
+        baseline: { entries: [], expires: '2000-01-01' },
+        code: 0,
+        mustSay: '基線為空，不檢查到期',
+      },
+      {
+        label: '非空清單＋未到期 → 通過（對照：證明非空時有在看日期而不是一律失敗）',
+        baseline: { entries: [{ key: KEY }], expires: '2999-12-31' },
+        code: 0,
+        mustSay: '基線 1 個',
+      },
+      {
+        label: '非空清單＋已過期 → 失敗，訊息點名到期日',
+        baseline: { entries: [{ key: KEY }], expires: '2000-01-01' },
+        code: 1,
+        mustSay: '基線已於 2000-01-01 到期',
+      },
+      {
+        label: '非空清單＋沒有到期日 → 失敗，訊息說沒有到期日',
+        baseline: { entries: [{ key: KEY }] },
+        code: 1,
+        mustSay: '卻沒有有效的到期日',
+      },
+    ];
+    arms.forEach((arm, i) => {
+      const baselinePath = join(expiryFixtureDir, `baseline-${i}.json`);
+      writeFileSync(baselinePath, JSON.stringify(arm.baseline), 'utf8');
+      const lines = [];
+      const realLog = console.log;
+      console.log = (...a) => lines.push(a.join(' '));
+      let code;
+      try {
+        code = report(before, { baselinePath, today: '2026-01-01' });
+      } finally {
+        console.log = realLog;
+      }
+      const ok = code === arm.code && lines.join('\n').includes(arm.mustSay);
+      console.log(`  ${ok ? '✓' : '✗'} 到期規則第 ${i + 1} 臂：${arm.label}（exit ${code}，預期 ${arm.code}）`);
+      pass &&= ok;
+    });
+  } finally {
+    rmSync(expiryFixtureDir, { recursive: true, force: true });
+  }
 
   console.log(pass ? '[cmd-existence] 自測通過' : '[cmd-existence] 自測失敗');
   return pass ? 0 : 2;

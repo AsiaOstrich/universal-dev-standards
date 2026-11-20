@@ -52,10 +52,14 @@
  *   node cli/scripts/check-module-reachability.mjs            # 檢查
  *   node cli/scripts/check-module-reachability.mjs --json     # 機器可讀
  *   node cli/scripts/check-module-reachability.mjs --self-test # 證明它能紅也能綠
+ *   node cli/scripts/check-module-reachability.mjs --baseline <檔>  # 改用指定的基線檔（測試用）
+ *
+ * 基線到期規則（決策 616乙，規則本身在 lib/baseline-expiry.mjs）：到期日是「清單」的時鐘，
+ * 不是這道閘門的時鐘——清單為空就不看到期日；非空時，已過期或沒有到期日都算失敗。
  *
  * 結束碼三態——「沒有孤兒」與「量不了」必須分得開：
  *   0  掃完，沒有不可達模組
- *   1  掃完，有不可達模組
+ *   1  掃完，有不可達模組，或基線非空而已過期／沒有到期日
  *   2  掃不動（入口不存在、來源目錄不見、package.json 壞掉）——**這不是綠燈**
  */
 
@@ -63,6 +67,7 @@ import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, mkdirSync
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, relative, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { judgeBaselineExpiry } from './lib/baseline-expiry.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REAL_CLI_ROOT = resolve(HERE, '..');
@@ -73,6 +78,9 @@ let CLI_ROOT = REAL_CLI_ROOT;
 const args = process.argv.slice(2);
 const JSON_OUT = args.includes('--json');
 const SELF_TEST = args.includes('--self-test');
+const BASELINE_FLAG = args.indexOf('--baseline');
+const BASELINE_PATH =
+  BASELINE_FLAG === -1 ? join(HERE, 'reachability-baseline.json') : resolve(args[BASELINE_FLAG + 1] ?? '');
 
 /**
  * 排除規則。每一條都是**規則**不是檔名清單，且各自計數。
@@ -337,8 +345,7 @@ function analyse() {
  * **基線帶到期日。** 一份沒有時鐘的例外清單只是有禮貌的刪除鍵：
  * 過期後這支腳本一律回 1，逼人重新做一次「先不處理」的判斷。
  */
-function loadBaseline() {
-  const p = join(HERE, 'reachability-baseline.json');
+function loadBaseline(p = BASELINE_PATH) {
   if (!existsSync(p)) return { modules: [], expires: null, missing: true };
   try {
     const b = JSON.parse(readFileSync(p, 'utf8'));
@@ -358,11 +365,14 @@ function report(r) {
   // 先證明日期工具會動。它不會動的時候，下面的「未過期」與真的未過期長得一樣。
   const today = new Date().toISOString().slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) fail(`日期取得異常：'${today}'`);
-  r.baselineExpired = Boolean(baseline.expires && baseline.expires < today);
+  const expiry = judgeBaselineExpiry({ size: baseline.modules.length, expires: baseline.expires, today });
+  r.baselineExpired = expiry.state === 'expired';
+  r.baselineNoExpiry = expiry.state === 'no-expiry';
+  r.baselineState = expiry.state;
 
   if (JSON_OUT) {
     console.log(JSON.stringify(r, null, 2));
-    return r.newUnreachable.length > 0 || r.baselineExpired ? 1 : 0;
+    return r.newUnreachable.length > 0 || expiry.failed ? 1 : 0;
   }
 
   console.log(`[reachability] 入口：${r.entries.join(', ')}`);
@@ -393,8 +403,9 @@ function report(r) {
 
   console.log(
     `[reachability] 基線 ${r.baselineSize} 個（XSPEC-383 R3 落地當下已存在）` +
-      `${r.baselineExpired ? ' —— ⏰ 已過期' : ''}`,
+      `${r.baselineExpired ? ' —— ⏰ 已過期' : ''}${r.baselineNoExpiry ? ' —— ⏰ 沒有到期日' : ''}`,
   );
+  if (expiry.state === 'empty') console.log('[reachability] 基線為空，不檢查到期');
 
   // 基線縮小了要說出來。不說的話，一份修好了的清單會安靜地繼續代表舊事實。
   if (r.baselineFixed.length > 0) {
@@ -404,9 +415,16 @@ function report(r) {
 
   if (r.baselineExpired) {
     console.log(
-      `\n[reachability] ✗ 基線已於 ${loadBaseline().expires} 到期。` +
+      `\n[reachability] ✗ 基線已於 ${baseline.expires} 到期。` +
         '\n  到期不代表出事，代表「當初決定先不處理基線內這幾個」的判斷該重新做一次。' +
         '\n  三個選項：縮小基線／延期並在基線檔改日期（延期要寫理由）／把仍成立的項目轉成 EXCLUSIONS 規則。',
+    );
+    return 1;
+  }
+  if (r.baselineNoExpiry) {
+    console.log(
+      `\n[reachability] ✗ 基線有 ${r.baselineSize} 個，卻沒有有效的到期日（expires 要寫 YYYY-MM-DD）。` +
+        '\n  沒有時鐘的例外清單只是一把客氣的刪除鍵：補上到期日與理由，或把這幾個修掉。',
     );
     return 1;
   }

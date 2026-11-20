@@ -19,6 +19,8 @@
  *
  * Exit codes (three states, "no orphans" and "could not measure" must differ):
  *   0  measured, nothing outside the allowlist, no stale or expired allowlist entry
+ *      (the allowlist's expiry date is the clock on the LIST: an empty allowlist is not judged on it;
+ *      a non-empty one with a past or missing date fails — decision 616乙, rule in lib/baseline-expiry.mjs)
  *   1  measured, a finding outside the allowlist, or a stale / expired / unexplained allowlist entry
  *   2  could not measure (init failed, registry unreadable) — NOT a pass
  */
@@ -51,6 +53,8 @@ function cannotMeasure(why) {
   console.error(`[orphan-matrix] CANNOT MEASURE: ${why}`);
   process.exit(2);
 }
+
+if (Number.isNaN(today.getTime())) cannotMeasure(`--today is not a date: ${flag('--today')}`);
 
 let registry;
 let allowlist;

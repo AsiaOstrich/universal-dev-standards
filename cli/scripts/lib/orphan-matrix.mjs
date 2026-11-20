@@ -32,6 +32,7 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, basename, relative } from 'node:path';
+import { judgeBaselineExpiry } from './baseline-expiry.mjs';
 
 const TEXT_EXT = /\.(md|yaml|yml|json|js|mjs|cjs|ts|sh|ps1|bats|txt)$/i;
 const SKIP_DIRS = new Set(['node_modules', '.git', '.vitest', 'bundled', 'coverage']);
@@ -215,9 +216,12 @@ export function judge(matrix, allowlist, now = new Date()) {
       if (!entry[field] || String(entry[field]).trim().length < 10) problems.push(`allowlist ${kind} "${key}" has no real ${field}`);
     }
   }
-  const expires = allowlist.expires ? new Date(allowlist.expires) : null;
-  if (!expires || Number.isNaN(expires.getTime())) problems.push('allowlist has no valid "expires" date');
-  else if (expires < now) problems.push(`allowlist expired on ${allowlist.expires}: decide each entry again (wire it, retire it, or re-justify it with a new date)`);
+  // The expiry date is the clock on the LIST (decision 616乙, rule in ./baseline-expiry.mjs): an empty
+  // allowlist is not looked at; a non-empty one fails when expired or when it has no valid date.
+  if (Number.isNaN(now.getTime())) throw new Error('judge: `now` is not a valid date');
+  const expiry = judgeBaselineExpiry({ size: entries.length, expires: allowlist.expires, today: now.toISOString().slice(0, 10) });
+  if (expiry.state === 'no-expiry') problems.push('allowlist has no valid "expires" date');
+  else if (expiry.state === 'expired') problems.push(`allowlist expired on ${allowlist.expires}: decide each entry again (wire it, retire it, or re-justify it with a new date)`);
 
   const allowedStandards = new Set((allowlist.standards || []).map((e) => e.id));
   const allowedChecks = new Set((allowlist.checkCommands || []).map((e) => e.name));

@@ -16,6 +16,7 @@
  *
  * Wires that make these red when cut (each is one line of CLI source):
  *   cli/scripts/check-standards-orphan-matrix.mjs   const verdict = judge(matrix, allowlist, today);
+ *   cli/scripts/lib/orphan-matrix.mjs               const expiry = judgeBaselineExpiry({ size: entries.length (the expiry-clock test)
  */
 
 import { it, expect, afterAll } from 'vitest';
@@ -164,6 +165,44 @@ it('a check-* script that nothing calls fails the matrix by name, and is green o
   writeFileSync(join(root, '.github', 'workflows', 'ci.yml'), 'jobs:\n  a:\n    steps:\n      - run: bash scripts/check-zz-called.sh\n      - run: bash scripts/check-zz-probe.sh\n');
   const green = run(['--root', root, '--registry', registry, '--allowlist', empty]);
   expect(green.code, green.out).toBe(0);
+});
+
+it('the allowlist expiry is the clock on the LIST (decision 616乙): empty is not judged on the date; non-empty fails when expired or when it has no date', () => {
+  // A mini repo with nothing wrong in it: one non-orphan standard, one check script that a workflow calls.
+  const root = mkdtempSync(join(scratch, 'root-expiry-'));
+  mkdirSync(join(root, 'scripts'), { recursive: true });
+  mkdirSync(join(root, '.github', 'workflows'), { recursive: true });
+  mkdirSync(join(root, 'ai', 'standards'), { recursive: true });
+  writeFileSync(join(root, 'scripts', 'check-zz-called.sh'), '#!/bin/sh\nexit 0\n');
+  writeFileSync(join(root, '.github', 'workflows', 'ci.yml'), 'jobs:\n  a:\n    steps:\n      - run: bash scripts/check-zz-called.sh\n');
+  writeFileSync(join(root, 'ai', 'standards', 'zz-std.ai.yaml'), 'physical_spec:\n  type: file\n');
+  const registry = writeJson('expiry-registry.json', {
+    standards: [{ id: 'zz-std', name: 'x', category: 'reference', source: { human: 'core/zz-std.md', ai: 'ai/standards/zz-std.ai.yaml' }, description: 'x' }]
+  });
+  // Fixed dates: 2000-01-01 is always past; `--today` is injected, so nothing depends on the day this runs.
+  const runWith = (allowlist) => run(['--root', root, '--registry', registry, '--allowlist', writeJson('expiry-allowlist.json', allowlist), '--today', '2026-01-01']);
+  // The only finding is a check script that nothing calls, so a non-empty allowlist is a real one.
+  writeFileSync(join(root, 'scripts', 'check-zz-uncalled.sh'), '#!/bin/sh\nexit 0\n');
+  const entry = { name: 'check-zz-uncalled', reason: 'test: nobody calls this on purpose', owner: 'test: nobody owns it' };
+
+  // Empty list + a date long past: green, and the date is not why anything would be red.
+  writeFileSync(join(root, '.github', 'workflows', 'ci.yml'), 'jobs:\n  a:\n    steps:\n      - run: bash scripts/check-zz-called.sh\n      - run: bash scripts/check-zz-uncalled.sh\n');
+  const emptyPast = runWith({ expires: '2000-01-01', standards: [], checkCommands: [] });
+  expect(emptyPast.code, emptyPast.out).toBe(0);
+  const emptyNoDate = runWith({ standards: [], checkCommands: [] });
+  expect(emptyNoDate.code, emptyNoDate.out).toBe(0);
+
+  // Make the uncalled script a real finding again, so the allowlist entry is genuinely in use.
+  writeFileSync(join(root, '.github', 'workflows', 'ci.yml'), 'jobs:\n  a:\n    steps:\n      - run: bash scripts/check-zz-called.sh\n');
+  const nonEmptyFuture = runWith({ expires: '2999-12-31', standards: [], checkCommands: [entry] });
+  expect(nonEmptyFuture.code, nonEmptyFuture.out).toBe(0);
+  const nonEmptyPast = runWith({ expires: '2000-01-01', standards: [], checkCommands: [entry] });
+  expect(nonEmptyPast.code, nonEmptyPast.out).toBe(1);
+  expect(nonEmptyPast.stdout).toContain('allowlist expired on 2000-01-01');
+  const nonEmptyNoDate = runWith({ standards: [], checkCommands: [entry] });
+  expect(nonEmptyNoDate.code, nonEmptyNoDate.out).toBe(1);
+  expect(nonEmptyNoDate.stdout).toContain('allowlist has no valid "expires" date');
+  expect(nonEmptyNoDate.stdout).not.toContain('allowlist expired on');
 });
 
 it('the matrix exits 2, not 0 or 1, when it cannot measure: an unreadable registry, an unreadable allowlist (XSPEC-458 R4)', () => {
