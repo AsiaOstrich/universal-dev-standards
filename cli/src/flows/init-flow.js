@@ -28,6 +28,17 @@ import { integrationFileExists } from '../utils/integration-generator.js';
 import { displayLanguageToLocale } from '../utils/locale.js';
 
 /**
+ * A skills version for the "Skills Status" screen: `v1.2.3`, or - when no manifest says which version - the
+ * word for "unknown" in the interface language, with no `v` in front of it (it used to print `vunknown`).
+ * @param {string|null} version
+ * @param {Object} msg - `t().commands.init`
+ * @returns {string}
+ */
+function formatSkillsVersion(version, msg) {
+  return version ? `v${version}` : (msg.skillsVersionUnknown || 'unknown');
+}
+
+/**
  * Execute the interactive initialization flow
  * @param {Object} options - CLI options
  * @param {Object} detected - Detected project environment
@@ -125,10 +136,10 @@ export async function runInitFlow(options, detected, projectPath) {
       if (projectInfo || userInfo) {
         hasAnyExisting = true;
         if (projectInfo) {
-          console.log(chalk.gray(`  ${displayName} ${msgAfterLang.projectLevel}: v${projectInfo.version || 'unknown'}`));
+          console.log(chalk.gray(`  ${displayName} ${msgAfterLang.projectLevel}: ${formatSkillsVersion(projectInfo.version, msgAfterLang)}`));
         }
         if (userInfo) {
-          console.log(chalk.gray(`  ${displayName} ${msgAfterLang.userLevel}: v${userInfo.version || 'unknown'}`));
+          console.log(chalk.gray(`  ${displayName} ${msgAfterLang.userLevel}: ${formatSkillsVersion(userInfo.version, msgAfterLang)}`));
         }
       }
     }

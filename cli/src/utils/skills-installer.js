@@ -1013,7 +1013,12 @@ export function getInstalledSkillsInfoForAgent(agent, level, projectPath = null)
     // No manifest - check if there are actual skill files (SKILL.md in subdirectories)
     try {
       const entries = readdirSync(targetDir, { withFileTypes: true });
-      const skillDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.'));
+      // Only a folder named like a skill UDS ships counts. Without a manifest nothing else says whose
+      // skills these are, and a skills folder is shared with every other tool (XSPEC-533 R1: someone else's
+      // skills were reported as "UDS installed, version unknown").
+      const shipped = new Set(getAvailableSkillNames());
+      let skillDirs = entries.filter(e => e.isDirectory() && !e.name.startsWith('.'));
+      skillDirs = skillDirs.filter(e => shipped.has(e.name)); // wire:no-manifest-counts-only-shipped-skills
 
       // Check if any subdirectory contains a SKILL.md file
       const hasSkillFiles = skillDirs.some(dir => {

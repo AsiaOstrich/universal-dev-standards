@@ -177,12 +177,14 @@ export function createHarness(label, { overrides = {} } = {}) {
   /**
    * One CLI run: { code, stdout, stderr, netLog: string[], procLog: string[] }.
    * `ui` pins the output language; it defaults to English so assertions do not depend on the machine's LANG.
+   * `home` is an existing directory used as HOME (and the other per-user variables) instead of a fresh empty one.
    * `preloads` is a list of extra CommonJS files loaded with `--require` after the harness's own (a test's fault injector).
    */
-  function runCli(args, cwd, { ui = 'en', env: extraEnv = {}, preloads = [], drive = null, idleMs = 700, maxSends = 80 } = {}) {
+  function runCli(args, cwd, { ui = 'en', env: extraEnv = {}, preloads = [], drive = null, idleMs = 700, maxSends = 80, home: givenHome = null } = {}) {
     ensureSandbox();
     const id = ++counter;
-    const home = join(sandbox, `home-${id}`);
+    // `home` (a directory made with makeDir) lets a test put files in the user's home BEFORE the run.
+    const home = givenHome || join(sandbox, `home-${id}`);
     mkdirSync(home, { recursive: true });
     const netFile = join(sandbox, `net-${id}.log`);
     const procFile = join(sandbox, `proc-${id}.log`);

@@ -1074,6 +1074,8 @@ export const messages = {
         userLevel: 'User level',
         notInstalled: 'not installed',
         noSkillsDetected: 'No Skills installation detected',
+        // The skills folder holds UDS skills but no manifest says which version: said as a word, not as "vunknown".
+        skillsVersionUnknown: 'unknown',
         skillsMarketplaceInstalled: 'Marketplace',
         // No AI tools selected - exit
         noAiToolsSelected: 'No AI tools selected.',
@@ -2508,6 +2510,7 @@ export const messages = {
         userLevel: '使用者層級',
         notInstalled: '未安裝',
         noSkillsDetected: '未偵測到 Skills 安裝',
+        skillsVersionUnknown: '未知',
         skillsMarketplaceInstalled: 'Marketplace',
         // No AI tools selected - exit
         noAiToolsSelected: '未選擇任何 AI 工具。',
@@ -3601,6 +3604,7 @@ export const messages = {
         userLevel: '用户级别',
         notInstalled: '未安装',
         noSkillsDetected: '未检测到 Skills 安装',
+        skillsVersionUnknown: '未知',
         skillsMarketplaceInstalled: 'Marketplace',
         // No AI tools selected - exit
         noAiToolsSelected: '未选择任何 AI 工具。',
