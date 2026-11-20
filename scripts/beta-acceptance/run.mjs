@@ -105,17 +105,41 @@ export function parseArgs(argv) {
   return opts;
 }
 
+/** What the report says as its label when `--label` was not given. */
+const NO_LABEL = '(no --label given)';
 const stamp = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\..*$/, '').replace('T', '-');
 const safe = (s) => String(s).replace(/[^A-Za-z0-9._-]+/g, '_');
 
+/**
+ * Write the Markdown and the JSON report under a name no earlier report has, and say which name that was.
+ * The name is `<version>-<platform>-<second>[-<label>]`; the second alone is not enough (two shells that finish in the
+ * same second wrote the same name and the later report replaced the earlier one: XSPEC-533 R5), so the label is part
+ * of it, and when that is taken too a number is added (`-2`, `-3`, ...). A file is created with `wx`, which fails
+ * instead of replacing, so a report is never overwritten, not even by a run that starts between the check and the write.
+ */
 function writeReports(report, outDir) {
   mkdirSync(outDir, { recursive: true });
-  const base = `uds-beta-acceptance-${safe(report.uds.version || report.request.version)}-${report.environment ? report.environment.platform : 'unknown'}-${stamp(new Date(report.finishedAt))}`;
-  const md = join(outDir, `${base}.md`);
-  const json = join(outDir, `${base}.json`);
-  writeFileSync(md, toMarkdown(report), 'utf-8');
-  writeFileSync(json, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
-  return { md, json };
+  const label = report.label && report.label !== NO_LABEL ? `-${safe(report.label)}` : '';
+  const stem = `uds-beta-acceptance-${safe(report.uds.version || report.request.version)}-${report.environment ? report.environment.platform : 'unknown'}-${stamp(new Date(report.finishedAt))}${label}`;
+  for (let n = 1; ; n += 1) {
+    const base = n === 1 ? stem : `${stem}-${n}`; // wire:report-name-has-label-and-never-overwrites
+    const md = join(outDir, `${base}.md`);
+    const json = join(outDir, `${base}.json`);
+    try {
+      writeFileSync(md, toMarkdown(report), { encoding: 'utf-8', flag: 'wx' });
+    } catch (e) {
+      if (e.code === 'EEXIST') continue;
+      throw e;
+    }
+    try {
+      writeFileSync(json, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf-8', flag: 'wx' });
+    } catch (e) {
+      rmSync(md, { force: true }); // this run's own .md, written a moment ago; try the next name
+      if (e.code === 'EEXIST') continue;
+      throw e;
+    }
+    return { md, json };
+  }
 }
 
 function readAnswers(file) {
@@ -172,7 +196,7 @@ export async function main(argv) {
   const install = await installPackage({ dir: join(sandbox, 'install'), version: opts.version, source: opts.source, installer: opts.installer, local: opts.localBin, retry: { ...INSTALL_RETRY, attempts: opts.installRetries, baseWaitMs: opts.installRetryWaitSec * 1000 }, log });
   const environment = await collectEnvironment({ shell: opts.shell, npmVersion: await readNpmVersion() });
   const request = { version: opts.version, versionGiven: opts.versionGiven, source: opts.source ? '--source' : opts.installer ? '--installer' : opts.localBin ? '--local-bin' : 'npm registry', stepsFile: opts.steps === join(HERE, 'steps.json') ? 'scripts/beta-acceptance/steps.json' : 'another list (--steps)', stepsSha256 };
-  const label = opts.label || '(no --label given)';
+  const label = opts.label || NO_LABEL;
   const installInfo = { ok: install.ok, durationMs: install.durationMs, error: install.error, output: install.output.slice(-2000) };
   let uds = { version: install.version || 'unknown', installKind: install.kind };
   const notes = [];

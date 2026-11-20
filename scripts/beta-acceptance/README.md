@@ -15,7 +15,7 @@ The same line works in PowerShell, cmd, Git Bash, zsh and bash (Node 20+, networ
 
 1. installs `universal-dev-standards@<version>` from npm into a throwaway folder (the **published** package, not the repository source),
 2. runs every step of `steps.json` that applies to this OS, each in its own folder with its own throwaway home (the real home folder is never touched),
-3. writes `uds-beta-acceptance-<version>-<os>-<time>.md` (to read and paste back) and `.json` (to compare) to `./uds-beta-acceptance-reports/`.
+3. writes `uds-beta-acceptance-<version>-<os>-<time>[-<label>].md` (to read and paste back) and `.json` (to compare) to `./uds-beta-acceptance-reports/`. The label part is there when `--label` was given. A report is never overwritten: if that name is taken (two runs finished in the same second) a number is added (`-2`, `-3`).
 
 | exit | meaning |
 |---|---|
