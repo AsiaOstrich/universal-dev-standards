@@ -34,7 +34,9 @@ vi.mock('../../src/utils/detector.js', () => ({
 }));
 
 vi.mock('../../src/utils/config-manager.js', () => ({
-  readInstallYaml: vi.fn(() => ({}))
+  readInstallYaml: vi.fn(() => ({})),
+  // resolveLanguage() (XSPEC-533 R2) reads ~/.udsrc through this; 'en' is the config manager's own default
+  config: { get: vi.fn(() => 'en') }
 }));
 
 vi.mock('../../src/utils/integration-generator.js', () => ({

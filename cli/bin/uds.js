@@ -27,9 +27,9 @@ import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
 import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkWaitingCommand, openWorkObservationsCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
-import { setLanguage, setLanguageExplicit, detectLanguage, t } from '../src/i18n/messages.js';
+import { setLanguage, setLanguageExplicit, t } from '../src/i18n/messages.js';
+import { resolveLanguage } from '../src/i18n/resolve-language.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
-import { config } from '../src/utils/config-manager.js';
 import { readManifest, isInitialized } from '../src/utils/copier.js';
 
 const require = createRequire(import.meta.url);
@@ -82,29 +82,14 @@ program
       return;
     }
 
-    // Auto-detect priority chain:
+    // Auto-detect priority chain (one function, shared with `uds init -y`; see src/i18n/resolve-language.js):
     // 1. Project manifest options.display_language
     // 2. ~/.udsrc ui.language
-    // 3. OS env LANG / LC_ALL
+    // 3. OS env UDS_LOCALE / LANG / LC_ALL
     // 4. Default 'en'
     const projectPath = process.cwd();
-    if (isInitialized(projectPath)) {
-      const manifest = readManifest(projectPath);
-      if (manifest?.options?.display_language) {
-        setLanguage(manifest.options.display_language);
-        return;
-      }
-    }
-
-    // Fallback to ~/.udsrc ui.language
-    const rcLang = config.get('ui.language');
-    if (rcLang && rcLang !== 'en') {
-      setLanguage(rcLang);
-      return;
-    }
-
-    // Fallback to OS environment variable detection
-    setLanguage(detectLanguage(null));
+    const manifest = isInitialized(projectPath) ? readManifest(projectPath) : null;
+    setLanguage(resolveLanguage({ project: manifest?.options?.display_language })); // wire:ui-language-uses-shared-chain
   })
   .hook('postAction', async (thisCommand, actionCommand) => {
     const cmd = thisCommand.name();

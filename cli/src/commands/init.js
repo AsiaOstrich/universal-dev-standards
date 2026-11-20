@@ -7,7 +7,8 @@ import {
   normalizeContentMode,
   SUPPORTED_CONTENT_MODES
 } from '../core/manifest.js';
-import { t, detectLanguage } from '../i18n/messages.js';
+import { t } from '../i18n/messages.js';
+import { resolveLanguage } from '../i18n/resolve-language.js';
 import { getAllStandards } from '../utils/registry.js';
 import { detectAll } from '../utils/detector.js';
 import { promptConfirm } from '../prompts/init.js';
@@ -762,13 +763,11 @@ export async function setupHuskyHook(projectPath, { allowInTest = false, platfor
  * Build configuration for non-interactive mode
  */
 function buildNonInteractiveConfig(options, detected, projectPath) {
-  // Locale resolution order (XSPEC-239 §Req-3):
-  //   CLI --locale > .uds/install.yaml locale: > UDS_LOCALE env > LANG > 'en'
-  // detectLanguage() handles UDS_LOCALE + LANG fallback internally (P1-CLI-3).
+  // Locale resolution order (XSPEC-239 §Req-3, XSPEC-533 R2):
+  //   CLI --locale > .uds/install.yaml locale: > ~/.udsrc ui.language > UDS_LOCALE env > LANG > 'en'
+  // The same function decides the interface language in bin/uds.js (see src/i18n/resolve-language.js).
   const installYaml = readInstallYaml(projectPath);
-  const requestedLanguage = options.locale
-    || installYaml.locale
-    || detectLanguage(null);
+  const requestedLanguage = resolveLanguage({ explicit: options.locale, project: installYaml.locale }); // wire:init-yes-uses-shared-language-chain
   // Case-insensitive, and an unsupported value is said out loud instead of silently becoming English
   // (dev-platform XSPEC-451 follow-up: `--locale zh-CN` used to install English with exit 0).
   const { displayLanguage: normalizedLanguage, supported } = normalizeRequestedLocale(requestedLanguage);
