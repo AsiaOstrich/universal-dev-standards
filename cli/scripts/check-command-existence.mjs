@@ -77,7 +77,8 @@ import {
   writeFileSync,
   unlinkSync,
 } from 'node:fs';
-import { join, resolve, dirname, relative } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { relativePosix } from './lib/posix-path.mjs';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
@@ -240,7 +241,7 @@ function walkShallow(dir, ext) {
   const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) continue;
-    if (ext.test(entry.name)) out.push(relative(REPO_ROOT, join(dir, entry.name)));
+    if (ext.test(entry.name)) out.push(relativePosix(REPO_ROOT, join(dir, entry.name)));
   }
   return out;
 }
@@ -254,7 +255,7 @@ function walk(dir, ext, out = []) {
       if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'coverage') continue;
       walk(full, ext, out);
     } else if (ext.test(entry.name)) {
-      out.push(relative(REPO_ROOT, full));
+      out.push(relativePosix(REPO_ROOT, full));
     }
   }
   return out;

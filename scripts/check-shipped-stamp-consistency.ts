@@ -74,9 +74,10 @@
 
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { judgeBaselineExpiry } from '../cli/scripts/lib/baseline-expiry.mjs';
+import { relativePosix } from '../cli/scripts/lib/posix-path.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = dirname(dirname(__filename));
@@ -254,7 +255,7 @@ function scan(): ScanResult {
 
   for (const name of entries) {
     const fullPath = join(SCAN_DIR, name);
-    const relFile = relative(ROOT_DIR, fullPath);
+    const relFile = relativePosix(ROOT_DIR, fullPath);
     const content = readFileSync(fullPath, 'utf-8');
 
     const singular = content.match(/^# Source:\s*(.+)$/m);
@@ -490,7 +491,7 @@ function main(): void {
     `\n${RED}✗ Not clean.${NC} Fix by regenerating the affected .ai.yaml via ` +
       '`node scripts/convert-md-to-yaml.mjs <file>` (or the scripts/transform pipeline for its files), ' +
       'or — for entries you have actually investigated — record verified:true with evidence in ' +
-      `${relative(ROOT_DIR, BASELINE_PATH)}.`,
+      `${relativePosix(ROOT_DIR, BASELINE_PATH)}.`,
   );
   process.exit(1);
 }

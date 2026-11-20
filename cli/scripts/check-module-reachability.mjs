@@ -65,9 +65,10 @@
 
 import { readFileSync, existsSync, readdirSync, statSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve, dirname, relative, extname, sep } from 'node:path';
+import { join, resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { judgeBaselineExpiry } from './lib/baseline-expiry.mjs';
+import { relativePosix } from './lib/posix-path.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REAL_CLI_ROOT = resolve(HERE, '..');
@@ -136,7 +137,7 @@ function walkJs(dir, out = []) {
       if (entry.name === 'node_modules' || entry.name === 'coverage') continue;
       walkJs(full, out);
     } else if (/\.m?js$/.test(entry.name)) {
-      out.push(relative(CLI_ROOT, full));
+      out.push(relativePosix(CLI_ROOT, full));
     }
   }
   return out;
@@ -149,7 +150,7 @@ function walkJs(dir, out = []) {
 function walkScripts(scriptsDir, excludedBy, out = [], base = scriptsDir) {
   for (const entry of readdirSync(scriptsDir, { withFileTypes: true })) {
     const full = join(scriptsDir, entry.name);
-    const relToScripts = relative(base, full).split(sep).join('/');
+    const relToScripts = relativePosix(base, full);
     if (entry.isDirectory()) {
       const dirRule = SCRIPT_EXCLUSIONS.find((e) => e.match(`${relToScripts}/`));
       if (dirRule) {
@@ -164,7 +165,7 @@ function walkScripts(scriptsDir, excludedBy, out = [], base = scriptsDir) {
         excludedBy[fileRule.id]++;
         continue;
       }
-      out.push(relative(CLI_ROOT, full));
+      out.push(relativePosix(CLI_ROOT, full));
     }
   }
   return out;
@@ -226,7 +227,7 @@ function resolveSpec(fromRel, spec) {
     ? [base]
     : [`${base}.js`, `${base}.mjs`, join(base, 'index.js'), join(base, 'index.mjs')];
   for (const c of candidates) {
-    if (existsSync(c) && statSync(c).isFile()) return relative(CLI_ROOT, c);
+    if (existsSync(c) && statSync(c).isFile()) return relativePosix(CLI_ROOT, c);
   }
   return null; // 指到不存在的檔案——由呼叫端計數
 }
@@ -272,7 +273,7 @@ function analyse() {
       // 只收落在 cli/ 之內的目標；指到其他根腳本或 cli 之外的不是本閘門的事
       if (!target || target.startsWith('..')) continue;
       if (!scriptSeeds.has(target)) scriptSeeds.set(target, []);
-      scriptSeeds.get(target).push(relative(dirname(CLI_ROOT), join(CLI_ROOT, sf)).split(sep).join('/'));
+      scriptSeeds.get(target).push(relativePosix(dirname(CLI_ROOT), join(CLI_ROOT, sf)));
     }
   }
 
