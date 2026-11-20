@@ -153,7 +153,7 @@ export async function auditCommand(options = {}) {
     return;
   }
 
-  outputTerminal(auditResult, msg);
+  outputTerminal(auditResult, msg, { isReport }); // wire:audit-report-flag-reaches-terminal-output
 
   // Layer 3: Feedback Report
   if (isReport) {
@@ -229,8 +229,9 @@ function handleEffectsMode(projectPath, options) {
  * Output full terminal report
  * @param {Object} auditResult
  * @param {Object} msg - i18n messages
+ * @param {{ isReport?: boolean }} [flags] - `isReport`: `--report` was passed, so the "Submit feedback" hint would point at the run already in progress
  */
-function outputTerminal(auditResult, msg) {
+function outputTerminal(auditResult, msg, { isReport = false } = {}) {
   console.log();
   console.log(chalk.bold(msg.title || 'UDS Audit Report'));
   console.log(chalk.gray('═'.repeat(50)));
@@ -303,7 +304,7 @@ function outputTerminal(auditResult, msg) {
   // Report hint
   // The available-standards finding is not feedback for UDS (see handleReport), so it alone does not earn the hint.
   const reportable = totalFindings - (auditResult.frictions || []).filter(f => f.type === 'not-installed').length;
-  if (reportable > 0 && !auditResult._isReport) {
+  if (reportable > 0 && !isReport) {
     console.log();
     console.log(chalk.gray('Submit feedback: uds audit --report'));
   }
@@ -316,10 +317,7 @@ function outputTerminal(auditResult, msg) {
  * @param {Object} auditResult
  */
 function outputJson(auditResult) {
-  // Remove internal fields
-  const output = { ...auditResult };
-  delete output._isReport;
-  console.log(JSON.stringify(output, null, 2));
+  console.log(JSON.stringify({ ...auditResult }, null, 2));
 }
 
 /**
