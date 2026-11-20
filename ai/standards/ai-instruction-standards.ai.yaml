@@ -3,8 +3,8 @@
 
 id: ai-instruction-standards
 meta:
-  version: "2.1.1"
-  updated: "2026-08-12"
+  version: "2.1.2"
+  updated: "2026-11-20"
   source: core/ai-instruction-standards.md
   description: Best practices for creating AI instruction files (root and skill level) with universal/project-specific separation, i18n strategy, and a detailed cross-tool support matrix
 

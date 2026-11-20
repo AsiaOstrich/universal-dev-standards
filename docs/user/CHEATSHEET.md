@@ -1,6 +1,6 @@
 # UDS Cheatsheet
 
-> Quick reference for all UDS features | Last updated: 2026-11-04
+> Quick reference for all UDS features | Last updated: 2026-11-20
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/CHEATSHEET.md) | [简体中文](../../locales/zh-CN/docs/CHEATSHEET.md)
 
@@ -389,6 +389,7 @@
 | `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate  |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGE |
 | `generate-hook-fingerprints.mjs` | Generate the table of hook script contents UDS has |
+| `generate-integration-matrix.mjs` | Writes (or checks) docs/reference/INTEGRATION-VERI |
 | `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9 |

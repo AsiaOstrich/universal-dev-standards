@@ -1,7 +1,7 @@
 # UDS 功能參考手冊
 
 > Universal Development Standards - 完整功能文件
-> Auto-generated | Last updated: 2026-11-04
+> Auto-generated | Last updated: 2026-11-20
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | 繁體中文 | [简体中文](../../zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心規範](#core-standards) (153)
-7. [腳本](#scripts) (68)
+7. [腳本](#scripts) (69)
 
-**Total Features: 363**
+**Total Features: 364**
 
 ---
 
@@ -161,7 +161,7 @@
 | `--add-skill` | Add one skill to every AI tool folder this project has, and record it so updates keep it (repeatable). Takes the skill name (open-work) or its folder name (open-work-assistant). Optional skills such as open-work are installed only this way; combine with --apply/--skills to run that too, with --plan to preview |
 | `--remove-skill` | Remove one skill from every AI tool folder this project has, and record it so no update installs it again (repeatable; any skill, not only optional ones). Undo with --add-skill. Combine with --apply/--skills to run that too, with --plan to preview |
 | `--claude-target` | Switch an existing install to a different Claude Code integration target: project (CLAUDE.md) or local (CLAUDE.local.md) — moves the UDS block, keeps your content, no reinstall |
-| `--locale` | Override locale for skills install (zh-tw, zh-cn, en); also reads .uds/install.yaml + UDS_LOCALE env |
+| `--locale` | Override locale for skills install (zh-tw, zh-cn, en). Without it: .uds/install.yaml, UDS_LOCALE env, the language the project recorded, then ~/.udsrc ui.language (update never switches a project that recorded a language, and does not read LANG) |
 | `--with-hooks` | Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; a hook script that is an unmodified copy from an older UDS is replaced, an edited one is kept; with --plan, writes nothing; --force also overwrites edited hook scripts; every script it rewrites is copied to .uds-backups/ first, and `uds update --rollback` puts it back) |
 | `--ai-tool` | With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them |
 
@@ -455,7 +455,7 @@
 | `ai-agreement-standards` | 1.0.0 | This standard formalizes the interaction between Human (Acquirer) and AI (Suppli |
 | `ai-command-behavior` | 1.0.0 | This standard defines a structure for specifying AI Agent runtime behavior in co |
 | `ai-friendly-architecture` | 1.0.0 | This standard defines architecture and documentation practices that maximize the |
-| `ai-instruction-standards` | 1.1.1 | This standard defines best practices for creating and maintaining AI instruction |
+| `ai-instruction-standards` | 1.1.2 | This standard defines best practices for creating and maintaining AI instruction |
 | `ai-response-navigation` | 1.4.0 | This standard defines navigation behavior for AI responses: every substantive AI |
 | `alerting-standards` | 1.0.0 |  |
 | `anti-hallucination` | 1.5.1 | This standard defines strict guidelines for AI assistants to prevent hallucinati |
@@ -658,6 +658,7 @@
 | `generate-adoption-skills.mjs` | Self-Adoption Skill Copy Generator and Drift Gate — XSPEC-385 |
 | `generate-docs.mjs` | Look up the release date for `version` from CHANGELOG.md's own |
 | `generate-hook-fingerprints.mjs` | Generate the table of hook script contents UDS has shipped (for telling an old UDS copy from an edit). |
+| `generate-integration-matrix.mjs` | Writes (or checks) docs/reference/INTEGRATION-VERIFICATION-MATRIX.md from integrations/REGISTRY.json. |
 | `generate-llms-txt.mjs` | llms.txt Generator and Drift Gate — XSPEC-385 |
 | `generate-locale-coverage.mjs` | Locale Coverage Generator |
 | `generate-version-manifest.mjs` | Generate Version Manifest (SPEC-SELFDIAG-001 REQ-9, AC-14) |

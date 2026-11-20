@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/ai-instruction-standards.md) | [简体中文](../locales/zh-CN/core/ai-instruction-standards.md)
 
-**Version**: 1.1.1
-**Last Updated**: 2026-08-19
+**Version**: 1.1.2
+**Last Updated**: 2026-11-20
 **Applicability**: All projects using AI coding assistants
 **Scope**: partial
 **Industry Standards**: None (Emerging AI tool practice)
@@ -235,11 +235,22 @@ uds init --locale zh-tw     # first-time install of skills + standards in Tradit
 uds update --locale zh-tw   # re-sync an existing adoption
 ```
 
-**Locale resolution order**:
+**Locale resolution order** (the first one that is set wins):
+
+`uds init -y`:
+1. `--locale` CLI flag (highest priority)
+2. `.uds/install.yaml` field `locale:`
+3. `ui.language` in `~/.udsrc`
+4. Environment variable `UDS_LOCALE`, then `LANG` / `LC_ALL` / `LC_MESSAGES`
+5. Fallback: `en`
+
+`uds update` ends on the same `~/.udsrc` step for a project that recorded no language, but what the project already recorded comes first, so an update never silently switches an installed project's language, and it does not read `LANG` (the operating system's locale must not switch an installed project's skills):
 1. `--locale` CLI flag (highest priority)
 2. `.uds/install.yaml` field `locale:`
 3. Environment variable `UDS_LOCALE`
-4. Fallback: `en`
+4. The language the project recorded: the manifest's `display_language`, or the `.standards/<lang>.md` files on disk (a project recorded as `en` stays `en`)
+5. `ui.language` in `~/.udsrc` (only when step 4 found nothing recorded)
+6. Fallback: `en`
 
 **Missing locale fallback**: when a requested locale variant doesn't exist for a specific skill, the CLI:
 - Installs the canonical (English) file
@@ -326,6 +337,7 @@ Review each match to ensure it's in a project-specific section.
 |---------|------|---------|
 | 1.0.0 | 2026-01-14 | Initial release |
 | 1.1.0 | 2026-05-28 | Add i18n section; extend scope to skill-level files |
+| 1.1.2 | 2026-11-20 | Locale resolution order lists `~/.udsrc`, `LANG` for `init -y`, and the separate `uds update` order (XSPEC-533 R2) |
 
 ---
 

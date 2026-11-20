@@ -1,9 +1,9 @@
 ---
 source: ../../../core/ai-instruction-standards.md
-source_version: 1.1.1
-translation_version: 1.1.1
-last_synced: 2026-10-11
-source_hash: 64bcd0b65483
+source_version: 1.1.2
+translation_version: 1.1.2
+last_synced: 2026-11-20
+source_hash: e284ba279d76
 status: current
 ---
 
@@ -11,8 +11,8 @@ status: current
 
 > **語言**: [English](../../../core/ai-instruction-standards.md) | 繁體中文 | [简体中文](../../zh-CN/core/ai-instruction-standards.md)
 
-**版本**: 1.1.1
-**最後更新**: 2026-08-19
+**版本**: 1.1.2
+**最後更新**: 2026-11-20
 **適用範圍**: 所有使用 AI 編碼助手的專案
 **範圍**: partial
 **產業標準**: 無（新興 AI 工具實踐）
@@ -244,11 +244,22 @@ uds init --locale zh-tw     # 首次以繁體中文安裝 skills 與 standards
 uds update --locale zh-tw   # 對既有採用重新同步
 ```
 
-**Locale 解析優先順序**：
+**Locale 解析優先順序**（第一個有設定的勝出）：
+
+`uds init -y`：
+1. `--locale` CLI 旗標（最高）
+2. `.uds/install.yaml` 的 `locale:` 欄位
+3. `~/.udsrc` 的 `ui.language`
+4. 環境變數 `UDS_LOCALE`，然後是 `LANG` / `LC_ALL` / `LC_MESSAGES`
+5. Fallback：`en`
+
+`uds update` 對「沒有記錄語言」的專案同樣走到 `~/.udsrc` 這一步，但專案已記錄的語言排在前面，所以 update 不會悄悄切換已安裝專案的語言；它也不讀 `LANG`（作業系統的語系不該切換已安裝專案的 skills）：
 1. `--locale` CLI 旗標（最高）
 2. `.uds/install.yaml` 的 `locale:` 欄位
 3. 環境變數 `UDS_LOCALE`
-4. Fallback：`en`
+4. 專案已記錄的語言：manifest 的 `display_language`，或磁碟上的 `.standards/<lang>.md` 檔案（記錄為 `en` 的專案維持 `en`）
+5. `~/.udsrc` 的 `ui.language`（只有第 4 步找不到記錄時才輪到）
+6. Fallback：`en`
 
 **Locale 不存在時的 fallback 行為**：當索求的 locale 對某個 skill 沒有變體時，CLI：
 - 安裝 canonical（英文）檔案
@@ -335,6 +346,7 @@ grep -n "npm\|yarn\|pip\|cargo" CLAUDE.md | head -20
 |------|------|------|
 | 1.0.0 | 2026-01-14 | 初始發布 |
 | 1.1.0 | 2026-05-28 | 新增 i18n 章節；範圍延伸至 skill 層級檔案 |
+| 1.1.2 | 2026-11-20 | Locale 解析優先順序補上 `~/.udsrc`、`init -y` 的 `LANG` 與 `uds update` 自己的順序（XSPEC-533 R2） |
 
 ---
 
