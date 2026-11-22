@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.0-beta.2
-translation_version: 6.16.0-beta.2
-last_synced: 2026-11-20
-source_hash: 74d8ad482d4d
+source_version: 6.16.0-beta.3
+translation_version: 6.16.0-beta.3
+last_synced: 2026-11-22
+source_hash: 1880f04f2707
 status: current
 ---
 
@@ -17,6 +17,23 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.16.0-beta.3] - 2026-11-22
+
+*预发布版，以 `npm install -g universal-dev-standards@beta` 安装。六个在真实机器上检查 beta.2 时发现的修复。最可能被注意到的：`uds init -y` 与 `uds update` 现在和界面一样从 `~/.udsrc` 读语言，所以设了 `ui.language: zh-tw` 的机器不再出现“界面是中文、标准却是英文”；`uds init` 不再把别的工具的技能文件夹当成 UDS 安装（“vunknown”）；`uds audit --report` 不再叫你去跑 `uds audit --report`。如果你在 `~/.udsrc` 设了 `ui.language`，请先读“修复”的前两条。*
+
+### 修复
+
+- **`uds init -y` 现在从 `~/.udsrc` 读语言，界面与安装的标准一致（XSPEC-533 R2）。** 界面语言会读 `~/.udsrc`，但 `uds init -y` 不读，所以 `ui.language: zh-tw` 的机器界面是中文、标准却装成英文。现在两处都调用同一个函数 `resolveLanguage()`（`cli/src/i18n/resolve-language.js`）：调用方自己的明确值、项目的记录、`~/.udsrc`、`UDS_LOCALE` 与 `LANG`、`en`。`uds init -y` 的顺序为 `--locale` > `.uds/install.yaml` > `~/.udsrc` > `UDS_LOCALE` / `LANG` > `en`；界面维持 `--ui-lang` > 项目 manifest 的 `display_language` > `~/.udsrc` > `UDS_LOCALE` / `LANG` > `en`。`~/.udsrc` 写 `en` 不会锁定语言（配置管理器的默认值同样是 `en`，与“没设置”无法区分），所以仍由环境变量决定。**会变的地方：**`~/.udsrc` 指定了 `en` 以外语言的机器上，在没有记录语言的项目执行 `uds init -y`，现在会安装该语言；以前安装的是 `UDS_LOCALE` 或 `LANG` 指定的语言（通常是英文）。要选别的语言，请传 `--locale`。**验证方式：**在一次性 `HOME` 的 `~/.udsrc` 写入 `ui.language: zh-tw`，在空文件夹执行 `uds init -y`，读 `.standards/` 与 manifest：都是繁体中文。
+- **`uds update` 现在和 `uds init -y` 一样跟随 `~/.udsrc`，且不切换已有语言的项目（XSPEC-533 R2，决策 625乙）。** `uds update` 有自己的语言判断链，从不读 `~/.udsrc`，界面语言还设成 `manifest display_language || 'en'`，把 `bin/uds.js` 刚选好的语言盖掉。没有记录语言的项目，在同一台机器上 `uds init -y` 选繁体中文，`update` 却给英文技能与英文界面。现在 `update` 的顺序结尾走 `~/.udsrc`（`resolve-language.js` 里共用的 `udsrcLanguage()`）：`--locale` > `.uds/install.yaml` > `UDS_LOCALE` > manifest 的 `display_language` > 已安装的 `.standards/<lang>.md` > manifest 记录为 `en` 就维持 `en` > `~/.udsrc` > `en`。项目已记录的语言排在前面，所以 `update` 不会悄悄切换已安装项目的语言。刻意不读 `LANG`：操作系统语言环境比用户写下的文件弱，跟着它会切换“没人要求切换”的项目的技能。`UDS_LOCALE` 维持 XSPEC-239 给它的位置（高于 manifest），所以项目没记录语言、且 `UDS_LOCALE` 与 `~/.udsrc` 都设置时，`init -y` 选 `~/.udsrc`、`update` 选 `UDS_LOCALE`（有测试固定这一点）。界面语言先看 manifest，再走界面的判断链。**会变的地方：**没有记录语言、也没有 `.standards/<lang>.md` 的项目，`uds update` 现在会给 `~/.udsrc` 的语言，以前给英文。已记录语言的项目，或 manifest 记录为 `en` 的项目，行为不变。**验证方式：**在一次性 `HOME` 的 `~/.udsrc` 写入 `ui.language: zh-tw`，对没有记录语言的项目执行 `uds update --plan --skills`，会打印 `Locale that would be used: zh-TW`。
+- **`uds init` 不再把别的工具的技能文件夹算成 UDS 安装。** 没有 manifest 时，任何含 `SKILL.md` 的文件夹都会让 `uds init` 打印“User level: vunknown”，别的工具的技能文件夹因此看起来像 UDS 安装。现在只有名称在 UDS 出货技能清单内的文件夹才算；版本未知时，用界面语言打印一个词（`unknown`、`未知`），前面不加 `v`。**验证方式：**在 `~/.claude/skills/` 放一个你自己的技能文件夹、不放 UDS manifest，执行 `uds init`，读“Skills Status”那几行：会写“No Skills installation detected”，没有“User level”那一行。名称与 UDS 技能相同的文件夹仍会算，并打印“User level: unknown”。（XSPEC-533 R1）
+- **`uds audit --report` 结尾不再打印“Submit feedback: uds audit --report”。** 这条提示出现在本来就是 `--report` 的那次执行结尾，因为程序读取一个从来没有人设置的内部标志。现在把 `--report` 明确传给终端输出。不带 `--report` 时提示照旧，LOW 等级的 `not-installed` 仍不进提交菜单。**验证方式：**在有发现项的项目分别执行 `uds audit` 与 `uds audit --report`；只有前者会打印提示。（XSPEC-533 R3）
+- **只在归档规格时才创建 `specs/archive/`。** `MicroSpec` 每个会碰 specs 文件夹的方法（`create`、`list`、`split`）都顺便创建 `specs/archive/`，所以从没归档过规格的项目也多出一个空文件夹。现在 `ensureDirectories()` 只建 specs 文件夹，新的 `ensureArchiveDirectory()` 由 `archive()` 调用。**验证方式：**在干净项目执行 create、split 与 list；`specs/` 存在而 `specs/archive/` 不存在；归档一份规格后，文件夹与它的索引才出现。（XSPEC-533 R4）
+- **Beta 验收报告的文件名加入 label，且绝不覆盖。** 两次在同一秒完成的验收会写出相同文件名（版本、平台、秒），后写的报告覆盖先写的。现在有给 `--label` 时文件名结尾带 label（`uds-beta-acceptance-<version>-<os>-<time>[-<label>].md` 与 `.json`），文件名已存在时再加序号（`-2`、`-3`）。文件以独占标志（`wx`）创建，报告不会被取代，即使有另一次执行在检查与写入之间启动也一样。`scripts/beta-acceptance/README.md` 注明新文件名。这是 `scripts/beta-acceptance/` 里的维护者工具，不在 npm 包内，`uds` 的命令都没有变。**验证方式：**在同一秒内以不同 label 执行 `scripts/beta-acceptance/run.mjs` 两次，或不带 label 执行两次：两份报告都在磁盘上。（XSPEC-533 R5）
+
+### 变更
+
+- **`core/ai-instruction-standards.md` 与 `uds update --locale` 的帮助文字现在写出实际的语言顺序，包含 `~/.udsrc`。** 标准告诉采用者的顺序是 `--locale`、`install.yaml`、`UDS_LOCALE`、`en`，`uds update` 的 `--locale` 帮助文字也是同一份短清单。两处都没提 `~/.udsrc` 或 `LANG`，而 `update` 的顺序与 `init -y` 不同（先看项目已记录的语言，且不读 `LANG`）。标准现在写出两条顺序（版本 1.1.1 到 1.1.2；`zh-TW` 与 `zh-CN` 两份译本跟进，已盖 `source_hash`），自动生成的 `FEATURE-REFERENCE` 与 `CHEATSHEET`（含其译本）由此重新生成。一个测试读这三份文档，比对文档步骤的顺序与手写的 CLI 实际顺序；CLI 那一侧由上面两条的端到端测试固定。`.standards/ai-instruction-standards.ai.yaml`（本 repository 自己安装的副本）跟着源文件升到 2.1.2，因为 `check-registry-completeness` 在 CI 拦下了这个漂移。（XSPEC-533 R2）
 
 ## [6.16.0-beta.2] - 2026-11-20
 
