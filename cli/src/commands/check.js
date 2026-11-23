@@ -33,6 +33,7 @@ import {
   compareStandardsWithReferences
 } from '../utils/reference-sync.js';
 import { extractMarkedContent, resolveIntegrationTargetFile, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
+import { retiredStandardEntries } from '../utils/retired-standards.js';
 import { AmbiguousMarkerError } from '../utils/marker-locator.js';
 import { bumpManifestVersion } from '../core/manifest.js';
 import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
@@ -1605,7 +1606,11 @@ function checkIntegrationFiles(manifest, projectPath, msg) {
 
   console.log(chalk.cyan(msg.aiToolIntegration));
 
-  const standardsFiles = manifest.standards?.map(s => basename(s)) || [];
+  // dev-platform #302: a standard UDS retired (open-work-tracking, 6.15.0) is not a standard the index is missing. Counting it
+  // gave "73/74 referenced, missing open-work-tracking" for an adopter who upgraded the CLI before running `uds update`,
+  // which drops the entry. The AGENTS.md check below names it instead.
+  const retiredEntries = new Set(retiredStandardEntries(manifest, projectPath));
+  const standardsFiles = manifest.standards?.filter(s => !retiredEntries.has(s)).map(s => basename(s)) || [];
 
   // Build a lookup map: registry ID → actual AI filename
   // Needed because some standards have IDs that differ from their .ai.yaml basename
@@ -1831,14 +1836,24 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   // clears it. The fix is that this check never says "synced" without naming what it skipped.
   const unresolvedEntries = (manifest.standards || [])
     .filter(entry => !resolveStandardFilename(entry, manifest.format || 'ai'));
+  // dev-platform #302: of those, the ones UDS retired and `uds update` removes (a leftover installed file is the proof UDS
+  // installed it) are said so; only the rest keep the "delete it by hand" advice, which is true for a misspelled id.
+  const retiredEntries = new Set(retiredStandardEntries(manifest, projectPath));
+  const retiredUnresolved = unresolvedEntries.filter(entry => retiredEntries.has(entry));
+  const otherUnresolved = unresolvedEntries.filter(entry => !retiredEntries.has(entry));
+  const listEntries = (entries) => (entries.length <= 10
+    ? entries.join(', ')
+    : `${entries.slice(0, 10).join(', ')}... (+${entries.length - 10})`);
   const printUnresolved = () => {
-    if (unresolvedEntries.length === 0) return;
-    const shown = unresolvedEntries.length <= 10
-      ? unresolvedEntries.join(', ')
-      : `${unresolvedEntries.slice(0, 10).join(', ')}... (+${unresolvedEntries.length - 10})`;
+    if (retiredUnresolved.length > 0) {
+      console.log(chalk.yellow(`    ${msg.agentsMdRetiredEntries
+        .replace('{count}', retiredUnresolved.length).replace('{list}', listEntries(retiredUnresolved))}`));
+      console.log(chalk.gray(`    ${msg.agentsMdRetiredFix}`));
+    }
+    if (otherUnresolved.length === 0) return;
     console.log(chalk.yellow(`    ${(msg.agentsMdUnresolvedEntries
       || 'Manifest entries that match no installed standard ({count}), not counted above: {list}')
-      .replace('{count}', unresolvedEntries.length).replace('{list}', shown)}`));
+      .replace('{count}', otherUnresolved.length).replace('{list}', listEntries(otherUnresolved))}`));
     console.log(chalk.gray(`    ${msg.agentsMdUnresolvedFix
       || 'They were removed upstream or misspelled. `uds update` does not prune them: delete them from the "standards" list in .standards/manifest.json.'}`));
   };

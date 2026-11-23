@@ -17,6 +17,7 @@ import { readManifest } from './copier.js';
 import { compareFileHash, hasFileHashes } from './hasher.js';
 import { SUPPORTED_AI_TOOLS } from '../core/constants.js';
 import { getAllStandards, getStandardSource } from './registry.js';
+import { isUnknownStandardId } from './retired-standards.js';
 
 /**
  * Run Layer 1 health check on a UDS installation
@@ -74,8 +75,9 @@ export function runHealthCheck(projectPath) {
       // Resolve ID-format to actual filename via registry
       let fileName;
       if (!standardId.includes('/') && !standardId.includes('.')) {
-        const entry = allStds.find(s => s.id === standardId);
-        if (entry) {
+        // The same test `uds check` uses for its retired-standard wording (utils/retired-standards.js).
+        if (!isUnknownStandardId(standardId)) {
+          const entry = allStds.find(s => s.id === standardId);
           const src = getStandardSource(entry, stdFormat);
           fileName = src ? src.split('/').pop() : standardId;
         } else {
