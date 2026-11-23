@@ -22,7 +22,10 @@ function run(today, baselineLines) {
   return { code: r.status, out: `${r.stdout}${r.stderr}` };
 }
 
-describe('translation hash ratchet: baseline expiry', () => {
+// Not on Windows: the script under test is a CI gate that runs only on ubuntu-latest (.github/workflows/ci.yml,
+// job translation-hash-ratchet). Under Git Bash it hashes every translation one process at a time and each case
+// passed 30 s on windows-latest (CI run 45110937363), against 4 s on macOS.
+describe.skipIf(process.platform === 'win32')('translation hash ratchet: baseline expiry', () => {
   it('an empty baseline past its expiry date still passes, because there is no debt left to re-judge', () => {
     const r = run('2026-11-26', []);
     expect(r.code, r.out).toBe(0);
