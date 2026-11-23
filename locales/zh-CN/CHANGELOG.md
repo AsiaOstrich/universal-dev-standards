@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.16.1-beta.1
 translation_version: 6.16.1-beta.1
 last_synced: 2026-11-23
-source_hash: c6497f6246d0
+source_hash: 803c5162e11c
 status: current
 ---
 
@@ -17,6 +17,13 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 修复
+
+- **`uds check` 现在会说已退役的标准“已退役”，不再把它算成缺项（dev-platform #302）。** 在 `open-work-tracking` 退役（6.15.0）之前安装的项目，manifest 里仍列着它，直到 `uds update` 把它移除。`uds check` 的 AGENTS.md 段原本说 `uds update` 不会清除这类条目，请你自己删。对 UDS 装过文件的标准，这句话是错的：`uds update --apply` 会删除文件并移除该条目。现在这一段会说“manifest 仍列着 1 个已退役的标准，上面的数字没有计入：open-work-tracking”，并指明那个命令。拼错的 id（没有已安装的文件）仍保持请自行删除的说法。“AI 工具整合状态”也不再把已退役的标准算成缺项（原本显示 73/74 与“缺少: open-work-tracking”）。**如何验证：**在 manifest 仍列着 `open-work-tracking`、`.standards/` 仍有 `open-work-tracking.ai.yaml` 的项目执行 `uds check`；已退役那一行会指明 `uds update --apply`，整合状态没有“缺少”那行。执行 `uds update --apply` 后，该条目就从 manifest 消失。
+- **繁体中文与简体中文的 `uds check` 正文全部是中文，AGENTS.md 那一行不再在警告标记旁写“已同步”（dev-platform #302）。** 6.16.1-beta.1 翻译了 `uds check` 的标题，标题下面的句子仍是英文：“All skill files intact (N files)”“All UDS blocks intact”“User customizations outside UDS blocks are preserved”“AGENTS.md standards synced (N/N)”，以及测试守门的“nothing found”“no test files found - nothing was measured”（共约 40 个字符串，两种语言都已翻译）。AGENTS.md 那一行不只是没翻译：有跳过 manifest 条目时警告标记是刻意的，所以现在写成“标准已同步，另有 manifest 条目未计入”；没有跳过时保持对勾与“标准已同步”。**如何验证：**在用 `uds init` 设置好的项目执行 `uds check --ui-lang zh-cn`：正文没有任何一行是英文；`--ui-lang en` 不变。
+- **较旧的 `uds` 不再写入由较新 UDS 安装的项目（dev-platform #308）。** 用比项目旧的全局 `uds` 执行 `uds update --apply`，会把项目文件改写成旧版，并把记录的版本倒退，项目看起来一致、损失却看不见。现在 `uds update`（每个会写文件的用法）、`uds config`／`uds configure`，以及 `uds check --restore`、`--restore-missing`、`--migrate` 都会先检查：项目的 `upstream.version` 或 `skills.version` 比你执行的 `uds` 新时（6.16.1 比 6.16.1-beta.2 新，6.16.1-beta.2 又比 6.16.0 新），它们不写任何东西、退出码 1，并说明项目由哪个 UDS 安装、如何升级（`npm i -g universal-dev-standards@<版本>`，或 `npx universal-dev-standards@<版本> update`）。`uds update --plan` 仍会执行，并先警告。`uds update --rollback` 放行并给出提示，因为它还原的是你选的备份。`--allow-downgrade` 表示你有意往下走，会照做并记录较旧的版本。这种情况下 `uds check` 会说你的 `uds` 是旧的，不再显示“v新 → v旧”并建议 `--apply`；它的退出码不变，所以 pre-commit 只警告、不拦你的 commit。版本记录也改为只往前。**如何验证：**把 `.standards/manifest.json` 的 `upstream.version` 改成 `99.0.0`，执行 `uds update --apply --yes`：退出码 1、打印“installed by UDS 99.0.0”、没有任何文件变动；加上 `--allow-downgrade` 就会照做并记录你这个 `uds` 的版本。
+- **`uds update --apply --skills`（以及 `--commands`）也会换掉让每个 commit 通过的旧 pre-commit 钩子（dev-platform #310）。** UDS 5.x 到 6.13.1 写入的钩子（`uds check 2>/dev/null || true`）会吞掉所有错误，所以没有任何 commit 会被拦下。`uds update --apply` 会换掉它，但 `uds update --apply --yes --skills`（`uds update --plan --skills` 叫你执行的命令）换了 skills 却留下钩子，计划也没有列出它。现在“模式”（`--apply`、`--force`、`--plan`）不再被 `--skills` 或 `--commands` 缩小：计划会列出更换，apply 会执行。单独的 `uds update --skills` 仍是缩小的，会留下钩子。**如何验证：**在 `.git/hooks/pre-commit` 是旧版的 git 项目执行 `uds update --plan --skills`（会列出更换）与 `uds update --apply --yes --skills`（钩子改为执行 `universal-dev-standards check --ci`）。
 
 ## [6.16.1-beta.1] - 2026-11-23
 
