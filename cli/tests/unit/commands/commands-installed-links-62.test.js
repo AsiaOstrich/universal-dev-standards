@@ -254,7 +254,7 @@ beforeAll(async () => {
   upgrade.planBefore = await run(newCli, ['update', '--plan', '--commands', '--offline'], project);
   upgrade.update = await run(newCli, ['update', '--commands', '--yes', '--offline'], project);
   upgrade.planAfter = await run(newCli, ['update', '--plan', '--commands', '--offline'], project);
-  upgrade.check = await run(newCli, ['check'], project);
+  upgrade.check = await run(newCli, ['--ui-lang', 'en', 'check'], project);
 }, 900000);
 
 afterAll(() => {
@@ -411,7 +411,7 @@ describe('read back: the manifest hashes and uds check agree with the rewritten 
     const onDisk = AGENTS.reduce((n, spec) => n + installedCommands(project, spec).length, 0);
     expect(count).toBe(onDisk);
 
-    const check = await run(newCli, ['check'], project);
+    const check = await run(newCli, ['--ui-lang', 'en', 'check'], project);
     expect(check.out).toMatch(new RegExp(`All command files intact \\(${count} files\\)`));
   });
 

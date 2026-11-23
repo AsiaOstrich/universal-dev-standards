@@ -270,7 +270,7 @@ function initializeCheckContext(projectPath) {
   const manifest = readManifest(projectPath);
   if (!manifest) {
     console.log(chalk.red(common.couldNotReadManifest));
-    console.log(chalk.gray('  The .standards/manifest.json may be corrupted.'));
+    console.log(chalk.gray(`  ${t().commands.check.manifestMayBeCorrupted}`));
     console.log();
     return null;
   }
@@ -1526,6 +1526,7 @@ export function checkPreCommitWiring(projectPath, msg) {
  * XSPEC-178: Check full-coverage-testing standard presence and STUB markers
  */
 function checkFullCoverageCompliance(manifest, projectPath) {
+  const msg = t().commands.check;
   // Check 1: full-coverage-testing.ai.yaml presence
   const fullCoveragePath = join(projectPath, '.standards', 'full-coverage-testing.ai.yaml');
   const hasFullCoverage = existsSync(fullCoveragePath);
@@ -1536,8 +1537,8 @@ function checkFullCoverageCompliance(manifest, projectPath) {
       const parts = semver.split('.').map(Number);
       const isV5_5plus = parts[0] > 5 || (parts[0] === 5 && (parts[1] || 0) >= 5);
       if (isV5_5plus) {
-        console.log(chalk.yellow('  ⚠ [XSPEC-178] full-coverage-testing.ai.yaml not found.'));
-        console.log(chalk.gray('    Run `uds update` to install the full-coverage testing standard.'));
+        console.log(chalk.yellow(`  ⚠ ${msg.fullCoverageMissing}`));
+        console.log(chalk.gray(`    ${msg.fullCoverageMissingFix}`));
         console.log();
       }
     } catch { /* ignore semver parse errors */ }
@@ -1553,8 +1554,8 @@ function checkFullCoverageCompliance(manifest, projectPath) {
       ).trim();
       const stubCount = parseInt(result, 10) || 0;
       if (stubCount > 0) {
-        console.log(chalk.yellow(`  ⚠ [STUB] ${stubCount} STUB marker(s) found in src/.`));
-        console.log(chalk.gray('    Must be removed before UAT/production deployment (XSPEC-178).'));
+        console.log(chalk.yellow(`  ⚠ ${msg.stubMarkersFound.replace('{count}', stubCount)}`));
+        console.log(chalk.gray(`    ${msg.stubMarkersFix}`));
         console.log();
       }
     } catch { /* grep not available or src not scannable */ }
@@ -1867,7 +1868,7 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
       // A tick only when nothing was skipped; otherwise the same facts under a warning mark.
       const mark = unresolvedEntries.length === 0 ? chalk.green('✓') : chalk.yellow('⚠');
       const paint = unresolvedEntries.length === 0 ? chalk.green : chalk.yellow;
-      console.log(`  ${mark} ` + paint(`AGENTS.md ${msg.standardsSynced || 'standards synced'} (${declaredCount})`));
+      console.log(`  ${mark} ` + paint(`AGENTS.md ${unresolvedEntries.length === 0 ? msg.standardsSynced : msg.standardsSyncedSkipped} (${declaredCount})`));
     } else {
       console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${declaredCount} != ${actual})`));
       console.log(chalk.gray(`    ${msg.runUpdateToSync || 'Run "uds update" to sync'}`));
@@ -1875,7 +1876,7 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
     printUnresolved();
     const idxLineCount = content.split('\n').length;
     if (idxLineCount > 150) {
-      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${idxLineCount} lines)`));
+      console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${(msg.linesCount || '{count} lines').replace('{count}', idxLineCount)})`));
     }
     console.log();
     return;
@@ -1897,7 +1898,7 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   if (missingFromAgentsMd.length === 0) {
     const mark = unresolvedEntries.length === 0 ? chalk.green('✓') : chalk.yellow('⚠');
     const paint = unresolvedEntries.length === 0 ? chalk.green : chalk.yellow;
-    console.log(`  ${mark} ` + paint(`AGENTS.md ${msg.standardsSynced || 'standards synced'} (${listedCount}/${aiYamlStandards.length})`));
+    console.log(`  ${mark} ` + paint(`AGENTS.md ${unresolvedEntries.length === 0 ? msg.standardsSynced : msg.standardsSyncedSkipped} (${listedCount}/${aiYamlStandards.length})`));
   } else {
     console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.standardsOutOfSync || 'standards out of sync'} (${listedCount}/${aiYamlStandards.length})`));
     if (missingFromAgentsMd.length <= 5) {
@@ -1912,7 +1913,7 @@ function checkAgentsMdSync(manifest, projectPath, msg) {
   // Check line count
   const lineCount = content.split('\n').length;
   if (lineCount > 150) {
-    console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${lineCount} lines)`));
+    console.log(chalk.yellow(`  ⚠ AGENTS.md ${msg.exceedsLineLimit || 'exceeds 150 line limit'} (${(msg.linesCount || '{count} lines').replace('{count}', lineCount)})`));
   }
 
   console.log();
@@ -2205,7 +2206,7 @@ function checkSkillsIntegrity(manifest, projectPath, msg, ignoredRecords = 0) {
 
   // Summary
   if (status.modified.length === 0 && status.missing.length === 0) {
-    console.log(chalk.green(`  ✓ ${msg.allSkillsIntact || 'All skill files intact'} (${status.unchanged.length} files)`));
+    console.log(chalk.green(`  ✓ ${msg.allSkillsIntact || 'All skill files intact'} (${(msg.filesCount || '{count} files').replace('{count}', status.unchanged.length)})`));
   } else {
     console.log(chalk.gray(`  ${(msg.skillsIntegritySummary || '{unchanged} unchanged, {modified} modified, {missing} missing')
       .replace('{unchanged}', status.unchanged.length)
@@ -2324,7 +2325,7 @@ export function checkCommandsIntegrity(manifest, projectPath, msg, ignored = {})
 
   // Summary
   if (status.modified.length === 0 && status.missing.length === 0 && status.untracked.length === 0) {
-    console.log(chalk.green(`  ✓ ${msg.allCommandsIntact || 'All command files intact'} (${status.unchanged.length} files)`));
+    console.log(chalk.green(`  ✓ ${msg.allCommandsIntact || 'All command files intact'} (${(msg.filesCount || '{count} files').replace('{count}', status.unchanged.length)})`));
   } else {
     console.log(chalk.gray(`  ${(msg.commandsIntegritySummary || '{unchanged} unchanged, {modified} modified, {missing} missing')
       .replace('{unchanged}', status.unchanged.length)
@@ -2403,7 +2404,7 @@ function checkIntegrationBlocksIntegrity(manifest, projectPath, msg) {
 
   // Summary
   if (status.modified.length === 0 && status.missing.length === 0 && status.noMarkers.length === 0 && status.ambiguous.length === 0) {
-    console.log(chalk.green(`  ✓ ${msg.allBlocksIntact || 'All UDS blocks intact'} (${status.unchanged.length} files)`));
+    console.log(chalk.green(`  ✓ ${msg.allBlocksIntact || 'All UDS blocks intact'} (${(msg.filesCount || '{count} files').replace('{count}', status.unchanged.length)})`));
     console.log(chalk.gray(`    ${msg.userContentPreserved || 'User customizations outside UDS blocks are preserved'}`));
   } else {
     console.log(chalk.gray(`  ${(msg.blocksIntegritySummary || '{unchanged} intact, {modified} modified, {missing} missing')

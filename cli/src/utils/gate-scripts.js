@@ -27,6 +27,7 @@ import { getRepoRoot } from './copier.js';
 import { newRecorder, mkdirTracked, recordFile, RECORD_KINDS } from '../core/install-records.js';
 import { loadPolicy } from './test-policy.js';
 import { readStagedChanges } from './test-change-check.js';
+import { t } from '../i18n/messages.js';
 
 /** The standard that asks for these scripts; they are only written when it is installed. */
 export const GATE_STANDARD_FILE = 'full-coverage-testing.ai.yaml';
@@ -73,6 +74,27 @@ export function installGateScripts(projectPath, recorder = newRecorder()) {
 const MAX_SHOWN = 12;
 
 /**
+ * The scripts print their own `·` lines in English (they are the adopter's files, edited and run on their own too). Where this
+ * UDS knows the exact line it says it in the display language; a line it does not know (an adopter's edit, a newer script) is
+ * shown as it is.
+ */
+function localizeScriptLine(line, msg) {
+  const text = line.trim();
+  const rules = [
+    [/^· no test files found — nothing was measured$/, () => msg.gateLineNoTestFiles],
+    [/^· (\d+) test call\(s\) could not be parsed \(unbalanced brackets\) and were not judged$/, (m) => msg.gateLineUnparsed.replace('{count}', m[1])],
+    [/^· NOT scanned — (.*)$/, (m) => msg.gateLineNotScanned.replace('{rest}', m[1])],
+    [/^· (\d+) test\(s\) exempted by an ANTI_FAKE_EXEMPT comment with a reason \(not judged\):$/, (m) => msg.gateLineExempted.replace('{count}', m[1])],
+    [/^· empty-function scan has no rule for: (.*?) \(markers and "not implemented" bodies were still searched\)$/, (m) => msg.gateLineNoEmptyRule.replace('{list}', m[1])]
+  ];
+  for (const [re, say] of rules) {
+    const m = text.match(re);
+    if (m) return `· ${say(m)}`;
+  }
+  return text;
+}
+
+/**
  * Run the installed scanners and print the outcome. Never throws.
  * @param {string} projectPath
  * @param {{ staged?: boolean, mode?: 'warn'|'block', log?: Function }} [opts]
@@ -84,6 +106,7 @@ const MAX_SHOWN = 12;
 export function runTestQualityGates(projectPath, { staged, mode, log = console.log } = {}) {
   const result = { ran: [], findings: {}, couldNotJudge: [], blocked: false, missing: [] };
   const effectiveMode = mode || loadPolicy(projectPath).policy.mode;
+  const msg = t().commands.check;
   const blocking = effectiveMode === 'block';
 
   if (!gateStandardInstalled(projectPath)) return result;
@@ -102,10 +125,10 @@ export function runTestQualityGates(projectPath, { staged, mode, log = console.l
     result.ran.push(file);
 
     if (r.status === 0) {
-      log(chalk.gray(`  ✓ [${label}] ${rel}: nothing found${staged ? ' in the staged files' : ''}`));
+      log(chalk.gray(`  ✓ [${label}] ${rel}: ${staged ? msg.gateNothingFoundStaged : msg.gateNothingFound}`));
       // "Nothing found" must not hide what was NOT looked at: the script lists files it could not
       // judge (a language it has no rule for, an unparsable call) on lines that start with `·`.
-      for (const l of (r.stdout || '').split('\n').filter((x) => /^\s*·/.test(x))) log((/NOT scanned|could not be parsed/.test(l) ? chalk.yellow : chalk.gray)(`    ${l.trim()}`));
+      for (const l of (r.stdout || '').split('\n').filter((x) => /^\s*·/.test(x))) log((/NOT scanned|could not be parsed/.test(l) ? chalk.yellow : chalk.gray)(`    ${localizeScriptLine(l, msg)}`));
       continue;
     }
     if (r.status === 1) {
@@ -113,12 +136,12 @@ export function runTestQualityGates(projectPath, { staged, mode, log = console.l
       const count = lines.filter((l) => /^\s*✗/.test(l)).length;
       result.findings[label] = count;
       const head = blocking
-        ? `  ✗ [${label}] BLOCKED: ${rel} found ${count} finding(s) (mode "block").`
-        : `  ⚠ [${label}] ${rel} found ${count} finding(s) — warning only, the commit is not blocked.`;
+        ? `  ✗ [${label}] ${msg.gateBlocked.replace('{rel}', rel).replace('{count}', count)}`
+        : `  ⚠ [${label}] ${msg.gateWarned.replace('{rel}', rel).replace('{count}', count)}`;
       log(blocking ? chalk.red(head) : chalk.yellow(head));
       const shown = lines.slice(0, MAX_SHOWN + 4);
       for (const l of shown) log(chalk.gray(`    ${l.trim()}`));
-      if (lines.length > shown.length) log(chalk.gray(`    ... (run \`node ${rel}\` to see everything)`));
+      if (lines.length > shown.length) log(chalk.gray(`    ${msg.gateSeeAll.replace('{rel}', rel)}`));
       if (blocking) result.blocked = true;
       continue;
     }
@@ -126,14 +149,14 @@ export function runTestQualityGates(projectPath, { staged, mode, log = console.l
     const why = r.error ? r.error.message : (r.stderr || r.stdout || `exit ${r.status}`).split('\n').find((l) => l.trim()) || `exit ${r.status}`;
     result.couldNotJudge.push(label);
     const head = blocking
-      ? `  ✗ [${label}] BLOCKED: ${rel} could not judge (mode "block" treats that as a failure): ${why.trim()}`
-      : `  ⚠ [${label}] ${rel} could not judge — this is NOT a pass: ${why.trim()}`;
+      ? `  ✗ [${label}] ${msg.gateCouldNotJudgeBlocked.replace('{rel}', rel).replace('{why}', why.trim())}`
+      : `  ⚠ [${label}] ${msg.gateCouldNotJudge.replace('{rel}', rel).replace('{why}', why.trim())}`;
     log(blocking ? chalk.red(head) : chalk.yellow(head));
     if (blocking) result.blocked = true;
   }
 
   if (result.missing.length > 0) {
-    log(chalk.gray(`  ℹ [test-gates] ${result.missing.map(destRel).join(', ')} not installed (the full-coverage-testing standard asks for them). \`uds update\` offers to install them.`));
+    log(chalk.gray(`  ℹ [test-gates] ${msg.gateNotInstalled.replace('{list}', result.missing.map(destRel).join(', '))}`));
   }
   if (result.blocked) process.exitCode = 1;
   if (result.ran.length > 0 || result.missing.length > 0) log();
