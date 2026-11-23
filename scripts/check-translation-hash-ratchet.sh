@@ -26,7 +26,7 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCALES="${ROOT}/locales"
-BASELINE="${ROOT}/scripts/translation-hash-ratchet-baseline.txt"
+BASELINE="${HASH_RATCHET_BASELINE:-${ROOT}/scripts/translation-hash-ratchet-baseline.txt}"   # 測試可指定基線檔
 BASELINE_EXPIRY="2026-11-25"
 
 fail() { echo "[hash-ratchet] $*" >&2; exit 2; }
@@ -71,9 +71,12 @@ echo "[hash-ratchet] 探針自證：✓ 正向　✓ 負向"
 
 [ -f "${BASELINE}" ] || fail "基線不存在：${BASELINE} —— 沒有基線就分不出「既有欠債」與「新增違規」"
 
-TODAY="$(date +%Y-%m-%d)"
-if [ "${BASELINE_EXPIRY}" \< "${TODAY}" ]; then
-  echo "[hash-ratchet] 🔴 基線已於 ${BASELINE_EXPIRY} 到期 —— 重新判斷，不得自動延期" >&2
+TODAY="${HASH_RATCHET_TODAY:-$(date +%Y-%m-%d)}"   # 測試可指定日期
+# 到期日只約束「還有欠債」的基線：到期時要重新判斷那些欠債。基線清空（2026-11-23 起 0 筆）後
+# 沒有東西需要判斷，新翻譯缺雜湊仍由下方的「基線外」照擋，所以空基線不再看到期日。
+BASELINE_ENTRIES="$(grep -cvE '^[[:space:]]*(#|$)' "${BASELINE}" || true)"
+if [ "${BASELINE_ENTRIES}" -gt 0 ] && [ "${BASELINE_EXPIRY}" \< "${TODAY}" ]; then
+  echo "[hash-ratchet] 🔴 基線（${BASELINE_ENTRIES} 筆）已於 ${BASELINE_EXPIRY} 到期 —— 重新判斷，不得自動延期" >&2
   exit 1
 fi
 
