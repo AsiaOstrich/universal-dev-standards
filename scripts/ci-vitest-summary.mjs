@@ -6,7 +6,11 @@
  * reads the file `vitest --reporter=json --outputFile.json=<file>` wrote and prints the four numbers (and the names
  * of the skipped tests), and appends the same Markdown to the job summary when GITHUB_STEP_SUMMARY is set.
  *
- * Usage: node scripts/ci-vitest-summary.mjs <vitest-json-file> [--title "<text>"] [--list-skipped <n>]
+ * It also lists the slowest tests and marks any that used half or more of the per-test timeout (dev-platform #283:
+ * two Windows e2e tests timed out at 30 s once while they take under 1 s on macOS, and the job log kept no per-test
+ * time, so there was no way to tell a tight timeout from a slow runner).
+ *
+ * Usage: node scripts/ci-vitest-summary.mjs <vitest-json-file> [--title "<text>"] [--list-skipped <n>] [--slowest <n>] [--timeout-ms <ms>]
  *
  * Exit codes: 0 something ran and nothing failed; 1 a test failed, or no test ran (every test skipped is not a pass);
  * 2 the file could not be read as a vitest result (the test step died before writing it).
@@ -26,6 +30,8 @@ const flag = (name, fallback) => {
 const file = argv.find((a, i) => !a.startsWith('--') && !(argv[i - 1] || '').startsWith('--'));
 const title = flag('--title', 'Test results');
 const listLimit = Number(flag('--list-skipped', 40));
+const slowestLimit = Number(flag('--slowest', 10));
+const timeoutMs = Number(flag('--timeout-ms', 30000));
 
 /** @returns {{ total: number, passed: number, failed: number, skipped: number, todo: number, ran: number, skippedNames: string[] }} */
 export function summarize(result) {
@@ -44,6 +50,11 @@ export function summarize(result) {
     todo,
     ran: passed + failed,
     skippedNames: all.filter((a) => a.status === 'skipped' || a.status === 'pending').map((a) => a.fullName),
+    // tests that ran, slowest first (a timed-out test is failed and carries its duration too)
+    slowest: all
+      .filter((a) => (a.status === 'passed' || a.status === 'failed') && typeof a.duration === 'number')
+      .sort((x, y) => y.duration - x.duration)
+      .map((a) => ({ name: a.fullName, ms: Math.round(a.duration), status: a.status })),
     // the file-level numbers vitest prints itself, to catch a reader that disagrees with the reporter
     reported: { total: result.numTotalTests, passed: result.numPassedTests, failed: result.numFailedTests, pending: result.numPendingTests },
   };
@@ -62,6 +73,16 @@ export function toMarkdown(title, s) {
     lines.push(`<details><summary>${s.skipped} skipped test(s) — they did not run on this system, they did not pass</summary>`, '');
     for (const n of s.skippedNames.slice(0, listLimit)) lines.push(`- ${n}`);
     if (s.skippedNames.length > listLimit) lines.push(`- ... and ${s.skippedNames.length - listLimit} more`);
+    lines.push('', '</details>', '');
+  }
+  if (s.slowest && s.slowest.length > 0 && slowestLimit > 0) {
+    const near = s.slowest.filter((x) => x.ms >= timeoutMs / 2).length;
+    lines.push(`<details><summary>Slowest ${Math.min(slowestLimit, s.slowest.length)} test(s); ${near} used half or more of the ${timeoutMs} ms timeout</summary>`, '');
+    lines.push('| ms | | test |', '|---|---|---|');
+    for (const x of s.slowest.slice(0, slowestLimit)) {
+      const mark = x.ms >= timeoutMs / 2 ? `>= half of timeout${x.status === 'failed' ? ', failed' : ''}` : x.status === 'failed' ? 'failed' : '';
+      lines.push(`| ${x.ms} | ${mark} | ${x.name} |`);
+    }
     lines.push('', '</details>', '');
   }
   return lines.join('\n');

@@ -191,3 +191,18 @@ it('the end-to-end tests that need a POSIX shell skip themselves on Windows with
     for (const t of tests) expect(t.split('\n').slice(0, 4).join('\n'), `${f}: ${t.slice(0, 60)}`).toContain("if (process.platform === 'win32') ctx.skip();");
   }
 });
+
+it('lists the slowest tests with their time and marks a test that used half or more of the timeout, so a Windows timeout can be told from a tight limit (dev-platform #283)', () => {
+  const dir = tmp.next('slow');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'slow.test.js'), "it('quick one', () => { expect(1).toBe(1); });\nit('slow one', async () => { await new Promise((r) => setTimeout(r, 400)); });\n");
+  const out = join(dir, 'result.json');
+  spawnSync(process.execPath, [VITEST, 'run', '--root', dir, '--globals', '--reporter=dot', '--reporter=json', `--outputFile.json=${out}`], { encoding: 'utf-8', timeout: 120000 });
+  const r = summary(out, ['--slowest', '5', '--timeout-ms', '600']);
+  expect(r.code, r.out).toBe(0);
+  expect(r.stdout).toContain('Slowest 2 test(s); 1 used half or more of the 600 ms timeout');
+  const rows = r.stdout.split('\n').slice(r.stdout.split('\n').indexOf('| ms | | test |') + 2).filter((l) => /^\| \d+ \|/.test(l));
+  expect(rows[0], r.stdout).toMatch(/^\| (\d+) \| >= half of timeout \| slow one \|$/);
+  expect(Number(/^\| (\d+)/.exec(rows[0])[1])).toBeGreaterThanOrEqual(380);
+  expect(rows[1]).toMatch(/\| quick one \|$/);
+});
