@@ -81,8 +81,8 @@ node scripts/beta-acceptance/run.mjs --version 6.16.1-beta.1
 It installs the published 6.16.1-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.16.1-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 389 steps (381 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 389 步（381 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 392 steps (384 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 392 步（384 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1251,6 +1251,15 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 389 steps (381
 389. `optional-skills-unknown-name` — uds update --add-skill with a name UDS does not ship exits 1 and lists the names that work.
    uds update --add-skill 帶 UDS 沒有的名稱時結束碼為 1，並列出可用名稱。
    `uds update --add-skill no-such-skill --offline` → exit 1; output has "Unknown skill 'no-such-skill'", "open-work (open-work-assistant)" (+1)
+390. `issue302-init` — uds init sets up a project (the project the next two steps use).
+   uds init 建立專案（後續兩步使用）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
+391. `issue302-audit-retired` — uds audit on a project whose manifest still lists the retired open-work-tracking says it is no longer shipped, not that it is missing.
+   manifest 仍列著已退役的 open-work-tracking 時，uds audit 說它已不再出貨，而不是說檔案遺失。
+   `uds audit --health --offline` → exit 0; output has "no longer shipped by UDS"
+392. `issue302-check-zh-headings` — uds check in Traditional Chinese prints its headings in Chinese and calls the product Development standards.
+   繁體中文的 uds check 標題是中文，產品名是「開發」標準。
+   `uds --ui-lang zh-tw check --offline` → exit 0; output has "通用開發標準 - 檢查", "Skills 檔案完整性"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
