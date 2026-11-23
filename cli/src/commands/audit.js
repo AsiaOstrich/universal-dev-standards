@@ -243,8 +243,11 @@ function outputTerminal(auditResult, msg, { isReport = false } = {}) {
     console.log(chalk.gray('─'.repeat(40)));
 
     const health = auditResult.health;
+    // A standard this UDS no longer ships is a note, not a finding (dev-platform #302): it is INFO, so it is never counted
+    // or offered by --report, and it is printed on its own line because the first INFO here is the file count.
+    const retired = health.issues.filter(i => i.kind === 'retired');
     if (health.status === 'OK') {
-      const fileCount = health.issues.find(i => i.severity === 'INFO')?.message || '';
+      const fileCount = health.issues.find(i => i.severity === 'INFO' && i.kind !== 'retired')?.message || '';
       console.log(chalk.green(`  ✓ ${msg.allHealthy?.replace('{count}', fileCount) || 'All files intact'}`));
     } else {
       for (const issue of health.issues) {
@@ -255,6 +258,10 @@ function outputTerminal(auditResult, msg, { isReport = false } = {}) {
           console.log(chalk.gray(`       Fix: ${issue.fix}`));
         }
       }
+    }
+    for (const note of retired) {
+      console.log(chalk.gray(`  ℹ ${note.component}: ${note.message}`));
+      console.log(chalk.gray(`       ${note.fix}`));
     }
   }
 

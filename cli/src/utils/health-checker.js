@@ -79,7 +79,18 @@ export function runHealthCheck(projectPath) {
           const src = getStandardSource(entry, stdFormat);
           fileName = src ? src.split('/').pop() : standardId;
         } else {
-          fileName = standardId;
+          // dev-platform #302: an id this version of UDS no longer ships (open-work-tracking, retired in 6.15.0) is not a
+          // missing file. Reporting it as one sent adopters who upgraded the CLI before running `uds update` to
+          // `uds check --restore-missing` (which has nothing to restore) and offered it as feedback in `--report`.
+          // `uds update` drops the entry (dropRetiredStandardEntries), so say that, as INFO, which audit does not count.
+          issues.push({
+            severity: 'INFO',
+            kind: 'retired',
+            component: standardId,
+            message: 'Standard listed in manifest is no longer shipped by UDS (retired)',
+            fix: 'Run `uds update` to remove it from the manifest'
+          });
+          continue;
         }
       } else {
         fileName = standardId.split('/').pop();
