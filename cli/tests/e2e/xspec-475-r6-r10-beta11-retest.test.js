@@ -23,17 +23,21 @@
  *        cli/src/commands/spec.js                ... .map((spec) => spec.status.length + 1)); // [mutation-anchor:status-width]
  *   R9   cli/src/utils/available-standards.js    const recommended = notOffered.filter((n) => n.addable && n.recommended); // [mutation-anchor:recommended-core]
  *   R10  ai/standards/secret-management-standards.ai.yaml   - pipeline-security-gates
+ *        cli/src/reconciler/plan-executor.js     const result = await copyStandard(sourceStr, targetDir, projectPath); (the install that holds no local copy)
  */
 
 import { it, expect, afterAll } from 'vitest';
 import { writeFileSync, readFileSync, mkdirSync, existsSync, rmSync, readdirSync } from 'fs';
 import { join } from 'path';
 import * as yaml from 'js-yaml';
-import { createHarness } from '../utils/staged-cli-harness.js';
+import { createHarness, REAL_REPO } from '../utils/staged-cli-harness.js';
 import { expectedOtherCategoryCount, expectedRecommendedIds } from '../utils/xspec-458.js';
 
 const h = createHarness('xspec475-r6-r10');
-afterAll(() => h.cleanup());
+// R10: the CLI of an install that holds no local copy of the standard, so the reconciler has no source path for it.
+const SECRET_STANDARD = 'ai/standards/secret-management-standards.ai.yaml';
+const hNoLocal = createHarness('xspec475-r10-nolocal', { omit: [SECRET_STANDARD] });
+afterAll(() => { h.cleanup(); hNoLocal.cleanup(); });
 
 const readManifest = (dir) => JSON.parse(readFileSync(join(dir, '.standards', 'manifest.json'), 'utf-8'));
 const writeManifest = (dir, m) => writeFileSync(join(dir, '.standards', 'manifest.json'), JSON.stringify(m, null, 2));
@@ -105,17 +109,26 @@ it('uds update --apply on a project with nothing to rewrite says it is up to dat
 });
 
 it('uds update --apply whose plan holds no skill or command file still records the shipped version for both, so check has nothing to report (XSPEC-475 R6)', async () => {
-  // A Claude Code + Cursor project: the plan of a fresh one holds only integration-file blocks to migrate, no skill or command action.
+  // A Claude Code + Cursor project. `uds init` leaves it current, so its plan is empty and `--apply` would take the
+  // "up to date" return in update.js (which aligns the versions too, see the test above). To make the plan non-empty without
+  // a skill or command action, one standard file is deleted from disk: the plan holds one standard to create, and the versions
+  // are recorded only by the reconciler's own executor (plan-executor.js).
   const dir = await initialised(undefined, { before: (d) => { mkdirSync(join(d, '.claude'), { recursive: true }); writeFileSync(join(d, '.cursorrules'), '# mine\n'); } });
   const fresh = readManifest(dir);
   const aged = readManifest(dir);
   aged.skills.version = '6.11.0';
   aged.commands.version = '6.11.0';
   writeManifest(dir, aged);
+  const standardFile = join(dir, '.standards', 'commit-message.ai.yaml');
+  expect(existsSync(standardFile), 'fixture: the standard is installed').toBe(true);
+  rmSync(standardFile);
   expect(out(await h.runCli(['check'], dir)), 'control: check reports the old version').toMatch(/Commands: v6\.11\.0/);
 
   const apply = await h.runCli(['update', '--apply', '--yes', '--offline'], dir);
   expect(apply.code, out(apply)).toBe(0);
+  expect(apply.stdout, 'fixture: the plan is not empty, so the reconciler ran and the up-to-date return was not taken').not.toContain('Everything is up to date');
+  expect(apply.stdout, 'fixture: the plan creates the deleted standard').toContain('.standards/commit-message.ai.yaml');
+  expect(existsSync(standardFile), 'the deleted standard is back').toBe(true);
   expect(apply.stdout, 'fixture: the plan has no skill or command file action').not.toMatch(/\.cursor\/commands|\.claude\/skills/);
   const after = readManifest(dir);
   expect(after.skills.version).toBe(fresh.skills.version);
@@ -241,19 +254,61 @@ it('uds update --plan, uds check and uds audit --friction name the recommended c
 
 // ── R10 ─────────────────────────────────────────────────────────────────────
 
+/** A preload that answers GitHub raw-content requests for one file from a local file and logs every URL asked for. */
+const FAKE_GITHUB = `
+const https = require('https');
+const { EventEmitter } = require('events');
+const { PassThrough } = require('stream');
+const { appendFileSync, readFileSync } = require('fs');
+https.get = (url, cb) => {
+  appendFileSync(process.env.FAKE_GITHUB_LOG, String(url) + '\\n');
+  const req = new EventEmitter();
+  setImmediate(() => {
+    const served = String(url).endsWith('/' + process.env.FAKE_GITHUB_PATH);
+    const res = new PassThrough();
+    res.statusCode = served ? 200 : 404;
+    res.headers = {};
+    cb(res);
+    res.end(served ? readFileSync(process.env.FAKE_GITHUB_FILE) : 'Not Found');
+  });
+  return req;
+};
+`;
+
+function expectSecretStandard(dir, label) {
+  const file = join(dir, '.standards', 'secret-management-standards.ai.yaml');
+  expect(existsSync(file), `${label}: ${readdirSync(join(dir, '.standards')).join(',')}`).toBe(true);
+  const std = yaml.load(readFileSync(file, 'utf-8'));
+  expect(std.version, label).toBe('1.1.0');
+  const req3 = std.requirements?.find((r) => r.id === 'REQ-003') ?? Object.values(std).flat().find((r) => r && r.id === 'REQ-003');
+  expect(req3, `${label}: REQ-003 is in the installed standard`).toBeTruthy();
+  for (const rule of ['PSG-1', 'PSG-2', 'PSG-3', 'pipeline-security-gates']) {
+    expect(req3.description, `${label}: ${rule}`).toContain(rule);
+  }
+  expect(req3.references, label).toContain('pipeline-security-gates');
+}
+
 it('secret-management-standards installed with --add-standard is 1.1.0 and REQ-003 points at PSG-1 to PSG-3 of pipeline-security-gates (XSPEC-475 R10)', async () => {
+  // Where the CLI holds the file: the reconciler resolves a source path and copies it.
   const dir = await initialised(['init', '-y', '--skills-location', 'none']);
   const add = await h.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'secret-management-standards'], dir);
   expect(add.code, out(add)).toBe(0);
+  expectSecretStandard(dir, 'source path resolved');
 
-  const file = join(dir, '.standards', 'secret-management-standards.ai.yaml');
-  expect(existsSync(file), readdirSync(join(dir, '.standards')).join(',')).toBe(true);
-  const std = yaml.load(readFileSync(file, 'utf-8'));
-  expect(std.version).toBe('1.1.0');
-  const req3 = std.requirements?.find((r) => r.id === 'REQ-003') ?? Object.values(std).flat().find((r) => r && r.id === 'REQ-003');
-  expect(req3, 'REQ-003 is in the installed standard').toBeTruthy();
-  for (const rule of ['PSG-1', 'PSG-2', 'PSG-3', 'pipeline-security-gates']) {
-    expect(req3.description, rule).toContain(rule);
-  }
-  expect(req3.references).toContain('pipeline-security-gates');
+  // Where it does not (a package without a local copy): no source path, so the reconciler falls back to copyStandard, which
+  // downloads it from GitHub. The fallback is a different wire from the copy above, and this half is what runs it.
+  const bare = await initialised(['init', '-y', '--skills-location', 'none']);
+  const fake = h.makeDir('fake-github');
+  const preload = join(fake, 'fake-github.cjs');
+  const asked = join(fake, 'asked.log');
+  writeFileSync(preload, FAKE_GITHUB);
+  const fetched = await hNoLocal.runCli(['update', '--apply', '--yes', '--offline', '--add-standard', 'secret-management-standards'], bare, {
+    preloads: [preload],
+    env: { FAKE_GITHUB_LOG: asked, FAKE_GITHUB_PATH: SECRET_STANDARD, FAKE_GITHUB_FILE: join(REAL_REPO, ...SECRET_STANDARD.split('/')) }
+  });
+  expect(fetched.code, out(fetched)).toBe(0);
+  expect(existsSync(asked) ? readFileSync(asked, 'utf-8') : '', 'the CLI asked GitHub for the file it does not hold').toContain(`/${SECRET_STANDARD}`);
+  expectSecretStandard(bare, 'downloaded');
+  const recorded = readManifest(bare).fileHashes?.['.standards/secret-management-standards.ai.yaml'];
+  expect(recorded?.hash, 'the manifest records the hash of the file the fallback wrote').toBeTruthy();
 });

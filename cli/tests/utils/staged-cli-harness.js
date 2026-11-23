@@ -41,6 +41,17 @@ export function linkRepoEntry(link, target, { platform = process.platform, symli
   return cpSync(target, link);
 }
 
+/**
+ * Put `target` at `link` like `linkRepoEntry`, except for the files in `omit` (POSIX paths from the repo root, `rel` is the
+ * path of `target` itself). A directory that holds an omitted file is rebuilt entry by entry so the file is simply not there.
+ */
+export function linkRepoTree(target, link, rel, omit = []) {
+  if (omit.includes(rel)) return;
+  if (!omit.some((o) => o.startsWith(`${rel}/`))) return linkRepoEntry(link, target);
+  mkdirSync(link, { recursive: true });
+  for (const child of readdirSync(target)) linkRepoTree(join(target, child), join(link, child), `${rel}/${child}`, omit);
+}
+
 /** Text without the terminal control codes (colours, cursor moves) a prompt library prints. */
 export const stripAnsi = (text) => text.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
 
@@ -129,12 +140,16 @@ for (const name of ['exec', 'execFile']) {
 
 /**
  * @param {string} label - Short name used in the sandbox directory
- * @param {{ overrides?: Object<string, string> }} [opts] - `overrides` maps a path under `cli/` (e.g.
+ * @param {{ overrides?: Object<string, string>, omit?: string[] }} [opts] - `overrides` maps a path under `cli/` (e.g.
  *   `src/utils/foo.js`) to the source text that replaces that file in the STAGED copy only. It builds a
  *   "feature switched off" twin of the CLI: run the same commands on both and the difference is the feature.
+ *   `omit` lists files of the repo (POSIX paths from the repo root, e.g. `ai/standards/foo.ai.yaml`) that the staged
+ *   package does not hold: an install with no local copy of them, as an npm package has none of the files outside the
+ *   directories `cli/scripts/prepack.mjs` bundles (the human-format options, for one). The CLI then has to fetch them
+ *   from GitHub, which a test serves with a preload.
  * @returns {{ runCli: Function, newProject: Function, makeDir: Function, cleanup: Function, cliPath: Function }}
  */
-export function createHarness(label, { overrides = {} } = {}) {
+export function createHarness(label, { overrides = {}, omit = [] } = {}) {
   let sandbox = null;
   let stagedCli = null;
   let preloadPath = null;
@@ -160,7 +175,7 @@ export function createHarness(label, { overrides = {} } = {}) {
     symlinkSync(realpathSync(join(REAL_CLI_DIR, 'node_modules')), join(cli, 'node_modules'), 'junction'); // a 'dir' symlink needs a privilege on Windows
     for (const name of readdirSync(REAL_REPO)) {
       if (['cli', '.git', 'node_modules'].includes(name)) continue;
-      linkRepoEntry(join(root, name), join(REAL_REPO, name));
+      linkRepoTree(join(REAL_REPO, name), join(root, name), name, omit);
     }
     stagedCli = join(cli, 'bin', 'uds.js');
     return sandbox;

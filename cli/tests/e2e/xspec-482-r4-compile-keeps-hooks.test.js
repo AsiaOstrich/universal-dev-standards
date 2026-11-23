@@ -52,7 +52,20 @@ it('uds compile after init --with-hooks keeps the user\'s own hooks and writes t
   expect(fromInit.length, 'fixture: several UDS hooks installed').toBeGreaterThan(3);
   // The user adds an Edit hook (an event UDS also uses) and a Bash hook next to UDS's.
   initSettings.hooks.PreToolUse.push(MINE_EDIT, MINE_BASH);
+  // `init --with-hooks` has already written every UDS entry, so a compile that merged nothing would leave the file as it
+  // is and look the same. Two UDS entries are therefore taken out first: one from an event that also holds the user's
+  // hooks, and one whole event. Only a compile that merges can bring them back.
+  const DANGEROUS = 'node scripts/hooks/check-dangerous-cmd.mjs';
+  const LOGGING = 'node scripts/hooks/check-logging-standard.mjs';
+  expect(fromInit.some((l) => l.endsWith(DANGEROUS)), 'fixture: init wrote the dangerous-command hook').toBe(true);
+  expect(fromInit.some((l) => l.endsWith(LOGGING)), 'fixture: init wrote the logging hook').toBe(true);
+  initSettings.hooks.PreToolUse = initSettings.hooks.PreToolUse.filter((e) => e.hooks?.[0]?.command !== DANGEROUS);
+  expect(initSettings.hooks.PostToolUse.map((e) => e.hooks?.[0]?.command), 'fixture: the logging hook is the only PostToolUse entry').toEqual([LOGGING]);
+  delete initSettings.hooks.PostToolUse;
   writeFileSync(SETTINGS(dir), JSON.stringify(initSettings, null, 2));
+  const removed = udsEntries(readSettings(dir));
+  expect(removed.length, 'fixture: the two UDS entries are gone from settings.json').toBe(fromInit.length - 2);
+  expect(removed.some((l) => l.endsWith(DANGEROUS) || l.endsWith(LOGGING))).toBe(false);
 
   const run = await h.runCli(['compile'], dir);
   expect(run.code, out(run)).toBe(0);
@@ -60,7 +73,7 @@ it('uds compile after init --with-hooks keeps the user\'s own hooks and writes t
   // (a) the user's hooks are still there.
   expect(after.hooks.PreToolUse).toContainEqual(MINE_EDIT);
   expect(after.hooks.PreToolUse).toContainEqual(MINE_BASH);
-  // (b) UDS entries are exactly what init wrote: nothing added, nothing duplicated, no object matcher anywhere.
+  // (b) UDS entries are exactly what init wrote: the two taken out are back, nothing duplicated, no object matcher anywhere.
   expect(udsEntries(after)).toEqual(fromInit);
   const matchers = Object.values(after.hooks).flat().map((e) => typeof e.matcher);
   expect(matchers.every((t) => t === 'string')).toBe(true);
