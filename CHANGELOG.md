@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.16.1] - 2026-11-23
+
+> **Stable Release**: everything in 6.16.1-beta.1 and beta.2 below, with no change since beta.2. beta.2 was accepted on Windows (cmd, PowerShell, Git Bash), macOS and Linux (post-publish acceptance, 0 failed). **Read this first:** an older `uds` no longer quietly writes over a project that a newer UDS installed (`uds update`, `uds config` / `uds configure` and `uds check --restore` stop with exit code 1 and tell you which UDS installed the project; if you did want to go back, `--allow-downgrade` does it on purpose). Two more things you may notice: `uds update --apply --skills` now also replaces the old pre-commit hook that lets every commit through, and `uds check` and `uds audit` no longer report a retired standard (`open-work-tracking`) as missing; the `uds check` screens are also fully translated in Traditional and Simplified Chinese. **If several machines share one repo:** `uds` 6.16.0 and earlier still downgrade a project without warning, so upgrade the CLI on every machine first (`npm i -g universal-dev-standards@6.16.1`). If a project was already downgraded by mistake, `uds update --rollback` or a git revert of the files brings it back.
+
 ## [6.16.1-beta.2] - 2026-11-23
 
 *Pre-release, install with `npm install -g universal-dev-standards@beta`. Four fixes since 6.16.1-beta.1 (dev-platform #302, #308, #310). The one you are most likely to notice: an older `uds` no longer quietly writes over a project a newer UDS installed. If you keep more than one UDS version on a machine (a global install and an `npx` run, or a teammate on an older one), read the third entry under Fixed first.*

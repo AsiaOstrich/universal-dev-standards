@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.1-beta.2
-translation_version: 6.16.1-beta.2
+source_version: 6.16.1
+translation_version: 6.16.1
 last_synced: 2026-11-23
-source_hash: 912e417af23f
+source_hash: c81983e0cafb
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.16.1] - 2026-11-23
+
+> **正式版发布**：包含下方 6.16.1-beta.1 与 beta.2 的所有内容，beta.2 之后没有任何变更。beta.2 已在 Windows（cmd、PowerShell、Git Bash）、macOS、Linux 完成发布后验收（0 项失败）。**请先读：**较旧的 `uds` 不再悄悄写入由较新 UDS 安装的项目（`uds update`、`uds config`／`uds configure`、`uds check --restore` 会以退出码 1 停下，并告诉你项目由哪个 UDS 安装；真的要退回去时，`--allow-downgrade` 会按你的意思做）。另外两件你可能会注意到的事：`uds update --apply --skills` 现在也会换掉让每个 commit 通过的旧 pre-commit 钩子，`uds check` 与 `uds audit` 不再把已退役的标准（`open-work-tracking`）报成缺项；`uds check` 的界面在繁体与简体中文也已全部翻译。**如果多台电脑共用同一个 repo：**6.16.0 及更早的 `uds` 仍会在没有警告的情况下把项目降版，请先在每一台电脑升级 CLI（`npm i -g universal-dev-standards@6.16.1`）。如果项目已经被误降版，用 `uds update --rollback` 或用 git 还原那些文件就能救回来。
 
 ## [6.16.1-beta.2] - 2026-11-23
 
