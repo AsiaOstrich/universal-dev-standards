@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.0
-translation_version: 6.16.0
+source_version: 6.16.1-beta.1
+translation_version: 6.16.1-beta.1
 last_synced: 2026-11-23
-source_hash: 0b7a52055035
+source_hash: c6497f6246d0
 status: current
 ---
 
@@ -17,6 +17,15 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.16.1-beta.1] - 2026-11-23
+
+*预发布版，以 `npm install -g universal-dev-standards@beta` 安装。两个在 Windows 采用端实机发现的修复（dev-platform #302）。最可能被注意到的：升级 CLI 之后，`uds audit` 不再说 `open-work-tracking`“.standards/ 里丢失”。如果你是用 6.15.0 之前的 UDS 安装的，请先读“修复”的第一条。*
+
+### 修复
+
+- **`uds audit` 不再把 UDS 已经退役的标准报成文件丢失（dev-platform #302）。** `open-work-tracking` 在 6.15.0 退役，但用 UDS 6.14 安装的项目，在 `uds update` 把它移除之前，manifest 里仍列着它。在那之前，`uds audit` 会说它“.standards/ 里丢失”，叫你执行 `uds check --restore-missing`（没有东西可以还原），还在 `uds audit --report` 里把它列为可提交的发现项。现在 `uds audit` 把它打印成单独一行灰色提示：“Standard listed in manifest is no longer shipped by UDS (retired)”，下一行是“Run `uds update` to remove it from the manifest”。这条提示不计入问题，也不出现在 `--report` 的菜单里。**验证方式：**在 `.uds/` manifest 仍列着 `open-work-tracking` 的项目执行 `uds audit`；会看到这条提示，没有“丢失”那一行。执行 `uds update` 之后提示消失。其他既不是 UDS 出货、也不在当前安装的 manifest 里的标准 id，仍照旧报成丢失。
+- **`uds check` 与 `uds update` 的标题翻译好了，产品名改回“开发”标准（dev-platform #302）。** `uds check` 有四个标题（`AGENTS.md Standards Sync`、`Skills File Integrity`、`Integration UDS Block Integrity`、`Total: N standards`）没有译文，每种语言都打印英文；现在繁体中文打印 `AGENTS.md 標準同步`、`Skills 檔案完整性`、`整合檔 UDS 區塊完整性`、`共 N 份標準`，简体中文打印 `AGENTS.md 标准同步`、`Skills 文件完整性`、`集成文件 UDS 区块完整性`、`共 N 份标准`。`uds check` 与 `uds update` 的标题在三种语言都写成“Universal Documentation Standards”（简体中文为“通用文档标准”）；现在写成“Universal Development Standards”（简体中文为“通用开发标准”）。**验证方式：**在已安装 UDS 的项目执行 `uds check --ui-lang zh-cn`；四个标题是中文，标题写“通用开发标准”。用 `--ui-lang en` 时标题是“Universal Development Standards - Check”。选项与退出码都没有变。
 
 ## [6.16.0] - 2026-11-23
 
