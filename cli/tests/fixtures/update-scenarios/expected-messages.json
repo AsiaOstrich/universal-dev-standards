@@ -2,7 +2,7 @@
   "description": "Expected output messages for uds update command",
   "messages": {
     "header": {
-      "title": "Universal Documentation Standards - Update",
+      "title": "Universal Development Standards - Update",
       "separator": "─"
     },
     "errors": {

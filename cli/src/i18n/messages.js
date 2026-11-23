@@ -834,7 +834,12 @@ export const messages = {
           why2: '    the first one is the implementation; from the second on they drift apart, and the screen shows only "Bad Request".',
           howTo: '    To install it: `uds update` shows its content and asks before writing it.',
         },
-        title: 'Universal Documentation Standards - Check',
+        title: 'Universal Development Standards - Check',
+        // Section headings that had no message key and printed in English in every language (dev-platform #302)
+        agentsMdSyncCheck: 'AGENTS.md Standards Sync',
+        skillsIntegrityCheck: 'Skills File Integrity',
+        integrationBlocksCheck: 'Integration UDS Block Integrity',
+        totalStandards: 'Total: {count} standards',
         // Basic status
         standardsInitialized: '✓ Standards initialized',
         adoptionStatus: 'Adoption Status:',
@@ -1174,7 +1179,7 @@ export const messages = {
           written: '  ✓ Wrote scripts/check-error-exit.mjs',
           next: '    Next: fill in the CONFIG at the top of the file, then wire it into your CI or pre-commit.',
         },
-        title: 'Universal Documentation Standards - Update',
+        title: 'Universal Development Standards - Update',
         // CLI update
         cliUpdateAvailable: '⚡ New CLI version available!',
         bundledVersion: 'Your bundled version',
@@ -2272,7 +2277,12 @@ export const messages = {
           why2: '    第一處是實作，第二處開始就會各寫各的，而畫面上只剩一句 Bad Request。',
           howTo: '    要裝的話：`uds update` 會顯示內容並徵求同意後寫入。',
         },
-        title: '通用文件標準 - 檢查',
+        title: '通用開發標準 - 檢查',
+        // 原本沒有訊息鍵、每種語言都印英文的段落標題（dev-platform #302）
+        agentsMdSyncCheck: 'AGENTS.md 標準同步',
+        skillsIntegrityCheck: 'Skills 檔案完整性',
+        integrationBlocksCheck: '整合檔 UDS 區塊完整性',
+        totalStandards: '共 {count} 份標準',
         // Basic status
         standardsInitialized: '✓ 標準已初始化',
         adoptionStatus: '採用狀態：',
@@ -2606,7 +2616,7 @@ export const messages = {
           written: '  ✓ 已寫入 scripts/check-error-exit.mjs',
           next: '    下一步：填好檔頭的 CONFIG，然後把它接進你的 CI 或 pre-commit。',
         },
-        title: '通用文件標準 - 更新',
+        title: '通用開發標準 - 更新',
         // CLI update
         cliUpdateAvailable: '⚡ 有新的 CLI 版本可用！',
         bundledVersion: '你的內建版本',
@@ -3731,7 +3741,12 @@ export const messages = {
           why2: '    第一处是实现，第二处开始就会各写各的，而界面上只剩一句 Bad Request。',
           howTo: '    要装的话：`uds update` 会显示内容并征求同意后写入。',
         },
-        title: '通用文档标准 - 检查',
+        title: '通用开发标准 - 检查',
+        // 原本没有消息键、每种语言都打印英文的段落标题（dev-platform #302）
+        agentsMdSyncCheck: 'AGENTS.md 标准同步',
+        skillsIntegrityCheck: 'Skills 文件完整性',
+        integrationBlocksCheck: '集成文件 UDS 区块完整性',
+        totalStandards: '共 {count} 份标准',
         // Basic status
         standardsInitialized: '✓ 标准已初始化',
         adoptionStatus: '采用状态：',
@@ -3962,7 +3977,7 @@ export const messages = {
           written: '  ✓ 已写入 scripts/check-error-exit.mjs',
           next: '    下一步：填好文件头的 CONFIG，然后把它接进你的 CI 或 pre-commit。',
         },
-        title: '通用文档标准 - 更新',
+        title: '通用开发标准 - 更新',
         // CLI update
         cliUpdateAvailable: '⚡ 新 CLI 版本可用！',
         bundledVersion: '您的捆绑版本',

@@ -1,4 +1,4 @@
-// Universal Documentation Standards CLI
+// Universal Development Standards CLI
 // Main entry point
 
 export { listCommand } from './commands/list.js';
