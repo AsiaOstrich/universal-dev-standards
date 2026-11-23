@@ -94,7 +94,7 @@ it.each(REFUSED_FORMS)('uds %s refuses in a project a newer UDS installed: exit 
   const text = out(run);
   expect(run.code, text).toBe(1);
   expect(text).toContain(`installed by UDS ${NEWER}`);
-  expect(text).toContain(`your uds is ${CLI_VERSION} (older)`);
+  expect(text).toContain(`your \`uds\` is ${CLI_VERSION} (older)`);
   expect(text).toContain(`npm i -g universal-dev-standards@${NEWER}`);
   expect(text).toContain('--allow-downgrade');
   expect(snapshot(dir), 'a refused run wrote nothing').toEqual(before);

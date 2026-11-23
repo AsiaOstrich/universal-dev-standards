@@ -81,8 +81,8 @@ node scripts/beta-acceptance/run.mjs --version 6.16.1-beta.1
 It installs the published 6.16.1-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.16.1-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 402 steps (394 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 402 步（394 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 405 steps (397 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 405 步（397 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1290,6 +1290,15 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 402 steps (394
 402. `beta2-6161-allow-downgrade` (**new 新**) — uds update --apply --yes --allow-downgrade goes ahead in that project, restores the deleted standard and records this uds's version.
    uds update --apply --yes --allow-downgrade 在該專案照做：補回刪掉的標準，並記錄這個 uds 的版本。
    `uds update --apply --yes --allow-downgrade --offline` → exit 0; output has "--allow-downgrade is on"
+403. `beta2-6161-allow-downgrade-config` (**new 新**) — uds config --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+   專案記錄為由 UDS 99.0.0 安裝時，uds config --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟。
+   `uds config --type format --yes --allow-downgrade` → exit 0; output has "--allow-downgrade is on"
+404. `beta2-6161-allow-downgrade-configure` (**new 新**) — uds configure --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+   專案記錄為由 UDS 99.0.0 安裝時，uds configure --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟。
+   `uds configure --type format --yes --allow-downgrade` → exit 0; output has "--allow-downgrade is on"
+405. `beta2-6161-allow-downgrade-check-restore` (**new 新**) — uds check --restore-missing --allow-downgrade restores a deleted standard in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+   專案記錄為由 UDS 99.0.0 安裝時，uds check --restore-missing --allow-downgrade 補回刪掉的標準，並說 --allow-downgrade 已開啟。
+   `uds check --restore-missing --allow-downgrade` → exit 0; output has "--allow-downgrade is on", "Restored 1 file(s)"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

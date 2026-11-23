@@ -13572,6 +13572,103 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "beta2-6161-allow-downgrade-config",
+      "workspace": "beta2-6161",
+      "title": "uds config --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on",
+      "titleZh": "專案記錄為由 UDS 99.0.0 安裝時，uds config --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟",
+      "changelog": [
+        "An older uds no longer writes over a project a newer UDS installed"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "99.0.0",
+            "skills.version": "99.0.0"
+          }
+        }
+      ],
+      "uds": [
+        "config",
+        "--type",
+        "format",
+        "--yes",
+        "--allow-downgrade"
+      ],
+      "expect": {
+        "contains": [
+          "--allow-downgrade is on"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta2-6161-allow-downgrade-configure",
+      "workspace": "beta2-6161",
+      "title": "uds configure --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on",
+      "titleZh": "專案記錄為由 UDS 99.0.0 安裝時，uds configure --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟",
+      "changelog": [
+        "An older uds no longer writes over a project a newer UDS installed"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "99.0.0",
+            "skills.version": "99.0.0"
+          }
+        }
+      ],
+      "uds": [
+        "configure",
+        "--type",
+        "format",
+        "--yes",
+        "--allow-downgrade"
+      ],
+      "expect": {
+        "contains": [
+          "--allow-downgrade is on"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "beta2-6161-allow-downgrade-check-restore",
+      "workspace": "beta2-6161",
+      "title": "uds check --restore-missing --allow-downgrade restores a deleted standard in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on",
+      "titleZh": "專案記錄為由 UDS 99.0.0 安裝時，uds check --restore-missing --allow-downgrade 補回刪掉的標準，並說 --allow-downgrade 已開啟",
+      "changelog": [
+        "An older uds no longer writes over a project a newer UDS installed"
+      ],
+      "prepare": [
+        {
+          "setManifest": {
+            "upstream.version": "99.0.0",
+            "skills.version": "99.0.0"
+          }
+        },
+        {
+          "removeFile": ".standards/testing.ai.yaml"
+        }
+      ],
+      "uds": [
+        "check",
+        "--restore-missing",
+        "--allow-downgrade"
+      ],
+      "expect": {
+        "contains": [
+          "--allow-downgrade is on",
+          "Restored 1 file(s)"
+        ],
+        "files": [
+          {
+            "path": ".standards/testing.ai.yaml"
+          }
+        ]
+      }
     }
   ]
 }

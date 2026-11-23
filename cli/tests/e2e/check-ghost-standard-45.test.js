@@ -109,7 +109,8 @@ describe('E2E: uds check and a manifest entry the registry cannot resolve (#45)'
 
     expect(section).toContain(GHOST);
     expect(section).not.toContain('✓');
-    expect(section).toContain('⚠ AGENTS.md standards synced (1)');
+    // the words say a manifest entry was skipped (dev-platform #302): a warning mark never sits next to a plain "synced"
+    expect(section).toContain('⚠ AGENTS.md standards synced, with manifest entries not counted (1)');
     // The sibling check, same run, same manifest: the vacuous-pass guard that it really saw the ghost.
     expect(run.text).toContain('Index declares 1 standards but the manifest has 2');
   }, 90000);
