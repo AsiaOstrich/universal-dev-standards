@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.1-beta.1
-translation_version: 6.16.1-beta.1
+source_version: 6.16.1-beta.2
+translation_version: 6.16.1-beta.2
 last_synced: 2026-11-23
-source_hash: 803c5162e11c
+source_hash: 912e417af23f
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 並遵循[語意化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.16.1-beta.2] - 2026-11-23
+
+*預發布版，以 `npm install -g universal-dev-standards@beta` 安裝。6.16.1-beta.1 之後的四個修正（dev-platform #302、#308、#310）。最可能被注意到的：較舊的 `uds` 不再悄悄寫入由較新 UDS 安裝的專案。如果你的機器上有不只一個版本的 UDS（全域安裝加上 `npx` 執行，或同事用的是舊版），請先讀「修正」的第三條。*
 
 ### 修正
 

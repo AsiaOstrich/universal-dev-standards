@@ -75,11 +75,11 @@ Run this once on each machine you test on — Windows (PowerShell, cmd or Git Ba
 在你測試的每一台機器上執行一次——Windows（PowerShell、cmd 或 Git Bash）、macOS、Linux。需要 Node 20 以上與網路。在 repository 的複本裡執行：
 
 ```bash
-node scripts/beta-acceptance/run.mjs --version 6.16.1-beta.1
+node scripts/beta-acceptance/run.mjs --version 6.16.1-beta.2
 ```
 
-It installs the published 6.16.1-beta.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
-它把已發布的 6.16.1-beta.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
+It installs the published 6.16.1-beta.2 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
+它把已發布的 6.16.1-beta.2 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
 This list is generated from `scripts/beta-acceptance/steps.json`: 405 steps (397 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
 本清單由 `scripts/beta-acceptance/steps.json` 產生：共 405 步（397 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
@@ -1263,40 +1263,40 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 405 steps (397
 393. `beta2-6161-init` — uds init sets up a project (the project the next steps use).
    uds init 建立專案（後續各步使用）。
    `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully"
-394. `beta2-6161-retired-check` (**new 新**) — uds check on a project whose manifest still lists the retired open-work-tracking calls it retired, names uds update --apply, and does not count it as a missing standard.
+394. `beta2-6161-retired-check` — uds check on a project whose manifest still lists the retired open-work-tracking calls it retired, names uds update --apply, and does not count it as a missing standard.
    manifest 仍列著已退役的 open-work-tracking 時，uds check 說它已退役、指名 uds update --apply，且不把它算成缺項。
    `uds check --offline` → exit 0; output has "Retired standards still listed in the manifest (1), not counted above: open-work-tracking", "`uds update --apply` removes them from the manifest"
-395. `beta2-6161-retired-removed` (**new 新**) — the command uds check named, uds update --apply, removes the retired standard from the manifest and deletes its leftover file.
+395. `beta2-6161-retired-removed` — the command uds check named, uds update --apply, removes the retired standard from the manifest and deletes its leftover file.
    uds check 指名的 uds update --apply 會把已退役的標準從 manifest 移除，並刪除遺留的檔案。
    `uds update --apply --yes --offline` → exit 0; output has "UDS no longer ships this file"
-396. `beta2-6161-zh-check-body` (**new 新**) — uds check in Traditional Chinese prints the body in Chinese: no English sentence under the headings, and the AGENTS.md line is ticked with the word synced.
+396. `beta2-6161-zh-check-body` — uds check in Traditional Chinese prints the body in Chinese: no English sentence under the headings, and the AGENTS.md line is ticked with the word synced.
    繁體中文的 uds check 內文是中文：標題底下沒有英文句子，AGENTS.md 那行是勾號配「已同步」。
    `uds --ui-lang zh-tw check --offline` → exit 0; output has "所有 Skills 檔案完整", "所有 UDS 區塊完整" (+4)
-397. `beta2-6161-hook-plan` (**new 新**) — uds update --plan --skills lists the swap of the old pre-commit hook that lets every commit through, writes nothing, and ends with the command that does it.
+397. `beta2-6161-hook-plan` — uds update --plan --skills lists the swap of the old pre-commit hook that lets every commit through, writes nothing, and ends with the command that does it.
    uds update --plan --skills 列出舊的、讓每個 commit 通過的 pre-commit 掛鉤的更換，不寫任何東西，並以會執行它的指令結尾。
    `uds update --plan --skills --offline` → exit 0; output has ".git/hooks/pre-commit: would replace the hook an older UDS wrote", "Run `uds update --apply --yes --skills` to apply."
-398. `beta2-6161-hook-apply` (**new 新**) — uds update --apply --yes --skills replaces the old hook with the one that runs check --ci.
+398. `beta2-6161-hook-apply` — uds update --apply --yes --skills replaces the old hook with the one that runs check --ci.
    uds update --apply --yes --skills 把舊掛鉤換成執行 check --ci 的新掛鉤。
    `uds update --apply --yes --skills --offline` → exit 0; output has ".git/hooks/pre-commit: replaced the hook an older UDS wrote"
-399. `beta2-6161-older-cli-refuses` (**new 新**) — uds update --apply in a project recorded as installed by UDS 99.0.0 (newer than this uds) exits 1, says which UDS installed it and how to upgrade, and writes nothing: a deleted standard is not restored and the recorded version stays.
+399. `beta2-6161-older-cli-refuses` — uds update --apply in a project recorded as installed by UDS 99.0.0 (newer than this uds) exits 1, says which UDS installed it and how to upgrade, and writes nothing: a deleted standard is not restored and the recorded version stays.
    專案記錄為由 UDS 99.0.0（比這個 uds 新）安裝時，uds update --apply 結束碼為 1、說明是哪個 UDS 安裝與如何升級，且不寫任何東西：刪掉的標準不會被補回，記錄的版本不變。
    `uds update --apply --yes --offline` → exit 1; output has "installed by UDS 99.0.0", "(older)" (+2)
-400. `beta2-6161-older-cli-plan` (**new 新**) — uds update --plan in that project still runs: it warns first, prints the plan and exits 0, and still writes nothing.
+400. `beta2-6161-older-cli-plan` — uds update --plan in that project still runs: it warns first, prints the plan and exits 0, and still writes nothing.
    在該專案 uds update --plan 仍會執行：先警告、印出計畫、結束碼 0，且仍不寫任何東西。
    `uds update --plan --offline` → exit 0; output has "installed by UDS 99.0.0", "Reconciliation Plan"
-401. `beta2-6161-older-cli-check` (**new 新**) — uds check in that project says this uds is the older one, and does not suggest --apply.
+401. `beta2-6161-older-cli-check` — uds check in that project says this uds is the older one, and does not suggest --apply.
    在該專案 uds check 說這個 uds 才是舊的，且不建議 --apply。
    `uds check --offline` → exit 0; output has "is older than the version this project uses (99.0.0)"
-402. `beta2-6161-allow-downgrade` (**new 新**) — uds update --apply --yes --allow-downgrade goes ahead in that project, restores the deleted standard and records this uds's version.
+402. `beta2-6161-allow-downgrade` — uds update --apply --yes --allow-downgrade goes ahead in that project, restores the deleted standard and records this uds's version.
    uds update --apply --yes --allow-downgrade 在該專案照做：補回刪掉的標準，並記錄這個 uds 的版本。
    `uds update --apply --yes --allow-downgrade --offline` → exit 0; output has "--allow-downgrade is on"
-403. `beta2-6161-allow-downgrade-config` (**new 新**) — uds config --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+403. `beta2-6161-allow-downgrade-config` — uds config --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
    專案記錄為由 UDS 99.0.0 安裝時，uds config --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟。
    `uds config --type format --yes --allow-downgrade` → exit 0; output has "--allow-downgrade is on"
-404. `beta2-6161-allow-downgrade-configure` (**new 新**) — uds configure --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+404. `beta2-6161-allow-downgrade-configure` — uds configure --type format --yes --allow-downgrade goes ahead in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
    專案記錄為由 UDS 99.0.0 安裝時，uds configure --type format --yes --allow-downgrade 照做，並說 --allow-downgrade 已開啟。
    `uds configure --type format --yes --allow-downgrade` → exit 0; output has "--allow-downgrade is on"
-405. `beta2-6161-allow-downgrade-check-restore` (**new 新**) — uds check --restore-missing --allow-downgrade restores a deleted standard in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
+405. `beta2-6161-allow-downgrade-check-restore` — uds check --restore-missing --allow-downgrade restores a deleted standard in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
    專案記錄為由 UDS 99.0.0 安裝時，uds check --restore-missing --allow-downgrade 補回刪掉的標準，並說 --allow-downgrade 已開啟。
    `uds check --restore-missing --allow-downgrade` → exit 0; output has "--allow-downgrade is on", "Restored 1 file(s)"
 <!-- BETA-ACCEPTANCE-TEST:END -->
@@ -1306,14 +1306,14 @@ Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。
 ### Verified on | 已在哪些機器驗過
 
 <!-- BETA-ACCEPTANCE-VERIFIED:START — generated by scripts/beta-acceptance/generate-pre-release.mjs; edit its inputs, not this block -->
-Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.16.1-beta.1/` (published package, this version). A platform without a report says "not yet verified".
-只由 `scripts/beta-acceptance/reports/6.16.1-beta.1/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
+Filled only from the acceptance reports in `scripts/beta-acceptance/reports/6.16.1-beta.2/` (published package, this version). A platform without a report says "not yet verified".
+只由 `scripts/beta-acceptance/reports/6.16.1-beta.2/` 裡的驗收報告填入（已發布的套件、這個版本）。沒有報告的平台寫「尚未驗證」。
 
 | Platform 平台 | Status 狀態 | Details 細節 |
 |---|---|---|
-| Windows | Not yet verified 尚未驗證 | no report for 6.16.1-beta.1 沒有 6.16.1-beta.1 的報告 |
-| macOS | Not yet verified 尚未驗證 | no report for 6.16.1-beta.1 沒有 6.16.1-beta.1 的報告 |
-| Linux | Not yet verified 尚未驗證 | no report for 6.16.1-beta.1 沒有 6.16.1-beta.1 的報告 |
+| Windows | Not yet verified 尚未驗證 | no report for 6.16.1-beta.2 沒有 6.16.1-beta.2 的報告 |
+| macOS | Not yet verified 尚未驗證 | no report for 6.16.1-beta.2 沒有 6.16.1-beta.2 的報告 |
+| Linux | Not yet verified 尚未驗證 | no report for 6.16.1-beta.2 沒有 6.16.1-beta.2 的報告 |
 <!-- BETA-ACCEPTANCE-VERIFIED:END -->
 
 ### Known limitations | 已知限制

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.16.1-beta.2] - 2026-11-23
+
+*Pre-release, install with `npm install -g universal-dev-standards@beta`. Four fixes since 6.16.1-beta.1 (dev-platform #302, #308, #310). The one you are most likely to notice: an older `uds` no longer quietly writes over a project a newer UDS installed. If you keep more than one UDS version on a machine (a global install and an `npx` run, or a teammate on an older one), read the third entry under Fixed first.*
+
 ### Fixed
 
 - **`uds check` now says a retired standard is retired, and no longer counts it as missing (dev-platform #302).** A project installed before `open-work-tracking` was retired (6.15.0) still lists it in its manifest until `uds update` removes it. `uds check` told you in its AGENTS.md section that `uds update` does not remove such entries and that you should delete them by hand. That is wrong for a standard UDS installed a file for: `uds update --apply` deletes the file and drops the entry. The section now says "Retired standards still listed in the manifest (1), not counted above: open-work-tracking" and names that command. A misspelled id, which has no installed file, keeps the delete-by-hand advice. The "AI tool integration status" no longer counts a retired standard as a missing one (it showed 73/74 and "Missing: open-work-tracking"). **How to check:** in a project whose manifest still lists `open-work-tracking` and whose `.standards/` still holds `open-work-tracking.ai.yaml`, run `uds check`; the retired line names `uds update --apply` and the integration status has no "Missing:" line. Run `uds update --apply` and the entry is gone from the manifest.
