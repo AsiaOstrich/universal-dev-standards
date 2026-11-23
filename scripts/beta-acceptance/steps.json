@@ -13141,6 +13141,101 @@
           "commit (commit-standards)"
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "issue302-init",
+      "workspace": "issue302",
+      "title": "uds init sets up a project (the project the next two steps use)",
+      "titleZh": "uds init 建立專案（後續兩步使用）",
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully"
+        ]
+      },
+      "smoke": true
+    },
+    {
+      "platform": "all",
+      "id": "issue302-audit-retired",
+      "workspace": "issue302",
+      "title": "uds audit on a project whose manifest still lists the retired open-work-tracking says it is no longer shipped, not that it is missing",
+      "titleZh": "manifest 仍列著已退役的 open-work-tracking 時，uds audit 說它已不再出貨，而不是說檔案遺失",
+      "changelog": [
+        "uds audit no longer reports a standard UDS has retired as a missing file"
+      ],
+      "prepare": [
+        {
+          "manifestPush": {
+            "standards": [
+              "open-work-tracking"
+            ]
+          }
+        },
+        {
+          "writeFile": ".standards/open-work-tracking.ai.yaml",
+          "content": "standard:\n  id: open-work-tracking\n"
+        }
+      ],
+      "uds": [
+        "audit",
+        "--health",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "no longer shipped by UDS"
+        ],
+        "notContains": [
+          "missing from .standards/",
+          "[Health] open-work-tracking"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "issue302-check-zh-headings",
+      "workspace": "issue302",
+      "title": "uds check in Traditional Chinese prints its headings in Chinese and calls the product Development standards",
+      "titleZh": "繁體中文的 uds check 標題是中文，產品名是「開發」標準",
+      "changelog": [
+        "uds check and uds update headings are translated, and the product name is"
+      ],
+      "uds": [
+        "--ui-lang",
+        "zh-tw",
+        "check",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "通用開發標準 - 檢查",
+          "Skills 檔案完整性"
+        ],
+        "notContains": [
+          "Skills File Integrity",
+          "通用文件標準"
+        ]
+      }
     }
   ]
 }
