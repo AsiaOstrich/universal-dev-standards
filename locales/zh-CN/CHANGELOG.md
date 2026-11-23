@@ -1,9 +1,9 @@
 ---
 source: ../../CHANGELOG.md
-source_version: 6.16.0-beta.3
-translation_version: 6.16.0-beta.3
-last_synced: 2026-11-22
-source_hash: 1880f04f2707
+source_version: 6.16.0
+translation_version: 6.16.0
+last_synced: 2026-11-23
+source_hash: 0b7a52055035
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+## [6.16.0] - 2026-11-23
+
+> **正式版发布**：包含下方 6.16.0-beta.2 与 beta.3 的所有内容（6.16.0-beta.1 打了 tag 但从未发布，其变更包含在 beta.2），beta.3 之后没有任何变更。beta.3 已在 Windows（cmd、PowerShell、Git Bash）、macOS、Linux 完成发布后验收（0 项失败）。**请先读：**`uds update` 不再把可选的 `open-work` 技能装进没有要求它的项目（要的话用 `uds update --add-skill open-work`；已经有的项目会保留）；`uds init -y` 与 `uds update` 现在从 `~/.udsrc` 读语言，所以设了 `ui.language: zh-tw` 的机器上，没有记录语言的项目会得到繁体中文标准，不再是英文；详见 6.16.0-beta.2 与 beta.3“修复”的第一条。README“已验证”栏现在要每个工具通过五项检查才打勾，所以 Codex 回到“尚未验证”。
 
 ## [6.16.0-beta.3] - 2026-11-22
 

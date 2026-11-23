@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [6.16.0] - 2026-11-23
+
+> **Stable Release**: everything in 6.16.0-beta.2 and beta.3 below (6.16.0-beta.1 was tagged but never published; its changes are in beta.2), with no change since beta.3. beta.3 was accepted on Windows (cmd, PowerShell, Git Bash), macOS and Linux (post-publish acceptance, 0 failed). **Read this first:** `uds update` no longer installs the optional `open-work` skill into a project that did not ask for it (add it with `uds update --add-skill open-work`; a project that already has it keeps it), and `uds init -y` and `uds update` now read the language from `~/.udsrc`, so a machine with `ui.language: zh-tw` and a project that recorded no language now gets Traditional Chinese standards instead of English; see the first entries under Fixed in 6.16.0-beta.2 and beta.3. The README "Verified" column now needs all five checks per tool, so Codex goes back to "not yet verified".
+
 ## [6.16.0-beta.3] - 2026-11-22
 
 *Pre-release, install with `npm install -g universal-dev-standards@beta`. Six fixes found while checking beta.2 on a real machine. The ones you are most likely to notice: `uds init -y` and `uds update` now read the language from `~/.udsrc` the way the screens already did, so a machine with `ui.language: zh-tw` no longer gets Chinese screens with English standards; `uds init` no longer reports another tool's skills folder as a UDS install ("vunknown"); `uds audit --report` no longer tells you to run `uds audit --report`. Read the first two entries under Fixed if you set `ui.language` in `~/.udsrc`.*
