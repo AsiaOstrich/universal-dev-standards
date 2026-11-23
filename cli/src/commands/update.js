@@ -574,8 +574,13 @@ export async function updateCommand(options) {
 
   // A pre-commit line an older UDS wrote asks npm for the bare name `uds`, which
   // is not this project. Fixed here, before any mode below can return early
-  // (an up-to-date adopter still has it). Narrowed runs stay narrowed.
-  if (!options.rollback && !scopedToSkills && !scopedToCommands && !options.standardsOnly) {
+  // (an up-to-date adopter still has it). A scope flag ALONE (`--skills`, `--commands`, `--standards-only`) stays narrowed;
+  // a MODE (`--apply`, `--force`, `--plan`) is never narrowed by one (dev-platform #310, decision 667甲). The hook UDS 5.x ..
+  // 6.13.1 wrote ends in `|| true`, so it lets every commit through, and `--apply --skills` left it: the plan the user read
+  // and the command it told them to run did not agree. `--plan --skills` now lists the swap, as `--apply --skills` does it.
+  const hookMigrationApplies = !scopedToSkills && !scopedToCommands && !options.standardsOnly
+    || !!options.apply || !!options.force || !!options.plan; // wire:apply-scoped-migrates-hook
+  if (!options.rollback && hookMigrationApplies) {
     migrateLegacyPreCommitHook(projectPath, manifest, { plan: !!options.plan });
   }
 
@@ -3919,8 +3924,9 @@ function finishStepBackup(projectPath, backup) {
 // ─── Hook scripts in scripts/hooks/ (decision 212甲) ─────────────────
 
 /**
- * Does this invocation replace out-of-date hook scripts? Same gate as the pre-commit migration: a run narrowed to
- * something else stays narrowed, and `--with-hooks` has its own path (updateHooksOnly).
+ * Does this invocation replace out-of-date hook scripts in scripts/hooks/? A run narrowed to something else stays narrowed,
+ * and `--with-hooks` has its own path (updateHooksOnly). NOT the same gate as the pre-commit line migration above: that one
+ * also runs for `--apply`/`--force`/`--plan` combined with a scope flag (#310).
  */
 function hookStepApplies(options) {
   return !options.rollback && !options.withHooks && !options.skills && !options.commands
