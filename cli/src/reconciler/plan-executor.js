@@ -34,6 +34,7 @@ import { computeFileHash, pruneIntegrationFileHashes } from '../utils/hasher.js'
 import { createBackup, cleanupBackups, finalizeBackup } from './backup-manager.js';
 import { bookkeepingFiles } from './install-roots.js';
 import { alignRecordedVersions } from './recorded-versions.js';
+import { shouldRecordShipped } from '../utils/downgrade-guard.js';
 import { replaceSkillHashesForInstalled } from '../utils/skill-hash-ownership.js';
 
 /**
@@ -188,7 +189,8 @@ export async function executePlan(projectPath, plan, manifest, options = {}) {
     // difference), so the versions recorded for them move with it - also when no file needed rewriting.
     alignRecordedVersions(updatedManifest); // wire:apply-aligns-versions
     const version = getRepositoryInfo()?.standards?.version;
-    if (version) {
+    // Forward only (#308): an older uds never records itself over a newer project's version.
+    if (version && shouldRecordShipped(updatedManifest.upstream?.version, version)) {
       updatedManifest.upstream = {
         ...(updatedManifest.upstream || {}),
         version,
@@ -510,7 +512,7 @@ function executeMigrateBlock(projectPath, action, manifest) {
 function recordInstalledSet(manifest, kind, installResult) {
   const shipped = getRepositoryInfo()?.skills?.version;
   manifest[kind] = { ...(manifest[kind] || {}) };
-  if (shipped) manifest[kind].version = shipped;
+  if (shipped && shouldRecordShipped(manifest[kind].version, shipped)) manifest[kind].version = shipped;
   manifest[kind].names = mergeInstalledNames(manifest[kind].names, installResult);
 }
 

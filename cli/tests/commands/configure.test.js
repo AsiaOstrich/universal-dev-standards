@@ -38,7 +38,9 @@ vi.mock('../../src/utils/registry.js', () => ({
     { id: 'testing', options: { test_level: [] } }
   ]),
   getStandardsByLevel: vi.fn(() => []),
-  getStandardSource: vi.fn((std) => `core/${std.id}.md`)
+  getStandardSource: vi.fn((std) => `core/${std.id}.md`),
+  // the downgrade guard (dev-platform #308) asks what version this uds ships; the manifests in this file carry no version
+  getRepositoryInfo: vi.fn(() => ({ standards: { version: '1.0.0' }, skills: { version: '1.0.0' } }))
 }));
 
 vi.mock('../../src/utils/copier.js', () => ({

@@ -83,6 +83,7 @@ import {
 } from '../reconciler/index.js';
 import { stepWritePaths } from '../reconciler/install-roots.js';
 import { alignRecordedVersions, alignUpstreamVersion } from '../reconciler/recorded-versions.js';
+import { refuseOlderCli, shouldRecordShipped } from '../utils/downgrade-guard.js';
 import { restoreSingleFile } from './check.js';
 import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { resolveIntegrationFile, SUPPORTED_AI_TOOLS, getToolFormat } from '../core/constants.js';
@@ -457,6 +458,12 @@ export async function updateCommand(options) {
   console.log();
   console.log(chalk.bold(msg.title));
   console.log(chalk.gray('─'.repeat(50)));
+
+  // dev-platform #308 (decision 666甲): an older uds must not write over a project a newer UDS installed. Before every branch
+  // below, because nearly all of them write and most run before the version comparison further down. `--plan` still runs
+  // (it writes nothing) and says so first; `--rollback` restores the backup the user chose, so it is let through with a note.
+  const olderCliMode = options.rollback ? 'note' : options.plan ? 'warn' : 'refuse';
+  if (refuseOlderCli(manifest, { command: 'update', allowDowngrade: !!options.allowDowngrade, mode: olderCliMode })) return; // wire:update-refuses-older-cli
 
   // Hook scripts in scripts/hooks/ (decision 212甲, 2026-10-30). The forms that update the project
   // (`--apply`, `--force`, plain `uds update`) replace the ones that are unmodified copies of an older UDS,
@@ -3304,7 +3311,7 @@ async function updateSkillsOnly(projectPath, manifest, options, { chained = fals
   }
 
   // Update manifest
-  manifest.skills.version = latestVersion;
+  if (shouldRecordShipped(manifest.skills.version, latestVersion)) manifest.skills.version = latestVersion;
   manifest.skills.locale = skillsLocaleForUpdate;
   manifest.skills.installations = skillsInstallations;
   manifest.skills.names = mergeInstalledNames(manifest.skills.names, result);
@@ -3445,7 +3452,7 @@ async function updateCommandsOnly(projectPath, manifest, options, { chained = fa
   const repoInfo = getRepositoryInfo();
   manifest.commands = manifest.commands || {};
   manifest.commands.installed = true;
-  manifest.commands.version = repoInfo.skills.version;  // Track version
+  if (shouldRecordShipped(manifest.commands.version, repoInfo.skills.version)) manifest.commands.version = repoInfo.skills.version;  // Track version
   // Normalize to {agent, level} format
   manifest.commands.installations = (commandsInstallations || []).map(inst => {
     if (typeof inst === 'string') {

@@ -34,6 +34,7 @@ import {
 } from '../utils/reference-sync.js';
 import { extractMarkedContent, resolveIntegrationTargetFile, parseStandardsIndexCount, writeIntegrationFile } from '../utils/integration-generator.js';
 import { retiredStandardEntries } from '../utils/retired-standards.js';
+import { olderCliNotice, refuseOlderCli, isNewerThan } from '../utils/downgrade-guard.js';
 import { AmbiguousMarkerError } from '../utils/marker-locator.js';
 import { bumpManifestVersion } from '../core/manifest.js';
 import { INTEGRATION_MAPPINGS } from '../installers/integration-installer.js';
@@ -444,6 +445,17 @@ export async function checkCommand(options = {}) {
   // Display adoption info
   displayAdoptionStatus(manifest, msg, common, repoInfo, standardsUpdate);
 
+  // dev-platform #308: this uds is OLDER than the project. Say so, and never suggest `--apply` (it would refuse); the exit code
+  // is not touched, so the pre-commit hook that runs `uds check --ci` warns and does not block the commit.
+  const olderCli = olderCliNotice(manifest);
+  if (olderCli) {
+    console.log(chalk.yellow(`  ⚠ ${olderCli}`));
+    console.log();
+  }
+  // The writing options of check are writes too (they put this uds's copies of the files back).
+  if ((options.restore || options.restoreMissing || options.migrate)
+    && refuseOlderCli(manifest, { command: 'check --restore', allowDowngrade: !!options.allowDowngrade })) return; // wire:check-restore-refuses-older-cli
+
   // Check for CLI updates from npm registry (unless --offline)
   if (!offline) {
     await checkCliVersion(repoInfo.standards.version);
@@ -557,7 +569,7 @@ export async function checkCommand(options = {}) {
   const hasIssues = fileStatus.modified.length > 0 ||
                     fileStatus.missing.length > 0;
   const isTTY = process.stdin.isTTY && process.stdout.isTTY;
-  if (hasIssues && !options.noInteractive && !options.ci && isTTY) {
+  if (hasIssues && !options.noInteractive && !options.ci && isTTY && !olderCli) {
     await interactiveMode(projectPath, manifest, fileStatus, msg);
   } else if (hasIssues) {
     // Non-interactive mode - just show suggestions
@@ -2117,23 +2129,37 @@ function checkSkillsCommandsVersionStaleness(manifest, projectPath, msg) { // es
   const repoInfo = getRepositoryInfo();
   const latestVersion = repoInfo.skills.version;
   const stale = [];
+  // Newer than what this uds ships: not "stale", and `--apply` is not the answer (dev-platform #308) - the uds is the old one.
+  const behind = [];
 
   const skillsInstallations = (manifest.skills?.installations || []).filter((i) => i.level !== 'marketplace');
   for (const inst of skillsInstallations) {
     const info = getInstalledSkillsInfoForAgent(inst.agent, inst.level, projectPath);
     const current = info?.version;
-    if (current && current !== latestVersion) {
+    if (current && isNewerThan(current, latestVersion)) {
+      behind.push(`${getAgentDisplayName(inst.agent)} (${inst.level}): Skills v${current}`);
+    } else if (current && current !== latestVersion) {
       stale.push(`${getAgentDisplayName(inst.agent)} (${inst.level}): Skills v${current} → v${latestVersion}`);
     }
   }
 
   if (manifest.commands?.installed && (manifest.commands?.installations || []).length > 0) {
     const current = manifest.commands.version;
-    if (current && current !== latestVersion) {
+    if (current && isNewerThan(current, latestVersion)) {
+      behind.push(`Commands: v${current}`);
+    } else if (current && current !== latestVersion) {
       stale.push(`Commands: v${current} → v${latestVersion}`);
     }
   }
 
+  if (behind.length > 0) {
+    const m = t().commands.common;
+    for (const line of behind) {
+      console.log(chalk.yellow(`  ⚠ ${line} ${m.newerThanThisUds.replace('{cli}', latestVersion)}`));
+    }
+    console.log(chalk.gray(`    ${m.upgradeUdsHint}`));
+    console.log();
+  }
   if (stale.length === 0) return;
 
   for (const line of stale) {
@@ -2468,7 +2494,10 @@ async function displaySummary(projectPath, _options = {}) {
   const latestVersion = repoInfo.standards.version;
   const hasUpdate = currentVersion !== latestVersion;
 
-  if (hasUpdate) {
+  if (isNewerThan(currentVersion, latestVersion)) {
+    // The project is newer than this uds: an arrow to the older version reads as an update to apply (#308).
+    console.log(chalk.yellow(`  ${summaryMsg.version || 'Version'}: ${currentVersion} ⚠ ${t().commands.common.newerThanThisUds.replace('{cli}', latestVersion)}`));
+  } else if (hasUpdate) {
     console.log(chalk.yellow(`  ${summaryMsg.version || 'Version'}: ${currentVersion} → ${latestVersion} ⚠`));
   } else {
     console.log(chalk.green(`  ${summaryMsg.version || 'Version'}: ${currentVersion} ✓`));

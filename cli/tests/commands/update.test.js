@@ -518,10 +518,15 @@ describe('Update Command', () => {
 
       await updateCommand({});
 
+      // dev-platform #308: a project a newer UDS installed is not "up to date" for an older uds, it is refused
+      // (this used to print "Standards are up to date ... newer version than the registry" and go on to prune and write the manifest)
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards are up to date');
-      expect(output).toContain('newer version than the registry');
+      expect(output).toContain('this project was installed by UDS 3.4.0-beta.3');
+      expect(output).toContain('(older)');
       expect(output).not.toContain('Update available');
+      expect(process.exitCode).toBe(1);
+      process.exitCode = undefined; // the refusal's exit code must not leak into the test runner's own
+      expect(writeManifest).not.toHaveBeenCalled();
     });
 
     it('should not suggest downgrade when current version is newer major/minor', async () => {
@@ -541,8 +546,31 @@ describe('Update Command', () => {
       await updateCommand({});
 
       const output = consoleLogs.join('\n');
-      expect(output).toContain('Standards are up to date');
-      expect(output).toContain('newer version than the registry');
+      expect(output).toContain('this project was installed by UDS 4.0.0');
+      expect(process.exitCode).toBe(1);
+      process.exitCode = undefined; // the refusal's exit code must not leak into the test runner's own
+      expect(writeManifest).not.toHaveBeenCalled();
+    });
+
+    it('--allow-downgrade lets the older uds go on (and the plain path then says it is up to date)', async () => {
+      isInitialized.mockReturnValue(true);
+      readManifest.mockReturnValue({
+        upstream: { version: '4.0.0' },
+        standards: ['core/test.md'],
+        extensions: [],
+        integrations: [],
+        skills: { installed: false }
+      });
+      getRepositoryInfo.mockReturnValue({
+        standards: { version: '3.3.0' },
+        skills: { version: '1.0.0' }
+      });
+
+      await updateCommand({ allowDowngrade: true });
+
+      const output = consoleLogs.join('\n');
+      expect(output).toContain('--allow-downgrade is on');
+      expect(process.exitCode).not.toBe(1);
     });
 
     it('should suggest update from stable to newer stable', async () => {

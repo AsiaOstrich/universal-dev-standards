@@ -214,6 +214,7 @@ describe('MUTATION: the refresh cut out, the replace assertions turn red', () =>
     cpSync(join(CLI_ROOT, 'bin'), join(root, 'bin'), { recursive: true });
     cpSync(join(CLI_ROOT, 'src'), join(root, 'src'), { recursive: true });
     cpSync(join(CLI_ROOT, 'package.json'), join(root, 'package.json'));
+    cpSync(join(CLI_ROOT, 'standards-registry.json'), join(root, 'standards-registry.json')); // the downgrade guard (#308) reads the version this CLI ships
     symlinkSync(join(CLI_ROOT, 'node_modules'), join(root, 'node_modules'));
     // The mutant lives in a temp dir: point its hook/standards lookup at the real ones.
     const all = [

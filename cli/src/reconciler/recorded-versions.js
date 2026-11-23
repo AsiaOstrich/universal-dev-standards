@@ -9,9 +9,11 @@
  */
 
 import { getRepositoryInfo } from '../utils/registry.js';
+import { shouldRecordShipped } from '../utils/downgrade-guard.js';
 
 /**
  * Set `skills.version` and `commands.version` to the shipped version for each that is installed (not a marketplace install).
+ * Forward only: a record that is NEWER than the shipped version stays (an older uds must not move it back; #308).
  * Mutates and returns `manifest`; `changed` says whether anything differed.
  * @param {Object} manifest
  * @returns {{ manifest: Object, changed: boolean }}
@@ -22,7 +24,7 @@ export function alignRecordedVersions(manifest) {
   if (!shipped) return { manifest, changed };
   for (const kind of ['skills', 'commands']) {
     const record = manifest[kind];
-    if (record?.installed === true && record.location !== 'marketplace' && record.version !== shipped) {
+    if (record?.installed === true && record.location !== 'marketplace' && record.version !== shipped && shouldRecordShipped(record.version, shipped)) {
       manifest[kind] = { ...record, version: shipped }; // [mutation-anchor:align-version]
       changed = true;
     }
@@ -38,12 +40,15 @@ export function alignRecordedVersions(manifest) {
  * recorded it, so a project whose files were already current kept the version of the UDS that installed them; it surfaced
  * once `uds init` left a project with nothing for the first `--apply` to do (the XSPEC-382 R5 end-to-end test seeds an old
  * version and expects `--apply` to move it).
+ * Forward only (#308): a project recorded at a NEWER version keeps it. Moving it back made a project a newer UDS installed look
+ * consistent at the older version, and hid that older files had been written over it.
  * @param {Object} manifest
  * @returns {{ manifest: Object, changed: boolean }}
  */
 export function alignUpstreamVersion(manifest) {
   const shipped = getRepositoryInfo()?.standards?.version;
   if (!shipped || !manifest?.upstream || manifest.upstream.version === shipped) return { manifest, changed: false };
+  if (!shouldRecordShipped(manifest.upstream.version, shipped)) return { manifest, changed: false }; // [mutation-anchor:forward-only]
   manifest.upstream = { ...manifest.upstream, version: shipped, installed: new Date().toISOString().split('T')[0] };
   return { manifest, changed: true };
 }

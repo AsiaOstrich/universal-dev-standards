@@ -50,6 +50,7 @@ import {
 } from '../utils/integration-generator.js';
 import { getMarketplaceSkillsInfo } from '../utils/github.js';
 import { regenerateIntegrations } from './update.js';
+import { refuseOlderCli } from '../utils/downgrade-guard.js';
 import { mergeInstalledNames, bumpManifestVersion } from '../core/manifest.js';
 import { replaceSkillHashesForInstalled } from '../utils/skill-hash-ownership.js';
 
@@ -509,6 +510,10 @@ export async function runProjectConfiguration(options) {
     const uiLang = manifest.options?.display_language || 'en';
     setLanguage(uiLang);
   }
+
+  // dev-platform #308: configuring a project installs and regenerates files with THIS uds's copies; an older uds must not do that
+  // to a project a newer UDS installed.
+  if (refuseOlderCli(manifest, { command: 'config', allowDowngrade: !!options.allowDowngrade })) return; // wire:config-refuses-older-cli
 
   // Now get localized messages
   const msgObj = getMessages().commands.configure;

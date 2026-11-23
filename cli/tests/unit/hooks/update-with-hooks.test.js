@@ -297,6 +297,7 @@ describe('MUTATION: the backfill removed, three ways, each turns the assertion r
     cpSync(join(CLI_ROOT, 'bin'), join(root, 'bin'), { recursive: true });
     cpSync(join(CLI_ROOT, 'src'), join(root, 'src'), { recursive: true });
     cpSync(join(CLI_ROOT, 'package.json'), join(root, 'package.json'));
+    cpSync(join(CLI_ROOT, 'standards-registry.json'), join(root, 'standards-registry.json')); // the downgrade guard (#308) reads the version this CLI ships
     symlinkSync(join(CLI_ROOT, 'node_modules'), join(root, 'node_modules'));
     for (const [file, from, to] of edits) {
       const p = join(root, file);

@@ -144,6 +144,7 @@ program
   .option('--ai-tool <tool>', 'Specific AI tool to configure (claude-code, opencode, copilot, etc.)')
   .option('--skills-location <location>', 'Skills installation location (project, user)')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
+  .option('--allow-downgrade', 'Let this uds write over a project a NEWER UDS installed (without it, project changes refuse and exit 1)')
   .action(configCommand);
 
 program
@@ -162,6 +163,7 @@ program
   .option('--skills-location <location>', 'Skills installation location (project, user)')
   .option('-y, --yes', 'Apply changes immediately without prompting')
   .option('-E, --experimental', 'Enable experimental features (methodology)')
+  .option('--allow-downgrade', 'Let this uds write over a project a NEWER UDS installed (without it, project changes refuse and exit 1)')
   .action(configureCommand);
 
 program
@@ -178,6 +180,7 @@ program
   .option('--migrate', 'Migrate legacy manifest to hash-based tracking')
   .option('--offline', 'Skip npm registry check for CLI updates')
   .option('--force', 'Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071)')
+  .option('--allow-downgrade', 'With --restore, --restore-missing or --migrate: let this uds write over a project a NEWER UDS installed (without it they refuse and exit 1)')
   .option('--i18n', 'Run i18n lint rules (XSPEC-239) across canonical + locale variants')
   .action(checkCommand);
 
@@ -217,6 +220,7 @@ program
   .option('--plan', 'Show reconciliation plan without executing (like terraform plan); combines with --skills/--commands to plan just that scope, still writing nothing')
   .option('--apply', 'Apply exactly the plan --plan prints (plain `uds update` does not); with --skills/--commands it does the reconciliation AND that scope, not only the scope. Also replaces hook scripts in scripts/hooks/ that are unmodified copies of an older UDS (copied to .uds-backups/ first; edited ones are kept), as plain `uds update` does')
   .option('--force', 'Force update all files, ignoring hash comparison')
+  .option('--allow-downgrade', 'Let this uds write over a project that a NEWER UDS installed (without it, every writing form refuses and exits 1; --plan still runs and warns). The recorded versions then move back to this uds')
   .option('--prune', 'Delete .standards/ files UDS wrote but no longer ships (listed without this flag; never touches files UDS did not write)')
   .option('--rollback', 'Rollback to the most recent backup (with the series of updates that follow from it)')
   .option('--from <backup>', 'With --rollback: restore this one backup instead of the most recent series (the id --rollback prints, or its folder name); use it for a backup an older UDS made')
@@ -318,7 +322,7 @@ program
       console.log('No telemetry data available. Run hooks to generate data.');
       return;
     }
-    console.log(`\nUDS Hook Telemetry Report`);
+    console.log('\nUDS Hook Telemetry Report');
     console.log('═'.repeat(50));
     console.log(`Total executions: ${report.totalExecutions}\n`);
     console.log('Standard'.padEnd(25) + 'Executions  Pass Rate  Avg Duration');
