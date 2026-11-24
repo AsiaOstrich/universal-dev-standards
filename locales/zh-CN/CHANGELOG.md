@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.16.1
 translation_version: 6.16.1
 last_synced: 2026-11-23
-source_hash: c81983e0cafb
+source_hash: d8cf8b178a30
 status: current
 ---
 
@@ -17,6 +17,10 @@ status: current
 并且本项目遵循[语义化版本](https://semver.org/)。
 
 ## [Unreleased]
+
+### 新增
+
+- **`uds init` 会安装 git 原生的 `commit-msg` hook，所以格式不合的提交信息会被拦下，不论是哪个 AI 工具提交的（dev-platform #225，决策 659甲）。** 在此之前，只有在 `--with-hooks` 之下的 Claude Code 会拦，其他十个工具的项目在提交时完全不检查信息。这个 hook 用 Claude Code hook 的同一套规则判断第一行（`<type>(<scope>): <subject>`，type 取自已安装的 commit-message 选项文件；不套用 72 字符的主旨长度限制，所以双语单行主旨可以通过），并放行 git 自己生成的主旨（`Merge ...`、`Revert "..."`、`fixup! ...`）。它会让开：不是 UDS 的 `commit-msg` hook、不是 `uds init` 为 Node 项目接上的 `.husky` 的其他 `core.hooksPath`、以及你改过的 UDS hook，都原样保留，并打印一行说明如何自己加上 `universal-dev-standards check --commit-msg "$1"`。`uds init --no-git-hooks` 不安装，并把这个选择记在 `.standards/manifest.json`（`gitHooks.commitMsg: "off"`）；`uds update` **不会**自己安装它，所以更新不会让项目的提交突然被拦：对没有 hook 的项目（这个版本之前设置好的，或新 clone——git hook 是每份 clone 各自一份）且没有记录选择时，`uds update` 只打印一行，说明这个 hook 做什么、`uds update --git-hooks` 可开启、`uds update --no-git-hooks` 会记录这个项目不要它（之后不再提示）。`uds update --no-git-hooks` 也会移除 UDS 安装且没人改过的 hook；已经存在的 UDS hook 仍会保持最新。`uds check` 会报告这个 hook 是运作中、已关闭、别人的 hook、或未安装（并附同样的开启方法；四种都不会改变退出码）；`uds uninstall` 会移除 UDS 写入的那个。**验证方式：** 在 git 项目里执行 `uds init --yes`，`git commit -m "fixed stuff"` 会被拦下并显示 `Invalid commit message format`，`git commit -m "feat(auth): add token refresh"` 则通过；改用 `uds init --yes --no-git-hooks`，两者都通过。
 
 ## [6.16.1] - 2026-11-23
 

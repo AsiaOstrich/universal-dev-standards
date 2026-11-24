@@ -44,7 +44,7 @@ async function projectWithOldHook() {
   expect(init.code, out(init)).toBe(0);
   installCliShim(dir, h.cliPath());
   git(['add', '-A', '--', '.'], dir);
-  expect(git(['commit', '-q', '-m', 'baseline'], dir).code).toBe(0);
+  expect(git(['commit', '-q', '-m', 'chore: baseline'], dir).code).toBe(0);
   writeFileSync(join(dir, NATIVE), OLD_HOOK);
   chmodSync(join(dir, NATIVE), 0o755);
   return dir;
@@ -54,7 +54,7 @@ async function projectWithOldHook() {
 function tamperAndCommit(dir) {
   writeFileSync(join(dir, STANDARD), `${readFileSync(join(dir, STANDARD), 'utf-8')}\n# edited by hand\n`);
   git(['add', '-A', '--', STANDARD], dir);
-  return git(['commit', '-q', '-m', 'edit a standard'], dir);
+  return git(['commit', '-q', '-m', 'chore: edit a standard'], dir);
 }
 
 it('`update --plan --skills` lists the old pre-commit hook swap and writes nothing, and the command it ends with is the one that does it (#310)', async (ctx) => {

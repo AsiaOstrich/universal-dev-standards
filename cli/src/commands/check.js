@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { select } from '@inquirer/prompts';
 import { createSpinner } from '../utils/spinner.js';
 import { existsSync, readFileSync } from 'fs';
-import { join, basename } from 'path';
+import { join, basename, relative } from 'path';
 import { execSync } from 'child_process';
 import { readManifest, writeManifest, isInitialized, copyStandard, copyIntegration, readPackagedSource } from '../utils/copier.js';
 import {
@@ -48,6 +48,7 @@ import { guardAgainstSelfAdoption } from '../utils/detect-self-adoption.js';
 import { lintAll as lintI18nAll, partitionFindings as partitionI18nFindings } from '../lint/i18n.js';
 import { resolveIntegrationFile } from '../core/constants.js';
 import { checkPreCommitHookWiring } from '../utils/git-hooks.js';
+import { runCommitMsgCheck, commitMsgHookStatus } from '../utils/commit-msg-hook.js';
 import { runTestChangeCheck } from '../utils/test-change-check.js';
 import { runTestQualityGates } from '../utils/gate-scripts.js';
 import { pruneForeignSkillHashes, skillIssuesOf } from '../utils/skill-hash-ownership.js';
@@ -355,6 +356,15 @@ async function checkAsJson(options) {
 export async function checkCommand(options = {}) {
   const projectPath = process.cwd();
 
+  // `--commit-msg <file>` is what the git commit-msg hook runs on every commit (utils/commit-msg-hook.js). It judges one
+  // message and nothing else: no integrity check, no self-adoption guard, no network. Exit 1 = malformed, 2 = could not judge.
+  if (options.commitMsg) {
+    const verdict = await runCommitMsgCheck(projectPath, options.commitMsg); // wire:check-commit-msg-entry
+    for (const line of verdict.lines) console.error(line);
+    process.exitCode = verdict.code;
+    return;
+  }
+
   // Handle --i18n option early — i18n lint is meant to be runnable both
   // inside UDS source (lint canonical + locale variants) and inside
   // adopter projects (lint installed locale variants). It does not require
@@ -627,6 +637,12 @@ export async function checkCommand(options = {}) {
   // pre-commit 檢查檔存在，但 git 實際不會執行它（只報告，不寫入 —— 見 checkPreCommitWiring 下方註解）
   checkPreCommitWiring(projectPath, msg);
 
+  // git commit-msg hook (decision 659甲): installed, off, left alone for someone else's, or missing. Information only, like the line above.
+  const commitMsgStatus = printCommitMsgHookStatus(projectPath, manifest, t().commands.common);
+  // A hook that stepped aside for somebody else's means UDS is NOT checking commit messages here, and "compliant" would say it is.
+  // Only the wording of the verdict changes: `allGood`, the exit code and the JSON report are untouched.
+  const commitMsgLeftAlone = commitMsgStatus.state === 'yielded' || (commitMsgStatus.state === 'not-installed' && !!commitMsgStatus.hooksPath);
+
   // XSPEC-444 R2 + R5: this commit changes code but no test; fake tests; empty shells.
   // Warnings by default — a commit is blocked only when the project sets "mode": "block" in
   // .standards/test-policy.json. Both are read-only here (nothing is written to the project).
@@ -681,7 +697,7 @@ export async function checkCommand(options = {}) {
     });
   }
   if (allGood) {
-    console.log(chalk.green(msg.projectCompliant));
+    console.log(chalk.green(commitMsgLeftAlone ? msg.projectCompliantCommitMsgLeftAlone : msg.projectCompliant));
   } else {
     console.log(chalk.yellow(msg.issuesDetected));
     if (commandIssues.length > 0) {
@@ -1532,6 +1548,32 @@ export function checkPreCommitWiring(projectPath, msg) {
   }
 
   console.log();
+}
+
+/**
+ * One line about the git commit-msg hook, in one of four states (see commitMsgHookStatus). Only `active` is a tick: a hook
+ * that stepped aside for somebody else's, or is missing, must never read as "commit messages are checked".
+ * 🔴 Not part of `allGood` / the `--ci` exit code, for the reason checkPreCommitWiring gives: the hook is per-clone,
+ * CI has its own, and the pre-commit hook itself runs `check --ci`, so turning this into a failure would block
+ * every commit of a project whose commit-msg is somebody else's. (The verdict LINE does change its wording when the hook
+ * stepped aside: see the caller. The verdict itself does not.)
+ * @returns {ReturnType<typeof commitMsgHookStatus>}
+ */
+export function printCommitMsgHookStatus(projectPath, manifest, common) {
+  const status = commitMsgHookStatus(projectPath, manifest);
+  const file = status.file ? relative(projectPath, status.file).split('\\').join('/') : '';
+  const fill = (key) => common[key].split('{file}').join(file).split('{path}').join(status.hooksPath ?? '');
+  switch (status.state) {
+    case 'active': console.log(chalk.gray(`  ${fill('commitMsgStatusActive')}`)); break;
+    case 'disabled': console.log(chalk.gray(`  ${fill('commitMsgStatusDisabled')}`)); break;
+    case 'yielded': console.log(chalk.yellow(`  ${fill('commitMsgStatusYielded')}`)); break;
+    case 'not-installed':
+      console.log(chalk.yellow(`  ${fill(status.hooksPath ? 'commitMsgStatusNotInstalledHooksPath' : 'commitMsgStatusNotInstalled')}`));
+      break;
+    default: return status; // not a git repository, or git's hook directory cannot be told: nothing to report, nothing to guess
+  }
+  console.log();
+  return status;
 }
 
 /**

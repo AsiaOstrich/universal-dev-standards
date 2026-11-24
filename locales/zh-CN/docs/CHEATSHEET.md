@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-11-23
+> Quick reference for all UDS features | Last updated: 2026-11-24
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | [繁體中文](../../zh-TW/docs/CHEATSHEET.md) | 简体中文
 

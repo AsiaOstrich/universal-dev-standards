@@ -745,6 +745,28 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        // git commit-msg hook (decision 659甲, board #225): what `uds init` / `uds update` / `uds check` say about it
+        commitMsgHookInstalled: '✓ Installed the git commit-msg hook ({file}): a malformed commit message is refused, whichever AI tool (or none) made the commit. Turn it off with --no-git-hooks.',
+        commitMsgHookUpdated: '✓ Updated the git commit-msg hook ({file}) to this UDS version.',
+        commitMsgHookCurrent: '✓ git commit-msg hook already in place ({file})',
+        commitMsgHookNotInstalledHint: 'ℹ This project has no git commit-msg hook. UDS can install one that refuses a commit whose message is not in the form <type>(<scope>): <subject>, whichever AI tool made it. Turn it on: uds update --git-hooks. Do not ask again: uds update --no-git-hooks (records the choice in the manifest).',
+        commitMsgHookWouldInstall: 'Would install the git commit-msg hook ({file}).',
+        commitMsgHookWouldUpdate: 'Would update the git commit-msg hook ({file}).',
+        commitMsgHookDisabled: 'git commit-msg hook: off (this project opted out). Turn it on again with `uds update --git-hooks`.',
+        commitMsgHookRemoved: '✓ Removed the git commit-msg hook UDS had installed ({file}); git hooks are now off for this project.',
+        commitMsgHookWouldRemove: 'Would remove the git commit-msg hook UDS installed ({file}).',
+        commitMsgHookKeptDisabled: '⚠ git hooks are off, but {file} is not exactly what UDS wrote, so it was left alone.',
+        commitMsgHookYieldedExisting: '⚠ git commit-msg check NOT installed: {file} already exists and is not UDS\'s, so it was left as is. To use the UDS check, add this line to it: universal-dev-standards check --commit-msg "$1"  (the UDS CLI must be installed in this project or on PATH).',
+        commitMsgHookYieldedEdited: '⚠ git commit-msg check kept as is: {file} carries the UDS marker but was edited since UDS wrote it. To get the current one, delete the file and run `uds update`.',
+        commitMsgHookYieldedHooksPath: '⚠ git commit-msg check NOT installed: git core.hooksPath is set to "{path}", which UDS does not manage. To use the UDS check, add this line to a commit-msg hook there: universal-dev-standards check --commit-msg "$1"  (the UDS CLI must be installed in this project or on PATH).',
+        commitMsgHookNoGit: 'git commit-msg check skipped: this folder is not a git repository. Run `uds update --git-hooks` after `git init`.',
+        commitMsgHookUnknownDir: '⚠ git commit-msg check skipped: could not tell where git looks for hooks (is git installed?).',
+        commitMsgHookError: '✗ Could not write the git commit-msg hook ({file}): {error}',
+        commitMsgStatusActive: '✓ [commit-msg] git hook active ({file}): a malformed commit message is refused.',
+        commitMsgStatusDisabled: '· [commit-msg] git hook is off: this project opted out (--no-git-hooks). Turn it on with `uds update --git-hooks`.',
+        commitMsgStatusYielded: '⚠ [commit-msg] {file} is not UDS\'s and does not run the UDS check, so UDS does not check commit messages here. Add this line to it: universal-dev-standards check --commit-msg "$1"',
+        commitMsgStatusNotInstalled: '⚠ [commit-msg] this clone has no git commit-msg hook (git hooks are per-clone), so commit messages are NOT checked. Turn it on with `uds update --git-hooks` (what it does: refuses a commit whose message is not <type>(<scope>): <subject>), or record that this project does not want it with `uds update --no-git-hooks`.',
+        commitMsgStatusNotInstalledHooksPath: '⚠ [commit-msg] git core.hooksPath is "{path}" and no commit-msg hook there runs the UDS check, so commit messages are NOT checked. Add this line to a commit-msg hook there: universal-dev-standards check --commit-msg "$1"',
         localePackMissingTitle: 'The {locale} skill texts are not in this copy of UDS, so the skills were installed in English.',
         localePackMissingLines: [
           'The Traditional and Simplified Chinese texts ship inside the UDS npm package (the locales/ folder), so this is not about your network: this copy of UDS is incomplete or damaged.',
@@ -1029,6 +1051,7 @@ export const messages = {
         runNpmUpdate: 'Run: npm update -g universal-dev-standards  (or: yarn global upgrade / pnpm update -g)',
         // Final status
         projectCompliant: '✓ Project is compliant with standards',
+        projectCompliantCommitMsgLeftAlone: '✓ Standards files are intact, but UDS does not check commit messages in this clone (see [commit-msg] above)',
         issuesDetected: '⚠ Some issues detected. Review above for details.',
         skillsIntegrityFix: '  Skill files listed above are missing or were changed: run `uds update --apply --skills` to reinstall them.',
         // XSPEC-462 R2: project skills and the UDS plugin are both installed. Information only.
@@ -2244,6 +2267,28 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        // git commit-msg hook（決策 659甲，看板 #225）：`uds init` / `uds update` / `uds check` 對它的說明
+        commitMsgHookInstalled: '✓ 已安裝 git commit-msg hook（{file}）：不論用哪個 AI 工具（或沒用）提交，格式不合的提交訊息都會被擋下。可用 --no-git-hooks 關閉。',
+        commitMsgHookUpdated: '✓ 已把 git commit-msg hook（{file}）更新為這個 UDS 版本。',
+        commitMsgHookCurrent: '✓ git commit-msg hook 已就位（{file}）',
+        commitMsgHookNotInstalledHint: 'ℹ 這個專案沒有 git commit-msg hook。UDS 可以裝一個：提交訊息不是 <type>(<scope>): <subject> 的格式就擋下提交，不論是哪個 AI 工具提交的。開啟：uds update --git-hooks。不要再提示：uds update --no-git-hooks（會把選擇記在 manifest）。',
+        commitMsgHookWouldInstall: '將會安裝 git commit-msg hook（{file}）。',
+        commitMsgHookWouldUpdate: '將會更新 git commit-msg hook（{file}）。',
+        commitMsgHookDisabled: 'git commit-msg hook：已關閉（這個專案選擇不裝）。要重新開啟請執行 `uds update --git-hooks`。',
+        commitMsgHookRemoved: '✓ 已移除 UDS 先前安裝的 git commit-msg hook（{file}）；這個專案的 git hook 已關閉。',
+        commitMsgHookWouldRemove: '將會移除 UDS 安裝的 git commit-msg hook（{file}）。',
+        commitMsgHookKeptDisabled: '⚠ git hook 已關閉，但 {file} 不是 UDS 寫入的原樣，所以沒有動它。',
+        commitMsgHookYieldedExisting: '⚠ 沒有安裝 git commit-msg 檢查：{file} 已存在而且不是 UDS 的，所以原樣保留。要使用 UDS 的檢查，請自行在裡面加上這一行：universal-dev-standards check --commit-msg "$1"（本專案或 PATH 上需要已安裝 UDS CLI）。',
+        commitMsgHookYieldedEdited: '⚠ git commit-msg 檢查維持原樣：{file} 帶有 UDS 標記，但在 UDS 寫入之後被改過。要換成最新版，請刪除該檔後執行 `uds update`。',
+        commitMsgHookYieldedHooksPath: '⚠ 沒有安裝 git commit-msg 檢查：git core.hooksPath 設為「{path}」，那不是 UDS 管理的目錄。要使用 UDS 的檢查，請自行在那裡的 commit-msg hook 加上這一行：universal-dev-standards check --commit-msg "$1"（本專案或 PATH 上需要已安裝 UDS CLI）。',
+        commitMsgHookNoGit: '略過 git commit-msg 檢查：這個資料夾不是 git 儲存庫。`git init` 之後請執行 `uds update --git-hooks`。',
+        commitMsgHookUnknownDir: '⚠ 略過 git commit-msg 檢查：無法得知 git 在哪裡找 hook（git 是否已安裝？）。',
+        commitMsgHookError: '✗ 無法寫入 git commit-msg hook（{file}）：{error}',
+        commitMsgStatusActive: '✓ [commit-msg] git hook 運作中（{file}）：格式不合的提交訊息會被擋下。',
+        commitMsgStatusDisabled: '· [commit-msg] git hook 已關閉：這個專案選擇不裝（--no-git-hooks）。要重新開啟請執行 `uds update --git-hooks`。',
+        commitMsgStatusYielded: '⚠ [commit-msg] {file} 不是 UDS 的，也沒有執行 UDS 檢查，所以這裡 UDS 不檢查提交訊息。請自行在裡面加上這一行：universal-dev-standards check --commit-msg "$1"',
+        commitMsgStatusNotInstalled: '⚠ [commit-msg] 這份 clone 沒有 git commit-msg hook（git hook 是每份 clone 各自一份），所以提交訊息沒有被檢查。開啟請執行 `uds update --git-hooks`（作用：提交訊息不是 <type>(<scope>): <subject> 就擋下提交），或執行 `uds update --no-git-hooks` 記錄這個專案不要它。',
+        commitMsgStatusNotInstalledHooksPath: '⚠ [commit-msg] git core.hooksPath 是「{path}」，而那裡沒有任何 commit-msg hook 執行 UDS 檢查，所以提交訊息沒有被檢查。請自行在那裡的 commit-msg hook 加上這一行：universal-dev-standards check --commit-msg "$1"',
         localePackMissingTitle: '這份 UDS 裡沒有 {locale} 的技能文字，所以技能裝的是英文版。',
         localePackMissingLines: [
           '繁體與簡體中文文字都放在 UDS 的 npm 套件內（locales/ 資料夾），所以這不是網路問題：這份 UDS 不完整或已損毀。',
@@ -2528,6 +2573,7 @@ export const messages = {
         runNpmUpdate: '執行：npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
         // Final status
         projectCompliant: '✓ 專案符合標準',
+        projectCompliantCommitMsgLeftAlone: '✓ 標準檔案完整，但這份 clone 的提交訊息不由 UDS 檢查（見上方 [commit-msg]）',
         issuesDetected: '⚠ 偵測到一些問題。請檢視上方詳情。',
         skillsIntegrityFix: '  上方列出的技能檔遺失或被改過：執行 `uds update --apply --skills` 重新安裝。',
         // XSPEC-462 R2：專案層與 UDS 外掛都裝了。純資訊。
@@ -3666,6 +3712,28 @@ export const messages = {
     commands: {
       // Common messages used across commands
       common: {
+        // git commit-msg hook（决策 659甲，看板 #225）：`uds init` / `uds update` / `uds check` 对它的说明
+        commitMsgHookInstalled: '✓ 已安装 git commit-msg hook（{file}）：无论用哪个 AI 工具（或没用）提交，格式不合的提交信息都会被拦下。可用 --no-git-hooks 关闭。',
+        commitMsgHookUpdated: '✓ 已把 git commit-msg hook（{file}）更新为这个 UDS 版本。',
+        commitMsgHookCurrent: '✓ git commit-msg hook 已就位（{file}）',
+        commitMsgHookNotInstalledHint: 'ℹ 这个项目没有 git commit-msg hook。UDS 可以装一个：提交信息不是 <type>(<scope>): <subject> 的格式就拦下提交，不论是哪个 AI 工具提交的。开启：uds update --git-hooks。不要再提示：uds update --no-git-hooks（会把选择记在 manifest）。',
+        commitMsgHookWouldInstall: '将会安装 git commit-msg hook（{file}）。',
+        commitMsgHookWouldUpdate: '将会更新 git commit-msg hook（{file}）。',
+        commitMsgHookDisabled: 'git commit-msg hook：已关闭（这个项目选择不装）。要重新开启请执行 `uds update --git-hooks`。',
+        commitMsgHookRemoved: '✓ 已移除 UDS 先前安装的 git commit-msg hook（{file}）；这个项目的 git hook 已关闭。',
+        commitMsgHookWouldRemove: '将会移除 UDS 安装的 git commit-msg hook（{file}）。',
+        commitMsgHookKeptDisabled: '⚠ git hook 已关闭，但 {file} 不是 UDS 写入的原样，所以没有动它。',
+        commitMsgHookYieldedExisting: '⚠ 没有安装 git commit-msg 检查：{file} 已存在而且不是 UDS 的，所以原样保留。要使用 UDS 的检查，请自行在里面加上这一行：universal-dev-standards check --commit-msg "$1"（本项目或 PATH 上需要已安装 UDS CLI）。',
+        commitMsgHookYieldedEdited: '⚠ git commit-msg 检查维持原样：{file} 带有 UDS 标记，但在 UDS 写入之后被改过。要换成最新版，请删除该文件后执行 `uds update`。',
+        commitMsgHookYieldedHooksPath: '⚠ 没有安装 git commit-msg 检查：git core.hooksPath 设为“{path}”，那不是 UDS 管理的目录。要使用 UDS 的检查，请自行在那里的 commit-msg hook 加上这一行：universal-dev-standards check --commit-msg "$1"（本项目或 PATH 上需要已安装 UDS CLI）。',
+        commitMsgHookNoGit: '略过 git commit-msg 检查：这个文件夹不是 git 仓库。`git init` 之后请执行 `uds update --git-hooks`。',
+        commitMsgHookUnknownDir: '⚠ 略过 git commit-msg 检查：无法得知 git 在哪里找 hook（git 是否已安装？）。',
+        commitMsgHookError: '✗ 无法写入 git commit-msg hook（{file}）：{error}',
+        commitMsgStatusActive: '✓ [commit-msg] git hook 运作中（{file}）：格式不合的提交信息会被拦下。',
+        commitMsgStatusDisabled: '· [commit-msg] git hook 已关闭：这个项目选择不装（--no-git-hooks）。要重新开启请执行 `uds update --git-hooks`。',
+        commitMsgStatusYielded: '⚠ [commit-msg] {file} 不是 UDS 的，也没有执行 UDS 检查，所以这里 UDS 不检查提交信息。请自行在里面加上这一行：universal-dev-standards check --commit-msg "$1"',
+        commitMsgStatusNotInstalled: '⚠ [commit-msg] 这份 clone 没有 git commit-msg hook（git hook 是每份 clone 各自一份），所以提交信息没有被检查。开启请执行 `uds update --git-hooks`（作用：提交信息不是 <type>(<scope>): <subject> 就拦下提交），或执行 `uds update --no-git-hooks` 记录这个项目不要它。',
+        commitMsgStatusNotInstalledHooksPath: '⚠ [commit-msg] git core.hooksPath 是“{path}”，而那里没有任何 commit-msg hook 执行 UDS 检查，所以提交信息没有被检查。请自行在那里的 commit-msg hook 加上这一行：universal-dev-standards check --commit-msg "$1"',
         localePackMissingTitle: '这份 UDS 里没有 {locale} 的技能文本，所以技能装的是英文版。',
         localePackMissingLines: [
           '繁体与简体中文文本都放在 UDS 的 npm 包内（locales/ 文件夹），所以这不是网络问题：这份 UDS 不完整或已损坏。',
@@ -4048,6 +4116,7 @@ export const messages = {
         runNpmUpdate: '执行：npm update -g universal-dev-standards（或 yarn global upgrade / pnpm update -g）',
         // Final status
         projectCompliant: '✓ 项目符合标准',
+        projectCompliantCommitMsgLeftAlone: '✓ 标准文件完整，但这份 clone 的提交信息不由 UDS 检查（见上方 [commit-msg]）',
         issuesDetected: '⚠ 检测到一些问题。详情请查看上文。',
         skillsIntegrityFix: '  上方列出的技能文件缺失或被改过：运行 `uds update --apply --skills` 重新安装。',
         // XSPEC-462 R2：项目层与 UDS 插件都装了。纯信息。

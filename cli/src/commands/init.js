@@ -38,6 +38,7 @@ import { withFileTransaction } from '../utils/transaction.js';
 import { newRecorder, mkdirTracked, recordFile, persistRecorder, RECORD_KINDS } from '../core/install-records.js';
 import { wireGitHooksPath, getLocalHooksPathConfig, stripLegacyHuskyShLine, ensureShebang, hookRunsUdsCheck, buildPreCommitBlock, buildNativePreCommitHook } from '../utils/git-hooks.js';
 import { migrateLegacyHuskyHook } from '../utils/legacy-hook-migration.js';
+import { ensureCommitMsgHook, recordGitHooksChoice, reportCommitMsgHook } from '../utils/commit-msg-hook.js';
 import { installGateScripts } from '../utils/gate-scripts.js';
 import { formatGroupedErrors } from '../utils/group-errors.js';
 
@@ -459,7 +460,42 @@ export async function initCommand(options) {
   // 5. Setup Pre-commit Hook
   await setupHuskyHook(projectPath);
 
+  // 6. Setup the git commit-msg hook (decision 659甲). After step 5, because that step may point `core.hooksPath`
+  // at `.husky`, and the hook has to go where git will look.
+  setupCommitMsgHook(projectPath, options, { common: t().commands.common });
+
   process.exit(0);
+}
+
+/**
+ * Install the git commit-msg hook that refuses a malformed commit message, for every AI tool (decision 659甲).
+ * Steps aside for a hook or a `core.hooksPath` that is not UDS's, says so in one line, and is turned off by
+ * `--no-git-hooks` (recorded in the manifest, so `uds update` does not put it back). Skipped while tests run
+ * in-process, for the reason given in setupHuskyHook.
+ *
+ * @param {string} projectPath
+ * @param {{gitHooks?: boolean}} options - `gitHooks === false` is `--no-git-hooks`
+ * @param {{common: object, allowInTest?: boolean}} ctx
+ */
+export function setupCommitMsgHook(projectPath, options, { common, allowInTest = false }) {
+  if (process.env.VITEST && !allowInTest) return;
+  const off = options.gitHooks === false;
+  const recorder = newRecorder();
+  const manifest = readRawManifest(projectPath);
+  const result = ensureCommitMsgHook(projectPath, { manifest, disable: off, recorder }); // wire:init-installs-commit-msg-hook
+  if (off) recordGitHooksChoice(projectPath, true);
+  persistRecorder(projectPath, recorder);
+  reportCommitMsgHook(result, common, projectPath);
+  console.log();
+}
+
+/** The manifest as JSON on disk (install records, the opt-out), or null. Not through readManifest: that migrates on read. */
+function readRawManifest(projectPath) {
+  try {
+    return JSON.parse(readFileSync(join(projectPath, '.standards', 'manifest.json'), 'utf-8'));
+  } catch {
+    return null;
+  }
 }
 
 /**

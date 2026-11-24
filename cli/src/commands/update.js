@@ -67,6 +67,7 @@ import { HOOK_CAPABLE_TOOLS, resolveHookTools, installMissingHooks, diffHookScri
 import { persistRecorder, mergeRecorderInto, newRecorder } from '../core/install-records.js';
 import { installGateScripts, gateStandardInstalled, GATE_SCRIPTS } from '../utils/gate-scripts.js';
 import { migrateLegacyHuskyHook, migrateHuskyBlockWithoutCi, migrateOlderNativeHook } from '../utils/legacy-hook-migration.js';
+import { ensureCommitMsgHook, recordGitHooksChoice, reportCommitMsgHook } from '../utils/commit-msg-hook.js';
 import {
   promptSkillsInstallLocation,
   promptCommandsInstallation
@@ -582,6 +583,13 @@ export async function updateCommand(options) {
     || !!options.apply || !!options.force || !!options.plan; // wire:apply-scoped-migrates-hook
   if (!options.rollback && hookMigrationApplies) {
     migrateLegacyPreCommitHook(projectPath, manifest, { plan: !!options.plan });
+  }
+
+  // The git commit-msg hook (decision 659甲). Same gate as the hook migration above, and an explicit --git-hooks /
+  // --no-git-hooks is never narrowed by a scope flag: it is a request about this one thing. Without a flag the project's
+  // recorded choice decides, so a project that turned the hook off is not given it back by an update.
+  if (!options.rollback && (hookMigrationApplies || options.gitHooks !== undefined)) {
+    applyCommitMsgHook(projectPath, manifest, options);
   }
 
   if (options.from && !options.rollback) {
@@ -2066,6 +2074,39 @@ export function migrateLegacyPreCommitHook(projectPath, manifest, { plan = false
     }
   }
   return r;
+}
+
+/**
+ * Update, leave alone or remove the git commit-msg hook, and say which. `--no-git-hooks` records the opt-out
+ * in the manifest (and removes UDS's own untouched hook); `--git-hooks` clears it and installs. With neither flag a
+ * hook that is not there is NOT installed (decision 680乙: `uds init` installs it, `uds update` only says how to get it,
+ * unless the project opted out); a UDS hook that is there and untouched is brought up to date.
+ * `--plan` reports and writes nothing, the choice included.
+ * @param {string} projectPath
+ * @param {object} manifest - carries the install records and the opt-out; changed to match what was recorded
+ * @param {{plan?: boolean, gitHooks?: boolean}} options
+ */
+export function applyCommitMsgHook(projectPath, manifest, options, { allowInTest = false } = {}) {
+  if (process.env.VITEST && !allowInTest) return; // in-process tests: the repo this suite runs in must not be touched
+  const plan = !!options.plan;
+  const wantOff = options.gitHooks === false;
+  const wantOn = options.gitHooks === true;
+  if (wantOn && !plan) recordGitHooksChoice(projectPath, false, manifest);
+  const recorder = newRecorder();
+  const effective = wantOn ? { ...manifest, gitHooks: undefined } : manifest;
+  const result = ensureCommitMsgHook(projectPath, { manifest: effective, disable: wantOff, plan, recorder, installIfMissing: wantOn }); // wire:update-commit-msg-hook
+  if (wantOff && !plan) recordGitHooksChoice(projectPath, true, manifest);
+  if (recorder.files && Object.keys(recorder.files).length > 0) {
+    persistRecorder(projectPath, recorder);
+    Object.assign(manifest, mergeRecorderInto(manifest, recorder));
+  }
+  // Steady states say nothing on a plain update (quiet pass): `uds check` reports them. A change, a warning, the hint that
+  // the hook is not installed (and how to turn it on), or an explicit --git-hooks / --no-git-hooks always gets its line.
+  const steady = ['current', 'no-git', 'disabled'].includes(result.state);
+  if (!steady || options.gitHooks !== undefined) {
+    reportCommitMsgHook(result, t().commands.common, projectPath);
+    console.log();
+  }
 }
 
 /**

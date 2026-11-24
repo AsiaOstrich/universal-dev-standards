@@ -63,7 +63,7 @@ async function gitProject({ node = false, baseline = true } = {}) {
   installCliShim(dir, h.cliPath());
   if (baseline) {
     git(['add', '-A', '--', '.'], dir);
-    const c = git(['commit', '-q', '-m', 'baseline'], dir);
+    const c = git(['commit', '-q', '-m', 'chore: baseline'], dir);
     expect(c.code, c.all).toBe(0);
   }
   return dir;
@@ -73,7 +73,7 @@ async function gitProject({ node = false, baseline = true } = {}) {
 function tamperAndCommit(dir) {
   writeFileSync(join(dir, STANDARD), `${readFileSync(join(dir, STANDARD), 'utf-8')}\n# edited by hand\n`);
   git(['add', '-A', '--', STANDARD], dir);
-  return git(['commit', '-q', '-m', 'edit a standard'], dir);
+  return git(['commit', '-q', '-m', 'chore: edit a standard'], dir);
 }
 
 const putHook = (dir, rel, text) => {
@@ -101,7 +101,7 @@ it('the native pre-commit hook `uds init` writes stops a commit that edits an in
   const restore = runProgram(process.execPath, [h.cliPath(), 'check', '--restore', '--offline'], dir, env());
   expect(restore.code, restore.all).toBe(0);
   git(['add', '-A', '--', '.'], dir);
-  const ok = git(['commit', '-q', '-m', 'nothing edited'], dir);
+  const ok = git(['commit', '-q', '-m', 'chore: nothing edited'], dir);
   expect(ok.code, ok.all).toBe(0);
 }, 240000);
 
@@ -246,7 +246,7 @@ it('a project the real universal-dev-standards@6.11.0 from npm set up: update --
   expect(readHook(dir, NATIVE)).toBe(await freshNativeHook());
 
   git(['add', '-A', '--', '.'], dir);
-  expect(git(['commit', '-q', '-m', 'baseline'], dir).code).toBe(0);
+  expect(git(['commit', '-q', '-m', 'chore: baseline'], dir).code).toBe(0);
   const before = commitCount(dir, env());
   const blocked = tamperAndCommit(dir);
   expect(blocked.code, blocked.all).not.toBe(0);

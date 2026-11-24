@@ -13669,6 +13669,244 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-init",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds init in a git project installs git's commit-msg hook (the project the next steps use)",
+      "titleZh": "uds init 在 git 專案裡安裝 git 的 commit-msg hook（後續步驟使用的專案）",
+      "changelog": [
+        "uds init installs git's own commit-msg hook, so a malformed commit message is refused"
+      ],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "Installed the git commit-msg hook"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/commit-msg",
+            "contains": [
+              "# UDS commit-msg hook",
+              "check --commit-msg \"$1\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-check-refuses-bad",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds check --commit-msg exits 1 on a malformed message and names it",
+      "titleZh": "uds check --commit-msg 對格式不合的訊息以 1 結束並指名該訊息",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "writeFile": "MSG-BAD",
+          "content": "fixed stuff\n"
+        }
+      ],
+      "uds": [
+        "check",
+        "--commit-msg",
+        "MSG-BAD"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "Invalid commit message format: \"fixed stuff\"",
+          "Expected: <type>(<scope>): <subject>"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-judges",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds check --commit-msg exits 0 on a well-formed message and on a merge subject git writes itself, and 1 on a malformed one",
+      "titleZh": "uds check --commit-msg 對格式正確的訊息與 git 自己產生的 merge 主旨以 0 結束，對格式不合的以 1 結束",
+      "smoke": true,
+      "changelog": [],
+      "run": [
+        "{node}",
+        "-e",
+        "const cp=require('child_process'),fs=require('fs'),bin=process.argv[1];const j=(t)=>{fs.writeFileSync('MSG',t);return cp.spawnSync(process.execPath,[bin,'check','--commit-msg','MSG'],{encoding:'utf8'});};const g=j('feat(auth): add token refresh\\n'),m=j('Merge branch side\\n'),b=j('fixed stuff\\n');process.stdout.write('GOOD-EXIT='+g.status+'\\nMERGE-EXIT='+m.status+'\\nBAD-EXIT='+b.status+'\\n'+b.stderr);",
+        "{bin}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "GOOD-EXIT=0",
+          "MERGE-EXIT=0",
+          "BAD-EXIT=1",
+          "Invalid commit message format"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-update-off",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds update --no-git-hooks removes the hook UDS installed and records that the project does not want it",
+      "titleZh": "uds update --no-git-hooks 移除 UDS 安裝的 hook，並記錄這個專案不要它",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "update",
+        "--no-git-hooks",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Removed the git commit-msg hook"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/commit-msg",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"commitMsg\": \"off\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-update-on",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds update --git-hooks turns the hook back on and clears the record",
+      "titleZh": "uds update --git-hooks 重新開啟 hook 並清除記錄",
+      "smoke": true,
+      "changelog": [],
+      "uds": [
+        "update",
+        "--git-hooks",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "Installed the git commit-msg hook"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/commit-msg",
+            "contains": [
+              "# UDS commit-msg hook"
+            ]
+          },
+          {
+            "path": ".standards/manifest.json",
+            "notContains": [
+              "commitMsg"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-update-hint",
+      "workspace": "git-commit-msg-hook",
+      "title": "uds update does not install the commit-msg hook into a project that has none; it prints how to turn it on and how to stop being asked",
+      "titleZh": "uds update 不會把 commit-msg hook 裝進沒有它的專案，只印出如何開啟與如何不再提示",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "removeFile": ".git/hooks/commit-msg"
+        }
+      ],
+      "uds": [
+        "update",
+        "--yes",
+        "--offline"
+      ],
+      "expect": {
+        "contains": [
+          "This project has no git commit-msg hook",
+          "Turn it on: uds update --git-hooks",
+          "uds update --no-git-hooks"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/commit-msg",
+            "exists": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "git-commit-msg-hook-init-off",
+      "workspace": "git-commit-msg-hook-off",
+      "title": "uds init --no-git-hooks installs no commit-msg hook and records the choice in the manifest",
+      "titleZh": "uds init --no-git-hooks 不安裝 commit-msg hook，並把選擇記在 manifest",
+      "smoke": true,
+      "changelog": [],
+      "prepare": [
+        {
+          "gitInit": true
+        },
+        {
+          "mkdir": ".claude"
+        }
+      ],
+      "uds": [
+        "init",
+        "-y",
+        "--skills-location",
+        "project",
+        "--mode",
+        "skills",
+        "--format",
+        "ai",
+        "--no-git-hooks"
+      ],
+      "expect": {
+        "contains": [
+          "Standards initialized successfully",
+          "git commit-msg hook: off"
+        ],
+        "files": [
+          {
+            "path": ".git/hooks/commit-msg",
+            "exists": false
+          },
+          {
+            "path": ".standards/manifest.json",
+            "contains": [
+              "\"commitMsg\": \"off\""
+            ]
+          }
+        ]
+      }
     }
   ]
 }

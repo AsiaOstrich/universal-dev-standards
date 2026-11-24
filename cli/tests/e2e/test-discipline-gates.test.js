@@ -174,14 +174,14 @@ function newProject({ baseline = true, node = false } = {}) {
     // The project's own first commit, through the hook. It carries scripts/ and .standards/, which
     // is not what a test below is about; it only gives later commits a parent to be a diff against.
     git(['add', '-A', '--', '.'], dir);
-    const c = git(['commit', '-q', '-m', 'baseline'], dir);
+    const c = git(['commit', '-q', '-m', 'chore: baseline'], dir);
     expect(c.code, c.all).toBe(0);
   }
   return { dir, init };
 }
 
 /** Stage exactly `paths` (add / modify / delete) and commit through the hook. */
-function commit(dir, paths, message = 'change') {
+function commit(dir, paths, message = 'chore: change') {
   const a = git(['add', '-A', '--', ...paths], dir);
   expect(a.code, a.all).toBe(0);
   return git(['commit', '-q', '-m', message], dir);

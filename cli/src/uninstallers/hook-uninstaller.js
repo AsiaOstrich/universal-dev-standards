@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, rmdir
 import { join, basename } from 'path';
 import { proveUnchanged, RECORD_KINDS, RECORDS_KEY, isRealDirectory } from '../core/install-records.js';
 import { stripUdsHookBlock, classifyNativePreCommitHook } from '../utils/git-hooks.js';
+import { buildCommitMsgHook, isUdsCommitMsgHook } from '../utils/commit-msg-hook.js';
 import {
   collectHookConfigs, standardsSourceDir, hooksSourceDir,
   CODEX_HOOK_SCRIPT, GEMINI_HOOK_SCRIPT, AGY_HOOK_SCRIPT,
@@ -454,6 +455,28 @@ export function uninstallHook(projectPath, options = {}) {
       }
     } catch (error) {
       result.errors.push(`.git/hooks/pre-commit — ${error.message}`);
+    }
+  }
+
+  // The git commit-msg hook `uds init` / `uds update` install (decision 659甲). The whole file is UDS's, so it goes only
+  // when it is provably untouched: an install record that still matches, or the exact text UDS writes. One that carries
+  // the marker but was edited is kept and named; a commit-msg that is not UDS's is not mentioned at all.
+  for (const rel of ['.husky/commit-msg', '.git/hooks/commit-msg']) {
+    const abs = join(projectPath, rel);
+    if (!existsSync(abs)) continue;
+    try {
+      const content = readFileSync(abs, 'utf-8');
+      if (!isUdsCommitMsgHook(content)) continue;
+      const proof = proveUnchanged(manifest, projectPath, rel);
+      if (proof.state === 'proven' || content.replace(/\r\n/g, '\n') === buildCommitMsgHook()) { // wire:uninstall-removes-commit-msg-hook
+        if (!dryRun) unlinkSync(abs);
+        result.removed.push(`${rel} (UDS commit-msg hook, file removed — ${proof.state === 'proven' ? proof.why : 'its text is exactly what UDS writes'})`);
+        result.deletedPaths.push(rel);
+      } else {
+        result.skipped.push(`${rel} (kept: it carries the UDS marker but ${proof.why})`);
+      }
+    } catch (error) {
+      result.errors.push(`${rel} — ${error.message}`);
     }
   }
 

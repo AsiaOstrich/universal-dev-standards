@@ -3,7 +3,7 @@ source: ../../../docs/CLI-INIT-OPTIONS.md
 source_version: 3.7.1
 translation_version: 3.7.1
 last_synced: 2026-11-04
-source_hash: 598fcbb2167d
+source_hash: b78b34a0b8cf
 status: current
 ---
 
@@ -837,6 +837,7 @@ uds init --experimental
 | AGENTS.md | `--agents-md` | 生成 AGENTS.md 通用摘要（默认：未选 codex/opencode 时自动生成） |
 | 不生成 AGENTS.md | `--no-agents-md` | 跳过 AGENTS.md 生成 |
 | 强制执行 Hooks | `--with-hooks` | 安装强制执行 hooks（commit-msg、security、logging） |
+| 不装 git hooks | `--no-git-hooks` | 不安装 git commit-msg hook（默认会安装；见[提交信息检查](#提交信息检查git-commit-msg-hook)） |
 | 内容布局 | `--content-layout` | 内容布局（`flat`、`layered`）- 默认：`flat` |
 | Claude Code 目标文件 | `--claude-target` | Claude Code 集成内容要写到哪里：`project`（`CLAUDE.md`，默认）或 `local`（`CLAUDE.local.md`） |
 | 界面语言 | `--ui-lang` | 提示界面语言（`en`、`zh-tw`、`auto`）- 默认：`auto` |
@@ -871,6 +872,25 @@ uds init --experimental
 UDS 的项目——并在 `[pre-commit]` 下回报同样的修复方式；此警告不影响
 `uds check --ci` 的退出码。
 
+### 提交信息检查（git commit-msg hook）
+
+`uds init` 也會安裝 git 原生的 `commit-msg` hook，所以格式不合的提交信息会被拦下，不论是哪个 AI 工具（或没有用工具）提交的。在此之前，只有 Claude Code 有这道检查，而且要加 `--with-hooks`（挂在它 Bash 工具上的 PreToolUse hook）。默认开启；`--no-git-hooks` 可关闭：
+
+```bash
+uds init --no-git-hooks                  # 不安装，并把这个选择记在项目里
+uds update --git-hooks                   # 装进没有它的项目（一般的 update 绝不会自己装）
+uds update --no-git-hooks                # 之后再关闭：移除 UDS 安装的那个（没被改过的话），并记录选择
+uds check                                # 在 [commit-msg] 下报告这个 hook 的状态
+```
+
+- **检查什么。** 与 Claude Code hook 同一套规则（`scripts/hooks/validate-commit-msg.mjs`）：第一行必须是 `<type>(<scope>): <subject>`，type 取自 `.standards/options/` 里已安装的 commit-message 选项文件（没有选项文件时用 Conventional Commits 的集合）。它**不**套用标准里 72 字符的 `subject-max-length` 规则（`uds simulate -s commit-message` 会套用）：双语单行主旨（`<English>. <中文>.`）常常比这长。git 自己生成的主旨（`Merge ...`、`Revert "..."`、`fixup! ...`、`squash! ...`、`amend! ...`）不检查，信息文件里的注释行也忽略。
+- **装在哪里。** `.git/hooks/commit-msg`；Node 项目若 `uds init` 已把 `core.hooksPath` 指向 `.husky`（见上节），则是 `.husky/commit-msg`。它从本项目的 `node_modules/.bin` 或 `PATH` 执行 `universal-dev-standards check --commit-msg "$1"`，不经过 `npx`。找不到 CLI 时，hook 会说明并拦下提交，规则与 pre-commit hook 相同；`git commit --no-verify` 可跳过一次。
+- **绝不动的东西。** 不是 UDS 的 `commit-msg` hook、不是 `uds init` 自己接上的 `.husky` 的其他 `core.hooksPath`（`.githooks`、husky 9 的 `.husky/_`、全局设置），以及你改过的 UDS hook。这几种情况 `uds init` 与 `uds update` 都只打印一行，说明如何自己加上这个检查：`universal-dev-standards check --commit-msg "$1"`。把自己的 hook 里的标记行（`# UDS commit-msg hook`）删掉，就能永远保留它。
+- **关闭会被记住。** `--no-git-hooks` 会把 `gitHooks.commitMsg: "off"` 记在 `.standards/manifest.json`，所以 `uds update` 不会再装 hook，也不会再提示——你的 clone 与同事的 clone 都一样。`--no-git-hooks` 只管这个 hook：上节的 pre-commit 检查不受影响。
+- **`uds update` 不会自己安装它。** git hook 是每份 clone 各自一份，所以在这个 hook 出现之前就设置好的项目，以及新 clone，都没有它。一般的 `uds update`（含 `--plan`）什么都不装；当项目没有 hook、也没有记录不要时，只打印一行：这个 hook 做什么、`uds update --git-hooks` 开启、`uds update --no-git-hooks` 不再提示。只有 `--git-hooks` 才会安装（`--git-hooks --plan` 只说会做什么，不写文件）。已经存在、没被改过的 UDS hook，一般的 update 仍会更新它。
+- **`uds check`** 在 `[commit-msg]` 下报告四种状态之一：运作中、已关闭（选择不装）、别人的 hook 且没有执行 UDS 检查、这份 clone 没有 hook。只有“运作中”读起来是已检查，而且四种都不会改变 `uds check --ci` 的退出码。
+- **`uds uninstall`** 会移除 UDS 写入且没被改过的 hook，被改过的会保留。
+
 ### Claude Code 以外的强制执行 Hooks
 
 `--with-hooks` 一定会安装进 `.claude/settings.json`。四个有 hook 支持的标准
@@ -886,7 +906,8 @@ UDS 的项目——并在 `[pre-commit]` 下回报同样的修复方式；此警
 
 没选的工具不会写入任何东西——`uds init` 不会在没用到 Codex、Gemini CLI 或 Antigravity
 的项目里创建 `.codex/`、`.gemini/` 或 `.agents/` 目录。其余三个有 hook 支持的标准
-（commit message 校验、logging、security）目前仍只支持 Claude Code；
+（commit message 校验、logging、security）目前仍只接到 Claude Code
+（commit message 校验另有上面不依赖工具的 git `commit-msg` hook）；
 为什么目前只推广 turn-completion-integrity，以及 Cursor 的现状
 （已评估、不支持），见
 [支持的执行环境](../../../core/turn-completion-integrity.md#supported-harnesses)。

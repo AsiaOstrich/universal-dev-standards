@@ -10,9 +10,12 @@
  *     someone runs it. Nothing runs it on `git commit` by default.
  *   - the PreToolUse hook that `uds init --with-hooks` wires for Claude Code: refuses a commit with a malformed
  *     message. Claude Code only, and off unless asked for.
- * So "a malformed commit message is refused at commit time" holds for one tool behind one opt-in flag, not for the
- * others: `uds init` installs no git commit-msg hook. The cases below pin exactly that, so the cell can be flipped the
- * day a default entry exists, or when it is decided that the integrity check alone counts.
+ *   - the git commit-msg hook `uds init` installs by default since decision 659甲 (#225): refuses a malformed message
+ *     for every tool (tests/e2e/commit-msg-hook-225.test.js).
+ * So before #225 "a malformed commit message is refused at commit time" held for one tool behind one opt-in flag; now
+ * it holds for every tool in a git project, unless the project opted out or already owns its commit-msg hook. The
+ * cases below still pin what the Claude Code PreToolUse hook does and that it is off unless `--with-hooks` is given.
+ * Whether the matrix cell can now be flipped is for the owner of the matrix to decide, not this file.
  *
  * The first block runs the same violation over three differently-tooled projects (Cursor, Claude Code, Codex): the
  * checks belong to UDS, not to an AI tool, so they must judge them the same way.
@@ -160,7 +163,7 @@ describe('XSPEC-357 R8 matrix cell 4, part two: a malformed commit message is ju
       });
     }
 
-    it('control: without --with-hooks nothing is registered, so no commit is judged at commit time', async () => {
+    it('control: without --with-hooks no PreToolUse validator is registered in .claude/settings.json (the git commit-msg hook is a separate default, see commit-msg-hook-225)', async () => {
       await initProject(dir, ['CLAUDE.md']);
 
       expect(await registeredValidatorCommand(dir).catch(() => undefined), 'no validator is wired by default').toBeUndefined();

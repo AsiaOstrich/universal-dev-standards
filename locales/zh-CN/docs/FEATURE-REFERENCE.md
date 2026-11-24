@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-11-23
+> Auto-generated | Last updated: 2026-11-24
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -53,6 +53,7 @@
 | `--agents-md` | Generate AGENTS.md universal summary |
 | `--no-agents-md` | Skip AGENTS.md generation |
 | `--with-hooks` | Install enforcement hooks declared by the installed standards |
+| `--no-git-hooks` | Do not install the git commit-msg hook (installed by default: it refuses a malformed commit message for every AI tool; an existing hook or core.hooksPath is left alone) |
 | `--content-layout` | Content layout (flat, layered) [default: flat] |
 | `--claude-target` | Claude Code integration target: project (default, writes CLAUDE.md) or local (writes CLAUDE.local.md — not committed to git; gitignore it yourself) |
 | `-y, --yes` | Use defaults, skip interactive prompts |
@@ -106,6 +107,7 @@
 | `--force` | Bypass UDS source-repo self-adoption guard (DEC-044 / XSPEC-071) |
 | `--allow-downgrade` | With --restore, --restore-missing or --migrate: let this uds write over a project a NEWER UDS installed (without it they refuse and exit 1) |
 | `--i18n` | Run i18n lint rules (XSPEC-239) across canonical + locale variants |
+| `--commit-msg` | Judge the commit message in <file> against the commit-message standard (the entry the git commit-msg hook runs); exit 1 when it is malformed |
 
 ### `uds lint`
 
@@ -167,6 +169,8 @@
 | `--locale` | Override locale for skills install (zh-tw, zh-cn, en). Without it: .uds/install.yaml, UDS_LOCALE env, the language the project recorded, then ~/.udsrc ui.language (update never switches a project that recorded a language, and does not read LANG) |
 | `--with-hooks` | Install the enforcement hooks that are missing from this already-initialized project (re-detects tools; hooks already there and your own hooks are not touched; a hook script that is an unmodified copy from an older UDS is replaced, an edited one is kept; with --plan, writes nothing; --force also overwrites edited hook scripts; every script it rewrites is copied to .uds-backups/ first, and `uds update --rollback` puts it back) |
 | `--ai-tool` | With --with-hooks: comma-separated tools to install hooks for (claude-code, codex, gemini-cli, antigravity) instead of detecting them |
+| `--git-hooks` | Turn the git commit-msg hook back on for this project (clears the --no-git-hooks choice) and install it |
+| `--no-git-hooks` | Turn the git commit-msg hook off for this project: removes the one UDS installed (if untouched) and records the choice so later updates do not install it again |
 
 ### `uds skills`
 

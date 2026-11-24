@@ -81,8 +81,8 @@ node scripts/beta-acceptance/run.mjs --version 6.16.1
 It installs the published 6.16.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.16.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 405 steps (397 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 405 步（397 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 412 steps (404 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 412 步（404 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1299,6 +1299,27 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 405 steps (397
 405. `beta2-6161-allow-downgrade-check-restore` — uds check --restore-missing --allow-downgrade restores a deleted standard in a project recorded as installed by UDS 99.0.0, and says --allow-downgrade is on.
    專案記錄為由 UDS 99.0.0 安裝時，uds check --restore-missing --allow-downgrade 補回刪掉的標準，並說 --allow-downgrade 已開啟。
    `uds check --restore-missing --allow-downgrade` → exit 0; output has "--allow-downgrade is on", "Restored 1 file(s)"
+406. `git-commit-msg-hook-init` (**new 新**) — uds init in a git project installs git's commit-msg hook (the project the next steps use).
+   uds init 在 git 專案裡安裝 git 的 commit-msg hook（後續步驟使用的專案）。
+   `uds init -y --skills-location project --mode skills --format ai` → exit 0; output has "Standards initialized successfully", "Installed the git commit-msg hook"
+407. `git-commit-msg-hook-check-refuses-bad` — uds check --commit-msg exits 1 on a malformed message and names it.
+   uds check --commit-msg 對格式不合的訊息以 1 結束並指名該訊息。
+   `uds check --commit-msg MSG-BAD` → exit 1; output has "Invalid commit message format: "fixed stuff"", "Expected: <type>(<scope>): <subject>"
+408. `git-commit-msg-hook-judges` — uds check --commit-msg exits 0 on a well-formed message and on a merge subject git writes itself, and 1 on a malformed one.
+   uds check --commit-msg 對格式正確的訊息與 git 自己產生的 merge 主旨以 0 結束，對格式不合的以 1 結束。
+   `{node} -e "const cp=require('child_process'),fs=require('fs'),bin=process.argv[1];const j=(t)=>{fs.writeFileSync('MSG',t);return cp.spawnSync(process.execPath,[bin,'check','--commit-msg','MSG'],{encoding:'utf8'});};const g=j('feat(auth): add token refresh\\n'),m=j('Merge branch side\\n'),b=j('fixed stuff\\n');process.stdout.write('GOOD-EXIT='+g.status+'\\nMERGE-EXIT='+m.status+'\\nBAD-EXIT='+b.status+'\\n'+b.stderr);" {bin}` → exit 0; output has "GOOD-EXIT=0", "MERGE-EXIT=0" (+2)
+409. `git-commit-msg-hook-update-off` — uds update --no-git-hooks removes the hook UDS installed and records that the project does not want it.
+   uds update --no-git-hooks 移除 UDS 安裝的 hook，並記錄這個專案不要它。
+   `uds update --no-git-hooks --yes --offline` → exit 0; output has "Removed the git commit-msg hook"
+410. `git-commit-msg-hook-update-on` — uds update --git-hooks turns the hook back on and clears the record.
+   uds update --git-hooks 重新開啟 hook 並清除記錄。
+   `uds update --git-hooks --yes --offline` → exit 0; output has "Installed the git commit-msg hook"
+411. `git-commit-msg-hook-update-hint` — uds update does not install the commit-msg hook into a project that has none; it prints how to turn it on and how to stop being asked.
+   uds update 不會把 commit-msg hook 裝進沒有它的專案，只印出如何開啟與如何不再提示。
+   `uds update --yes --offline` → exit 0; output has "This project has no git commit-msg hook", "Turn it on: uds update --git-hooks" (+1)
+412. `git-commit-msg-hook-init-off` — uds init --no-git-hooks installs no commit-msg hook and records the choice in the manifest.
+   uds init --no-git-hooks 不安裝 commit-msg hook，並把選擇記在 manifest。
+   `uds init -y --skills-location project --mode skills --format ai --no-git-hooks` → exit 0; output has "Standards initialized successfully", "git commit-msg hook: off"
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

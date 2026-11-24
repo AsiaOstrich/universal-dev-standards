@@ -831,6 +831,7 @@ uds init --experimental
 | AGENTS.md | `--agents-md` | Generate AGENTS.md universal summary (default: yes if no codex/opencode) |
 | No AGENTS.md | `--no-agents-md` | Skip AGENTS.md generation |
 | Enforcement Hooks | `--with-hooks` | Install enforcement hooks (commit-msg, security, logging) |
+| No git hooks | `--no-git-hooks` | Do not install the git commit-msg hook (installed by default; see [Commit Message Check](#commit-message-check-git-commit-msg-hook)) |
 | Content Layout | `--content-layout` | Content layout (`flat`, `layered`) - default: `flat` |
 | Claude Code target | `--claude-target` | Where the Claude Code integration content is written: `project` (`CLAUDE.md`, default) or `local` (`CLAUDE.local.md`) |
 | UI Language | `--ui-lang` | UI language for prompts (`en`, `zh-tw`, `auto`) - default: `auto` |
@@ -869,6 +870,25 @@ actual execution path — including a project that adopted UDS before this
 fix — and reports it under `[pre-commit]` with the same remedy; this warning
 does not affect `uds check --ci`'s exit code.
 
+### Commit Message Check (git commit-msg hook)
+
+`uds init` also installs git's own `commit-msg` hook, so a malformed commit message is refused whichever AI tool (or none) made the commit. Before this, only Claude Code got that check, and only with `--with-hooks` (a PreToolUse hook on its Bash tool). It is on by default; `--no-git-hooks` turns it off:
+
+```bash
+uds init --no-git-hooks                  # do not install it, and record that choice for this project
+uds update --git-hooks                   # install it into a project that has none (a plain update never does)
+uds update --no-git-hooks                # turn it off later: removes the one UDS installed (if untouched), records the choice
+uds check                                # reports the hook's state under [commit-msg]
+```
+
+- **What it judges.** The same rule as the Claude Code hook (`scripts/hooks/validate-commit-msg.mjs`): the first line must be `<type>(<scope>): <subject>`, with a type from the commit-message option files installed in `.standards/options/` (the Conventional Commits set when there are none). It does not apply the standard's 72-character `subject-max-length` rule, which `uds simulate -s commit-message` does: a bilingual one-line subject (`<English>. <中文>.`) is routinely longer. Subjects git writes itself (`Merge ...`, `Revert "..."`, `fixup! ...`, `squash! ...`, `amend! ...`) are not judged, and comment lines in the message file are ignored.
+- **Where it goes.** `.git/hooks/commit-msg`, or `.husky/commit-msg` when `uds init` pointed `core.hooksPath` at `.husky` for a Node project (see above). It runs `universal-dev-standards check --commit-msg "$1"` from this project's `node_modules/.bin` or from `PATH`, never through `npx`. When the CLI cannot be found the hook says so and stops the commit, the same rule as the pre-commit hook; `git commit --no-verify` skips it once.
+- **What it never touches.** A `commit-msg` hook that is not UDS's, a `core.hooksPath` other than the `.husky` that `uds init` wired itself (`.githooks`, husky 9's `.husky/_`, a global one), and a UDS hook you edited. In each case `uds init` and `uds update` print one line saying how to add the check by hand: `universal-dev-standards check --commit-msg "$1"`. Delete the marker line (`# UDS commit-msg hook`) from a hook of yours to keep it for good.
+- **Turning it off sticks.** `--no-git-hooks` records `gitHooks.commitMsg: "off"` in `.standards/manifest.json`, so `uds update` neither installs the hook nor asks about it again, on your clone or a teammate's. `--no-git-hooks` stops here: the pre-commit check above is not affected by it.
+- **`uds update` does not install it on its own.** Git hooks are per-clone, so a project set up before this hook existed, and a fresh clone, have none. A plain `uds update` (and `--plan`) installs nothing and, when there is no hook and no recorded opt-out, prints one line: what the hook does, `uds update --git-hooks` to turn it on, `uds update --no-git-hooks` to stop being asked. Only `--git-hooks` installs it (`--git-hooks --plan` says what it would do and writes nothing). A UDS hook that is already there and untouched is still brought up to date by a plain update.
+- **`uds check`** reports one of four states under `[commit-msg]`: active, off (opted out), someone else's hook that does not run the UDS check, or no hook in this clone. Only "active" reads as checked, and none of them changes the exit code of `uds check --ci`.
+- **`uds uninstall`** removes the hook UDS wrote when it is untouched, and keeps an edited one.
+
 ### Enforcement Hooks Beyond Claude Code
 
 `--with-hooks` always installs into `.claude/settings.json`. One of the four
@@ -888,7 +908,8 @@ non-interactive tools flag):
 Nothing is written for a tool you did not select — `uds init` does not create
 a `.codex/`, `.gemini/` or `.agents/` directory in a project that doesn't use them. The
 other three hook-backed standards (commit-message validation, logging,
-security) remain Claude Code only; see
+security) are still wired for Claude Code only (commit-message validation also
+has the git `commit-msg` hook above, which does not depend on a tool); see
 [Supported harnesses](../core/turn-completion-integrity.md#supported-harnesses)
 for why turn-completion-integrity is the one extended so far, and for Cursor's
 status (evaluated, not supported).

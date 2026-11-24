@@ -277,7 +277,7 @@ function hasCommit(dir, env = cleanEnv()) {
 
 function commitAll(dir, env = cleanEnv()) {
   git(['add', '-A', '--', '.'], dir, env);
-  return git(['commit', '-q', '-m', 'test commit'], dir, env);
+  return git(['commit', '-q', '-m', 'chore: test commit'], dir, env);
 }
 
 describe('a real git commit through the pre-commit hook', () => {
@@ -416,7 +416,7 @@ describe('the native hook `uds init` writes for a non-Node project can say no', 
 
   itPosix('the UDS check exiting zero lets the commit through, and the stub was really called with `check`', () => {
     const { dir } = nativeHookRepo();
-    const bin = stubs({ 'universal-dev-standards': 'echo "$@" > "$STUB_LOG"; exit 0' });
+    const bin = stubs({ 'universal-dev-standards': 'echo "$@" >> "$STUB_LOG"; exit 0' }); // append: the commit-msg hook calls the same CLI after the pre-commit one
     const log = join(tmp('uds-test-checkin-log-'), 'calls');
     const env = withPath(bin);
     env.STUB_LOG = log;
@@ -424,7 +424,9 @@ describe('the native hook `uds init` writes for a non-Node project can say no', 
     expect(r.code).toBe(0);
     expect(r.all).toContain('Pre-commit checks passed');
     expect(hasCommit(dir, env)).toBe(true);
-    expect(readFileSync(log, 'utf8').trim()).toBe('check --ci'); // the hook runs the check in the mode whose exit code says "issues" (XSPEC-482 R3)
+    const calls = readFileSync(log, 'utf8').trim().split('\n');
+    expect(calls[0]).toBe('check --ci'); // the hook runs the check in the mode whose exit code says "issues" (XSPEC-482 R3)
+    expect(calls[1], 'then git runs the commit-msg hook, which asks the same CLI to judge the message file').toMatch(/^check --commit-msg \S*COMMIT_EDITMSG$/);
   });
 
   itPosix('the UDS CLI not being installed blocks the commit and says how to fix it (it used to skip in silence)', () => {
