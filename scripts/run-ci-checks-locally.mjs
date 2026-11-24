@@ -362,6 +362,14 @@ export function buildPlan(steps) {
 // Running
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Workflow `run:` lines are written for bash (`FOO=1 node …`, `if ! npm run …; then`). On Windows the default shell is cmd,
+ * which reads neither, so run them through bash there too (GitHub's Windows runners and Git for Windows ship it). If bash is
+ * missing the spawn fails and the check is reported red, never skipped.
+ */
+export const ciShellFor = (platform) => (platform === 'win32' ? 'bash' : true);
+const CI_SHELL = ciShellFor(process.platform);
+
 /** `./x.sh` is run through bash: CI chmods it first, a checkout here may not have the bit. */
 const shellForm = (cmd) => (/^\.\/\S+\.sh(\s|$)/.test(cmd) ? `bash ${cmd}` : cmd);
 
@@ -383,7 +391,7 @@ function runOne(item, root, timeoutMs) {
   return new Promise((done) => {
     const t0 = Date.now();
     const chunks = [];
-    const child = spawn(shellForm(item.cmd), { cwd: resolve(root, item.cwd), shell: true, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(shellForm(item.cmd), { cwd: resolve(root, item.cwd), shell: CI_SHELL, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
     current = child;
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; killTree(child); }, timeoutMs);

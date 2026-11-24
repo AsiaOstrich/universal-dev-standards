@@ -58,3 +58,12 @@ describe('run-ci-checks-locally', () => {
     expect(pkg.scripts['check:ci-parity']).toBe('node scripts/run-ci-checks-locally.mjs');
   });
 });
+
+describe('which shell runs a workflow command', () => {
+  it('is bash on Windows, where the default cmd reads neither `FOO=1 node …` nor `if ! npm run …` (CI went red there)', async () => {
+    const { ciShellFor } = await import('../../../../scripts/run-ci-checks-locally.mjs');
+    expect(ciShellFor('win32')).toBe('bash');
+    expect(ciShellFor('linux')).toBe(true);
+    expect(ciShellFor('darwin')).toBe(true);
+  });
+});
