@@ -11,7 +11,7 @@ import { join } from 'path';
 import { spawnSync } from 'child_process';
 import {
   buildCommitMsgHook, isUdsCommitMsgHook, runsUdsCommitMsgCheck, messageForJudging, runCommitMsgCheck,
-  gitHooksDisabled, recordGitHooksChoice, COMMIT_MSG_HOOK_MARKER
+  gitHooksDisabled, recordGitHooksChoice, COMMIT_MSG_HOOK_MARKER, ensureCommitMsgHook, reportCommitMsgHook
 } from '../../../src/utils/commit-msg-hook.js';
 
 describe('the hook text', () => {
@@ -119,3 +119,28 @@ describe('the opt-out record', () => {
   });
 });
 
+describe('when the hook cannot be written', () => {
+  it('says why, with the reason the file system gave, instead of a blank (write failure reaches the message)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'uds-cmh-writefail-'));
+    try {
+      const env = { ...process.env };
+      for (const k of Object.keys(env)) if (k.startsWith('GIT_')) delete env[k];
+      expect(spawnSync('git', ['init', '-q'], { cwd: dir, env }).status).toBe(0);
+      // .git/hooks is a plain file, so making the hooks directory and writing commit-msg inside it must fail, on every OS.
+      rmSync(join(dir, '.git', 'hooks'), { recursive: true, force: true });
+      writeFileSync(join(dir, '.git', 'hooks'), 'not a directory');
+
+      const result = ensureCommitMsgHook(dir);
+      expect(result.state).toBe('error');
+      expect(typeof result.writeFailure).toBe('string');
+      expect(result.writeFailure.length).toBeGreaterThan(0);
+
+      const lines = [];
+      reportCommitMsgHook(result, { commitMsgHookError: 'Could not write the git commit-msg hook ({file}): {error}' }, dir, (l) => lines.push(l));
+      expect(lines.join('\n')).toContain(result.writeFailure);
+      expect(lines.join('\n')).not.toMatch(/\): *$/m);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

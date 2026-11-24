@@ -196,7 +196,7 @@ export function gitHooksDisabled(manifest) {
  *   NOT written, the state is `not-installed` and the caller says how to turn it on. An existing UDS hook is still brought up to date.
  * @param {object} [opts.recorder] - receives the install record of a file written
  * @returns {{state: 'not-installed'|'installed'|'updated'|'current'|'would-install'|'would-update'|'disabled'|'removed'|'would-remove'|'kept-disabled'
- *   |'yielded-existing'|'yielded-edited'|'yielded-hooks-path'|'no-git'|'unknown-dir'|'error', file?: string, hooksPath?: string, error?: string}}
+ *   |'yielded-existing'|'yielded-edited'|'yielded-hooks-path'|'no-git'|'unknown-dir'|'error', file?: string, hooksPath?: string, writeFailure?: string}}
  */
 export function ensureCommitMsgHook(projectPath, { manifest = null, disable = false, plan = false, recorder = null, installIfMissing = true } = {}) {
   const target = commitMsgTarget(projectPath);
@@ -222,7 +222,7 @@ export function ensureCommitMsgHook(projectPath, { manifest = null, disable = fa
       if (recorder && target.rel) recordFile(recorder, projectPath, target.rel, RECORD_KINDS.GIT_HOOK);
       return { state, file: target.file };
     } catch (e) {
-      return { state: 'error', file: target.file, error: e.message };
+      return { state: 'error', file: target.file, writeFailure: e.message };
     }
   };
 
@@ -307,7 +307,7 @@ const fill = (text, vars) => Object.entries(vars).reduce((s, [k, v]) => s.split(
  */
 export function reportCommitMsgHook(result, common, projectPath, log = console.log) {
   const file = result.file ? relative(projectPath, result.file).split('\\').join('/') || result.file : '';
-  const say = (colour, key) => log(colour(`  ${fill(common[key], { file, path: result.hooksPath ?? '', error: result.error ?? '' })}`));
+  const say = (colour, key) => log(colour(`  ${fill(common[key], { file, path: result.hooksPath ?? '', error: result.writeFailure ?? '' })}`));
   const table = {
     installed: [chalk.green, 'commitMsgHookInstalled'],
     updated: [chalk.green, 'commitMsgHookUpdated'],
