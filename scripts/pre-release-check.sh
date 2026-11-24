@@ -74,7 +74,7 @@ done
 PASSED=0
 FAILED=0
 SKIPPED=0
-TOTAL=30
+TOTAL=31
 
 # `tsx` is not on PATH in every shell (nvm-managed installs, non-login shells).
 # Three checks invoked it bare, so a missing binary was reported as "✗ Failed" —
@@ -655,16 +655,28 @@ run_check "28" "Running .ai.yaml parse check | .ai.yaml 可解析檢查" "node $
 # pins the working tree; this also checks every release tag, which a shallow CI clone cannot.
 run_check "29" "Running hook-script fingerprint check | hook 腳本指紋表檢查" "node $SCRIPT_DIR/generate-hook-fingerprints.mjs --self-test && node $SCRIPT_DIR/generate-hook-fingerprints.mjs --check"
 
-# NOT wired here, and why it matters that this is written down: the other two 6.14.0-beta.2
-# failures (a test that parsed `npm pack --json` output, and a path-separator assumption in the
-# home-isolation walk) live in step 19's unit tests and passed here because of WHAT RAN THEM, not
-# because step 19 was missing: the first breaks only under npm 12 (the publish job runs
-# `npm install -g npm@latest`; this machine had npm 10), the second only on Windows. A green step 19
-# on one npm version on one OS is evidence about that pair and nothing else. CI jobs still not
-# mirrored in this script: script-ratchet (bats tests/scripts/), reachability, effect-boundary,
-# trigger-surface, error-exit, llms-txt, adoption-skills, coverage gate, baseline-claims (the
-# rest of its steps), translation-hash-ratchet, shipped-stamp, bump-roundtrip, reference-only,
-# bundle-parity, docs-check index.
+# Step 30: every pure check CI runs (2026-11-24: e2b5fa32 was green here and refused by CI's
+# check:error-exit, a check this script did not run; before that, 6.14.0-beta.2 and four red
+# "Check Script Ratchet" runs were the same shape). The list of those checks is NOT written here:
+# scripts/run-ci-checks-locally.mjs reads .github/workflows/*.yml and runs what it finds, so a
+# check added to CI next week is run here next week without anyone editing this file. What it
+# leaves out is named, with a reason, in that script's EXCLUDED list, and it fails on any
+# workflow command that fits no rule. Its own self-test runs first, as for steps 26 and 29.
+# Slow (it includes the bats suite, tests/scripts/, and CI's coverage-gate run of the whole
+# vitest suite); --skip-tests leaves those two out, as it leaves out steps 19 and 20. It
+# overlaps steps 2-5, 18.10 and 26-28 on purpose: the duplicates are seconds, a hand-kept list
+# of "what to skip because step N does it" is the thing that drifted.
+#
+# Still not mirrored, and said so: the other halves of the two 6.14.0-beta.2 failures that no
+# script here can reproduce (npm 12 behaviour of the publish job's `npm install -g npm@latest`,
+# and Windows path separators), commitlint over a PR range, and everything that needs a GitHub
+# event or a published package (see EXCLUDED in run-ci-checks-locally.mjs). A green step 19 on
+# one npm version on one OS is evidence about that pair and nothing else.
+CI_PARITY_ARGS=""
+if [ "$SKIP_TESTS" = true ]; then
+    CI_PARITY_ARGS=" --skip-tests"
+fi
+run_check "30" "Running the checks CI runs (read from .github/workflows) | 執行 CI 會跑的檢查（從 workflow 檔讀取）" "node $SCRIPT_DIR/run-ci-checks-locally.mjs --self-test && node $SCRIPT_DIR/run-ci-checks-locally.mjs$CI_PARITY_ARGS"
 
 # Show summary
 show_summary

@@ -69,6 +69,8 @@
     "check:install-paths": "tsx scripts/check-skills-install-paths.ts",
     "check:anti-fake-tests": "node templates/gates/check-anti-fake-tests.mjs",
     "ci:local": "npm run check:anti-fake-tests",
+    "check:ci-parity": "node scripts/run-ci-checks-locally.mjs",
+    "check:ci-parity:self-test": "node scripts/run-ci-checks-locally.mjs --self-test",
     "check:error-exit": "node scripts/check-error-exit.mjs",
     "check:error-exit:self-test": "node scripts/check-error-exit.mjs --self-test",
     "check:hook-entry-tests": "node scripts/check-hook-entry-tests.mjs",
