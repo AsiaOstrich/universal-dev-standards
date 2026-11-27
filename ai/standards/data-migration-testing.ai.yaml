@@ -4,7 +4,7 @@
 id: data-migration-testing
 meta:
   version: "1.1.0"
-  updated: "2026-06-27"
+  updated: "2026-06-28"
   source: core/data-migration-testing.md
   description: Database migration up/down/idempotency testing standards for schema changes, plus encoding-conversion and aggregate-invariant testing for cross-encoding/cross-engine migrations
 

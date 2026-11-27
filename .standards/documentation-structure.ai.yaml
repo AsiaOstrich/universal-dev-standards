@@ -4,7 +4,7 @@
 id: documentation-structure
 meta:
   version: "1.4.0"
-  updated: "2026-03-17"
+  updated: "2026-03-27"
   source: core/documentation-structure.md
   description: Consistent documentation structure for software projects (Diátaxis classification, LLM discovery, doc testing)
 

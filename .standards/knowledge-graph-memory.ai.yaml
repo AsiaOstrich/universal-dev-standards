@@ -14,7 +14,7 @@ standard:
 
   meta:
     version: "1.0.0"
-    updated: "2026-05-30"
+    updated: "2026-06-01"
     source: core/knowledge-graph-memory.md
     description: Relationship schema for traversing specs, decisions, and code as a graph; complements vector memory with structural multi-hop queries, engine-optional with Markdown degradation
 

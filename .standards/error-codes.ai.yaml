@@ -4,7 +4,7 @@
 id: error-codes
 meta:
   version: "1.2.0"
-  updated: "2026-03-18"
+  updated: "2026-06-18"
   source: core/error-code-standards.md
   description: Error code format, categories, and management
 

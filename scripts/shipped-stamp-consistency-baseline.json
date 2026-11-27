@@ -23,24 +23,6 @@
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/browser-compatibility-standards.md` that the shipped date (2026-05-05) is older than the source's real last content change (2026-06-18) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/browser-compatibility-standards.md` (or the equivalent scripts/transform run)."
     },
     {
-      "file": "ai/standards/chaos-injection-tests.ai.yaml",
-      "source": "core/chaos-injection-tests.md",
-      "shippedUpdated": "2026-05-05",
-      "actualUpdated": "2026-05-14",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/chaos-injection-tests.md` that the shipped date (2026-05-05) is older than the source's real last content change (2026-05-14) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/chaos-injection-tests.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/container-security.ai.yaml",
-      "source": "core/container-security.md",
-      "shippedUpdated": "2026-05-04",
-      "actualUpdated": "2026-05-14",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/container-security.md` that the shipped date (2026-05-04) is older than the source's real last content change (2026-05-14) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/container-security.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/context-aware-loading.ai.yaml",
       "source": "core/context-aware-loading.md",
       "shippedUpdated": "2026-03-16",
@@ -50,33 +32,6 @@
       "evidence": "Re-verified 2026-09-14 (agent, after CI went red): the source changed again in 963cf750 (2026-09-08), and that change only renames `scripts/hooks/inject-standards.js` to `.mjs` in one sentence; the shipped .ai.yaml contains no hook path, so its content is unaffected and only the date stamp is stale. Kept in the baseline rather than regenerated in the same commit as an unrelated CI repair. Original scan — XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/context-aware-loading.md` that the shipped date (2026-03-16) is older than the source's real last content change (2026-06-19) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/context-aware-loading.md` (or the equivalent scripts/transform run)."
     },
     {
-      "file": "ai/standards/cross-flow-regression.ai.yaml",
-      "source": "core/cross-flow-regression.md",
-      "shippedUpdated": "2026-05-05",
-      "actualUpdated": "2026-06-18",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/cross-flow-regression.md` that the shipped date (2026-05-05) is older than the source's real last content change (2026-06-18) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/cross-flow-regression.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/data-migration-testing.ai.yaml",
-      "source": "core/data-migration-testing.md",
-      "shippedUpdated": "2026-06-27",
-      "actualUpdated": "2026-06-28",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/data-migration-testing.md` that the shipped date (2026-06-27) is older than the source's real last content change (2026-06-28) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/data-migration-testing.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/documentation-structure.ai.yaml",
-      "source": "core/documentation-structure.md",
-      "shippedUpdated": "2026-03-17",
-      "actualUpdated": "2026-03-27",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/documentation-structure.md` that the shipped date (2026-03-17) is older than the source's real last content change (2026-03-27) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/documentation-structure.md` (or the equivalent scripts/transform run)."
-    },
-    {
       "file": "ai/standards/documentation-writing-standards.ai.yaml",
       "source": "core/documentation-writing-standards.md",
       "shippedUpdated": "2026-03-17",
@@ -84,51 +39,6 @@
       "kind": "DATE_MISMATCH",
       "verified": true,
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/documentation-writing-standards.md` that the shipped date (2026-03-17) is older than the source's real last content change (2026-07-08) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/documentation-writing-standards.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/error-codes.ai.yaml",
-      "source": "core/error-code-standards.md",
-      "shippedUpdated": "2026-03-18",
-      "actualUpdated": "2026-06-18",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/error-code-standards.md` that the shipped date (2026-03-18) is older than the source's real last content change (2026-06-18) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/error-code-standards.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/feature-manifest-standard.ai.yaml",
-      "source": "core/feature-manifest-standard.md",
-      "shippedUpdated": "2026-05-13",
-      "actualUpdated": "2026-05-14",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/feature-manifest-standard.md` that the shipped date (2026-05-13) is older than the source's real last content change (2026-05-14) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/feature-manifest-standard.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/forward-derivation-standards.ai.yaml",
-      "source": "core/forward-derivation-standards.md",
-      "shippedUpdated": "2026-06-18",
-      "actualUpdated": "2026-06-21",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/forward-derivation-standards.md` that the shipped date (2026-06-18) is older than the source's real last content change (2026-06-21) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/forward-derivation-standards.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/knowledge-graph-memory.ai.yaml",
-      "source": "core/knowledge-graph-memory.md",
-      "shippedUpdated": "2026-05-30",
-      "actualUpdated": "2026-06-01",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/knowledge-graph-memory.md` that the shipped date (2026-05-30) is older than the source's real last content change (2026-06-01) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/knowledge-graph-memory.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/llm-output-validation.ai.yaml",
-      "source": "core/llm-output-validation.md",
-      "shippedUpdated": "2026-05-05",
-      "actualUpdated": "2026-05-14",
-      "kind": "DATE_MISMATCH",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/llm-output-validation.md` that the shipped date (2026-05-05) is older than the source's real last content change (2026-05-14) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/llm-output-validation.md` (or the equivalent scripts/transform run)."
     },
     {
       "file": "ai/standards/model-selection.ai.yaml",

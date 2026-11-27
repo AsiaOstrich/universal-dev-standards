@@ -4,7 +4,7 @@
 id: chaos-injection-tests
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-05-14"
   source: core/chaos-injection-tests.md
   description: Executable chaos injection tests for AI agent systems — DB disconnect, LLM timeout, policy engine failure
 

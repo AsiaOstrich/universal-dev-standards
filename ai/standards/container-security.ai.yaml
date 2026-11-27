@@ -4,7 +4,7 @@
 id: container-security
 meta:
   version: "1.0.0"
-  updated: "2026-05-04"
+  updated: "2026-05-14"
   source: core/container-security.md
   description: >
     Container and Kubernetes security covering image hardening, registry security,
