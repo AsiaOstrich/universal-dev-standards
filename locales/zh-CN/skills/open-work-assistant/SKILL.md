@@ -1,10 +1,10 @@
 ---
 name: open-work
 source: ../../../../skills/open-work-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-10-30
-source_hash: 01f94f0311a4
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-11-27
+source_hash: 7800a4c23154
 status: current
 scope: universal
 description: |
@@ -20,7 +20,7 @@ argument-hint: "[capture | waiting | next-action | report | 收件 | 等待 | �
 
 > **语言**: [English](../../../../skills/open-work-assistant/SKILL.md) | [繁體中文](../../../zh-TW/skills/open-work-assistant/SKILL.md) | 简体中文
 
-**版本**: 1.0.0 | **最后更新**: 2026-10-30 | **适用**: Claude Code Skills
+**版本**: 1.1.0 | **最后更新**: 2026-11-27 | **适用**: Claude Code Skills
 
 帮助避免工作在会话之间漏掉。想用才用。UDS 没有任何东西要求你用。
 
@@ -93,6 +93,14 @@ argument-hint: "[capture | waiting | next-action | report | 收件 | 等待 | �
 
 报告「还有 N 项未完成」时，也要说你看了几个来源、有几个看不到。看不到的来源不是零。没有这句话的报告，读起来像是完整的。
 
+另外把未完成的项目分成三种，让读的人看得出下一步是要做决定还是可以直接做。每个项目只进一种，三种的件数加起来等于你看得到的未完成项目数。第一行写出三种的件数。
+
+- **可推进**：轮到你做，而且它依赖的东西都没有未成立的。
+- **要决定**：在等某个人裁决。
+- **卡在别人**：在等别人：另一个代理、CI、外部、固定日期，或还没成立的依赖。
+
+期限不决定种类，只用来排序与标示逾期。有期限、没有未成立依赖的项目，期限还没到也算可推进。解除条件如果是没有任何东西读得懂的自由文本（「等第十四轮跑完」），不要把项目算成卡在别人：列为可推进，并说明它的条件读不出来。宁可多列一次，不要藏起来。如果你的助手有「自己一路把清单做下去」的开关，就拿这份报告当它的输入。UDS 不附那个开关。
+
 在回合结束、控制权交回给人的时候印出报告。报告绝不能挡住回合。「还有工作没做完」几乎永远为真，而一个永远红灯的检查会被关掉。
 
 ### 6. 你看不到的事实
@@ -109,10 +117,11 @@ UDS 在 CLI 里附了这些规则的参考检查程序：
 uds open-work next-action [files...]   # 每个下一步都有点名东西吗？
 uds open-work waiting [files...]       # 每个等待都有解除条件吗？
 uds open-work observations [files...]  # 手写的事实都有时间戳吗？
+uds open-work triage [files...]        # 可推进、要决定、还是卡在别人？（读 owner、due、waiting for、release）
 uds open-work self-test                # 检查程序自己遇到坏样本还是会失败吗？
 ```
 
-检查程序靠字段名称找字段，例如 `status`、`asked-at`、`waiting for`、`release`（上面的表格用的就是这些）。你的表格用别的词，就在 `uds.project.yaml` 的 `open_work` 下面声明。
+检查程序靠字段名称找字段，例如 `status`、`asked-at`、`waiting for`、`release`（上面的表格用的就是这些）。`triage` 另外读 `owner` 列（`me`、`you`、`agent`、`CI`）与 `due` 列。你的表格用别的词，就在 `uds.project.yaml` 的 `open_work` 下面声明。
 
 结束码 0 表示没有违反，1 表示有违反，2 表示检查程序判定不了。2 不是通过。干净的结果只涵盖它认得的词。词汇是第一版的猜测，没有在真实使用上调整过。
 

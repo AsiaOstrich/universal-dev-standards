@@ -1,5 +1,5 @@
 /**
- * `uds open-work` — the open-work-tracking reference checks (OWT-017 … OWT-028)
+ * `uds open-work` — the open-work-tracking reference checks (OWT-017 … OWT-028, and the XSPEC-528 triage)
  * as a command, so an adopter can run them from the npm package.
  *
  * This file holds no rules. The one body of them is
@@ -115,6 +115,20 @@ export function openWorkObservationsCommand(files = [], options = {}) {
   withOption(argv, '--now', options.now);
   withOption(argv, '--stale-after', options.staleAfter);
   process.exitCode = main([...argv, ...files]); // wire:observations
+}
+
+/**
+ * uds open-work triage [files...] [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now DATE] — XSPEC-528
+ * Calls the imported `main` itself, like `waiting`, so the line that carries this command into the checker is its own.
+ */
+export function openWorkTriageCommand(files = [], options = {}) {
+  const declared = declarationsOrStop();
+  if (!declared) return;
+  const argv = ['triage'];
+  argv.push(...rootArguments(options.root, declared.projects)); // wire:triage-roots
+  withOption(argv, '--id-pattern', options.idPattern);
+  withOption(argv, '--now', options.now);
+  process.exitCode = main([...argv, ...files]); // wire:triage
 }
 
 /** uds open-work self-test — run the checker's own arms and nothing else */

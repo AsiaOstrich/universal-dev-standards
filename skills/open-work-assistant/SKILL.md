@@ -14,7 +14,7 @@ argument-hint: "[capture | waiting | next-action | report | 收件 | 等待 | �
 
 > **Language**: English | [繁體中文](../../locales/zh-TW/skills/open-work-assistant/SKILL.md) | [简体中文](../../locales/zh-CN/skills/open-work-assistant/SKILL.md)
 
-**Version**: 1.0.0 | **Last Updated**: 2026-10-30 | **Applicability**: Claude Code Skills
+**Version**: 1.1.0 | **Last Updated**: 2026-11-27 | **Applicability**: Claude Code Skills
 
 Help keep work from getting lost between sessions. Use it when you want it. Nothing in UDS requires it.
 
@@ -87,6 +87,14 @@ An item that stays unsorted for more than about two weeks is named in the report
 
 When you report "N items are open", also say how many sources you looked at and how many you could not. An unseen source is not zero. A report without that sentence reads as complete.
 
+Also sort the open items into three kinds, so the reader can tell whether the next move is to decide or to work. Each item goes in exactly one kind, and the three counts add up to the open items you could see. Write the three counts on the first line.
+
+- **Workable**: it is your turn, and nothing it depends on is unmet.
+- **Decide**: it waits for a person's ruling.
+- **Blocked**: it waits for someone else: another agent, CI, an outside party, a fixed date, or a dependency that is not met yet.
+
+A due date does not decide the kind. It only orders the list and marks an item overdue. An item with a due date and nothing unmet is workable today, before the date comes. If a release condition is free text that nothing can read ("after the fourteenth run finishes"), do not call the item blocked. List it as workable and say its condition could not be read: better listed twice than hidden. If your assistant has a switch for working through the list on its own, use this report as its input. UDS does not ship that switch.
+
 Print the report when a turn ends and control goes back to the person. The report must never block the turn. "Some work is still open" is nearly always true, and a check that is always red gets switched off.
 
 ### 6. Facts you cannot see
@@ -103,10 +111,11 @@ UDS ships a reference checker for these rules in the CLI:
 uds open-work next-action [files...]   # does every next step name something?
 uds open-work waiting [files...]       # does every wait have a release condition?
 uds open-work observations [files...]  # are the hand-written facts stamped?
+uds open-work triage [files...]        # workable, decide or blocked? (reads owner, due, waiting for, release)
 uds open-work self-test                # does the checker itself still fail on a bad sample?
 ```
 
-The checker finds fields by their column names, such as `status`, `asked-at`, `waiting for` and `release` (the tables above use them). If your tables use other words, declare them in `uds.project.yaml` under `open_work`.
+The checker finds fields by their column names, such as `status`, `asked-at`, `waiting for` and `release` (the tables above use them). `triage` also reads an `owner` column (`me`, `you`, `agent`, `CI`) and a `due` column. If your tables use other words, declare them in `uds.project.yaml` under `open_work`.
 
 Exit code 0 means no violation, 1 means a violation, 2 means the checker could not decide. 2 is not a pass. A clean run covers only the words it recognised. The vocabulary is a first guess and has not been tuned on real use.
 

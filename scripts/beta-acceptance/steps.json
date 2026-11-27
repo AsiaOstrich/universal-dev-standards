@@ -819,6 +819,73 @@
     },
     {
       "platform": "all",
+      "id": "owt-triage",
+      "title": "uds open-work triage puts each open item in exactly one of workable, decide and blocked, and a due date does not block",
+      "titleZh": "uds open-work triage 把每個未完成項目只歸入可推進、要決定、卡在別人其中一類，期限不擋工",
+      "changelog": [
+        "uds open-work triage sorts open work into workable, decide and blocked"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | owner | due | status | waiting for | release |\n|---|---|---|---|---|---|\n| a due ahead | me | 2026-02-01 | open | | |\n| b your call | you | | open | | |\n| c waits on #2 | me | | waiting | | #2 |\n| #2 d prerequisite | agent | | open | | |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "triage",
+        "w.md",
+        "--now",
+        "2026-01-12"
+      ],
+      "expect": {
+        "contains": [
+          "TRIAGE workable=1 decide=1 blocked=2 | visible open items: 4",
+          "w.md table row (line 3, row \"a due ahead\") | due 2026-02-01"
+        ],
+        "notContains": [
+          "CANNOT DECIDE"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "owt-triage-own-identifier",
+      "title": "uds open-work triage reads your own identifier pattern, so an item that waits for an open INC item is blocked and not read as free text",
+      "titleZh": "uds open-work triage 讀你自己的識別碼樣式：等一個未完成 INC 項目的項目算卡在別人，不被當成自由文字",
+      "changelog": [
+        "uds open-work triage sorts open work into workable, decide and blocked"
+      ],
+      "prepare": [
+        {
+          "writeFile": "w.md",
+          "content": "| item | owner | status | waiting for | release |\n|---|---|---|---|---|\n| INC0000001 prerequisite | agent | open | | |\n| ship the fix | me | waiting | | INC0000001 |\n"
+        }
+      ],
+      "uds": [
+        "open-work",
+        "triage",
+        "w.md",
+        "--now",
+        "2026-01-12",
+        "--root",
+        ".",
+        "--id-pattern",
+        "INC\\d{7}"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "TRIAGE workable=0 decide=0 blocked=2 | visible open items: 2",
+          "waits for INC0000001, which is not done"
+        ],
+        "notContains": [
+          "CANNOT-JUDGE (1)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
       "id": "owt-waiting-states",
       "title": "uds open-work waiting tells \"not yet asked\" from \"asked, awaiting a reply\" and shows the age",
       "titleZh": "uds open-work waiting 分得出「尚未詢問」與「已問、等回覆」並顯示年齡",

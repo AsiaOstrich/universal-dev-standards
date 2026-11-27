@@ -26,7 +26,7 @@ import { compileStandards } from '../src/commands/compile.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
-import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkWaitingCommand, openWorkObservationsCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
+import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkWaitingCommand, openWorkObservationsCommand, openWorkTriageCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
 import { setLanguage, setLanguageExplicit, t } from '../src/i18n/messages.js';
 import { resolveLanguage } from '../src/i18n/resolve-language.js';
 import { maybeCheckForUpdates, formatUpdateNotice, shouldCheckUpdateForCommand } from '../src/utils/update-checker.js';
@@ -478,7 +478,7 @@ mcpCommand(program);
 const collectOption = (value, previous) => previous.concat([value]);
 const openWorkCommand = program
   .command('open-work')
-  .description('Reference checks for open-work-tracking (OWT-017 to OWT-028). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
+  .description('Reference checks for open-work-tracking (OWT-017 to OWT-028) and the triage summary. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
 
 openWorkCommand
   .command('next-action [files...]')
@@ -525,6 +525,14 @@ openWorkCommand
   .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
   .option('--stale-after <days>', 'Days after which an observation is reported as stale (default 7, an uncalibrated initial judgment)')
   .action(openWorkObservationsCommand);
+
+openWorkCommand
+  .command('triage [files...]')
+  .description('XSPEC-528: sort every open item into exactly one of workable (its turn, nothing unmet), decide (waits for a ruling) or blocked (waits for someone else or an unmet dependency). A due date only orders the list and marks OVERDUE; a release condition it cannot read is listed under CANNOT-JUDGE and stays workable')
+  .option('--root <dir>', 'The project this runs in, where a bare version such as v1.2.0 is looked up as a tag (default: cwd); repeat as --root <name>=<dir> to say where another project lives (also open_work.projects in uds.project.yaml)', collectOption, [])
+  .option('--id-pattern <regex>', 'Your own requirement-identifier pattern (the default is an uncalibrated initial judgment)')
+  .option('--now <date>', 'Treat this day (YYYY-MM-DD) as today, so a result does not drift with the date')
+  .action(openWorkTriageCommand);
 
 openWorkCommand
   .command('self-test')
