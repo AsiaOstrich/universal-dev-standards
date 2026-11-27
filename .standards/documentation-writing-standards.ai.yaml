@@ -4,7 +4,7 @@
 id: documentation-writing-standards
 meta:
   version: "1.2.0"
-  updated: "2026-03-17"
+  updated: "2026-07-08"
   source: core/documentation-writing-standards.md
   description: Documentation requirements based on project types (enhanced ADR, LLM writing, quality metrics, translation-friendly)
 
@@ -167,6 +167,53 @@ translation_friendly:
   glossary_file: glossary.md
   translation_status_fields: [translation_status, source_version, source_hash, translated_by, last_synced]
 
+language_configuration:
+  description: "Documentation language shares the output_language setting with commit-message-guide; one setting controls all written output of a project"
+  options:
+    - { value: english, commit_messages: "English only", documentation: "English only" }
+    - { value: traditional-chinese, commit_messages: "Traditional Chinese only", documentation: "Traditional Chinese only" }
+    - { value: bilingual, commit_messages: "English + Chinese", documentation: "Tiered bilingual (see bilingual_tiers)" }
+  bilingual_tiers:
+    L1_mandatory: { documents: "Commit messages, CHANGELOG.md, PR descriptions", behavior: "Automatically bilingual" }
+    L2_recommended: { documents: "README.md, CONTRIBUTING.md, ADR/", behavior: "AI suggests bilingual" }
+    L3_unaffected: { documents: "ARCHITECTURE.md, API.md, DATABASE.md, DEPLOYMENT.md, MIGRATION.md", behavior: "Follows display language (technical specs; bilingual adds excessive redundancy)" }
+  bilingual_format:
+    - "Paragraph level: English paragraph first, blank line, then Chinese paragraph"
+    - "Code blocks and tables are written once (not duplicated)"
+    - "Section headings use a '|' separator, e.g. '## Installation | 安裝'"
+
+documentation_impact_check:
+  description: "Automatic AI behavior: after ANY code modification task, AI MUST check which documents are affected, without waiting to be asked"
+  workflow:
+    - "After finishing code changes, identify which files were modified"
+    - "For each modified file, check whether any document references it (README, CLI docs, API docs, specs, skills, translations)"
+    - "If affected documents are found, append a reminder block 'Documentation Impact' listing each document with a suggested command"
+    - "If no documents are affected, skip silently"
+    - "Do NOT modify documents automatically; only list the reminder and wait for user confirmation"
+  command_suggestions:
+    - [README.md, "/docs readme"]
+    - [API documentation, "/docs api"]
+    - ["Generated docs (cheatsheet, reference)", "/docs generate"]
+    - [Translation files (locales/), "/docs translate <source-file> --lang <lang>"]
+    - [Spec files / skill files / other docs, "Manual update (suggest the specific file path)"]
+    - [Multiple docs affected, "/docs impact for a full overview"]
+  scope_of_check:
+    - [CLI docs (docs/), "Modified functions, CLI options, commands"]
+    - [Spec files (docs/specs/), "Modified interfaces, schemas, workflows"]
+    - [Skills (skills/), "Modified behaviors, standards references"]
+    - [Translations (locales/), "Any modified source file that has translations"]
+    - [README / CHANGELOG, "Modified public API, features, configuration"]
+
+documentation_accessibility:
+  description: "Documentation must be accessible to all users, following WCAG 2.1 Level A guidelines where applicable"
+  requirements:
+    - [Plain language, "Clear, simple language; target grade 8 reading level"]
+    - [Alt text for images, "Descriptive alt text for all non-decorative images"]
+    - [Heading hierarchy, "h1 -> h2 -> h3, never skip levels"]
+    - [Link text, "Descriptive link text, not 'click here'"]
+    - [Code blocks, "Fenced code blocks with a language identifier"]
+    - [Color independence, "Do not rely solely on color to convey meaning (add icons)"]
+
 quality_metrics:
   leading:
     - name: Coverage
@@ -213,8 +260,18 @@ rules:
 
   - id: sync-updates
     trigger: changing code
-    instruction: Update documentation when code changes
+    instruction: Update documentation when code changes; AI must run the documentation_impact_check automatically after completing code changes
     priority: required
+
+  - id: language-configuration
+    trigger: writing documentation in a project with output_language set
+    instruction: Follow language_configuration (english / traditional-chinese / bilingual with L1-L3 tiers)
+    priority: recommended
+
+  - id: documentation-accessibility
+    trigger: writing documentation
+    instruction: Follow documentation_accessibility (plain language, alt text, heading hierarchy, descriptive links, fenced code language, color independence)
+    priority: recommended
 
   - id: version-marking
     trigger: creating documentation

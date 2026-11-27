@@ -13,7 +13,7 @@ standard:
 
   meta:
     version: "1.0.0"
-    updated: "2026-03-16"
+    updated: "2026-09-08"
     source: core/context-aware-loading.md
     description: Protocol for AI tools to selectively load standards based on task context
 
@@ -170,6 +170,33 @@ standard:
         6. Only check ONCE per conversation — do not repeat on subsequent
            UDS operations in the same session
       priority: required
+
+    - id: custom-domains
+      trigger: "project defines domains of its own in manifest.json"
+      instruction: >
+        Custom domains are declared in the manifest.json `extensions` array
+        (type: custom-domain, with domain, description, triggers, standards).
+        They are ADDITIVE ONLY: they cannot override or shadow built-in domains.
+        Domain names must not conflict with built-in domain names, every path in
+        `standards` must exist in the project, and `triggers` use the same format
+        as built-in triggers (keywords, file patterns, commands).
+      example:
+        type: custom-domain
+        domain: ml-pipeline
+        description: Standards for ML pipeline workflows
+        triggers: ["pipeline", "model training", "dataset", "*.pipeline.*"]
+        standards: ["ai/standards/custom-ml-pipeline.ai.yaml"]
+      priority: required
+
+    - id: hook-based-enforcement
+      trigger: "Claude Code user wants standards injected automatically"
+      instruction: >
+        OPTIONAL: a UserPromptSubmit hook reads the prompt, matches it against
+        manifest domain triggers (built-in and custom) and outputs the matching
+        standard file paths as context. The hook must finish in < 500ms, and a
+        hook failure must not block the user's prompt. Reference implementation:
+        scripts/hooks/inject-standards.mjs.
+      priority: optional
 
   architecture:
     classification: always-on-protocol

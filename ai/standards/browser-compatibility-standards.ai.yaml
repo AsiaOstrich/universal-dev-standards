@@ -3,9 +3,10 @@
 
 id: browser-compatibility-standards
 meta:
-  version: "1.0.0"
-  updated: "2026-05-05"
+  version: "1.0.2"
+  updated: "2026-06-18"
   source: core/browser-compatibility-standards.md
+  owning_spec: "XSPEC-293 (orthogonal to XSPEC-209 route coverage)"
   description: Browser/device support matrix, Playwright automation, and release gate for frontend projects; N/A for CLI/backend
 
 requirements:
@@ -49,11 +50,23 @@ requirements:
     title: Release Gate
     rule: >
       Tier-1 browser matrix pass rate MUST be 100% (no test failure = release block).
-      Tier-2 must be ≥ 95% (WARN if below). This is Dimension 9 (Tier-3) in
-      release-readiness-gate.md. Mark N/A for CLI, backend API, and mobile native projects.
+      Tier-2 must be ≥ 95% (WARN if below, FAIL if < 90%; 90-95% is the WARN band).
+      This is Dimension 9 (Tier-3) in release-readiness-gate.md. Mark N/A for CLI,
+      backend API, and mobile native projects.
     rationale: >
       100% Tier-1 requirement is appropriate because unsupported behavior in
       a declared Tier-1 browser is a support commitment violation.
+    tier2_threshold_basis: >
+      The Tier-2 95% / 90% thresholds are UDS defaults, configurable per project.
+      Tier-2 is "best-effort, major flows must work", so the gate tolerates a small
+      tail of non-critical failures: >= 95% = healthy (WARN below, to prompt triage);
+      < 90% = material regression (FAIL). Tune them to your target-market browser
+      coverage, e.g. derive the Tier-2 browser set and the pass bar from your
+      Browserslist market-share config (> 0.5% etc.).
+    tier2_override: >
+      Exception: when the failing Tier-2 cases are all non-critical flows (logged as
+      Tier-3-style defects), a release owner may override the WARN/FAIL with a
+      recorded justification.
 
 quick_reference:
   tier1_default: "Chrome, Firefox, Safari, Edge (latest + latest-1); iOS Safari; Android Chrome latest"
