@@ -47,12 +47,6 @@
       "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
     },
     {
-      "id": "zh-tw-locale",
-      "category": "extension",
-      "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
-      "owner": "UDS maintainer: at expiry choose one of install by default, wrap in a skill or check, retire the entry, or re-justify with a new date (dev-platform XSPEC-458 OQ1 decides the category-wide default)"
-    },
-    {
       "id": "zh-cn-locale",
       "category": "extension",
       "reason": "Installed only through a language, framework or locale option (--lang, --framework, --locale), never by a default init; no index, skill, check or hook names its file.",
