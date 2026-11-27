@@ -9,7 +9,7 @@ standard:
 
   meta:
     version: "2.1.0"
-    updated: "2026-08-11"
+    updated: "2026-08-12"
     source: core/model-selection.md
     description: "模型軸（天花板 × 規格明確度）× effort 軸（思考深度）+ 反向排除 + 多模型池能力管理（XSPEC-027, XSPEC-362）"
     inspired_by: superpowers/subagent-driven-development

@@ -13,7 +13,7 @@ standard:
 
   meta:
     version: "2.0.0"
-    updated: "2026-02-04"
+    updated: "2026-02-09"
     source: core/security-standards.md
     guide: core/guides/security-guide.md
     description: Security principles, OWASP Top 10, and best practices

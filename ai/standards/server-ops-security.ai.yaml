@@ -4,7 +4,7 @@
 id: server-ops-security
 meta:
   version: "1.0.0"
-  updated: "2026-05-04"
+  updated: "2026-05-14"
   source: core/server-ops-security.md
   description: >
     Server and infrastructure operational security covering SSH hardening,

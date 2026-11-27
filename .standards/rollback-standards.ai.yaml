@@ -15,7 +15,7 @@ standard:
 
   meta:
     version: "1.0.0"
-    updated: "2026-04-26"
+    updated: "2026-05-14"
     source: core/rollback-standards.md
     parent: deployment-standards.ai.yaml
 

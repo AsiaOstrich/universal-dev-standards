@@ -4,7 +4,7 @@
 id: release-quality-manifest
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-05-14"
   source: core/release-quality-manifest.md
   description: Automated per-release Quality Manifest that aggregates all quality gate results into a single machine-readable artifact
 
