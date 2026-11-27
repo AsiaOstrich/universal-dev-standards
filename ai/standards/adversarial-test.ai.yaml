@@ -4,7 +4,7 @@
 id: adversarial-test
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-05-14"
   source: core/adversarial-test.md
   description: >
     Standards for adversarial testing of AI agents and LLM-integrated systems.

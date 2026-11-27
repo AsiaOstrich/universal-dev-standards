@@ -5,7 +5,7 @@
 id: agent-behavior-discipline
 meta:
   version: "1.0.0"
-  updated: "2026-04-24"
+  updated: "2026-05-07"
   source: core/agent-behavior-discipline.md
   description: Four behavioral disciplines for AI agents to elevate from functional to excellent — Ask, Simple, Precision, Test
   related:

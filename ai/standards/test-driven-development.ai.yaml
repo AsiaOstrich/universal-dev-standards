@@ -4,7 +4,7 @@
 id: test-driven-development
 meta:
   version: "1.0.0"
-  updated: "2026-01-10"
+  updated: "2026-02-02"
   source: methodologies/guides/tdd-guide.md
   description: TDD principles, workflows, and best practices for test-first development
 

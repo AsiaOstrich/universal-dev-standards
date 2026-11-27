@@ -4,7 +4,7 @@
 id: ai-friendly-architecture
 meta:
   version: "1.0.0"
-  updated: "2026-01-21"
+  updated: "2026-06-19"
   source: core/ai-friendly-architecture.md
   description: Standards for designing project architecture that maximizes AI collaboration effectiveness
 

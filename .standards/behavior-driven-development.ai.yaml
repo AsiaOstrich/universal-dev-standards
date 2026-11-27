@@ -4,7 +4,7 @@
 id: behavior-driven-development
 meta:
   version: "1.1.0"
-  updated: "2026-01-20"
+  updated: "2026-02-02"
   source: methodologies/guides/bdd-guide.md
   description: BDD workflow, Gherkin syntax rules, and Example Mapping techniques
 
