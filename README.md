@@ -188,6 +188,15 @@ uds config      # Manage preferences (language, mode)
 uds uninstall   # Remove standards from project
 ```
 
+### Skills only (via skills.sh)
+
+Install just the AI skills into Claude Code or another agent that supports [Agent Skills](https://agentskills.io), without the CLI:
+```bash
+npx skills add AsiaOstrich/universal-dev-standards            # pick skills interactively
+npx skills add AsiaOstrich/universal-dev-standards --skill commit -a claude-code
+```
+This installs skills only; standards files (`.standards/`) and `uds check` still need the CLI above.
+
 ---
 
 ## ⚙️ Configuration

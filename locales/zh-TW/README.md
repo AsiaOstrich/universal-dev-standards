@@ -193,6 +193,15 @@ uds config      # 管理偏好設定（語言、模式）
 uds uninstall   # 從專案移除標準
 ```
 
+### 只裝技能（透過 skills.sh）
+
+不裝 CLI，只把 AI 技能裝進 Claude Code 或其他支援 [Agent Skills](https://agentskills.io) 的工具：
+```bash
+npx skills add AsiaOstrich/universal-dev-standards            # 互動挑選技能
+npx skills add AsiaOstrich/universal-dev-standards --skill commit -a claude-code
+```
+這只會裝技能；標準檔（`.standards/`）與 `uds check` 仍需要上方的 CLI。
+
 ---
 
 ## ⚙️ 設定
