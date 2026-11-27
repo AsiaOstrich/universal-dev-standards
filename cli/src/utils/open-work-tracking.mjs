@@ -7,11 +7,12 @@
  * // implements XSPEC-460
  * // implements XSPEC-461
  * // implements XSPEC-464
+ * // implements XSPEC-528
  *
  * ── Where this lives, and why there is exactly one copy ─────────────────────
  * This file is the ONE body of the rules. Two front doors call it and neither
  * holds a copy:
- *   uds open-work <next-action|revision|separation|waiting|observations|self-test> ...
+ *   uds open-work <next-action|revision|separation|waiting|observations|triage|self-test> ...
  *       cli/src/commands/open-work.js, shipped in the npm package (`cli/src`
  *       is in package.json `files`), so an adopter can run it without a clone.
  *   node scripts/check-open-work-tracking.mjs ...
@@ -94,6 +95,12 @@
  *                 OWT-026  the exception does not reach a subject that version control,
  *                          a spec marker or a CI result determines (OWT-003 stands).
  *                 Time is injected (`--now`, `--stale-after`), never read inside a rule.
+ *   triage        XSPEC-528 (a summary, not a violation check): every open item is in exactly one of
+ *                          workable / decide / blocked, and the three counts add up to the visible open items.
+ *                          A due date only orders the list and marks OVERDUE; only an unmet dependency blocks (R1).
+ *                          A release condition it cannot read (free text, a project this machine cannot see) is
+ *                          workable AND listed as CANNOT-JUDGE, never hidden (R3). Exit 0 when it read the carriers,
+ *                          2 when it read nothing or a table row could not be placed (never 1: open work is not a violation).
  *
  * ── What none of them can decide (stated, not implied) ──────────────────────
  *   - Whether a revision record honestly describes the diff (OWT-014: that is
@@ -132,6 +139,7 @@
  *   uds open-work separation <file...> [--next-action-word WORD ...]
  *   uds open-work waiting <file...> [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now YYYY-MM-DD] [--asked-at-word WORD ...] [--waiting-for-word WORD ...]
  *   uds open-work observations <file...> [--now YYYY-MM-DD] [--stale-after DAYS]
+ *   uds open-work triage <file...> [--root DIR] [--root NAME=DIR ...] [--id-pattern RE] [--now YYYY-MM-DD]
  *   uds open-work self-test
  *   node scripts/check-open-work-tracking.mjs next-action <file...> ...   (repo clone)
  *   node scripts/check-open-work-tracking.mjs --self-test
@@ -912,6 +920,9 @@ export const VOCAB_STATE = {
     observedAt: /observed[\s-]?(?:at|on|date)|seen[\s-]?(?:at|on)|觀察(?:時間|日期)|何時看到/i,
     value: /^(?:value|observed[\s-]?value|result|觀察值|觀察結果|值|結果)$/i,
     subject: /^(?:fact|subject|observation|observed[\s-]?fact|事實|觀察項目|觀察對象|事項)$/i,
+    // XSPEC-528 (`triage`): whose turn it is, and when it is due. Read only by `triage`; `waiting` and `observations` ignore both.
+    owner: /\bowner\b|\bassignee\b|\bwhose[\s-]?turn\b|\bball[\s-]?in[\s-]?(?:the[\s-]?)?court\b|卡在誰|輪到誰|負責人/i,
+    due: /\bdue(?:[\s-]?(?:date|on|by))?\b|\bdeadline\b|期限|到期|截止/i,
   },
   notYetAsked: /not[\s-]*(?:yet[\s-]*)?(?:asked|sent)|\bunasked\b|\bunsent\b|還沒問|尚未(?:詢問|送出|提問|發問|問)|未(?:詢問|送出|提問|問)|還沒送出|待問|待送出/i,
   askedAwaiting: /\b(?:asked|sent)[\s,;&—–-]*(?:and[\s-]*)?(?:awaiting|waiting)\b|已(?:問|詢問|送出|寄出|發問)/i,
@@ -966,6 +977,8 @@ const LABEL_WORDS = [
   ['observedAt', /(?:observed[\s-]?(?:at|on)|seen[\s-]?(?:at|on)|觀察時間|觀察日期)/],
   ['value', /(?:observed[\s-]?value|value|觀察值|觀察結果)/],
   ['subject', /(?:fact|subject|事實|觀察項目)/],
+  ['owner', /(?:owner|assignee|whose[\s-]turn|卡在誰|輪到誰|負責人)/],
+  ['due', /(?:due(?:[\s-](?:date|on|by))?|deadline|期限|到期|截止)/],
   // 464: a boundary and nothing else. A "Next action: ..." label ends the value of the label before it (a blank `release:` must not read
   // as filled by the next-action line below it) and is never itself a field of the record. Without it a row lacking its release was
   // read as complete in a list, and OWT-022 passed a row it should have failed. It is the built-in list only: a word an adopter declares
@@ -1356,6 +1369,147 @@ export function checkObservations(carriers, opts = {}) {
   return res;
 }
 
+// ── XSPEC-528: triage — workable, decide, blocked ─────────────────────────────
+// open-work-tracking skill 1.1.0 (dev-platform XSPEC-528 R1-R3). One summary that puts every OPEN item (not done) in
+// exactly one of three kinds, so a reader can tell whether the next move is to decide or to work:
+//   workable   it is this agent's or person's turn and no dependency is unmet
+//   decide     it waits for a person's ruling
+//   blocked    it waits for someone else: another agent, CI, an outside party, a fixed date, an unmet dependency
+// R1: only a DEPENDENCY (a release condition) decides whether an item can start. A due date orders the list and marks
+//     OVERDUE; it never makes an item wait.
+// R3: a release condition that is free text, or that names something this machine cannot look up, is not "unmet". The item
+//     is workable AND listed apart as CANNOT-JUDGE (better listed twice than hidden). It is a part of workable, never a
+//     fourth kind, so the three counts always add up to the visible open items.
+// The words that say whose turn it is (VOCAB_TRIAGE) are an initial judgment in English and Chinese, UNCALIBRATED (OWT-016),
+// and their coverage is unknown (OWT-011): an owner written in other words is "not recognised", which is listed, not guessed.
+
+export const VOCAB_TRIAGE = {
+  ownerMine: /^(?:me|i|myself|mine|self|us|we|this agent|我|我自己|自己|我們|本代理|這個代理)$/i,
+  ownerDecider: /^(?:you|user|the user|human|a human|decider|approver|你|您|使用者|用戶|人類|決策者|裁決者)$/i,
+  ownerOther: /^(?:agent|another agent|other agent|ci|ci\/cd|github actions|pipeline|external|vendor|third[\s-]?party|client|customer|date|calendar|代理|別的代理|外部|廠商|客戶|第三方|日期|對方|別人|他人)$/i,
+  // a status that says a person's ruling is what is pending (a structural field, never a scan of free text: OWT-010)
+  decide: /(?:needs?|awaiting|pending)[\s-]*(?:a[\s-]*)?(?:decision|ruling)|decision[\s-]*(?:needed|pending)|待(?:決定|決策|裁決|裁示|拍板)|要決定/i,
+};
+
+const TRIAGE_COLUMNS = ['status', 'owner', 'due', 'awaiting', 'release', 'askedAt', 'draft'];
+const BARE_VERSION = /(?<![\w./:-])v\d+\.\d+\.\d+(?:-[\w.]+)?(?![\w.])/g;
+const ITEM_NUMBER = /(?<![\w&])#(\d+)(?!\d)/g;
+const DATES_IN_TEXT = /\d{4}\s*[-/.年]\s*\d{1,2}\s*[-/.月]\s*\d{1,2}/g;
+
+/**
+ * What each thing a release condition names stands at, on this machine: `met`, `unmet` or `unresolved` (cannot be
+ * read from here; free text is one of these). Local only, no network.
+ * @returns {{status:'met'|'unmet'|'unresolved', why:string}[]}
+ */
+function readConditions(rawText, self, ctx) {
+  const text = (rawText || '').trim();
+  if (!text || BLANK_FIELD.test(stripMd(text))) return [];
+  const found = [];
+  const doneState = (rec) => classifyState(rec.f.status ?? '') === 'done';
+  // 1. `<project>:<object>`: a tag or a path in another project (the OWT-027/028 lookup)
+  for (const x of findReferences(text, ctx.idPattern, ctx.extraCommands)) {
+    const name = `${x.name}:${x.value}`;
+    if (x.kind === 'absolute' || x.kind === 'outside') { found.push({ status: 'unresolved', why: `${name}: a machine-specific or outside-the-project path cannot be looked up (OWT-027)` }); continue; }
+    const got = resolveReference(x, ctx.projects, ctx.env);
+    if (got.status === 'released') found.push({ status: 'met', why: name });
+    else if (got.status === 'not-yet-released') found.push({ status: 'unmet', why: `waits for ${name}, which is not there` });
+    else found.push({ status: 'unresolved', why: `${name}: ${got.why}` });
+  }
+  const rest = text.replace(new RegExp(REF_RE.source, 'g'), ' ');
+  // 2. a bare version: a tag of the project this runs in
+  for (const m of rest.matchAll(BARE_VERSION)) {
+    const t = ctx.env.tagState(ctx.root, m[0]);
+    if (t === 'present') found.push({ status: 'met', why: m[0] });
+    else if (t === 'absent') found.push({ status: 'unmet', why: `waits for ${m[0]}, which is not there` });
+    else found.push({ status: 'unresolved', why: `${m[0]}: the tags of the project here cannot be read (not a git repository, or git failed)` });
+  }
+  // 3. another item of the carriers given: `#N`, or an identifier that is another item's title
+  const others = ctx.items.filter((o) => o.r !== self);
+  for (const m of rest.matchAll(ITEM_NUMBER)) {
+    const hit = others.filter((o) => new RegExp(`(?<![\\w&])#${m[1]}(?!\\d)`).test(o.r.title));
+    if (!hit.length) found.push({ status: 'unresolved', why: `#${m[1]}: no item with that number in the carriers given` });
+    else if (hit.every((o) => doneState(o.r))) found.push({ status: 'met', why: `#${m[1]}` });
+    else found.push({ status: 'unmet', why: `waits for #${m[1]}, which is not done` });
+  }
+  const idRe = new RegExp(ctx.idPattern ?? DEFAULT_ID_PATTERN, 'g');
+  for (const m of rest.matchAll(idRe)) {
+    if (ID_PREFIX_DENYLIST.includes(m[0].split('-')[0])) continue;
+    const hit = others.filter((o) => new RegExp(`(?<![\\w-])${escapeRegExp(m[0])}(?![\\w-])`).test(o.r.title));
+    if (!hit.length) found.push({ status: 'unresolved', why: `${m[0]}: an identifier no item of the carriers given carries` });
+    else if (hit.every((o) => doneState(o.r))) found.push({ status: 'met', why: m[0] });
+    else found.push({ status: 'unmet', why: `waits for ${m[0]}, which is not done` });
+  }
+  // 4. a date: a fixed-date wait. This is the RELEASE condition's date, not the item's due date (R1).
+  for (const m of rest.matchAll(DATES_IN_TEXT)) {
+    const day = parseDay(m[0]);
+    if (day === null) continue;
+    found.push(day <= ctx.now ? { status: 'met', why: dayString(day) } : { status: 'unmet', why: `waits for ${dayString(day)}, a date that has not come` });
+  }
+  // 5. nothing structured at all: a sentence a person wrote. Not "unmet": nothing here can say that it is.
+  if (!found.length) found.push({ status: 'unresolved', why: `free text: "${clip(stripMd(text), 60)}"` });
+  return found;
+}
+
+/** Which kind one open record is, and why. Pure: the clock, the disk and the other items arrive in `ctx`. */
+function triageRecord(r, ctx) {
+  const status = r.f.status ?? '';
+  const owner = stripMd(r.f.owner ?? '');
+  const ownerKind = !owner || BLANK_FIELD.test(owner) ? 'unstated'
+    : VOCAB_TRIAGE.ownerMine.test(owner) ? 'mine'
+      : VOCAB_TRIAGE.ownerDecider.test(owner) ? 'decider'
+        : VOCAB_TRIAGE.ownerOther.test(owner) ? 'other' : 'unrecognised';
+  const statusSaysDecide = VOCAB_TRIAGE.decide.test(stripMd(status));
+  const dueDay = r.f.due === undefined ? null : parseDay(r.f.due);
+  if (ownerKind === 'decider' || statusSaysDecide) return { kind: 'decide', why: ownerKind === 'decider' ? `owner: ${owner}` : 'status says a ruling is pending', dueDay, cannotJudge: [] }; // [mutation-anchor:triage-decide]
+  if (ownerKind === 'other') return { kind: 'blocked', why: `owner: ${owner}`, dueDay, cannotJudge: [] };
+  if (classifyState(status) === 'asked-awaiting') return { kind: 'blocked', why: 'asked and waiting for a reply', dueDay, cannotJudge: [] };
+  const conditionText = [r.fr.release, r.fr.awaiting].filter((x) => x !== undefined && x !== '').join(' ; ');
+  const conditions = readConditions(conditionText, r, ctx);
+  const unmet = conditions.filter((c) => c.status === 'unmet'); // [mutation-anchor:triage-unmet]
+  const unresolved = conditions.filter((c) => c.status === 'unresolved'); // [mutation-anchor:triage-cannot-judge]
+  if (unmet.length) return { kind: 'blocked', why: unmet.map((c) => c.why).join('; '), dueDay, cannotJudge: [] };
+  const cannotJudge = unresolved.map((c) => c.why);
+  if (ownerKind === 'unrecognised') cannotJudge.push(`owner "${clip(owner, 30)}" is not a word this check knows (see VOCAB_TRIAGE)`);
+  return { kind: 'workable', why: '', dueDay, cannotJudge, ownerUnstated: ownerKind === 'unstated' };
+}
+
+/**
+ * XSPEC-528 R1-R3. Reads every record that has one of the triage fields (status, owner, due, what it waits for, release,
+ * asked-at, draft) and puts each open one in exactly one kind. `now` is a UTC day (ms), injected, never read in a rule.
+ */
+export function checkTriage(carriers, opts = {}) {
+  const now = opts.now ?? todayUtc();
+  const res = {
+    now, walked: 0, visibleOpen: 0, done: 0, workable: [], decide: [], blocked: [], cannotJudge: [], ownerUnstated: 0, ragged: [], noRecordCarriers: [],
+  };
+  const items = [];
+  for (const c of carriers) {
+    const { records, ragged } = extractRecords(c.content);
+    for (const g of ragged) if (TRIAGE_COLUMNS.some((col) => g.columns.has(col))) res.ragged.push({ path: c.path, ...g });
+    const own = records.filter((r) => TRIAGE_COLUMNS.some((col) => r.columns.has(col)));
+    if (!own.length) { res.noRecordCarriers.push(c.path); continue; }
+    for (const r of own) items.push({ path: c.path, r });
+  }
+  const ctx = { now, items, projects: opts.projects ?? new Map(), env: opts.env ?? REAL_ENV, root: opts.root ?? process.cwd(), idPattern: opts.idPattern, extraCommands: opts.extraCommands ?? [] };
+  for (const { path, r } of items) {
+    res.walked++;
+    if (classifyState(r.f.status ?? '') === 'done') { res.done++; continue; }
+    res.visibleOpen++;
+    const t = triageRecord(r, ctx);
+    const overdue = t.dueDay !== null && t.dueDay < now;
+    const row = { path, where: r.where, title: r.title, why: t.why, dueDay: t.dueDay, overdueDays: overdue ? ageDays(now, t.dueDay) : null, cannotJudge: t.cannotJudge };
+    res[t.kind].push(row);
+    if (t.cannotJudge.length) res.cannotJudge.push(row);
+    if (t.ownerUnstated) res.ownerUnstated++;
+  }
+  // Order by due date, the undated last; the sort is stable, so ties keep the order of the carrier. A date orders, it never excludes (R1).
+  const byDue = (a, b) => (a.dueDay ?? Infinity) - (b.dueDay ?? Infinity);
+  res.workable.sort(byDue);
+  res.decide.sort(byDue);
+  res.blocked.sort(byDue);
+  return res;
+}
+
 // ── Self-test arms (the main path runs these first; a broken checker is exit 2) ─
 
 /** The shape every caller has always had: `{ ok, failures }`. `selfTestArms` is the same run with the names of the arms that were evaluated. */
@@ -1534,6 +1688,20 @@ export function selfTestArms() {
     return waitingPasses === (n.counts['waiting-on-reply'] === 1) && !(waitingPasses && n.violations.length > 0) && !(w.violations.some((v) => v.rule === 'OWT-022') && n.counts['waiting-on-reply'] > 0);
   };
   expect('OWT-019 clean: waiting and next-action never give opposite answers about the same row (XSPEC-464 R2)', MATRIX.every(agree) && MATRIX.length === 10);
+
+
+  // XSPEC-528 triage: the three kinds, a due date that is not a start condition, and what it cannot read. Time is injected.
+  const TNOW = Date.UTC(2026, 10, 27);
+  const triage = (rows) => checkTriage([{ path: 't.md', content: `| item | owner | due | status | waiting for | release |\n|---|---|---|---|---|---|\n${rows}` }], { now: TNOW, root: '.' });
+  const counts = (res) => `${res.workable.length}/${res.decide.length}/${res.blocked.length}`;
+  expect('XSPEC-528 R1 clean: a due date ahead with no unmet dependency is workable', counts(triage('| a | me | 2026-12-01 | open | | |\n')) === '1/0/0');
+  expect('XSPEC-528 R1 clean: an overdue item is workable and marked overdue', (() => { const r = triage('| a | me | 2026-11-01 | open | | |\n'); return counts(r) === '1/0/0' && r.workable[0].overdueDays === 26; })());
+  expect('XSPEC-528 R2 violating: an item that waits for an open item is blocked, not workable', counts(triage('| #1 a | me | | waiting | | #2 |\n| #2 b | me | | open | | |\n')) === '1/0/1');
+  expect('XSPEC-528 R2 clean: an item that waits for a done item is workable', counts(triage('| #1 a | me | | waiting | | #2 |\n| #2 b | me | | done | | |\n')) === '1/0/0');
+  expect('XSPEC-528 R2 clean: a wait for a person is decide, and a wait for another agent is blocked', counts(triage('| a | you | | open | | |\n| b | agent | | open | | |\n| c | me | | open | | |\n')) === '1/1/1');
+  expect('XSPEC-528 R2 clean: a fixed date ahead in the release condition is blocked; one that has passed is not', counts(triage('| a | me | | waiting | | 2026-12-15 |\n| b | me | | waiting | | 2026-11-01 |\n')) === '1/0/1');
+  expect('XSPEC-528 R3 clean: free text is workable and listed as cannot-judge, never blocked', (() => { const r = triage('| a | me | | waiting | | after round 14 |\n'); return counts(r) === '1/0/0' && r.cannotJudge.length === 1; })());
+  expect('XSPEC-528 R2 clean: done items are in no kind and the three kinds add up to the open items', (() => { const r = triage('| a | me | | open | | |\n| b | you | | open | | |\n| c | agent | | open | | |\n| d | me | | done | | |\n'); return r.visibleOpen === 3 && r.done === 1 && r.workable.length + r.decide.length + r.blocked.length === 3; })());
 
   return { ok: failures.length === 0, failures, ran };
 }
@@ -1738,10 +1906,46 @@ export function main(argv, io = { log: console.log, err: console.error }) {
       if (!res.violations.length && res.ragged.length) { say(`[owt] CANNOT DECIDE: ${res.ragged.length} table row(s) could not be read (see UNDECIDABLE above), so a clean result would cover only part of the field. Exit 2 is not a pass.`); return finish(2); }
       return finish(res.violations.length ? 1 : 0);
     }
+    if (cmd === 'triage') {
+      const nowArg = flag('--now');
+      const now = nowArg === undefined ? todayUtc() : parseDay(nowArg);
+      if (now === null) { say(`[owt] triage: --now must be a date with a year (YYYY-MM-DD), got "${nowArg}"`); return finish(2); }
+      // `--root DIR` (one) is the project this runs in, where a bare version such as v1.2.0 is looked up as a tag;
+      // `--root NAME=DIR` (repeatable) says where another project lives, as for `waiting`.
+      const given = parseRootOptions(flagAll('--root'));
+      if (given.error) { say(`[owt] triage: ${given.error}`); return finish(2); }
+      const root = given.plain ?? process.cwd();
+      const idPattern = flag('--id-pattern');
+      const files = args;
+      if (!files.length) { say('[owt] triage: no files given'); return finish(2); }
+      const carriers = files.map(readCarrier);
+      const res = checkTriage(carriers, { now, root, idPattern, projects: given.named });
+      const [w, d, b] = [res.workable, res.decide, res.blocked];
+      say(`[owt] TRIAGE workable=${w.length} decide=${d.length} blocked=${b.length} | visible open items: ${res.visibleOpen} | done, not counted: ${res.done} | today ${dayString(now)}`);
+      if (res.cannotJudge.length) say(`[owt]   ${res.cannotJudge.length} of the workable items could not be judged automatically (CANNOT-JUDGE below); they stay in workable and are listed so they are not hidden`);
+      say(`[owt] UNSEEN (OWT-006, counted apart, never read as zero): table rows that could not be read=${res.ragged.length}, carriers with no readable open-work record=${res.noRecordCarriers.length}${res.ownerUnstated ? `, workable items with no owner stated=${res.ownerUnstated}` : ''}`);
+      const due = (x) => (x.dueDay === null ? 'no due date' : `due ${dayString(x.dueDay)}${x.overdueDays === null ? '' : ` OVERDUE ${x.overdueDays}d`}`);
+      const list = (title, rows, tail) => {
+        say(`[owt] ## ${title} (${rows.length})`);
+        for (const x of rows) say(`[owt]   ${x.path} ${x.where} | ${tail(x)}`);
+      };
+      list('WORKABLE', w, (x) => due(x));
+      list('DECIDE', d, (x) => `${x.why} | ${due(x)}`);
+      list('BLOCKED', b, (x) => `${x.why} | ${due(x)}`);
+      list('CANNOT-JUDGE', res.cannotJudge, (x) => x.cannotJudge.join('; '));
+      for (const u of res.ragged) say(`[owt] UNDECIDABLE: ${u.path} ${u.where} has ${u.cells} cell(s) but its header has ${u.expected}; the row is in no kind and no count above`);
+      say('[owt] A due date orders the list and marks OVERDUE; it is never a start condition. Only an unmet dependency (an item, a version tag, a fixed date in the release condition) puts an item in BLOCKED.');
+      say('[owt] COVERAGE UNKNOWN (OWT-011): whose turn it is, and a ruling that is pending, are read from field names and words (VOCAB_TRIAGE); an owner in other words is listed as not recognised. A dependency is read only as an item number, an identifier another item carries, a version tag, a date, or <project>:<object>.');
+      say(`[owt] ${UNCALIBRATED_STATE_NOTE}`);
+      if (res.walked === 0) { say('[owt] CANNOT DECIDE: no open-work record (no status, owner, due, waiting-for or release field) in any carrier (walked 0). Exit 2 is not a pass.'); return finish(2); }
+      if (w.length + d.length + b.length !== res.visibleOpen) { say(`[owt] CANNOT DECIDE: the three kinds (${w.length + d.length + b.length}) do not add up to the visible open items (${res.visibleOpen}); this is a bug in the checker. Exit 2 is not a pass.`); return finish(2); }
+      if (res.ragged.length) { say(`[owt] CANNOT DECIDE: ${res.ragged.length} table row(s) could not be read (see UNDECIDABLE above), so the three counts cover only part of the carrier. Exit 2 is not a pass.`); return finish(2); }
+      return finish(0);
+    }
     // The repo shim (its own `--self-test` flag) is named FIRST on purpose: cli/scripts/check-command-existence.mjs
     // reads a `uds <...>` string up to the closing quote, so a `--self-test` written AFTER `uds open-work`
     // is judged as a flag of the `uds open-work` command, which has none (it is the subcommand `self-test`).
-    say('[owt] usage: node scripts/check-open-work-tracking.mjs ... | --self-test   (or from the npm package: uds open-work next-action|revision|separation|waiting|observations|self-test ...)');
+    say('[owt] usage: node scripts/check-open-work-tracking.mjs ... | --self-test   (or from the npm package: uds open-work next-action|revision|separation|waiting|observations|triage|self-test ...)');
     return finish(2);
   } catch (e) {
     say(`[owt] CANNOT DECIDE: ${e.message.split('\n')[0]}`);

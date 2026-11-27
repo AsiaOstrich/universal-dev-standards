@@ -1,10 +1,10 @@
 ---
 name: open-work
 source: ../../../../skills/open-work-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.0.0
-last_synced: 2026-10-30
-source_hash: 01f94f0311a4
+source_version: 1.1.0
+translation_version: 1.1.0
+last_synced: 2026-11-27
+source_hash: 7800a4c23154
 status: current
 scope: universal
 description: |
@@ -20,7 +20,7 @@ argument-hint: "[capture | waiting | next-action | report | 收件 | 等待 | �
 
 > **語言**: [English](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/skills/open-work-assistant/SKILL.md) | 繁體中文 | [简体中文](https://github.com/AsiaOstrich/universal-dev-standards/blob/main/locales/zh-CN/skills/open-work-assistant/SKILL.md)
 
-**版本**: 1.0.0 | **最後更新**: 2026-10-30 | **適用**: Claude Code Skills
+**版本**: 1.1.0 | **最後更新**: 2026-11-27 | **適用**: Claude Code Skills
 
 幫忙避免工作在工作階段之間漏掉。想用才用。UDS 沒有任何東西要求你用。
 
@@ -93,6 +93,14 @@ argument-hint: "[capture | waiting | next-action | report | 收件 | 等待 | �
 
 報告「還有 N 項未完成」時，也要說你看了幾個來源、有幾個看不到。看不到的來源不是零。沒有這句話的報告，讀起來像是完整的。
 
+另外把未完成的項目分成三種，讓讀的人看得出下一步是要做決定還是可以直接做。每個項目只進一種，三種的件數加起來等於你看得到的未完成項目數。第一行寫出三種的件數。
+
+- **可推進**：輪到你做，而且它依賴的東西都沒有未成立的。
+- **要決定**：在等某個人裁決。
+- **卡在別人**：在等別人：另一個代理、CI、外部、固定日期，或還沒成立的依賴。
+
+期限不決定種類，只用來排序與標示逾期。有期限、沒有未成立依賴的項目，期限還沒到也算可推進。解除條件如果是沒有任何東西讀得懂的自由文字（「等第十四輪跑完」），不要把項目算成卡在別人：列為可推進，並說明它的條件讀不出來。寧可多列一次，不要藏起來。如果你的助理有「自己一路把清單做下去」的開關，就拿這份報告當它的輸入。UDS 不附那個開關。
+
 在回合結束、控制權交回給人的時候印出報告。報告絕不能擋住回合。「還有工作沒做完」幾乎永遠為真，而一個永遠紅燈的檢查會被關掉。
 
 ### 6. 你看不到的事實
@@ -109,10 +117,11 @@ UDS 在 CLI 裡附了這些規則的參考檢查程式：
 uds open-work next-action [files...]   # 每個下一步都有點名東西嗎？
 uds open-work waiting [files...]       # 每個等待都有解除條件嗎？
 uds open-work observations [files...]  # 手寫的事實都有戳記嗎？
+uds open-work triage [files...]        # 可推進、要決定、還是卡在別人？（讀 owner、due、waiting for、release）
 uds open-work self-test                # 檢查程式自己遇到壞樣本還是會失敗嗎？
 ```
 
-檢查程式靠欄位名稱找欄位，例如 `status`、`asked-at`、`waiting for`、`release`（上面的表格用的就是這些）。你的表格用別的詞，就在 `uds.project.yaml` 的 `open_work` 底下宣告。
+檢查程式靠欄位名稱找欄位，例如 `status`、`asked-at`、`waiting for`、`release`（上面的表格用的就是這些）。`triage` 另外讀 `owner` 欄（`me`、`you`、`agent`、`CI`）與 `due` 欄。你的表格用別的詞，就在 `uds.project.yaml` 的 `open_work` 底下宣告。
 
 結束碼 0 表示沒有違反，1 表示有違反，2 表示檢查程式判定不了。2 不是通過。乾淨的結果只涵蓋它認得的詞。詞彙是第一版的猜測，沒有在真實使用上調整過。
 

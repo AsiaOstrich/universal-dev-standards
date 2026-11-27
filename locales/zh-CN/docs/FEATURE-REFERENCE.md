@@ -1,7 +1,7 @@
 # UDS 功能参考手册
 
 > Universal Development Standards - 完整功能文档
-> Auto-generated | Last updated: 2026-11-24
+> Auto-generated | Last updated: 2026-11-27
 
 **Language**: [English](../../../docs/reference/FEATURE-REFERENCE.md) | [繁體中文](../../zh-TW/docs/FEATURE-REFERENCE.md) | 简体中文
 
@@ -15,9 +15,9 @@
 4. [代理](#agents) (5)
 5. [工作流程](#workflows) (5)
 6. [核心规范](#core-standards) (153)
-7. [脚本](#scripts) (69)
+7. [脚本](#scripts) (70)
 
-**Total Features: 364**
+**Total Features: 365**
 
 ---
 
@@ -293,7 +293,7 @@
 
 ### `uds open-work`
 
-**说明**: Reference checks for open-work-tracking (OWT-017 to OWT-028). Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
+**说明**: Reference checks for open-work-tracking (OWT-017 to OWT-028) and the triage summary. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
 
 ### `uds run`
 
@@ -677,6 +677,7 @@
 | `pre-release-check.sh` | Pre-release Check Script |
 | `pre-release.ps1` | Pre-Release Preparation Script for Universal Development Standards |
 | `pre-release.sh` | Pre-Release Preparation Script |
+| `run-ci-checks-locally.mjs` | Run, on this machine, the pure checks that CI runs. |
 | `setup-husky.mjs` | Cross-platform Husky Setup Script |
 | `sync-manifest.mjs` | Extract top-level Commander command names registered directly on the |
 | `watch-model-versions.sh` | Model / tool version watch — XSPEC-357 AC-6.2 |

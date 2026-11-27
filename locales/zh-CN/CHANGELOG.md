@@ -3,7 +3,7 @@ source: ../../CHANGELOG.md
 source_version: 6.16.1
 translation_version: 6.16.1
 last_synced: 2026-11-23
-source_hash: d8cf8b178a30
+source_hash: 17b26def0dcb
 status: current
 ---
 
@@ -21,6 +21,7 @@ status: current
 ### 新增
 
 - **`uds init` 会安装 git 原生的 `commit-msg` hook，所以格式不合的提交信息会被拦下，不论是哪个 AI 工具提交的（dev-platform #225，决策 659甲）。** 在此之前，只有在 `--with-hooks` 之下的 Claude Code 会拦，其他十个工具的项目在提交时完全不检查信息。这个 hook 用 Claude Code hook 的同一套规则判断第一行（`<type>(<scope>): <subject>`，type 取自已安装的 commit-message 选项文件；不套用 72 字符的主旨长度限制，所以双语单行主旨可以通过），并放行 git 自己生成的主旨（`Merge ...`、`Revert "..."`、`fixup! ...`）。它会让开：不是 UDS 的 `commit-msg` hook、不是 `uds init` 为 Node 项目接上的 `.husky` 的其他 `core.hooksPath`、以及你改过的 UDS hook，都原样保留，并打印一行说明如何自己加上 `universal-dev-standards check --commit-msg "$1"`。`uds init --no-git-hooks` 不安装，并把这个选择记在 `.standards/manifest.json`（`gitHooks.commitMsg: "off"`）；`uds update` **不会**自己安装它，所以更新不会让项目的提交突然被拦：对没有 hook 的项目（这个版本之前设置好的，或新 clone——git hook 是每份 clone 各自一份）且没有记录选择时，`uds update` 只打印一行，说明这个 hook 做什么、`uds update --git-hooks` 可开启、`uds update --no-git-hooks` 会记录这个项目不要它（之后不再提示）。`uds update --no-git-hooks` 也会移除 UDS 安装且没人改过的 hook；已经存在的 UDS hook 仍会保持最新。`uds check` 会报告这个 hook 是运作中、已关闭、别人的 hook、或未安装（并附同样的开启方法；四种都不会改变退出码）；`uds uninstall` 会移除 UDS 写入的那个。**验证方式：** 在 git 项目里执行 `uds init --yes`，`git commit -m "fixed stuff"` 会被拦下并显示 `Invalid commit message format`，`git commit -m "feat(auth): add token refresh"` 则通过；改用 `uds init --yes --no-git-hooks`，两者都通过。
+- **`uds open-work triage` 把未完成的工作分成可推进、要决定、卡在别人，期限不再挡工（dev-platform XSPEC-528）。** 有人问「还有没有工作可做」，得到的是「开工条件已成立」的件数，于是回答「只剩三件」，实际上十几件都能开始：检查把期限当成开工条件，又把一句自由文本的等待当成条件未成立。新的子命令读承载库的 `owner`、`due`、`status`、`waiting for`、`release` 字段，把每个未完成项目只归入一类：**可推进**（轮到它、没有未成立的依赖）、**要决定**（在等某个人裁决）、**卡在别人**（在等另一个代理、CI、外部、固定日期，或还没成立的依赖）。第一行打印三类件数，加起来等于看得到的未完成项目数；读不进去的行另外计数（OWT-006），而且会让退出码变成 2。期限只用来排序并标示逾期。读不懂的解除条件（自由文本、这台机器看不到的项目）列在 CANNOT-JUDGE，仍归可推进：宁可多列一次，不要藏起来。依赖可以写成项目编号、另一个项目带有的标识符、版本 tag、固定日期，或 `<project>:<object>`；`--root NAME=DIR` 与 `open_work.projects` 说明其他项目在哪里，全程不离开这台机器。owner 用词与「待裁决」用词是英文与中文的初步判断，未校准、覆盖率未知（OWT-011、OWT-016）。`open-work` 技能（1.1.0）说明三类；`uds open-work waiting` 与 `next-action` 的输出与先前完全相同。
 
 ## [6.16.1] - 2026-11-23
 
