@@ -4,7 +4,7 @@
 id: policy-as-code-testing
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-05-14"
   source: core/policy-as-code-testing.md
   description: >
     Standards for unit testing Open Policy Agent (OPA) Rego policies and

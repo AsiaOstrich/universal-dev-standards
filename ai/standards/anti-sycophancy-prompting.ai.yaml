@@ -4,7 +4,7 @@
 id: anti-sycophancy-prompting
 meta:
   version: "1.0.0"
-  updated: "2026-04-15"
+  updated: "2026-06-18"
   source: core/anti-sycophancy-prompting.md
   description: Techniques and rules for designing prompts that elicit genuine, critical LLM responses rather than sycophantic agreement
 

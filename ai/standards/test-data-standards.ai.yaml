@@ -4,7 +4,7 @@
 id: test-data-standards
 meta:
   version: "1.0.0"
-  updated: "2026-03-31"
+  updated: "2026-06-18"
   source: core/test-data-standards.md
   description: Test data strategies, anonymization, fixtures, isolation, and anti-patterns
 

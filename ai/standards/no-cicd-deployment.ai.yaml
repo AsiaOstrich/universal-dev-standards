@@ -15,7 +15,7 @@ standard:
 
   meta:
     version: "1.0.0"
-    updated: "2026-04-26"
+    updated: "2026-05-14"
     source: core/no-cicd-deployment.md
     description: Reliable deployment strategy for environments without CI/CD platforms
     complements: deployment-standards.ai.yaml

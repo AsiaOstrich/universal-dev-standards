@@ -4,7 +4,7 @@
 id: forward-derivation
 meta:
   version: "1.3.0"
-  updated: "2026-06-18"
+  updated: "2026-06-21"
   source: core/forward-derivation-standards.md
   description: Standards for deriving BDD, TDD, IT, E2E, ATDD, and Contract tests from approved SDD specifications
 

@@ -4,7 +4,7 @@
 id: cross-flow-regression
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-06-18"
   source: core/cross-flow-regression.md
   description: Cross-flow regression testing complementing per-flow Multi-Gate; verifies inter-flow state correctness and CUJ pass rates
 

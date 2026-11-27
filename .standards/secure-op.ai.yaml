@@ -4,7 +4,7 @@
 id: secure-op
 meta:
   version: "1.0.0"
-  updated: "2026-05-04"
+  updated: "2026-05-14"
   source: core/secure-op.md
   description: >
     AI Agent secure operation methodology covering Veto-based decision pipeline,

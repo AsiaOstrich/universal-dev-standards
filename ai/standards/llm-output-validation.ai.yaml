@@ -4,7 +4,7 @@
 id: llm-output-validation
 meta:
   version: "1.0.0"
-  updated: "2026-05-05"
+  updated: "2026-05-14"
   source: core/llm-output-validation.md
   description: >
     Standards for validating LLM and AI agent outputs to ensure schema

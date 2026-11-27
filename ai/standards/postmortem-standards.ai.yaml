@@ -4,7 +4,7 @@
 id: postmortem-standards
 meta:
   version: "1.0.0"
-  updated: "2026-03-31"
+  updated: "2026-06-19"
   source: core/postmortem-standards.md
   description: Blameless postmortem process, root cause analysis, action items tracking, and organizational learning
 
@@ -66,6 +66,12 @@ action_item_types:
   process: "Improve response procedures"
 
 action_item_states: ["Open", "In Progress", "Done", "Verified", "Blocked"]
+
+tech_debt_handoff:
+  applies_to: "Prevent / Mitigate action items that are long-lived design or architecture remediation (not a quick fix that closes with the incident)"
+  rule: "MUST register in the tech-debt registry per tech-debt-standards with Source = postmortem PM-<id>"
+  rationale: "So the item is budgeted and tracked instead of lost once the incident closes"
+  related_standard: tech-debt-standards
 
 overdue_escalation:
   "7 days": "Notify owner"
