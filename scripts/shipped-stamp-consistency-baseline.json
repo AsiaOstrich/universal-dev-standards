@@ -5,15 +5,6 @@
   "howToShrink": "對每一筆：(1) 【不要】直接重跑 `convert-md-to-yaml.mjs`／`scripts/transform` 覆蓋現檔——2026-11-27 實測會刪掉大量人工整理內容（見 why）。(2) 正確做法：逐份比對 core/<source>.md 與 ai/standards/<x>.ai.yaml，確認 YAML 是否已涵蓋來源的最新內容；是→把 meta.updated 改成來源的 `git log -1 --format=%ad --date=short -- core/<source>.md`，不是→先補內容再改戳記；然後跑 `npx tsx scripts/check-shipped-stamp-consistency.ts` 確認該筆消失，並同步從本清單移除。(3) 若 YAML 內容領先來源（如 testing、test-completeness-dimensions），改的是來源 core/*.md（需同步 locales 翻譯），不是把 YAML 的戳記往回改。(4) 或另案決定：此檢查是否應只比對由轉換器產生的檔案。",
   "entries": [
     {
-      "file": "ai/standards/accessibility-standards.ai.yaml",
-      "source": "core/accessibility-standards.md",
-      "shippedUpdated": null,
-      "actualUpdated": "2026-06-18",
-      "kind": "MISSING_UPDATED",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): shipped file has no `updated` field at all even though its source (core/accessibility-standards.md) is a real, git-tracked file. No suspicious value — simply absent, consistent with this .ai.yaml having been hand-authored/edited outside the generator. Fix: regenerate via the transform pipeline to backfill the field."
-    },
-    {
       "file": "ai/standards/browser-compatibility-standards.ai.yaml",
       "source": "core/browser-compatibility-standards.md",
       "shippedUpdated": "2026-05-05",
@@ -39,15 +30,6 @@
       "kind": "DATE_MISMATCH",
       "verified": true,
       "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): confirmed via direct `git log -1 --format=%ad --date=short -- core/documentation-writing-standards.md` that the shipped date (2026-03-17) is older than the source's real last content change (2026-07-08) — i.e. shipped <= actual, the ordinary \"not regenerated since the source last changed\" shape. No other anomaly found for this entry. Fix: regenerate via `node scripts/convert-md-to-yaml.mjs core/documentation-writing-standards.md` (or the equivalent scripts/transform run)."
-    },
-    {
-      "file": "ai/standards/performance-standards.ai.yaml",
-      "source": "core/performance-standards.md",
-      "shippedUpdated": null,
-      "actualUpdated": "2026-06-17",
-      "kind": "MISSING_UPDATED",
-      "verified": true,
-      "evidence": "XSPEC-392 R3 landing scan (2026-08-25, AlbertHsu / agent): shipped file has no `updated` field at all even though its source (core/performance-standards.md) is a real, git-tracked file. No suspicious value — simply absent, consistent with this .ai.yaml having been hand-authored/edited outside the generator. Fix: regenerate via the transform pipeline to backfill the field."
     },
     {
       "file": "ai/standards/postmortem-standards.ai.yaml",

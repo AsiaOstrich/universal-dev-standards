@@ -3,6 +3,11 @@
 # Guide: core/guides/performance-guide.md
 # Version: 1.2.0
 
+meta:
+  version: "1.2.0"
+  updated: "2026-06-17"
+  source: core/performance-standards.md
+
 iso25010_efficiency:
   time_behavior: "Response time, throughput"
   resource_utilization: "CPU, memory, disk, network"
