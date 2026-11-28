@@ -26,6 +26,7 @@ import { compileStandards } from '../src/commands/compile.js';
 import { generateReport } from '../src/commands/report.js';
 import { mcpCommand } from '../src/commands/mcp.js';
 import { runIntentCommand } from '../src/commands/run-intent.js';
+import { securityCheckFindingsCommand } from '../src/commands/security-findings.js';
 import { openWorkNextActionCommand, openWorkRevisionCommand, openWorkSeparationCommand, openWorkWaitingCommand, openWorkObservationsCommand, openWorkTriageCommand, openWorkSelfTestCommand } from '../src/commands/open-work.js';
 import { setLanguage, setLanguageExplicit, t } from '../src/i18n/messages.js';
 import { resolveLanguage } from '../src/i18n/resolve-language.js';
@@ -538,6 +539,18 @@ openWorkCommand
   .command('self-test')
   .description('Run the checker\'s own self-test arms (a checker that fails them decides nothing)')
   .action(openWorkSelfTestCommand);
+
+// Security-review findings check (XSPEC-432 R2). A group of its own, like `open-work`: it
+// checks the structured report the /security skill writes, not the installed standards.
+// Exit 0 the report keeps the contract, 1 it does not, 2 cannot decide (not a pass).
+const securityCommand = program
+  .command('security')
+  .description('Checks for the /security skill. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)');
+
+securityCommand
+  .command('check-findings <file>')
+  .description('XSPEC-432 R2: check the /security report keeps its field contract: only a confirmed finding carries a severity, a refuted one keeps its reason, and the review ends all_verified or incomplete with a reason. Pass - to read standard input. It judges the shape of the report, not whether a finding is true')
+  .action(securityCheckFindingsCommand);
 
 // uds run <intent> — language-agnostic command proxy (XSPEC-029)
 program

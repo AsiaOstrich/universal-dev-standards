@@ -1,7 +1,7 @@
 # UDS Feature Reference
 
 > Universal Development Standards - Complete Feature Documentation
-> Auto-generated | Last updated: 2026-11-27
+> Auto-generated | Last updated: 2026-11-28
 
 **Language**: English | [繁體中文](../../locales/zh-TW/docs/FEATURE-REFERENCE.md) | [简体中文](../../locales/zh-CN/docs/FEATURE-REFERENCE.md)
 
@@ -9,7 +9,7 @@
 
 ## Table of Contents
 
-1. [CLI Commands](#cli-commands) (24)
+1. [CLI Commands](#cli-commands) (25)
 2. [Slash Commands](#slash-commands) (51)
 3. [Skills](#skills) (57)
 4. [Agents](#agents) (5)
@@ -17,7 +17,7 @@
 6. [Core Standards](#core-standards) (153)
 7. [Scripts](#scripts) (70)
 
-**Total Features: 365**
+**Total Features: 366**
 
 ---
 
@@ -294,6 +294,10 @@
 ### `uds open-work`
 
 **Description**: Reference checks for open-work-tracking (OWT-017 to OWT-028) and the triage summary. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
+
+### `uds security`
+
+**Description**: Checks for the /security skill. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass)
 
 ### `uds run`
 
@@ -598,7 +602,7 @@
 | `turn-completion-integrity` | 1.5.1 | An agent writes *"I'll do X next"* and then ends the turn without doing X. |
 | `user-journey-testing` | - |  |
 | `user-story-mapping` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
-| `verification-evidence` | 1.3.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
+| `verification-evidence` | 1.4.0 | Establish an "Iron Law" that no task can be claimed as complete without verifica |
 | `verification-oracle` | 1.0.0 | **Status**: Active | **Updated**: 2026-06-17 |  |
 | `versioning` | 1.5.0 | This standard defines how to version software releases using Semantic Versioning |
 | `virtual-organization-standards` | 1.0.0 | This standard treats the AI ecosystem as a "Virtual Organization." It defines ho |

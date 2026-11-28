@@ -81,8 +81,8 @@ node scripts/beta-acceptance/run.mjs --version 6.16.1
 It installs the published 6.16.1 into a throwaway folder (not the repository source), runs the steps below that apply to your machine, and writes a report. **Paste the `.md` report file back to us** (the `.json` next to it is the same report for comparing). An item that needs your eyes is asked in the terminal; with no answer it is recorded as "unconfirmed" and is not counted as passed.
 它把已發布的 6.16.1 裝進拋棄式資料夾（不是 repository 原始碼），執行下列適用於你這台機器的步驟，並寫出報告。**請把 `.md` 報告檔貼回來**（旁邊的 `.json` 是同一份報告，供比對）。需要用眼睛確認的項目會在終端機詢問；沒有回答就記為「未確認」，不計入通過。
 
-This list is generated from `scripts/beta-acceptance/steps.json`: 414 steps (406 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
-本清單由 `scripts/beta-acceptance/steps.json` 產生：共 414 步（406 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
+This list is generated from `scripts/beta-acceptance/steps.json`: 417 steps (409 checked by the program, 8 for a person's eyes). Steps marked **new** test changes that are on `main` but not in the published beta yet; against an older beta they are expected to fail.
+本清單由 `scripts/beta-acceptance/steps.json` 產生：共 417 步（409 步由程式判定、8 步靠人眼）。標 **新** 的步驟測的是已在 `main`、但尚未進入已發布測試版的變更；對舊測試版執行時預期會失敗。
 
 1. `smoke-version` — The installed uds command starts and prints its version.
    已安裝的 uds 指令能啟動並印出版本。
@@ -1326,6 +1326,15 @@ This list is generated from `scripts/beta-acceptance/steps.json`: 414 steps (406
 414. `git-commit-msg-hook-init-off` — uds init --no-git-hooks installs no commit-msg hook and records the choice in the manifest.
    uds init --no-git-hooks 不安裝 commit-msg hook，並把選擇記在 manifest。
    `uds init -y --skills-location project --mode skills --format ai --no-git-hooks` → exit 0; output has "Standards initialized successfully", "git commit-msg hook: off"
+415. `sec-findings-ranks-confirmed-only` (**new 新**) — uds security check-findings accepts a report whose only severity is on a confirmed finding, ranks that finding and keeps the refuted one apart.
+   uds security check-findings 接受只有已確認發現帶嚴重度的報告，只排序該發現，並把被推翻的另列。
+   `uds security check-findings report.json` → exit 0; output has "1 confirmed, 1 unverified, 1 refuted", "1. [high] F-1" (+2)
+416. `sec-findings-refuses-severity-on-unverified` (**new 新**) — uds security check-findings refuses a severity on an unverified finding and names the finding.
+   uds security check-findings 拒絕待驗證發現上的嚴重度，並點名該發現。
+   `uds security check-findings report.json` → exit 1; output has "SF-002 F-2:", "1 violation(s)"
+417. `std-verification-evidence-non-author` (**new 新**) — The shipped verification-evidence standard is 1.4.0 and carries the non-author rules VE-013 to VE-020.
+   套件附的 verification-evidence 標準為 1.4.0，含非作者裁決規則 VE-013 至 VE-020。
+   `(read the files; no command | 讀檔，不執行指令)` → reads `{shipped}/ai/standards/verification-evidence.ai.yaml`, `{shipped}/core/verification-evidence.md`
 <!-- BETA-ACCEPTANCE-TEST:END -->
 
 Report anything wrong as a GitHub issue. | 有問題請開 GitHub issue。

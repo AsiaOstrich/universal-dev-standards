@@ -1,6 +1,6 @@
 # UDS 速查表
 
-> Quick reference for all UDS features | Last updated: 2026-11-27
+> Quick reference for all UDS features | Last updated: 2026-11-28
 
 **Language**: [English](../../../docs/user/CHEATSHEET.md) | 繁體中文 | [简体中文](../../zh-CN/docs/CHEATSHEET.md)
 
@@ -33,6 +33,7 @@
 | `uds ai-context` | Manage .ai-context.yaml configuration for AI-friendly architecture |
 | `uds mcp` | MCP server commands for AI tool integration |
 | `uds open-work` | Reference checks for open-work-tracking (OWT-017 to OWT-028) and the triage summary. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass) |
+| `uds security` | Checks for the /security skill. Exit 0 no violation, 1 violation, 2 cannot decide (not a pass) |
 | `uds run` | Run a project command by intent (test/lint/build/security) via uds.project.yaml |
 
 ## 💬 斜線命令

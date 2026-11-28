@@ -2,8 +2,8 @@
 source: ../../CHANGELOG.md
 source_version: 6.16.1
 translation_version: 6.16.1
-last_synced: 2026-11-23
-source_hash: 17b26def0dcb
+last_synced: 2026-11-28
+source_hash: 3fa3d62cde97
 status: current
 ---
 
@@ -20,8 +20,13 @@ status: current
 
 ### 新增
 
+- **`uds security check-findings` 检查 `/security` 技能的报告，而技能现在多了一个验证阶段，只有已确认的发现可以带严重度（dev-platform XSPEC-432 R2、DEC-104）。** `/security` 技能（1.1.0）过去只列出发现并排序，所以一个没有人试图推翻的发现，也和其他发现一样带着严重度。现在它把每个候选发现交给没有参与发现的验证者（全新的 agent 或人，被要求试图推翻它，只拿到主张与代码，不拿到发现者的推理），并记录三种状态之一：`confirmed`、`unverified`、`refuted`。只有 confirmed 的发现可以带严重度并被排序；refuted 的发现连同理由一起保留，下次审查才不会再提；没有独立验证者时，发现保持 `unverified`，技能不会自己确认自己的发现。审查以 `all_verified` 结束，或以 `incomplete` 并写明原因结束。报告是 JSON，`uds security check-findings <文件>`（或用 `-` 读标准输入）是它字段契约的确定性检查：SF-002 拒绝在非 confirmed 的发现上带严重度；检查也拒绝没有或乱写严重度的 confirmed 发现、验证者与发现者同名、没有理由或带了修复建议的 refuted 发现、未知的状态或字段，以及既不是 `all_verified`、也不是带原因的 `incomplete` 的结束状态。退出码 0 报告符合契约，1 不符合（每个违反都点名该发现），2 检查无法判断（文件不存在或不是 JSON；2 不算通过）。**它只判断报告的形状，不判断发现是否为真，也无法得知验证者是否真的没看过发现者的推理**（SF-004 只比对报告里的两个名字），命令每次运行都会这样说。技能的 `allowed-tools` 多了 `Bash(uds security check-findings:*)`，没有其他命令；`/security`（`skills/commands/security.md`）与 zh-TW、zh-CN 的技能和命令文字同步。**如何检查：**写一份报告，让 `unverified` 的发现带 `"severity": "medium"`，运行 `uds security check-findings report.json`：退出码 1 并打印出 `SF-002 F-2`；去掉该严重度后退出码为 0，且 RANKED 只列出 confirmed 的发现。
 - **`uds init` 会安装 git 原生的 `commit-msg` hook，所以格式不合的提交信息会被拦下，不论是哪个 AI 工具提交的（dev-platform #225，决策 659甲）。** 在此之前，只有在 `--with-hooks` 之下的 Claude Code 会拦，其他十个工具的项目在提交时完全不检查信息。这个 hook 用 Claude Code hook 的同一套规则判断第一行（`<type>(<scope>): <subject>`，type 取自已安装的 commit-message 选项文件；不套用 72 字符的主旨长度限制，所以双语单行主旨可以通过），并放行 git 自己生成的主旨（`Merge ...`、`Revert "..."`、`fixup! ...`）。它会让开：不是 UDS 的 `commit-msg` hook、不是 `uds init` 为 Node 项目接上的 `.husky` 的其他 `core.hooksPath`、以及你改过的 UDS hook，都原样保留，并打印一行说明如何自己加上 `universal-dev-standards check --commit-msg "$1"`。`uds init --no-git-hooks` 不安装，并把这个选择记在 `.standards/manifest.json`（`gitHooks.commitMsg: "off"`）；`uds update` **不会**自己安装它，所以更新不会让项目的提交突然被拦：对没有 hook 的项目（这个版本之前设置好的，或新 clone——git hook 是每份 clone 各自一份）且没有记录选择时，`uds update` 只打印一行，说明这个 hook 做什么、`uds update --git-hooks` 可开启、`uds update --no-git-hooks` 会记录这个项目不要它（之后不再提示）。`uds update --no-git-hooks` 也会移除 UDS 安装且没人改过的 hook；已经存在的 UDS hook 仍会保持最新。`uds check` 会报告这个 hook 是运作中、已关闭、别人的 hook、或未安装（并附同样的开启方法；四种都不会改变退出码）；`uds uninstall` 会移除 UDS 写入的那个。**验证方式：** 在 git 项目里执行 `uds init --yes`，`git commit -m "fixed stuff"` 会被拦下并显示 `Invalid commit message format`，`git commit -m "feat(auth): add token refresh"` 则通过；改用 `uds init --yes --no-git-hooks`，两者都通过。
 - **`uds open-work triage` 把未完成的工作分成可推进、要决定、卡在别人，期限不再挡工（dev-platform XSPEC-528）。** 有人问「还有没有工作可做」，得到的是「开工条件已成立」的件数，于是回答「只剩三件」，实际上十几件都能开始：检查把期限当成开工条件，又把一句自由文本的等待当成条件未成立。新的子命令读承载库的 `owner`、`due`、`status`、`waiting for`、`release` 字段，把每个未完成项目只归入一类：**可推进**（轮到它、没有未成立的依赖）、**要决定**（在等某个人裁决）、**卡在别人**（在等另一个代理、CI、外部、固定日期，或还没成立的依赖）。第一行打印三类件数，加起来等于看得到的未完成项目数；读不进去的行另外计数（OWT-006），而且会让退出码变成 2。期限只用来排序并标示逾期。读不懂的解除条件（自由文本、这台机器看不到的项目）列在 CANNOT-JUDGE，仍归可推进：宁可多列一次，不要藏起来。依赖可以写成项目编号、另一个项目带有的标识符、版本 tag、固定日期，或 `<project>:<object>`；`--root NAME=DIR` 与 `open_work.projects` 说明其他项目在哪里，全程不离开这台机器。owner 用词与「待裁决」用词是英文与中文的初步判断，未校准、覆盖率未知（OWT-011、OWT-016）。`open-work` 技能（1.1.0）说明三类；`uds open-work waiting` 与 `next-action` 的输出与先前完全相同。
+
+### 变更
+
+- **`verification-evidence` 1.4.0：影响决策的主张，由作者以外的人裁决（dev-platform XSPEC-432 R1、DEC-104、DEC-106、DEC-107）。** 标准要求证据（铁律），也要求证据站得住脚（证据有效性），但没有问由谁来决定证据撑得起主张，所以代理可以写下主张、读自己的证据、然后说够了。新的“非作者裁决”一节有八条规则 VE-013 至 VE-020：先由确定性工具裁决，否则由不带作者任何上下文、被要求试图推翻主张的全新 agent 裁决，作者自己的复查不算裁决（VE-013）；结果是证实、推翻或无法判断，无法判断绝不记为为假、不存在或通过，查询工具故障一律是无法判断（VE-014）；主张全是琐事时，“全部证实”不算通过（VE-015）；被推翻的主张连同被检物指纹保留为已知为假，已证实的主张在指纹变动后重验（VE-016）；证据记录多了 `subject_fingerprint` 与 `rerun_method`，只对依 VE-013 裁决的主张必填，所以既有记录不会失效（VE-017）；作者可以新增断言与场景，但不得在没有人裁决的情况下删除、放宽或跳过自己的裁判（VE-018）；引用验证机制的通过结果之前，先证明它抓得到注入的已知错误，没注入成功的错误判无法判断（VE-019）；“稳定”“可靠”需要 k 次重跑全数成功并写出 k，单次成功或平均成功率不够（VE-020）。标准只定原则：哪个工具、agent 或模型裁决，以及“实质”与 k 背后的数字，由采用项目决定。已更新 `core/`、`ai/standards/`、本 repo 自己的 `.standards/` 副本，以及 zh-TW、zh-CN 译文。**如何检查：**`core/verification-evidence.md` 版本为 1.4.0，其规则表列出 VE-013 至 VE-020；`cli/tests/standards/verification-evidence-non-author.test.js` 会读每一层。
 
 ## [6.16.1] - 2026-11-23
 

@@ -2,8 +2,8 @@
 
 > **Language**: English | [繁體中文](../locales/zh-TW/core/verification-evidence.md)
 
-**Version**: 1.3.0
-**Last Updated**: 2026-08-14
+**Version**: 1.4.0
+**Last Updated**: 2026-11-28
 **Applicability**: All AI-assisted development workflows
 **Scope**: universal
 **Inspired by**: [Superpowers](https://github.com/obra/superpowers) — verification-before-completion (MIT)
@@ -12,19 +12,21 @@
 
 ## Purpose
 
-Establish an "Iron Law" that no task can be claimed as complete without verification evidence, and ensure that the evidence itself holds up. This standard guards two distinct failures:
+Establish an "Iron Law" that no task can be claimed as complete without verification evidence, and ensure that the evidence itself holds up. This standard guards three distinct failures:
 
 1. **Claiming success without evidence** — the agent asserts what it never checked (the Iron Law).
 2. **Evidence that does not support its claim** — the agent *did* check, and the checking tool silently did not work (Evidence Validity, added in v1.2.0).
+3. **A claim whose only witness is its own author** — the one who wrote the claim also decided whether it holds (Non-Author Adjudication, added in v1.4.0).
 
-The first is a form of hallucination. **The second is not** — nothing was invented; a real command produced a real output that meant something other than what it appeared to mean. Both end in the same place: a completion claim that isn't true.
+The first is a form of hallucination. **The second is not** — nothing was invented; a real command produced a real output that meant something other than what it appeared to mean. **The third is neither** — the author may be honest and the tool healthy, yet a claim judged only by the one who made it has not been judged. All three end in the same place: a completion claim that isn't true.
 
-建立「鐵律」：無驗證證據不可聲稱完成——並確保**證據本身站得住腳**。本標準防兩種不同的失敗：
+建立「鐵律」：無驗證證據不可聲稱完成——並確保**證據本身站得住腳**。本標準防三種不同的失敗：
 
 1. **無證據就宣稱成功**——代理斷言它從未查過的事（Iron Law）。
 2. **證據撐不起它的主張**——代理**確實查了**，而查詢工具靜默地沒有運作（證據有效性，v1.2.0 新增）。
+3. **主張只有作者自己一個證人**——寫下主張的那一位，同時決定它成不成立（非作者裁決，v1.4.0 新增）。
 
-前者是幻覺的一種，**後者不是**——沒有任何東西被捏造，是一個真實的指令產生了真實的輸出，而那個輸出的意思不是它看起來的意思。兩者殊途同歸：一個不成立的完成聲明。
+第一種是幻覺的一種，**第二種不是**——沒有任何東西被捏造，是一個真實的指令產生了真實的輸出，而那個輸出的意思不是它看起來的意思。**第三種也不是**——作者可以誠實、工具可以健康，但只由提出者自己裁決的主張，等於沒有被裁決。三者殊途同歸：一個不成立的完成聲明。
 
 ---
 
@@ -40,6 +42,10 @@ The first is a form of hallucination. **The second is not** — nothing was inve
 | Evidence Validity | Whether the evidence *itself* is trustworthy — i.e. whether the verification command actually ran and actually measured what it claims |
 | Silent Tool Failure | A verification command that fails to run, or runs without measuring anything, yet produces output indistinguishable from a genuine result |
 | Evidence Freshness | Whether evidence was produced by a run executed *after* the most recent edit to the code, prompt, or configuration under test — not carried over from a run against an earlier state |
+| Adjudicator | The party that decides whether a claim holds. Never the claim's author (VE-013) |
+| Adjudication Outcome | Exactly one of three: **Confirmed** (證實), **Refuted** (推翻), **Undecidable** (無法判斷) — see Non-Author Adjudication |
+| Subject Fingerprint | An identifier of the exact thing that was checked (a content hash, a revision id) — so a third party can tell whether it has changed since |
+| Judge | Whatever decides "correct" in a project: tests, assertions, acceptance scenarios, calibration sets, checkers (VE-018, VE-019) |
 
 ---
 
@@ -90,6 +96,8 @@ Every verification must produce a structured evidence record:
 | `output` | string | Yes | Command output (truncated to 2000 chars, preserving key info) |
 | `timestamp` | string | Yes | Execution time in ISO 8601 format |
 | `environment_layer` | string | Conditional | Which layer the evidence came from (`local` / `uat` / `prd`). **Required for any AC with an external service dependency** (SMS, payment, IdP); when absent, the AC's verification level is treated as local-only |
+| `subject_fingerprint` | string | Conditional | Fingerprint of the thing that was checked (content hash, revision id; the tool's version is worth including). **Required for any claim that influences a decision and is adjudicated under VE-013**; optional otherwise (VE-017) |
+| `rerun_method` | string | Conditional | How a third party re-runs the check and gets a result without trusting this record (a command, or a precise procedure). **Required under the same condition as `subject_fingerprint`** (VE-017) |
 
 ---
 
@@ -241,8 +249,67 @@ The following are real verification commands run by an AI agent on 2026-07-17, e
 | `exit_code = 0` but the command could not have measured the claim | Mark as **unverified** — a passing command that ran in the wrong place, or never ran at all, is not evidence |
 | Evidence asserts absence (`0`, empty, "not found") | Mark as **unverified** until the query tool is shown to have executed successfully |
 | Evidence's timestamp precedes the most recent edit to what it verifies | Mark as **stale** — re-run after the edit; do not cite the earlier pass |
+| A claim that influences a decision has only its author's word or its author's self-review | Outcome is **Undecidable** — the author's own check is not adjudication (VE-013) |
 | Multiple verification steps | **All** steps must pass |
 | Agent provides evidence for wrong command | Mark as **unverified** |
+
+---
+
+## Non-Author Adjudication
+
+> **The author of a claim is not its judge.** A claim that only its author has examined has been asserted, not judged.
+
+宣稱的作者不是它的裁判。只有作者自己看過的主張，是被「提出」，不是被「裁決」。
+
+The Iron Law asks for evidence. Evidence Validity asks whether the evidence holds up. Neither asks **who decided** that the evidence supports the claim. When the one who wrote the claim also read the evidence and declared it sufficient, the claim has a single witness, and that witness has a stake in the answer. This section adds the missing question. Its eight rules are VE-013 to VE-020.
+
+This section governs claims that **influence a decision**: "the file exists", "the tests pass", "this vulnerability is not present", "the task is complete". A remark in passing does not need an adjudicator.
+
+### The eight rules
+
+**1. A claim that influences a decision is judged by a non-author (VE-013).**
+
+In order of preference: (a) a **deterministic tool** that reads the real thing, such as a test runner, a type checker or a file-system query; (b) when no tool can decide it, a **fresh agent that has none of the author's context and is told to try to refute the claim**. The author's own re-check is useful as a pre-check, but it **does not count as adjudication**.
+
+**2. Exactly three outcomes, and "Undecidable" is neither false nor a pass (VE-014).**
+
+| Outcome | Meaning | Maps to the older status words |
+|---|---|---|
+| **Confirmed** (證實) | The adjudicator examined the real thing and the claim holds | the evidence stands; no downgrade |
+| **Refuted** (推翻) | The adjudicator examined the real thing and the claim does not hold | **verification failed** — only after VE-007 shows the tool is healthy |
+| **Undecidable** (無法判斷) | The adjudicator could not decide | **unverified** and **stale** |
+
+An outcome of Undecidable must never be recorded as "false", "absent" or "passed". **A query tool that fails, and an adjudicator that raises an error, are always Undecidable** — never Refuted, never Confirmed.
+
+**3. "All confirmed" is not "passed" (VE-015).**
+
+A set of claims that were all confirmed has not passed if the claims were trivia. Claims that can be derived from what is already known, claims that repeat another claim, and claims that refer only to themselves **do not count**. At least one substantive claim must be confirmed. What counts as substantive, and how many are needed, is for the adopting project to define; this standard fixes the principle only.
+
+**4. Refuted claims are remembered; confirmed claims expire with their subject (VE-016).**
+
+A refuted claim is kept as **known false**, together with the fingerprint of what it was checked against. While that fingerprint has not changed, the same claim must not be raised again under a new wording. A claim that depends on a refuted claim is invalid with it. A claim that was confirmed must be **re-verified once its subject's fingerprint changes**.
+
+**5. A record names its subject and how to re-run it (VE-017).**
+
+For any claim adjudicated under VE-013, the evidence record carries `subject_fingerprint` and `rerun_method`, so that a third party can re-run the check instead of trusting the conclusion.
+
+**6. The author does not edit their own judge (VE-018).**
+
+Adding assertions and acceptance scenarios is always allowed. **Deleting, loosening or skipping** an assertion, a scenario or a check is decided by a non-author, and in practice by a human. A change that makes the judge more lenient is the one change an author has a motive to make, so it is the one the author may not adopt alone.
+
+**7. A judge is calibrated before it is trusted (VE-019).**
+
+Before a verification mechanism's pass is cited as evidence, inject **a known fault** into a disposable copy and confirm that the mechanism catches it. Record for each fault: **caught**, **escaped**, or **Undecidable**. **A fault that was not actually injected is Undecidable, never a pass.** Record which layer caught each fault; a fault aimed at one layer must be invisible to the layers before it, or the run measures the earlier layer a second time. See [Mutation Testing](mutation-testing.md) for the fault-injection technique.
+
+**8. One success does not mean stable (VE-020).**
+
+A claim that something is "stable", "reliable" or "will succeed" must carry the result of **k repeated runs, all successful, with k written down**. A single success, or an average success rate alone, does not support the word. A claim whose evidence is one run is **Undecidable**. If some runs succeed and some fail, the result is **unstable**, and unstable is not a pass. How large k is, is the adopting project's decision.
+
+### What this section does not decide
+
+- **Which tool, which agent, which model.** The principle is who judges, not what judges.
+- **Thresholds.** VE-015's "substantive" and VE-020's k are for the adopting project. A number set here would be tied to one project's evidence and would fit no other.
+- **Whether the adjudicator is right.** A fresh agent can be wrong. VE-019 exists so that no judge is trusted before it has been seen to catch a known fault.
 
 ---
 
@@ -282,6 +349,14 @@ Evidence Validity 與 Environment Stratification Matrix 都允許一個被記錄
 | VE-010 | Evidence's `exit_code` comes from a pipeline (esp. under `pipefail`) | The code attributes to no single stage. Capture the output and evaluate content instead | Medium |
 | VE-011 | Evidence's execution timestamp precedes the most recent edit to the artefact it claims to verify | Mark **stale** — not valid evidence for the current state; require a fresh single run captured after the edit | High |
 | VE-012 | A documented evidence/coverage gap (environment-stratification ⚠️/❌, or any check narrower than the claim it supports) has no entry in a dated exception inventory | Disclosure alone does not satisfy this rule — require a registered, dated inventory entry naming the gap and its review/expiry | Required |
+| VE-013 | A claim that influences a decision is judged only by its author (or its author's self-review) | Outcome is Undecidable. Require a deterministic tool, or a fresh agent with no author context told to try to refute the claim | Critical |
+| VE-014 | An adjudication outcome is recorded | Only Confirmed / Refuted / Undecidable. Undecidable is never recorded as false or passed; a failing query tool or adjudicator error is always Undecidable | Critical |
+| VE-015 | A set of claims is all Confirmed | Not a pass unless at least one substantive claim is Confirmed; derivable, repeated and self-referential claims do not count | High |
+| VE-016 | A Refuted claim is raised again, or a Confirmed claim's subject has changed | Keep Refuted claims as known false with the subject fingerprint; do not re-raise the same claim until the subject changes; re-verify Confirmed claims after the subject changes | High |
+| VE-017 | Evidence for a claim adjudicated under VE-013 lacks `subject_fingerprint` or `rerun_method` | Require both, so a third party can re-run the check without trusting the conclusion | Required |
+| VE-018 | The author of a judge (test, assertion, scenario, checker) deletes, loosens or skips part of it | Not adoptable by the author; a non-author (a human) decides. Adding assertions and scenarios is always allowed | Critical |
+| VE-019 | A verification mechanism's pass is cited as evidence but it was never shown to catch a known fault | Inject a known fault into a disposable copy first; caught / escaped / Undecidable per fault; a fault that did not land is Undecidable; record which layer caught each | High |
+| VE-020 | A claim says "stable", "reliable" or "will succeed" | Require k repeated runs, all successful, with k stated; one run or an average rate alone is Undecidable; mixed results are unstable, not a pass | High |
 
 ---
 
@@ -350,6 +425,32 @@ verification_evidence:
 # ✅ single-quoted so ${...} is not expanded by the local shell before transit
 ```
 
+### Bad: A Claim Judged Only By Its Author
+
+```yaml
+claim: "All tests pass."
+adjudicator: "the agent that made the change"
+note: "I re-read the diff and ran the suite in my head; it looks fine."
+# ❌ Violates VE-013: the author is the only witness and no tool ran.
+#    Outcome: Undecidable. It must not be counted as passed or as failed.
+```
+
+### Good: The Same Claim, Adjudicated
+
+```yaml
+claim: "All tests pass."
+adjudicator: "test runner (deterministic tool)"
+outcome: confirmed
+verification_evidence:
+  - command: "npm test"
+    exit_code: 0
+    output: "Tests: 147 passed, 0 failed"
+    timestamp: "2026-11-28T09:30:00Z"
+    subject_fingerprint: "commit 9f3c2ab"
+    rerun_method: "git checkout 9f3c2ab && npm test"
+# ✅ A non-author decided it, and a third party can re-run it (VE-013, VE-017)
+```
+
 ---
 
 ## Related Standards
@@ -362,6 +463,9 @@ verification_evidence:
 - [Agent Dispatch](agent-dispatch.md) — delegated work returns claims that need this standard applied to them
 - [Deployment Standards](deployment-standards.md) — defines the Environment Stratification Responsibility Matrix referenced by VE-005 / VE-006
 - [Class-Level Fix](class-level-fix.md) — the same narrow-coverage-must-be-registered requirement (VE-012), applied to class-level checks rather than to verification evidence
+- [Mutation Testing](mutation-testing.md) — the fault-injection technique behind VE-019's calibration
+- [Verification Oracle](verification-oracle.md) — what a correct answer is and who owns it; VE-013 to VE-020 say who may decide that an answer was reached
+- [Self-Review Protocol](self-review-protocol.md) — an author's own check. Useful as a pre-check; under VE-013 it is not adjudication
 
 ---
 

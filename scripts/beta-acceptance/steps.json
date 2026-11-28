@@ -13974,6 +13974,100 @@
           }
         ]
       }
+    },
+    {
+      "platform": "all",
+      "id": "sec-findings-ranks-confirmed-only",
+      "title": "uds security check-findings accepts a report whose only severity is on a confirmed finding, ranks that finding and keeps the refuted one apart",
+      "titleZh": "uds security check-findings 接受只有已確認發現帶嚴重度的報告，只排序該發現，並把被推翻的另列",
+      "changelog": [
+        "uds security check-findings checks the report of the /security skill"
+      ],
+      "prepare": [
+        {
+          "writeFile": "report.json",
+          "content": "{\"scope\": \"src\", \"completion\": \"incomplete\", \"incomplete_reason\": \"F-2 had no separate verifier\", \"findings\": [{\"id\": \"F-1\", \"title\": \"SQL built by string concatenation\", \"location\": \"src/a.js:10\", \"discovered_by\": \"scan\", \"status\": \"confirmed\", \"severity\": \"high\", \"verified_by\": \"verifier-1\", \"evidence\": \"input reaches the query unescaped\"}, {\"id\": \"F-2\", \"title\": \"Weak hash\", \"location\": \"src/b.js:3\", \"discovered_by\": \"scan\", \"status\": \"unverified\", \"pending_reason\": \"no separate verifier\"}, {\"id\": \"F-3\", \"title\": \"Reflected XSS\", \"location\": \"src/c.js:7\", \"discovered_by\": \"scan\", \"status\": \"refuted\", \"verified_by\": \"verifier-1\", \"refutation_reason\": \"the template escapes this output\"}]}"
+        }
+      ],
+      "uds": [
+        "security",
+        "check-findings",
+        "report.json"
+      ],
+      "expect": {
+        "exit": 0,
+        "contains": [
+          "1 confirmed, 1 unverified, 1 refuted",
+          "1. [high] F-1 ",
+          "REFUTED (kept so it is not raised again):",
+          "INCOMPLETE: F-2 had no separate verifier"
+        ],
+        "notContains": [
+          "CANNOT DECIDE",
+          "violation(s)"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "sec-findings-refuses-severity-on-unverified",
+      "title": "uds security check-findings refuses a severity on an unverified finding and names the finding",
+      "titleZh": "uds security check-findings 拒絕待驗證發現上的嚴重度，並點名該發現",
+      "changelog": [
+        "uds security check-findings checks the report of the /security skill"
+      ],
+      "prepare": [
+        {
+          "writeFile": "report.json",
+          "content": "{\"scope\": \"src\", \"completion\": \"incomplete\", \"incomplete_reason\": \"F-2 had no separate verifier\", \"findings\": [{\"id\": \"F-1\", \"title\": \"SQL built by string concatenation\", \"location\": \"src/a.js:10\", \"discovered_by\": \"scan\", \"status\": \"confirmed\", \"severity\": \"high\", \"verified_by\": \"verifier-1\", \"evidence\": \"input reaches the query unescaped\"}, {\"id\": \"F-2\", \"title\": \"Weak hash\", \"location\": \"src/b.js:3\", \"discovered_by\": \"scan\", \"status\": \"unverified\", \"pending_reason\": \"no separate verifier\", \"severity\": \"medium\"}, {\"id\": \"F-3\", \"title\": \"Reflected XSS\", \"location\": \"src/c.js:7\", \"discovered_by\": \"scan\", \"status\": \"refuted\", \"verified_by\": \"verifier-1\", \"refutation_reason\": \"the template escapes this output\"}]}"
+        }
+      ],
+      "uds": [
+        "security",
+        "check-findings",
+        "report.json"
+      ],
+      "expect": {
+        "exit": 1,
+        "contains": [
+          "SF-002 F-2:",
+          "1 violation(s)"
+        ],
+        "notContains": [
+          "RANKED"
+        ]
+      }
+    },
+    {
+      "platform": "all",
+      "id": "std-verification-evidence-non-author",
+      "title": "The shipped verification-evidence standard is 1.4.0 and carries the non-author rules VE-013 to VE-020",
+      "titleZh": "套件附的 verification-evidence 標準為 1.4.0，含非作者裁決規則 VE-013 至 VE-020",
+      "changelog": [
+        "verification-evidence 1.4.0: a claim that influences a decision is judged by someone other than its author"
+      ],
+      "inspect": true,
+      "expect": {
+        "files": [
+          {
+            "path": "{shipped}/ai/standards/verification-evidence.ai.yaml",
+            "contains": [
+              "version: \"1.4.0\"",
+              "non_author_adjudication:",
+              "id: VE-013",
+              "id: VE-020",
+              "subject_fingerprint"
+            ]
+          },
+          {
+            "path": "{shipped}/core/verification-evidence.md",
+            "contains": [
+              "## Non-Author Adjudication",
+              "| VE-018 |"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

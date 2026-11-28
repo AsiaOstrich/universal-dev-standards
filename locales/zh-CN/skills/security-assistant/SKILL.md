@@ -1,9 +1,9 @@
 ---
 source: ../../../../skills/security-assistant/SKILL.md
-source_version: 1.0.0
-translation_version: 1.1.0
-last_synced: 2026-10-11
-source_hash: a5525e3a2b4b
+source_version: 1.1.0
+translation_version: 1.2.0
+last_synced: 2026-11-28
+source_hash: d43d13d774e2
 status: current
 description: |
   引导安全审查与漏洞评估，遵循 OWASP 标准。
@@ -36,7 +36,7 @@ description: |
 ## 安全审查工作流程
 
 ```
-SCOPE ──► SCAN ──► ANALYZE ──► REPORT
+SCOPE ──► SCAN ──► VERIFY ──► ANALYZE ──► REPORT
 ```
 
 ### 1. Scope — 定义审计范围
@@ -45,13 +45,72 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 ### 2. Scan — 识别漏洞
 检查代码的 OWASP Top 10 模式、检查依赖包、检视配置。
 
-### 3. Analyze — 评估风险
-依严重程度（Critical/High/Medium/Low）和可利用性分类。
+### 3. Verify — 验证：试图推翻每个发现
+扫描产生的每个候选发现，都交给**没有参与发现的验证者**。只由发现者自己裁决的发现，只是被提出，不是被验证（[verification-evidence](../../../../core/verification-evidence.md) VE-013）。
 
-### 4. Report — 记录发现
-产出可行动的发现报告，附带修复建议。
+- **谁来验证**：没有参与扫描的全新 agent、子代理或人。只给它主张、位置与代码，**不给发现者的推理**。以这样的立场开场：“这不是你写的发现，试着从源代码推翻它。”
+- **没有独立验证者**：该发现保持 `unverified`，不得自己确认自己的发现。
+- **只有三种状态**：
+
+| 状态 | 含义 | 可带严重度？ |
+|------|------|--------------|
+| `confirmed` | 验证者试图推翻而失败，并留下证据 | **可以 —— 唯一可带严重度的状态** |
+| `unverified` | 尚无验证者裁决，或验证者无法判断 | **不可以** |
+| `refuted` | 验证者证明该发现不成立 | **不可以** |
+
+被推翻的发现**保留**并写明理由，下次审查才不会换个说法再提一次。待验证的发现既不算通过，也不算不存在。
+
+### 4. Analyze — 评估风险
+只对**已确认**的发现，依严重程度（Critical/High/Medium/Low）和可利用性分类。其他状态的发现不排序。
+
+### 5. Report — 记录发现
+产出可行动的发现报告，附带修复建议，采用下方的结构化格式，并在交出前跑检查。审查只有两种结束方式：**`all_verified`**（没有发现停在 `unverified`），或 **`incomplete`** 并写明原因。不得半途停下而不说明。
+
+## 发现报告格式
+
+```json
+{
+  "scope": "src/auth",
+  "completion": "incomplete",
+  "incomplete_reason": "F-2 had no separate verifier",
+  "findings": [
+    { "id": "F-1", "title": "SQL built by string concatenation", "location": "src/auth/login.js:42",
+      "discovered_by": "scan", "status": "confirmed", "severity": "high",
+      "verified_by": "verifier-1", "evidence": "req.body.user reaches db.exec unescaped",
+      "remediation": "Use a parameterized query" },
+    { "id": "F-2", "title": "Weak password hash", "location": "src/auth/hash.js:8",
+      "discovered_by": "scan", "status": "unverified",
+      "pending_reason": "no separate verifier was available" },
+    { "id": "F-3", "title": "Reflected XSS", "location": "src/ui/view.js:15",
+      "discovered_by": "scan", "status": "refuted",
+      "verified_by": "verifier-1", "refutation_reason": "the template escapes this output" }
+  ]
+}
+```
+
+各状态的字段契约：
+
+- `confirmed`：`severity`（critical / high / medium / low）、`verified_by`、`evidence`；`remediation` 选填。
+- `unverified`：`pending_reason`。**不得有 `severity`。**
+- `refuted`：`verified_by`、`refutation_reason`。**不得有 `severity`，也不得有 `remediation`。**
+- `verified_by` 必须与 `discovered_by` 不同。`completion` 是 `all_verified` 或 `incomplete`；`incomplete` 需要 `incomplete_reason`。
+
+**只有“已确认”的发现可以带严重度（SF-002）。**
+
+### 跑检查
+
+```
+uds security check-findings findings.json
+uds security check-findings - <<'EOF'   # 或由标准输入传入
+{ ...报告... }
+EOF
+```
+
+退出码 `0`：报告符合契约。`1`：不符合（逐条点名），修正后才能交出。`2`：检查无法判断（文件不存在或不是 JSON），**2 不算通过**。检查只判断报告的**形状**，不判断发现是否为真，也不判断验证者是否真的不知道发现过程；那一部分取决于你怎么执行验证阶段。
 
 ## 严重程度分类
+
+只适用于 `confirmed` 的发现。
 
 | 等级 | 标准 |
 |------|------|
@@ -81,12 +140,14 @@ SCOPE ──► SCAN ──► ANALYZE ──► REPORT
 ## 参考
 
 - 核心规范：[security-standards.md](../../../../core/security-standards.md)
+- 谁可以裁决一项主张：[verification-evidence.md](../../../../core/verification-evidence.md)（VE-013 至 VE-020）
 
 ## 版本历史
 
 | 版本 | 日期 | 变更说明 |
 |------|------|----------|
 | 1.0.0 | 2026-03-23 | 初始版本 |
+| 1.1.0 | 2026-11-28 | 新增验证阶段（没有参与发现的验证者；确认／待验证／推翻；只有确认可带严重度）、结构化发现报告与 `uds security check-findings` |
 
 
 ## AI 代理行为

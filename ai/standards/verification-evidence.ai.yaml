@@ -8,8 +8,8 @@ standard:
   description: 驗證證據標準，強化 anti-hallucination
 
   meta:
-    version: "1.3.0"
-    updated: "2026-08-14"
+    version: "1.4.0"
+    updated: "2026-11-28"
     source: core/verification-evidence.md
     description: >
       驗證證據標準 — Iron Law: 無驗證證據不可聲稱完成。
@@ -20,6 +20,10 @@ standard:
       stale evidence); a documented coverage gap must be registered in a dated
       exception inventory, not left as prose alone (VE-012, narrow-coverage
       registration — shared with class-level-fix).
+      v1.4.0: A claim that influences a decision is judged by a non-author, never by
+      its own author (VE-013 to VE-020, XSPEC-432): three outcomes, no padding,
+      known-false memory, re-runnable records, an author may not weaken their own
+      judge, judges are calibrated first, one success is not stability.
     inspired_by: superpowers/verification-before-completion
 
   guidelines:
@@ -33,6 +37,9 @@ standard:
     - "驗證輸出截斷至合理長度（2000 字元）但保留關鍵資訊"
     - "**證據必須晚於它所驗證對象的最後一次編輯**——最近一次執行剛好通過，不代表它驗證的是現狀（VE-011）"
     - "**窄涵蓋必須登記，不能只揭露**——文件化的證據/涵蓋缺口須登記到帶到期日的例外清冊，單純寫下來不算滿足（VE-012）"
+    - "**宣稱的作者不是它的裁判**——影響決策的主張須由非作者裁決：優先確定性工具；無工具時交給不帶作者脈絡、被要求「試圖推翻」的全新 agent；作者自我複查不算裁決（VE-013）"
+    - "**裁決結果只有三種：證實／推翻／無法判斷**；無法判斷不得被計為為假或通過（VE-014）"
+    - "**作者不得修改自己的裁判**——新增斷言一律允許；刪除、放寬、跳過由非作者（人）裁決（VE-018）"
 
   # 以下不構成驗證證據。原本只存在於 zh-TW 譯文裡（英文來源與本檔皆無）——
   # v1.2.0 一併升上來源與本檔（XSPEC-340 R4：譯文比來源更完整，且無 gate 會報）。
@@ -115,6 +122,20 @@ standard:
           收集證據的環境層次（local / uat / prd）。
           對有外部服務依賴的功能為必填——缺少此欄位時，該 AC 的驗收等級視為 local-only。
         example: "uat"
+      - name: subject_fingerprint
+        type: string
+        required: false
+        description: >
+          被檢物的指紋（內容雜湊、修訂版本號；工具版本也值得記）。
+          對「影響決策且依 VE-013 裁決」的主張為必填，其餘情況選填（VE-017）。
+        example: "commit 9f3c2ab"
+      - name: rerun_method
+        type: string
+        required: false
+        description: >
+          第三方如何重跑這項檢查、不必信任本記錄就能得到結果（指令或精確步驟）。
+          與 subject_fingerprint 同條件必填（VE-017）。
+        example: "git checkout 9f3c2ab && npm test"
 
   red_green_cycle:
     description: "回歸測試的 RED → GREEN 驗證"
@@ -134,6 +155,7 @@ standard:
     - "exit_code = 0 但該指令不可能量到它宣稱的東西 → 標記為未驗證"
     - "證據斷言「不存在」（0／空／查無）→ 未證明查詢工具執行成功前，標記為未驗證"
     - "證據的時間戳早於它所驗證對象的最後一次編輯 → 標記為過期（stale），須在編輯後重跑，不得引用更早那次通過"
+    - "影響決策的主張只有作者自己的話或自我複查 → 結果為無法判斷（見 VE-013），不得算通過"
     - "多個驗證步驟 → 所有步驟都必須通過"
 
   rules:
@@ -217,6 +239,83 @@ standard:
         action: "揭露本身不滿足此規則——要求一則登記過、帶到期日的清冊條目，指名缺口與其覆核/到期日期"
         priority: required
 
+  # ── v1.4.0 非作者裁決（XSPEC-432 R1 / DEC-104；R1 第 6、7 條來自 DEC-106，第 8 條來自 DEC-107）──
+  # Iron Law 問「有沒有證據」，證據有效性問「證據成不成立」；兩者都沒問「誰決定證據撐得起主張」。
+  # 寫下主張的那一位若同時讀證據並宣布足夠，主張就只有一個證人，而那位證人與答案有利害關係。
+  # 只訂原則：哪個工具、哪個 agent、哪個模型、門檻數字，都留給採用端決定。
+  non_author_adjudication:
+    description: "影響決策的主張（檔案存在、測試通過、沒有這個漏洞、已完成）由非作者裁決"
+    outcomes:
+      - name: confirmed
+        zh: "證實"
+        meaning: "裁決者檢視了實物，主張成立"
+        maps_to: "證據成立，不降級"
+      - name: refuted
+        zh: "推翻"
+        meaning: "裁決者檢視了實物，主張不成立"
+        maps_to: "驗證失敗——前提是 VE-007 已確認工具健康"
+      - name: undecidable
+        zh: "無法判斷"
+        meaning: "裁決者無法判斷"
+        maps_to: "未驗證、過期（stale）"
+        never_recorded_as: ["false", "absent", "passed"]
+        always_when: ["查詢工具故障", "裁決者自身發生錯誤"]
+    adjudicator_order:
+      - "確定性工具（測試執行器、型別檢查、檔案系統查詢）"
+      - "不帶作者脈絡、被明確要求試圖推翻主張的全新 agent"
+    not_adjudication: "作者自我複查——可作為預檢，但不算裁決"
+    rules:
+      - id: VE-013
+        trigger: "影響決策的主張只由其作者（或作者的自我複查）裁決"
+        action: >
+          結果為無法判斷。要求確定性工具，或不帶作者脈絡、被要求試圖推翻的全新 agent。
+        priority: critical
+      - id: VE-014
+        trigger: "記錄裁決結果"
+        action: >
+          只有證實／推翻／無法判斷三種。無法判斷不得記為為假、不存在或通過；
+          查詢工具故障與裁決者自身錯誤一律歸無法判斷。
+        priority: critical
+      - id: VE-015
+        trigger: "一組主張全部證實"
+        action: >
+          不等於通過：可由已知資訊推得的、重複的、自我指涉的主張不計入；
+          至少須有一項實質主張被證實。何謂實質、需要幾項，由採用端定義。
+        priority: high
+      - id: VE-016
+        trigger: "被推翻的主張被再次提出，或已證實主張的被檢物已變動"
+        action: >
+          被推翻的主張保留為已知為假並附被檢物指紋；指紋未變前不得以相同主張重提
+          （換措辭也不行）；依賴被推翻主張的主張連帶作廢；已證實的主張在被檢物指紋
+          變動後須重驗。
+        priority: high
+      - id: VE-017
+        trigger: "依 VE-013 裁決的主張，其證據缺 subject_fingerprint 或 rerun_method"
+        action: "要求兩者皆有，讓第三方可重跑而非信任結論"
+        priority: required
+      - id: VE-018
+        trigger: "裁判（測試、斷言、驗收情境、檢查器）的作者刪除、放寬或跳過其中一部分"
+        action: >
+          作者不得自行採納，須由非作者（人）裁決。新增斷言與驗收情境一律允許。
+        priority: critical
+      - id: VE-019
+        trigger: "引用某驗證機制的通過結果當證據，但它從未被證明抓得到錯"
+        action: >
+          先在拋棄式複本注入已知錯誤，確認機制抓得到。每個錯記為 caught／escaped／
+          undecidable；錯誤沒有實際注入成功判無法判斷，不得判通過；記錄每個錯由哪一層
+          抓到——瞄準某層的錯須對更早的層不可見，否則是在重複量更早那一層。
+        priority: high
+      - id: VE-020
+        trigger: "宣稱「穩定」「可靠」「會成功」"
+        action: >
+          須附 k 次重跑全數成功的結果並寫出 k；單次成功或只報平均成功率不支持該詞，
+          判無法判斷；重跑中有成有敗記為「不穩定」，不得計為通過。k 由採用端決定。
+        priority: high
+    not_decided_here:
+      - "用哪個工具、哪個 agent、哪個模型——原則是誰裁決，不是用什麼裁決"
+      - "VE-015 的「實質」與 VE-020 的 k 的數值——寫死的數字只貼合某一個專案的證據"
+      - "裁決者本身一定對——全新 agent 也可能錯，所以才有 VE-019 先校正"
+
 physical_spec:
   type: checklist
   validator:
@@ -233,5 +332,13 @@ physical_spec:
     - "exit_code 是否來自管線而非受測指令本身（VE-010）"
     - "證據的執行時間戳是否晚於它所驗證對象的最後一次編輯（VE-011）"
     - "文件化的證據/涵蓋缺口是否登記於帶到期日的例外清冊，而非只有揭露文字（VE-012）"
+    - "影響決策的主張是否由非作者裁決，而非作者自述或自我複查（VE-013）"
+    - "裁決結果是否只有證實／推翻／無法判斷，且無法判斷未被記為為假或通過（VE-014）"
+    - "「全部證實」是否含至少一項實質主張，而非只有可推得、重複或自我指涉的主張（VE-015）"
+    - "被推翻的主張是否保留為已知為假並附指紋，已證實的主張在被檢物變動後是否重驗（VE-016）"
+    - "依 VE-013 裁決的主張是否附 subject_fingerprint 與 rerun_method（VE-017）"
+    - "裁判是否被其作者刪除、放寬或跳過而未經非作者裁決（VE-018）"
+    - "引用的驗證機制是否先注入已知錯誤證明抓得到（VE-019）"
+    - "「穩定」「可靠」的宣稱是否附 k 次重跑全數成功並寫出 k（VE-020）"
     - "Bug fix 是否有 RED → GREEN 循環證據"
     - "有外部服務依賴的 AC 是否標明 environment_layer"
